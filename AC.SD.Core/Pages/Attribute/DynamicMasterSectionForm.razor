@@ -171,14 +171,15 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="Delete"
+         HeaderText="Delete Section"
          Closed="EulaPopupClosed"
          ShowCloseButton="true"
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to delete
+            Do you want to delete section?
         </p>
+        <span style="font-weight:bold;">@_selectedItems?.SectionName</span>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -238,18 +239,18 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="" ColSpanMd="12">
                 @* <DxTreeView @ref="_treeFilterDocView"
-                            @bind-FilterString="FilterDocumentString"
-                            ShowFilterPanel="true"
-                            FilterMode="NavigationFilterMode.EntireBranch"
-                            AllowSelectNodes="true"
-                            SelectionChanged="@SelectionChanged"
-                            Data="@_selectedTreeItems"
-                            LoadChildNodesOnDemand="true">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               HasChildren="HasChildren"
-                                               Children="Children" />
-                    </DataMappings>
+                @bind-FilterString="FilterDocumentString"
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                AllowSelectNodes="true"
+                SelectionChanged="@SelectionChanged"
+                Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
                 </DxTreeView> *@
                 <DxTreeList Data="fileProfileTypeDocumentsAll"
                             VirtualScrollingEnabled="true"
@@ -417,7 +418,7 @@
                     IsReadWrite = editModel.IsReadWrite == true ? true : false,
                     Instruction = editModel.Instruction,
                     SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
-                    IsAutoNumberEnabled=editModel.IsAutoNumberEnabled,
+                    IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
                 };
 
             try
@@ -496,7 +497,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-      //  UpdateDataAsync();
+        //  UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
@@ -662,10 +663,10 @@
         RevokeBack?.Invoke(true);
         addPermissionEnabled = true;
     }
-   void CloseAddPermissionEnabled(PopupClosedEventArgs args)
+    void CloseAddPermissionEnabled(PopupClosedEventArgs args)
     {
-       // RevokeBack?.Invoke(false);
-       // await UpdateDataAsync();
+        // RevokeBack?.Invoke(false);
+        // await UpdateDataAsync();
         addPermissionEnabled = false;
     }
     void OnButtonFileProfileTypeLinDocClick()
@@ -741,8 +742,8 @@
         SelectedDataItems = null;
         _dynamicFormSectionData?.Clear();
         _attributeHeaderData?.Clear();
-        _selectedItems=null;
-        _selectlst=null;
+        _selectedItems = null;
+        _selectlst = null;
         sortOrderList?.Clear();
         _selectedDynamicFormSectionItems = new DynamicFormSection();
         fileProfileTypeDocumentsAll?.Clear();
@@ -750,8 +751,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearDAta();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

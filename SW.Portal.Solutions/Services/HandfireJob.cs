@@ -17,33 +17,39 @@ namespace SW.Portal.Solutions.Services
         }
         public async Task Execute(IJobExecutionContext context)
         {
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavVendor");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavVendor"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndNavVendor");
+            try
+            {
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavVendor");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavVendor"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndNavVendor");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavItems");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavItems"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndNavItems");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavItems");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavItems"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndNavItems");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartFinishedProdOrder");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("FinishedProdOrder"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartItemBatchInfo");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("ItemBatchInfo"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndItemBatchInfo");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartItemBatchInfo");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("ItemBatchInfo"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndItemBatchInfo");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatItem");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatItem"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatItem");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavprodOrder");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavprodOrder"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatPurch");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatPurch"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatPurch");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatItem");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatItem"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatItem");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartFinishedProdOrder");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("FinishedProdOrder"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
 
-            await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatPurch");
-            await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatPurch"));
-            await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatPurch");
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavprodOrder");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavprodOrder"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
+            }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }

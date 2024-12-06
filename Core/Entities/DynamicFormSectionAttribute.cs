@@ -102,6 +102,7 @@ namespace Core.Entities
         public string? FormulaTextBox { get; set; }
         [NotMapped]
         public int? DummyNo { get; set; }
+        public string? ColorCode { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

@@ -333,7 +333,7 @@
 
                     <DxMemo @bind-Text="@types.FormToolTips" Rows="5" />
                 </DxFormLayoutItem>
-                
+
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -346,14 +346,15 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="Delete"
+         HeaderText="Delete Section Attribute"
          ShowCloseButton="true"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to delete
+            Do you want to delete section attribute?
         </p>
+        <span style="font-weight:bold;">@_selectedAttributeItems?.DisplayName</span>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -442,7 +443,7 @@
     public long? DynamicFormSectionId { get; set; }
     bool PanelAttibuteVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData; 
+    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData;
     IGrid? SMAttributeGrid { get; set; }
     private DynamicFormSectionAttribute _selectedAttributeItems;
     IEnumerable<string> TemplateUploadOptions = new[] { "Vertical", "Horizontal" };
@@ -1110,7 +1111,7 @@
         {
             IsFormulaEnabled = true;
         }
-            StateHasChanged();
+        StateHasChanged();
 
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)

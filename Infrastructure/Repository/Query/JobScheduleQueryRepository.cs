@@ -337,68 +337,74 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<string> GetJobScheduleNavFuctionAsync(string JobType)
         {
-            var plantDatas = await GetPlatDatas();
-            if (plantDatas != null && plantDatas.Count() > 0)
+            try
             {
-                if (JobType == "NavItems")
+                var plantDatas = await GetPlatDatas();
+                if (plantDatas != null && plantDatas.Count() > 0)
                 {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetNavItemServicesList(item.PlantID, 1);
-                    }
-                }
-                else if (JobType == "FinishedProdOrder")
-                {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetFinishedProdOrderLineList(item.PlantID);
-                    }
-                }
-                else if (JobType == "ItemBatchInfo")
-                {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetNavItemBatchInfo(item.PlantID);
-                    }
-                }
-                else if (JobType == "NavprodOrder")
-                {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetNavprodOrderLineList(item.PlantID);
-                    }
-                }
-                else if (JobType == "NavVendor")
-                {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetNavVendorList(item.PlantID);
-                    }
-                }
-                else if (JobType == "RawMatPurch")
-                {
-                    foreach (var item in plantDatas)
-                    {
-                        await _queryRepository.GetRawMatPurchList(item.PlantID);
-                    }
-                }
-                else if (JobType == "RawMatItem")
-                {
-                    List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
-                    if (plantDatas != null && plantDatas.Count() > 0)
+                    if (JobType == "NavItems")
                     {
                         foreach (var item in plantDatas)
                         {
-                            await _salesOrderService.RawMatItemAsync(item.NavCompanyName, item.PlantID, "RawMatItem");
-                            await _salesOrderService.PackagingItemAsync(item.NavCompanyName, item.PlantID, "PackagingItem");
-                            await _salesOrderService.ProcessItemAsync(item.NavCompanyName, item.PlantID, "ProcessItem");
+                            await _queryRepository.GetNavItemServicesList(item.PlantID, 1);
                         }
                     }
-                }
-                else
-                {
+                    else if (JobType == "FinishedProdOrder")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetFinishedProdOrderLineList(item.PlantID);
+                        }
+                    }
+                    else if (JobType == "ItemBatchInfo")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetNavItemBatchInfo(item.PlantID);
+                        }
+                    }
+                    else if (JobType == "NavprodOrder")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetNavprodOrderLineList(item.PlantID);
+                        }
+                    }
+                    else if (JobType == "NavVendor")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetNavVendorList(item.PlantID);
+                        }
+                    }
+                    else if (JobType == "RawMatPurch")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetRawMatPurchList(item.PlantID);
+                        }
+                    }
+                    else if (JobType == "RawMatItem")
+                    {
+                        List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                        if (plantDatas != null && plantDatas.Count() > 0)
+                        {
+                            foreach (var item in plantDatas)
+                            {
+                                await _salesOrderService.RawMatItemAsync(item.NavCompanyName, item.PlantID, "RawMatItem");
+                                await _salesOrderService.PackagingItemAsync(item.NavCompanyName, item.PlantID, "PackagingItem");
+                                await _salesOrderService.ProcessItemAsync(item.NavCompanyName, item.PlantID, "ProcessItem");
+                            }
+                        }
+                    }
+                    else
+                    {
 
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
             }
             return string.Empty;
         }

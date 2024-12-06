@@ -187,20 +187,20 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="" ColSpanMd="12">
-                 @* <DxTreeView @ref="_treeFilterDocView"
-                             @bind-FilterString="FilterDocumentString"
-                             ShowFilterPanel="true"
-                             FilterMode="NavigationFilterMode.EntireBranch"
-                             AllowSelectNodes="true"
-                             SelectionChanged="@SelectionChanged"
-                             Data="@_selectedTreeItems"
-                             LoadChildNodesOnDemand="true">
-                     <DataMappings>
-                         <DxTreeViewDataMapping Text="FileName"
-                                                HasChildren="HasChildren"
-                                                Children="Children" />
-                     </DataMappings>
-                 </DxTreeView> *@
+                @* <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                AllowSelectNodes="true"
+                SelectionChanged="@SelectionChanged"
+                Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
+                </DxTreeView> *@
                 <DxTreeList Data="fileProfileTypeDocumentsAll"
                             VirtualScrollingEnabled="true"
                             ShowFilterRow="true"
@@ -250,14 +250,15 @@
 </DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Delete Main Form"
          Closed="EulaPopupClosed"
          CloseOnEscape="false"
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to delete
+            Do you want to delete main Form?
         </p>
+        <span style="font-weight:bold;">@_dynamicFormData?.Name</span>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -298,7 +299,7 @@
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false; bool DynamicFormReportsBypopup { get; set; } = false;
     bool DeleteEnabled { get; set; } = false; bool IsApprovalEnabled { get; set; } = false; bool Clonepopup { get; set; } = false;
-    int ActiveSubTabIndex { get; set; } = 0;bool Blukdeletepopup { get; set; } = false;
+    int ActiveSubTabIndex { get; set; } = 0; bool Blukdeletepopup { get; set; } = false;
     private DynamicForm Data = new DynamicForm();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
@@ -348,7 +349,7 @@
     void SelectedPlantChanged(long? country)
     {
         Data.CompanyId = null;
-        if (country>0)
+        if (country > 0)
         {
             Data.CompanyId = country;
         }
@@ -356,7 +357,7 @@
     void SelectedProfileChanged(long? country)
     {
         Data.ProfileId = null;
-        if (country>0)
+        if (country > 0)
         {
             Data.ProfileId = country;
         }
@@ -365,9 +366,9 @@
     {
         refDynamicFormReports?.DisposeAsync();
         DynamicFormPage7?.Dispose();
-       // System.GC.Collect();
+        // System.GC.Collect();
         fileProfileTypeDocumentsAll?.Clear();
-        refDynamicFormApproval?.DisposeAsync(); 
+        refDynamicFormApproval?.DisposeAsync();
         refDynamicFormWorkFlows?.DisposeAsync();
         refDynamicMasterSectionForm?.DisposeAsync();
         Data = new DynamicForm();
@@ -375,7 +376,7 @@
         _selectedTreeItems = null;
         _plantItems?.Clear();
         _documentProfileNoList?.Clear();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {

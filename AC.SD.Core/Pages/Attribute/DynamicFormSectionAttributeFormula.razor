@@ -17,7 +17,7 @@
         var cursorPos = $('#TextareaSpinInsert').prop('selectionStart');
         var v = $('#TextareaSpinInsert').val();
         if (v != null) {
-           // v = v.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            // v = v.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
             v = v.replace(/["',`~!#&=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
         }
         var textBefore = v.substring(0, cursorPos);
@@ -131,19 +131,21 @@
                         </div>
                     </div>
                 </DxFormLayoutItem>
-               @*   <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
-                     <DxTextBox @bind-Text="@Data.FormulaSetTextBox" ShowValidationIcon="true" />
-                 </DxFormLayoutItem> *@
+                
                 <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
                     <textarea rows="5" id="TextareaSpinInsert" style="width:100%;display:none;" @onkeyup="@((e) => onchangeFormulaTextBox())"></textarea>
                     <DxMemo @bind-Text="@Data.FormulaTextBox" style="display:none;" />
                     <ValidationMessage For="@(() => Data.FormulaTextBox)" style="font-weight:bold;" />
                 </DxFormLayoutItem>
+               @*  <DxFormLayoutItem Caption="Color Code" ColSpanMd="6">
+                    <input type="color" @bind="Data.ColorCode" />
+                </DxFormLayoutItem> *@
             </DxFormLayout>
         </EditForm>
     </div>
 </div>
 @code {
+
     EditContext _editContext;
     [Parameter]
     public Action? RevokeBack { get; set; }

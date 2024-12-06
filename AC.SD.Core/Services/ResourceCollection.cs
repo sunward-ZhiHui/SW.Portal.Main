@@ -14,7 +14,7 @@ namespace AC.SD.Core.Services
             return new List<Resource>() {
                 new Resource() { Id=0 , Name="Email", GroupId=100, BackgroundCss="dxbl-blue-color", TextCss="text-white" },
                 new Resource() { Id=1 , Name="Todo", GroupId=100, BackgroundCss="dxbl-pink-color", TextCss="text-white" },
-                new Resource() { Id=2 , Name="Appointments", GroupId=100, BackgroundCss="dxbl-purple-color", TextCss="text-white" }               
+               // new Resource() { Id=2 , Name="Appointments", GroupId=100, BackgroundCss="dxbl-purple-color", TextCss="text-white" }               
             };
         }
         public static List<Resource> GetResourceGroups()

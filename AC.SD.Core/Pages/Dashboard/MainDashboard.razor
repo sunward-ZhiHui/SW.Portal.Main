@@ -1,4 +1,5 @@
 ﻿@using System.Collections.Generic
+@using AC.SD.Core.Pages.Masters
 @using DevExpress.Blazor
 @layout MainLayout
 @using Application.Queries;
@@ -27,11 +28,17 @@
                         <Dashboard></Dashboard>
                     </div>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Appointments" Click="OnAppoinmentClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <Appointements @ref="refappointements"></Appointements>
+                    </div>
+                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnDynamicFormApprovalClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <DynamicFormPendingApproval @ref="refDynamicFormPendingApproval"></DynamicFormPendingApproval>
                     </div>
-                </DxFormLayoutTabPage>                
+                </DxFormLayoutTabPage>
+              
                 <DxFormLayoutTabPage Caption="Approved Status" Click="OnApprovedStatusClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <ApprovalDynamicDataForm @ref="refApprovalDynamicDataForm"></ApprovalDynamicDataForm>
@@ -55,6 +62,7 @@
     private MemoUserLists refMemoLists;
     private DynamicFormSectionApprovedPage refDynamicFormWorkFlowSectionApprovals;
     private DynamicFormPendingApproval refDynamicFormPendingApproval;
+    private Appointements refappointements;
     private ApprovalDynamicDataForm refApprovalDynamicDataForm;
     [Parameter]
     public int ActiveIndex { get; set; } = 0;    
@@ -106,6 +114,13 @@
     }
     void OnDynamicFormApprovalClick(TabClickEventArgs e)
     {
+        NavigationManager.NavigateTo($"Dashboard/2");
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        StateHasChanged();
+    }
+    void OnAppoinmentClick(TabClickEventArgs e)
+    {
         NavigationManager.NavigateTo($"Dashboard/1");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
@@ -113,21 +128,21 @@
     }
     void OnApprovedStatusClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/2");
+        NavigationManager.NavigateTo($"Dashboard/3");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnDynamicFormSectionApprovalClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/3");
+        NavigationManager.NavigateTo($"Dashboard/4");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnMemoClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/4");
+        NavigationManager.NavigateTo($"Dashboard/5");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();

@@ -430,4 +430,17 @@ namespace Application.Handlers.QueryHandlers
             return await _productionactivityQueryRepository.UpdateTimesheetV1Status(request.ProductionRoutineAppID);
         }
     }
+
+    public class GetDynamicFormDataAllByDropDownHandler : IRequestHandler<GetDynamicFormDataAllByDropDown, List<DropDownOptionsModel>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public GetDynamicFormDataAllByDropDownHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<DropDownOptionsModel>>  Handle(GetDynamicFormDataAllByDropDown request, CancellationToken cancellationToken)
+        {
+            return (List<DropDownOptionsModel>)await _productionactivityQueryRepository.GetDynamicFormDataAllByDropDownAsync();
+        }
+    }
 }

@@ -488,6 +488,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IpirApp> UpdateIpirSupervisor(IpirApp value)
         {
+            var Date = DateTime.Now;
             try
             {
                 using (var connection = CreateConnection())
@@ -498,7 +499,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IpirAppId", value.IpirAppId);
                         parameters.Add("ProdOrderNo", value.ProdOrderNo);
                         parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
-                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                        parameters.Add("ModifiedDate", Date);
                         parameters.Add("StatusType", value.StatusType);
                         parameters.Add("FPDD", value.FPDD);
                         parameters.Add("ProcessDD", value.ProcessDD);
@@ -509,12 +510,15 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StatusCodeID", value.StatusCodeID);
                         parameters.Add("FixedAssetNo", value.FixedAssetNo, DbType.String);
                         parameters.Add("Comment", value.Comment, DbType.String);
-                      
+                        parameters.Add("LocationID", value.LocationID);
+                       
+                        parameters.Add("MachineName", value.MachineName);
+
                         parameters.Add("ActivityStatusId", value.ActivityStatusId);
                         if (value.IpirAppId > 0)
                         {
 
-                            var query = "Update IpirApp Set ProdOrderNo = @ProdOrderNo, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
+                            var query = "Update IpirApp Set MachineName = @MachineName, LocationID = @LocationID, ProdOrderNo = @ProdOrderNo, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
                             "FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 

@@ -1,0 +1,952 @@
+﻿@page "/ProductionTimeSheetV1ReportJobType"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject ClipboardService ClipboardService
+
+
+<div class="col-md-12">
+    <div style="border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutItem Caption="Category:" ColSpanMd="3">
+                            <DxComboBox Data="@_categoryItems"
+                                        NullText="Select Category ..."
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Value"
+                                        ValueFieldName="ApplicationMasterChildId"
+                                        @bind-Value="FilterData.ProdActivityCategoryChildId"
+                                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Action:" ColSpanMd="3">
+                            <DxComboBox Data="@_actionItems"
+                                        NullText="Select ActionDropdown..."
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Value"
+                                        ValueFieldName="ApplicationMasterChildId"
+                                        @bind-Value="FilterData.ProdActivityActionChildD"
+                                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Routine Info:" ColSpanMd="3">
+                            <DxComboBox Data="@_RoutineInfoItems"
+                                        NullText="Select Routine Info..."
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Text"
+                                        ValueFieldName="AttributeDetailID"
+                                        @bind-Value="FilterData.DynamicFormDataRoutinInfoId"
+                                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanMd="3">
+                            <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(()=> OnFilterDocuments()) />
+                            <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Info" Text="Export" Click=@(()=> ExportXlsx_Click()) />
+                        </DxFormLayoutItem>
+                    </DxFormLayout>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="border: 1px solid #b2afaf;padding:10px;">
+
+
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <DxLoadingPanel @bind-Visible="PanelVisible"
+                                    IsContentBlocked="true"
+                                    ApplyBackgroundShading="true"
+                                    IndicatorAreaVisible="false"
+                                    Text="Fetching Data...">
+                        <DxGrid @ref="AppLine"
+                                Data="_AppLines" VirtualScrollingEnabled="true"
+                                KeyFieldName="ProductionActivityRoutineAppLineId"
+                                EditMode="GridEditMode.EditForm"
+                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                PageSizeSelectorVisible="true"
+                                PageSizeSelectorAllRowsItemVisible="true"
+                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                PageSize="20" CustomizeElement="Grid_CustomizeElement"
+                                RowClick="OnRowClick"
+                                FocusedRowEnabled="true"
+                                AllowSelectRowByClick="true"
+                                SelectionMode="GridSelectionMode.Single"
+                                CssClass="ch-360"
+                                style="height: calc(100vh - 300px);">
+                            <Columns>
+
+                                <DxGridDataColumn FieldName="AddedDate" Caption="Date/Time" MinWidth="180">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            var item = (ProductionActivityRoutineAppModel)context.DataItem;
+                                            var startDate = string.Empty;
+                                            if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                                            {
+                                                startDate = item.AddedDate?.ToString("dd-MMM-yyyy HH:mm tt");
+                                            }
+                                        }
+                                        @startDate
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                                <DxGridDataColumn Caption="By" FieldName="AddedByUser" MinWidth="180" />
+                                <DxGridDataColumn Caption="Status" FieldName="StatusName" MinWidth="180" />
+                                <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
+                                <DxGridDataColumn Caption="Comment" FieldName="LineComment" MinWidth="180">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            var item = (ProductionActivityRoutineAppModel)context.DataItem;
+                                            var comments = string.IsNullOrEmpty(item.LineComment) ? "" : (item.LineComment.Length > 50 ? (new string(item.LineComment.Take(50).ToArray())) : item.LineComment);
+                                        }
+                                        <span title="@item.LineComment">@comments</span>
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                                <DxGridDataColumn Caption="Others" FieldName="Others" MinWidth="180">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            var item = (ProductionActivityRoutineAppModel)context.DataItem;
+                                            var others = string.IsNullOrEmpty(item.Others) ? "" : (item.Others.Length > 50 ? (new string(item.Others.Take(50).ToArray())) : item.Others);
+                                        }
+                                        <span title="@item.Others">@others</span>
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                                <DxGridDataColumn Caption="Type" FieldName="StatusType" MinWidth="180" />
+                                <DxGridDataColumn Caption="Details" FieldName="FPDDName" MinWidth="180" />
+
+                                @*  <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" Visible="false" /> *@
+
+
+                                @* <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
+                                <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
+                                <DxGridDataColumn Caption="Routine Info" FieldName="RoutineInfoStatus" MinWidth="180" /> *@
+                            </Columns>
+                            <TotalSummary>
+                                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AddedByUser" />
+                            </TotalSummary>
+
+                        </DxGrid>
+                    </DxLoadingPanel>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="Add TimeSheetV1"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <AddTimeSheetV1PopupApp @ref="RefToDoLeftNotes" RevokeBack="ClosePopup" _selectedEditItems="@_selectedEditItems"></AddTimeSheetV1PopupApp>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@PopupFormUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
+    <BodyContentTemplate>
+        <UploadProductionTimeSheetV1Files _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionTimeSheetV1Files>
+    </BodyContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.ProductionActivityRoutineAppLineId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Update Description"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                <DxMemo @bind-Text="@_selectedDescriptionItems.LineComment" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="CloseUploadPopup"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
+    </BodyContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupVisible"
+         ShowFooter="true"
+         HeaderText="Document History"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.DMS.HistoryPopup selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.HistoryPopup>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@BlukdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Document
+        </p>
+        <strong>@DeleteDocumentName</strong>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDeleteProductionActivityAppLine" />
+
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@SupportingDocumentsPopup"
+         ShowFooter="true"
+         HeaderText="Supporting Documents"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <RoutineSupportingDocumentsV1 selectedFiles="@_selectedItems"></RoutineSupportingDocumentsV1>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@OperatorsPopup"
+         ShowFooter="true"
+         HeaderText="@OperatorsNonCom"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <RoutineOpeartorsV1 Type="Production Routine" ActionType="@ActionType" selectedFiles="@_selectedItems"></RoutineOpeartorsV1>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@ActivityEmailPopup"
+         ShowFooter="false"
+         HeaderText="Activity Email"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <TimeSheetV1Emails selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></TimeSheetV1Emails>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    private List<ViewEmployee>? _usersList;
+    private List<ApplicationMasterChildModel> _categoryItems;
+    private List<ApplicationMasterChildModel> _actionItems;
+    private List<DropDownOptionsModel> _RoutineInfoItems;
+    bool ActivityEmailPopup { get; set; } = false;
+    bool OperatorsPopup { get; set; } = false;
+    bool BlukdeleteDocument { get; set; } = false;
+    public string DeleteDocumentName { get; set; }
+    public bool PopupVisible { get; set; } = false;
+    private DocumentsModel? _selectedDocItems;
+    public long? FileProfileTypeId { get; set; }
+    public Guid? FileProfileSessionId { get; set; }
+    public Guid? UploadSessionId { get; set; }
+    int ActiveTabIndex { get; set; } = 0;
+    long? CompanyID;
+    string? NAVProdOrderno;
+    long? LocationID;
+    EditContext _editContext;
+    bool PopupFormUpload { get; set; } = false;
+    public string? OperatorsNonCom { get; set; } = "";
+    public string? ActionType { get; set; } = "";
+    private List<ViewPlants> _plantItems;
+    private List<ProductionActivityApp> _productionActivities;
+    private List<NavprodOrderLineModel> _ponumberActivities;
+    private List<NavprodOrderLineModel> _poOrderDetails;
+
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid? AppLine { get; set; }
+    IGrid? _PoAppLine { get; set; }
+    private List<ProductionActivityRoutineAppModel> _AppLines;
+    bool AddPopup { get; set; } = false; bool PanelVisible { get; set; } = true;
+    bool PopupLocationScanVisible { get; set; } = false;
+    ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
+    private AddTimeSheetV1PopupApp? RefToDoLeftNotes { get; set; }
+
+    private string? LocationName; private string? TicketNo;
+    private ProductionActivityRoutineAppModel? _selectedItems;
+    private ProductionActivityRoutineAppModel? _selectedEditItems;
+    bool uploadEnabled { get; set; } = false;
+    ProductionActivityRoutineAppModel _selectedDescriptionItems = new ProductionActivityRoutineAppModel();
+    bool IsDescriptionOpen { get; set; } = false;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    DocumentsModel _documentsItems = new DocumentsModel();
+    DocumentsModel selectedFiles = new DocumentsModel();
+    public bool PopupUpload { get; set; } = false;
+    public bool SupportingDocumentsPopup { get; set; } = false;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public string isVisibleMore { get; set; } = "display:none;";
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
+    public bool EditEnabled { get; set; } = false;
+    public bool DownloadEnabled { get; set; } = false;
+    public bool DeleteEnabled { get; set; } = false;
+    public bool ObsoleteEnabled { get; set; } = false;
+    public bool HistoryEnabled { get; set; } = false;
+    public bool CheckOutEnabled { get; set; } = false;
+    public bool CheckInEnabled { get; set; } = false;
+    public bool viewEnabled { get; set; } = false;
+    public bool NotifyEnabled { get; set; } = false;
+    public bool CopyLinkEnabled { get; set; } = false;
+    public bool MailEnabled { get; set; } = false;
+    public bool SupportDocEnabled { get; set; } = false;
+    public bool NonComplianceEnabled { get; set; } = false;
+    public bool OperatorEnabled { get; set; } = false;
+
+    ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        UploadSessionId = null; FileProfileTypeId = null;
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("109"));
+        _actionItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("112"));
+        var res = await Mediator.Send(new GetDynamicFormDataAllByDropDown());
+        if (res != null && res.Count() > 0)
+        {
+            _RoutineInfoItems = res.Where(w => w.Value == "Routine Info".ToLower()).ToList();
+        }
+        await onLoadDataList();
+    }
+    async Task OnFilterDocuments()
+    {
+        await onLoadDataList();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await AppLine.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    public async Task onLoadDataList()
+    {
+        isVisibleMore = "display:none;";
+        EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+        HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false;
+        _AppLines = new List<ProductionActivityRoutineAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
+        //  FilterData = new ProductionActivityRoutineAppModel();
+        // if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        // if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
+
+       // FilterData.CompanyId = CompanyID;
+        FilterData.LotNo = Data.LotNo;
+        FilterData.ItemName = Data.ItemName;
+        // FilterData.AddedByUserID = applicationUser.UserID;
+        // FilterData.GetTypes = "User";
+        FilterData.LocationId = LocationID;
+        FilterData.TimeSheetAction = true;
+        FilterData.ActionType = "TimeSheetV1";
+        _AppLines = await Mediator.Send(new GetAllTimeSheetV1Query(FilterData));
+
+        _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, Data.LotNo));
+        if (_AppLines.Count() > 0)
+        {
+            _selectedItems = _AppLines.FirstOrDefault();
+            isVisibleMore = "";
+            if (_selectedItems != null)
+            {
+                if (_selectedItems.FileProfileTypeId > 0)
+                {
+                    FileProfileSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FileProfileTypeId)?.SessionID;
+                }
+                if (_selectedItems.DocumentID > 0)
+                {
+                    uploadEnabled = false;
+                }
+                else
+                {
+                    uploadEnabled = true;
+                    UploadSessionId = _selectedItems.LineSessionId;
+                    FileProfileTypeId = _selectedItems.LocationToSaveId;
+
+                }
+                await permissinSetMainProfile();
+                if (_selectedItems.StatusID == 3401)
+                {
+                    DeleteEnabled = false;
+                    ObsoleteEnabled = true;
+
+                }
+                else
+                {
+
+                    DeleteEnabled = true;
+                    ObsoleteEnabled = false;
+
+                }
+            }
+        }
+        PanelVisible = false;
+
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+
+    async Task permissinSetMainProfile()
+    {
+        isVisibleMore = "display:none;";
+        EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+        HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false;
+        if (_selectedItems != null)
+        {
+
+            if (applicationUser.UserID == _selectedItems.AddedByUserID)
+            {
+                isVisibleMore = "";
+                EditEnabled = true; DeleteEnabled = true;
+                NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+                NonComplianceEnabled = true; OperatorEnabled = true;
+                if (_selectedItems.DocumentID > 0)
+                {
+                    CheckOutEnabled = true; CheckInEnabled = false;
+                    DownloadEnabled = true; CopyLinkEnabled = true; HistoryEnabled = true; viewEnabled = true;
+
+                    if (_selectedItems.IsLocked == true)
+                    {
+                        CheckOutEnabled = false;
+                        CheckInEnabled = true;
+                        EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                        HistoryEnabled = false;
+                        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                        NonComplianceEnabled = false; OperatorEnabled = false;
+                    }
+
+                }
+
+            }
+            else
+            {
+                if (_selectedItems.ResponsibilityUsers.Count() == 0 || _selectedItems.ResponsibilityUsers.Contains(applicationUser.UserID))
+                {
+                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FileProfileTypeId, applicationUser.UserID, _selectedItems.DocumentID));
+                    if (documentPermissionModels != null)
+                    {
+                        if (documentPermissionModels.IsPermissionExits == true)
+                        {
+                            isVisibleMore = "";
+                            EditEnabled = true; DownloadEnabled = true; DeleteEnabled = true;
+                            HistoryEnabled = true; CheckOutEnabled = true; CheckInEnabled = false;
+                            viewEnabled = true; NotifyEnabled = true; CopyLinkEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+                            NonComplianceEnabled = true; OperatorEnabled = true;
+                            if (_selectedItems.DocumentID > 0)
+                            {
+                                CheckOutEnabled = true; CheckInEnabled = false;
+                                DownloadEnabled = true; CopyLinkEnabled = true; HistoryEnabled = true; viewEnabled = true;
+
+                                if (_selectedItems.IsLocked == true)
+                                {
+                                    CheckOutEnabled = false;
+                                    CheckInEnabled = true;
+                                    EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                                    HistoryEnabled = false;
+                                    viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                                    NonComplianceEnabled = false; OperatorEnabled = false;
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            if (_selectedItems.IsLocked == true)
+                            {
+                                CheckOutEnabled = false;
+                                CheckInEnabled = true;
+                                EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                                HistoryEnabled = false;
+                                viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                                NonComplianceEnabled = false; OperatorEnabled = false;
+                            }
+                            else
+                            {
+                                MailEnabled = true;
+                                if (documentPermissionModels.IsDelete == true)
+                                {
+                                    DeleteEnabled = true;
+                                }
+                                if (_selectedItems.DocumentID > 0)
+                                {
+
+                                    if (documentPermissionModels.IsEdit == true)
+                                    {
+                                        DownloadEnabled = true;
+                                    }
+                                    if (documentPermissionModels.IsRead == true)
+                                    {
+                                        viewEnabled = true;
+                                    }
+                                    if (documentPermissionModels.IsListVersion == true)
+                                    {
+                                        HistoryEnabled = true;
+                                    }
+                                    if (documentPermissionModels.IsCopy == true)
+                                    {
+                                        CopyLinkEnabled = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (_selectedItems.StatusID == 3401)
+            {
+                DeleteEnabled = false;
+            }
+        }
+        StateHasChanged();
+    }
+
+
+    async void SelectedItemprod(string? NAVProdOrder)
+    {
+
+        NAVProdOrderno = string.Empty;
+        if (!string.IsNullOrEmpty(NAVProdOrder))
+        {
+            NAVProdOrderno = NAVProdOrder;
+            await onLoadDataList();
+        }
+        else
+        {
+            _AppLines = new List<ProductionActivityRoutineAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        }
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionActivityRoutineAppLineId");
+        _selectedItems = _AppLines.FirstOrDefault(f => f.ProductionActivityRoutineAppLineId == (long?)UniqueId);
+        UploadSessionId = null; FileProfileTypeId = null; uploadEnabled = false;
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.FileProfileTypeId > 0)
+            {
+                FileProfileSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FileProfileTypeId)?.SessionID;
+            }
+            if (_selectedItems.DocumentID > 0)
+            {
+                uploadEnabled = false;
+            }
+            else
+            {
+                uploadEnabled = true;
+                UploadSessionId = _selectedItems.LineSessionId;
+                FileProfileTypeId = _selectedItems.LocationToSaveId;
+
+            }
+            if (_selectedItems.StatusID == 3401)
+            {
+                DeleteEnabled = false;
+                ObsoleteEnabled = true;
+
+            }
+            else
+            {
+
+                DeleteEnabled = true;
+                ObsoleteEnabled = false;
+
+            }
+            await permissinSetMainProfile();
+        }
+        StateHasChanged();
+    }
+    void ClosePopup()
+    {
+        AddPopup = false;
+        InvokeAsync(onLoadDataList);
+    }
+    void addNew()
+    {
+        _editContext.Validate();
+    }
+    void addvalidate()
+    {
+
+        AddPopup = true;
+        _selectedEditItems = null;
+    }
+    void addEdit()
+    {
+        // addNew();
+        //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        // if (CompanyID > 0)
+        // {
+        _selectedEditItems = _selectedItems;
+        AddPopup = true;
+        // }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        AddPopup = false;
+    }
+    void OnButtonClick()
+    {
+        PopupLocationScanVisible = true;
+    }
+
+
+
+
+
+    void addUploadFilesPopup()
+    {
+        PopupFormUpload = true;
+    }
+    void BackUpload()
+    {
+        PopupFormUpload = false;
+        ClosePopup();
+        StateHasChanged();
+
+    }
+    void OnButtonDescriptionClick(ProductionActivityRoutineAppModel items)
+    {
+        IsDescriptionOpen = true;
+        _selectedDescriptionItems = new ProductionActivityRoutineAppModel();
+        _selectedDescriptionItems.ProductionActivityRoutineAppLineId = items.ProductionActivityRoutineAppLineId;
+        _selectedDescriptionItems.LineComment = items.LineComment;
+        _selectedDescriptionItems.ModifiedDate = DateTime.Now;
+        _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
+    }
+    async Task OnUpdateDescription()
+    {
+        await Mediator.Send(new GetUpdateproductActivityRoutineAppLineCommentField(_selectedDescriptionItems));
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsDescriptionOpen = false;
+        await onLoadDataList();
+        StateHasChanged();
+    }
+    async void onView()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    async Task Download()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
+        }
+    }
+    async Task onCheckOut()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            _documentsItems.DocumentID = _selectedItems.DocumentID.Value;
+            _selectedItems.IsLocked = true;
+            _selectedItems.LockedByUserId = applicationUser.UserID;
+            _selectedItems.LockedByUser = applicationUser.UserName;
+            await Mediator.Send(new GetFileProfileTypeCheckOut(_documentsItems));
+            _selectedItems.IsLocked = true;
+            _selectedItems.LockedByUserId = applicationUser.UserID;
+            _selectedItems.LockedByUser = applicationUser.UserName;
+            await permissinSetMainProfile();
+            await Download();
+        }
+    }
+    private async Task onCopy()
+    {
+
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+        }
+    }
+    void onCheckin()
+    {
+        FolderPathLists = new List<DocumentsModel>(); _selectedDocItems = new DocumentsModel();
+        if (_selectedItems != null && _selectedItems.FileProfileTypeId > 0)
+        {
+            var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == _selectedItems.FileProfileTypeId).FirstOrDefault();
+            FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+            FolderPathLists.Add(fileType);
+            _selectedDocItems.FileName = _selectedItems.FileName;
+            _selectedDocItems.DocumentID = _selectedItems.DocumentId.Value;
+            _selectedDocItems.Extension = _selectedItems.FileName != null ? _selectedItems.FileName?.Split(".").Last() : "";
+            _selectedDocItems.ContentType = _selectedItems.ContentType;
+            _selectedDocItems.IsExpiryDate = fileType.IsExpiryDate;
+            _selectedDocItems.DocumentParentId = _selectedItems.DocumentParentId;
+            _selectedDocItems.ProfileID = fileType.ProfileID;
+            _selectedDocItems.SessionID = _selectedItems.LineSessionId;
+            _selectedDocItems.ProfileNo = _selectedItems.ProfileNo;
+            _selectedDocItems.FileProfileTypeId = _selectedItems.FileProfileTypeId;
+            PopupUpload = true;
+        }
+
+    }
+    void CloseUploadPopup()
+    {
+        PopupUpload = false;
+        InvokeAsync(onLoadDataList);
+        StateHasChanged();
+    }
+    void onHistory()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            selectedFiles.DocumentID = _selectedItems.DocumentID.Value;
+            selectedFiles.Type = "Document";
+            selectedFiles.DocumentID = _selectedItems.DocumentID.Value;
+            selectedFiles.FilterProfileTypeId = _selectedItems.FileProfileTypeId;
+            selectedFiles.DocumentParentId = _selectedItems.DocumentParentId;
+            selectedFiles.SessionID = _selectedItems.LineSessionId;
+            PopupVisible = true;
+        }
+
+    }
+    void CloseHistoryPopup()
+    {
+        ActivityEmailPopup = false;
+        PopupVisible = false;
+        SupportingDocumentsPopup = false;
+        OperatorsPopup = false;
+        InvokeAsync(onLoadDataList);
+        StateHasChanged();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    async Task onUpdate()
+    {
+        if (_selectedItems != null && _selectedItems.ProductionActivityRoutineAppId > 0)
+        {
+
+            await Mediator.Send(new UpdateStatusTimesheetV1(_selectedItems.ProductionActivityRoutineAppId));
+            toastService.ShowToast("Status Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await onLoadDataList();
+        }
+    }
+    void onDeleteDocument()
+    {
+        DeleteDocumentName = _selectedItems.FileName;
+        BlukdeleteDocument = true;
+    }
+    void EulaPopupDocumentClosed(PopupClosedEventArgs args)
+    {
+        BlukdeleteDocument = false;
+    }
+    async Task onDeleteProductionActivityAppLine()
+    {
+        if (_selectedItems != null && _selectedItems.ProductionActivityRoutineAppLineId > 0)
+        {
+            BlukdeleteDocument = false;
+            await Mediator.Send(new DeleteproductActivityRoutineAppLine(_selectedItems));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await onLoadDataList();
+        }
+    }
+    void onSupportingDocuments()
+    {
+        SupportingDocumentsPopup = true;
+    }
+    void onOperators(string? actionType, string? typeFrom)
+    {
+        OperatorsNonCom = typeFrom;
+        ActionType = actionType;
+        OperatorsPopup = true;
+        StateHasChanged();
+    }
+    void onCloseOperators()
+    {
+        OperatorsPopup = false;
+        StateHasChanged();
+    }
+    async Task onEmailOpen()
+    {
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_AppLines != null)
+        {
+            _AppLines.Clear();
+            _AppLines = null;
+        }
+        if (_poOrderDetails != null)
+        {
+            _poOrderDetails.Clear();
+            _poOrderDetails = null;
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+            _productionActivities = null;
+        }
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+            _ponumberActivities = null;
+        }
+        if (fileProfileTypeDocumentsAll != null)
+        {
+            fileProfileTypeDocumentsAll.Clear();
+            fileProfileTypeDocumentsAll = null;
+        }
+        FilterData = null;
+        FolderPathLists = null;
+        selectedFiles = null;
+        _documentsItems = null;
+        _selectedEditItems = null;
+        _selectedItems = null;
+        _selectedDocItems = null;
+
+        _selectedDescriptionItems = new ProductionActivityRoutineAppModel();
+
+        RefToDoLeftNotes?.DisposeAsync();
+    }
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
+}
+
+

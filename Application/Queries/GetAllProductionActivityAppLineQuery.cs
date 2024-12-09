@@ -313,4 +313,9 @@ namespace Application.Queries
             this.ProductionRoutineAppID = ProductionRoutineAppID;
         }
     }
+    public class GetDynamicFormDataAllByDropDown : PagedRequest, IRequest<List<DropDownOptionsModel>>
+    {
+        
+    }
+    
 }

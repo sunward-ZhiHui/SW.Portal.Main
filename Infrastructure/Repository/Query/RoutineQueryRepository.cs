@@ -207,6 +207,52 @@ namespace Infrastructure.Repository.Query
                 return false;
             }
         }
+        public async Task<List<DropDownOptionsModel>> GetDynamicFormDataAllByDropDownAsync()
+        {
+            try
+            {
+                List<DropDownOptionsModel> dropDownOptionsModels = new List<DropDownOptionsModel>();
+                List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
+                var query = string.Empty;
+                query += "select t1.DynamicFormDataId, t1.DynamicFormItem from DynamicFormData t1 \r\nJOIN dynamicform t2 ON t2.ID=t1.DynamicFormID \r\nwhere (t1.isDeleted is Null OR t1.isDeleted=0) and dynamicformId=10 AND t2.ScreenID='TimelineDropdown'";
+
+                query += "select * from AttributeDetails where attributeid=39;";
+                var DynamicFormData = new List<DynamicFormData>(); var AttributeDetails = new List<AttributeDetails>();
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryMultipleAsync(query);
+                    DynamicFormData = result.Read<DynamicFormData>().ToList();
+                    AttributeDetails = result.Read<AttributeDetails>().ToList();
+                }
+                if (DynamicFormData != null && DynamicFormData.Count > 0)
+                {
+                    foreach (var item in DynamicFormData)
+                    {
+                        if (item.DynamicFormItem != null && IsValidJson(item.DynamicFormItem))
+                        {
+                            dynamic jsonObjs = new object();
+                            jsonObjs = JsonConvert.DeserializeObject(item.DynamicFormItem);
+                            DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+                            var attrId = (long?)jsonObjs["50_Attr"];
+                            if (attrId > 0)
+                            {
+                                dropDownOptionsModel.AttributeDetailID = item.DynamicFormDataId;
+                                dropDownOptionsModel.Id = attrId;
+                                var names = AttributeDetails.Where(w => w.AttributeDetailID == attrId)?.FirstOrDefault()?.AttributeDetailName;
+                                dropDownOptionsModel.Value = names != null ? names.ToLower() : "";
+                                dropDownOptionsModel.Text = jsonObjs["53_Attr"];
+                                dropDownOptionsModels.Add(dropDownOptionsModel);
+                            }
+                        }
+                    }
+                }
+                return dropDownOptionsModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<DropDownOptionsModel>> GetDynamicFormDataAllAsync(List<long?> DynamicFomDataIds)
         {
             try
@@ -1827,6 +1873,10 @@ namespace Infrastructure.Repository.Query
                 {
                     query += "\n\rAND t1.AddedByUserID=@AddedByUserID";
                 }
+                if (value.AddedByUserID >0)
+                {
+                    query += "\n\rAND t1.AddedByUserID=@AddedByUserID";
+                }
                 var employeeAll = await GetAllUserWithoutStatussAsync();
                 var productActivityApps = new List<ProductionActivityRoutineAppModel>();
                 using (var connection = CreateConnection())
@@ -1955,7 +2005,10 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            responsibilityUsers.Add(userId.Value);
+                            if (userId > 0)
+                            {
+                                responsibilityUsers.Add(userId.Value);
+                            }
                         }
 
 
@@ -2077,14 +2130,21 @@ namespace Infrastructure.Repository.Query
 
                         if (value.ActionType == "TimeSheet" || value.ActionType == "TimeSheetV1")
                         {
-                            productActivityApp.RoutineStatus = s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine status".ToLower())?.Text : string.Empty;
-                            productActivityApp.ProdActivityResult = s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine Result".ToLower())?.Text : string.Empty;
-                            var nameList = string.Empty;
+                            if (dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0)
+                            {
+                                productActivityApp.RoutineStatus = s.RoutineStatusId > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine status".ToLower())?.Text : string.Empty;
+                                productActivityApp.ProdActivityResult = s.RoutineStatusId > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine Result".ToLower())?.Text : string.Empty;
+                            }
+                                var nameList = string.Empty;
                             if (routineInfoIdss.Count > 0)
                             {
                                 routineInfoIdss.ForEach(x =>
                                 {
-                                    nameList += s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == x && f.Value == "Routine Info".ToLower())?.Text : string.Empty + ",";
+                                    if (dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0)
+                                    {
+                                        var nes = dropDownOptionsModel.Where(f => f.AttributeDetailID == x && f.Value == "Routine Info".ToLower()).FirstOrDefault()?.Text + ",";
+                                        nameList += nes;
+                                    }
                                 });
                                 productActivityApp.RoutineInfoStatus = nameList.TrimEnd(',');
                             }
@@ -2182,6 +2242,10 @@ namespace Infrastructure.Repository.Query
                 if (value.VisaMasterId > 0)
                 {
                     productActivityAppModels = productActivityAppModels.Where(w => w.RoutineInfoIds.Contains(value.VisaMasterId)).ToList();
+                }
+                if (value.DynamicFormDataRoutinInfoId > 0)
+                {
+                    productActivityAppModels = productActivityAppModels.Where(w => w.RoutineInfoIds.Contains(value.DynamicFormDataRoutinInfoId)).ToList();
                 }
                 return productActivityAppModels;
             }

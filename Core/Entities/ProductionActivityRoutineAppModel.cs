@@ -134,6 +134,7 @@ namespace Core.Entities
         public long? StatusID { get; set; }
         public string StatusName { get; set; }
         public List<ProdOrderMultiple> FPMultipleList { get; set; } = new List<ProdOrderMultiple>();
+        public long? DynamicFormDataRoutinInfoId { get; set; }
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

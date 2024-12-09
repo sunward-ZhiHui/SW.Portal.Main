@@ -1,0 +1,693 @@
+﻿
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject ClipboardService ClipboardService
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime;
+
+<style scoped>
+    .zxing-video-container > video {
+        width: 100%;
+        height: auto;
+    }
+</style>
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:1px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                       
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" />
+                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Enabled="@uploadEnabled" /> 
+                    </Items>
+                </DxMenu>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div style="border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+    <div class="mini-menu-bar-top">
+        <div class="mini-menu-bar-heading">
+        </div>
+
+        <div>
+            <div class="views-accordion">
+                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleProductionFormValidSubmit">
+                    <DataAnnotationsValidator />
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
+                            <DxTextBox @bind-Text="@Data.AddedBy" ShowValidationIcon="true" Enabled=false />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                            <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled=false />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                           
+                            <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant,"Add"))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            TextFieldName="Description"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ValueFieldName="PlantID"
+                            Value="@Data.CompanyID"
+                            ValueExpression="@(() => Data.CompanyID )"
+                            ShowValidationIcon="true" >
+
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.CompanyID)" /> 
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Location" ColSpanMd="6" Visible="@Visiblelocation">
+                           
+                              <DxComboBox Data="@_productionActivities"
+                            NullText="Select Loctaion..."
+                            ValueChanged="@((long? loc) => SelectedItemloc(loc))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="DeropdownName"
+                            ValueFieldName="ICTMasterID"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            Value="@Data.LocationID"
+                            ValueExpression="@(() => Data.LocationID )"
+                            ShowValidationIcon="true" >
+                            <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-qrcode"
+                            Tooltip="Scan Location"
+                            Click="@(_ => OnButtonClick())"  />
+                            </Buttons>
+                            </DxComboBox> 
+
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Ticket No" ColSpanMd="6" Visible="@VisibleTicket">
+                           
+                            <DxComboBox Data="@_ponumberActivities"
+                            NullText="Select Ticket No..."
+                            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="ProdOrderNo"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ListRenderMode="ListRenderMode.Virtual"
+                            Value="@Data.ProdOrderNo"
+                            ValueExpression="@(() => Data.ProdOrderNo )"
+                            ShowValidationIcon="true" >
+                            <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-qrcode"
+                            Tooltip="Scan Ticket No"
+                            Click="@(_ => OnButtonTicketNoClick())"  />
+                            </Buttons>
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.ProdOrderNo)" />
+                        </DxFormLayoutItem>
+
+
+                        <DxFormLayoutItem Caption="Type" ColSpanMd="6">
+                            <DxComboBox Data="@TypeList" NullText="Select Type..."  @bind-Value="@Data.Type" ShowValidationIcon="true"
+                                        SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Operator Subject Name:" ColSpanMd="6" Visible="@VisibleSubject">
+                            <DxTextBox @bind-Text="@Data.SubjectName" ShowValidationIcon="true"  />
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Detected By" ColSpanMd="6">
+                           
+                            <DxComboBox Data="@_usersList"
+                            NullText="Select Detected By..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            ValueFieldName="UserID"
+                            TextFieldName="FirstName"
+                            @bind-Value="Data.DetectedBy"
+                            EditFormat="{0}-{1}-{3}"
+                            ShowValidationIcon="true">
+                            <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                            </Columns>
+                            </DxComboBox> 
+                        </DxFormLayoutItem>
+                       
+                    </DxFormLayout>
+
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxPopup @bind-Visible="@PopupLocationScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Location" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_reader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStop="false" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="LocationReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLocationPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupProductionNoScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Ticket No" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_ticketNoReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStop="false" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="TicketNoReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseTicketNoPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
+    <BodyContentTemplate>
+        <UploadProductionActivityFilesIpirs OperatorType ="Operator" _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUploads"></UploadProductionActivityFilesIpirs>
+
+    </BodyContentTemplate>
+</DxPopup>
+
+@code {
+
+
+    List<string> TypeList = new List<string>() { "Related to Production", "Not Related to Production"};
+    bool VisibleTicket { get; set; } = false;
+    bool VisibleMachineName { get; set; } = false;
+    bool Visiblelocation { get; set; } = false;
+    bool VisibleSubject { get; set; } = false;
+    bool PopupLocationScanVisible { get; set; } = false;
+    bool PopupProductionNoScanVisible { get; set; } = false;
+    long? CompanyID;
+    string? NAVProdOrderno;
+    long? LocationID;
+    EditContext _editContext;
+    private BarcodeReader _reader; private BarcodeReader _ticketNoReader;
+    private List<ViewPlants> _plantItems;
+    private List<ProductionActivityApp> _productionActivities;
+    private List<ViewDepartment> _departmentItems;
+    private List<NavprodOrderLineModel> _ponumberActivities;
+
+    private List<NavprodOrderLineModel> _poOrderDetails;
+    IpirApp Data = new IpirApp();
+    public ApplicationUser applicationUser { get; private set; }
+    private List<ProductActivityAppModel> _AppLines;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    private string? LocationName; private string? TicketNo;
+    public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
+    [Parameter]
+    public IpirApp _selectedEditItems { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    bool PopupUpload { get; set; } = false;
+    public long? FileProfileTypeId { get; set; }
+    public long? IpirAppId { get; set; }
+    public Guid? UploadSessionId { get; set; }
+    bool uploadEnabled { get; set; } = false;
+    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    private List<View_ApplicationMasterDetail> _ActivityMaster;
+    private List<ViewEmployee>? _usersList;
+    List<string> StatusTypeList = new List<string>() { "FP", "Process", "Raw Material", "Packing Material", "Fixed Asset" };
+    string StatusType;
+    private string? FPDD;
+    private string? Process;
+    private string? RawMaterial;
+    private string? PackingMaterial;
+    bool FPVisible { get; set; } = false;
+    bool ProcessVisible { get; set; } = false;
+    bool RawMaterialVisible { get; set; } = false;
+    bool PackingMaterialVisible { get; set; } = false;
+    bool PopupFPDDScanVisible { get; set; } = false;
+    bool PopupProcessDDScanVisible { get; set; } = false;
+    bool PopupRawMaterialDDScanVisible { get; set; } = false;
+    bool PopupPackingMaterialDDScanVisible { get; set; } = false;
+    private BarcodeReader _ProcessReader;
+    private BarcodeReader _FPReader;
+    private BarcodeReader _RawMaterialReader;
+    private BarcodeReader _PackingMaterialReader;
+    private List<RawMatItemList> _RawMatItemList; private List<RawMatItemList> _RawMatItemList1; private List<RawMatItemList> _RawMatItemList2;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        _editContext = new EditContext(Data);
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        // _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
+        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        Data.AddedDate = DateTime.Now; Data.ModifiedDate = DateTime.Now;
+        Data.AddedBy = applicationUser.UserName;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.ModifiedByUserID = applicationUser.UserID;
+        Data.ActivityStatusId = -1;
+        if (_selectedEditItems != null)
+        {
+
+            if (_selectedEditItems.Type == "Related to Production")
+            {
+                VisibleSubject = false;
+                VisibleMachineName = true;
+                Visiblelocation = true;
+                VisibleTicket = true;
+            }
+            else
+            {
+                VisibleSubject = true;
+                VisibleMachineName = false;
+                Visiblelocation = false;
+                VisibleTicket = false;
+            }
+            if (_selectedEditItems.FileName != null)
+            {
+                uploadEnabled = false;
+
+            }
+            else
+            {
+                uploadEnabled = true;
+            }
+
+            IpirAppId = _selectedEditItems.IpirAppId;
+            Data.AddedDate = _selectedEditItems.AddedDate;
+            Data.AddedByUserID = _selectedEditItems.AddedByUserID;
+            Data.ModifiedByUserID = applicationUser.UserID;
+            Data.ModifiedDate = DateTime.Now;
+            Data.IpirAppId = _selectedEditItems.IpirAppId;
+            Data.Comment = _selectedEditItems.Comment;
+            Data.LocationID = _selectedEditItems.LocationID;
+            Data.CompanyID = _selectedEditItems.CompanyID;
+            Data.ProdOrderNoDescription = _selectedEditItems.ProdOrderNoDescription;
+            //Data.ProfileId = _selectedEditItems.ProfileId;
+            //Data.ProfileNo = _selectedEditItems.ProfileNo;
+            Data.FixedAssetNo = _selectedEditItems.FixedAssetNo;
+            //Data.ReportingPersonal = _selectedEditItems.ReportingPersonal;
+            Data.SessionID = _selectedEditItems.SessionID;
+
+            Data.DetectedBy = _selectedEditItems.DetectedBy;
+            Data.MachineName = _selectedEditItems.MachineName;
+
+            UploadSessionId = _selectedEditItems.SessionID;
+            Data.Type = _selectedEditItems.Type;
+            LocationID = Data.LocationID;
+
+
+            if (_plantItems.Count > 0)
+            {
+                var _plantItem = _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyID);
+                if (_plantItem != null)
+                {
+                    await SelectedItemPlantChanged(_plantItem.PlantID, "Edit");
+                }
+            }
+        }
+        
+        StateHasChanged();
+
+    }
+   
+    async Task getBySessionId()
+    {
+        var datas = await Mediator.Send(new GetAllIpirAppOneQuery(_selectedEditItems.SessionID));
+        uploadEnabled = true;
+        if (datas.IsDocuments > 0)
+        {
+            uploadEnabled = false;
+        }
+        StateHasChanged();
+    }
+    async Task SelectedItemloc(long? loc)
+    {
+        Data.LocationID = loc;
+        LocationID = 0; _editContext = new EditContext(Data);
+        if (loc > 0)
+        {
+            LocationID = loc;
+        }
+        StateHasChanged();
+    }
+    async Task SelectedItemPlantChanged(long? PlantsData, string Type)
+    {
+        Data.CompanyID = PlantsData;
+        _productionActivities = new List<ProductionActivityApp>();
+        _ponumberActivities = new List<NavprodOrderLineModel>(); _departmentItems = new List<ViewDepartment>();
+        _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        if (Type != "Edit")
+        {
+            NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0; Data.DepartmentIds = new List<long?>();
+        }
+        if (PlantsData > 0)
+        {
+            CompanyID = PlantsData;
+            Data.CompanyID = CompanyID;
+            _departmentItems = await Mediator.Send(new GetDepartmentByCompany(CompanyID));
+            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
+            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(CompanyID));
+        }
+    }
+    async Task SelectedLoadItemPlantChanged(long? companyId, long? locationID)
+    {
+        _productionActivities = new List<ProductionActivityApp>();
+        _ponumberActivities = new List<NavprodOrderLineModel>(); _departmentItems = new List<ViewDepartment>();
+        _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0;
+        if (locationID > 0)
+        {
+            Data.LocationID = locationID; LocationID = locationID;
+        }
+        if (companyId > 0)
+        {
+            CompanyID = companyId;
+            Data.CompanyID = companyId;
+            _departmentItems = await Mediator.Send(new GetDepartmentByCompany(CompanyID));
+            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
+            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(CompanyID));
+        }
+        StateHasChanged();
+    }
+
+    async void SelectedItemprod(string? NAVProdOrder)
+    {
+
+        Data.ProdOrderNo = NAVProdOrder;
+        NAVProdOrderno = string.Empty;
+        if (!string.IsNullOrEmpty(NAVProdOrder))
+        {
+            NAVProdOrderno = NAVProdOrder;
+        }
+        else
+        {
+            _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        }
+        StateHasChanged();
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    void OnButtonClick()
+    {
+        PopupLocationScanVisible = true;
+    }
+    void CloseLocationPopup()
+    {
+        PopupLocationScanVisible = false;
+        _reader.StopDecoding();
+    }
+    void CloseTicketNoPopup()
+    {
+        PopupProductionNoScanVisible = false;
+        _ticketNoReader.StopDecoding();
+    }
+    void OnButtonTicketNoClick()
+    {
+        PopupProductionNoScanVisible = true;
+    }
+    async Task LocationReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        LocationName = args.BarcodeText; LocationID = 0;
+        if (!string.IsNullOrEmpty(LocationName))
+        {
+            var result = await Mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
+            if (result != null && result.ICTMasterID > 0 && result.CompanyID > 0)
+            {
+                await SelectedLoadItemPlantChanged(result.CompanyID, result.ICTMasterID);
+                toastService.ShowToast("Location Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                CloseLocationPopup();
+            }
+            else
+            {
+                toastService.ShowToast("Location Not Found", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Location Not Found", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        StateHasChanged();
+    }
+    void TicketNoReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        TicketNo = args.BarcodeText; LocationID = 0;
+        if (!string.IsNullOrEmpty(TicketNo))
+        {
+            var ticketNo = TicketNo.Split("~");
+            if (ticketNo.Length > 0)
+            {
+                var exists = ticketNo.ElementAtOrDefault(5) != null;
+                if (exists == true)
+                {
+                    var poNo = _ponumberActivities.Where(w => w.ProdOrderNo != null).FirstOrDefault(f => f.ProdOrderNo.ToLower() == ticketNo[5].ToLower());
+                    if (poNo != null)
+                    {
+                        Data.ProdOrderNo = poNo.ProdOrderNo; NAVProdOrderno = poNo.ProdOrderNo;
+                        toastService.ShowToast("TicketNo Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        CloseTicketNoPopup();
+                    }
+                    else
+                    {
+                        toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Invaild TicketNo", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+            else
+            {
+                toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        StateHasChanged();
+    }
+    void addNewProductionForm()
+    {
+        _editContext = new EditContext(Data);
+
+        Data.AddedDate = DateTime.Now;
+        Data.AddedBy = applicationUser.UserName;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.ModifiedByUserID = applicationUser.UserID; Data.ModifiedDate = DateTime.Now;
+        Data.CompanyID = null; Data.LocationID = null; Data.BatchNo = null; Data.ProdOrderNo = null; Data.NavprodOrderLineID = null;
+        Data.ProfileId = null; Data.ProfileNo = null; Data.Comment = null; Data.FixedAssetNo = null; Data.ReportingPersonal = null;
+        UploadSessionId = null; Data.IpirAppId = 0; IpirAppId = null;
+        Data.ActivityIssueRelateIds = new List<long?>();
+        Data.DetectedBy = null; uploadEnabled = false;
+        Data.ActivityStatusId = null; Data.DepartmentIds = new List<long?>();
+        _productionActivities = new List<ProductionActivityApp>();
+        _ponumberActivities = new List<NavprodOrderLineModel>(); _departmentItems = new List<ViewDepartment>();
+        _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        StateHasChanged();
+    }
+    private async Task SubmitProductionFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleProductionFormValidSubmit();
+        }
+    }
+    async Task HandleProductionFormValidSubmit()
+    {
+        if (Data.SessionID == null)
+        {
+            Data.SessionID = Guid.NewGuid();
+        }
+        if (Data.ActivityStatusId == -1)
+        {
+            Data.ActivityStatusId = null;
+        }
+        Data.StatusCodeID = 1;
+        //  var result = await Mediator.Send(new InsertOrUpdateIpirApp(Data));
+        Data.ModifiedByUserID = applicationUser.UserID;
+        Data.ModifiedDate = DateTime.Now;
+        if (_selectedEditItems == null)
+        {
+            var result = await Mediator.Send(new InsertOrUpdateIpirApp(Data));
+            UploadSessionId = Data.SessionID;
+            uploadEnabled = true;
+            if (IpirAppId > 0)
+            {
+                IpirAppId = result.IpirAppId;
+                Data.IpirAppId = result.IpirAppId;
+                Data.ProfileNo = result.ProfileNo;
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                IpirAppId = result.IpirAppId;
+                Data.IpirAppId = result.IpirAppId;
+                Data.ProfileNo = result.ProfileNo;
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+        else
+        {
+            var result = await Mediator.Send(new UpdateIpirPIC(Data));
+            UploadSessionId = Data.SessionID;
+            uploadEnabled = true;
+            if (IpirAppId > 0)
+            {
+                IpirAppId = result.IpirAppId;
+                Data.IpirAppId = result.IpirAppId;
+                Data.ProfileNo = result.ProfileNo;
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                IpirAppId = result.IpirAppId;
+                Data.IpirAppId = result.IpirAppId;
+                Data.ProfileNo = result.ProfileNo;
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+
+
+        //  RevokeBack?.Invoke();
+        // addNewProductionForm();
+        StateHasChanged();
+    }
+    void uploadFiles()
+    {
+        PopupUpload = true;
+    }
+    void BackUploadUploads()
+    {
+        PopupUpload = false;
+        uploadEnabled = false;
+        // InvokeAsync(getBySessionId);
+        StateHasChanged();
+    }
+    async Task SelectedTypeItemsChanged(string type)
+    {
+        if (type == "Related to Production")
+        {
+            Visiblelocation = true;
+            VisibleTicket = true;
+            VisibleSubject = false;
+        }
+        else
+        {
+            Visiblelocation = false;
+            VisibleTicket = false;
+            VisibleSubject = true;
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+
+        }
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+
+        }
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+
+        }
+        if (_poOrderDetails != null)
+        {
+            _poOrderDetails.Clear();
+
+        }
+        if (_AppLines != null)
+        {
+            _AppLines.Clear();
+
+        }
+        if (_documentProfileNoList != null)
+        {
+            _documentProfileNoList.Clear();
+
+        }
+        if (_ActivityStatusItem != null)
+        {
+            _ActivityStatusItem.Clear();
+
+        }
+        if (_ActivityMaster != null)
+        {
+            _ActivityMaster.Clear();
+
+        }
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+
+        }
+        if (_RawMatItemList != null)
+        {
+            _RawMatItemList.Clear();
+        }
+        if (_RawMatItemList1 != null)
+        {
+            _RawMatItemList1.Clear();
+        }
+        if (_RawMatItemList2 != null)
+        {
+            _RawMatItemList2.Clear();
+        }
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
+    }
+}
+
+

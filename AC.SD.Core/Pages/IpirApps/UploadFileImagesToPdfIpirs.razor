@@ -157,6 +157,8 @@
     [Parameter]
     public ApplicationUser _applicationUser { get; set; }
     [Parameter]
+    public string OperatorType { get; set; }
+    [Parameter]
     public Guid? UploadSessionId { get; set; }
     [Parameter]
     public long? FileProfileTypeId { get; set; }
@@ -404,6 +406,42 @@
         if (fileCouunt > 0)
         {
             if (UploadSessionId != null && DocSessionId != null)
+            {
+                string BaseUrl = Navigator.BaseUri + "api/FileUpload/UploadImages/";
+                using (var _client = new HttpClient())
+                {
+                    using (var content = new MultipartFormDataContent(Guid.NewGuid().ToString()))
+                    {
+                        FilesBase64.ForEach(s =>
+                        {
+                            byte[] bytes = Convert.FromBase64String(s.Base64data);
+                            MemoryStream stream = new MemoryStream(bytes);
+                            content.Add(CreateFileContent(stream, s.ImageId + ".png", "image/png"));
+                        });
+                        content.Add(new StringContent(UploadSessionId.ToString()), "UploadSessionId");
+                        content.Add(new StringContent("FileProfile"), "SourceFrom");
+                        content.Add(new StringContent(Data.ChangeNewFileName), "ChangeNewFileName");
+                        content.Add(new StringContent(_applicationUser.UserID.ToString()), "UserID");
+                        var response = await _client.PostAsync(BaseUrl, content);
+                        var result = await response.Content.ReadAsStringAsync();
+                        if (result == "Ok")
+                        {
+                            Data.SessionId = UploadSessionId;
+                            Data.FileSessionId = UploadSessionId;
+                            Data.SourceFrom = "FileProfile";
+                            Data.FilePath = @"Documents\" + UploadSessionId + @"\" + UploadSessionId + ".pdf";
+                            if (Type == "IpirApp" && IpirAppId > 0)
+                            {
+                                Data.IpirAppId = IpirAppId;
+                                Data.Type = Type;
+                            }
+                            var responsse = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+                            return "Done";
+                        }
+                    }
+                }
+            }
+            else 
             {
                 string BaseUrl = Navigator.BaseUri + "api/FileUpload/UploadImages/";
                 using (var _client = new HttpClient())

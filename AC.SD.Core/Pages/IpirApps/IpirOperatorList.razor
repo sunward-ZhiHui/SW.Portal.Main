@@ -1,0 +1,338 @@
+﻿@page "/IpirOperatorListPage"
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
+
+
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                         <DxMenuItem Text="Add New" IconCssClass="fas fa-add" Click="@addNewForm" Enabled="@addEnabled" /> 
+
+
+
+                        <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
+                            <Items>
+                               
+                                <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
+                                <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
+                                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" />
+                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" />
+                               
+                            </Items>
+                        </DxMenuItem>
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true" VirtualScrollingEnabled="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            KeyFieldName="IpirAppId"
+            AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick">
+
+        <Columns>
+            <DxGridDataColumn Caption="" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (IpirApp)context.DataItem;
+                    }
+                    @if (item.DocumentID > 0)
+                    {
+                        @if (item.IsLocked == true)
+                        {
+                            <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                        }
+                        else
+                        {
+                            <i class="fa fa-lock-open" aria-hidden="true" style="padding:5px;margin-right: 5px;"></i>
+                        }
+
+                        <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" />
+            <DxGridDataColumn FieldName="ProfileNo" MinWidth="150" Caption="Profile No" />
+            <DxGridDataColumn FieldName="ProdOrderNoDescription" Caption="Prod OrderNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="180" />
+            <DxGridDataColumn FieldName="LocationName" Caption="Location" MinWidth="180" />
+            <DxGridDataColumn FieldName="MachineName" Caption="Machine" MinWidth="180" />
+            <DxGridDataColumn FieldName="ReportingPersonalName" Caption="Reporting Personal" MinWidth="180" Visible="false" />
+            <DxGridDataColumn FieldName="DetectedByName" Caption="Detected By" MinWidth="180" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="180" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="false"
+         HeaderText="Add Operator"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="true" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <AddOperatorPage @ref="RefOperatorPage" RevokeBack="ClosePopup" _selectedEditItems="@_selectedEditItems"></AddOperatorPage>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         ShowCloseButton="true"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="deleteFileProfileTypes" />
+
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
+    <BodyContentTemplate>
+        <UploadProductionActivityFilesIpirs OperatorType="Operator" _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionActivityFilesIpirs>
+
+    </BodyContentTemplate>
+</DxPopup>
+@code{
+    public long? FileProfileTypeId { get; set; }
+    bool PopupUpload { get; set; } = false;
+    public string isVisibleMore { get; set; } = "display:none;";
+    private List<IpirApp> _dynamicForm;
+    bool PanelVisible { get; set; }
+    bool AddPopup { get; set; } = false;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    private IpirApp _selectedItems; private IpirApp _selectedEditItems;
+    bool EditEnabled { get; set; } = false; bool addEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool uploadEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    public bool viewEnabled { get; set; } = false;
+    public Guid? UploadSessionId { get; set; }
+    public Guid? FileProfileSessionId { get; set; }
+    IGrid Grid { get; set; }
+    private AddOperatorPage? RefOperatorPage { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "IpirAppId");
+        _selectedItems = _dynamicForm.FirstOrDefault(f => f.IpirAppId == (long?)UniqueId);
+        UploadSessionId = _selectedItems.SessionID;
+
+        uploadEnabled = true; isVisibleMore = ""; 
+        DeleteEnabled = true;  viewEnabled = false;
+        EditEnabled = true;
+        if (_selectedItems.IsDocuments > 0)
+        {
+            uploadEnabled = false; viewEnabled = true; 
+        }
+        if (_selectedItems.FileProfileTypeId > 0)
+        {
+            FileProfileSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FileProfileTypeId)?.SessionID;
+        }
+        if (_selectedItems.IsLocked == true)
+        {
+
+            EditEnabled = false; DeleteEnabled = false; 
+            viewEnabled = false; 
+        }
+
+    }
+    async Task UpdateDataAsync()
+    {
+        isVisibleMore = "display:none;";
+        EditEnabled = false; DeleteEnabled = false; addEnabled = true; uploadEnabled = false; 
+
+        viewEnabled = false;
+        _dynamicForm = await Mediator.Send(new GetAllIpirAppQuery());
+        PanelVisible = true;
+        if (_dynamicForm != null && _dynamicForm.Count > 0)
+        {
+            EditEnabled = true; DeleteEnabled = true; uploadEnabled = true; 
+
+            _selectedItems = _dynamicForm.FirstOrDefault();
+            loadSelectedItems();
+
+
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        AddPopup = false;
+
+        await UpdateDataAsync();
+
+        StateHasChanged();
+    }
+    void loadSelectedItems()
+    {
+
+        if (_selectedItems != null)
+        {
+            isVisibleMore = "";
+            UploadSessionId = _selectedItems.SessionID;
+            if (_selectedItems.IsDocuments > 0)
+            {
+                uploadEnabled = false; viewEnabled = true; 
+            }
+            if (_selectedItems.FileProfileTypeId > 0)
+            {
+                FileProfileSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FileProfileTypeId)?.SessionID;
+            }
+            if (_selectedItems.IsLocked == true)
+            {
+
+                EditEnabled = false; DeleteEnabled = false;
+                viewEnabled = false; 
+            }
+
+            Grid.ClearSelection();
+            Grid.Reload();
+            Grid.SetFocusedRowIndex(0);
+            StateHasChanged();
+        }
+    }
+    void editForm()
+    {
+        _selectedEditItems = _selectedItems;
+        AddPopup = true;
+    }
+    void deleteForm()
+    {
+        Blukdeletepopup = true;
+    }
+    void uploadFiles()
+    {
+        PopupUpload = true;
+    }
+    void addNewForm()
+    {
+        _selectedEditItems = null;
+        AddPopup = true;
+    }
+    void EulaPopupClosed()
+    {
+        Blukdeletepopup = false;
+        AddPopup = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+
+        }
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowclick(e);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    void BackUploadUpload()
+    {
+
+        PopupUpload = false;
+        InvokeAsync(UpdateDataAsync);
+        StateHasChanged();
+    }
+    async Task deleteFileProfileTypes()
+    {
+        if (_selectedItems != null)
+        {
+            Blukdeletepopup = false;
+            await Mediator.Send(new DeleteIpirApp(_selectedItems));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }        
+}

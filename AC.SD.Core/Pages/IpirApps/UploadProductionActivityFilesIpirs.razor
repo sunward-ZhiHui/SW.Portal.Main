@@ -65,7 +65,7 @@
                         <DxTextBox @bind-Text="@Data.ChangeNewFileName" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10" Visible="@VisibleFileProfileType">
                         <DxTextBox @bind-Text=@FileprofiletypeName>
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
@@ -76,7 +76,7 @@
                         <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6" Visible="@VisibleCompany">
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -101,7 +101,7 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.PlantId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6" Visible="@Visibledivision">
                         <DxComboBox Data="@_divisionItems"
                                     NullText="Select Division..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -126,7 +126,7 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6" Visible="@Visibledepartment">
                         <DxComboBox Data="@_departmentItems"
                                     NullText="Select Department..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -151,7 +151,7 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6" Visible="@Visiblesection">
                         <DxComboBox Data="@_sectionItems"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -176,7 +176,7 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.SectionId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6" Visible="@Visiblesubsection">
                         <DxComboBox Data="@_subSectionItems"
                                     NullText="Select SubSection..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -201,7 +201,7 @@
                     <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
                         <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6" Visible="@VisibleDescription">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
 
@@ -227,7 +227,7 @@
                 </div>
             </div>
             <div style="@imageUploadStyle">
-                <UploadFileImagesToPdfIpirs @ref="refUploadFileImagesToPdf" _applicationUser="@_applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId"></UploadFileImagesToPdfIpirs>
+                <UploadFileImagesToPdfIpirs @ref="refUploadFileImagesToPdf"  OperatorType = "Operator" _applicationUser="@_applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId"></UploadFileImagesToPdfIpirs>
             </div>
         </div>
     </div>
@@ -272,6 +272,13 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    bool VisibleFileProfileType { get; set; } = false;
+    bool VisibleCompany { get; set; } = false;
+    bool Visibledivision { get; set; } = false;
+    bool Visibledepartment { get; set; } = false;
+    bool Visiblesection { get; set; } = false;
+    bool Visiblesubsection { get; set; } = false;
+    bool VisibleDescription { get; set; } = false;
     IEnumerable<string> TemplateUploadOptions = new[] { "Files", "Images" };
     private UploadFileImagesToPdfIpirs refUploadFileImagesToPdf;
     public DocumentsModel selectedFiles { get; set; }
@@ -284,6 +291,8 @@
     public long? FileProfileTypeId { get; set; }
     [Parameter]
     public Action RevokeUploadBack { get; set; }
+    [Parameter]
+    public string OperatorType { get; set; }
     bool isTemplateUploadTypeImages { get; set; } = false;
     EditContext _editContext;
     public FileProfileTypeModel fileProfileTypeModels { get; set; }
@@ -321,6 +330,33 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", "audio/*" };
     protected override async Task OnInitializedAsync()
     {
+        if (OperatorType == "Operator")
+        {
+            VisibleFileProfileType = false;
+            VisibleCompany = false;
+            Visibledivision = false;
+            Visibledepartment = false;
+            Visiblesection = false;
+            Visiblesubsection = false;
+            VisibleDescription = false;
+            Data.FileProfileTypeId = -1;
+            Data.PlantId = -1;
+            Data.DivisionId = -1;
+            Data.DepartmentId = -1;
+            Data.SectionId = -1;
+            Data.SubSectionId = -1;
+            Data.DynamicFormSectionId = -1;
+            Data.NumberSeriesId = -1;
+        }
+        else{
+            VisibleFileProfileType = true;
+            VisibleCompany = true;
+            Visibledivision = true;
+            Visibledepartment = true;
+            Visiblesection = true;
+            Visiblesubsection = true;
+            VisibleDescription = true;
+        }
         _editContext = new EditContext(Data);
         Data.TemplateUploadType = "Files";
         isFilesUpload = true;
@@ -528,6 +564,7 @@
     }
     void backUploadFilesUrl()
     {
+        
         RevokeUploadBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
@@ -651,6 +688,17 @@
     }
     async Task HandleValidSubmit()
     {
+        if( Data.FileProfileTypeId == -1 && Data.PlantId == -1 && Data.DivisionId == -1 && Data.DepartmentId == -1 && Data.SectionId == -1 && Data.SubSectionId == -1 && Data.DynamicFormSectionId == -1 && Data.NumberSeriesId == -1)
+        {
+            Data.FileProfileTypeId = null;
+            Data.PlantId = null;
+            Data.DivisionId = null;
+            Data.DepartmentId = null;
+            Data.SectionId =null;
+            Data.SubSectionId = null;
+            Data.DynamicFormSectionId = null;
+            Data.NumberSeriesId = null;
+        }
         if (Data.TemplateUploadType == "Files")
         {
             if (SelectedFilesCount > 0)

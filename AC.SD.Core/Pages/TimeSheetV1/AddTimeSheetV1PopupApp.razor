@@ -20,6 +20,10 @@
         width: 100%;
         height: auto;
     }
+  
+    .zero-width-label label {
+        width: 0px !important
+    }
 </style>
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -289,8 +293,9 @@
                         SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
 
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="12" Visible="@FPVisible">
+        <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="11" Visible="@FPVisible">
             <DxTagBox NullText="Select FP..."
+                   
                       Data="@_ponumberActivities"
                       SearchMode="ListSearchMode.AutoSearch"
                       SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -299,15 +304,24 @@
                       ValueFieldName="ProdOrderNo"
                       @bind-Values="@Data.FPDDIds"
                       CssClass="cw-480">
+    
+      
                 <Columns>
 
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />
                 </Columns>
+                
+      
             </DxTagBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="12" Visible="@ProcessVisible">
+        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@FPVisible">
+            <DxButton IconCssClass="fa fa-qrcode"
+                      Click="@(_ => OnButtonFPClick())">
+            </DxButton>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="11" Visible="@ProcessVisible">
             <DxTagBox NullText="Select Process..."
                       Data="@_RawMatItemList"
                       SearchMode="ListSearchMode.AutoSearch"
@@ -324,7 +338,12 @@
                 </Columns>
             </DxTagBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Raw Material Multiple:" ColSpanMd="12" Visible="@RawMaterialVisible">
+        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ProcessVisible">
+            <DxButton IconCssClass="fa fa-qrcode"
+                      Click="@(_ => OnButtonProcessClick())">
+            </DxButton>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Raw Material Multiple:" ColSpanMd="11" Visible="@RawMaterialVisible">
             <DxTagBox NullText="Select Raw Material..."
                       Data="@_RawMatItemList1"
                       SearchMode="ListSearchMode.AutoSearch"
@@ -341,7 +360,12 @@
                 </Columns>
             </DxTagBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Packing Material Multiple:" ColSpanMd="12" Visible="@PackingMaterialVisible">
+        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@RawMaterialVisible">
+            <DxButton IconCssClass="fa fa-qrcode"
+                      Click="@(_ => OnButtonRawMaterialClick())">
+            </DxButton>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Packing Material Multiple:" ColSpanMd="11" Visible="@PackingMaterialVisible">
             <DxTagBox NullText="Select Packing Material..."
                       Data="@_RawMatItemList2"
                       SearchMode="ListSearchMode.AutoSearch"
@@ -357,6 +381,11 @@
 
                 </Columns>
             </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@PackingMaterialVisible">
+            <DxButton IconCssClass="fa fa-qrcode"
+                      Click="@(_ => OnButtonPackingMaterialClick())">
+            </DxButton>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Product Name:" ColSpanMd="12" Visible="@ProductNameVisible">
             <DxTagBox NullText="Select Product Name..."
@@ -528,6 +557,11 @@
     bool ProductNameVisible { get; set; } = false;
     bool EnableStatus { get; set; } = false;
     string StatusType;
+    // IEnumerable<NavprodOrderLineModel> FPDDIds { get; set; }
+    public List<string?> FPDDIds { get; set; } = new List<string?>();
+    public List<string?> ProcessDDIds { get; set; } = new List<string?>();
+    public List<string?> RawMaterialDDIds { get; set; } = new List<string?>();
+    public List<string?> PackingMaterialDDIds { get; set; } = new List<string?>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -625,7 +659,11 @@
                 timesheetMasterParentid = time_sheet_lst.ApplicationMasterParentId.ToString();
                 dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
                 _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedEditItems.ManufacturingProcessChildId));
-                _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedEditItems.ProdActivityCategoryChildId));
+                if (_selectedEditItems.ProdActivityCategoryChildId != null)
+                {
+                    _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedEditItems.ProdActivityCategoryChildId));
+                }
+
                 if (_selectedEditItems.ProdActivityCategoryChildId > 0)
                 {
                     var selectItem = _categoryItems != null && _selectedEditItems.ProdActivityCategoryChildId > 0 ? _categoryItems.FirstOrDefault(f => f.ApplicationMasterChildId == _selectedEditItems.ProdActivityCategoryChildId) : null;
@@ -667,6 +705,7 @@
                 {
                     _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyId));
                     Data.FPDD = _selectedEditItems.FPDD;
+
                     FPVisible = true;
                     ProcessVisible = false;
                     RawMaterialVisible = false;
@@ -1159,7 +1198,23 @@
         PackingMaterial = args.BarcodeText;
         if (PackingMaterial != null)
         {
-            Data.PackingMaterialDD = PackingMaterial;
+            var PackingMaterialdd = _RawMatItemList2.Where(f => f.ItemNo == PackingMaterial).ToList();
+            if (PackingMaterialdd.Count > 0)
+            {
+
+                if (PackingMaterialDDIds.Contains(PackingMaterial) == false)
+                {
+                    PackingMaterialDDIds.Add(PackingMaterial);
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowToast("Invaild Packing Material", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            Data.PackingMaterialDDIds = new List<string?>(PackingMaterialDDIds);
         }
         else
         {
@@ -1172,7 +1227,24 @@
         RawMaterial = args.BarcodeText;
         if (RawMaterial != null)
         {
-            Data.RawMaterialDD = RawMaterial;
+            var RawMaterialdd = _RawMatItemList1.Where(f => f.ItemNo == RawMaterial).ToList();
+            if (RawMaterialdd.Count > 0)
+            {
+
+                if (RawMaterialDDIds.Contains(RawMaterial) == false)
+                {
+                    RawMaterialDDIds.Add(RawMaterial);
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowToast("Invaild Raw Material", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            Data.RawMaterialDDIds = new List<string?>(RawMaterialDDIds);
+
         }
         else
         {
@@ -1185,7 +1257,27 @@
         Process = args.BarcodeText;
         if (Process != null)
         {
-            Data.ProcessDD = Process;
+
+            // _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Data.CompanyID));
+            var Processdd = _RawMatItemList.Where(f => f.ItemNo == Process).ToList();
+            if (Processdd.Count > 0)
+            {
+
+                if (ProcessDDIds.Contains(Process) == false)
+                {
+                    ProcessDDIds.Add(Process);
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowToast("Invaild Process", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            Data.ProcessDDIds = new List<string?>(ProcessDDIds);
+
+
         }
         else
         {
@@ -1196,14 +1288,35 @@
     async Task FPDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
     {
         FPDD = args.BarcodeText;
+
         if (FPDD != null)
         {
-            Data.FPDD = FPDD;
+            // _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Data.CompanyID));
+            var Fpdd = _ponumberActivities.Where(f => f.ProdOrderNo == FPDD).ToList();
+            if (Fpdd.Count > 0)
+            {
+
+                if (FPDDIds.Contains(FPDD) == false)
+                {
+                    FPDDIds.Add(FPDD);
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowToast("Invaild FPDD", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            Data.FPDDIds = new List<string?>(FPDDIds);
+
         }
         else
         {
             toastService.ShowToast("Invaild FPDD", AC.SD.Core.Services.ToastLevel.Error);
         }
+
+        StateHasChanged();
         CloseFPDDPopup();
     }
     void CloseFPDDPopup()
@@ -1230,47 +1343,7 @@
         _PackingMaterialReader.StopDecoding();
         StateHasChanged();
     }
-    void SelectedTypeItems(string type)
-    {
-        FPVisible = false;
-        ProcessVisible = false;
-        RawMaterialVisible = false;
-        PackingMaterialVisible = false;
-        if (type == "FP")
-        {
-            FPVisible = true;
-            ProcessVisible = false;
-            RawMaterialVisible = false;
-            PackingMaterialVisible = false;
 
-        }
-        if (type == "Process")
-        {
-            FPVisible = false;
-            ProcessVisible = true;
-            RawMaterialVisible = false;
-            PackingMaterialVisible = false;
-        }
-        if (type == "Raw Material")
-        {
-            FPVisible = false;
-            ProcessVisible = false;
-            RawMaterialVisible = true;
-            PackingMaterialVisible = false;
-        }
-        if (type == "Packing Material")
-        {
-            FPVisible = false;
-            ProcessVisible = false;
-            RawMaterialVisible = false;
-            PackingMaterialVisible = true;
-        }
-        else
-        {
-
-        }
-        StateHasChanged();
-    }
     async Task SelectedTypeItemsChanged(string type)
     {
         _ponumberActivities = new List<NavprodOrderLineModel>(); _RawMatItemList = new List<RawMatItemList>();
@@ -1287,6 +1360,7 @@
             if (Data.CompanyID > 0)
             {
                 _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Data.CompanyID));
+
                 FPVisible = true;
                 ProcessVisible = false;
                 RawMaterialVisible = false;
@@ -1399,15 +1473,48 @@
             _productionActivities.Clear();
             _productionActivities = null;
         }
+        if (_RawMatItemList != null)
+        {
+            _RawMatItemList.Clear();
+            _RawMatItemList = null;
+        }
+        if (_RawMatItemList1 != null)
+        {
+            _RawMatItemList1.Clear();
+            _RawMatItemList1 = null;
+        }
+        if (_RawMatItemList2 != null)
+        {
+            _RawMatItemList2.Clear();
+            _RawMatItemList2 = null;
+        }
         if (_AppLines != null)
         {
             _AppLines.Clear();
             _AppLines = null;
         }
+        if(_ProductNameList != null)
+        {
+            _ProductNameList.Clear();
+            _ProductNameList = null;
+        }
+        if(_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_StatusList != null)
+        {
+            _StatusList.Clear();
+            _StatusList = null;
+        }
         _selectedEditItems = null;
         Data = null;
         DataLine = null;
-
+        FPDDIds = null;
+        ProcessDDIds = null;
+         RawMaterialDDIds = null;
+          PackingMaterialDDIds = null;
         //System.GC.Collect();
         // GC.SuppressFinalize(this);
     }

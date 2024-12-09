@@ -470,6 +470,10 @@ namespace SW.Portal.Solutions.Controllers
                 {
                     FileNameSessionID = FileSessionID;
                 }
+                else
+                {
+                    FileSessionID = FileNameSessionID;
+                }
                 var fileName = FileNameSessionID.ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
                 var filePath = Path.Combine(serverPaths, fileName);
 

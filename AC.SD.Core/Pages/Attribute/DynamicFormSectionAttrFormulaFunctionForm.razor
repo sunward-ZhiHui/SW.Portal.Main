@@ -1,0 +1,339 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMAttributeGrid" Data="@_dynamicFormSectionAttrFormulaFunction" EditModelSaving="@OnEditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DynamicFormSectionAttrFormulaFunctionId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            style="height: calc(100vh - 500px);"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
+
+            <DxGridDataColumn FieldName="Type" Caption="Type" />
+            <DxGridDataColumn FieldName="AValue" Caption="A Value" Width="180" />
+            <DxGridDataColumn FieldName="BValue" Caption="B Value" Width="180" />
+            <DxGridDataColumn FieldName="BValue" Caption="Color Code" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttrFormulaFunction)context.DataItem;
+                    }
+                    <input type="color" @bind="item.ColorValue" style="pointer-events:none;" />
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (DynamicFormSectionAttrFormulaFunction)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6">
+                    <DxComboBox Data="@_dynamicFormSectionAttrFormulaMasterFunction"
+                                Value="@types.DynamicFormSectionAttrFormulaMasterFuntionId"
+                                TextFieldName="Type"
+                                ValueFieldName="MasterID"
+                                ValueExpression="@(() => types.DynamicFormSectionAttrFormulaMasterFuntionId )"
+                                ValueChanged="@((long? plant) => onChangedData(plant,types))" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.DynamicFormSectionAttrFormulaMasterFuntionId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="A Value" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.AValue" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.AValue)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="B Value" ColSpanMd="6" Visible="@types.IsBValueEnabled">
+                    <DxSpinEdit @bind-Value="@types.BValue" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.BValue)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Color Code" ColSpanMd="6">
+                    <input type="color" @bind="types.ColorValue" />
+                    <ValidationMessage For="@(() => types.ColorValue)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Type" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete Section Attribute"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false; bool DeleteEnabled { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    IGrid? SMAttributeGrid { get; set; }
+    bool PanelAttibuteVisible { get; set; } = true;
+    [Parameter]
+    public Action? RevokeBack { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute SelectedItems { get; set; }
+    private List<DynamicFormSectionAttrFormulaFunction> _dynamicFormSectionAttrFormulaFunction;
+    private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunction;
+    private DynamicFormSectionAttrFormulaFunction _selectedAttributeItems; private DynamicFormSectionAttrFormulaFunction _selectAttributelst;
+    DxPopup? popup; bool Blukdeletepopup { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        _dynamicFormSectionAttrFormulaMasterFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaMasterFunction());
+        await UpdateDataAsync();
+    }
+    void onChangedData(long? Ids, DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction)
+    {
+        dynamicFormSectionAttrFormulaFunction.DynamicFormSectionAttrFormulaMasterFuntionId = Ids;
+        dynamicFormSectionAttrFormulaFunction.IsBValueEnabled = false;
+        dynamicFormSectionAttrFormulaFunction.BValue = 0;
+        var res = _dynamicFormSectionAttrFormulaMasterFunction.Where(f => f.DynamicFormSectionAttrFormulaMasterFunctionId == Ids).FirstOrDefault().IsBValueEnabled;
+        if (res != null)
+        {
+            dynamicFormSectionAttrFormulaFunction.IsBValueEnabled = res;
+            dynamicFormSectionAttrFormulaFunction.BValue = res == true ? null : 0;
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelAttibuteVisible = true; AddEnabled = true; EditEnabled = false; DeleteEnabled = false;
+        _dynamicFormSectionAttrFormulaFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaFunction(SelectedItems.DynamicFormSectionAttributeId));
+        if (_dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0)
+        {
+           // EditEnabled = true; DeleteEnabled = true;
+            _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault();
+        }
+        PanelAttibuteVisible = false;
+        StateHasChanged();
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var navitems = (DynamicFormSectionAttrFormulaFunction)e.EditModel;
+        var createReq = new InsertOrUpdateDynamicFormSectionAttrFormulaFunction
+            {
+                AValue = navitems.AValue,
+                BValue = navitems.IsBValueEnabled == false ? null : navitems.BValue,
+                DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId,
+                DynamicFormSectionAttrFormulaMasterFuntionId = navitems.DynamicFormSectionAttrFormulaMasterFuntionId,
+                DynamicFormSectionAttrFormulaFunctionId = navitems.DynamicFormSectionAttrFormulaFunctionId,
+                ColorValue = !string.IsNullOrEmpty(navitems.ColorValue) ? navitems.ColorValue : "#000000",
+                IsBValueEnabled = navitems.IsBValueEnabled,
+            };
+
+        if (e.IsNew)
+        {
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+            }
+            await UpdateDataAsync();
+        }
+        else
+        {
+            try
+            {
+                var ans = await Mediator.Send(createReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+            }
+            await UpdateDataAsync();
+
+        }
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        SMAttributeGrid.StartEditNewRowAsync();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DynamicFormSectionAttrFormulaFunction)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.BValue = 0;
+            navitems.ColorValue = "#000000";
+        }
+        else
+        {
+            if (navitems.AValue != null)
+            {
+                string number = Convert.ToString(navitems.AValue);
+                if (number.Contains("."))
+                {
+                    while (number.Substring(number.Length - 1) == "0")
+                    {
+                        number = number.Substring(0, number.Length - 1);
+                    }
+                }
+                navitems.AValue = Convert.ToDecimal(number);
+            }
+            navitems.BValue = navitems.IsBValueEnabled == true ? navitems.BValue : 0;
+            if (navitems.BValue != null)
+            {
+                string number = Convert.ToString(navitems.BValue);
+                if (number.Contains("."))
+                {
+                    while (number.Substring(number.Length - 1) == "0")
+                    {
+                        number = number.Substring(0, number.Length - 1);
+                    }
+                }
+                navitems.BValue = Convert.ToDecimal(number);
+            }
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttrFormulaFunctionId");
+        _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault(f => f.DynamicFormSectionAttrFormulaFunctionId == (long?)UniqueId);
+        EditEnabled = true; DeleteEnabled = true;
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DynamicFormSectionAttrFormulaFunction dataselectItems)
+                    {
+                        _selectAttributelst = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault(f => f.DynamicFormSectionAttrFormulaFunctionId == dataselectItems.DynamicFormSectionAttrFormulaFunctionId);
+                    }
+                }
+                SMAttributeGrid.StartEditDataItemAsync(_selectAttributelst);
+            }
+            else
+            {
+                SMAttributeGrid.StartEditDataItemAsync(_selectedAttributeItems);
+            }
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is DynamicFormSectionAttrFormulaFunction selectData)
+                    {
+                        var request = new DeleteDynamicFormSectionAttrFormulaFunction(selectData);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        SMAttributeGrid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+        }
+
+        await UpdateDataAsync();
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

@@ -128,7 +128,7 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddSingleton(new JobScheduleType(
                     jobType: typeof(HandfireJob),
                      //cronExpression: "0 */5 * * * ?")); // run every 59 seconds
-                    cronExpression: "0 0 0 * * ?")); // once a day
+                    cronExpression: "0 05 02 * * ?")); // once a day 2:05 AM
 
 
                 services.AddHostedService<QuartzHostedService>();

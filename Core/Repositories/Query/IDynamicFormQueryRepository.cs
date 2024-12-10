@@ -120,6 +120,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ApplicationPermission>> GetDynamicFormMenuList();
         Task<ApplicationPermission> UpdateDynamicFormMenuSortOrder(ApplicationPermission applicationPermission);
         Task<DynamicForm> DeleteDynamicFormMenu(DynamicForm dynamicForm);
+        Task<IReadOnlyList<DynamicFormSectionAttrFormulaFunction>> GetDynamicFormSectionAttrFormulaFunction(long? DynamicFormSectionAttributeId);
+        Task<IReadOnlyList<DynamicFormSectionAttrFormulaMasterFunction>> GetDynamicFormSectionAttrFormulaMasterFunction();
+        Task<DynamicFormSectionAttrFormulaFunction> InsertOrUpdateDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction value);
+        Task<DynamicFormSectionAttrFormulaFunction>  DeleteDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction);  
     }
 
 }

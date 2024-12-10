@@ -24,6 +24,7 @@
 @using ExpressionMathEval = org.matheval.Expression;
 @inject AC.SD.Core.Helpers.DataGridDynamicForm _LoadDataGridDynamicForm
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@using CodingSeb.ExpressionEvaluator;
 @using BlazorBarcodeScanner.ZXing.JS
 @*     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
@@ -4570,6 +4571,28 @@
             StateHasChanged();
         }
     }
+    private string ExpressionEvaluatorColorCode(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction, DynamicFormSectionAttribute DynamicFormSectionAttribute)
+    {
+        var colorsData = "black";
+        // if (Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName) != null)
+        // {
+        //     var itemValue = Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName).GetValue(Data);
+        //     string? values = itemValue == null ? null : (string)itemValue;
+        //     if (values != null)
+        //     {
+        //         ExpressionEvaluator evaluator = new ExpressionEvaluator();
+        //         string ab = dynamicFormSectionAttrFormulaFunction.FormulaFunctionName;
+        //         ab = ab.Replace("x", values); ab = ab.Replace("a", (char)dynamicFormSectionAttrFormulaFunction.AValue);
+        //         if(dynamicFormSectionAttrFormulaFunction.IsBValueEnabled==true)
+        //         {
+        //             ab = ab.Replace("b", dynamicFormSectionAttrFormulaFunction.BValue);
+        //         }
+        //         ab += "{";
+        //         ab += "}";
+        //     }
+        // }
+        return colorsData;
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
         InvokeAsync(onshowLoading);
@@ -5129,13 +5152,18 @@
                                  if (!string.IsNullOrEmpty(s.FormulaTextBox))
                                  {
                                      editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
-                                             {
-                                                 dx.OpenComponent<DxEditorButton>(j + 1);
-                                                 dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
-                                                 dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
-                                                 dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
-                                                 dx.CloseComponent();
-                                             }));
+                                    {
+                                        dx.OpenComponent<DxEditorButton>(j + 1);
+                                        dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                                        dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                                        dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                                        dx.CloseComponent();
+                                    }));
+                                     var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                                     if (colorCodeExits != null)
+                                     {
+                                         //editor.AddAttribute(j + 1, "style", "color:" + ExpressionEvaluatorColorCode(colorCodeExits, s) + ";");
+                                     }
                                  }
                                  editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                                  if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
@@ -5639,9 +5667,9 @@
                                          editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                                      }
                                      else if (s.DataSourceTable == "RawMatPurch")
-                                    {
-                                        editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
-                                    }
+                                     {
+                                         editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                                     }
                                      else
                                      {
                                          editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5759,16 +5787,16 @@
                                                  layoutItemBuilders.CloseComponent();
                                              }
                                              if (s.DataSourceTable == "RawMatPurch")
-                                            {
-                                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                                layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
-                                                layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
-                                                layoutItemBuilders.CloseComponent();
-                                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                                layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
-                                                layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
-                                                layoutItemBuilders.CloseComponent();
-                                            }
+                                             {
+                                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                                 layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                                                 layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                                                 layoutItemBuilders.CloseComponent();
+                                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                                 layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                                                 layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                                                 layoutItemBuilders.CloseComponent();
+                                             }
 
                                          }));
                                      editor.CloseComponent();
@@ -5969,9 +5997,9 @@
                                          editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                                      }
                                      else if (s.DataSourceTable == "RawMatPurch")
-                                    {
-                                        editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
-                                    }
+                                     {
+                                         editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                                     }
                                      else
                                      {
                                          editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -6385,7 +6413,7 @@
                                            {
                                                editor11.OpenElement(i + 1, "div");
                                                editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                                               editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"" + ff.DisplayName);
+                                               editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " ") : "" + ff.DisplayName);
                                                if (isPrint == false)
                                                {
                                                    if (s.IsRequired == true)
@@ -6433,9 +6461,9 @@
                                                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}");
                                                }
                                                else if (ff.DataSourceTable == "RawMatPurch")
-                                                {
-                                                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
-                                                }
+                                               {
+                                                   editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
+                                               }
                                                else
                                                {
                                                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
@@ -6549,16 +6577,16 @@
                                                    layoutItemBuilders1.CloseComponent();
                                                }
                                                if (ff.DataSourceTable == "RawMatPurch")
-                                                {
-                                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                                                    layoutItemBuilders1.AddAttribute(8, "FieldName", "BatchNo");
-                                                    layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
-                                                    layoutItemBuilders1.CloseComponent();
-                                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                                                    layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
-                                                    layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
-                                                    layoutItemBuilders1.CloseComponent();
-                                                }
+                                               {
+                                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                                   layoutItemBuilders1.AddAttribute(8, "FieldName", "BatchNo");
+                                                   layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
+                                                   layoutItemBuilders1.CloseComponent();
+                                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                                   layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
+                                                   layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
+                                                   layoutItemBuilders1.CloseComponent();
+                                               }
                                            }));
                                                if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
                                                {
@@ -6736,7 +6764,7 @@
                         {
                             if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
                             {
-                                loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly,a);
+                                loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly, a);
                             }
                         }
                         else if (q.DataSourceTable == "ApplicationMasterParent")
@@ -6758,7 +6786,7 @@
                         {
                             editor1.OpenElement(i + 1, "div");
                             editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                            editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"" + q.Description);
+                            editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " ") : "" + q.Description);
                             if (isPrint == false)
                             {
                                 if (q.IsRequired == true)
@@ -7565,11 +7593,11 @@
                     if (s.DataSourceTable == "ApplicationMaster" && s.ApplicationMaster != null && s.ApplicationMaster.Count > 0)
 
                     {
-                        loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
+                        loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly, a);
                     }
                     if (s.DataSourceTable == "ApplicationMasterParent" && s.ApplicationMasterParents != null && s.ApplicationMasterParents.Count() > 0)
                     {
-                        loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
+                        loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly, a);
                     }
                     if (s.DataSourceTable == "DynamicGrid")
                     {
@@ -7928,7 +7956,7 @@
             }
         }
     }
-    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         int dumNo = 1;
         s.ApplicationMasterParents.ForEach(ab =>
@@ -7939,11 +7967,11 @@
         s.ApplicationMasterParents.ForEach(ab =>
         {
             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true,dynamicFormSection);
+            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true, dynamicFormSection);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
                 nameDatas.Add(ab);
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas,dynamicFormSection);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
                 if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                 {
                     loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
@@ -7951,7 +7979,7 @@
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames, DynamicFormSection dynamicFormSection)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
@@ -7963,7 +7991,7 @@
             loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames, dynamicFormSection);
         }
     }
-    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems,DynamicFormSection dynamicFormSection)
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems, DynamicFormSection dynamicFormSection)
     {
         var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
         var propertyDependency = Data.GetType().GetProperty(appendDependency);
@@ -8858,7 +8886,7 @@
             }
         }
     }
-    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown, DynamicFormSection dynamicFormSection)
     {
         int l = 0;
         var appendAppMaster = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
@@ -9183,7 +9211,7 @@
         }
 
     }
-    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         var appcount = s.ApplicationMaster.Count();
         int dumNo = 1;
@@ -9213,7 +9241,7 @@
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"" + s.DisplayName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "" + s.DisplayName);
                 }
                 else
                 {
@@ -9824,7 +9852,7 @@
         }
     }
 
-    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         var appcount = q.SubApplicationMaster.Count();
         int dumNo = 1;
@@ -9853,11 +9881,11 @@
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + q.Description);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " ") : "" + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " ") : "" + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")
@@ -10027,7 +10055,7 @@
                     {
                         editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
                     }
-                    if (q.DataSourceTable == "Employee" )
+                    if (q.DataSourceTable == "Employee")
                     {
                         editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}");
                     }

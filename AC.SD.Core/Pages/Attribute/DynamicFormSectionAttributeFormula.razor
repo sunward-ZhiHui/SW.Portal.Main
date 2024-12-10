@@ -11,6 +11,8 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using CodingSeb.ExpressionEvaluator;
+
 @* @implements IAsyncDisposable *@
 <script>
     function callButtonFunction(texts) {
@@ -75,6 +77,7 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                        @* <DxMenuItem Text="Range Function" IconCssClass="fa fa-calculator" Click="@RangeFunctionAdd" /> *@
                     </Items>
                 </DxMenu>
             </div>
@@ -131,21 +134,36 @@
                         </div>
                     </div>
                 </DxFormLayoutItem>
-                
+
                 <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
                     <textarea rows="5" id="TextareaSpinInsert" style="width:100%;display:none;" @onkeyup="@((e) => onchangeFormulaTextBox())"></textarea>
                     <DxMemo @bind-Text="@Data.FormulaTextBox" style="display:none;" />
                     <ValidationMessage For="@(() => Data.FormulaTextBox)" style="font-weight:bold;" />
                 </DxFormLayoutItem>
-               @*  <DxFormLayoutItem Caption="Color Code" ColSpanMd="6">
-                    <input type="color" @bind="Data.ColorCode" />
+                @*  <DxFormLayoutItem Caption="Color Code" ColSpanMd="6">
+                <input type="color" @bind="Data.ColorCode" />
                 </DxFormLayoutItem> *@
             </DxFormLayout>
         </EditForm>
     </div>
 </div>
+<DxPopup @bind-Visible="@RangeFunctionAddPopup"
+         ShowFooter="false"
+         HeaderText="Add Range"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Closed="EulaPopupFormulaClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm"  SelectedItems="@SelectedItems"  RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    private DynamicFormSectionAttrFormulaFunctionForm refDynamicFormSectionAttrFormulaFunctionForm;
+    public bool RangeFunctionAddPopup { get; set; } = false;
     EditContext _editContext;
     [Parameter]
     public Action? RevokeBack { get; set; }
@@ -167,7 +185,6 @@
         Data.FormulaDynamicSectionAttributeId = SelectedItems.FormulaDynamicSectionAttributeId;
         _dynamicFormSectionAttributeSpinData = await Mediator.Send(new GetDynamicFormSectionAttributeForSpinEdit(Items.DynamicFormId));
         await jsRuntime.InvokeVoidAsync("setTextareaSpinInsert", SelectedItems.FormulaTextBox);
-
     }
     async Task OnItemClick(ToolbarItemClickEventArgs e)
     {
@@ -223,5 +240,18 @@
         {
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
+    }
+    void EulaPopupFormulaClosed(PopupClosedEventArgs args)
+    {
+        RangeFunctionAddPopup = false;
+    }
+    void RangeFunctionAdd()
+    {
+        RangeFunctionAddPopup = true;
+    }
+    void closeRangeFunctionAdd()
+    {
+        RangeFunctionAddPopup = false;
+        StateHasChanged();
     }
 }

@@ -1365,4 +1365,60 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class DynamicFormSectionAttrFormulaFunctionHandler : IRequestHandler<GetDynamicFormSectionAttrFormulaFunction, List<DynamicFormSectionAttrFormulaFunction>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public DynamicFormSectionAttrFormulaFunctionHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttrFormulaFunction>> Handle(GetDynamicFormSectionAttrFormulaFunction request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttrFormulaFunction>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttrFormulaFunction(request.DynamicFormSectionAttributeId);
+        }
+
+
+    }
+    public class GetDynamicFormSectionAttrFormulaMasterFunctionHandler : IRequestHandler<GetDynamicFormSectionAttrFormulaMasterFunction, List<DynamicFormSectionAttrFormulaMasterFunction>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttrFormulaMasterFunctionHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttrFormulaMasterFunction>> Handle(GetDynamicFormSectionAttrFormulaMasterFunction request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttrFormulaMasterFunction>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttrFormulaMasterFunction();
+        }
+
+
+    }
+    public class InsertOrUpdateDynamicFormSectionAttrFormulaFunctionHandler : IRequestHandler<InsertOrUpdateDynamicFormSectionAttrFormulaFunction, DynamicFormSectionAttrFormulaFunction>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertOrUpdateDynamicFormSectionAttrFormulaFunctionHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttrFormulaFunction> Handle(InsertOrUpdateDynamicFormSectionAttrFormulaFunction request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateDynamicFormSectionAttrFormulaFunction(request);
+
+        }
+    }
+    public class DeleteDynamicFormSectionAttrFormulaFunctionHandler : IRequestHandler<DeleteDynamicFormSectionAttrFormulaFunction, DynamicFormSectionAttrFormulaFunction>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormSectionAttrFormulaFunctionHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttrFormulaFunction> Handle(DeleteDynamicFormSectionAttrFormulaFunction request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormSectionAttrFormulaFunction(request.DynamicFormSectionAttrFormulaFunction);
+
+        }
+    }
 }

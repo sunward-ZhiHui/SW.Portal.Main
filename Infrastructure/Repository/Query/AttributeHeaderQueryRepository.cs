@@ -898,6 +898,7 @@ namespace Infrastructure.Repository.Query
             {
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
                 var dynamicFormSectionAttributeSecurity = new List<DynamicFormSectionAttributeSecurity>();
+                var DynamicFormSectionAttrFormulaFunctionList = new List<DynamicFormSectionAttrFormulaFunction>();
                 var applicationMasters = new List<ApplicationMaster>(); var applicationMasterParent = new List<ApplicationMasterParent>(); var dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 using (var connection = CreateConnection())
                 {
@@ -934,6 +935,7 @@ namespace Infrastructure.Repository.Query
                     query += "Select ApplicationMasterId,ApplicationMasterName,ApplicationMasterDescription,ApplicationMasterCodeId from ApplicationMaster;";
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
                     query += "select t1.*,t2.SequenceNo,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
+                    query += "SELECT t1.*,t2.Type,t2.FormulaFunctionName FROM DynamicFormSectionAttrFormulaFunction t1 JOIN DynamicFormSectionAttrFormulaMasterFunction t2 ON t1.DynamicFormSectionAttrFormulaMasterFuntionId=t2.MasterID;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -944,6 +946,7 @@ namespace Infrastructure.Repository.Query
                     applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
                     dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
+                    DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
                 }
                 if (attributeHeaderListModel.ApplicationMasterParent != null && attributeHeaderListModel.ApplicationMasterParent.Count() > 0)
                 {
@@ -973,6 +976,7 @@ namespace Infrastructure.Repository.Query
                         plantCode = plantCode != null ? plantCode.ToLower() : null;
                     }
                     List<long?> DynamicFormSectionAttributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Select(a => (long?)a.DynamicFormSectionAttributeId).Distinct().ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttrFormulaFunctions = DynamicFormSectionAttrFormulaFunctionList.Where(w => DynamicFormSectionAttributeIds.Contains(w.DynamicFormSectionAttributeId)).ToList();
                     attributeHeaderListModel.DynamicFormSectionAttributeSections = dynamicFormSectionAttributeSection.Where(q => DynamicFormSectionAttributeIds.Contains(q.DynamicFormSectionAttributeId)).ToList();
                     List<string?> appMasterNames = new List<string?>() { "ApplicationMasterParent", "ApplicationMaster" };
                     List<long?> DynamicGridFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => appMasterNames.Contains(a.DataSourceTable) && a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0).Select(z => z.GridDropDownDynamicFormID).Distinct().ToList();

@@ -793,5 +793,28 @@ namespace Application.Queries
             this.DynamicForm = dynamicForm;
         }
     }
+    public class GetDynamicFormSectionAttrFormulaMasterFunction : PagedRequest, IRequest<List<DynamicFormSectionAttrFormulaMasterFunction>>
+    {
+    }
+    public class GetDynamicFormSectionAttrFormulaFunction : PagedRequest, IRequest<List<DynamicFormSectionAttrFormulaFunction>>
+    {
+        public long? DynamicFormSectionAttributeId { get; private set; }
+        public GetDynamicFormSectionAttrFormulaFunction(long? dynamicFormSectionAttributeId)
+        {
+            this.DynamicFormSectionAttributeId = dynamicFormSectionAttributeId;
+        }
+    }
+    public class InsertOrUpdateDynamicFormSectionAttrFormulaFunction : DynamicFormSectionAttrFormulaFunction, IRequest<DynamicFormSectionAttrFormulaFunction>
+    {
+    }
+    public class DeleteDynamicFormSectionAttrFormulaFunction : PagedRequest, IRequest<DynamicFormSectionAttrFormulaFunction>
+    {
+        public DynamicFormSectionAttrFormulaFunction DynamicFormSectionAttrFormulaFunction { get; private set; }
+        public DeleteDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction)
+        {
+            this.DynamicFormSectionAttrFormulaFunction = dynamicFormSectionAttrFormulaFunction;
+        }
+    }
+    
 }
 

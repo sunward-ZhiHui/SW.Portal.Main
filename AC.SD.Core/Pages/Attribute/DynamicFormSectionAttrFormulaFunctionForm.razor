@@ -130,11 +130,12 @@
     public DynamicFormSectionAttribute SelectedItems { get; set; }
     private List<DynamicFormSectionAttrFormulaFunction> _dynamicFormSectionAttrFormulaFunction;
     private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunction;
+    private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunctionAll;
     private DynamicFormSectionAttrFormulaFunction _selectedAttributeItems; private DynamicFormSectionAttrFormulaFunction _selectAttributelst;
     DxPopup? popup; bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-        _dynamicFormSectionAttrFormulaMasterFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaMasterFunction());
+        _dynamicFormSectionAttrFormulaMasterFunctionAll = await Mediator.Send(new GetDynamicFormSectionAttrFormulaMasterFunction());
         await UpdateDataAsync();
     }
     void onChangedData(long? Ids, DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction)
@@ -142,24 +143,36 @@
         dynamicFormSectionAttrFormulaFunction.DynamicFormSectionAttrFormulaMasterFuntionId = Ids;
         dynamicFormSectionAttrFormulaFunction.IsBValueEnabled = false;
         dynamicFormSectionAttrFormulaFunction.BValue = 0;
-        var res = _dynamicFormSectionAttrFormulaMasterFunction.Where(f => f.DynamicFormSectionAttrFormulaMasterFunctionId == Ids).FirstOrDefault().IsBValueEnabled;
-        if (res != null)
+        if (Ids > 0)
         {
-            dynamicFormSectionAttrFormulaFunction.IsBValueEnabled = res;
-            dynamicFormSectionAttrFormulaFunction.BValue = res == true ? null : 0;
+            var res = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(f => f.DynamicFormSectionAttrFormulaMasterFunctionId == Ids).FirstOrDefault().IsBValueEnabled;
+            if (res != null)
+            {
+                dynamicFormSectionAttrFormulaFunction.IsBValueEnabled = res;
+                dynamicFormSectionAttrFormulaFunction.BValue = res == true ? null : 0;
+            }
         }
     }
     async Task UpdateDataAsync()
     {
-        PanelAttibuteVisible = true; AddEnabled = true; EditEnabled = false; DeleteEnabled = false;
-        _dynamicFormSectionAttrFormulaFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaFunction(SelectedItems.DynamicFormSectionAttributeId));
-        if (_dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0)
+        try
         {
-           // EditEnabled = true; DeleteEnabled = true;
-            _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault();
+            PanelAttibuteVisible = true; AddEnabled = true; EditEnabled = false; DeleteEnabled = false;
+            _dynamicFormSectionAttrFormulaFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaFunction(SelectedItems.DynamicFormSectionAttributeId));
+            if (_dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0)
+            {
+                // EditEnabled = true; DeleteEnabled = true;
+                AddEnabled = false;
+                _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault();
+                SMAttributeGrid?.SetFocusedRowIndex(0);
+            }
+            PanelAttibuteVisible = false;
+            StateHasChanged();
         }
-        PanelAttibuteVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void backUrl()
     {
@@ -230,11 +243,21 @@
         var navitems = (DynamicFormSectionAttrFormulaFunction)e.EditModel;
         if (e.IsNew)
         {
+            _dynamicFormSectionAttrFormulaMasterFunction = new List<DynamicFormSectionAttrFormulaMasterFunction>();
+            var masterIds = _dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0 ? _dynamicFormSectionAttrFormulaFunction.Select(s => s.DynamicFormSectionAttrFormulaMasterFuntionId).ToList() : new List<long?>();
+            _dynamicFormSectionAttrFormulaMasterFunction = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(w => !masterIds.Contains(w.MasterID)).ToList();
             navitems.BValue = 0;
             navitems.ColorValue = "#000000";
         }
         else
         {
+            List<long?> masterIds = new List<long?>();
+            var list = _dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0 ? _dynamicFormSectionAttrFormulaFunction.Where(w => w.DynamicFormSectionAttrFormulaFunctionId != navitems.DynamicFormSectionAttrFormulaFunctionId).Select(s => s.DynamicFormSectionAttrFormulaMasterFuntionId).ToList() : new List<long?>();
+            if (list != null && list.Count() > 0)
+            {
+                masterIds.AddRange(list);
+            }
+            _dynamicFormSectionAttrFormulaMasterFunction = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(w => !masterIds.Contains(w.MasterID)).ToList();
             if (navitems.AValue != null)
             {
                 string number = Convert.ToString(navitems.AValue);

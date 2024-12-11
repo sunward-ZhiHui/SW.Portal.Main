@@ -7,6 +7,7 @@ using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -383,6 +384,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DynamicFormDataResponse>> Handle(GetAllDynamicFormDataOneApi request, CancellationToken cancellationToken)
         {
             return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormDataOneApiAsync(request.DynamicFormDataSessionId);
+        }
+    }
+
+    public class GetDynamicFormAllApiHandler : IRequestHandler<GetDynamicFormObjectsApi, List<ExpandoObject>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetDynamicFormAllApiHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<ExpandoObject>> Handle(GetDynamicFormObjectsApi request, CancellationToken cancellationToken)
+        {
+            return (List<ExpandoObject>) await _attrubutequeryRepository.GetAllDataObjectDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll);
         }
     }
 }

@@ -24,6 +24,7 @@
 @implements IAsyncDisposable
 @using System.Text.RegularExpressions;
 @using ExpressionMathEval = org.matheval.Expression;
+@using CodingSeb.ExpressionEvaluator;
 @using BlazorBarcodeScanner.ZXing.JS
 <style>
     .my-style {
@@ -4234,6 +4235,40 @@
             StateHasChanged();
         }
     }
+    private string ExpressionEvaluatorColorCode(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction, DynamicFormSectionAttribute DynamicFormSectionAttribute)
+    {
+        string? colorsData = null;
+        if (Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName) != null)
+        {
+            try
+            {
+                var itemValue = Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName).GetValue(Data);
+                string? values = itemValue == null ? null : (string)itemValue;
+                if (values != null && dynamicFormSectionAttrFormulaFunction.AValue != null)
+                {
+                    ExpressionEvaluator evaluator = new ExpressionEvaluator();
+                    string ab = dynamicFormSectionAttrFormulaFunction.FormulaFunctionName;
+                    ab = ab.Replace("x", values);
+                    string aValue = "" + dynamicFormSectionAttrFormulaFunction.AValue;
+                    ab = ab.Replace("a", aValue);
+                    if (dynamicFormSectionAttrFormulaFunction.IsBValueEnabled == true)
+                    {
+                        string bValue = "" + dynamicFormSectionAttrFormulaFunction.BValue;
+                        ab = ab.Replace("b", bValue);
+                    }
+                    ab += "{ return ";
+                    ab += "\"" + dynamicFormSectionAttrFormulaFunction.ColorValue + "\";";
+                    ab += "}";
+                    colorsData = (string?)evaluator.ScriptEvaluate(ab);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        return colorsData;
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
       {
           InvokeAsync(onshowLoading);
@@ -4641,7 +4676,7 @@
                    // {
                    editor.OpenElement(i + 1, "div");
                    editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                   editor.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + ". "):"" + s.DisplayName);
+                   editor.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + ". "):"") + s.DisplayName);
                    if (isPrint == false)
                    {
                        if (s.IsRequired == true)
@@ -4797,6 +4832,19 @@
                                dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
                                dx.CloseComponent();
                            }));
+                           var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                           if (colorCodeExits != null)
+                           {
+                               var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
+                               if (!string.IsNullOrEmpty(colorExitsCode))
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
+                               }
+                               else
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:black;");
+                               }
+                           }
                        }
                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                        {
@@ -6045,7 +6093,7 @@
           {
               editor11.OpenElement(i + 1, "div");
               editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-              editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"" + ff.DisplayName);
+              editor11.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"") + ff.DisplayName);
               if (isPrint == false)
               {
                   if (s.IsRequired == true)
@@ -6412,7 +6460,7 @@
               {
                   editor1.OpenElement(i + 1, "div");
                   editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                  editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"" + q.Description);
+                  editor1.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"") + q.Description);
                   if (isPrint == false)
                   {
                       if (q.IsRequired == true)
@@ -8520,7 +8568,7 @@
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
             //editor11.AddContent(i + 1, s.DummyNo + "." + (exitsNames != null ? (exitsNames?.DummyNo+".") : "") + (ab.DummyNo+1) + " " + ab.ApplicationMasterName);
-            editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " ") : "" + ab.ApplicationMasterName);
+            editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " ") : "") + ab.ApplicationMasterName);
             if (isPrint == false)
             {
                 if (s.IsRequired == true)
@@ -8829,11 +8877,11 @@
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"" + s.DisplayName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"") + s.DisplayName);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "" + "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "") + "Select " + ab.ApplicationMasterName);
                 }
                 if (isPrint == false)
                 {
@@ -9469,11 +9517,11 @@
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + q.Description);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"") + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"") + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")

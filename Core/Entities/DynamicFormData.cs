@@ -157,7 +157,7 @@ namespace Core.Entities
     }
     public class DynamicFormDataResponse
     {
-       /* public long DynamicFormDataId { get; set; }
+        public long DynamicFormDataId { get; set; }
         public long? DynamicFormId { get; set; }
         public string? ProfileNo { get; set; }
         [NotMapped]
@@ -177,15 +177,15 @@ namespace Core.Entities
         public long? DynamicFormSectionGridAttributeId { get; set; }
         public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
         [NotMapped]
-        public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();*/
+        public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();
         public dynamic? ObjectDataItems { get; set; }
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
-       /* public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
+        public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
         public Guid? SessionId { get; set; }
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }   
-        public DateTime? AddedDate { get; set; }*/
+        public DateTime? ModifiedDate { get; set; }
+        public DateTime? AddedDate { get; set; }
     }
 }

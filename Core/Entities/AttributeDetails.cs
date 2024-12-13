@@ -56,6 +56,11 @@ namespace Core.Entities
         public string? ProductName { get; set; }
         public string? OptStatus { get; set; }
         public string? NameList { get; set; }
+        public string? BatchSize { get; set; }
+        public string? ProdOrderNo { get; set; }
+        public string? UnitOfMeasureCode { get; set; }
+        public string? SubStatus { get; set; }
+        public string? Status { get; set; }
 
     }
     public class DataSourceAttributeDetails

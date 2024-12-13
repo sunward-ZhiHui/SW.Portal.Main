@@ -60,6 +60,7 @@
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
+                        <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
@@ -781,7 +782,7 @@
                                                         {
                                                             List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
                                                             gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
-                                                                    
+
                                                             string displayNames = string.Empty;
 
                                                             if (listData != null && listData.Count > 0)
@@ -793,13 +794,13 @@
                                                                         foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                         {
                                                                             dynamic eod = v;
-                                                                             var vv = eod.DynamicFormId;
-                                                                             string listone = string.Empty;
-                                                                             if (gridlistss != null && gridlistss.Count() > 0)
-                                                                             {
-                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
-                                                                                 g1.ForEach(q =>
-                                                                                {
+                                                                            var vv = eod.DynamicFormId;
+                                                                            string listone = string.Empty;
+                                                                            if (gridlistss != null && gridlistss.Count() > 0)
+                                                                            {
+                                                                                var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                                g1.ForEach(q =>
+                                                                           {
                                                                                     var byName = (IDictionary<string, object>)v;
                                                                                     if (q.Value != null)
                                                                                     {
@@ -810,7 +811,7 @@
                                                                                         }
                                                                                     }
                                                                                 });
-                                                                             }
+                                                                            }
                                                                             eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == l)
                                                                             {
@@ -849,14 +850,14 @@
                                                                         foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                         {
                                                                             dynamic eod = v;
-                                                                             var vv = eod.DynamicFormId;
-                                                                             var AttributeDetailIds = eod.AttributeDetailID;
-                                                                             string listone = string.Empty;
-                                                                             if (gridlistss != null && gridlistss.Count() > 0)
-                                                                             {
-                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
-                                                                                 g1.ForEach(q =>
-                                                                                {
+                                                                            var vv = eod.DynamicFormId;
+                                                                            var AttributeDetailIds = eod.AttributeDetailID;
+                                                                            string listone = string.Empty;
+                                                                            if (gridlistss != null && gridlistss.Count() > 0)
+                                                                            {
+                                                                                var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                                g1.ForEach(q =>
+                                                                           {
                                                                                     var byName = (IDictionary<string, object>)v;
                                                                                     if (q.Value != null)
                                                                                     {
@@ -867,7 +868,7 @@
                                                                                         }
                                                                                     }
                                                                                 });
-                                                                             }
+                                                                            }
                                                                             eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == Svalues)
                                                                             {
@@ -1261,6 +1262,14 @@
         if (_dynamicForm != null && _dynamicForm.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrl1()
+    {
+        if (_dynamicForm != null && _dynamicForm.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _dynamicForm.SessionID;
             await JS.InvokeVoidAsync("window.open", url, "_blank");
         }
     }

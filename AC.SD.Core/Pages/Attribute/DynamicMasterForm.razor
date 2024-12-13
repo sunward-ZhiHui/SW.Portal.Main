@@ -11,6 +11,7 @@
 @using System.ComponentModel.DataAnnotations;
 @inject IJSRuntime JSRuntime;
 @using System.Reflection;
+@inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
@@ -42,7 +43,15 @@
                         <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
-                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                        @* <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                        <DxMenuItem Text="OData" IconCssClass="fa fa-link">
+                            <Items>
+                                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
+                                <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
+                                <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                                <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
+                            </Items>
+                        </DxMenuItem>
                     </Items>
                 </DxMenu>
             </div>
@@ -480,9 +489,34 @@
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _dynamicFormData.SessionID);
         }
     }
+    async Task OpenOneOdataUrl()
+    {
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await ClipboardService.WriteTextAsync(url);
+            toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+        }
+    }
+    async Task OpenEmptyOdataUrl()
+    {
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrl1()
+    {
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
     async Task OpenOdataUrl()
     {
-        if (_dynamicFormData != null)
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");

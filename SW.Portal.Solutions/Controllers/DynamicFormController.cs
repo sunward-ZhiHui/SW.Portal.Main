@@ -67,32 +67,32 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
-        /* [HttpGet("GetDynamicFormDataList")]
-         public async Task<ActionResult<Services.ResponseModel<List<ExpandoObject>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
-         {
+        [HttpGet("GetDynamicFormDataListItem")]
+        public async Task<ActionResult<Services.ResponseModel<List<ExpandoObject>>>> GetDynamicFormDataListItem(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
+        {
 
-             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
-             var response = new Services.ResponseModel<ExpandoObject>();
-             var result = await _mediator.Send(new GetDynamicFormObjectsApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
+            var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
+            var response = new Services.ResponseModel<ExpandoObject>();
+            var result = await _mediator.Send(new GetDynamicFormObjectsApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
 
-             response.ResponseCode = Services.ResponseCode.Success;
-             response.Results = result;
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = result;
 
-             try
-             {
-                 response.ResponseCode = Services.ResponseCode.Success;
-                 response.Results = result;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result;
 
-             }
-             catch (Exception ex)
-             {
-                 response.ResponseCode = Services.ResponseCode.Failure;
-                 response.ErrorMessages.Add(ex.Message);
-             }
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
 
-             return Ok(response);
-         }
- */
+            return Ok(response);
+        }
+
         [HttpGet("GetDynamicFormAttributeList")]
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormAttributeList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {

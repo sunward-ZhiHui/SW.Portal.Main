@@ -384,6 +384,13 @@ namespace Infrastructure.Repository.Query
                             await _queryRepository.GetRawMatPurchList(item.PlantID);
                         }
                     }
+                    else if (JobType == "ReleaseProdOrderLine")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetReleaseProdOrderLineList(item.PlantID);
+                        }
+                    }
                     else if (JobType == "RawMatItem")
                     {
                         List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };

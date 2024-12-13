@@ -20,11 +20,12 @@ namespace Core.Repositories.Query
         Task<string> ProcessItemAsync(string companyname, long companyid, string type);
         Task<List<Navitems>> GetNavItemsAdd(ViewPlants company);
         Task<string> GetNAVStockBalance(StockBalanceSearch StockBalanceSearch);
-        Task<List<FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<FinishedProdOrderLine> finishedProdOrderLines,List<Navitems> navitems);
+        Task<List<FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<FinishedProdOrderLine> finishedProdOrderLines, List<Navitems> navitems);
         Task<List<NavprodOrderLine>> GetNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> navprodOrderLines);
         Task<List<NavprodOrderLine>> GetFinishedProdOrderLineToNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> productionLinelist);
         Task<List<SoCustomer>> NavVendorAsync(string company, long companyid, List<SoCustomer> navvendors);
 
         Task<List<RawMatPurch>> GetRawMatPurchAsync(string company, long companyid, List<RawMatPurch> rawMatPurches, List<Navitems> navitems);
+        Task<List<ReleaseProdOrderLine>> ReleaseProdOrderLineAsync(string company, long companyid, List<ReleaseProdOrderLine> releaseProdOrderLines, List<Navitems> navitems);
     }
 }

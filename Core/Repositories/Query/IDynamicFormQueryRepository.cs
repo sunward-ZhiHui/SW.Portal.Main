@@ -123,7 +123,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormSectionAttrFormulaFunction>> GetDynamicFormSectionAttrFormulaFunction(long? DynamicFormSectionAttributeId);
         Task<IReadOnlyList<DynamicFormSectionAttrFormulaMasterFunction>> GetDynamicFormSectionAttrFormulaMasterFunction();
         Task<DynamicFormSectionAttrFormulaFunction> InsertOrUpdateDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction value);
-        Task<DynamicFormSectionAttrFormulaFunction>  DeleteDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction);  
+        Task<DynamicFormSectionAttrFormulaFunction>  DeleteDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction);
+        Task<DynamicFormDataAssignUser> InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser value);
+        Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserList(long? DynamicFormId);
+        Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserAllList();
     }
 
 }

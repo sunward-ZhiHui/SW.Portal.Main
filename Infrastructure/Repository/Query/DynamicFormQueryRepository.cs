@@ -6660,7 +6660,6 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
                     try
                     {
                         var parameters = new DynamicParameters();
@@ -6680,6 +6679,77 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserList(long? DynamicFormId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", DynamicFormId);
+                var query = "SELECT * FROM DynamicFormDataAssignUser where DynamicFormId=@DynamicFormId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserAllList()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "SELECT t1.*,t2.SessionID FROM DynamicFormDataAssignUser t1 JOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID WHERE (t2.IsDeleted is null OR t2.IsDeleted=0);";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataAssignUser> InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormId", value.DynamicFormId);
+                        query += "Delete from  DynamicFormDataAssignUser  WHERE DynamicFormId = @DynamicFormId;";
+                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                        {
+                            foreach (var item in value.SelectUserIDs)
+                            {
+                                query += "INSERT INTO [DynamicFormDataAssignUser](DynamicFormId,UserId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
+                                         "VALUES (@DynamicFormId," + item + ");\r\n";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

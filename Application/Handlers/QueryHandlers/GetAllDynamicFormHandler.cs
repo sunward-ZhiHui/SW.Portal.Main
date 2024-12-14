@@ -1421,4 +1421,46 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertDynamicFormDataAssignUserHandler : IRequestHandler<InsertDynamicFormDataAssignUser, DynamicFormDataAssignUser>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormDataAssignUserHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataAssignUser> Handle(InsertDynamicFormDataAssignUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormDataAssignUser(request.DynamicFormDataAssignUser);
+
+        }
+    }
+    public class GetDynamicFormDataAssignUserListHandler : IRequestHandler<GetDynamicFormDataAssignUserList, List<DynamicFormDataAssignUser>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAssignUserListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAssignUser>> Handle(GetDynamicFormDataAssignUserList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAssignUser>)await _dynamicFormQueryRepository.GetDynamicFormDataAssignUserList(request.DynamicFormId);
+        }
+
+
+    }
+    public class GetDynamicFormDataAssignUserAllListHandler : IRequestHandler<GetDynamicFormDataAssignUserAllList, List<DynamicFormDataAssignUser>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAssignUserAllListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAssignUser>> Handle(GetDynamicFormDataAssignUserAllList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAssignUser>)await _dynamicFormQueryRepository.GetDynamicFormDataAssignUserAllList();
+        }
+
+
+    }
 }

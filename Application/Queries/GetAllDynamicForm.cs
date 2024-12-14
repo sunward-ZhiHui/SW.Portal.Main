@@ -815,6 +815,24 @@ namespace Application.Queries
             this.DynamicFormSectionAttrFormulaFunction = dynamicFormSectionAttrFormulaFunction;
         }
     }
-    
+    public class InsertDynamicFormDataAssignUser : PagedRequest, IRequest<DynamicFormDataAssignUser>
+    {
+        public DynamicFormDataAssignUser DynamicFormDataAssignUser { get; private set; }
+        public InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser dynamicFormDataAssignUser)
+        {
+            this.DynamicFormDataAssignUser = dynamicFormDataAssignUser;
+        }
+    }
+    public class GetDynamicFormDataAssignUserList : PagedRequest, IRequest<List<DynamicFormDataAssignUser>>
+    {
+        public long? DynamicFormId { get; private set; }
+        public GetDynamicFormDataAssignUserList(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    public class GetDynamicFormDataAssignUserAllList : PagedRequest, IRequest<List<DynamicFormDataAssignUser>>
+    {
+    }
 }
 

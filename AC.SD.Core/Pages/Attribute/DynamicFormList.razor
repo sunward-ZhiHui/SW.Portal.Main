@@ -519,33 +519,48 @@
                                 }
 
                             });
-                            if (_dynamicForm.IsApproval == true)
+                            if (_dynamicForm != null)
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
+                                if (_dynamicForm.IsApproval == true)
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
+                                }
                             }
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "Modified By", Type = "Form" });
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "Modified Date", Type = "Form" });
-                            if (_dynamicForm.IsApproval == true)
+                            if (_dynamicForm != null)
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
+                                if (_dynamicForm.IsApproval == true)
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
+                                }
                             }
                         }
                         else
                         {
-                            if (_dynamicForm.IsApproval == true)
+                            if (_dynamicForm != null)
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
+                                if (_dynamicForm.IsApproval == true)
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
+                                }
                             }
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "Modified By", Type = "Form" });
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "Modified Date", Type = "Form" });
-                            if (_dynamicForm.IsApproval == true)
+                            if (_dynamicForm != null)
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
+                                if (_dynamicForm.IsApproval == true)
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
+                                }
                             }
                         }
-                        var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null)));
-                        await Task.WhenAll(_dynamicformDataLists);
-                        _dynamicformDataList = await _dynamicformDataLists.Result;
+                        if (_dynamicForm != null)
+                        {
+                            var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null)));
+                            await Task.WhenAll(_dynamicformDataLists);
+                            _dynamicformDataList = await _dynamicformDataLists.Result;
+                        }
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {

@@ -43,6 +43,11 @@ namespace SW.Portal.Solutions.Services
                 await _mediator.Send(new GetJobScheduleNavFuctionQuery("FinishedProdOrder"));
                 await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
 
+
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartReleaseProdOrderLine");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("ReleaseProdOrderLine"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndReleaseProdOrderLine");
+
                 await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavprodOrder");
                 await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavprodOrder"));
                 await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");

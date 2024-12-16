@@ -50,35 +50,6 @@
         height: auto;
     }
 </style>
-<style scoped>
-    .center-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: calc(100vh - 210px);
-        margin: 0;
-    }
-
-    .warning-message {
-        text-align: center;
-        padding: 20px;
-        border: 2px solid #f5c6cb;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        color: #721c24;
-    }
-
-        .warning-message h1 {
-            font-size: 2rem;
-            margin: 0;
-        }
-
-        .warning-message p {
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
-</style>
 <script>
     function htmlpdfGenerate() {
         var element = document.getElementById('htmlPdfPrint');
@@ -97,8 +68,7 @@
         return "ok";
     }
 </script>
-@if (isViewMenuPermission == true)
-{
+
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
     </div>
@@ -725,16 +695,7 @@
         </div>
 
     </div>
-}
-else
-{
-    <div class="center-container">
-        <div class="warning-message">
-            <h1>Access Denied</h1>
-            <p>You do not have permission to view this page.</p>
-        </div>
-    </div>
-}
+
 @* </DxLoadingPanel> *@
 <DxPopup @bind-Visible="@isApprovedPopup"
          ShowFooter="true"
@@ -1052,8 +1013,6 @@ else
     bool createEmailpopup { get; set; } = false; bool emailEnabled { get; set; } = false; public DynamicFormSection dynamicFormSectionData { get; set; }
     Object DataGridObject { get; set; } = new Object(); private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     bool QrCodePopupVisible { get; set; } = false; private BarcodeReader _QrCodeReader; public PropertyInfo? PropertyQrCodeInfo { get; set; }
-    private List<DynamicFormDataAssignUser> _dynamicFormDataAssignUserList { get; set; }
-    bool isViewMenuPermission { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -1244,19 +1203,6 @@ else
     {
         if (applicationUser != null)
         {
-            string str = NavigationManager.Uri;
-            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-            string[] UrlList = rep1.Split("/");
-            string names = "DynamicMasterSetupList";
-            if (UrlList[0].ToLower() == "dynamicFormMenuList".ToLower())
-            {
-                _dynamicFormDataAssignUserList = await Mediator.Send(new GetDynamicFormDataAssignUserAllList());
-                if (_dynamicFormDataAssignUserList != null && _dynamicFormDataAssignUserList.Count() > 0)
-                {
-                    var result = _dynamicFormDataAssignUserList.Where(w => w.UserId == applicationUser.UserID && w.SessionId == SessionId).FirstOrDefault();
-                    isViewMenuPermission = result != null ? true : false;
-                }
-            }
             await loadDynamicForm();
         }
         base.OnParametersSet();

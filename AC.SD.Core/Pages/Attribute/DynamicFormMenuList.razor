@@ -58,7 +58,7 @@ else
     public Guid? FormSessionId { get; set; }
     private List<DynamicFormDataAssignUser> _dynamicFormDataAssignUserList { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
-    bool isViewMenuPermission { get; set; } = true;
+    bool isViewMenuPermission { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

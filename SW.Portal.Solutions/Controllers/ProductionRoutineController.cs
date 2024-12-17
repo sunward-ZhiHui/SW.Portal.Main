@@ -1074,7 +1074,7 @@ namespace SW.Portal.Solutions.Controllers
                 FilterData.FixedAsset = IpirAppModel.FixedAsset;
                 FilterData.Comment = IpirAppModel.Comment;
                 FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
-                FilterData.LocationID = IpirAppModel.LocationID;
+              
                 FilterData.MachineName = IpirAppModel.MachineName;
                 FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                 FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;

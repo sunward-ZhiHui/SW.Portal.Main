@@ -3,6 +3,7 @@ using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -34,5 +35,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery();
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormDataOneApiAsync(Guid? DynamicFormDataSessionId);
+        Task<IReadOnlyList<ExpandoObject>> GetAllDataObjectDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);
     }
 }

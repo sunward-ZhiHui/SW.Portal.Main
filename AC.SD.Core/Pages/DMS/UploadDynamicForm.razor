@@ -24,6 +24,7 @@
 @implements IAsyncDisposable
 @using System.Text.RegularExpressions;
 @using ExpressionMathEval = org.matheval.Expression;
+@using CodingSeb.ExpressionEvaluator;
 @using BlazorBarcodeScanner.ZXing.JS
 <style>
     .my-style {
@@ -4234,6 +4235,40 @@
             StateHasChanged();
         }
     }
+    private string ExpressionEvaluatorColorCode(DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction, DynamicFormSectionAttribute DynamicFormSectionAttribute)
+    {
+        string? colorsData = null;
+        if (Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName) != null)
+        {
+            try
+            {
+                var itemValue = Data.GetType().GetProperty(DynamicFormSectionAttribute.DynamicAttributeName).GetValue(Data);
+                string? values = itemValue == null ? null : (string)itemValue;
+                if (values != null && dynamicFormSectionAttrFormulaFunction.AValue != null)
+                {
+                    ExpressionEvaluator evaluator = new ExpressionEvaluator();
+                    string ab = dynamicFormSectionAttrFormulaFunction.FormulaFunctionName;
+                    ab = ab.Replace("x", values);
+                    string aValue = "" + dynamicFormSectionAttrFormulaFunction.AValue;
+                    ab = ab.Replace("a", aValue);
+                    if (dynamicFormSectionAttrFormulaFunction.IsBValueEnabled == true)
+                    {
+                        string bValue = "" + dynamicFormSectionAttrFormulaFunction.BValue;
+                        ab = ab.Replace("b", bValue);
+                    }
+                    ab += "{ return ";
+                    ab += "\"" + dynamicFormSectionAttrFormulaFunction.ColorValue + "\";";
+                    ab += "}";
+                    colorsData = (string?)evaluator.ScriptEvaluate(ab);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        return colorsData;
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
       {
           InvokeAsync(onshowLoading);
@@ -4641,7 +4676,7 @@
                    // {
                    editor.OpenElement(i + 1, "div");
                    editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                   editor.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + ". "):"" + s.DisplayName);
+                   editor.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + ". ") : "") + s.DisplayName);
                    if (isPrint == false)
                    {
                        if (s.IsRequired == true)
@@ -4797,6 +4832,19 @@
                                dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
                                dx.CloseComponent();
                            }));
+                           var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                           if (colorCodeExits != null)
+                           {
+                               var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
+                               if (!string.IsNullOrEmpty(colorExitsCode))
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
+                               }
+                               else
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:black;");
+                               }
+                           }
                        }
                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                        {
@@ -5299,9 +5347,9 @@
                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                            }
                            else if (s.DataSourceTable == "RawMatPurch")
-                        {
-                            editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
-                        }
+                           {
+                               editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                           }
                            else
                            {
                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5353,7 +5401,7 @@
                        layoutItemBuilders.CloseComponent();
                        if (s.DropDownTypeId == "Data Source")
                        {
-                           if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                           if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                            {
                            }
                            else
@@ -5416,6 +5464,33 @@
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                            layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                           layoutItemBuilders.CloseComponent();
+                       }
+                       if (s.DataSourceTable == "ReleaseProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                           layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                           layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                           layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                           layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                           layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
                            layoutItemBuilders.CloseComponent();
                        }
                        if (s.DataSourceTable == "RawMatPurch")
@@ -5629,9 +5704,9 @@
                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                            }
                            else if (s.DataSourceTable == "RawMatPurch")
-                            {
-                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
-                            }
+                           {
+                               editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                           }
                            else
                            {
                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5670,7 +5745,7 @@
                           layoutItemBuilders.CloseComponent();
                           if (s.DropDownTypeId == "Data Source")
                           {
-                              if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                              if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                               {
                               }
                               else
@@ -5735,17 +5810,44 @@
                               layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                               layoutItemBuilders.CloseComponent();
                           }
+                          if (s.DataSourceTable == "ReleaseProdOrderLine")
+                          {
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                              layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                              layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                              layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                              layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                              layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                              layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                              layoutItemBuilders.CloseComponent();
+                          }
                           if (s.DataSourceTable == "RawMatPurch")
-                       {
-                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                           layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
-                           layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
-                           layoutItemBuilders.CloseComponent();
-                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                           layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
-                           layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
-                           layoutItemBuilders.CloseComponent();
-                       }
+                          {
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                              layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                              layoutItemBuilders.CloseComponent();
+                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                              layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                              layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                              layoutItemBuilders.CloseComponent();
+                          }
 
                       }));
                            if (s.IsDefaultReadOnly == false)
@@ -5893,7 +5995,7 @@
               layoutItemBuilders.CloseComponent();
               if (s.DropDownTypeId == "Data Source")
               {
-                  if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                  if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                   {
                   }
                   else
@@ -5958,17 +6060,44 @@
                   layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                   layoutItemBuilders.CloseComponent();
               }
+              if (s.DataSourceTable == "ReleaseProdOrderLine")
+              {
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                  layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                  layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                  layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                  layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                  layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                  layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                  layoutItemBuilders.CloseComponent();
+              }
               if (s.DataSourceTable == "RawMatPurch")
-                {
-                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
-                    layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
-                    layoutItemBuilders.CloseComponent();
-                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
-                    layoutItemBuilders.CloseComponent();
-                }
+              {
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                  layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                  layoutItemBuilders.CloseComponent();
+                  layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                  layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                  layoutItemBuilders.CloseComponent();
+              }
           }));
                        editor.CloseComponent();
                        if (s.IsDefaultReadOnly == false)
@@ -6045,7 +6174,7 @@
           {
               editor11.OpenElement(i + 1, "div");
               editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-              editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"" + ff.DisplayName);
+              editor11.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " ") : "") + ff.DisplayName);
               if (isPrint == false)
               {
                   if (s.IsRequired == true)
@@ -6093,9 +6222,9 @@
                   editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}");
               }
               else if (ff.DataSourceTable == "RawMatPurch")
-                {
-                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
-                }
+              {
+                  editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
+              }
               else
               {
                   editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
@@ -6143,7 +6272,7 @@
               layoutItemBuilders1.CloseComponent();
               if (s.DropDownTypeId == "Data Source")
               {
-                  if (ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                  if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                   {
                   }
                   else
@@ -6208,17 +6337,44 @@
                   layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
                   layoutItemBuilders1.CloseComponent();
               }
+              if (ff.DataSourceTable == "ReleaseProdOrderLine")
+              {
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(8, "FieldName", "Description2");
+                  layoutItemBuilders1.AddAttribute(8, "Caption", "Description2");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(13, "FieldName", "ProdOrderNo");
+                  layoutItemBuilders1.AddAttribute(13, "Caption", "ProdOrderNo");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(9, "FieldName", "ReplanRefNo");
+                  layoutItemBuilders1.AddAttribute(9, "Caption", "Replan RefNo");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(10, "FieldName", "BatchNo");
+                  layoutItemBuilders1.AddAttribute(10, "Caption", "Batch No");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(11, "FieldName", "BatchSize");
+                  layoutItemBuilders1.AddAttribute(11, "Caption", "Batch Size");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(12, "FieldName", "CompanyName");
+                  layoutItemBuilders1.AddAttribute(12, "Caption", "Comapny");
+                  layoutItemBuilders1.CloseComponent();
+              }
               if (ff.DataSourceTable == "RawMatPurch")
-                {
-                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders1.AddAttribute(8, "FieldName", "BatchNo");
-                    layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
-                    layoutItemBuilders1.CloseComponent();
-                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
-                    layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
-                    layoutItemBuilders1.CloseComponent();
-                }
+              {
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(8, "FieldName", "BatchNo");
+                  layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
+                  layoutItemBuilders1.CloseComponent();
+                  layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                  layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
+                  layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
+                  layoutItemBuilders1.CloseComponent();
+              }
           }));
               if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
               {
@@ -6397,7 +6553,7 @@
               {
                   if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
                   {
-                      loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly,a);
+                      loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly, a);
                   }
               }
               else
@@ -6412,7 +6568,7 @@
               {
                   editor1.OpenElement(i + 1, "div");
                   editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                  editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"" + q.Description);
+                  editor1.AddContent(i + 1, (a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " ") : "") + q.Description);
                   if (isPrint == false)
                   {
                       if (q.IsRequired == true)
@@ -6455,7 +6611,14 @@
                       editor1.OpenComponent<DxTextBox>(m + 1);
                       editor1.AddAttribute(m + 1, "Text", valueDataSub);
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
-                      // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
@@ -6486,7 +6649,14 @@
                       editor1.OpenComponent<DxTextBox>(m + 1);
                       editor1.AddAttribute(m + 1, "Text", valueDataSub);
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
-                      // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       editor1.AddAttribute(m + 1, "Buttons", (RenderFragment)((dx) =>
@@ -6526,7 +6696,14 @@
                       editor1.AddAttribute(m + 1, "Text", valueDataSub);
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                       editor1.AddAttribute(m + 1, "Rows", 5);
-                      // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
@@ -6557,7 +6734,14 @@
                       editor1.OpenComponent<DxDateEdit<DateTime?>>(m + 1);
                       editor1.AddAttribute(m + 1, "Date", valueDataSub);
                       editor1.AddAttribute(m + 1, "DateExpression", lambdaSub);
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
@@ -6588,7 +6772,14 @@
                       editor1.OpenComponent<DxTimeEdit<TimeSpan?>>(m + 1);
                       editor1.AddAttribute(m + 1, "Time", valueDataSub);
                       editor1.AddAttribute(m + 1, "TimeExpression", lambdaSub);
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
@@ -6621,7 +6812,14 @@
                           editor1.OpenComponent<DxSpinEdit<int?>>(m + 1);
                           editor1.AddAttribute(m + 1, "Value", valueDataSub);
                           //editor1.AddAttribute(m + 1, "MinValue", 0);
-                          //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                          if (isAccessOnly == true)
+                          {
+                              editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                          }
+                          else
+                          {
+                              editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                          }
                           editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                           editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { propertySub.SetValue(Data, str); }));
@@ -6631,7 +6829,14 @@
                           editor1.OpenComponent<DxSpinEdit<decimal?>>(m + 1);
                           editor1.AddAttribute(m + 1, "Value", valueDataSub);
                           editor1.AddAttribute(m + 1, "Increment", 0.1M);
-                          //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                          if (isAccessOnly == true)
+                          {
+                              editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                          }
+                          else
+                          {
+                              editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                          }
                           //editor1.AddAttribute(m + 1, "MinValue", 0M);
                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                           editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
@@ -6665,7 +6870,14 @@
                       editor1.OpenComponent<DxCheckBox<bool?>>(m + 1);
                       editor1.AddAttribute(m + 1, "Checked", valueDataSub ?? false);
                       editor1.AddAttribute(m + 1, "CheckedExpression", lambdaSub);
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       //editor1.AddAttribute(i+1, "LabelPosition", LabelPosition.Right);
                       editor1.AddAttribute(m + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertySub.SetValue(Data, str); }));
                       if (s.IsRequired == true)
@@ -6698,7 +6910,14 @@
                       editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                       editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                       editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
                       editor1.AddAttribute(m + 1, "style", "margin-left:25px;");
                       editor1.AddAttribute(m + 1, "Layout", q.AttributeRadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
@@ -6750,7 +6969,14 @@
                       editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                      // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
                       editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
                       editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
@@ -6765,7 +6991,7 @@
                       layoutItemBuilders.CloseComponent();
                       if (q.DropDownTypeId == "Data Source")
                       {
-                          if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                          if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                           {
                           }
                           else
@@ -6830,17 +7056,44 @@
                           layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                           layoutItemBuilders.CloseComponent();
                       }
+                      if (q.DataSourceTable == "ReleaseProdOrderLine")
+                      {
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                          layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                          layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                          layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                          layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                          layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                          layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                          layoutItemBuilders.CloseComponent();
+                      }
                       if (q.DataSourceTable == "RawMatPurch")
-                       {
-                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                           layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
-                           layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
-                           layoutItemBuilders.CloseComponent();
-                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                           layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
-                           layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
-                           layoutItemBuilders.CloseComponent();
-                       }
+                      {
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                          layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                          layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                          layoutItemBuilders.CloseComponent();
+                      }
                   }));
                       if (q.IsRequired == true)
                       {
@@ -6890,7 +7143,14 @@
                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "Values", valueDataSub);
                       editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertySub.SetValue(Data, str); }));
                       editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
                   {
@@ -6904,7 +7164,7 @@
                       layoutItemBuilders.CloseComponent();
                       if (q.DropDownTypeId == "Data Source")
                       {
-                          if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                          if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                           {
                           }
                           else
@@ -6967,6 +7227,33 @@
                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                           layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
                           layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                          layoutItemBuilders.CloseComponent();
+                      }
+                      if (q.DataSourceTable == "ReleaseProdOrderLine")
+                      {
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                          layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                          layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                          layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                          layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                          layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                          layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
                           layoutItemBuilders.CloseComponent();
                       }
                       if (q.DataSourceTable == "RawMatPurch")
@@ -7041,7 +7328,14 @@
                       editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                       editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                       editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                      //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      if (isAccessOnly == true)
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                      }
+                      else
+                      {
+                          editor1.AddAttribute(m + 1, "Enabled", isAccessOnly);
+                      }
                       editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
                       editor1.AddAttribute(m + 1, "ShowCheckboxes", true);
                       if (q.IsMultiple == true)
@@ -7070,7 +7364,7 @@
                       layoutItemBuilders.CloseComponent();
                       if (q.DropDownTypeId == "Data Source")
                       {
-                          if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                          if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                           {
                           }
                           else
@@ -7134,6 +7428,33 @@
                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                           layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
                           layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                          layoutItemBuilders.CloseComponent();
+                      }
+                      if (q.DataSourceTable == "ReleaseProdOrderLine")
+                      {
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                          layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(13, "FieldName", "ProdOrderNo");
+                          layoutItemBuilders.AddAttribute(13, "Caption", "ProdOrderNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                          layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                          layoutItemBuilders.AddAttribute(10, "Caption", "Batch No");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(11, "FieldName", "BatchSize");
+                          layoutItemBuilders.AddAttribute(11, "Caption", "Batch Size");
+                          layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
+                          layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
                           layoutItemBuilders.CloseComponent();
                       }
                       if (q.DataSourceTable == "RawMatPurch")
@@ -7220,11 +7541,11 @@
                       if (s.DataSourceTable == "ApplicationMaster" && s.ApplicationMaster != null && s.ApplicationMaster.Count > 0)
 
                       {
-                          loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
+                          loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly, a);
                       }
                       if (s.DataSourceTable == "ApplicationMasterParent" && s.ApplicationMasterParents != null && s.ApplicationMasterParents.Count() > 0)
                       {
-                          loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
+                          loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly, a);
                       }
                       if (s.DataSourceTable == "DynamicGrid")
                       {
@@ -7545,7 +7866,7 @@
             }
         }
     }
-    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         int dumNo = 1;
         s.ApplicationMasterParents.ForEach(ab =>
@@ -7556,11 +7877,11 @@
         s.ApplicationMasterParents.ForEach(ab =>
         {
             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true,dynamicFormSection);
+            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true, dynamicFormSection);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
                 nameDatas.Add(ab);
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas,dynamicFormSection);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
                 if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                 {
                     loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
@@ -7568,7 +7889,7 @@
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames, DynamicFormSection dynamicFormSection)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
@@ -7580,7 +7901,7 @@
             loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames, dynamicFormSection);
         }
     }
-    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems,DynamicFormSection dynamicFormSection)
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems, DynamicFormSection dynamicFormSection)
     {
         var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
         var propertyDependency = Data.GetType().GetProperty(appendDependency);
@@ -8475,7 +8796,7 @@
             }
         }
     }
-    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown, DynamicFormSection dynamicFormSection)
     {
         int l = 0;
         var appendAppMaster = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
@@ -8520,7 +8841,7 @@
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
             //editor11.AddContent(i + 1, s.DummyNo + "." + (exitsNames != null ? (exitsNames?.DummyNo+".") : "") + (ab.DummyNo+1) + " " + ab.ApplicationMasterName);
-            editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " ") : "" + ab.ApplicationMasterName);
+            editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " ") : "") + ab.ApplicationMasterName);
             if (isPrint == false)
             {
                 if (s.IsRequired == true)
@@ -8799,7 +9120,7 @@
         }
 
     }
-    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         var appcount = s.ApplicationMaster.Count();
         int dumNo = 1;
@@ -8829,11 +9150,11 @@
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"" + s.DisplayName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "") + s.DisplayName);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "" + "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "") + "Select " + ab.ApplicationMasterName);
                 }
                 if (isPrint == false)
                 {
@@ -9440,7 +9761,7 @@
         }
     }
 
-    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection)
     {
         var appcount = q.SubApplicationMaster.Count();
         int dumNo = 1;
@@ -9469,11 +9790,11 @@
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + q.Description);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " ") : "") + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, (dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " ") : "") + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")

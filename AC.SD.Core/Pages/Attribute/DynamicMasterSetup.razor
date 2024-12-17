@@ -36,6 +36,7 @@
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
@@ -305,6 +306,14 @@
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _selectedItems.SessionID;
             await ClipboardService.WriteTextAsync(url);
             toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+        }
+    }
+    async Task OpenOdataUrl1()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
     async Task OpenOdataUrl()

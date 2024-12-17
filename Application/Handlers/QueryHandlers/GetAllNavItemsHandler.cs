@@ -377,4 +377,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetReleaseProdOrderLineListHandler : IRequestHandler<GetReleaseProdOrderLineList, ReleaseProdOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetReleaseProdOrderLineListHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<ReleaseProdOrderLine> Handle(GetReleaseProdOrderLineList request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetReleaseProdOrderLineList(request.CompanyId);
+
+        }
+    }
 }

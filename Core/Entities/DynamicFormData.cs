@@ -185,7 +185,7 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }   
+        public DateTime? ModifiedDate { get; set; }
         public DateTime? AddedDate { get; set; }
     }
 }

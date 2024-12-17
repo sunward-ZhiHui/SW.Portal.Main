@@ -898,6 +898,7 @@ namespace Infrastructure.Repository.Query
             {
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
                 var dynamicFormSectionAttributeSecurity = new List<DynamicFormSectionAttributeSecurity>();
+                var DynamicFormSectionAttrFormulaFunctionList = new List<DynamicFormSectionAttrFormulaFunction>();
                 var applicationMasters = new List<ApplicationMaster>(); var applicationMasterParent = new List<ApplicationMasterParent>(); var dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 using (var connection = CreateConnection())
                 {
@@ -934,6 +935,7 @@ namespace Infrastructure.Repository.Query
                     query += "Select ApplicationMasterId,ApplicationMasterName,ApplicationMasterDescription,ApplicationMasterCodeId from ApplicationMaster;";
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
                     query += "select t1.*,t2.SequenceNo,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
+                    query += "SELECT t1.*,t2.Type,t2.FormulaFunctionName FROM DynamicFormSectionAttrFormulaFunction t1 JOIN DynamicFormSectionAttrFormulaMasterFunction t2 ON t1.DynamicFormSectionAttrFormulaMasterFuntionId=t2.MasterID;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -944,6 +946,7 @@ namespace Infrastructure.Repository.Query
                     applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
                     dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
+                    DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
                 }
                 if (attributeHeaderListModel.ApplicationMasterParent != null && attributeHeaderListModel.ApplicationMasterParent.Count() > 0)
                 {
@@ -973,6 +976,7 @@ namespace Infrastructure.Repository.Query
                         plantCode = plantCode != null ? plantCode.ToLower() : null;
                     }
                     List<long?> DynamicFormSectionAttributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Select(a => (long?)a.DynamicFormSectionAttributeId).Distinct().ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttrFormulaFunctions = DynamicFormSectionAttrFormulaFunctionList.Where(w => DynamicFormSectionAttributeIds.Contains(w.DynamicFormSectionAttributeId)).ToList();
                     attributeHeaderListModel.DynamicFormSectionAttributeSections = dynamicFormSectionAttributeSection.Where(q => DynamicFormSectionAttributeIds.Contains(q.DynamicFormSectionAttributeId)).ToList();
                     List<string?> appMasterNames = new List<string?>() { "ApplicationMasterParent", "ApplicationMaster" };
                     List<long?> DynamicGridFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => appMasterNames.Contains(a.DataSourceTable) && a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0).Select(z => z.GridDropDownDynamicFormID).Distinct().ToList();
@@ -2897,7 +2901,7 @@ namespace Infrastructure.Repository.Query
                 objectDataList["name"] = _dynamicForm?.Name;
                 objectDataList["SessionId"] = null;
 
-                dynamicFormData.DynamicFormWorkFlowFormReportItems = dynamicFormWorkFlowFormReportItems;
+               // dynamicFormData.DynamicFormWorkFlowFormReportItems = dynamicFormWorkFlowFormReportItems;
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     var _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
@@ -3330,6 +3334,7 @@ namespace Infrastructure.Repository.Query
         private List<DynamicFormDataResponse> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
         {
             var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
+            List<object> listItems = new List<object>();
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {
                 dynamicFormDataList = dynamicFormDataList.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
@@ -3418,7 +3423,7 @@ namespace Infrastructure.Repository.Query
                                         var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
                                         var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems);
                                         var datass = res?.Select(s => s.ObjectDataItems).ToList();
-                                        //dynamicFormReportItems1.GridItems = res;
+                                       // dynamicFormReportItems1.GridItems = res;
                                         dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();
                                         dynamicFormReportItems.Add(dynamicFormReportItems1);
                                     }
@@ -4216,6 +4221,7 @@ namespace Infrastructure.Repository.Query
                         list.Add(objectData);
                         //dynamicFormData.ObjectDataList = list;
                         dynamicFormData.ObjectDataItems = objectDataList;
+                        listItems.Add(objectDataList);
                         dynamicFormData.DynamicFormReportItems = dynamicFormReportItems;
                         _dynamicformObjectDataList.Add(dynamicFormData);
                     });
@@ -4230,6 +4236,1059 @@ namespace Infrastructure.Repository.Query
             try
             {
                 _dynamicformObjectDataList = await GetAllDynamicFormAllApiAsync(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, BasUrl, IsAll);
+                return _dynamicformObjectDataList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+
+        }
+        private List<DynamicFormDataResponse> GetDynamicFormDataExpandObjectAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
+        {
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
+            List<object> listItems = new List<object>();
+            if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+            {
+                dynamicFormDataList = dynamicFormDataList.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
+                if (dynamicFormDataList != null && dynamicFormDataList.Count > 0)
+                {
+                    dynamicFormDataList.ToList().ForEach(r =>
+                    {
+                        DynamicFormDataResponse dynamicFormData = new DynamicFormDataResponse();
+                        dynamic jsonObj = new object();
+                        if (IsValidJson(r.DynamicFormItem))
+                        {
+                            jsonObj = JsonConvert.DeserializeObject(r.DynamicFormItem);
+                        }
+
+                        IDictionary<string, object> objectDataList = new ExpandoObject();
+                        IDictionary<string, object> objectData = new ExpandoObject();
+                        List<object> list = new List<object>();
+                        List<DynamicFormReportItems> dynamicFormReportItems = new List<DynamicFormReportItems>();
+                        dynamicFormData.SortOrderByNo = r.SortOrderByNo;
+                        dynamicFormData.DynamicFormDataId = r.DynamicFormDataId;
+                        dynamicFormData.ProfileNo = r.ProfileNo;
+                        dynamicFormData.SessionId = r.SessionId;
+                        dynamicFormData.ScreenID = r.ScreenID;
+                        dynamicFormData.DynamicFormId = r.DynamicFormId;
+                        dynamicFormData.Name = r.Name;
+                        dynamicFormData.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == r.ModifiedByUserID)?.UserName;
+                        dynamicFormData.AddedBy = appUsers.FirstOrDefault(f => f.UserID == r.AddedByUserID)?.UserName;
+                        dynamicFormData.ModifiedDate = r.ModifiedDate;
+                        dynamicFormData.AddedDate = r.AddedDate;
+                        dynamicFormData.CurrentUserName = r.CurrentUserName;
+                        dynamicFormData.StatusName = r.StatusName;
+                        dynamicFormData.DynamicFormDataGridId = r.DynamicFormDataGridId;
+                        dynamicFormData.IsDynamicFormDataGrid = r.IsDynamicFormDataGrid;
+                        dynamicFormData.IsFileprofileTypeDocument = r.IsFileprofileTypeDocument;
+                        dynamicFormData.DynamicFormSectionGridAttributeId = r.DynamicFormSectionGridAttributeId;
+                        dynamicFormData.DynamicFormSectionGridAttributeSessionId = r.DynamicFormSectionGridAttributeSessionId;
+                        dynamicFormData.IsDraft = r.IsDraft;
+                        dynamicFormData.DynamicFormWorkFlowFormReportItems = dynamicFormWorkFlowFormReportItems.Where(w => w.DynamicFormDataId == r.DynamicFormDataId).OrderBy(o => o.SequenceNo).ToList();
+                        objectDataList["dynamicFormDataId"] = r.DynamicFormDataId;
+                        objectDataList["profileNo"] = r.ProfileNo;
+                        objectDataList["AddedDate"] = r.AddedDate;
+                        objectDataList["AddedBy"] = appUsers.FirstOrDefault(f => f.UserID == r.AddedByUserID)?.UserName;
+                        objectDataList["name"] = _dynamicForm?.Name;
+                        objectDataList["SessionId"] = r.SessionId;
+                        if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                        {
+                            var _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
+                            _dynamicFormSectionAttributeList.ForEach(s =>
+                            {
+
+                                string attrName = s.DynamicAttributeName;
+                                var opts = new Dictionary<object, object>();
+
+                                var Names = jsonObj.ContainsKey(attrName);
+                                if (Names == true)
+                                {
+                                    if (s.ControlTypeId == 2712)
+                                    {
+                                        var url = "?DynamicFormSessionId=" + (_dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId) + "&&DynamicFormDataSessionId=" + r.SessionId + "&&DynamicFormDataGridSessionId=" + s.DynamicFormSessionId + "&&DynamicFormSectionGridAttributeSessionId=" + s.SessionId;
+                                        opts.Add("Label", s.DisplayName);
+                                        opts.Add("Value", s.DynamicFormSessionId);
+                                        opts.Add("IsGrid", true);
+                                        opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
+                                        opts.Add("DynamicFormDataSessionId", r.SessionId);
+                                        opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("DynamicFormSectionGridAttributeSessionId", s.SessionId);
+                                        opts.Add("DynamicGridFormId", _dynamicForm.ID);
+                                        opts.Add("DynamicGridFormDataId", r.DynamicFormDataId);
+                                        opts.Add("DynamicGridFormDataGridId", s.DynamicFormGridDropDownId);
+                                        opts.Add("DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
+                                        opts.Add("Url", url);
+                                        objectData[attrName] = opts;
+                                       // objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = BasUrl + url;
+                                        objectDataList["SubGrid_"+attrName] = BasUrl + url;
+                                        /*DynamicFormReportItems dynamicFormReportItems1 = new DynamicFormReportItems();
+                                        dynamicFormReportItems1.AttrId = attrName;
+                                        dynamicFormReportItems1.Label = s.DisplayName;
+                                        dynamicFormReportItems1.IsGrid = true;
+                                        dynamicFormReportItems1.DynamicFormSessionId = _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId;
+                                        dynamicFormReportItems1.DynamicFormDataSessionId = r.SessionId;
+                                        dynamicFormReportItems1.DynamicFormDataGridSessionId = s.DynamicFormSessionId;
+                                        dynamicFormReportItems1.DynamicGridFormDataGridId = s.DynamicFormGridDropDownId;
+                                        dynamicFormReportItems1.Url = BasUrl + url;
+                                        dynamicFormReportItems1.DynamicGridFormId = _dynamicForm.ID;
+                                        dynamicFormReportItems1.DynamicGridFormDataId = r.DynamicFormDataId;
+                                        dynamicFormReportItems1.DynamicFormSectionGridAttributeId = s.DynamicFormSectionAttributeId;
+                                        dynamicFormReportItems1.DynamicFormSectionGridAttributeSessionId = s.SessionId;
+                                        var gridDataItem = dynamicFormGridData?.Where(a => a.DynamicFormDataGridId == r.DynamicFormDataId && a.DynamicFormId == s.DynamicFormGridDropDownId && a.DynamicFormSectionGridAttributeId == s.DynamicFormSectionAttributeId).OrderBy(o => o.GridSortOrderByNo).ToList();
+                                        var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
+                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems);
+                                        var datass = res?.Select(s => s.ObjectDataItems).ToList();*/
+                                        // dynamicFormReportItems1.GridItems = res;
+                                        // dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();
+                                        //dynamicFormReportItems.Add(dynamicFormReportItems1);
+                                    }
+                                    else
+                                    {
+                                        if (s.DataSourceTable == "ApplicationMaster")
+                                        {
+                                            opts.Add("Label", s.DisplayName);
+                                            opts.Add("Value", string.Empty);
+                                            objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                            /*DynamicFormReportItems dynamicFormReportItems2 = new DynamicFormReportItems();
+                                            dynamicFormReportItems2.AttrId = attrName;
+                                            dynamicFormReportItems2.Label = s.DisplayName;
+                                            dynamicFormReportItems2.Value = string.Empty;
+                                            dynamicFormReportItems.Add(dynamicFormReportItems2);*/
+                                            if (s.ApplicationMaster != null && s.ApplicationMaster.Count() > 0)
+                                            {
+                                                s.ApplicationMaster.ForEach(ab =>
+                                                {
+                                                    var opts1 = new Dictionary<object, object>();
+                                                    //DynamicFormReportItems dynamicFormReportItems3 = new DynamicFormReportItems();
+                                                    opts1.Add("Label", ab.ApplicationMasterName);
+                                                    var nameData = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                                    var SubNamess = jsonObj.ContainsKey(nameData);
+                                                    if (SubNamess == true)
+                                                    {
+                                                        var itemValue = jsonObj[nameData];
+                                                        if (itemValue is JArray)
+                                                        {
+                                                            List<long?> listData = itemValue.ToObject<List<long?>>();
+                                                            if (s.IsMultiple == true || s.ControlType == "TagBox")
+                                                            {
+                                                                var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                var lists = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                opts1.Add("Value", lists);
+                                                                objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = lists;
+                                                                /*dynamicFormReportItems3.AttrId = nameData;
+                                                                dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                                dynamicFormReportItems3.Value = lists;
+                                                                dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                            }
+                                                            else
+                                                            {
+                                                                opts1.Add("Value", string.Empty);
+                                                                objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
+                                                                /*dynamicFormReportItems3.AttrId = nameData;
+                                                                dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                                dynamicFormReportItems3.Value = string.Empty;
+                                                                dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (s.ControlType == "ComboBox")
+                                                            {
+                                                                long? values = itemValue == null ? -1 : (long)itemValue;
+                                                                var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                                                                opts1.Add("Value", listss);
+                                                                objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = listss;
+                                                                /*dynamicFormReportItems3.AttrId = nameData;
+                                                                dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                                dynamicFormReportItems3.Value = listss;
+                                                                dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                            }
+                                                            else
+                                                            {
+                                                                if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                                                {
+                                                                    long? values = itemValue == null ? -1 : (long)itemValue;
+                                                                    var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                                                                    opts1.Add("Value", listss);
+                                                                    objectData[nameData] = opts1;
+                                                                    objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = listss;
+                                                                    /*dynamicFormReportItems3.AttrId = nameData;
+                                                                    dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                                    dynamicFormReportItems3.Value = listss;
+                                                                    dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                                }
+                                                                else
+                                                                {
+                                                                    opts1.Add("Value", string.Empty);
+                                                                    objectData[nameData] = opts1;
+                                                                    objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
+                                                                   /* dynamicFormReportItems3.AttrId = nameData;
+                                                                    dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                                    dynamicFormReportItems3.Value = string.Empty;
+                                                                    dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                                }
+                                                            }
+                                                        }
+                                                        if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+                                                        {
+                                                            var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                                            var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                            var displayNames = string.Empty;
+                                                            if (collection != null)
+                                                            {
+                                                                var itemDepExits = jsonObj.ContainsKey(appendDependency);
+                                                                if (itemDepExits == true)
+                                                                {
+                                                                    var itemDepValue = jsonObj[appendDependency];
+                                                                    if (s.IsDynamicFormGridDropdownMultiple == true)
+                                                                    {
+                                                                        if (itemDepValue is JArray)
+                                                                        {
+                                                                            List<long?> listData = itemDepValue.ToObject<List<long?>>();
+
+                                                                            if (listData != null && listData.Count > 0)
+                                                                            {
+                                                                                listData.ForEach(l =>
+                                                                                {
+                                                                                    if (collection != null)
+                                                                                    {
+                                                                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                                        {
+                                                                                            dynamic eod = v;
+                                                                                            if ((long?)eod.AttributeDetailID == l)
+                                                                                            {
+                                                                                                displayNames += eod.AttributeDetailName + ",";
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            displayNames = displayNames.TrimEnd(',');
+
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                        {
+                                                                            dynamic eod = v;
+                                                                            if ((long?)eod.AttributeDetailID == valuesDep)
+                                                                            {
+                                                                                displayNames += eod.AttributeDetailName;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            var opts12 = new Dictionary<object, object>();
+                                                            opts12.Add("Label", s.GridDropDownDynamicFormName);
+                                                            opts12.Add("Value", displayNames);
+                                                            objectData[appendDependency] = opts12;
+                                                            objectDataList[appendDependency + "$" + s.GridDropDownDynamicFormName.Replace(" ", "_")] = displayNames;
+                                                            /*DynamicFormReportItems dynamicFormReportItems4 = new DynamicFormReportItems();
+                                                            dynamicFormReportItems4.AttrId = appendDependency;
+                                                            dynamicFormReportItems4.Label = s.GridDropDownDynamicFormName;
+                                                            dynamicFormReportItems4.Value = displayNames;
+                                                            dynamicFormReportItems.Add(dynamicFormReportItems4);*/
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        /*dynamicFormReportItems3.AttrId = nameData;
+                                                        dynamicFormReportItems3.Label = ab.ApplicationMasterName;
+                                                        dynamicFormReportItems3.Value = string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems3);*/
+                                                    }
+
+                                                });
+                                            }
+
+                                        }
+                                        else if (s.DataSourceTable == "ApplicationMasterParent")
+                                        {
+                                            opts.Add("Label", s.DisplayName);
+                                            opts.Add("Value", string.Empty);
+                                            objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                           /* DynamicFormReportItems dynamicFormReportItems21 = new DynamicFormReportItems();
+                                            dynamicFormReportItems21.AttrId = attrName;
+                                            dynamicFormReportItems21.Label = s.DisplayName;
+                                            dynamicFormReportItems21.Value = string.Empty;
+                                            dynamicFormReportItems.Add(dynamicFormReportItems21);*/
+                                            List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                                            s.ApplicationMasterParents.ForEach(ab =>
+                                            {
+                                                nameDatas.Add(ab);
+                                                RemoveApplicationMasterParentSingleNameItemApi(ab, s, nameDatas, _AttributeHeader.ApplicationMasterParent);
+
+                                                if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+                                                {
+                                                    var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                                    var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                    var displayNames = string.Empty;
+                                                    if (collection != null)
+                                                    {
+                                                        var itemDepExits = jsonObj.ContainsKey(appendDependency);
+                                                        if (itemDepExits == true)
+                                                        {
+                                                            var itemDepValue = jsonObj[appendDependency];
+                                                            if (s.IsDynamicFormGridDropdownMultiple == true)
+                                                            {
+                                                                if (itemDepValue is JArray)
+                                                                {
+                                                                    List<long?> listData = itemDepValue.ToObject<List<long?>>();
+
+                                                                    if (listData != null && listData.Count > 0)
+                                                                    {
+                                                                        listData.ForEach(l =>
+                                                                        {
+                                                                            if (collection != null)
+                                                                            {
+                                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                                {
+                                                                                    dynamic eod = v;
+                                                                                    if ((long?)eod.AttributeDetailID == l)
+                                                                                    {
+                                                                                        displayNames += eod.AttributeDetailName + ",";
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    displayNames = displayNames.TrimEnd(',');
+
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                {
+                                                                    dynamic eod = v;
+                                                                    if ((long?)eod.AttributeDetailID == valuesDep)
+                                                                    {
+                                                                        displayNames += eod.AttributeDetailName;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    var opts12 = new Dictionary<object, object>();
+                                                    opts12.Add("Label", s.GridDropDownDynamicFormName);
+                                                    opts12.Add("Value", displayNames);
+                                                    objectData[appendDependency] = opts12;
+                                                    objectDataList[appendDependency + "$" + s.GridDropDownDynamicFormName.Replace(" ", "_")] = displayNames;
+                                                    /*DynamicFormReportItems dynamicFormReportItems4 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems4.AttrId = appendDependency;
+                                                    dynamicFormReportItems4.Label = s.GridDropDownDynamicFormName;
+                                                    dynamicFormReportItems4.Value = displayNames;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems4);*/
+                                                }
+
+                                            });
+                                            if (nameDatas != null && nameDatas.Count() > 0)
+                                            {
+                                                nameDatas.ForEach(n =>
+                                                {
+                                                    var opts1 = new Dictionary<object, object>();
+                                                    opts1.Add("Label", n.ApplicationMasterName);
+                                                    var nameDataPar = s.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                                    DynamicFormReportItems dynamicFormReportItems22 = new DynamicFormReportItems();
+                                                    /*dynamicFormReportItems22.AttrId = nameDataPar;
+                                                    dynamicFormReportItems22.Label = n.ApplicationMasterName;*/
+                                                    loadApplicationMasterParentDataApi(jsonObj, s, nameDataPar, opts1, PlantDependencySubAttributeDetails, objectDataList, n.ApplicationMasterName, dynamicFormReportItems22);
+                                                    objectData[nameDataPar] = opts1;
+                                                   // dynamicFormReportItems.Add(dynamicFormReportItems22);
+                                                });
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            var itemValue = jsonObj[attrName];
+                                            var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+
+                                            var ValueSet = string.Empty;
+                                            if (itemValue is JArray)
+                                            {
+                                                List<long?> listData = itemValue.ToObject<List<long?>>();
+                                                if (s.DataSourceTable == "DynamicGrid")
+                                                {
+                                                    string displayNames = string.Empty;
+
+                                                    if (listData != null && listData.Count > 0)
+                                                    {
+                                                        listData.ForEach(l =>
+                                                        {
+                                                            if (collection != null)
+                                                            {
+                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                {
+                                                                    dynamic eod = v;
+                                                                    if ((long?)eod.AttributeDetailID == l)
+                                                                    {
+                                                                        displayNames += eod.AttributeDetailName + ",";
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+
+                                                    ValueSet = displayNames.TrimEnd(',');
+                                                }
+                                                else
+                                                {
+                                                    var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                    if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                    {
+                                                        listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                    }
+                                                    ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+
+                                                }
+                                                opts.Add("Label", s.DisplayName);
+                                                opts.Add("Value", ValueSet);
+                                                objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSet;
+                                                /*DynamicFormReportItems dynamicFormReportItems4 = new DynamicFormReportItems();
+                                                dynamicFormReportItems4.AttrId = attrName;
+                                                dynamicFormReportItems4.Label = s.DisplayName;
+                                                dynamicFormReportItems4.Value = ValueSet;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems4);*/
+                                            }
+                                            else
+                                            {
+                                                List<AttributeHeader> SubAttrsHeader = new List<AttributeHeader>();
+                                                if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                                {
+                                                    opts.Add("Label", s.DisplayName);
+                                                    var ValueSets = string.Empty;
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        if (s.DataSourceTable == "DynamicGrid")
+                                                        {
+                                                            var displayNames = string.Empty;
+                                                            if (collection != null)
+                                                            {
+                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                {
+                                                                    dynamic eod = v;
+                                                                    if ((long?)eod.AttributeDetailID == Svalues)
+                                                                    {
+                                                                        displayNames += eod.AttributeDetailName;
+                                                                    }
+                                                                }
+                                                            }
+                                                            ValueSets = displayNames;
+                                                        }
+                                                        else
+                                                        {
+                                                            var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            {
+                                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                            }
+                                                            ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ValueSets = string.Empty;
+                                                    }
+                                                    opts.Add("Value", ValueSets);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSets;
+                                                    /*DynamicFormReportItems dynamicFormReportItems5 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems5.AttrId = attrName;
+                                                    dynamicFormReportItems5.Label = s.DisplayName;
+                                                    dynamicFormReportItems5.Value = ValueSets;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems5);*/
+                                                    // if (Svalues > 0)
+                                                    // {
+                                                    if (s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                                    {
+                                                        var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == s.AttributeId && mm.DropDownTypeId == null).ToList();
+                                                        if (attrDetails != null && attrDetails.Count > 0)
+                                                        {
+                                                            attrDetails.ForEach(u =>
+                                                            {
+                                                                if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                                {
+                                                                    loadSubHeaders(u.SubAttributeHeaders, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                                }
+                                                            });
+                                                        }
+                                                        //var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeDetailID == Svalues && mm.DropDownTypeId == null).FirstOrDefault()?.SubAttributeHeaders;
+                                                        //if (attrDetails != null && attrDetails.Count > 0)
+                                                        //{
+                                                        //    SubAttrsHeader = attrDetails;
+                                                        //}
+                                                    }
+                                                    // }
+                                                    if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
+                                                    {
+                                                        s.AttributeHeaderDataSource.ForEach(dd =>
+                                                        {
+                                                            var opts1 = new Dictionary<object, object>();
+                                                            opts1.Add("Label", dd.DisplayName);
+                                                            var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                                            var itemDepExits = jsonObj.ContainsKey(nameData);
+                                                            if (itemDepExits == true)
+                                                            {
+                                                                var itemDepValue = jsonObj[nameData];
+                                                                if (s.IsDependencyMultiple == true)
+                                                                {
+                                                                    if (itemDepValue is JArray)
+                                                                    {
+                                                                        List<long?> listData = itemDepValue.ToObject<List<long?>>();
+
+                                                                        var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                        if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                        {
+                                                                            listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
+                                                                        }
+                                                                        var lists = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                        opts1.Add("Value", lists);
+                                                                        objectData[nameData] = opts1;
+                                                                        objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = lists;
+                                                                       /* DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                                        dynamicFormReportItems6.AttrId = nameData;
+                                                                        dynamicFormReportItems6.Label = dd.DisplayName;
+                                                                        dynamicFormReportItems6.Value = lists;
+                                                                        dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        opts1.Add("Value", string.Empty);
+                                                                        objectData[nameData] = opts1;
+                                                                        objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = string.Empty;
+                                                                        /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                                        dynamicFormReportItems6.AttrId = nameData;
+                                                                        dynamicFormReportItems6.Label = dd.DisplayName;
+                                                                        dynamicFormReportItems6.Value = string.Empty;
+                                                                        dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                    var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                    if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                    {
+                                                                        listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                    }
+                                                                    opts1.Add("Value", listss);
+                                                                    objectData[nameData] = opts1;
+                                                                    objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = listss;
+                                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                                    dynamicFormReportItems6.AttrId = nameData;
+                                                                    dynamicFormReportItems6.Label = dd.DisplayName;
+                                                                    dynamicFormReportItems6.Value = listss;
+                                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                                dynamicFormReportItems6.AttrId = nameData;
+                                                                dynamicFormReportItems6.Label = dd.DisplayName;
+                                                                dynamicFormReportItems6.Value = string.Empty;
+                                                                dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                            }
+
+                                                        });
+                                                    }
+                                                }
+                                                else if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                                {
+                                                    opts.Add("Label", s.DisplayName);
+                                                    var ValueSets = string.Empty;
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                        if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                        {
+                                                            listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                        }
+                                                        ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                    }
+                                                    else
+                                                    {
+                                                        ValueSets = string.Empty;
+                                                    }
+                                                    opts.Add("Value", ValueSets);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSets;
+                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems6.AttrId = attrName;
+                                                    dynamicFormReportItems6.Label = s.DisplayName;
+                                                    dynamicFormReportItems6.Value = ValueSets;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                }
+                                                else if (s.ControlType == "DateEdit")
+                                                {
+                                                    DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                                    opts.Add("Label", s.DisplayName);
+                                                    opts.Add("Value", values);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems6.AttrId = attrName;
+                                                    dynamicFormReportItems6.Label = s.DisplayName;
+                                                    dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                }
+                                                else if (s.ControlType == "TimeEdit")
+                                                {
+                                                    TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                                    opts.Add("Label", s.DisplayName);
+                                                    opts.Add("Value", values);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems6.AttrId = attrName;
+                                                    dynamicFormReportItems6.Label = s.DisplayName;
+                                                    dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                }
+                                                else if (s.ControlType == "SpinEdit")
+                                                {
+                                                    if (s.IsSpinEditType == "decimal")
+                                                    {
+                                                        decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                        opts.Add("Label", s.DisplayName);
+                                                        opts.Add("Value", values);
+                                                        objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                        /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems6.AttrId = attrName;
+                                                        dynamicFormReportItems6.Label = s.DisplayName;
+                                                        dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                    }
+                                                    else
+                                                    {
+                                                        int? values = itemValue == null ? null : (int)itemValue;
+                                                        opts.Add("Label", s.DisplayName);
+                                                        opts.Add("Value", values);
+                                                        objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                        /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems6.AttrId = attrName;
+                                                        dynamicFormReportItems6.Label = s.DisplayName;
+                                                        dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                    }
+                                                }
+                                                else if (s.ControlType == "CheckBox")
+                                                {
+                                                    bool? values = itemValue == null ? false : (bool)itemValue;
+                                                    opts.Add("Label", s.DisplayName);
+                                                    opts.Add("Value", values);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems6.AttrId = attrName;
+                                                    dynamicFormReportItems6.Label = s.DisplayName;
+                                                    dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                    //if (values == true)
+                                                    // {
+                                                    SubAttrsHeader = s.SubAttributeHeaders;
+                                                    // }
+                                                    loadSubHeaders(SubAttrsHeader, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                }
+                                                else
+                                                {
+                                                    opts.Add("Label", s.DisplayName);
+                                                    opts.Add("Value", (string)itemValue);
+                                                    objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = (string)itemValue;
+                                                    /*DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                    dynamicFormReportItems6.AttrId = attrName;
+                                                    dynamicFormReportItems6.Label = s.DisplayName;
+                                                    dynamicFormReportItems6.Value = (string)itemValue;
+                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);*/
+                                                }
+
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (s.ControlTypeId == 2712)
+                                    {
+                                        var url = "?DynamicFormSessionId=" + (_dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId) + "&&DynamicFormDataSessionId=" + r.SessionId + "&&DynamicFormDataGridSessionId=" + s.DynamicFormSessionId + "&&DynamicFormSectionGridAttributeSessionId=" + s.SessionId;
+
+                                        opts.Add("Label", s.DisplayName);
+                                        opts.Add("Value", s.DynamicFormSessionId);
+                                        opts.Add("IsGrid", true);
+                                        opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
+                                        opts.Add("DynamicFormDataSessionId", r.SessionId);
+                                        opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("DynamicFormSectionGridAttributeSessionId", s.SessionId);
+                                        opts.Add("DynamicGridFormId", _dynamicForm.ID);
+                                        opts.Add("DynamicGridFormDataId", r.DynamicFormDataId);
+                                        opts.Add("DynamicGridFormDataGridId", s.DynamicFormGridDropDownId);
+                                        opts.Add("DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
+                                        opts.Add("Url", url);
+                                        objectData[attrName] = opts;
+                                       // objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = BasUrl + url;
+                                        objectDataList["SubGrid_" + attrName] = BasUrl + url;
+                                        /*DynamicFormReportItems dynamicFormReportItems1 = new DynamicFormReportItems();
+                                        dynamicFormReportItems1.AttrId = attrName;
+                                        dynamicFormReportItems1.Label = s.DisplayName;
+                                        dynamicFormReportItems1.IsGrid = true;
+                                        dynamicFormReportItems1.DynamicFormSessionId = _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId;
+                                        dynamicFormReportItems1.DynamicFormDataSessionId = r.SessionId;
+                                        dynamicFormReportItems1.DynamicFormDataGridSessionId = s.DynamicFormSessionId;
+                                        dynamicFormReportItems1.DynamicGridFormId = _dynamicForm.ID;
+                                        dynamicFormReportItems1.DynamicGridFormDataId = r.DynamicFormDataId;
+                                        dynamicFormReportItems1.DynamicGridFormDataGridId = s.DynamicFormGridDropDownId;
+                                        dynamicFormReportItems1.Url = BasUrl + url;
+                                        dynamicFormReportItems1.DynamicFormSectionGridAttributeId = s.DynamicFormSectionAttributeId;
+                                        dynamicFormReportItems1.DynamicFormSectionGridAttributeSessionId = s.SessionId;
+                                        dynamicFormReportItems.Add(dynamicFormReportItems1);*/
+                                    }
+                                    else
+                                    {
+                                        if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
+                                        {
+                                            opts.Add("Label", s.DisplayName);
+                                            opts.Add("Value", string.Empty);
+                                            objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                            /*DynamicFormReportItems dynamicFormReportItems5 = new DynamicFormReportItems();
+                                            dynamicFormReportItems5.AttrId = attrName;
+                                            dynamicFormReportItems5.Label = s.DisplayName;
+                                            dynamicFormReportItems5.Value = string.Empty;
+                                            dynamicFormReportItems.Add(dynamicFormReportItems5);*/
+                                            s.AttributeHeaderDataSource.ForEach(dd =>
+                                            {
+                                                var opts1 = new Dictionary<object, object>();
+                                                opts1.Add("Label", dd.DisplayName);
+                                                var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                                opts1.Add("Value", string.Empty);
+                                                objectData[nameData] = opts1;
+                                                objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = string.Empty;
+                                               /* DynamicFormReportItems dynamicFormReportItems55 = new DynamicFormReportItems();
+                                                dynamicFormReportItems55.AttrId = nameData;
+                                                dynamicFormReportItems55.Label = dd.DisplayName;
+                                                dynamicFormReportItems55.Value = string.Empty;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems55);*/
+                                            });
+
+                                        }
+                                        else
+                                        {
+                                            if (s.DataSourceTable == "ApplicationMasterParent")
+                                            {
+                                                opts.Add("Label", s.DisplayName);
+                                                opts.Add("Value", string.Empty);
+                                                objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                                /*DynamicFormReportItems dynamicFormReportItems56 = new DynamicFormReportItems();
+                                                dynamicFormReportItems56.AttrId = attrName;
+                                                dynamicFormReportItems56.Label = s.DisplayName;
+                                                dynamicFormReportItems56.Value = string.Empty;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems56);*/
+                                                List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                                                s.ApplicationMasterParents.ForEach(ab =>
+                                                {
+                                                    nameDatas.Add(ab);
+                                                    RemoveApplicationMasterParentSingleNameItemApi(ab, s, nameDatas, _AttributeHeader.ApplicationMasterParent);
+                                                    if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+                                                    {
+                                                        var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                        var opts1 = new Dictionary<object, object>();
+                                                        opts1.Add("Label", s.GridDropDownDynamicFormName);
+                                                        opts1.Add("Value", string.Empty);
+                                                        objectData[appendDependency] = opts1;
+                                                        objectDataList[appendDependency + "$" + s.GridDropDownDynamicFormName.Replace(" ", "_")] = string.Empty;
+                                                        /*DynamicFormReportItems dynamicFormReportItems55 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems55.AttrId = appendDependency;
+                                                        dynamicFormReportItems55.Label = s.GridDropDownDynamicFormName;
+                                                        dynamicFormReportItems55.Value = string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems55);*/
+                                                    }
+                                                });
+                                                if (nameDatas != null && nameDatas.Count() > 0)
+                                                {
+                                                    nameDatas.ForEach(n =>
+                                                    {
+                                                        var opts1 = new Dictionary<object, object>();
+                                                        opts1.Add("Label", n.ApplicationMasterName);
+                                                        var nameData = s.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                                        opts1.Add("Value", string.Empty);
+                                                        objectData[nameData] = opts1;
+                                                        objectDataList[nameData + "$" + n.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
+                                                        /*DynamicFormReportItems dynamicFormReportItems55 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems55.AttrId = nameData;
+                                                        dynamicFormReportItems55.Label = n.ApplicationMasterName;
+                                                        dynamicFormReportItems55.Value = string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems55);*/
+                                                    });
+                                                }
+
+                                            }
+                                            else if (s.DataSourceTable == "ApplicationMaster")
+                                            {
+                                                opts.Add("Label", s.DisplayName);
+                                                opts.Add("Value", string.Empty);
+                                                objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                                /*DynamicFormReportItems dynamicFormReportItems57 = new DynamicFormReportItems();
+                                                dynamicFormReportItems57.AttrId = attrName;
+                                                dynamicFormReportItems57.Label = s.DisplayName;
+                                                dynamicFormReportItems57.Value = string.Empty;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems57);*/
+                                                if (s.ApplicationMaster.Count() > 0)
+                                                {
+                                                    s.ApplicationMaster.ForEach(ab =>
+                                                    {
+                                                        var opts1 = new Dictionary<object, object>();
+                                                        opts1.Add("Label", ab.ApplicationMasterName);
+                                                        var nameData = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                                        opts1.Add("Value", string.Empty);
+                                                        objectData[nameData] = opts1;
+                                                        objectDataList[attrName + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
+                                                        /*DynamicFormReportItems dynamicFormReportItems51 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems51.AttrId = nameData;
+                                                        dynamicFormReportItems51.Label = ab.ApplicationMasterName;
+                                                        dynamicFormReportItems51.Value = string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems51);*/
+                                                        if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+                                                        {
+                                                            var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                            var opts12 = new Dictionary<object, object>();
+                                                            opts12.Add("Label", s.GridDropDownDynamicFormName);
+                                                            opts12.Add("Value", string.Empty);
+                                                            objectData[appendDependency] = opts12;
+                                                            objectDataList[appendDependency + "$" + s.GridDropDownDynamicFormName.Replace(" ", "_")] = string.Empty;
+                                                            /*DynamicFormReportItems dynamicFormReportItems55 = new DynamicFormReportItems();
+                                                            dynamicFormReportItems55.AttrId = appendDependency;
+                                                            dynamicFormReportItems55.Label = s.GridDropDownDynamicFormName;
+                                                            dynamicFormReportItems55.Value = string.Empty;
+                                                            dynamicFormReportItems.Add(dynamicFormReportItems55);*/
+                                                        }
+                                                    });
+                                                }
+
+                                            }
+                                            else if (s.ControlType == "CheckBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                            {
+                                                opts.Add("Label", s.DisplayName);
+                                                opts.Add("Value", s.ControlType == "CheckBox" ? false : string.Empty);
+                                                objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.ControlType == "CheckBox" ? false : string.Empty;
+                                                /*DynamicFormReportItems dynamicFormReportItems58 = new DynamicFormReportItems();
+                                                dynamicFormReportItems58.AttrId = attrName;
+                                                dynamicFormReportItems58.Label = s.DisplayName;
+                                                dynamicFormReportItems58.Value = string.Empty;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems58);*/
+                                                if (s.ControlType == "CheckBox")
+                                                {
+                                                    loadSubHeaders(s.SubAttributeHeaders, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                }
+                                                else
+                                                {
+                                                    var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == s.AttributeId && mm.DropDownTypeId == null).ToList();
+                                                    if (attrDetails != null && attrDetails.Count > 0)
+                                                    {
+                                                        attrDetails.ForEach(u =>
+                                                        {
+                                                            if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                            {
+                                                                loadSubHeaders(u.SubAttributeHeaders, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                opts.Add("Label", s.DisplayName);
+                                                opts.Add("Value", string.Empty);
+                                                objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                                /*DynamicFormReportItems dynamicFormReportItems58 = new DynamicFormReportItems();
+                                                dynamicFormReportItems58.AttrId = attrName;
+                                                dynamicFormReportItems58.Label = s.DisplayName;
+                                                dynamicFormReportItems58.Value = string.Empty;
+                                                dynamicFormReportItems.Add(dynamicFormReportItems58);*/
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                            });
+                        }
+                        list.Add(objectData);
+                        //dynamicFormData.ObjectDataList = list;
+                        dynamicFormData.ObjectDataItems = objectDataList;
+                        listItems.Add(objectDataList);
+                        //dynamicFormData.DynamicFormReportItems = dynamicFormReportItems;
+                        _dynamicformObjectDataList.Add(dynamicFormData);
+                    });
+                }
+
+            }
+            return _dynamicformObjectDataList;
+        }
+
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormExpandObjectAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl, bool? IsAll)
+        {
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
+            try
+            {
+                List<long?> Ids = new List<long?>();
+                List<long?> userIds = new List<long?>();
+                List<Guid?> SessionIds = new List<Guid?>();
+                var parameters = new DynamicParameters();
+                List<ApplicationUser> appUsers = new List<ApplicationUser>();
+                List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems = new List<DynamicFormWorkFlowFormReportItems>();
+                var query = string.Empty;
+                if (DynamicFormSessionId != null)
+                {
+                    var _dynamicForm = new DynamicForm();
+                    var _dynamicFormDataGrid = new DynamicFormData();
+                    List<DynamicForm> dynamicFormAll = new List<DynamicForm>();
+                    List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
+                    List<DynamicFormData> dynamicFormGridData = new List<DynamicFormData>();
+
+                    parameters.Add("SessionId", DynamicFormSessionId, DbType.Guid);
+                    parameters.Add("DynamicGridFormSessionID", DynamicFormDataSessionId, DbType.Guid);
+                    parameters.Add("DynamicFormDataGridSessionId", DynamicFormDataGridSessionId, DbType.Guid);
+                    using (var connection = CreateConnection())
+                    {
+                        if (IsAll == true)
+                        {
+                            if (DynamicFormDataSessionId != null)
+                            {
+                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@DynamicFormDataGridSessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+                            }
+                            else
+                            {
+                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+
+                            }
+                        }
+                        else
+                        {
+                            query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+                        }
+                        var result = await connection.QueryMultipleAsync(query, parameters);
+                        _dynamicForm = result.Read<DynamicForm>().FirstOrDefault();
+                        var query1 = string.Empty;
+                        if (_dynamicForm != null && _dynamicForm.ID > 0)
+                        {
+                            Ids.Add(_dynamicForm?.ID);
+                            if (IsAll == true)
+                            {
+                                if (DynamicFormDataSessionId != null)
+                                {
+
+                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                   // query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+
+                                }
+                                else
+                                {
+                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                   // query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                }
+                            }
+                            else
+                            {
+                                query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                               // query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
+                                   // "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                            }
+                            if (!string.IsNullOrEmpty(query1))
+                            {
+                                List<long> DynamicFormDataIds = new List<long>();
+                                var results = await connection.QueryMultipleAsync(query1, parameters);
+                                dynamicFormData = results.Read<DynamicFormData>().ToList();
+                                userIds.AddRange(dynamicFormData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
+                                userIds.AddRange(dynamicFormData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
+                                DynamicFormDataIds.AddRange(dynamicFormData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
+                               // dynamicFormGridData = results.Read<DynamicFormData>().ToList();
+                                if (dynamicFormGridData != null && dynamicFormGridData.Count() > 0)
+                                {
+                                    DynamicFormDataIds.AddRange(dynamicFormGridData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
+                                    userIds.AddRange(dynamicFormGridData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
+                                    userIds.AddRange(dynamicFormGridData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
+                                    Ids.AddRange(dynamicFormGridData.Where(w => w.DynamicFormId > 0).Select(s => s.DynamicFormId).Distinct().ToList());
+                                }
+                                DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
+                                if (userIds.Count() > 0)
+                                {
+                                    var query2 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+
+                                    var QuerResult = await connection.QueryMultipleAsync(query2);
+                                    appUsers = QuerResult.Read<ApplicationUser>().ToList();
+                                }
+                            }
+                        }
+                    }
+                    if (_dynamicForm != null && _dynamicForm.ID > 0)
+                    {
+                        AttributeHeaderListModel _AttributeHeader = new AttributeHeaderListModel();
+                        _AttributeHeader = await GetAllAttributeNameByIdAsync(Ids, 1);
+
+                        if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                        {
+                            List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
+                            var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
+                            dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
+                            ApplicationMasterIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
+                            ApplicationMasterParentIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
+                            if (ApplicationMasterIds.Count > 0)
+                            {
+                                dataSourceTableIds.Add("ApplicationMaster");
+                            }
+                            if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
+                            {
+                                dataSourceTableIds.Add("ApplicationMasterParent");
+                            }
+                            var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
+                            var PlantDependencySubAttributeDetailss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.ToList() : new List<AttributeDetails>();
+                            _dynamicformObjectDataList = GetDynamicFormDataExpandObjectAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems);
+                        }
+                    }
+                }
+                return _dynamicformObjectDataList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+
+        }
+        public async Task<IReadOnlyList<ExpandoObject>> GetAllDataObjectDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll)
+        {
+            var _dynamicformObjectDataList = new List<ExpandoObject>();
+            try
+            {
+                var _dynamicformObjectDataLists = await GetAllDynamicFormExpandObjectAllApiAsync(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, BasUrl, IsAll);
+                if(_dynamicformObjectDataLists!=null && _dynamicformObjectDataLists.Count()>0)
+                {
+                     _dynamicformObjectDataList = _dynamicformObjectDataLists.Select(s => (ExpandoObject)s.ObjectDataItems).ToList();
+                }
                 return _dynamicformObjectDataList;
             }
             catch (Exception exp)

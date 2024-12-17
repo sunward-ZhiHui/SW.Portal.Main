@@ -376,4 +376,38 @@ namespace Core.Entities.CustomValidations
             }
         }
     }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFormFormulaValueCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var datas = (DynamicFormSectionAttrFormulaFunction)validationContext.ObjectInstance;
+            if (datas.IsBValueEnabled == true)
+            {
+                if (datas.BValue != null)
+                {
+                    if (datas.BValue > datas.AValue)
+                    {
+                        return ValidationResult.Success;
+                    }
+                    else
+                    {
+                        return new ValidationResult("B Value is Smaller than A Value. It must Greater", new[] { validationContext.MemberName });
+                    }
+                }
+                else
+                {
+                    return new ValidationResult("This field is Required", new[] { validationContext.MemberName });
+                }
+                
+            }
+            else
+            {
+                return ValidationResult.Success;
+            }
+
+        }
+    }
 }

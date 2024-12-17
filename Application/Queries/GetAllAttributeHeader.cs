@@ -6,6 +6,7 @@ using DevExpress.XtraReports.Design;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -251,5 +252,24 @@ namespace Application.Queries
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
         }
     }
+    public class GetDynamicFormObjectsApi : PagedRequest, IRequest<List<ExpandoObject>>
+    {
+        public Guid? DynamicFormSessionId { get; set; }
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public Guid? DynamicFormDataGridSessionId { get; set; }
+        public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
+        public string? BaseUrl { get; set; }
+        public bool? IsAll { get; set; }
+        public GetDynamicFormObjectsApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll)
+        {
+            this.DynamicFormSessionId = dynamicFormSessionId;
+            this.DynamicFormDataSessionId = dynamicFormDataSessionId;
+            this.DynamicFormDataGridSessionId = dynamicFormDataGridSessionId;
+            this.DynamicFormSectionGridAttributeSessionId = dynamicFormSectionGridAttributeSessionId;
+            this.BaseUrl = baseUrl;
+            this.IsAll = isAll;
+        }
+    }
+    
 
 }

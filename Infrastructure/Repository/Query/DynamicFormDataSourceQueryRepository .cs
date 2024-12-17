@@ -112,6 +112,11 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetRawMatPurchDataSource(CompanyId, plantCode, plantIds);
                 }
+                if (dataSourceTableIds.Contains("ReleaseProdOrderLine"))
+                {
+                    i++;
+                    query += GetReleaseProdOrderLineDataSource(CompanyId, plantCode, plantIds);
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -765,7 +770,37 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        private string GetReleaseProdOrderLineDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('ReleaseProdOrderLine','_',t1.ReleaseProdOrderLineId) as AttributeDetailNameId,'ReleaseProdOrderLine' as DropDownTypeId, t1.ReleaseProdOrderLineId as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.Description2 as Description2,t1.ReplanRefNo,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,t1.BatchSize,t1.ProdOrderNo,t1.UnitOfMeasureCode,t1.Status,t1.SubStatus,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate from ReleaseProdOrderLine t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "AND t2.CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "AND t2.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += ";\r\n";
+                }
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
         private string GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
         {
             //var attributeDetails = new List<AttributeDetails>();
@@ -1244,9 +1279,14 @@ namespace Infrastructure.Repository.Query
                     query += "select 'Designation' as DropDownTypeId,t1.SectionID as AttributeDetailID,t1.CompanyID as CompanyId,t3.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t1.Description) as Description from Designation t1 JOIN SubSection t2 ON t2.SubSectionID=t1.SubSectionTID JOIN Plant t3 ON t1.CompanyID=t3.PlantID\r";
 
                 }
-                else if(DataSource== "RawMatPurch")
+                else if (DataSource == "RawMatPurch")
                 {
                     query += "select CONCAT('RawMatPurch','_',t1.RawMatPurchID) as AttributeDetailNameId,'RawMatPurch' as DropDownTypeId, t1.RawMatPurchID as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate from RawMatPurch t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                }
+                else if (DataSource == "ReleaseProdOrderLine")
+                {
+                    query += "select CONCAT('ReleaseProdOrderLine','_',t1.ReleaseProdOrderLineId) as AttributeDetailNameId,'ReleaseProdOrderLine' as DropDownTypeId, t1.ReleaseProdOrderLineId as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.Description2 as Description2,t1.ReplanRefNo,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,t1.BatchSize,t1.ProdOrderNo,t1.UnitOfMeasureCode,t1.Status,t1.SubStatus,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate from ReleaseProdOrderLine t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+
                 }
                 else if (DataSource == "ItemBatchInfo")
                 {

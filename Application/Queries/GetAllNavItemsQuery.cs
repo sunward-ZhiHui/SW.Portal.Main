@@ -202,4 +202,12 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class GetReleaseProdOrderLineList : PagedRequest, IRequest<ReleaseProdOrderLine>
+    {
+        public long? CompanyId { get; set; }
+        public GetReleaseProdOrderLineList(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 }

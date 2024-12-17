@@ -22,6 +22,7 @@
                 <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click="@onBack" />
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Assgin Users" IconCssClass="fa fa-users" Click="@addAssignUsers" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -125,8 +126,54 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AssignUserspopup"
+         ShowFooter="true"
+         HeaderText="Assign Users"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="800px">
+    <BodyContentTemplate Context="AssignContext">
+        <EditForm Model="@Data" id="User2"
+                  OnValidSubmit="@HandleValidSubmit"
+                  OnInvalidSubmit="@HandleInvalidSubmit"
+                  Context="EditFormContext">
+            <DataAnnotationsValidator />
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="Users" ColSpanMd="10">
+                    <DxTagBox Data="_usersList"
+                              @bind-Values="Data.SelectUserIDs"
+                              NullText="Select To..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="FirstName"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              EditFormat="{0}-{1}"
+                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="2">
+                    <DxButton SubmitFormOnClick="true"
+                              Text="Save"
+                              style="margin-bottom: 20px;"
+                              RenderStyle="ButtonRenderStyle.Primary" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-    bool Blukdeletepopup { get; set; } = false;
+    bool AssignUserspopup { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; private List<ViewEmployee>? _usersList;
     private List<DynamicFormSectionSortOrder> sortOrderAttributeSectionList { get; set; }
     bool IsSortOrderByAtrributeOpen { get; set; } = false;
     ApplicationPermission _selectedDynamicFormAttributeSectionItems = new ApplicationPermission();
@@ -135,12 +182,15 @@
     private List<ApplicationPermission> _ApplicationPermission;
     public ApplicationUser? applicationUser { get; private set; }
     bool PanelVisible { get; set; } = true; private DynamicForm _selectedItems;
-    bool AddEnabled { get; set; } = false; bool DeleteEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false; bool DeleteEnabled { get; set; } = false; bool EditEnabled { get; set; } = false;
     [Parameter]
     public Action RevokeBack { get; set; }
+    DynamicFormDataAssignUser Data = new DynamicFormDataAssignUser(); EditContext _editContext;
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         await UpdateDataAsync();
     }
     void onBack()
@@ -151,7 +201,7 @@
     {
         try
         {
-            PanelVisible = true; AddEnabled = false; DeleteEnabled = false;
+            PanelVisible = true; AddEnabled = false; DeleteEnabled = false; EditEnabled = false;
             var result = await Mediator.Send(new GetAllDynamicForm(0));
             _ApplicationPermission = await Mediator.Send(new GetDynamicFormMenuList());
             if (result != null && result.Count > 0)
@@ -172,12 +222,13 @@
                     {
                         if (_selectedItems.SortBy > 0)
                         {
-                            DeleteEnabled = true;
+                            DeleteEnabled = true; EditEnabled = true;
                         }
                         else
                         {
                             AddEnabled = true;
                         }
+                        await LoadDataUsers();
                     }
                     StateHasChanged();
                     Grid.ClearSelection();
@@ -193,6 +244,27 @@
 
         }
     }
+    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        StateHasChanged();
+    }
+    async Task addAssignUsers()
+    {
+        _editContext = new EditContext(Data);
+        Data.SelectUserIDs = new List<long?>();
+        Data.DynamicFormId = _selectedItems.ID;
+        AssignUserspopup = true;
+        await LoadDataUsers();
+    }
+    async Task LoadDataUsers()
+    {
+        var result = await Mediator.Send(new GetDynamicFormDataAssignUserList(_selectedItems.ID));
+        if (result != null && result.Count() > 0)
+        {
+            Data.SelectUserIDs = result.Select(s => s.UserId).ToList();
+        }
+        StateHasChanged();
+    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -200,21 +272,22 @@
             e.CssClass = "alt-item";
         }
     }
-    void OnRowclick(GridRowClickEventArgs e)
+    async Task OnRowclick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        AddEnabled = false; DeleteEnabled = false;
+        AddEnabled = false; DeleteEnabled = false; EditEnabled = false;
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
         if (_selectedItems != null)
         {
             if (_selectedItems.SortBy > 0)
             {
-                DeleteEnabled = true;
+                DeleteEnabled = true; EditEnabled = true;
             }
             else
             {
                 AddEnabled = true;
             }
+            await LoadDataUsers();
         }
     }
     void addNew()
@@ -255,6 +328,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        AssignUserspopup = false;
         Blukdeletepopup = false;
     }
     void OnButtonSortOrderByClick(DynamicForm dynamicFormSection)
@@ -287,6 +361,25 @@
         Grid.SortBy("SortBy", GridColumnSortOrder.Ascending, 0);
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         IsSortOrderByAtrributeOpen = false;
+    }
+    async Task HandleValidSubmit()
+    {
+        var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
+        // if (userCount == 0)
+        // {
+        //     toastService.ShowToast("Must select User", AC.SD.Core.Services.ToastLevel.Error);
+        // }
+        // else
+        // {
+            var response = await Mediator.Send(new InsertDynamicFormDataAssignUser(Data));
+            if (response.DynamicFormId > 0)
+            {
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        //}
+    }
+    void HandleInvalidSubmit()
+    {
     }
     public async ValueTask DisposeAsync()
     {

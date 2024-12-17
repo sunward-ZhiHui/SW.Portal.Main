@@ -34,6 +34,7 @@
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
@@ -184,6 +185,14 @@
         if (_selectedItems != null && _selectedItems.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrl1()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _selectedItems.SessionID;
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }

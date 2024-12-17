@@ -387,7 +387,7 @@ namespace Infrastructure.Repository.Query
                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=tt1.UploadSessionID ANd t22.IsLatest=1) as ProfileNo,\r\n " +
                     "(Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
                     "(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n" +
-                    "(case when tt1.LinkFileProfileTypeDocumentID>0 then  (SELECT f1.SessionID from FileProfileType f1 where f1.fileprofiletypeid=tt1.LinkFileProfileTypeId) ELSE (Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) END) as FileProfileSessionID,\r\n(case when tt1.LinkFileProfileTypeDocumentID>0 then  (SELECT f1.Name from FileProfileType f1 where f1.fileprofiletypeid=tt1.LinkFileProfileTypeId) ELSE (Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) END) as FileProfileName\r\n from " +
+                    "(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n (Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName from " +
                     "(select t1.DynamicFormSectionID,\r\nt1.SectionName,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.DynamicFormID,\r\nt1.SortOrderBy,\r\nt1.IsReadWrite,\r\nt1.IsReadOnly,\r\nt1.IsVisible,\r\nt1.Instruction,\r\nt1.IsDeleted,\r\nt1.SectionFileProfileTypeID,\r\n (select t4.LinkFileProfileTypeDocumentID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkFileProfileTypeDocumentID,\r\n (select tt4.TransactionSessionID from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as TransactionSessionID,\r\n  (select tt4.FileProfileTypeId from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkFileProfileTypeId,\r\n    " +
                     "(select tt4.DocumentID from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkDocumentID,\r\n(select t4.DynamicFormDataUploadID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadID,\r\n(select t2.SessionID from DynamicFormDataUpload t2 WHERE t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.DynamicFormDataID=@dynamicFormDataId) as UploadSessionID,\r\n(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID,\r\n" +
                     "(select t5.IsReadOnly from DynamicFormSectionSecurity t5 WHERE t5.UserID=" + UserId + " AND t1.DynamicFormSectionID=t5.DynamicFormSectionID) as UserIsReadOnly,\r\n" +
@@ -958,7 +958,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsReadOnly", dynamicFormSection.IsReadOnly);
                         parameters.Add("IsReadWrite", dynamicFormSection.IsReadWrite);
                         parameters.Add("Instruction", dynamicFormSection.Instruction, DbType.String);
-                        parameters.Add("IsAutoNumberEnabled", dynamicFormSection.IsAutoNumberEnabled==null?false: dynamicFormSection.IsAutoNumberEnabled);
+                        parameters.Add("IsAutoNumberEnabled", dynamicFormSection.IsAutoNumberEnabled == null ? false : dynamicFormSection.IsAutoNumberEnabled);
                         parameters.Add("SectionFileProfileTypeId", dynamicFormSection.SectionFileProfileTypeId);
                         if (dynamicFormSection.DynamicFormSectionId > 0)
                         {
@@ -6577,6 +6577,179 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        public async Task<IReadOnlyList<DynamicFormSectionAttrFormulaFunction>> GetDynamicFormSectionAttrFormulaFunction(long? DynamicFormSectionAttributeId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormSectionAttributeId", DynamicFormSectionAttributeId);
+                var query = "SELECT t1.*,t2.Type,t2.FormulaFunctionName FROM DynamicFormSectionAttrFormulaFunction t1 JOIN DynamicFormSectionAttrFormulaMasterFunction t2 ON t1.DynamicFormSectionAttrFormulaMasterFuntionId=t2.MasterID where t1.DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId ORDER BY t1.DynamicFormSectionAttrFormulaFunctionId asc;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormSectionAttrFormulaFunction>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormSectionAttrFormulaFunction> InsertOrUpdateDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DynamicFormSectionAttributeId", value.DynamicFormSectionAttributeId);
+                    parameters.Add("DynamicFormSectionAttrFormulaMasterFuntionId", value.DynamicFormSectionAttrFormulaMasterFuntionId);
+                    parameters.Add("AValue", value.AValue);
+                    parameters.Add("BValue", value.BValue);
+                    parameters.Add("ColorValue", value.ColorValue, DbType.String);
+                    parameters.Add("IsBValueEnabled", value.IsBValueEnabled == true ? true : false);
+                    parameters.Add("DynamicFormSectionAttrFormulaFunctionId", value.DynamicFormSectionAttrFormulaFunctionId);
+                    if (value.DynamicFormSectionAttrFormulaFunctionId > 0)
+                    {
+                        var query = "UPDATE DynamicFormSectionAttrFormulaFunction SET ColorValue=@ColorValue,IsBValueEnabled=@IsBValueEnabled,DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId = @DynamicFormSectionAttrFormulaMasterFuntionId,AValue =@AValue,BValue =@BValue\r" +
+                            "WHERE DynamicFormSectionAttrFormulaFunctionId = @DynamicFormSectionAttrFormulaFunctionId";
+
+                        await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO DynamicFormSectionAttrFormulaFunction(ColorValue,IsBValueEnabled,DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId,AValue,BValue) OUTPUT INSERTED.DynamicFormSectionAttrFormulaFunctionId VALUES " +
+                            "(@ColorValue,@IsBValueEnabled,@DynamicFormSectionAttributeId,@DynamicFormSectionAttrFormulaMasterFuntionId,@AValue,@BValue)";
+
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        value.DynamicFormSectionAttrFormulaFunctionId = rowsAffected;
+                    }
+                    return value;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<IReadOnlyList<DynamicFormSectionAttrFormulaMasterFunction>> GetDynamicFormSectionAttrFormulaMasterFunction()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "SELECT * FROM DynamicFormSectionAttrFormulaMasterFunction ORDER BY MasterID asc;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormSectionAttrFormulaMasterFunction>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormSectionAttrFormulaFunction> DeleteDynamicFormSectionAttrFormulaFunction(DynamicFormSectionAttrFormulaFunction dynamicForm)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSectionAttrFormulaFunctionId", dynamicForm.DynamicFormSectionAttrFormulaFunctionId);
+                        var query = "Delete from  DynamicFormSectionAttrFormulaFunction  WHERE DynamicFormSectionAttrFormulaFunctionId = @DynamicFormSectionAttrFormulaFunctionId";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicForm;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserList(long? DynamicFormId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", DynamicFormId);
+                var query = "SELECT * FROM DynamicFormDataAssignUser where DynamicFormId=@DynamicFormId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserAllList()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "SELECT t1.*,t2.SessionID FROM DynamicFormDataAssignUser t1 JOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID WHERE (t2.IsDeleted is null OR t2.IsDeleted=0);";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataAssignUser> InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormId", value.DynamicFormId);
+                        query += "Delete from  DynamicFormDataAssignUser  WHERE DynamicFormId = @DynamicFormId;";
+                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                        {
+                            foreach (var item in value.SelectUserIDs)
+                            {
+                                query += "INSERT INTO [DynamicFormDataAssignUser](DynamicFormId,UserId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
+                                         "VALUES (@DynamicFormId," + item + ");\r\n";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

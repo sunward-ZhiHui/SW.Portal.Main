@@ -1,9 +1,83 @@
 ﻿@page "/dynamicFormMenuList/dynamicForms/{SessionId:guid}"
 @page "/dynamicFormMenuList/dynamicForms/{SessionId:guid}/{SessionIds:guid}"
-<DynamicForms SessionId="@SessionId" SessionIds="@SessionIds"></DynamicForms>
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using Application.Queries;
+@using global::Core.Repositories.Query;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<style scoped>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 210px);
+        margin: 0;
+    }
+
+    .warning-message {
+        text-align: center;
+        padding: 20px;
+        border: 2px solid #f5c6cb;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: #721c24;
+    }
+
+        .warning-message h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .warning-message p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+</style>
+@if (isViewMenuPermission == true)
+{
+    <DynamicForms SessionId="@SessionId" SessionIds="@SessionIds"></DynamicForms>
+}
+else
+{
+    <div class="center-container">
+        <div class="warning-message">
+            <h1>Access Denied</h1>
+            <p>You do not have permission to view this page.</p>
+        </div>
+    </div>
+}
 @code {
     [Parameter]
     public Guid? SessionIds { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
+    private List<DynamicFormDataAssignUser> _dynamicFormDataAssignUserList { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    bool isViewMenuPermission { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+    }
+    async Task loadDynamicForm()
+    {
+        _dynamicFormDataAssignUserList = await Mediator.Send(new GetDynamicFormDataAssignUserAllList());
+        if (_dynamicFormDataAssignUserList != null && _dynamicFormDataAssignUserList.Count() > 0)
+        {
+            var result = _dynamicFormDataAssignUserList.Where(w => w.UserId == applicationUser.UserID && w.SessionId == SessionId).FirstOrDefault();
+            isViewMenuPermission = result != null ? true : false;
+        }
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (applicationUser != null)
+        {
+            await loadDynamicForm();
+        }
+        base.OnParametersSet();
+    }
 }

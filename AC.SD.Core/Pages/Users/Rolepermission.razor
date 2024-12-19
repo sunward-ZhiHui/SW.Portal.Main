@@ -11,52 +11,52 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable;
 
-    <div class="card w-100" style="margin-bottom:10px;">
-        <div class="card-body p-0">
-            <DxMenu CollapseItemsToHamburgerMenu="true"
-                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                    DisplayMode="MenuDisplayMode.Desktop">
-                <Items>
-                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                    <DxMenuItem Text="Save Permission" IconCssClass="fa fa-save" Click="@OnSaveRolepermission" Enabled="@SaveEnabled" />
+                <DxMenuItem Text="Save Permission" IconCssClass="fa fa-save" Click="@OnSaveRolepermission" Enabled="@SaveEnabled" />
 
-                </Items>
-            </DxMenu>
-        </div>
+            </Items>
+        </DxMenu>
     </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-  <div class="main-container">
+    <div class="main-container">
 
-    <div class="content-container row">
-      
-                 <div class="menu-bar-content-container col-md-8">
-                    <div class="content-padding-20">
-                        <div class="menu-bar-content-container-heading">
-                            <div class="heading-icon-text">
-                                <div class="mb-cc-text">
-                                    <div class="card w-100">
-                                        <div class="card-body p-0">
-                                         
+        <div class="content-container row">
+
+            <div class="menu-bar-content-container col-md-8">
+                <div class="content-padding-20">
+                    <div class="menu-bar-content-container-heading">
+                        <div class="heading-icon-text">
+                            <div class="mb-cc-text">
+                                <div class="card w-100">
+                                    <div class="card-body p-0">
+
                                         <DxGrid @ref="_RoleGrid"
                                                 Data="_rolePermission"
                                                 KeyFieldName="RoleID"
-                                                EditMode="GridEditMode.EditForm" 
+                                                EditMode="GridEditMode.EditForm"
                                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
                                                 EditorRenderMode="GridEditorRenderMode.Integrated"
                                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                                 ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox" 
+                                                PagerNavigationMode="PagerNavigationMode.InputBox"
                                                 PageSizeSelectorVisible="true"
                                                 PageSizeSelectorAllRowsItemVisible="true"
                                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                                PageSize="20"  CustomizeElement="Grid_CustomizeElement" SelectedDataItemsChanged="@SelectedDataItemsChanged"   ValidationEnabled="false"
+                                                PageSize="20" CustomizeElement="Grid_CustomizeElement" SelectedDataItemsChanged="@SelectedDataItemsChanged" ValidationEnabled="false"
                                                 EditModelSaving="Grid_EditModelSaving"
                                                 DataItemDeleting="Grid_DataItemDeleting"
                                                 RowClick="OnRowClick"
@@ -68,7 +68,7 @@
                                                 CssClass="ch-360"
                                                 style="height: calc(100vh - 220px);">
                                             <Columns>
-                                                <DxGridSelectionColumn   AllowSelectAll="false" Width="60px" />
+                                                <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
                                                 <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
                                                 <DxGridDataColumn FieldName="RoleDescription" MinWidth="80" />
                                             </Columns>
@@ -88,66 +88,65 @@
                                                 </DxFormLayout>
                                             </EditFormTemplate>
                                         </DxGrid>
-                                       
-                                        </div>
+
                                     </div>
                                 </div>
-
                             </div>
-                         </div>
+
+                        </div>
                     </div>
-                 </div>
-
-      <div class=" col-md-4">
-                <div class="mini-menu-bar-top" style="height: calc(100vh - 200px);">
-                <div class="mini-menu-bar-heading">
-                        <div class="files-title">Application Permission </div>
-                    @*  <button class="btn btn-primary" @onclick="OnSaveRolepermission"> save</button>  @*   RowDoubleClick="OnRowDoubleClick"*@
-
                 </div>
-                <div>
-                    <div class="views-accordion">
+            </div>
+
+            <div class=" col-md-4">
+                <div class="mini-menu-bar-top" style="height: calc(100vh - 200px);">
+                    <div class="mini-menu-bar-heading">
+                        <div class="files-title">Application Permission </div>
+                        @*  <button class="btn btn-primary" @onclick="OnSaveRolepermission"> save</button>  @*   RowDoubleClick="OnRowDoubleClick"*@
+
+                    </div>
+                    <div>
+                        <div class="views-accordion">
                             <DxTreeView Data="@_TreeData" style="height: calc(100vh - 220px);"
                                         AllowSelectNodes="true"
                                         CheckMode="TreeViewCheckMode.Recursive"
                                         CheckAllVisible="true"
                                         CheckedChanged="@onCheckedChanged"
-                                      
-                                         AnimationType="LayoutAnimationType.Slide"
+                                        AnimationType="LayoutAnimationType.Slide"
                                         CssClass="h-300" @ref="treeview">
-                            <DataMappings>
-                                <DxTreeViewDataMapping Text="PermissionName"
-                                                       Key="PermissionID"
+                                <DataMappings>
+                                    <DxTreeViewDataMapping Text="PermissionName"
+                                                           Key="PermissionID"
                                                            AllowCheck="AllowCheck"
-                                                           ParentKey="ParentID" Name="PermissionID" 
+                                                           ParentKey="ParentID" Name="PermissionID"
                                                            Checked="Checked" />
-                            </DataMappings>
-                        </DxTreeView>
+                                </DataMappings>
+                            </DxTreeView>
+                        </div>
                     </div>
                 </div>
+
+
+
             </div>
-
-
-       
-      </div>
-     </div>
-  </div>
+        </div>
+    </div>
 </DxLoadingPanel>
-    <DxPopup @bind-Visible="@Blukdeletepopup"
-             ShowFooter="true"
-             HeaderText="CRT"
-             Closed="EulaPopupClosed"
-             Width="300px">
-        <BodyContentTemplate>
-            <p>
-                Do you want to delete
-            </p>
-        </BodyContentTemplate>
-        <FooterContentTemplate Context="Context">
-            <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback"  />
-            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
-        </FooterContentTemplate>
-    </DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 
 
 @code {
@@ -184,6 +183,7 @@
 
         PanelVisible = true;
         _rolePermission = await Mediator.Send(new GetAllRolePermission());
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         PanelVisible = false;
     }
@@ -199,20 +199,26 @@
     //}
     private async Task OnSaveRolepermission()
     {
-        string pIDs = string.Join(",", permissionids);
-        var editModel = new ApplicationRolePermission();
-        var createReq = new CreateApplicationRolePermissionQuery
-            {
+        if (permissionids != null && permissionids.Count() > 0)
+        {
+            string pIDs = string.Join(",", permissionids);
+            var editModel = new ApplicationRolePermission();
+            var createReq = new CreateApplicationRolePermissionQuery
+                {
 
-                RoleID = _selectedItems.RoleID,
-                PermissionIDs = pIDs
-            };
+                    RoleID = _selectedItems.RoleID,
+                    PermissionIDs = pIDs
+                };
 
-        var result = await Mediator.Send(createReq);
-        toastService.ShowToast("RolePermission Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await UpdateDataAsync();
-        await jsRuntime.InvokeAsync<string>("ReloadUrl");
-
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("RolePermission Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+            await jsRuntime.InvokeAsync<string>("ReloadUrl");
+        }
+        else
+        {
+            toastService.ShowToast("Must select Checkbox", AC.SD.Core.Services.ToastLevel.Error);
+        }
     }
 
     void onCheckedChanged(TreeViewCheckedChangedEventArgs e)
@@ -226,7 +232,7 @@
         {
 
             foreach (var item in checkedEmployees)
-            { 
+            {
 
                 permissionids.Add(long.Parse(item.Name));
 
@@ -276,7 +282,7 @@
         if (e.IsNew)
         {
 
-            var ex = _rolePermission.Where(x => x.RoleName == editModel.RoleName );
+            var ex = _rolePermission.Where(x => x.RoleName == editModel.RoleName);
             if (ex.Any())
             {
 
@@ -295,7 +301,7 @@
                         StatusCodeID = 1,
                         AddedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
-                      //  SessionId = Guid.NewGuid()
+                        //  SessionId = Guid.NewGuid()
                     };
                 var result = await Mediator.Send(createReq);
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -362,7 +368,7 @@
             e.CssClass = "header-bold";
         }
     }
-    async  void OnRowClick(GridRowClickEventArgs e)
+    async void OnRowClick(GridRowClickEventArgs e)
     {
         //     checkedEmployees = new List<ITreeViewNodeInfo>();
         //      SaveEnabled = true;
@@ -477,6 +483,11 @@
                     DeleteEnabled = true;
                     _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == rolePermission.RoleID);
                     _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+                    if (_TreeData != null && _TreeData.Count() > 0)
+                    {
+                        permissionids = new List<long>();
+                        permissionids = _TreeData.Where(w => w.Checked == true).Select(s => s.PermissionID).ToList();
+                    }
                     StateHasChanged();
 
 
@@ -524,14 +535,14 @@
             _TreeData = null;
 
             // Optionally, force garbage collection
-          //  GC.Collect();
-           // GC.WaitForPendingFinalizers();
-           // GC.Collect();
+            //  GC.Collect();
+            // GC.WaitForPendingFinalizers();
+            // GC.Collect();
 
         }
-        
 
-        
+
+
     }
     //async void ClosePopup()
     //{

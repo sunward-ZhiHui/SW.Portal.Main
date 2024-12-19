@@ -15,6 +15,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateDynamicFormSecurity" Enabled="@updateDynamicFormSecurityEnabled" />
+                <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@deleteUserGroupDelete" Enabled="@DeleteUserGroupEnabled" />
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditFormEnabled" />
             </Items>
         </DxMenu>
@@ -61,7 +62,21 @@
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
-
+<DxPopup @bind-Visible="@BlukdeleteUserGroupPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Unlock?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
 
     [Parameter]
@@ -69,9 +84,9 @@
     public List<DynamicFormDataSectionLock> dynamicFormWorkFlowApprovalItems { get; set; }
     bool PanelDynamicFormSecurityVisible { get; set; }
     IGrid? TransferDynamicFormSectionSecurityGrid { get; set; }
-    bool updateDynamicFormSecurityEnabled { get; set; } = false; bool EditFormEnabled { get; set; } = false;
+    bool updateDynamicFormSecurityEnabled { get; set; } = false; bool EditFormEnabled { get; set; } = false; bool DeleteUserGroupEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDynamicFormSecurityDataItems { get; set; }
-    private DynamicFormDataSectionLock _selectedItems;
+    private DynamicFormDataSectionLock _selectedItems;bool BlukdeleteUserGroupPopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         await loadDynamicFormDataSectionLocks();
@@ -86,12 +101,12 @@
     {
         try
         {
-            updateDynamicFormSecurityEnabled = false; EditFormEnabled = false;
+            updateDynamicFormSecurityEnabled = false; EditFormEnabled = false; DeleteUserGroupEnabled = false;
             PanelDynamicFormSecurityVisible = true;
             dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetTransferDynamicFormDataSectionLock(Data.FromUserId));
             if (dynamicFormWorkFlowApprovalItems != null && dynamicFormWorkFlowApprovalItems.Count > 0)
             {
-                updateDynamicFormSecurityEnabled = true; EditFormEnabled = true;
+                updateDynamicFormSecurityEnabled = true; EditFormEnabled = true; DeleteUserGroupEnabled = true;
                 _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault();
                 TransferDynamicFormSectionSecurityGrid?.SetFocusedRowIndex(0);
             }
@@ -115,7 +130,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataSectionLockId");
         _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault(f => f.DynamicFormDataSectionLockId == (long?)UniqueId);
-        updateDynamicFormSecurityEnabled = true; EditFormEnabled = true;
+        updateDynamicFormSecurityEnabled = true; EditFormEnabled = true; DeleteUserGroupEnabled = true;
     }
     void SelectedDynamicFormSecurityDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -139,6 +154,11 @@
             EditFormEnabled = true;
         }
 
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDynamicFormSecurityDataItems = null;
+        BlukdeleteUserGroupPopup = false;
     }
     async Task updateDynamicFormSecurity()
     {
@@ -177,6 +197,43 @@
         catch (Exception eq)
         {
             // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void deleteUserGroupDelete()
+    {
+        BlukdeleteUserGroupPopup = true;
+    }
+    async Task bulkDelete()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedDynamicFormSecurityDataItems != null)
+            {
+                foreach (object item in SelectedDynamicFormSecurityDataItems)
+                {
+                    if (item is DynamicFormDataSectionLock dataItem)
+                    {
+                        ids.Add(dataItem.DynamicFormDataSectionLockId);
+                    }
+
+                }
+                if (ids != null && ids.Count > 0)
+                {
+                    var request = new UpdateTransferDynamicFormDataSectionLockLock(ids);
+                    await Mediator.Send(request);
+                    BlukdeleteUserGroupPopup = false;
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicFormDataSectionLocks();
+                    TransferDynamicFormSectionSecurityGrid?.ClearSelection();
+                    TransferDynamicFormSectionSecurityGrid.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteUserGroupPopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
     public async ValueTask DisposeAsync()

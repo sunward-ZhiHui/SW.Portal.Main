@@ -4757,6 +4757,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataUpload>> GetDynamicFormDataUploadList(long? DynamicformDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicformDataId", DynamicformDataId);
+                var query = "select * from DynamicFormDataUpload where DynamicformDataId=@DynamicformDataId;";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataUpload>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -4765,10 +4783,12 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        var dynamicFormDataUploadData = await GetDynamicFormDataUploadList(dynamicFormData.DynamicFormDataId);
                         var exitsData = await GetActivityEmailTopicsExits(dynamicFormData.SessionId);
                         if (exitsData == null)
                         {
                             var parameters = new DynamicParameters();
+                            parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
                             parameters.Add("activityType", "DynamicForm", DbType.String);
                             parameters.Add("BackUrl", dynamicFormData.BackUrl, DbType.String);
                             parameters.Add("subjectName", dynamicFormData.ProfileNo, DbType.String);
@@ -4779,11 +4799,25 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
                             var query = "INSERT INTO ActivityEmailTopics(subjectName,SessionId,AddedByUserID," +
-                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl) VALUES " +
-                         "(@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl)";
+                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl,DocumentSessionId) VALUES " +
+                         "(@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl,@DocumentSessionId)";
 
                             await connection.ExecuteAsync(query, parameters);
 
+                        }
+                        else
+                        {
+                            if (exitsData.DocumentSessionId != null)
+                            {
+                                var parameters = new DynamicParameters();
+                                parameters.Add("ActivityEmailTopicID", exitsData.ActivityEmailTopicID);
+                                parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
+                                var query2 = "UPDATE ActivityEmailTopics SET DocumentSessionId=@DocumentSessionId WHERE ActivityEmailTopicID = @ActivityEmailTopicID;\r\n";
+                                if (!string.IsNullOrEmpty(query2))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(query2, parameters);
+                                }
+                            }
                         }
                         return dynamicFormData;
                     }
@@ -5528,6 +5562,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsLocked", value.IsLocked == true ? true : null);
                         parameters.Add("LockedUserId", value.LockedUserId);
                         var query = "update DynamicFormData set IsLocked=@IsLocked,LockedUserID=@LockedUserId where DynamicFormDataId=@DynamicFormDataId\r\n;";
+                        if (value.IsLocked != true)
+                        {
+                            query += "Delete from DynamicFormDataSectionLock where DynamicFormDataId=@DynamicFormDataId;";
+                        }
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 

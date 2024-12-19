@@ -979,7 +979,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var res = DynamicFormWorkFlowSectionForm.Where(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowFormID && w.SectionName != null && w.SectionName != null).Select(a => a.SectionName).Distinct().ToList();
                             s.SectionName = res != null && res.Count() > 0 ? string.Join(',', res) : string.Empty;
-                            
+
                         });
                     }
                 }
@@ -1114,6 +1114,35 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<long?>> UpdateTransferDynamicFormDataLockLock(List<long?> ids)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
+                        var parameters = new DynamicParameters();
+                        var query = "Update DynamicFormData set IsLocked=null,LockedUserID=null WHERE   DynamicFormDataID in(" + string.Join(',', ids) + ")";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        return ids;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<long?>> UpdateTransferDynamicFormDataSectionLock(List<long?> ids, long? userId)
         {
             try
@@ -1130,6 +1159,35 @@ namespace Infrastructure.Repository.Query
                             var query = "Update DynamicFormDataSectionLock set LockedUserID=" + userId + " WHERE   DynamicFormDataSectionLockId in(" + string.Join(',', ids) + ")";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
+                        return ids;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long?>> UpdateTransferDynamicFormDataSectionLockLock(List<long?> ids)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
+                        var parameters = new DynamicParameters();
+                        var query = "Delete from  DynamicFormDataSectionLock WHERE   DynamicFormDataSectionLockId in(" + string.Join(',', ids) + ")";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
                         return ids;
                     }
                     catch (Exception exp)

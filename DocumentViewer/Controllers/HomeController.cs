@@ -56,7 +56,7 @@ namespace DocumentViewer.Controllers
             HttpContext.Session.Remove("invalid");
             HttpContext.Session.Remove("isDownload");
             HttpContext.Session.Remove("isView");
-            HttpContext.Session.Remove("fileUrl");
+            HttpContext.Session.Remove("fileUrl"); HttpContext.Session.Remove("DocumentId");
             @ViewBag.isDownload = "No";
             var userId = HttpContext.Session.GetString("user_id");
             @ViewBag.isUrl = "isUrl";
@@ -70,6 +70,7 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        HttpContext.Session.SetString("DocumentId", currentDocuments.DocumentId.ToString());
                         var ipirApp = _context.IpirApp.Where(w => w.SessionID == currentDocuments.SessionId).FirstOrDefault();
                         var curDate = DateTime.Now.Date;
                         bool? IsExpiryDate = false;
@@ -264,13 +265,13 @@ namespace DocumentViewer.Controllers
                     byte[] fileContents = System.Convert.FromBase64String(base64);
                     System.IO.File.WriteAllBytesAsync(pathurl, fileContents);
                 }
+
             }
             return Ok();
         }
         public IActionResult RibbonDownloadXlsx(SpreadsheetClientState spreadsheetState)
         {
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-
             MemoryStream stream = new MemoryStream();
             spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
             stream.Position = 0;
@@ -282,12 +283,38 @@ namespace DocumentViewer.Controllers
         {
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
             spreadsheet.Save();
+            saveUpdateUserData();
+        }
+        void saveUpdateUserData()
+        {
+            var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
+            if (documentId > 0)
+            {
+                var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    var DocumentsTrace = new DocumentsTrace
+                    {
+                        CurrentUserId = userId,
+                        PrevUserId = currentDocuments.ModifiedByUserId,
+                        DocumentId = currentDocuments.DocumentId,
+                        SessionId = currentDocuments.SessionId,
+                        UpdateDateTime = DateTime.Now,
+                    };
+                    _context.Add(DocumentsTrace);
+                    _context.SaveChanges();
+                    currentDocuments.ModifiedByUserId = userId;
+                    currentDocuments.ModifiedDate = DateTime.Now;
+
+                    _context.SaveChanges();
+                }
+            }
         }
         public IActionResult RibbonDownloadXls(SpreadsheetClientState spreadsheetState)
         {
 
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-
             MemoryStream stream = new MemoryStream();
             spreadsheet.SaveCopy(stream, DocumentFormat.Xls);
             stream.Position = 0;

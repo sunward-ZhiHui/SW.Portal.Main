@@ -4495,35 +4495,38 @@
                        }
                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                        {
-                           var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
-                           b.OpenElement(i + 1, "i");
-                           if (sectionLock != null)
+                           if (_dynamicformData.IsLocked != true)
                            {
-                               if (sectionLock.LockedUserId != applicationUser.UserID)
+                               var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+                               b.OpenElement(i + 1, "i");
+                               if (sectionLock != null)
                                {
-                                   isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
-                                   isReadonly = isReadonly == true ? false : isReadonly;
+                                   if (sectionLock.LockedUserId != applicationUser.UserID)
+                                   {
+                                       isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
+                                       isReadonly = isReadonly == true ? false : isReadonly;
+                                   }
+                                   else
+                                   {
+                                       b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                                       b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                                   }
+                                   a.DynamicFormDataSectionLock = sectionLock;
+                                   b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
                                }
                                else
                                {
-                                   b.AddAttribute(i + 1, "style", "cursor: pointer;");
                                    b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                                   b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                                   b.AddAttribute(i + 1, "class", "fa fa-unlock");
                                }
-                               a.DynamicFormDataSectionLock = sectionLock;
-                               b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
+                               if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
+                               {
+                                   b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
+                               }
+                               b.AddAttribute(i + 1, "aria-hidden", true);
+                               b.CloseElement();
                            }
-                           else
-                           {
-                               b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
-                               b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                               b.AddAttribute(i + 1, "class", "fa fa-unlock");
-                           }
-                           if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
-                           {
-                               b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
-                           }
-                           b.AddAttribute(i + 1, "aria-hidden", true);
-                           b.CloseElement();
                        }
                    }
                    b.CloseElement();

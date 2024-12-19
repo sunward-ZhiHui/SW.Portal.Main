@@ -518,7 +518,7 @@ namespace Infrastructure.Repository.Query
                         if (value.IpirAppId > 0)
                         {
 
-                            var query = "Update IpirApp Set MachineName = @MachineName, LocationID = @LocationID, ProdOrderNo = @ProdOrderNo, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
+                            var query = "Update IpirApp Set MachineName = @MachineName, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
                             "FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 

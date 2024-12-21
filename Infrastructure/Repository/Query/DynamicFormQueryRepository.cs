@@ -2137,6 +2137,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataSectionLock>> GetDynamicFormDataSectionLockList(List<long> dynamicFormDataIds)
+        {
+
+            try
+            {
+                List<DynamicFormDataSectionLock> dynamicFormDataSectionLocks = new List<DynamicFormDataSectionLock>();
+                dynamicFormDataIds = dynamicFormDataIds != null && dynamicFormDataIds.Count > 0 ? dynamicFormDataIds : new List<long>() { -1 };
+                var query = "select  * from DynamicFormDataSectionLock where DynamicFormDataId in(" + string.Join(',', dynamicFormDataIds) + ");";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormDataSectionLock>(query, null)).ToList();
+                    dynamicFormDataSectionLocks = result != null && result.Count() > 0 ? result : new List<DynamicFormDataSectionLock>();
+                }
+                return dynamicFormDataSectionLocks;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId)
         {
             try
@@ -2189,12 +2209,15 @@ namespace Infrastructure.Repository.Query
                 {
                     var SessionIds = result.Select(a => a.SessionId).ToList();
                     var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
+                    var dynamicFormDataIDss = result.Select(a => a.DynamicFormDataId).ToList();
+                    var lockItems = await GetDynamicFormDataSectionLockList(dynamicFormDataIDss);
                     var dynamicFormDataIDs = result.Where(w => w.IsSendApproval == true).Select(a => a.DynamicFormDataId).ToList();
                     var resultData = await GetDynamicFormApprovedByAll(dynamicFormDataIDs);
                     var _activityEmailTopics = await GetActivityEmailTopicList(lists);
                     result.ForEach(s =>
                     {
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == s.SessionId);
+                        s.DynamicFormDataSectionLock = lockItems.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
                         if (_activityEmailTopicsOne != null)
                         {
                             s.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
@@ -3954,9 +3977,11 @@ namespace Infrastructure.Repository.Query
                     var SessionIds = result.Select(a => a.SessionID).Distinct().ToList();
                     var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
                     var _activityEmailTopics = await GetActivityEmailTopicList(lists);
+                    var lockItems = await GetDynamicFormDataSectionLockList(DynamicFormDataIds);
                     var resultsData = await GetDynamicFormWorkFlowIds(DynamicFormDataIds);
                     foreach (var item in result)
                     {
+                        item.DynamicFormDataSectionLock = lockItems.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).ToList();
                         var results = resultsData.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).OrderBy(o => o.SequenceNo).ToList();
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == item.SessionID);
                         if (results != null && results.Count > 0)
@@ -4788,7 +4813,7 @@ namespace Infrastructure.Repository.Query
                         if (exitsData == null)
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
+                           // parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
                             parameters.Add("activityType", "DynamicForm", DbType.String);
                             parameters.Add("BackUrl", dynamicFormData.BackUrl, DbType.String);
                             parameters.Add("subjectName", dynamicFormData.ProfileNo, DbType.String);
@@ -4799,13 +4824,13 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
                             var query = "INSERT INTO ActivityEmailTopics(subjectName,SessionId,AddedByUserID," +
-                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl,DocumentSessionId) VALUES " +
-                         "(@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl,@DocumentSessionId)";
+                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl) VALUES " +
+                         "(@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl)";
 
                             await connection.ExecuteAsync(query, parameters);
 
                         }
-                        else
+                        /*else
                         {
                             if (exitsData.DocumentSessionId != null)
                             {
@@ -4818,7 +4843,7 @@ namespace Infrastructure.Repository.Query
                                     await connection.QuerySingleOrDefaultAsync<long>(query2, parameters);
                                 }
                             }
-                        }
+                        }*/
                         return dynamicFormData;
                     }
 

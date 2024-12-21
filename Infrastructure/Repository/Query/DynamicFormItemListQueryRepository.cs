@@ -185,11 +185,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ItemDynamicFormTypeID", DynamicFormItemLine.ItemDynamicFormTypeID);
                         parameters.Add("StatusCodeID", DynamicFormItemLine.StatusCodeID);
                         parameters.Add("ItemDynamicFormDataID", DynamicFormItemLine.ItemDynamicFormDataID);
-                        parameters.Add("Description", DynamicFormItemLine.Description);
-                        parameters.Add("SessionId", DynamicFormItemLine.SessionId);
-
-
-                        var query = @"UPDATE DynamicFormItemLine SET DynamicFormItemID = @DynamicFormItemID, Qty = @Qty,ModifiedByUserID =@ModifiedByUserID, ModifiedDate = @ModifiedDate,
+                        parameters.Add("Description", DynamicFormItemLine.Description, DbType.String);
+                        parameters.Add("SessionId", DynamicFormItemLine.SessionId, DbType.Guid);
+                        parameters.Add("ManufacturingDate", DynamicFormItemLine.ManufacturingDate, DbType.DateTime);
+                        parameters.Add("ExpireDate", DynamicFormItemLine.ExpireDate, DbType.DateTime);
+                        parameters.Add("BatchNo", DynamicFormItemLine.BatchNo, DbType.String);
+                        var query = @"UPDATE DynamicFormItemLine SET BatchNo=@BatchNo,ExpireDate=@ExpireDate,ManufacturingDate=@ManufacturingDate,DynamicFormItemID = @DynamicFormItemID, Qty = @Qty,ModifiedByUserID =@ModifiedByUserID, ModifiedDate = @ModifiedDate,
           ItemDynamicFormTypeID=@ItemDynamicFormTypeID,StatusCodeID=@StatusCodeID,ItemDynamicFormDataID=@ItemDynamicFormDataID,Description=@Description,SessionId=@SessionId
     
           where DynamicFormItemLineID = @DynamicFormItemLineID";
@@ -235,9 +236,11 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ItemDynamicFormDataID", DynamicFormItemLine.ItemDynamicFormDataID);
                         parameters.Add("Description", DynamicFormItemLine.Description, DbType.String);
                         parameters.Add("SessionId", DynamicFormItemLine.SessionId, DbType.Guid);
-
-                        var query = "INSERT INTO DynamicFormItemLine(DynamicFormItemID,Qty,ModifiedByUserID,ModifiedDate,ItemDynamicFormTypeID,StatusCodeID,ItemDynamicFormDataID,Description,SessionId) " +
-                                    "OUTPUT INSERTED.DynamicFormItemLineID VALUES (@DynamicFormItemID,@Qty,@ModifiedByUserID,@ModifiedDate,@ItemDynamicFormTypeID,@StatusCodeID,@ItemDynamicFormDataID,@Description,@SessionId)";
+                        parameters.Add("ManufacturingDate", DynamicFormItemLine.ManufacturingDate, DbType.DateTime);
+                        parameters.Add("ExpireDate", DynamicFormItemLine.ExpireDate, DbType.DateTime);
+                        parameters.Add("BatchNo", DynamicFormItemLine.BatchNo, DbType.String);
+                        var query = "INSERT INTO DynamicFormItemLine(BatchNo,ExpireDate,ManufacturingDate,DynamicFormItemID,Qty,ModifiedByUserID,ModifiedDate,ItemDynamicFormTypeID,StatusCodeID,ItemDynamicFormDataID,Description,SessionId) " +
+                                    "OUTPUT INSERTED.DynamicFormItemLineID VALUES (@BatchNo,@ExpireDate,@ManufacturingDate,@DynamicFormItemID,@Qty,@ModifiedByUserID,@ModifiedDate,@ItemDynamicFormTypeID,@StatusCodeID,@ItemDynamicFormDataID,@Description,@SessionId)";
 
 
                         var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);

@@ -2010,8 +2010,10 @@ else
                             if (actItem[0].SessionId != null)
                             {
                                 _DynamicFormEmailSubConts = await Mediator.Send(new GetDynamicFormEmailSubCont(actItem[0].SessionId));
+                                _documentslst = await Mediator.Send(new GetDynamicFormDataDynamicFormDataUploadList(actItem[0].SessionId));
                             }
                         }
+                        
                     }
 
                     if (actItem[0].ActivityType == "ProductionActivity")
@@ -2358,7 +2360,15 @@ else
 
 
 
-
+            Guid? acSes = null;
+            if (ActiveSessionId != null)
+            {
+                bool isValid = Guid.TryParse(ActiveSessionId, out _);
+                if (isValid == true)
+                {
+                    acSes = Guid.Parse(ActiveSessionId);
+                }
+            }
             var createReq = new CreateEmailTopics
                 {
                     TopicName = Data.TopicName,
@@ -2398,8 +2408,8 @@ else
                     ToUserGroup = sToUserGroup,
                     CCUserGroup = sCCUserGroup,
                     ParticipantsUserGroup = sParticipantsUserGroup,
-                    IsLockDueDate = Data.IsLockDueDate
-
+                    IsLockDueDate = Data.IsLockDueDate,
+                    ActiveSessionId = acSes,
                 };
 
 

@@ -605,5 +605,13 @@ namespace Application.Queries
     public class CreateUserTagMultipleQuery : EmailActivityCatgorys, IRequest<long>
     {
     }
-   
+    public class GetDynamicFormDataDynamicFormDataUploadList : PagedRequest, IRequest<List<Documents>>
+    {
+        public Guid? SessionID { get; set; }
+
+        public GetDynamicFormDataDynamicFormDataUploadList(Guid? sessionID)
+        {
+            this.SessionID = sessionID;
+        }
+    }
 }

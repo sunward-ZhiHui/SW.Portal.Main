@@ -376,70 +376,27 @@
                                             </DxGrid>
                                         </DxTabPage>
                                     </DxTabs>
-                                      <div style="display:none;">
-                                    <DxGrid @ref="GridNestedAllChild"
-                                            Data="_NestedApplicationAllChildItems"
-                                            EditMode="GridEditMode.EditForm"
-                                            ShowGroupPanel="true"
-                                            ShowGroupedColumns="true"
-                                            ShowSearchBox="true"
-                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                            PagerNavigationMode="PagerNavigationMode.InputBox"
-                                            KeyFieldName="ApplicationMasterChildId"
-                                            PageSizeSelectorVisible="true"
-                                            PageSizeSelectorAllRowsItemVisible="false"
-                                            PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
-                                            PageSize="20"
-                                            style="height: calc(100vh - 300px);"
-                                            CssClass="ch-360"
-                                            AllowSelectRowByClick="true"
-                                            CustomizeElement="Grid_CustomizeElement"
-                                            AutoExpandAllGroupRows="true"
-                                            FocusedRowEnabled="true"
-                                            SelectionMode="GridSelectionMode.Single"
-                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-                                        <Columns>
-                                            <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
-                                            @* <DxGridDataColumn FieldName="MainMasterName" Caption="Master" /> *@
-                                            <DxGridDataColumn FieldName="ApplicationMasterName" Caption="Master Name"  />
-                                            <DxGridDataColumn FieldName="ParentName" Caption="Parent Name"  />
-                                            <DxGridDataColumn FieldName="Value" Caption="Name" />
-                                            <DxGridDataColumn FieldName="Description" Caption="Description" />
-                                        </Columns>
-                                    </DxGrid>
-                                    <DxGrid @ref="GridNestedChild"
-                                            Data="_NestedApplicationChildItems"
-                                            EditMode="GridEditMode.EditForm"
-                                            ShowGroupPanel="true"
-                                            ShowGroupedColumns="true"
-                                            ShowSearchBox="true"
-                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                            PagerNavigationMode="PagerNavigationMode.InputBox"
-                                            KeyFieldName="ApplicationMasterChildId"
-                                            PageSizeSelectorVisible="true"
-                                            PageSizeSelectorAllRowsItemVisible="false"
-                                            PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
-                                            PageSize="20"
-                                            style="height: calc(100vh - 300px);"
-                                            CssClass="ch-360"
-                                            AllowSelectRowByClick="true"
-                                            CustomizeElement="Grid_CustomizeElement"
-                                            AutoExpandAllGroupRows="true"
-                                            FocusedRowEnabled="true"
-                                            SelectionMode="GridSelectionMode.Single"
-                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-                                        <Columns>
-                                            <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
-                                            @* <DxGridDataColumn FieldName="MainMasterName" Caption="Master" /> *@
-                                            <DxGridDataColumn FieldName="ApplicationMasterName" Caption="Master Name" Visible="@rowShow1" />
-                                            <DxGridDataColumn FieldName="ParentName" Caption="Parent Name" Visible="@rowShow2" />
-                                            <DxGridDataColumn FieldName="Value" Caption="Name" />
-                                            <DxGridDataColumn FieldName="Description" Caption="Description" />
-                                        </Columns>
-                                    </DxGrid>
-                                      </div>
+                                    <div style="display:none;">
+                                        <DxTreeList Data="_NestedApplicationAllChildItems"
+                                                    @ref="TreeList"
+                                                    VirtualScrollingEnabled="true"
+                                                    ShowFilterRow="true"
+                                                    KeyFieldName="ApplicationMasterChildId"
+                                                    ParentKeyFieldName="ParentId"
+                                                    ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="max-h-480"
+                                                    ShowAllRows="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="TreeListSelectionMode.Single"
+                                                    FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                                            <Columns>
+                                                <DxTreeListDataColumn FieldName="Value" Caption="Name" />
+                                                <DxTreeListDataColumn FieldName="Description" Caption="Description" />
+                                            </Columns>
+                                        </DxTreeList>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -561,9 +518,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    ITreeList TreeList { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
-    IGrid? GridNestedAllChild{ get; set; }
+    IGrid? GridNestedAllChild { get; set; }
     IGrid? GridNestedChild { get; set; }
     IGrid? MasterGrid { get; set; }
     IGrid? Grid { get; set; }
@@ -752,7 +710,7 @@
     {
         ClearList();
         EditEnabled = false;
-        EditNewChildEnabled = false;rowShow1 = false;rowShow2 = false;
+        EditNewChildEnabled = false; rowShow1 = false; rowShow2 = false;
         DeleteEnabled = false;
         PanelVisibleMastersDetails = true;
         _applicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterChildQuery("'" + _selectItems.ApplicationMasterParentCodeId + "'"));
@@ -966,10 +924,11 @@
     }
     async Task ExportToAllExcel()
     {
-        if (GridNestedAllChild != null)
+        if (TreeList != null)
         {
-            await GridNestedAllChild.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            await TreeList.ExportToXlsxAsync("ExportResult", new TreeListXlExportOptions()
             {
+               SheetName=_selectedItems?.MainMasterName
             });
         }
     }
@@ -978,8 +937,8 @@
         if (GridNestedChild != null)
         {
             await GridNestedChild.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-                });
+            {
+            });
         }
     }
     async Task ExportToChildChildExcel()

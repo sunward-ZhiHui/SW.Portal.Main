@@ -91,5 +91,6 @@ namespace Core.Repositories.Query
         Task<long> Delete(long id);
         Task<long> DeleteNotify(long id);   
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);
+        Task<IReadOnlyList<Documents>> GetDynamicFormDataDynamicFormDataUploadList(Guid? SessionIds);
     }
 }

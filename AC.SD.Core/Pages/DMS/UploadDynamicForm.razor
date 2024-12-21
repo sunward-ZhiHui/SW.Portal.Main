@@ -2322,7 +2322,18 @@
     }
     void OpenLock()
     {
-        lockpopup = true;
+        if (dynamicFormData != null)
+        {
+            var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.Count(dc => dc.IsLocked == true);
+            if (sectionLock > 0)
+            {
+                toastService.ShowToast("Section Already Locked.", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                lockpopup = true;
+            }
+        }
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {

@@ -245,7 +245,7 @@
          Width="1000px">
     <BodyContentTemplate>
         @* <p>
-            Are you sure create Email?
+        Are you sure create Email?
         </p> *@
         <DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@_selectedItems.SessionId"></DynamicFormDataEmailAddSubContent>
     </BodyContentTemplate>
@@ -295,7 +295,7 @@
 </DxPopup>
 @code {
     bool isBackDisabled { get; set; } = true;
-    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent{ get; set; }
+    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
@@ -816,16 +816,16 @@
                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
                                                                                 g1.ForEach(q =>
                                                                            {
-                                                                                    var byName = (IDictionary<string, object>)v;
-                                                                                    if (q.Value != null)
-                                                                                    {
-                                                                                        if (byName.ContainsKey(q.Value))
-                                                                                        {
-                                                                                            var names = (string)byName[q.Value]?.ToString();
-                                                                                            listone += names + "|";
-                                                                                        }
-                                                                                    }
-                                                                                });
+                                                                               var byName = (IDictionary<string, object>)v;
+                                                                               if (q.Value != null)
+                                                                               {
+                                                                                   if (byName.ContainsKey(q.Value))
+                                                                                   {
+                                                                                       var names = (string)byName[q.Value]?.ToString();
+                                                                                       listone += names + "|";
+                                                                                   }
+                                                                               }
+                                                                           });
                                                                             }
                                                                             eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == l)
@@ -873,16 +873,16 @@
                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
                                                                                 g1.ForEach(q =>
                                                                            {
-                                                                                    var byName = (IDictionary<string, object>)v;
-                                                                                    if (q.Value != null)
-                                                                                    {
-                                                                                        if (byName.ContainsKey(q.Value))
-                                                                                        {
-                                                                                            var names = (string)byName[q.Value]?.ToString();
-                                                                                            listone += names + "|";
-                                                                                        }
-                                                                                    }
-                                                                                });
+                                                                               var byName = (IDictionary<string, object>)v;
+                                                                               if (q.Value != null)
+                                                                               {
+                                                                                   if (byName.ContainsKey(q.Value))
+                                                                                   {
+                                                                                       var names = (string)byName[q.Value]?.ToString();
+                                                                                       listone += names + "|";
+                                                                                   }
+                                                                               }
+                                                                           });
                                                                             }
                                                                             eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == Svalues)
@@ -1308,7 +1308,18 @@
     }
     void OpenLock()
     {
-        lockpopup = true;
+        if (_selectedItems != null)
+        {
+            var sectionLock = _selectedItems?.DynamicFormDataSectionLock.Count(dc => dc.IsLocked == true);
+            if (sectionLock > 0)
+            {
+                toastService.ShowToast("Section Already Locked.", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                lockpopup = true;
+            }
+        }
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {

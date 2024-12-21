@@ -142,6 +142,7 @@ namespace Core.Entities
         public bool IsClosed { get; set; } = false;
         [NotMapped]
         public int? ReplyCount { get; set; }
-
+        [NotMapped]
+        public Guid? ActiveSessionId { get; set; }
     }
 }

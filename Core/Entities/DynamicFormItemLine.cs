@@ -17,10 +17,10 @@ namespace Core.Entities
         [Required(ErrorMessage = "Qty is Required")]
         public decimal? Qty { get; set; }
         [Required(ErrorMessage = "Form Type is Required")]
-        public long? ItemDynamicFormTypeID { get; set;}
+        public long? ItemDynamicFormTypeID { get; set; }
         [Required(ErrorMessage = "Form Data is Required")]
         public long? ItemDynamicFormDataID { get; set; }
-        public string? Description { get;set; }
+        
         [NotMapped]
         public string? ItemDynamicFormType { get; set; }
         [NotMapped]
@@ -31,9 +31,13 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeID { get; set; }
         public Guid? SessionId { get; set; }
+        public DateTime? ManufacturingDate { get; set; }
+        public string? BatchNo { get; set; }
+        public DateTime? ExpireDate { get; set; }
+        public string? Description { get; set; }
     }
     public class DynamicFormItemLineItem
     {
-        public object? ItemDynamicFormDataID { get;set;}
+        public object? ItemDynamicFormDataID { get; set; }
     }
-    }
+}

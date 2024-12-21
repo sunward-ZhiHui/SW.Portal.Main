@@ -62,5 +62,7 @@ namespace Application.Response
         public int NoOfDays {  get; set; }
         public DateTime? ExpiryDueDate { get; set; }
         public bool? IsLockDueDate { get; set; }
+        [NotMapped]
+        public Guid? ActiveSessionId { get; set; }
     }
 }

@@ -8823,11 +8823,11 @@
             var listDataSub = new List<AttributeDetails>();
             if (isLoadDropdown == true)
             {
-                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).ToList() : new List<AttributeDetails>();
+                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o=>o.AttributeDetailName).ToList() : new List<AttributeDetails>();
             }
             else
             {
-                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.ApplicationMasterParentSectionIds.Contains(s.DynamicFormSectionAttributeId) && e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).ToList() : new List<AttributeDetails>();
+                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.ApplicationMasterParentSectionIds.Contains(s.DynamicFormSectionAttributeId) && e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
             }
             itemBuilder.OpenComponent<DxFormLayoutItem>(3);
             //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
@@ -9153,7 +9153,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), accesspropertyAppMaster);
-                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
+                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
                 //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
@@ -9794,7 +9794,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accesspropertyAppMaster);
-                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
+                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);

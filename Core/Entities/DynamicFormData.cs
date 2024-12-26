@@ -154,6 +154,7 @@ namespace Core.Entities
         public string? LockedUser { get; set; }
         public long? LockedUserId { get; set; }
         public bool? IsLocked { get; set; }
+        public List<DynamicFormDataSectionLock> DynamicFormDataSectionLock { get; set; } = new List<DynamicFormDataSectionLock>();
     }
     public class DynamicFormDataResponse
     {

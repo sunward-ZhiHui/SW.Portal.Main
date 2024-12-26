@@ -427,7 +427,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.UpdateTransferDynamicFormDataSectionLock(request.Ids, request.UserIds);
         }
     }
-
+    public class UpdateTransferDynamicFormDataSectionLockLockHandler : IRequestHandler<UpdateTransferDynamicFormDataSectionLockLock, List<long?>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataSectionLockLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<long?>> Handle(UpdateTransferDynamicFormDataSectionLockLock request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataSectionLockLock(request.Ids);
+        }
+    }
 
     public class GetTransferDynamicFormWorkFlowFormApprovedHandler : IRequestHandler<GetTransferDynamicFormWorkFlowFormApproved, List<DynamicFormWorkFlowApprovedForm>>
     {
@@ -451,6 +462,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<DynamicFormWorkFlowApprovedForm> Handle(UpdateTransferDynamicFormDataWorkFlowFormApproved request, CancellationToken cancellationToken)
         {
             return await _queryRepository.UpdateTransferDynamicFormDataWorkFlowFormApproved(request.Ids, request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormDataLockLockHandler : IRequestHandler<UpdateTransferDynamicFormDataLockLock, List<long?>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataLockLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<long?>> Handle(UpdateTransferDynamicFormDataLockLock request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataLockLock(request.Ids);
         }
     }
 }

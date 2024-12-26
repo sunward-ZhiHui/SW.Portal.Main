@@ -251,7 +251,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('ApplicationMaster_',t1.ApplicationMasterDetailID) as AttributeDetailNameId,'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
+                query += "select CONCAT('ApplicationMaster_',t1.ApplicationMasterDetailID) as AttributeDetailNameId,CONCAT(t1.Value,'|',t1.Description) as FullName,'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
                 if (applicationMasterIds != null && applicationMasterIds.Count > 0)
                 {
                     applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
@@ -781,16 +781,16 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "AND t2.CompanyID in(" + string.Join(',', plantIds) + ");";
+                        query += "where t1.Status='Released' AND t2.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "AND t2.CompanyID=" + CompanyId + ";\r\n";
+                        query += "where t1.Status='Released' AND t2.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += ";\r\n";
+                    query += "where t1.Status='Released'\r\n";
                 }
                 return query;
             }
@@ -1285,7 +1285,7 @@ namespace Infrastructure.Repository.Query
                 }
                 else if (DataSource == "ReleaseProdOrderLine")
                 {
-                    query += "select CONCAT('ReleaseProdOrderLine','_',t1.ReleaseProdOrderLineId) as AttributeDetailNameId,'ReleaseProdOrderLine' as DropDownTypeId, t1.ReleaseProdOrderLineId as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.Description2 as Description2,t1.ReplanRefNo,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,t1.BatchSize,t1.ProdOrderNo,t1.UnitOfMeasureCode,t1.Status,t1.SubStatus,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate from ReleaseProdOrderLine t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                    query += "select CONCAT('ReleaseProdOrderLine','_',t1.ReleaseProdOrderLineId) as AttributeDetailNameId,'ReleaseProdOrderLine' as DropDownTypeId, t1.ReleaseProdOrderLineId as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.Description2 as Description2,t1.ReplanRefNo,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,t1.BatchSize,t1.ProdOrderNo,t1.UnitOfMeasureCode,t1.Status,t1.SubStatus,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate from ReleaseProdOrderLine t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID Where t1.Status='Released'\r";
 
                 }
                 else if (DataSource == "ItemBatchInfo")
@@ -1385,7 +1385,7 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            if (DataSource == "FinishedProdOrderLine" || DataSource == "FinishedProdOrderLineProductionInProgress")
+                            if (DataSource == "ReleaseProdOrderLine" ||  DataSource == "FinishedProdOrderLine" || DataSource == "FinishedProdOrderLineProductionInProgress")
                             {
                                 query += "AND\r";
                             }

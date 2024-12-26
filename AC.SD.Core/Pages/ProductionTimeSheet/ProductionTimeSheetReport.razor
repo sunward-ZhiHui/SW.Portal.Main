@@ -30,8 +30,8 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
-
                         <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnProductionActivityfilter())" id=@($"flyout-overview-target-container-FilterDocuments") />
+                        <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
                         <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" id=@($"flyout-overview-target-container-ActivityStatusMaster") style="@isVisibleMore">
                             <Items>
                                 @* <DxMenuItem Text="Edit Details" Click="addEdit" IconCssClass="fa fa-pencil" Visible="EditEnabled" />
@@ -582,6 +582,7 @@
     private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
     ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
     ProductionActivityModel Data = new ProductionActivityModel();
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -608,6 +609,13 @@
     {
         await onLoadDataList();
         base.OnParametersSet();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await AppLine.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     async Task onLoadDataList()
     {

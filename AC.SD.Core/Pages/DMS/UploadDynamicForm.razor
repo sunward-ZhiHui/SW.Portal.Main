@@ -2322,7 +2322,18 @@
     }
     void OpenLock()
     {
-        lockpopup = true;
+        if (dynamicFormData != null)
+        {
+            var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.Count(dc => dc.IsLocked == true);
+            if (sectionLock > 0)
+            {
+                toastService.ShowToast("Section Already Locked.", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                lockpopup = true;
+            }
+        }
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
@@ -4552,35 +4563,38 @@
                       }
                       if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                       {
-                          var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
-                          b.OpenElement(i + 1, "i");
-                          if (sectionLock != null)
+                          if (_dynamicformData.IsLocked != true)
                           {
-                              if (sectionLock.LockedUserId != applicationUser.UserID)
+                              var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+                              b.OpenElement(i + 1, "i");
+                              if (sectionLock != null)
                               {
-                                  isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
-                                  isReadonly = isReadonly == true ? false : isReadonly;
+                                  if (sectionLock.LockedUserId != applicationUser.UserID)
+                                  {
+                                      isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
+                                      isReadonly = isReadonly == true ? false : isReadonly;
+                                  }
+                                  else
+                                  {
+                                      b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                                      b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                                  }
+                                  a.DynamicFormDataSectionLock = sectionLock;
+                                  b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
                               }
                               else
                               {
-                                  b.AddAttribute(i + 1, "style", "cursor: pointer;");
                                   b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                                  b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                                  b.AddAttribute(i + 1, "class", "fa fa-unlock");
                               }
-                              a.DynamicFormDataSectionLock = sectionLock;
-                              b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
+                              if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
+                              {
+                                  b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
+                              }
+                              b.AddAttribute(i + 1, "aria-hidden", true);
+                              b.CloseElement();
                           }
-                          else
-                          {
-                              b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
-                              b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                              b.AddAttribute(i + 1, "class", "fa fa-unlock");
-                          }
-                          if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
-                          {
-                              b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
-                          }
-                          b.AddAttribute(i + 1, "aria-hidden", true);
-                          b.CloseElement();
                       }
                   }
                   b.CloseElement();
@@ -8809,11 +8823,11 @@
             var listDataSub = new List<AttributeDetails>();
             if (isLoadDropdown == true)
             {
-                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).ToList() : new List<AttributeDetails>();
+                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o=>o.AttributeDetailName).ToList() : new List<AttributeDetails>();
             }
             else
             {
-                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.ApplicationMasterParentSectionIds.Contains(s.DynamicFormSectionAttributeId) && e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).ToList() : new List<AttributeDetails>();
+                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.ApplicationMasterParentSectionIds.Contains(s.DynamicFormSectionAttributeId) && e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
             }
             itemBuilder.OpenComponent<DxFormLayoutItem>(3);
             //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
@@ -9139,7 +9153,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), accesspropertyAppMaster);
-                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
+                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
                 //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
@@ -9780,7 +9794,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accesspropertyAppMaster);
-                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
+                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);

@@ -103,6 +103,8 @@ namespace Core.Entities
         [NotMapped]
         public int? DummyNo { get; set; }
         public string? ColorCode { get; set; }
+        public int? GridDisplaySeqNo { get; set; }
+        public string? DynamicFormName { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

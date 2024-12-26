@@ -1,7 +1,7 @@
 /*!
  * DevExpress Gantt (dx-gantt)
- * Version: 4.1.55
- * Build date: Tue May 14 2024
+ * Version: 4.1.56
+ * Build date: Mon Jun 10 2024
  *
  * Copyright (c) 2012 - 2024 Developer Express Inc. ALL RIGHTS RESERVED
  * Read about DevExpress licensing here: https://www.devexpress.com/Support/EULAs
@@ -17635,6 +17635,11 @@ var ScaleCalculator = (function () {
         return items;
     };
     ScaleCalculator.prototype.getDateInScale = function (pos) {
+        if (pos < 0) {
+            var timeOffset = pos / this.tickSize.width;
+            var timeSpan = DateUtils_1.DateUtils.getTickTimeSpan(this.viewType);
+            return new Date(this.range.start.getTime() + timeOffset * timeSpan);
+        }
         for (var i = 0; i < this.bottomScaleItems.length; i++) {
             var item = this.bottomScaleItems[i];
             var width = item.size.width;

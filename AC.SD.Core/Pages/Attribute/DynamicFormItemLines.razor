@@ -63,7 +63,12 @@
 
         <Columns>
             <DxGridDataColumn FieldName="DynamicFormItemLineID" Visible="false" />
-            <DxGridDataColumn FieldName="Qty" />
+            <DxGridDataColumn FieldName="Qty" DisplayFormat="n4">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ManufacturingDate" />
+            <DxGridDataColumn FieldName="BatchNo" />
+            <DxGridDataColumn FieldName="ExpireDate" />
             <DxGridDataColumn FieldName="ItemDynamicFormType" Caption="ItemDynamicForm Type" />
             <DxGridDataColumn FieldName="ItemDynamicFormData" Caption="ItemDynamicForm Data" />
             <DxGridDataColumn FieldName="Description" />
@@ -231,6 +236,9 @@
                     ModifiedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
+                    ManufacturingDate = editModel.ManufacturingDate,
+                    ExpireDate = editModel.ExpireDate,
+                    BatchNo = editModel.BatchNo,
 
                 };
 
@@ -255,6 +263,9 @@
                     ModifiedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     SessionId = editModel.SessionId,
+                    ManufacturingDate = editModel.ManufacturingDate,
+                    ExpireDate = editModel.ExpireDate,
+                    BatchNo = editModel.BatchNo,
 
                 };
 
@@ -495,7 +506,7 @@
                             })));
                             itemBuilder.CloseComponent();
                         }
-                        if (s.Name == "ItemDynamicFormDataID")
+                        else if (s.Name == "ItemDynamicFormDataID")
                         {
                             var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == s.Name);
                             var access1 = Expression.Property(Expression.Constant(SingleObject), s.Name);
@@ -506,13 +517,13 @@
                             itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
                             List<ExpandoObject>? collection = new List<ExpandoObject>();
                             List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
-                           // if (Data.DynamicFormItemLineID > 0)
-                           // {
-                                gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : new List<DropDownOptionsModel>();
-                                // var collection = dropDownOptionsGridListModel?.ObjectData;
-                                collection = _dynamicformObjectDataList;
-                           // }
-                             List<ExpandoObject>? _dynamicformObjectDataLists = new List<ExpandoObject>();
+                            // if (Data.DynamicFormItemLineID > 0)
+                            // {
+                            gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : new List<DropDownOptionsModel>();
+                            // var collection = dropDownOptionsGridListModel?.ObjectData;
+                            collection = _dynamicformObjectDataList;
+                            // }
+                            List<ExpandoObject>? _dynamicformObjectDataLists = new List<ExpandoObject>();
                             if (collection != null)
                             {
                                 foreach (var v in (collection as IEnumerable<ExpandoObject>))
@@ -626,8 +637,22 @@
                             itemBuilder.CloseComponent();
                             itemBuilder.CloseElement();
                         }
-                        if (s.Name == "Qty")
+                        else if (s.Name == "Qty")
                         {
+                            var qtyData = (decimal?)valueData;
+                            decimal? qtyDataDis = null;
+                            if (qtyData != null)
+                            {
+                                string number = Convert.ToString(qtyData);
+                                if (number.Contains("."))
+                                {
+                                    while (number.Substring(number.Length - 1) == "0")
+                                    {
+                                        number = number.Substring(0, number.Length - 1);
+                                    }
+                                }
+                                qtyDataDis = Convert.ToDecimal(number);
+                            }
                             itemBuilder.OpenComponent<DxFormLayoutItem>(1);
                             itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
                             var j = 0;
@@ -638,11 +663,100 @@
                                 editor.AddContent(i + 1, "Qty");
                                 editor.CloseElement();
                                 editor.OpenComponent<DxSpinEdit<decimal?>>(j + 1);
-                                editor.AddAttribute(j + 1, "Value", valueData);
+                                editor.AddAttribute(j + 1, "Value", qtyDataDis);
                                 editor.AddAttribute(j + 1, "ValueExpression", lambda);
                                 editor.AddAttribute(j + 1, "Enabled", true);
                                 editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                 editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { s.SetValue(Data, str); }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                        else if (s.Name == "ManufacturingDate")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Manufacturing Date");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxDateEdit<DateTime?>>(j + 1);
+                                editor.AddAttribute(j + 1, "Date", valueData);
+                                editor.AddAttribute(j + 1, "DateExpression", lambda);
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<DateTime?>(this, str => { s.SetValue(Data, str); }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                        else if (s.Name == "BatchNo")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Batch No");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxTextBox>(j + 1);
+                                editor.AddAttribute(j + 1, "Text", valueData);
+                                editor.AddAttribute(j + 1, "TextExpression", lambda);
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data, str); }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                        else if (s.Name == "ExpireDate")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Expire Date");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxDateEdit<DateTime?>>(j + 1);
+                                editor.AddAttribute(j + 1, "Date", valueData);
+                                editor.AddAttribute(j + 1, "DateExpression", lambda);
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<DateTime?>(this, str => { s.SetValue(Data, str); }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                        else if (s.Name == "Description")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Description");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxMemo>(j + 1);
+                                editor.AddAttribute(j + 1, "Text", valueData);
+                                editor.AddAttribute(j + 1, "TextExpression", lambda);
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "Rows", 5);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data, str); }));
                                 editor.CloseComponent();
 
                             })));

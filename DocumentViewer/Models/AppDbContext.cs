@@ -24,6 +24,7 @@ namespace DocumentViewer.Models
         public DbSet<OpenAccessUserLink> OpenAccessUserLink { get; set; }
         public DbSet<OpenAccessUser> OpenAccessUser { get; set; }
         public DbSet<IpirApp> IpirApp { get; set; }
+        public DbSet<DocumentsTrace> DocumentsTrace { get; set; }
 
     }
 }

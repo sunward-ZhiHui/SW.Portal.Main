@@ -1218,14 +1218,14 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeAsync(long? dynamicFormSectionId)
+        public async Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeAllAsync(long? DynamicFormId)
         {
             try
             {
                 List<DynamicFormSectionAttribute> dynamicFormSectionAttributes = new List<DynamicFormSectionAttribute>();
                 var parameters = new DynamicParameters();
-                parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
-                var query = "select t1.FormulaTextBox,t1.DynamicFormSectionAttributeID,\r\nt1.DynamicFormSectionID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AttributeID,\r\nt1.SortOrderBy,\r\nt1.ColSpan,\r\nt1.DisplayName,\r\nt1.IsMultiple,\r\nt1.IsRequired,\r\nt1.RequiredMessage,\r\nt1.IsSpinEditType,\r\nt1.FormUsedCount,\r\nt1.IsDisplayTableHeader,\r\nt1.FormToolTips,\r\nt1.IsVisible,\r\nt1.RadioLayout,\r\nt1.IsRadioCheckRemarks,\r\nt1.RemarksLabelName,\r\nt1.IsDeleted,\r\nt1.IsPlantLoadDependency,\r\nt1.PlantDropDownWithOtherDataSourceID,\r\nt1.PlantDropDownWithOtherDataSourceLabelName,\r\nt1.PlantDropDownWithOtherDataSourceIDs,\r\nt1.IsSetDefaultValue,\r\nt1.IsDefaultReadOnly,\r\nt1.ApplicationMasterID,\r\nt1.ApplicationMasterIDs,\r\nt1.IsDisplayDropDownHeader,\r\nt1.IsDependencyMultiple,\r\nt1.IsDynamicFormGridDropdown,\r\nt1.GridDropDownDynamicFormID,\r\nt1.IsDynamicFormGridDropdownMultiple,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t6.IsFilterDataSource,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName," +
+                parameters.Add("DynamicFormId", DynamicFormId);
+                var query = "select tt1.ID as DynamicFormId,t1.GridDisplaySeqNo,t1.FormulaTextBox,t1.DynamicFormSectionAttributeID,\r\nt1.DynamicFormSectionID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AttributeID,\r\nt1.SortOrderBy,\r\nt1.ColSpan,\r\nt1.DisplayName,\r\nt1.IsMultiple,\r\nt1.IsRequired,\r\nt1.RequiredMessage,\r\nt1.IsSpinEditType,\r\nt1.FormUsedCount,\r\nt1.IsDisplayTableHeader,\r\nt1.FormToolTips,\r\nt1.IsVisible,\r\nt1.RadioLayout,\r\nt1.IsRadioCheckRemarks,\r\nt1.RemarksLabelName,\r\nt1.IsDeleted,\r\nt1.IsPlantLoadDependency,\r\nt1.PlantDropDownWithOtherDataSourceID,\r\nt1.PlantDropDownWithOtherDataSourceLabelName,\r\nt1.PlantDropDownWithOtherDataSourceIDs,\r\nt1.IsSetDefaultValue,\r\nt1.IsDefaultReadOnly,\r\nt1.ApplicationMasterID,\r\nt1.ApplicationMasterIDs,\r\nt1.IsDisplayDropDownHeader,\r\nt1.IsDependencyMultiple,\r\nt1.IsDynamicFormGridDropdown,\r\nt1.GridDropDownDynamicFormID,\r\nt1.IsDynamicFormGridDropdownMultiple,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t6.IsFilterDataSource,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName," +
                     "(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsDisplayDropDownHeader is NULL then  0 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
                     "(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) ELSE null END) as AddedBy,(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) ELSE null END) as ModifiedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.IsDynamicFormDropTagBox,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN Employee t2 ON t2.UserID=t1.AddedByUserID\r\n" +
@@ -1235,10 +1235,43 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
-                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
+                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n LEFT JOIN DynamicForm tt1 ON tt1.ID=t5.DynamicFormID\n\r" +
                     "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
-                    "Where (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId;\r\n";
+                    "Where (tt1.IsDeleted=0 or tt1.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null) AND tt1.ID=@DynamicFormId;\r\n";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormSectionAttributes = results.Read<DynamicFormSectionAttribute>().ToList();
+                }
+                return dynamicFormSectionAttributes != null ? dynamicFormSectionAttributes : new List<DynamicFormSectionAttribute>();
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeAsync(long? dynamicFormSectionId)
+        {
+            try
+            {
+                List<DynamicFormSectionAttribute> dynamicFormSectionAttributes = new List<DynamicFormSectionAttribute>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
+                var query = "select t1.GridDisplaySeqNo,t1.FormulaTextBox,t1.DynamicFormSectionAttributeID,\r\nt1.DynamicFormSectionID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AttributeID,\r\nt1.SortOrderBy,\r\nt1.ColSpan,\r\nt1.DisplayName,\r\nt1.IsMultiple,\r\nt1.IsRequired,\r\nt1.RequiredMessage,\r\nt1.IsSpinEditType,\r\nt1.FormUsedCount,\r\nt1.IsDisplayTableHeader,\r\nt1.FormToolTips,\r\nt1.IsVisible,\r\nt1.RadioLayout,\r\nt1.IsRadioCheckRemarks,\r\nt1.RemarksLabelName,\r\nt1.IsDeleted,\r\nt1.IsPlantLoadDependency,\r\nt1.PlantDropDownWithOtherDataSourceID,\r\nt1.PlantDropDownWithOtherDataSourceLabelName,\r\nt1.PlantDropDownWithOtherDataSourceIDs,\r\nt1.IsSetDefaultValue,\r\nt1.IsDefaultReadOnly,\r\nt1.ApplicationMasterID,\r\nt1.ApplicationMasterIDs,\r\nt1.IsDisplayDropDownHeader,\r\nt1.IsDependencyMultiple,\r\nt1.IsDynamicFormGridDropdown,\r\nt1.GridDropDownDynamicFormID,\r\nt1.IsDynamicFormGridDropdownMultiple,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t6.IsFilterDataSource,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName," +
+                    "(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsDisplayDropDownHeader is NULL then  0 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
+                    "(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) ELSE null END) as AddedBy,(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) ELSE null END) as ModifiedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.IsDynamicFormDropTagBox,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
+                    "JOIN Employee t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN Employee t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                    "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
+                    "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                    "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
+                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n LEFT JOIN DynamicForm tt1 ON tt1.ID=t5.DynamicFormID\n\r" +
+                    "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
+                    "Where (tt1.IsDeleted=0 or tt1.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId;\r\n";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
@@ -2137,6 +2170,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataSectionLock>> GetDynamicFormDataSectionLockList(List<long> dynamicFormDataIds)
+        {
+
+            try
+            {
+                List<DynamicFormDataSectionLock> dynamicFormDataSectionLocks = new List<DynamicFormDataSectionLock>();
+                dynamicFormDataIds = dynamicFormDataIds != null && dynamicFormDataIds.Count > 0 ? dynamicFormDataIds : new List<long>() { -1 };
+                var query = "select  * from DynamicFormDataSectionLock where DynamicFormDataId in(" + string.Join(',', dynamicFormDataIds) + ");";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormDataSectionLock>(query, null)).ToList();
+                    dynamicFormDataSectionLocks = result != null && result.Count() > 0 ? result : new List<DynamicFormDataSectionLock>();
+                }
+                return dynamicFormDataSectionLocks;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId)
         {
             try
@@ -2189,12 +2242,15 @@ namespace Infrastructure.Repository.Query
                 {
                     var SessionIds = result.Select(a => a.SessionId).ToList();
                     var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
+                    var dynamicFormDataIDss = result.Select(a => a.DynamicFormDataId).ToList();
+                    var lockItems = await GetDynamicFormDataSectionLockList(dynamicFormDataIDss);
                     var dynamicFormDataIDs = result.Where(w => w.IsSendApproval == true).Select(a => a.DynamicFormDataId).ToList();
                     var resultData = await GetDynamicFormApprovedByAll(dynamicFormDataIDs);
                     var _activityEmailTopics = await GetActivityEmailTopicList(lists);
                     result.ForEach(s =>
                     {
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == s.SessionId);
+                        s.DynamicFormDataSectionLock = lockItems.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
                         if (_activityEmailTopicsOne != null)
                         {
                             s.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
@@ -3954,9 +4010,11 @@ namespace Infrastructure.Repository.Query
                     var SessionIds = result.Select(a => a.SessionID).Distinct().ToList();
                     var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
                     var _activityEmailTopics = await GetActivityEmailTopicList(lists);
+                    var lockItems = await GetDynamicFormDataSectionLockList(DynamicFormDataIds);
                     var resultsData = await GetDynamicFormWorkFlowIds(DynamicFormDataIds);
                     foreach (var item in result)
                     {
+                        item.DynamicFormDataSectionLock = lockItems.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).ToList();
                         var results = resultsData.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).OrderBy(o => o.SequenceNo).ToList();
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == item.SessionID);
                         if (results != null && results.Count > 0)
@@ -4757,6 +4815,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataUpload>> GetDynamicFormDataUploadList(long? DynamicformDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicformDataId", DynamicformDataId);
+                var query = "select * from DynamicFormDataUpload where DynamicformDataId=@DynamicformDataId;";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataUpload>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -4765,10 +4841,12 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        var dynamicFormDataUploadData = await GetDynamicFormDataUploadList(dynamicFormData.DynamicFormDataId);
                         var exitsData = await GetActivityEmailTopicsExits(dynamicFormData.SessionId);
                         if (exitsData == null)
                         {
                             var parameters = new DynamicParameters();
+                            // parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
                             parameters.Add("activityType", "DynamicForm", DbType.String);
                             parameters.Add("BackUrl", dynamicFormData.BackUrl, DbType.String);
                             parameters.Add("subjectName", dynamicFormData.ProfileNo, DbType.String);
@@ -4785,6 +4863,20 @@ namespace Infrastructure.Repository.Query
                             await connection.ExecuteAsync(query, parameters);
 
                         }
+                        /*else
+                        {
+                            if (exitsData.DocumentSessionId != null)
+                            {
+                                var parameters = new DynamicParameters();
+                                parameters.Add("ActivityEmailTopicID", exitsData.ActivityEmailTopicID);
+                                parameters.Add("DocumentSessionId", dynamicFormDataUploadData != null && dynamicFormDataUploadData.Count() > 0 ? dynamicFormDataUploadData.FirstOrDefault()?.SessionId : null, DbType.Guid);
+                                var query2 = "UPDATE ActivityEmailTopics SET DocumentSessionId=@DocumentSessionId WHERE ActivityEmailTopicID = @ActivityEmailTopicID;\r\n";
+                                if (!string.IsNullOrEmpty(query2))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(query2, parameters);
+                                }
+                            }
+                        }*/
                         return dynamicFormData;
                     }
 
@@ -5528,6 +5620,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsLocked", value.IsLocked == true ? true : null);
                         parameters.Add("LockedUserId", value.LockedUserId);
                         var query = "update DynamicFormData set IsLocked=@IsLocked,LockedUserID=@LockedUserId where DynamicFormDataId=@DynamicFormDataId\r\n;";
+                        if (value.IsLocked != true)
+                        {
+                            query += "Delete from DynamicFormDataSectionLock where DynamicFormDataId=@DynamicFormDataId;";
+                        }
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
@@ -6750,6 +6846,133 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<DynamicFormSectionAttribute>> GetUpdateDynamicFormGridSeqSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormId", dynamicFormSectionAttribute.DynamicFormId);
+                int? PermissionAnotherOrder = dynamicFormSectionAttribute.SortOrderAnotherBy;
+                int? PermissionOrder = dynamicFormSectionAttribute.GridDisplaySeqNo;
+                var from = PermissionAnotherOrder > PermissionOrder ? PermissionOrder : PermissionAnotherOrder;
+                var to = PermissionAnotherOrder > PermissionOrder ? PermissionAnotherOrder : PermissionOrder;
+                parameters.Add("SortOrderByFrom", from);
+                parameters.Add("SortOrderByTo", to);
+                query = "select t1.* from DynamicFormSectionAttribute t1 \r\n" +
+                    "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
+                    "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                    "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
+                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n LEFT JOIN DynamicForm tt1 ON tt1.ID=t5.DynamicFormID\n\r" +
+                    "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
+                    "Where (tt1.IsDeleted=0 or tt1.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) " +
+                    "AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null) " +
+                    "AND tt1.ID=@DynamicFormId AND t1.GridDisplaySeqNo>@SortOrderByFrom\n" +
+                    "and t1.GridDisplaySeqNo<=@SortOrderByTo order by t1.GridDisplaySeqNo asc";
+                if (PermissionAnotherOrder > PermissionOrder)
+                {
+                    query = "select t1.* from DynamicFormSectionAttribute t1 \r\n" +
+                    "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
+                    "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                    "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
+                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n LEFT JOIN DynamicForm tt1 ON tt1.ID=t5.DynamicFormID\n\r" +
+                    "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
+                    "Where (tt1.IsDeleted=0 or tt1.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) " +
+                    "AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null) " +
+                    "AND tt1.ID=@DynamicFormId AND t1.GridDisplaySeqNo>=@SortOrderByFrom\n" +
+                    "and t1.GridDisplaySeqNo<@SortOrderByTo order by t1.GridDisplaySeqNo asc";
+
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormSectionAttribute>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeGridSequenceSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        int? PermissionAnotherOrder = dynamicFormSectionAttribute.SortOrderAnotherBy;
+                        int? PermissionOrder = dynamicFormSectionAttribute.GridDisplaySeqNo;
+                        int? SortOrder = PermissionAnotherOrder > PermissionOrder ? (PermissionOrder + 1) : PermissionAnotherOrder;
+                        query += "Update  DynamicFormSectionAttribute SET GridDisplaySeqNo=" + PermissionOrder + "  WHERE DynamicFormSectionAttributeId =" + dynamicFormSectionAttribute.DynamicFormSectionAttributeId + ";";
+                        if (SortOrder > 0)
+                        {
+                            var result = await GetUpdateDynamicFormGridSeqSortOrder(dynamicFormSectionAttribute);
+                            if (result != null && result.Count > 0)
+                            {
+
+                                result.ForEach(s =>
+                                {
+                                    query += "Update  DynamicFormSectionAttribute SET GridDisplaySeqNo=" + SortOrder + "  WHERE  DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
+                                    SortOrder++;
+                                });
+
+                            }
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, null);
+                        return dynamicFormSectionAttribute;
+                    }
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSectionAttributeId", dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                        parameters.Add("IsDisplayTableHeader", dynamicFormSectionAttribute.IsDisplayTableHeader);
+                        parameters.Add("IsVisible", dynamicFormSectionAttribute.IsVisible);
+                        parameters.Add("IsDisplayDropDownHeader", dynamicFormSectionAttribute.IsDisplayDropDownHeader);
+                        var query = "Update DynamicFormSectionAttribute SET IsDisplayTableHeader=@IsDisplayTableHeader,IsVisible=@IsVisible,IsDisplayDropDownHeader=@IsDisplayDropDownHeader WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormSectionAttribute;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
             }
         }
     }

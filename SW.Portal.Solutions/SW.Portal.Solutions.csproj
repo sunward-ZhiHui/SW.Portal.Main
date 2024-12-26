@@ -24,6 +24,7 @@
     <PackageReference Include="FireSharp" Version="2.0.4" />
     <PackageReference Include="Google.Apis.Auth" Version="1.62.0" />
     <PackageReference Include="itext7" Version="7.1.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.10" />
     <PackageReference Include="MikaelDui.HtmlAgilityPack.Extensions" Version="0.0.3" />
     <PackageReference Include="MimeMapping" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -32,7 +33,7 @@
     <PackageReference Include="Quartz" Version="3.11.0" />
     <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
     <PackageReference Include="RestSharp" Version="111.2.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
     <PackageReference Include="WebGrease" Version="1.6.0" />
     

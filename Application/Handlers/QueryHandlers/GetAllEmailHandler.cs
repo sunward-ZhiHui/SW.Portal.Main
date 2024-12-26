@@ -12,19 +12,19 @@ using System.Net.Mime;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {
-   
+
     public class GetUserEmailTopicListHandler : IRequestHandler<GetUserEmailTopics, List<EmailTopics>>
     {
 
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
         public GetUserEmailTopicListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
         {
-           _emailTopicsQueryRepository = emailTopicsQueryRepository;
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
         }
         public async Task<List<EmailTopics>> Handle(GetUserEmailTopics request, CancellationToken cancellationToken)
         {
             return await _emailTopicsQueryRepository.GetUserTopicList(request.UserId);
-           
+
         }
     }
     public class GetRequestEmailToCCListHandler : IRequestHandler<GetRequestEmailToCCList, List<RequestEmail>>
@@ -143,7 +143,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
-    
+
     public class GetEmailTopicToHandler : IRequestHandler<GetEmailTopicTo, List<EmailTopics>>
     {
 
@@ -154,7 +154,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt,request.PageNumber,request.PageSize);
+            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId, request.SearchTxt, request.PageNumber, request.PageSize);
         }
     }
     public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>
@@ -167,7 +167,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicToSearch request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicToSearchList(request.SearchTxt,request.UserId);
+            return await _emailTopicsQueryRepository.GetTopicToSearchList(request.SearchTxt, request.UserId);
         }
     }
     public class SetPinEmailTopicToHandler : IRequestHandler<SetPinEmailTopicTo, long>
@@ -180,7 +180,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(SetPinEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.SetPinTopicToList(request.ID,request.UserId);
+            return await _emailTopicsQueryRepository.SetPinTopicToList(request.ID, request.UserId);
 
         }
     }
@@ -208,7 +208,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(UpdateMarkasAllRead request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.UpdateMarkasAllReadList(request.ID,request.UserId);
+            return await _emailTopicsQueryRepository.UpdateMarkasAllReadList(request.ID, request.UserId);
 
         }
     }
@@ -251,7 +251,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId,request.SearchTxt,request.PageNumber,request.PageSize);
+            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId, request.SearchTxt, request.PageNumber, request.PageSize);
 
         }
     }
@@ -309,7 +309,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicCC request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicCCList(request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetTopicCCList(request.UserId, request.SearchTxt);
 
         }
     }
@@ -406,7 +406,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicToList(request.TopicId,request.UserId, request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetSubTopicToList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }
@@ -420,11 +420,11 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailSearchAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicSearchAllList(request.TopicId, request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetSubTopicSearchAllList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }
-    
+
 
     public class GetSubEmailTopicAllHandler : IRequestHandler<GetSubEmailTopicAll, List<EmailTopics>>
     {
@@ -436,7 +436,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }
@@ -496,7 +496,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
-   
+
     public class GetSentTopicHandler : IRequestHandler<GetSentTopic, List<EmailTopics>>
     {
 
@@ -507,7 +507,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSentTopic request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicSentList(request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetTopicSentList(request.UserId, request.SearchTxt);
 
         }
     }
@@ -522,7 +522,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailParticipant>> Handle(GetEmailParticipantsList request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetParticipantList(request.TopicId,request.UserId);
+            return await _emailTopicsQueryRepository.GetParticipantList(request.TopicId, request.UserId);
         }
     }
     public class GetEmailGroupParticipantListHandler : IRequestHandler<GetEmailGroupParticipantsList, List<EmailConversationAssignToUserGroup>>
@@ -574,7 +574,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetParticipantbysessionidList(request.sessionId);
         }
     }
-    
+
 
     public class GetByIdEmailTopicListHandler : IRequestHandler<GetByIdEmailTopics, List<EmailTopics>>
     {
@@ -590,7 +590,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
-    
+
     public class CreateEmailTopicsHandler : IRequestHandler<CreateEmailTopics, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
@@ -607,7 +607,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             if (request.DueDate.HasValue)
             {
                 DateTime dueDate = request.DueDate.Value;
-                expiryDueDate = dueDate.AddDays(request.NoOfDays);               
+                expiryDueDate = dueDate.AddDays(request.NoOfDays);
             }
 
             request.ExpiryDueDate = expiryDueDate;
@@ -771,7 +771,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
-    
+
 
 
     public class CreateTimelineEventHandler : IRequestHandler<CreateEmailTimelineEvent, long>
@@ -848,23 +848,23 @@ namespace CMS.Application.Handlers.QueryHandlers
                 SourceFrom = "FileProfile"
             };
 
-            var req = await _documentsQueryRepository.InsertCreateDocumentBySession(docResult);            
+            var req = await _documentsQueryRepository.InsertCreateDocumentBySession(docResult);
             return req.DocumentId;
         }
     }
 
     public class UpdateEmailDmsDocIdHandler : IRequestHandler<UpdateEmailDmsDocId, long>
-    {        
+    {
         private readonly IDocumentsQueryRepository _documentsQueryRepository;
 
         public UpdateEmailDmsDocIdHandler(IDocumentsQueryRepository documentsQueryRepository)
-        {            
+        {
             _documentsQueryRepository = documentsQueryRepository;
         }
 
         public async Task<long> Handle(UpdateEmailDmsDocId request, CancellationToken cancellationToken)
-        {     
-            var req = await _documentsQueryRepository.UpdateEmailDMS(request.DocumentId,request.EmailToDMS);
+        {
+            var req = await _documentsQueryRepository.UpdateEmailDMS(request.DocumentId, request.EmailToDMS);
             return req;
         }
     }
@@ -933,7 +933,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
-    
+
     public class UpdateEmailTopicClosedHandler : IRequestHandler<UpdateEmailTopicClosed, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
@@ -979,7 +979,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetAllEmailTopics request, CancellationToken cancellationToken)
         {
-            return (List<EmailTopics>)await _queryRepository.GetListAsync();            
+            return (List<EmailTopics>)await _queryRepository.GetListAsync();
         }
     }
     public class GetActivityEmailTopicsHandler : IRequestHandler<GetActivityEmailTopics, List<ActivityEmailTopics>>
@@ -1034,7 +1034,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ActivityEmailTopics>)await _emailTopicsQueryRepository.GetActivityEmailDocListBySession(request.SessionId);
         }
     }
-    
+
     public class GetCreateEmailDocumentsHandler : IRequestHandler<GetAllCreateEmailDocumentLst, List<Documents>>
     {
         private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
@@ -1106,7 +1106,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<DynamicFormData>)await _createEmailDocumentsQueryRepository.GetDynamicFormNameAsync(request.SessionId);
         }
     }
-    
+
 
 
     public class GetPATypeDocLstHandler : IRequestHandler<GetPATypeDocLst, List<Documents>>
@@ -1120,12 +1120,12 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<Documents>> Handle(GetPATypeDocLst request, CancellationToken cancellationToken)
         {
-            return (List<Documents>)await _createEmailDocumentsQueryRepository.GetPATypeDocLstAsync(request.Id,request.Type);
+            return (List<Documents>)await _createEmailDocumentsQueryRepository.GetPATypeDocLstAsync(request.Id, request.Type);
         }
     }
-    
 
-    public class CreateActivityEmailHandler : IRequestHandler<CreateActivityEmail,long>
+
+    public class CreateActivityEmailHandler : IRequestHandler<CreateActivityEmail, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
 
@@ -1155,7 +1155,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
-    public class DeleteDraftFileHandler : IRequestHandler <DeleteDocumentFileQuery , long>
+    public class DeleteDraftFileHandler : IRequestHandler<DeleteDocumentFileQuery, long>
     {
         private readonly IEmailTopicsQueryRepository _draftFileListQueryRepository;
 
@@ -1201,6 +1201,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             var newlist = await _emailactyqueryRepository.InsertUserTagMultiple(request);
             return newlist;
+        }
+    }
+    public class GetDynamicFormDataDynamicFormDataUploadListHandler : IRequestHandler<GetDynamicFormDataDynamicFormDataUploadList, List<Documents>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public GetDynamicFormDataDynamicFormDataUploadListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<List<Documents>> Handle(GetDynamicFormDataDynamicFormDataUploadList request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _emailTopicsQueryRepository.GetDynamicFormDataDynamicFormDataUploadList(request.SessionID);
         }
     }
 }

@@ -147,6 +147,7 @@
                                                 <Items>
                                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addvalidate" />
                                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadFilesPopup" Enabled="@uploadEnabled" />
+                                                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
                                                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                                                         <Items>
                                                             <DxMenuItem Text="Edit Details" Click="addEdit" IconCssClass="fa fa-pencil" Visible="EditEnabled" />
@@ -443,6 +444,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     ActivityEmailTopicsModel ActivityEmailTopics = new ActivityEmailTopicsModel();
     bool ActivityEmailPopup { get; set; } = false;
     bool OperatorsPopup { get; set; } = false;
@@ -534,6 +536,13 @@
         }
         await onLoadDataList();
         StateHasChanged();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await AppLine.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     async Task onLoadDataList()
     {

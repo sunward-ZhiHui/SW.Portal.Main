@@ -303,7 +303,15 @@ namespace Application.Queries
             this.UserIds = userIds;
         }
     }
-
+    public class UpdateTransferDynamicFormDataLockLock : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public UpdateTransferDynamicFormDataLockLock(List<long?> ids)
+        {
+            this.Ids = ids;
+        }
+    }
+    
     public class GetTransferDynamicFormDataSectionLock : PagedRequest, IRequest<List<DynamicFormDataSectionLock>>
     {
         public long? UserIds { get; set; }
@@ -320,6 +328,14 @@ namespace Application.Queries
         {
             this.Ids = ids;
             this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormDataSectionLockLock : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public UpdateTransferDynamicFormDataSectionLockLock(List<long?> ids)
+        {
+            this.Ids = ids;
         }
     }
 }

@@ -913,7 +913,7 @@ namespace Infrastructure.Repository.Query
                         "from DynamicFormSection t1\n\r" +
                          "JOIN DynamicForm t10 ON t1.DynamicFormID=t10.ID\r\n" +
                         "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND  t1.DynamicFormID=" + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";
-                    query += "select (case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
+                    query += "select t1.GridDisplaySeqNo,(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
                         ",(case when t1.IsDependencyMultiple is NULL then  0 ELSE t1.IsDependencyMultiple END) as IsDependencyMultiple,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t11.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t9.sessionId as DynamicFormSessionId,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId," +
                         "t8.DisplayName as DataSourceDisplayName,\r\n" +
                         "t8.DataSourceTable  as DataSourceTable," +
@@ -1573,7 +1573,7 @@ namespace Infrastructure.Repository.Query
                                                                      List<long?> listData = itemValue.ToObject<List<long?>>();
                                                                      if (b.IsMultiple == true || b.ControlType == "TagBox")
                                                                      {
-                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == b.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == b.DataSourceTable).Select(s => s.FullName).ToList() : new List<string?>();
                                                                          dict[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                      }
                                                                      else
@@ -1586,7 +1586,7 @@ namespace Infrastructure.Repository.Query
                                                                      if (b.ControlType == "ComboBox")
                                                                      {
                                                                          long? values = itemValue == null ? -1 : (long)itemValue;
-                                                                         var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                                                                         var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
                                                                          dict[nameData] = listss;
                                                                          if (keysetNameDataExits == false)
                                                                          {
@@ -1598,7 +1598,7 @@ namespace Infrastructure.Repository.Query
                                                                          if (b.ControlType == "ListBox" && b.IsMultiple == false)
                                                                          {
                                                                              long? values = itemValue == null ? -1 : (long)itemValue;
-                                                                             var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                                                                             var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
                                                                              dict[nameData] = listss;
                                                                          }
                                                                          else
@@ -3704,6 +3704,9 @@ namespace Infrastructure.Repository.Query
                                                 List<long?> listData = itemValue.ToObject<List<long?>>();
                                                 if (s.DataSourceTable == "DynamicGrid")
                                                 {
+                                                    List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                    gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
+
                                                     string displayNames = string.Empty;
 
                                                     if (listData != null && listData.Count > 0)
@@ -3715,9 +3718,28 @@ namespace Infrastructure.Repository.Query
                                                                 foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                 {
                                                                     dynamic eod = v;
+                                                                    var vv = eod.DynamicFormId;
+                                                                    string listone = string.Empty;
+                                                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                                                    {
+                                                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                        g1.ForEach(q =>
+                                                                        {
+                                                                            var byName = (IDictionary<string, object>)v;
+                                                                            if (q.Value != null)
+                                                                            {
+                                                                                if (byName.ContainsKey(q.Value))
+                                                                                {
+                                                                                    var names = (string)byName[q.Value]?.ToString();
+                                                                                    listone += names + "|";
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    eod.DisplayItemsQuery = listone;
                                                                     if ((long?)eod.AttributeDetailID == l)
                                                                     {
-                                                                        displayNames += eod.AttributeDetailName + ",";
+                                                                        displayNames += eod.DisplayItemsQuery + ",";
                                                                     }
                                                                 }
                                                             }
@@ -3758,15 +3780,37 @@ namespace Infrastructure.Repository.Query
                                                     {
                                                         if (s.DataSourceTable == "DynamicGrid")
                                                         {
+                                                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
                                                             var displayNames = string.Empty;
                                                             if (collection != null)
                                                             {
                                                                 foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                 {
                                                                     dynamic eod = v;
+                                                                    var vv = eod.DynamicFormId;
+                                                                    var AttributeDetailIds = eod.AttributeDetailID;
+                                                                    string listone = string.Empty;
+                                                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                                                    {
+                                                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                        g1.ForEach(q =>
+                                                                        {
+                                                                            var byName = (IDictionary<string, object>)v;
+                                                                            if (q.Value != null)
+                                                                            {
+                                                                                if (byName.ContainsKey(q.Value))
+                                                                                {
+                                                                                    var names = (string)byName[q.Value]?.ToString();
+                                                                                    listone += names + "|";
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    eod.DisplayItemsQuery = listone;
                                                                     if ((long?)eod.AttributeDetailID == Svalues)
                                                                     {
-                                                                        displayNames += eod.AttributeDetailName;
+                                                                        displayNames += eod.DisplayItemsQuery;
                                                                     }
                                                                 }
                                                             }
@@ -4621,6 +4665,9 @@ namespace Infrastructure.Repository.Query
                                                 List<long?> listData = itemValue.ToObject<List<long?>>();
                                                 if (s.DataSourceTable == "DynamicGrid")
                                                 {
+                                                    List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                    gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
+
                                                     string displayNames = string.Empty;
 
                                                     if (listData != null && listData.Count > 0)
@@ -4632,9 +4679,28 @@ namespace Infrastructure.Repository.Query
                                                                 foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                 {
                                                                     dynamic eod = v;
+                                                                    var vv = eod.DynamicFormId;
+                                                                    string listone = string.Empty;
+                                                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                                                    {
+                                                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                        g1.ForEach(q =>
+                                                                        {
+                                                                            var byName = (IDictionary<string, object>)v;
+                                                                            if (q.Value != null)
+                                                                            {
+                                                                                if (byName.ContainsKey(q.Value))
+                                                                                {
+                                                                                    var names = (string)byName[q.Value]?.ToString();
+                                                                                    listone += names + "|";
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    eod.DisplayItemsQuery = listone;
                                                                     if ((long?)eod.AttributeDetailID == l)
                                                                     {
-                                                                        displayNames += eod.AttributeDetailName + ",";
+                                                                        displayNames += eod.DisplayItemsQuery + ",";
                                                                     }
                                                                 }
                                                             }
@@ -4675,15 +4741,37 @@ namespace Infrastructure.Repository.Query
                                                     {
                                                         if (s.DataSourceTable == "DynamicGrid")
                                                         {
+                                                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
                                                             var displayNames = string.Empty;
                                                             if (collection != null)
                                                             {
                                                                 foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                 {
                                                                     dynamic eod = v;
+                                                                    var vv = eod.DynamicFormId;
+                                                                    var AttributeDetailIds = eod.AttributeDetailID;
+                                                                    string listone = string.Empty;
+                                                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                                                    {
+                                                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                        g1.ForEach(q =>
+                                                                        {
+                                                                            var byName = (IDictionary<string, object>)v;
+                                                                            if (q.Value != null)
+                                                                            {
+                                                                                if (byName.ContainsKey(q.Value))
+                                                                                {
+                                                                                    var names = (string)byName[q.Value]?.ToString();
+                                                                                    listone += names + "|";
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    eod.DisplayItemsQuery = listone;
                                                                     if ((long?)eod.AttributeDetailID == Svalues)
                                                                     {
-                                                                        displayNames += eod.AttributeDetailName;
+                                                                        displayNames += eod.DisplayItemsQuery;
                                                                     }
                                                                 }
                                                             }

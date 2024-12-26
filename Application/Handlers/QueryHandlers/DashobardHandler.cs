@@ -73,6 +73,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Appointment>)await _queryRepository.GetSchedulerListAsync(request.UserID);
         }
     }
+    public class GetSchedulerCoutHandler : IRequestHandler<GetSchedulerCout, int>
+    {
+
+        private readonly IDashboardQueryRepository _queryRepository;
+        public GetSchedulerCoutHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<int> Handle(GetSchedulerCout request, CancellationToken cancellationToken)
+        {
+
+            return (int)await _queryRepository.GetSchedulerCountAsync(request.UserID);
+        }
+    }
+    
     public class GetUserListHandler : IRequestHandler<GetUserListQuery, List<Appointment>>
     {
 

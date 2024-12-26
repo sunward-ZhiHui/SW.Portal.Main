@@ -20,93 +20,93 @@
 <style>
     .notifcationcount
     {
-        position: absolute;
-        inset: 2px 56px auto auto;
-        font-weight: normal;
-        font-size: 12px;
-        padding: 7px 7px;
-        background: #1baf2d;
-        border-radius: 4px;
-        letter-spacing: 2px;
+    position: absolute;
+    inset: 2px 56px auto auto;
+    font-weight: normal;
+    font-size: 12px;
+    padding: 7px 7px;
+    background: #1baf2d;
+    border-radius: 4px;
+    letter-spacing: 2px;
     }
 
     .list-container1 {
-        padding: 15px;
-       /*  background-color: #ffffff;     */  
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    /*  background-color: #ffffff;     */  
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .list-item1 {
-        padding: 10px;
-        margin-bottom: 10px;
-        background-color: #f9fafb;
-        border-left: 0px solid #007bff;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9fafb;
+    border-left: 0px solid #007bff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
-        .list-item1:hover {
-            transform: translateY(-3px);
-            background-color: #f0f8ff;
-        }
+    .list-item1:hover {
+    transform: translateY(-3px);
+    background-color: #f0f8ff;
+    }
 
-        .list-item1 p {
-            margin: 0;
-            margin-left: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            flex: 1;
-        }
+    .list-item1 p {
+    margin: 0;
+    margin-left: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+    }
 
-        .list-item1 span {
-            background-color: #007bff;
-            color: #fff;
-            padding: 3px 7px;
-            border-radius: 20px;
-            font-size: 11px;            
-        }
+    .list-item1 span {
+    background-color: #007bff;
+    color: #fff;
+    padding: 3px 7px;
+    border-radius: 20px;
+    font-size: 11px;            
+    }
 
-        .list-item1 i {
-            font-size: 14px;
-            color: #007bff;
-        }
+    .list-item1 i {
+    font-size: 14px;
+    color: #007bff;
+    }
 
 
 
 
 
     .lwptoc_header {
-        text-align: center;
-        background: #4f78a4;
-        color: #fff;
-        margin: 0;
-        padding: 12px 15px 10px;
-        letter-spacing: .5px;
-        border-radius: 3px 3px 0 0;
-        font-weight: 800;
-        font-size: .9em;
-        text-transform: uppercase;
+    text-align: center;
+    background: #4f78a4;
+    color: #fff;
+    margin: 0;
+    padding: 12px 15px 10px;
+    letter-spacing: .5px;
+    border-radius: 3px 3px 0 0;
+    font-weight: 800;
+    font-size: .9em;
+    text-transform: uppercase;
     }
 
     .lwptoc_toggle {
-        text-transform: uppercase;
-        font-size: 14px;
-        letter-spacing: .5px;
-        margin-left: 3px;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: .5px;
+    margin-left: 3px;
     }
 
     .lwptoc_item li {
-        list-style: disc;
-        margin: 10px 20px 10px 35px;
-        padding: 0;
-        line-height: 1.1;
-        font-size: 14.5px;
-        font-weight: 800;
+    list-style: disc;
+    margin: 10px 20px 10px 35px;
+    padding: 0;
+    line-height: 1.1;
+    font-size: 14.5px;
+    font-weight: 800;
     }
 
 
@@ -124,20 +124,20 @@
                 <span class="logo-img"></span>
             </a>           
         </div>
-       
+
         <div class="demo-btn-container d-flex">
-          @*   <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+            @*   <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_emailNotificationCount</span>
             </span> *@
-           
-        
+
+
             <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Notification-info") title ="Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_NotificationCount</span>
             </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
-                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
+            RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
 
-          
+
 
         </div>
         <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" @bind-ThemeName="@ThemeName" />
@@ -193,9 +193,9 @@
         }
     </div>
     <DxPopup @bind-Visible="@PopupUpdatePasseordVisible"
-             CloseOnOutsideClick="false"
-             HeaderText="Change Password"
-             ShowFooter="false">
+    CloseOnOutsideClick="false"
+    HeaderText="Change Password"
+    ShowFooter="false">
         <BodyTemplate Context="PopupContext">
             <EditForm Model="@updatePassword" OnValidSubmit="OnValidSubmit" style="padding:10px;">
                 <DataAnnotationsValidator />
@@ -226,27 +226,27 @@
         <FooterContentTemplate>
 
             <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel"
-                      Click="@context.CloseCallback" />
+            Click="@context.CloseCallback" />
         </FooterContentTemplate>
     </DxPopup>
     <DxPopup @bind-Visible="@MessageVisible"
-             HeaderText="@MessageHeader"
-             BodyText="@MessageBody" />
+    HeaderText="@MessageHeader"
+    BodyText="@MessageBody" />
 
 
 
     <DxFlyout @bind-IsOpen=IsNotificationCount
-              PositionTarget=@($"#flyout-overview-target-container-Notification-info")
-              RestrictionTarget="#Navigation-Flyout-Customization"
-              AnimationType="FlyoutAnimationType.Fade"
-              PreventCloseOnPositionTargetClick="true"
-              FooterVisible="false"
-              
-              Width="250px"
-              CloseOnOutsideClick=true
-              Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    PositionTarget=@($"#flyout-overview-target-container-Notification-info")
+    RestrictionTarget="#Navigation-Flyout-Customization"
+    AnimationType="FlyoutAnimationType.Fade"
+    PreventCloseOnPositionTargetClick="true"
+    FooterVisible="false"
+
+    Width="250px"
+    CloseOnOutsideClick=true
+    Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         <BodyContentTemplate Context="PopupContext">
-            
+
             <div class="flyouthead" style="width:100%;">
                 <div class="lwptoc_header">
                     <b class="lwptoc_title">Notifications</b> <span class="lwptoc_toggle">                        
@@ -270,6 +270,10 @@
                             <i class="fa fa-check-circle"></i>
                             <p>Approval <span>@_approvelNotificationCount</span></p>
                         </div>
+                        <div class="list-item1" @onclick="() => GoAppointments()">
+                            <i class="fa fa-calendar-check"></i>
+                            <p>Appointment <span>@_appointmentsCount</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -278,8 +282,8 @@
 
         </BodyContentTemplate>
         <FooterContentTemplate>
-            
-           
+
+
         </FooterContentTemplate>
     </DxFlyout>
 </div>
@@ -323,6 +327,7 @@
     long _memoNotificationCount { get; set; }
     long _WorkflowNotificationCount { get; set; }
     long _approvelNotificationCount { get; set; }
+    long _appointmentsCount { get; set; }
     long _NotificationCount { get; set; }
     private List<DynamicForm> _dynamicForm;
     private List<DynamicFormDataWrokFlow> _WorkFlowdynamicForm;
@@ -359,7 +364,9 @@
             var _MemoList = await Mediator.Send(new GetAllMemoByUserCountQuery(applicationUser.UserID));
             _memoNotificationCount = _MemoList.Count;
 
-            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
+            _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));
+
+            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount;
         }
 
         await InvokeAsync(StateHasChanged);
@@ -372,6 +379,12 @@
     private async Task GoApproval()
     {
         NavigationManager.NavigateTo($"DynamicFormApprovedMainList");
+        await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
+    }
+    private async Task GoAppointments()
+    {
+        NavigationManager.NavigateTo($"Dashboard/1");
         await InvokeAsync(StateHasChanged);
         IsNotificationCount = false;
     }
@@ -407,13 +420,13 @@
             _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
             _approvelNotificationCount = _dynamicForm.Count;
-            
+            _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));            
         }
       
        
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
-        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
+        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount;
 
         await InvokeAsync(StateHasChanged);
     }

@@ -576,6 +576,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<int> GetSchedulerCountAsync(long UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("UserID", UserID);
+
+                var query = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
+                                LEFT JOIN UserMultiple UM ON UM.AppointmentID = A.ID
+                                WHERE (UM.UserID = @UserID OR A.AddedByUserID = @UserID)
+                                  AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE())  
+                                      OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QuerySingleOrDefaultAsync<int>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<IReadOnlyList<Appointment>> GetUserListAsync(long Appointmentid)
         {

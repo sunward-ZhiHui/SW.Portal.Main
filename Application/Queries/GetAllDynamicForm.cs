@@ -109,6 +109,14 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetDynamicFormSectionAttributeAll : PagedRequest, IRequest<List<DynamicFormSectionAttribute>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionAttributeAll(long? id)
+        {
+            this.Id = id;
+        }
+    }
     public class GetDynamicFormBySession : PagedRequest, IRequest<DynamicForm>
     {
         public string? SearchString { get; set; }
@@ -783,6 +791,22 @@ namespace Application.Queries
         public UpdateDynamicFormMenuSortOrder(ApplicationPermission applicationPermission)
         {
             this.ApplicationPermission = applicationPermission;
+        }
+    }
+    public class UpdateDynamicFormSectionAttributeGridSequenceSortOrder : PagedRequest, IRequest<DynamicFormSectionAttribute>
+    {
+        public DynamicFormSectionAttribute DynamicFormSectionAttribute { get; private set; }
+        public UpdateDynamicFormSectionAttributeGridSequenceSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            this.DynamicFormSectionAttribute = dynamicFormSectionAttribute;
+        }
+    }
+    public class UpdateDynamicFormSectionAttributeAllByCheckBox : PagedRequest, IRequest<DynamicFormSectionAttribute>
+    {
+        public DynamicFormSectionAttribute DynamicFormSectionAttribute { get; private set; }
+        public UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            this.DynamicFormSectionAttribute = dynamicFormSectionAttribute;
         }
     }
     public class DeleteDynamicFormMenu : PagedRequest, IRequest<DynamicForm>

@@ -251,7 +251,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('ApplicationMaster_',t1.ApplicationMasterDetailID) as AttributeDetailNameId,'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
+                query += "select CONCAT('ApplicationMaster_',t1.ApplicationMasterDetailID) as AttributeDetailNameId,CONCAT(t1.Value,'|',t1.Description) as FullName,'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
                 if (applicationMasterIds != null && applicationMasterIds.Count > 0)
                 {
                     applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };

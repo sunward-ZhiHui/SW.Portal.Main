@@ -61,6 +61,7 @@ namespace Core.Entities
         public string? UnitOfMeasureCode { get; set; }
         public string? SubStatus { get; set; }
         public string? Status { get; set; }
+        public string? FullName { get; set; }
 
     }
     public class DataSourceAttributeDetails

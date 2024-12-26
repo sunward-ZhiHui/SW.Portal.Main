@@ -231,6 +231,20 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormSectionAttributeAllHandler : IRequestHandler<GetDynamicFormSectionAttributeAll, List<DynamicFormSectionAttribute>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeAllHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttribute>> Handle(GetDynamicFormSectionAttributeAll request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttribute>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeAllAsync(request.Id);
+        }
+
+
+    }
     public class DeleteDynamicFormSectionHandler : IRequestHandler<DeleteDynamicFormSection, long>
     {
         private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
@@ -1463,4 +1477,33 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class UpdateDynamicFormSectionAttributeGridSequenceSortOrderHandler : IRequestHandler<UpdateDynamicFormSectionAttributeGridSequenceSortOrder, DynamicFormSectionAttribute>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormSectionAttributeGridSequenceSortOrderHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttribute> Handle(UpdateDynamicFormSectionAttributeGridSequenceSortOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormSectionAttributeGridSequenceSortOrder(request.DynamicFormSectionAttribute);
+
+        }
+    }
+    public class UpdateDynamicFormSectionAttributeAllByCheckBoxHandler : IRequestHandler<UpdateDynamicFormSectionAttributeAllByCheckBox, DynamicFormSectionAttribute>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormSectionAttributeAllByCheckBoxHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttribute> Handle(UpdateDynamicFormSectionAttributeAllByCheckBox request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormSectionAttributeAllByCheckBox(request.DynamicFormSectionAttribute);
+
+        }
+    }
+    
 }

@@ -4,7 +4,6 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Helpers;
 using DevExpress.Blazor;
-using DevExpress.Blazor.Legacy;
 using DevExpress.Office.Utils;
 using DevExpress.XtraPrinting.Native;
 using MediatR;

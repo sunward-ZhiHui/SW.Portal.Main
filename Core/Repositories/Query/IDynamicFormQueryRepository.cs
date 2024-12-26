@@ -28,6 +28,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormSection> InsertOrUpdateDynamicFormSection(DynamicFormSection dynamicFormSection);
         Task<IReadOnlyList<DynamicFormSection>> GetDynamicFormSectionAsync(long? dynamicFormId);
         Task<DynamicFormSectionAttribute> InsertOrUpdateDynamicFormSectionAttribute(DynamicFormSectionAttribute dynamicFormSectionAttribute);
+        Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeAllAsync(long? DynamicFormId);
         Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeAsync(long? dynamicFormSectionId);
         Task<long> DeleteDynamicFormSection(DynamicFormSection dynamicFormSection);
         Task<DynamicFormSection> UpdateDynamicFormSectionSortOrder(DynamicFormSection dynamicFormSection);
@@ -127,6 +128,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormDataAssignUser> InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser value);
         Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserList(long? DynamicFormId);
         Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserAllList();
+        Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeGridSequenceSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute);
+        Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
     }
 
 }

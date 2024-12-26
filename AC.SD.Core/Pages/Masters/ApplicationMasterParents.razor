@@ -136,7 +136,7 @@
                                                             <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                                                             <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                                                            <DxMenuItem Text="Export All" IconCssClass="fa fa-file-excel" Click="@ExportToAllExcel" />
+                                                           @*  <DxMenuItem Text="Export All" IconCssClass="fa fa-file-excel" Click="@ExportToAllExcel" /> *@
                                                             <DxMenuItem Text="@DisplayParent" IconCssClass="fa fa-add" Click="@addEditNewChild" Visible="@EditNewChildEnabled" />
 
                                                         </Items>
@@ -924,13 +924,13 @@
     }
     async Task ExportToAllExcel()
     {
-        if (TreeList != null)
-        {
-            await TreeList.ExportToXlsxAsync("ExportResult", new TreeListXlExportOptions()
-            {
-               SheetName=_selectedItems?.MainMasterName
-            });
-        }
+        // if (TreeList != null)
+        // {
+        //     await TreeList.ExportToXlsxAsync("ExportResult", new TreeListXlExportOptions()
+        //     {
+        //        SheetName=_selectedItems?.MainMasterName
+        //     });
+        // }
     }
     async Task ExportToExcel()
     {

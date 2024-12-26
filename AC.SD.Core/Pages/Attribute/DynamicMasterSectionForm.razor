@@ -24,6 +24,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Grid Sequence" IconCssClass="fa fa-sort" Click="@addGridSequence" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -285,9 +286,20 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
-
+<DxPopup @bind-Visible="@GridSequencePopUp"
+         ShowFooter="false"
+         HeaderText="Add Grid Sequence"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddGridSequence @ref="refAddGridSequence" SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddGridSequence>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool GridSequencePopUp { get; set; } = false;
     private AddPermissionSection refAddPermissionSection;
+    private AddGridSequence refAddGridSequence;
     [Parameter]
     public long? dynamicFormId { get; set; }
     bool PanelVisible { get; set; }
@@ -748,6 +760,10 @@
         _selectedDynamicFormSectionItems = new DynamicFormSection();
         fileProfileTypeDocumentsAll?.Clear();
         DynamicFormSectionOne = new DynamicFormSection();
+    }
+    void addGridSequence()
+    {
+        GridSequencePopUp = true;
     }
     public async ValueTask DisposeAsync()
     {

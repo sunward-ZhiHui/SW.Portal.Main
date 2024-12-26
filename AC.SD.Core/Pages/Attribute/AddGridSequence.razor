@@ -1,0 +1,278 @@
+﻿@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+<DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMAttributeGrid" Data="@_dynamicFormSectionAttributeData" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DynamicFormSectionAttributeId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            style="height: calc(100vh - 220px);"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+            <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
+            <DxGridDataColumn FieldName="SectionName" Caption="SectionName" MinWidth="40" />
+            <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
+            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        var Names = item.ControlType;
+                    }
+                    @Names
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            @*             <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="Data Source" MinWidth="40">
+            <CellDisplayTemplate>
+            @{
+            var item = (DynamicFormSectionAttribute)context.DataItem;
+            var DataSourceNames = item.DataSourceDisplayName;
+            if (item.ControlTypeId == 2712)
+            {
+            DataSourceNames = item.DynamicGridName;
+            }
+            if (item.DataSourceTable == "DynamicGrid")
+            {
+            DataSourceNames += " - " + item.DynamicGridName;
+            }
+            if (item.IsFilterDataSource == true)
+            {
+            DataSourceNames = "Is Filter - " + item.FilterDataSourceDisplayName;
+            }
+            }
+            @DataSourceNames
+            </CellDisplayTemplate>
+            </DxGridDataColumn> *@
+            <DxGridDataColumn FieldName="GridDisplaySeqNo" Caption="Grid SeqNo" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                    }
+                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-AttributeSectionGridSequence-{item.DynamicFormSectionAttributeId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.GridDisplaySeqNo"></i>
+                    @item.GridDisplaySeqNo
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsDisplayTableHeader" Caption="Is Table Header" MinWidth="20">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        <DxCheckBox Checked="item.IsDisplayTableHeader" CheckedExpression="@(() => item.IsDisplayTableHeader)" CheckedChanged="@((bool? selectName) => SelectedItemChanged(selectName,item,"Table Header"))"></DxCheckBox>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+
+            <DxGridDataColumn FieldName="IsVisible" Caption="Is Visible" MinWidth="20">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        <DxCheckBox Checked="item.IsVisible" CheckedExpression="@(() => item.IsVisible)" CheckedChanged="@((bool? selectName) => SelectedItemChanged(selectName,item,"Visible"))"></DxCheckBox>
+
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsDisplayDropDownHeader" Caption="Is DropDown Header" MinWidth="20">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        <DxCheckBox Checked="item.IsDisplayDropDownHeader" CheckedExpression="@(() => item.IsDisplayDropDownHeader)" CheckedChanged="@((bool? selectName) => SelectedItemChanged(selectName,item,"DropDown Header"))"></DxCheckBox>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+
+            @* <DxGridDataColumn FieldName="IsMultiple" Caption="Is Multiple" MinWidth="80" />
+            <DxGridDataColumn FieldName="IsRequired" Caption="Is Required" MinWidth="80" />
+            <DxGridDataColumn FieldName="RequiredMessage" Caption="Required Message" MinWidth="80" />
+            <DxGridDataColumn FieldName="ColSpan" Caption="ColSpan" MinWidth="20" />
+            <DxGridDataColumn FieldName="IsDisplayTableHeader" Caption="Is Table Header" MinWidth="20" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" /> *@
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DisplayName" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+<DxFlyout @bind-IsOpen=IsSortOrderByAtrributeOpen
+          PositionTarget=@($"#flyout-overview-target-container-AttributeSectionGridSequence-{_selectedAttributeItems?.DynamicFormSectionAttributeId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Sort Order"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxComboBox Data="@sortOrderAttributeSectionList"
+                            @bind-Value="@_selectedDynamicFormAttributeSectionItems.GridDisplaySeqNo"
+                            TextFieldName="Text"
+                            ValueFieldName="Value" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByAtrributeOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderAttributeBy()) />
+
+
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    [Parameter]
+    public DynamicFormSection SelectedItems { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    private List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeData { get; set; }
+    IGrid? SMAttributeGrid { get; set; }
+    bool PanelAttibuteVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private DynamicFormSectionAttribute _selectedAttributeItems;
+    DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
+    private List<DynamicFormSectionSortOrder> sortOrderAttributeSectionList { get; set; }
+    bool IsSortOrderByAtrributeOpen { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        _dynamicFormSectionAttributeData = await Mediator.Send(new GetDynamicFormSectionAttributeAll(SelectedItems.DynamicFormId));
+        StateHasChanged();
+    }
+    async Task SelectedItemChanged(bool? checkedItem, DynamicFormSectionAttribute dynamicFormSectionAttribute, string Type)
+    {
+        bool? setSet = true;
+        if (Type == "DropDown Header")
+        {
+            dynamicFormSectionAttribute.IsDisplayDropDownHeader = checkedItem;
+        }
+        if (Type == "Table Header")
+        {
+            if (dynamicFormSectionAttribute.GridDisplaySeqNo > 0)
+            {
+                dynamicFormSectionAttribute.IsDisplayTableHeader = checkedItem;
+            }
+            else
+            {
+                setSet = false;
+                toastService.ShowToast("Must Set Grid Sequence No", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        if (Type == "Visible")
+        {
+            dynamicFormSectionAttribute.IsVisible = checkedItem;
+        }
+        if (setSet == true)
+        {
+            var result = await Mediator.Send(new UpdateDynamicFormSectionAttributeAllByCheckBox(dynamicFormSectionAttribute));
+            if (result.DynamicFormSectionAttributeId > 0)
+            {
+                toastService.ShowToast(Type + "Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttributeId");
+        _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == (long?)UniqueId);
+        //if (IsSortOrderByAtrributeOpen == true)
+        // {
+        // IsSortOrderByAtrributeOpen = false;
+        //}
+        StateHasChanged();
+    }
+    void OnButtonSortOrderByClick(DynamicFormSectionAttribute dynamicFormSection)
+    {
+        _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
+
+        sortOrderAttributeSectionList = new List<DynamicFormSectionSortOrder>();
+        IsSortOrderByAtrributeOpen = true;
+        if (_dynamicFormSectionAttributeData != null && _dynamicFormSectionAttributeData.Count > 0)
+        {
+            var count = _dynamicFormSectionAttributeData.Where(w => w.GridDisplaySeqNo > 0).Count();
+            if (dynamicFormSection.GridDisplaySeqNo > 0)
+            {
+                for (int i = 1; i <= count; i++)
+                {
+                    DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                    dynamicFormSectionSortOrder.Text = i.ToString();
+                    dynamicFormSectionSortOrder.Value = i;
+                    sortOrderAttributeSectionList.Add(dynamicFormSectionSortOrder);
+                }
+            }
+            else
+            {
+                count = count + 1;
+                DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                dynamicFormSectionSortOrder.Text = count.ToString();
+                dynamicFormSectionSortOrder.Value = count;
+                sortOrderAttributeSectionList.Add(dynamicFormSectionSortOrder);
+
+            }
+
+        }
+        _selectedDynamicFormAttributeSectionItems.DynamicFormId = dynamicFormSection.DynamicFormId;
+        _selectedDynamicFormAttributeSectionItems.GridDisplaySeqNo = dynamicFormSection.GridDisplaySeqNo;
+        _selectedDynamicFormAttributeSectionItems.ModifiedByUserID = applicationUser.UserID;
+        _selectedDynamicFormAttributeSectionItems.ModifiedDate = DateTime.Now;
+        _selectedDynamicFormAttributeSectionItems.DynamicFormSectionId = dynamicFormSection.DynamicFormSectionId;
+        _selectedDynamicFormAttributeSectionItems.DynamicFormSectionAttributeId = dynamicFormSection.DynamicFormSectionAttributeId;
+        _selectedDynamicFormAttributeSectionItems.SortOrderAnotherBy = dynamicFormSection.GridDisplaySeqNo;
+
+        StateHasChanged();
+    }
+    async Task OnUpdateSortOrderAttributeBy()
+    {
+        if (_selectedDynamicFormAttributeSectionItems.GridDisplaySeqNo > 0)
+        {
+            await Mediator.Send(new UpdateDynamicFormSectionAttributeGridSequenceSortOrder(_selectedDynamicFormAttributeSectionItems));
+            await UpdateDataAsync();
+            SMAttributeGrid.SortBy("GridDisplaySeqNo", GridColumnSortOrder.Ascending, 0);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsSortOrderByAtrributeOpen = false;
+            StateHasChanged();
+        }
+        else
+        {
+            toastService.ShowToast("Must select value", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

@@ -329,7 +329,7 @@
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
-                        <DxComboBox Data="@LikeList"
+                        <DxComboBox Data="@LikeListSubject"
                             TextFieldName="Text"
                              ValueFieldName="Value"
                                    
@@ -580,6 +580,7 @@
   
     List<string> ConditionList = new List<string>() { "AND", "OR" };
     List<DropDownModel> LikeList = new List<DropDownModel>();
+    List<DropDownModelSubject> LikeListSubject = new List<DropDownModelSubject>();
     void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectGroupItem = applicationMasterChildModel;
@@ -719,6 +720,10 @@
         //NavigationManager.LocationChanged += OnLocationChanged;
         LikeList.Add(new DropDownModel(){ Value = "=" ,Text ="Equal(=)"});
         LikeList.Add(new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" });
+
+        LikeListSubject.Add(new DropDownModelSubject() { Value = "=", Text = "Equal(=)" });
+        LikeListSubject.Add(new DropDownModelSubject() { Value = "<>", Text = "Not Equal(!=)" });
+        LikeListSubject.Add(new DropDownModelSubject() { Value = "contains", Text = "Contains" });
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {

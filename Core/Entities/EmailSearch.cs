@@ -47,4 +47,9 @@ namespace Core.Entities
         public string? Value { get; set; }
         public string? Text { get; set; }
     }
+    public class DropDownModelSubject
+    {
+        public string? Value { get; set; }
+        public string? Text { get; set; }
+    }
 }

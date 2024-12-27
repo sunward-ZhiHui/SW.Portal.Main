@@ -17,5 +17,6 @@ namespace Core.Repositories.Query
         Task<long> UpdateStatus(long ID ,long StatusID,long ModifiedByUserID);
         Task<IReadOnlyList<TimeSheetForQC>> GetMultipleQueryAsync(long? QCTimesheetID);
         Task<IReadOnlyList<view_QCAssignmentRM>> GetAllListByQRAsync(string Date,string Company);
+        Task<IReadOnlyList<view_QCAssignmentRM>> GetAllQCListByQRAsync(string ItemName, string QCRefNo,string TestName);
     }
 }

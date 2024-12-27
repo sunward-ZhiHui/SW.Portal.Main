@@ -102,6 +102,12 @@
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+          
+            <DxGridDataColumn Caption="Item Name" FieldName="ItemName" MinWidth="180" />
+            <DxGridDataColumn Caption="QC Reference No" FieldName="RefNo" MinWidth="180" />         
+            <DxGridDataColumn Caption="Test Name" FieldName="TestName" MinWidth="180" />
+            <DxGridDataColumn Caption="Specific Test Name" FieldName="SpecificTestName" MinWidth="200" />
+            <DxGridDataColumn Caption="Assign To" FieldName="Stage" MinWidth="200" />
             <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
@@ -110,13 +116,16 @@
                     @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn Caption="Staff Name" FieldName="AddedBy" MinWidth="180" />
-            <DxGridDataColumn Caption="Item Name" FieldName="ItemName" MinWidth="180" />
-            <DxGridDataColumn Caption="Ref No" FieldName="RefNo" MinWidth="180" />
-            <DxGridDataColumn Caption="Stage" FieldName="Stage" MinWidth="180" />
-            <DxGridDataColumn Caption="Test Name" FieldName="TestName" MinWidth="180" />
-            <DxGridDataColumn Caption="Specific Test Name" FieldName="SpecificTestName" MinWidth="200" />
-            <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180">
+           @*  <DxGridDataColumn Caption="End Date&Time" FieldName="AddedDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimeSheetForQC)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn> *@
+            <DxGridDataColumn Caption="Actual Done By" FieldName="AddedBy" MinWidth="180" />
+            <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180" Visible="false">
                 <CellDisplayTemplate>
                     @{
                         var item = (TimeSheetForQC)context.DataItem;

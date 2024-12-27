@@ -5,6 +5,7 @@ using Core.Repositories.Query.Base;
 using Dapper;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
+using NAV;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,11 +93,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("AddedByUserID", timeSheetForQC.AddedByUserID);
                         parameters.Add("AddedDate", timeSheetForQC.AddedDate);
                         parameters.Add("Action", timeSheetForQC.Action);
+                        parameters.Add("MachineAction", timeSheetForQC.MachineAction);
+                        parameters.Add("MachineName", timeSheetForQC.MachineName);
 
 
-                        var query = @"INSERT INTO TimeSheetForQC(ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
+                        var query = @"INSERT INTO TimeSheetForQC(MachineAction,MachineName,ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
                          OUTPUT  INSERTED.QCTimesheetID
-                         VALUES (@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
+                         VALUES (@MachineAction,@MachineName,@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
                         var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                         var id  = insertedId;
 
@@ -248,6 +251,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+
+        public async  Task<IReadOnlyList<view_QCAssignmentRM>> GetAllQCListByQRAsync(string ItemName, string QCRefNo, string TestName)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ItemName", ItemName);
+                parameters.Add("QCRefNo", QCRefNo);
+                parameters.Add("TestName", TestName);
+                var query = @"select * from view_QCAssignmentRM where Description =@ItemName and QCReferenceNo =@QCRefNo and Test =@TestName";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<view_QCAssignmentRM>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

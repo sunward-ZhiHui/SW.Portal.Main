@@ -33,8 +33,9 @@
     }
     public class InsertTimeSheetQCModel
     {
-        public string? Date { get; set; }
-        public string? Company { get; set; }
+        public string? ScanResult { get; set; }
+        public string? MachineName { get; set; }
+        public long? MachineAction { get; set; }
         public string? FileName { get; set; }
         public IFormFile? File { get; set; }
         public long? UserID { get; set; }

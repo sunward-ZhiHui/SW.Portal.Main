@@ -22,6 +22,9 @@ namespace Core.Entities
         public bool? QRcode { get; set; }
         public string? SpecificTestName { get;set; }
         public long? ActivityStatusId { get; set; }
+        public long? MachineAction { get; set; }
+        public string? MachineName { get; set; }
+       
         public string? Action { get; set; }
         [NotMapped]
         public long DocumentID { get; set; }

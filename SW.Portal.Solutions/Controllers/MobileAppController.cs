@@ -18,6 +18,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using Application.Response;
+using Core.Entities.Views;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -413,16 +414,32 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        public List<view_QCAssignmentRM> QCList { get; set; }
         [HttpPost("InsertTimeSheetForQC")]
         public async Task<ResponseModel> InsertTimeSheetForQC([FromForm] Models.InsertTimeSheetQCModel value)
         {
             var response = new Services.ResponseModel<view_QCAssignmentRM>();
             ResponseModel fileresponse = new ResponseModel();
+            string[] splitArray = value.ScanResult.Split('~');
+            List<string> stringList = splitArray.ToList();
+            if (stringList.Count == 2)
+            {
+
+               QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllListByQRAsync(stringList[0], stringList[1]);
+            }
+
+            if (stringList.Count == 5)
+            {
+                QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllQCListByQRAsync(stringList[0], stringList[1], stringList[3]);
+
+            }
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                var userNotifications = await _qcTimeSheetQueryRepository.GetAllListByQRAsync(value.Date, value.Company);
-                var Results = (List<view_QCAssignmentRM>)userNotifications;
+               
+               
+                var Results = QCList;
                 // Assign the list of results
                 if (Results.Count > 0)
                 {
@@ -446,6 +463,8 @@ namespace SW.Portal.Solutions.Controllers
                             SpecificTestName = result.SpecificTest,
                             AddedByUserID = value.UserID,
                             Action =value.Action,
+                            MachineAction = value.MachineAction,
+                            MachineName = value.MachineName,
 
                         };
 
@@ -558,20 +577,62 @@ namespace SW.Portal.Solutions.Controllers
             }
             return fileresponse;
         }
-        [HttpGet("GetListFromQRCode")]
-        public async Task<ActionResult<Services.ResponseModel<List<view_QCAssignmentRM>>>> GetListFromQRCode(string Date , string company)
+        [HttpGet("GetQCMachineStatus")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ApplicationMasterDetail>>>> GetQCMachineStatus()
         {
-            var response = new Services.ResponseModel<view_QCAssignmentRM>();
+
+            var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
+
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(425));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                var userNotifications = await _qcTimeSheetQueryRepository.GetAllListByQRAsync(Date,company);
-                response.Results = (List<view_QCAssignmentRM>)userNotifications; // Assign the list of results
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
             }
             catch (Exception ex)
             {
                 response.ResponseCode = Services.ResponseCode.Failure;
                 response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetListFromQRCode")]
+        public async Task<ActionResult<Services.ResponseModel<List<view_QCAssignmentRM>>>> GetListFromQRCode(string ScanResult)
+        {
+            var response = new Services.ResponseModel<view_QCAssignmentRM>();
+            string[] splitArray = ScanResult.Split('~');
+            List<string> stringList = splitArray.ToList();
+            if(stringList.Count == 2)
+            {
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    var userNotifications = await _qcTimeSheetQueryRepository.GetAllListByQRAsync(stringList[0], stringList[1]);
+                    response.Results = (List<view_QCAssignmentRM>)userNotifications; // Assign the list of results
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+
+            }
+
+            if (stringList.Count == 5)
+            {
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    var userNotifications = await _qcTimeSheetQueryRepository.GetAllQCListByQRAsync(stringList[0], stringList[1], stringList[3]);
+                    response.Results = (List<view_QCAssignmentRM>)userNotifications; // Assign the list of results
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+
             }
 
             return Ok(response);

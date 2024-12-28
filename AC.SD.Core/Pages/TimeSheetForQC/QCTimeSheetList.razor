@@ -104,26 +104,26 @@
             </DxGridDataColumn>
           
             <DxGridDataColumn Caption="Item Name" FieldName="ItemName" MinWidth="180" />
-            <DxGridDataColumn Caption="QC Reference No" FieldName="RefNo" MinWidth="180" />         
+            <DxGridDataColumn Caption="QC Reference No" FieldName="RefNo" MinWidth="180" GroupIndex="0" />         
             <DxGridDataColumn Caption="Test Name" FieldName="TestName" MinWidth="180" />
             <DxGridDataColumn Caption="Specific Test Name" FieldName="SpecificTestName" MinWidth="200" />
             <DxGridDataColumn Caption="Assign To" FieldName="Stage" MinWidth="200" />
-            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
+            <DxGridDataColumn Caption="Start Date&Time" FieldName="StartDate" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
                         var item = (TimeSheetForQC)context.DataItem;
                     }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                    @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-           @*  <DxGridDataColumn Caption="End Date&Time" FieldName="AddedDate" MinWidth="180">
+          <DxGridDataColumn Caption="End Date&Time" FieldName="EndDate" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
                         var item = (TimeSheetForQC)context.DataItem;
                     }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                    @Application.Common.Helper.Helper.FormatDateTime(item.EndDate)
                 </CellDisplayTemplate>
-            </DxGridDataColumn> *@
+            </DxGridDataColumn> 
             <DxGridDataColumn Caption="Actual Done By" FieldName="AddedBy" MinWidth="180" />
             <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180" Visible="false">
                 <CellDisplayTemplate>

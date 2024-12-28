@@ -29,7 +29,7 @@ namespace Infrastructure.Repository.Query
               
                 var query = @"select AU.UserName as AddedBy,DC.DocumentID,DC.FilePath,DC.IsNewPath,DC.SessionID as DocumentSessionId,DC.IsLocked,DC.LockedByUserId,
                             DC.UniqueSessionID,DC.ContentType,DC.FileName,QC.ItemName,QC.RefNo,QC.Stage,QC.AddedDate,QC.SpecificTestName,
-                            QC.QRcode,QC.TestName,QC.SessionID,QC.QCTimesheetID,QC.Comment,AE.EmailTopicSessionId,AE.SessionId as ActivitySessionID
+                            QC.QRcode,QC.TestName,QC.SessionID,QC.QCTimesheetID,QC.Comment,AE.EmailTopicSessionId,AE.SessionId as ActivitySessionID,QC.StartDate,QC.EndDate
                             From TimeSheetForQC QC
                             Left Join Documents DC on DC.SessionID = QC.SessionID
                             Left Join ApplicationUser AU on AU.UserID = QC.AddedByUserID 
@@ -95,11 +95,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Action", timeSheetForQC.Action);
                         parameters.Add("MachineAction", timeSheetForQC.MachineAction);
                         parameters.Add("MachineName", timeSheetForQC.MachineName);
+                        parameters.Add("StartDate", timeSheetForQC.StartDate);
+                        parameters.Add("EndDate", timeSheetForQC.EndDate);
 
-
-                        var query = @"INSERT INTO TimeSheetForQC(MachineAction,MachineName,ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
+                        var query = @"INSERT INTO TimeSheetForQC(EndDate,StartDate,MachineAction,MachineName,ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
                          OUTPUT  INSERTED.QCTimesheetID
-                         VALUES (@MachineAction,@MachineName,@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
+                         VALUES (@EndDate,@StartDate,@MachineAction,@MachineName,@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
                         var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                         var id  = insertedId;
 

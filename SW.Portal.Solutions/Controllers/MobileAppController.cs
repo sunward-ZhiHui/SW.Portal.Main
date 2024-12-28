@@ -414,10 +414,13 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+
         public List<view_QCAssignmentRM> QCList { get; set; }
         [HttpPost("InsertTimeSheetForQC")]
         public async Task<ResponseModel> InsertTimeSheetForQC([FromForm] Models.InsertTimeSheetQCModel value)
         {
+            DateTime? Startdate = null;
+            DateTime? Enddate = null;
             var response = new Services.ResponseModel<view_QCAssignmentRM>();
             ResponseModel fileresponse = new ResponseModel();
             string[] splitArray = value.ScanResult.Split('~');
@@ -443,7 +446,14 @@ namespace SW.Portal.Solutions.Controllers
                 // Assign the list of results
                 if (Results.Count > 0)
                 {
-
+                    if (value.Action == "Start")
+                    {
+                        Startdate = DateTime.Now;
+                    }
+                    else
+                    {
+                        Enddate = DateTime.Now;
+                    }
 
                     foreach (var result in Results)
                     {
@@ -465,12 +475,14 @@ namespace SW.Portal.Solutions.Controllers
                             Action =value.Action,
                             MachineAction = value.MachineAction,
                             MachineName = value.MachineName,
-
+                            StartDate = Startdate,
+                            EndDate = Enddate,
                         };
 
                         var Result = await _mediator.Send(lst);
+                        var FileName = value.FileName;
 
-                        if (value.FileName != null)
+                        if (FileName != null)
                         {
 
                             var QCsessionID = await _qcTimeSheetQueryRepository.GetAllQCTimeSheetAsync(Result);
@@ -565,6 +577,7 @@ namespace SW.Portal.Solutions.Controllers
                                
                             }
                         }
+
                         response.Results = Results;
 
                     }

@@ -507,7 +507,7 @@
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
                                             }
                                         });
                                     }

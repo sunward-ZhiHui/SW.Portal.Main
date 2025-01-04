@@ -57,7 +57,7 @@
                         <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                             <div class="mailbox-read-info">
                                 <h3>@item.Name</h3>
-                                
+
                                 @if (item.DueDate != null)
                                 {
                                     <div class="mailbox-read-time" style="float:right;">
@@ -167,8 +167,8 @@
                         </div>
 
 
-                       @*  @{
-                            
+                        @*  @{
+
                             using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
                             byte[] fileContent1 = item.FileData;
                             server.LoadDocument(fileContent1);
@@ -183,7 +183,7 @@
 
 
 
-                         @* <CopyToClipboardButton Text="htmlContent" />
+                        @* <CopyToClipboardButton Text="htmlContent" />
                             <p class="uk-text-success">
                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
                 </p> *@
@@ -195,7 +195,13 @@
                                     <div class="">
                                         @foreach (var attachment in item.documents)
                                         {
-                                            <div class="tag handline"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                            <div class="tag handline">
+                                                <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+                                                <div class="options">
+                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                </div>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -245,7 +251,7 @@
                                 <p style="color: #5151b3;" class="handline">@item.ReplyConversation.Count() replies </p>
                                 @if (@item.ReplyConversation != null && @item.ReplyConversation.Any())
                                 {
-                                   
+
                                     @foreach (var items in @item.ReplyConversation)
                                     {
                                         <div class="lstcoversationrply @((items.IsRead.GetValueOrDefault(false) || items.IsRead == null ? "markasread" : "markasunread"))">
@@ -288,7 +294,7 @@
                                                         }
                                                     }
 
-                                                   
+
                                                 </h5>
                                             </div>
 
@@ -308,14 +314,20 @@
                                             }
                                             else
                                             {
-                                               
+
                                             }
 
                                             @if (items.documents != null && items.documents.Any())
                                             {
                                                 @foreach (var attachment in items.documents)
                                                 {
-                                                    <div class="tag handline"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                    <div class="tag handline">
+                                                        <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+                                                        <div class="options">
+                                                            <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                            <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                        </div>
+                                                    </div>
                                                 }
                                             }
                                             @if (items.ReplyConversation != null && items.ReplyConversation.Count() > 0)
@@ -328,47 +340,47 @@
                                                         <p style="color: #5151b3;" class="handline">@items.ReplyConversation.Count() replies </p>
                                                         @if (@items.ReplyConversation != null && @items.ReplyConversation.Any())
                                                         {
-                                                               
-                                                        @foreach (var itm in @items.ReplyConversation)
-                                                        {
-                                                            <div class="lstcoversationrply">
-                                                                <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
-                                                                    <h3>@itm.Name</h3>
-                                                                    <h5>
 
-                                                                        From: @itm.UserName
-                                                                        <br>
+                                                            @foreach (var itm in @items.ReplyConversation)
+                                                            {
+                                                                <div class="lstcoversationrply">
+                                                                    <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
+                                                                        <h3>@itm.Name</h3>
+                                                                        <h5>
+
+                                                                            From: @itm.UserName
+                                                                            <br>
                                                                             <span class="mailbox-read-time" style="float:right;">@Application.Common.Helper.Helper.FormatDateTime(@itm.AddedDate)</span>
-                                                                        To:
-                                                                        @if (itm.AssignToList != null && itm.AssignToList.Any())
-                                                                        {
-                                                                            @foreach (var itms in itm.AssignToList)
+                                                                            To:
+                                                                            @if (itm.AssignToList != null && itm.AssignToList.Any())
                                                                             {
-                                                                                <span>@itms.FirstName ,</span>
+                                                                                @foreach (var itms in itm.AssignToList)
+                                                                                {
+                                                                                    <span>@itms.FirstName ,</span>
+                                                                                }
                                                                             }
-                                                                        }
-                                                                        <br>
+                                                                            <br>
 
-                                                                        @if (itm.AssignCCList != null && itm.AssignCCList.Any())
-                                                                        {
-                                                                            <text>CC:</text>
-                                                                            @foreach (var itms in itm.AssignCCList)
+                                                                            @if (itm.AssignCCList != null && itm.AssignCCList.Any())
                                                                             {
-                                                                                <span>@itms.FirstName ,</span>
+                                                                                <text>CC:</text>
+                                                                                @foreach (var itms in itm.AssignCCList)
+                                                                                {
+                                                                                    <span>@itms.FirstName ,</span>
+                                                                                }
                                                                             }
-                                                                        }
-                                                                    </h5>
-                                                                </div>                                                                   
-                                                                @if (itm.documents != null && itm.documents.Any())
-                                                                {
-                                                                    @foreach (var attachment in itm.documents)
+                                                                        </h5>
+                                                                    </div>                                                                   
+                                                                    @if (itm.documents != null && itm.documents.Any())
                                                                     {
-                                                                        <div class="tag handline"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        @foreach (var attachment in itm.documents)
+                                                                        {
+                                                                            <div class="tag handline"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        }
                                                                     }
-                                                                }
-                                                            </div>
-                                                        }
-                                                                
+                                                                </div>
+                                                            }
+
                                                         }
                                                     </div>
                                                 </div>
@@ -378,7 +390,7 @@
 
                                     }
 
-                                    
+
                                 }
                             </div>
                         </div>
@@ -417,7 +429,8 @@
     internal string? BaseUrl;
     internal string? ProductActivityBaseUrl;
     internal string? DocumentViewUrl;
-
+    string SelectedGroup = "none";
+    string isLeftMenuvisible = "All";
     async Task PrintPage()
     {
         //await JSRuntime.InvokeVoidAsync("printPage");
@@ -468,13 +481,14 @@
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
-        
+
         if (Page != null)
         {
             string sessionidString = TopicSessionId.ToString();
             var lsts = await Mediator.Send(new GetListBySession(sessionidString));
             if (lsts.Count > 0)
             {
+                SelectedGroup = lsts[0].ID.ToString();
                 await JSRuntime.InvokeAsync<string>("showLoading");                
                 _discussionList = await Mediator.Send(new GetEmailPrintAllDiscussionList(lsts[0].ID, applicationUser.UserID, Page));
                 await JSRuntime.InvokeAsync<string>("hideLoading");
@@ -486,6 +500,7 @@
             var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
             if (lsts.Count > 0)
             {
+                SelectedGroup = lsts[0].TopicID.ToString();
                 await JSRuntime.InvokeAsync<string>("showLoading");
                 _discussionList = await Mediator.Send(new GetEmailPrintReplyDiscussionList(lsts[0].ID, applicationUser.UserID));
                 await JSRuntime.InvokeAsync<string>("hideLoading");
@@ -513,6 +528,45 @@
         //NavigationManager.LocationChanged -= OnLocationChanged;
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
+    }
+     public async Task onDocDownload_old(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        // var url = FileUrl + lst.FilePath;
+        // await OpenUrlInNewTab(url);
+
+
+        var response = await Mediator.Send(new GetFileDownload(Id));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", lst.FileName, response.ImageData, "");
+        }
+
+
+    }
+    public async Task onDocDownload(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+        var lst = _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        if (lst != null)
+        {
+            //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+            var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 
 }

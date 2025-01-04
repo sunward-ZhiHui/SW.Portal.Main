@@ -144,7 +144,7 @@ namespace Infrastructure.Repository.Query
                 query += "select  *,CONCAT(ItemNo,'|',Description) as ItemNoDescription from RawMatItemList;";
                 fddds = fddds != null && fddds.Count > 0 ? fddds : new List<string?>() { "0" };
                 query += "select t11.CompanyId,t11.NAVProdOrderLineId,t11.ItemNo,t11.Description,t11.Description1,t11.BatchNo,t11.RePlanRefNo,CONCAT(t11.ProdOrderNo,'|',t11.Description,(case when ISNULL(NULLIF(t11.Description1, ''), null) is NULL then  t11.Description1 ELSE  CONCAT(' | ',Description1) END)) as ProdOrderNoDesc from NavprodOrderLine t11 " +
-                    "where t11.RePlanRefNo  in(" + string.Join(",", fddds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
+                    ";";
 
 
                 query += "select * From ProdOrderMultiple PM " +
@@ -359,16 +359,22 @@ namespace Infrastructure.Repository.Query
                 else if (value.ActionType == "TimeSheetV1")
                 {
                     query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
-                   ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,t2.StatusType,t2.FPDD,t2.ProcessDD,t2.RawMaterialDD,t2.PackingMaterialDD,t2.Others,t2.FixedAsset,
-                    'Production Routine' as Type,
+                   ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,t2.StatusType,t2.FPDD,t2.ProcessDD,t2.RawMaterialDD,t2.PackingMaterialDD,t2.Others,t2.FixedAsset,PM.FPDDMultiple,
+                    'Production Routine' as Type, (select Top 1 Concat(RePlanRefNo,'|',Description,'|',BatchNo) From NAVProdOrderLine where RePlanRefNo = PM.FPDDMultiple) as FPDDName,
+					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.processDDMultiple) as ProcessDDName,
+					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.RawMaterialDDMultiple) as RawMaterialDDName,
+					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.PackingMaterialDDMultiple) as PackingMaterialDDName,
+                    (select Top 1 Concat(RePlanRefNo,'|',Description,'|',BatchNo) From ReleaseProdOrderLine where RePlanRefNo = PM.ReleaseProdOrderNameMultiple) as ReleaseProdOrderLineDDName,
+                    (select Top 1 Concat(Value,'|',Description) From ApplicationMasterDetail where ApplicationMasterDetailID = PM.ProductNameMultiple) as ProductDDName,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
-                    (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId,AUD.Value as StatusName,t2.StatusID
-                    from ProductionActivityRoutineAppLine t1 
-                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID  AND t2.ActionType = 'TimeSheetV1'
+                    (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId,CM.CodeValue as StatusName,t2.StatusID
+                    from ProductionActivityRoutineApp t2
+                    JOIN ProductionActivityRoutineAppLine t1 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID  AND t2.ActionType = 'TimeSheetV1'
                     JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
-					
+					Left Join ProdOrderMultiple PM ON PM.ProductionActivityRoutineAppLineId = t1.ProductionActivityRoutineAppLineID
                     LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
-					Left JOIN ApplicationMasterDetail AUD ON AUD.ApplicationMasterDetailID = t2.StatusID
+					
+					Left JOIN CodeMaster CM ON CM.CodeID = t2.StatusID
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityRoutineAppLineID>0";
 
@@ -796,19 +802,23 @@ namespace Infrastructure.Repository.Query
                         }
                         if (s.StatusType == "FP" && !string.IsNullOrEmpty(s.FPDD))
                         {
-                            productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId == s.CompanyID)?.ProdOrderNoDesc;
+                            //productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId == s.CompanyID)?.ProdOrderNoDesc;
+                            productActivityApp.FPDDName = s.FPDDName;
                         }
                         if (s.StatusType == "Process" && !string.IsNullOrEmpty(s.ProcessDD))
                         {
-                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.ProcessDD)?.ItemNoDescription;
+                            // productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.ProcessDD)?.ItemNoDescription;
+                            productActivityApp.FPDDName = s.ProcessDDName;
                         }
                         if (s.StatusType == "Packing Material" && !string.IsNullOrEmpty(s.PackingMaterialDD))
                         {
-                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.PackingMaterialDD)?.ItemNoDescription;
+                            //productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.PackingMaterialDD)?.ItemNoDescription;
+                            productActivityApp.FPDDName = s.PackingMaterialDDName;
                         }
                         if (s.StatusType == "Raw Material" && !string.IsNullOrEmpty(s.RawMaterialDD))
                         {
-                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.RawMaterialDD)?.ItemNoDescription;
+                            productActivityApp.FPDDName = s.RawMaterialDDName;
+                            //productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.RawMaterialDD)?.ItemNoDescription;
                         }
                         productActivityApp.MasterProductionFileProfileTypeId = s.MasterProductionFileProfileTypeId;
                         productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
@@ -1755,6 +1765,7 @@ namespace Infrastructure.Repository.Query
 					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.processDDMultiple) as ProcessDDName,
 					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.RawMaterialDDMultiple) as RawMaterialDDName,
 					(select Top 1 Concat(ItemNo,'|',Description) From RawMatItemList where ItemNo = PM.PackingMaterialDDMultiple) as PackingMaterialDDName,
+                    (select Top 1 Concat(RePlanRefNo,'|',Description,'|',BatchNo) From ReleaseProdOrderLine where RePlanRefNo = PM.ReleaseProdOrderNameMultiple) as ReleaseProdOrderLineDDName,
                     (select Top 1 Concat(Value,'|',Description) From ApplicationMasterDetail where ApplicationMasterDetailID = PM.ProductNameMultiple) as ProductDDName,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
                     (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId,CM.CodeValue as StatusName,t2.StatusID
@@ -1873,7 +1884,7 @@ namespace Infrastructure.Repository.Query
                 {
                     query += "\n\rAND t1.AddedByUserID=@AddedByUserID";
                 }
-                if (value.AddedByUserID >0)
+                if (value.AddedByUserID > 0)
                 {
                     query += "\n\rAND t1.AddedByUserID=@AddedByUserID";
                 }
@@ -2091,23 +2102,28 @@ namespace Infrastructure.Repository.Query
                         }
                         if (s.StatusType == "FP")
                         {
+                            //productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId == s.CompanyID)?.ProdOrderNoDesc;
                             productActivityApp.FPDDName = s.FPDDName;
                         }
                         if (s.StatusType == "Process")
                         {
+                            // productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.ProcessDD)?.ItemNoDescription;
                             productActivityApp.FPDDName = s.ProcessDDName;
                         }
                         if (s.StatusType == "Packing Material")
                         {
+                            //productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.PackingMaterialDD)?.ItemNoDescription;
                             productActivityApp.FPDDName = s.PackingMaterialDDName;
                         }
                         if (s.StatusType == "Raw Material")
                         {
                             productActivityApp.FPDDName = s.RawMaterialDDName;
+                            //productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.RawMaterialDD)?.ItemNoDescription;
                         }
-                        if (s.StatusType == "Product Name")
+                        if (s.StatusType == "Release ProdOrderLine")
                         {
-                            productActivityApp.FPDDName = s.ProductDDName;
+                            productActivityApp.FPDDName = s.ReleaseProdOrderLineDDName;
+                            //productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.RawMaterialDD)?.ItemNoDescription;
                         }
                         productActivityApp.MasterProductionFileProfileTypeId = s.MasterProductionFileProfileTypeId;
                         productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
@@ -2135,7 +2151,7 @@ namespace Infrastructure.Repository.Query
                                 productActivityApp.RoutineStatus = s.RoutineStatusId > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine status".ToLower())?.Text : string.Empty;
                                 productActivityApp.ProdActivityResult = s.RoutineStatusId > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine Result".ToLower())?.Text : string.Empty;
                             }
-                                var nameList = string.Empty;
+                            var nameList = string.Empty;
                             if (routineInfoIdss.Count > 0)
                             {
                                 routineInfoIdss.ForEach(x =>

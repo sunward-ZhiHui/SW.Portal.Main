@@ -178,6 +178,7 @@ namespace Infrastructure
             services.AddScoped<IDocumentProfileNoSeriesQueryRepository, DocumentProfileNoSeriesQueryRepository>();
             services.AddScoped<IPageContext, PageContext>();
             services.AddScoped<IHandFireJobQueryRepository, HandFireJobQueryRepository>();
+            services.AddScoped<IRegistrationRequestQueryRepository, RegistrationRequestQueryRepository>();
             return services;
         }
     }

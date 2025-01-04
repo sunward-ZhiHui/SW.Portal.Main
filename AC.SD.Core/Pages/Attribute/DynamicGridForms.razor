@@ -5307,6 +5307,10 @@
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
                             }
+                            else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                            {
+                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{4}|{5}");
+                            }
                             else
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5663,6 +5667,10 @@
                             else if (s.DataSourceTable == "RawMatPurch")
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                            }
+                            else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                            {
+                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                             }
                             else
                             {
@@ -6182,6 +6190,10 @@
                {
                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
                }
+               else if (ff.DataSourceTable == "ReleaseProdOrderLine")
+                {
+                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{4}|{5}");
+                }
                else
                {
                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
@@ -6905,6 +6917,10 @@
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
                        }
+                       else if (q.DataSourceTable == "ReleaseProdOrderLine")
+                        {
+                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
+                        }
                        else
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
@@ -7077,6 +7093,10 @@
                        else if (q.DataSourceTable == "RawMatPurch")
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
+                       }
+                       else if (q.DataSourceTable == "ReleaseProdOrderLine")
+                       {
+                           editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                        }
                        else
                        {

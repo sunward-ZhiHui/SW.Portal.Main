@@ -16,5 +16,6 @@ namespace Core.Entities
         public string PackingMaterialDDMultiple { get; set; }
         public long? ProductNameMultiple { get; set; }
         public string Type { get; set; }
+        public string? ReleaseProdOrderNameMultiple { get; set; }
     }
 }

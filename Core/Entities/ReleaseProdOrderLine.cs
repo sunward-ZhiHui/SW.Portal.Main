@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,5 +34,9 @@ namespace Core.Entities
         public DateTime? PrePrintedStartDate { get; set; }
         public bool? ProduceExactQuantity { get; set; } = false;
         public long? ItemId { get; set; }
+        [NotMapped]
+        public string? Name { get; set; }
+        [NotMapped]
+        public string? BatchNos { get; set; }
     }
 }

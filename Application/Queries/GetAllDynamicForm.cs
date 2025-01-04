@@ -306,6 +306,16 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
+    public class DeleteDynamicFormDataAssignUser : DynamicFormDataAssignUser, IRequest<long>
+    {
+        public long? Id { get; set; }
+        public List<long?> Ids { get; set; }
+        public DeleteDynamicFormDataAssignUser(long? id, List<long?> ids)
+        {
+            this.Id = id;
+            this.Ids = ids;
+        }
+    }
     public class InsertDynamicFormApproved : DynamicFormApproved, IRequest<DynamicFormApproved>
     {
 

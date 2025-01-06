@@ -59,6 +59,14 @@ namespace Application.Queries
             this.companyID = companyid;
         }
     }
+    public class GetAllReleaseProdOrderLineAppQuery : PagedRequest, IRequest<List<ReleaseProdOrderLine>>
+    {
+        public long? companyID { get; set; }
+        public GetAllReleaseProdOrderLineAppQuery(long? companyid)
+        {
+            this.companyID = companyid;
+        }
+    }
     public class GetSupportingDocuments : PagedRequest, IRequest<List<DocumentsModel>>
     {
         public long? ProductionActivityPlanningAppLineID { get; set; }

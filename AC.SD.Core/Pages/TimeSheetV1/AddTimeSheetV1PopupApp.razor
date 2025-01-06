@@ -20,7 +20,7 @@
         width: 100%;
         height: auto;
     }
-  
+
     .zero-width-label label {
         width: 0px !important
     }
@@ -43,7 +43,7 @@
         </div>
     </div>
 </div>
-
+<div class="" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 210px);">
 <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
 
     <DataAnnotationsValidator />
@@ -295,7 +295,6 @@
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="11" Visible="@FPVisible">
             <DxTagBox NullText="Select FP..."
-                   
                       Data="@_ponumberActivities"
                       SearchMode="ListSearchMode.AutoSearch"
                       SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -304,21 +303,48 @@
                       ValueFieldName="ProdOrderNo"
                       @bind-Values="@Data.FPDDIds"
                       CssClass="cw-480">
-    
-      
+
+
                 <Columns>
 
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
                     <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />
                 </Columns>
-                
-      
+
+
             </DxTagBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@FPVisible">
             <DxButton IconCssClass="fa fa-qrcode"
                       Click="@(_ => OnButtonFPClick())">
+            </DxButton>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Release ProdOrder Multiple:" ColSpanMd="11" Visible="@ReleaseProdOrderLineVisible">
+            <DxTagBox NullText="Select Release ProdOrder..."
+                      Data="@_ReleaseProdOrderLineList"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="Name"
+                      ValueFieldName="ProdOrderNo"
+                      @bind-Values="@Data.ReleaseProdOrderLineDDIds"
+                      CssClass="cw-480">
+
+
+                <Columns>
+
+                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.ProdOrderNo)" Caption="ProdOrder No" />
+                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.BatchNo)" Caption="Batch No" />
+                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.Description)" Caption="Description" />
+                </Columns>
+
+
+            </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ReleaseProdOrderLineVisible">
+            <DxButton IconCssClass="fa fa-qrcode"
+                      Click="@(_ => OnButtonReleaseClick())">
             </DxButton>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="11" Visible="@ProcessVisible">
@@ -408,6 +434,7 @@
 
     </DxFormLayout>
 </EditForm>
+</div>
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
@@ -484,7 +511,21 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePackingMaterialDDPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupReleaseScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Release ProdOrder" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_ReleaseReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="ReleaseDDReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseReleaseDDPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool PopupReleaseScanVisible { get; set; } = false;
     private List<ViewPlants> _plantItems;
     [Parameter]
     public ProductionActivityRoutineAppModel? _selectedEditItems { get; set; }
@@ -494,6 +535,7 @@
     public Guid? UploadSessionId { get; set; }
     EditContext _editContext;
     private List<View_ApplicationMasterDetail> _ProductNameList;
+    private List<ReleaseProdOrderLine> _ReleaseProdOrderLineList;
     private List<CodeMaster> _StatusList;
     // [Parameter]
     // public IEnumerable _poOrderDetails { get; set; }
@@ -536,7 +578,7 @@
     string timesheetMasterParentid = "-1";
     long timesheetMasterchildid = -1;
 
-    List<string> StatusTypeList = new List<string>() { "FP", "Process", "Raw Material", "Packing Material", "Fixed Asset", "Product Name" };
+    List<string> StatusTypeList = new List<string>() { "FP", "Process", "Raw Material", "Packing Material", "Fixed Asset", "Product Name", "Release ProdOrderLine" };
     bool PopupFPDDScanVisible { get; set; } = false;
     bool PopupProcessDDScanVisible { get; set; } = false;
     bool PopupRawMaterialDDScanVisible { get; set; } = false;
@@ -544,13 +586,13 @@
     private BarcodeReader _ProcessReader;
     private BarcodeReader _FPReader;
     private BarcodeReader _RawMaterialReader;
-    private BarcodeReader _PackingMaterialReader;
+    private BarcodeReader _PackingMaterialReader; private BarcodeReader _ReleaseReader;
     // private BarcodeReader _FPReader;
     private string? FPDD;
     private string? Process;
     private string? RawMaterial;
     private string? PackingMaterial;
-    bool FPVisible { get; set; } = false;
+    bool FPVisible { get; set; } = false; bool ReleaseProdOrderLineVisible { get; set; } = false;
     bool ProcessVisible { get; set; } = false;
     bool RawMaterialVisible { get; set; } = false;
     bool PackingMaterialVisible { get; set; } = false;
@@ -558,7 +600,7 @@
     bool EnableStatus { get; set; } = false;
     string StatusType;
     // IEnumerable<NavprodOrderLineModel> FPDDIds { get; set; }
-    public List<string?> FPDDIds { get; set; } = new List<string?>();
+    public List<string?> FPDDIds { get; set; } = new List<string?>(); public List<string?> ReleaseDDIds { get; set; } = new List<string?>();
     public List<string?> ProcessDDIds { get; set; } = new List<string?>();
     public List<string?> RawMaterialDDIds { get; set; } = new List<string?>();
     public List<string?> PackingMaterialDDIds { get; set; } = new List<string?>();
@@ -636,6 +678,7 @@
 
             Data.FPDDIds = _selectedEditItems.FPDDIds;
             Data.ProcessDDIds = _selectedEditItems.ProcessDDIds;
+            Data.ReleaseProdOrderLineDD = _selectedEditItems.ReleaseProdOrderLineDD;
             Data.RawMaterialDDIds = _selectedEditItems.RawMaterialDDIds;
             Data.PackingMaterialDDIds = _selectedEditItems.PackingMaterialDDIds;
             Data.ProductNameIds = _selectedEditItems.ProductNameIds;
@@ -761,6 +804,16 @@
                 PackingMaterialVisible = false;
                 ProductNameVisible = true;
             }
+            if (StatusType == "Release ProdOrderLine")
+            {
+                _ReleaseProdOrderLineList = await Mediator.Send(new GetAllReleaseProdOrderLineAppQuery(Data.CompanyID));
+                FPVisible = false;
+                ProcessVisible = false;
+                RawMaterialVisible = false;
+                PackingMaterialVisible = false;
+                ProductNameVisible = false;
+                ReleaseProdOrderLineVisible = true;
+            }
             // SelectedTypeItems(_selectedEditItems.StatusType);
         }
         StateHasChanged();
@@ -795,6 +848,7 @@
         Data.FixedAsset = null;
         Data.Others = null;
         Data.FPDDIds = null;
+        Data.ReleaseProdOrderLineDDIds = null; Data.ReleaseProdOrderLineDD = null;
         Data.ProcessDDIds = null;
         Data.PackingMaterialDDIds = null;
         Data.RawMaterialDDIds = null;
@@ -804,6 +858,7 @@
         addEnabled = true; saveEnabled = true;
         IDictionary<string, object> dynamicsData = new ExpandoObject();
         FPVisible = false;
+        _ReleaseProdOrderLineList = new List<ReleaseProdOrderLine>(); ReleaseProdOrderLineVisible = false;
         ProcessVisible = false;
         RawMaterialVisible = false;
         PackingMaterialVisible = false; _ActivityStatusItem = new List<DropDownOptionsListModel>(); _ActivityResult = new List<DropDownOptionsListModel>(); _ActivityMaster = new List<DropDownOptionsListModel>();
@@ -1026,6 +1081,8 @@
                 RawMaterialDDIds = Data.RawMaterialDDIds,
                 PackingMaterialDDIds = Data.PackingMaterialDDIds,
                 ProductNameIds = Data.ProductNameIds,
+                ReleaseProdOrderLineDDIds=Data.ReleaseProdOrderLineDDIds,
+                ReleaseProdOrderLineDD=Data.ReleaseProdOrderLineDD,
                 StatusID = Data.StatusID,
                 TimeSheetAction = true,
                 LotNo = Data.LotNo,
@@ -1181,6 +1238,10 @@
     {
         PopupFPDDScanVisible = true;
     }
+    void OnButtonReleaseClick()
+    {
+        PopupReleaseScanVisible = true;
+    }
     void OnButtonProcessClick()
     {
         PopupProcessDDScanVisible = true;
@@ -1319,6 +1380,36 @@
         StateHasChanged();
         CloseFPDDPopup();
     }
+    async Task ReleaseDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        FPDD = args.BarcodeText;
+
+        if (FPDD != null)
+        {
+            var Fpdd = _ReleaseProdOrderLineList.Where(f => f.ProdOrderNo == FPDD).ToList();
+            if (Fpdd.Count > 0)
+            {
+
+                if (ReleaseDDIds.Contains(FPDD) == false)
+                {
+                    ReleaseDDIds.Add(FPDD);
+                }
+            }
+            else
+            {
+                toastService.ShowToast("Invaild Release ProdOrder", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            Data.ReleaseProdOrderLineDDIds = new List<string?>(ReleaseDDIds);
+
+        }
+        else
+        {
+            toastService.ShowToast("Invaild Release ProdOrder", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+        StateHasChanged();
+        CloseFPDDPopup();
+    }
     void CloseFPDDPopup()
     {
         PopupFPDDScanVisible = false;
@@ -1341,6 +1432,12 @@
     {
         PopupPackingMaterialDDScanVisible = false;
         _PackingMaterialReader.StopDecoding();
+        StateHasChanged();
+    }
+    void CloseReleaseDDPopup()
+    {
+        PopupRawMaterialDDScanVisible = false;
+        _ReleaseReader.StopDecoding();
         StateHasChanged();
     }
 
@@ -1415,6 +1512,16 @@
             RawMaterialVisible = false;
             PackingMaterialVisible = false;
             ProductNameVisible = true;
+        }
+        else if (type == "Release ProdOrderLine")
+        {
+            _ReleaseProdOrderLineList = await Mediator.Send(new GetAllReleaseProdOrderLineAppQuery(Data.CompanyID));
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+            ProductNameVisible = false;
+            ReleaseProdOrderLineVisible = true;
         }
         else
         {
@@ -1493,12 +1600,12 @@
             _AppLines.Clear();
             _AppLines = null;
         }
-        if(_ProductNameList != null)
+        if (_ProductNameList != null)
         {
             _ProductNameList.Clear();
             _ProductNameList = null;
         }
-        if(_plantItems != null)
+        if (_plantItems != null)
         {
             _plantItems.Clear();
             _plantItems = null;
@@ -1513,8 +1620,8 @@
         DataLine = null;
         FPDDIds = null;
         ProcessDDIds = null;
-         RawMaterialDDIds = null;
-          PackingMaterialDDIds = null;
+        RawMaterialDDIds = null;
+        PackingMaterialDDIds = null;
         //System.GC.Collect();
         // GC.SuppressFinalize(this);
     }

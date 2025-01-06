@@ -92,7 +92,7 @@ namespace Core.Entities
         public string? ActivityProfileNo { get; set; }
         public long? FileProfileTypeId { get; set; }
 
-       
+        public string? ReleaseProdOrderLineDD { get; set; }
         public long? MasterProductionFileProfileTypeId { get; set; }
         public int? IsDocuments { get; set; }
         public Guid? UniqueSessionId { get; set; }
@@ -109,7 +109,7 @@ namespace Core.Entities
         public string? GetTypes { get; set; }
         public Guid? EmailSessionId { get; set; }
         public Guid? EmailActivitySessionId { get; set; }
-        public bool? TimeSheetAction { get; set; }=  false;
+        public bool? TimeSheetAction { get; set; } = false;
         public string? LotNo { get; set; }
         public string? ItemName { get; set; }
         public string? StatusType { get; set; }
@@ -118,7 +118,7 @@ namespace Core.Entities
         public string? RawMaterialDD { get; set; }
         public string? PackingMaterialDD { get; set; }
         public string? FixedAsset { get; set; }
-        public string? Others { get;  set; }
+        public string? Others { get; set; }
         [NotMapped]
         public long? EditProductionRoutineAppID { get; set; }
         public string? FPDDName { get; set; }
@@ -126,11 +126,13 @@ namespace Core.Entities
         public string? RawMaterialDDName { get; set; }
         public string? PackingMaterialDDName { get; set; }
         public string? ProductDDName { get; set; }
+        public string? ReleaseProdOrderLineDDName { get; set; }
         public IEnumerable<string?> FPDDIds { get; set; } = new List<string?>();
         public IEnumerable<string?> ProcessDDIds { get; set; } = new List<string?>();
         public IEnumerable<string?> RawMaterialDDIds { get; set; } = new List<string?>();
         public IEnumerable<string?> PackingMaterialDDIds { get; set; } = new List<string?>();
         public IEnumerable<long?> ProductNameIds { get; set; } = new List<long?>();
+        public IEnumerable<string?> ReleaseProdOrderLineDDIds { get; set; } = new List<string?>();
         public long? StatusID { get; set; }
         public string StatusName { get; set; }
         public List<ProdOrderMultiple> FPMultipleList { get; set; } = new List<ProdOrderMultiple>();
@@ -229,8 +231,8 @@ namespace Core.Entities
         public int? IsDocuments { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
-       // public long? CompanyID { get; set; }
-       // public long? LocationID { get; set; }
+        // public long? CompanyID { get; set; }
+        // public long? LocationID { get; set; }
         public List<ProductActivityPermissionModel>? ProductActivityPermissions { get; set; }
         public bool? IsCheckNoIssue { get; set; } = false;
         public bool? IsCheckReferSupportDocument { get; set; } = false;

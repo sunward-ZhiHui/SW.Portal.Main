@@ -6783,7 +6783,18 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", DynamicFormId);
-                var query = "SELECT * FROM DynamicFormDataAssignUser where DynamicFormId=@DynamicFormId;";
+                var query = "select t1.AddedDate,tt6.UserName as AddedBy,t1.DynamicFormDataAssignUserId,\r\nt1.DynamicFormId,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\n" +
+                    "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
+                    "t8.Name as DesignationName,\r\n" +
+                    "CONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
+                    "from DynamicFormDataAssignUser t1\r\n" +
+                    "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                    "LEFT JOIN DynamicForm t4 ON t4.ID=t1.DynamicFormId\r\n" +
+                    "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
+                    "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                    "Left JOIN ApplicationUser tt6 ON t1.AddedByUserId=tt6.UserID\r\n" +
+                    "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE t1.DynamicFormId=@DynamicFormId";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
@@ -6810,10 +6821,67 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataAssignUser>> GetDynamicFormDataAssignUserEmptyAsync(long? DynamicFormId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", DynamicFormId);
+                var query = "select  * from DynamicFormDataAssignUser where  DynamicFormId=@DynamicFormId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAssignUser>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> DeleteDynamicFormDataAssignUser(long? Id, List<long?> Ids)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+
+                        if (Ids != null && Ids.Count > 0)
+                        {
+                            string IdList = string.Join(",", Ids);
+                            query += "Delete From DynamicFormDataAssignUser WHERE DynamicFormDataAssignUserId in (" + IdList + ");\r\n";
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        return Id.GetValueOrDefault(0);
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormDataAssignUser> InsertDynamicFormDataAssignUser(DynamicFormDataAssignUser value)
         {
             try
             {
+                var userGroupUsers = await GetUserGroupUserList();
+                var LevelUsers = await GetLeveMasterUsersList(value.SelectLevelMasterIDs);
+                var userExitsRoles = await GetDynamicFormDataAssignUserEmptyAsync(value.DynamicFormId);
                 using (var connection = CreateConnection())
                 {
                     try
@@ -6821,15 +6889,59 @@ namespace Infrastructure.Repository.Query
                         var query = string.Empty;
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormId", value.DynamicFormId);
-                        query += "Delete from  DynamicFormDataAssignUser  WHERE DynamicFormId = @DynamicFormId;";
-                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                        parameters.Add("Type", value.Type);
+                        parameters.Add("AddedByUserId", value.AddedByUserId);
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        if (value.Type == "User")
                         {
-                            foreach (var item in value.SelectUserIDs)
+                            if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                             {
-                                query += "INSERT INTO [DynamicFormDataAssignUser](DynamicFormId,UserId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
-                                         "VALUES (@DynamicFormId," + item + ");\r\n";
+                                foreach (var item in value.SelectUserIDs)
+                                {
+                                    var counts = userExitsRoles.Where(w => w.UserId == item).FirstOrDefault();
+                                    if (counts == null)
+                                    {
+                                        query += "INSERT INTO [DynamicFormDataAssignUser](AddedByUserId,AddedDate,Type,DynamicFormId,UserId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
+                                        "VALUES (@AddedByUserId,@AddedDate,@Type,@DynamicFormId," + item + ");\r\n";
+                                    }
+                                }
                             }
                         }
+                        if (value.Type == "UserGroup")
+                        {
+                            if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
+                            {
+                                var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                if (userGropuIds != null && userGropuIds.Count > 0)
+                                {
+                                    userGropuIds.ForEach(s =>
+                                    {
+                                        var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
+                                        if (counts == null)
+                                        {
+                                            query += "INSERT INTO [DynamicFormDataAssignUser](AddedByUserId,AddedDate,Type,DynamicFormId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
+                                                "VALUES (@AddedByUserId,@AddedDate,@Type,@DynamicFormId," + s.UserId + "," + s.UserGroupId + ");\r\n";
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        if (value.Type == "Level")
+                        {
+                            if (LevelUsers != null && LevelUsers.Count > 0)
+                            {
+                                LevelUsers.ToList().ForEach(s =>
+                                {
+                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
+                                    if (counts == null)
+                                    {
+                                        query += "INSERT INTO [DynamicFormDataAssignUser](AddedByUserId,AddedDate,Type,DynamicFormId,UserId,LevelId) OUTPUT INSERTED.DynamicFormDataAssignUserId " +
+                                           "VALUES (@AddedByUserId,@AddedDate,@Type,@DynamicFormId," + s.UserId + "," + s.LevelId + ");\r\n";
+                                    }
+                                });
+                            }
+                        }
+
                         if (!string.IsNullOrEmpty(query))
                         {
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);

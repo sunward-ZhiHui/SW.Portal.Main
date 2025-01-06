@@ -543,6 +543,20 @@ namespace Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids);
         }
     }
+    public class DeleteDynamicFormDataAssignUserHandler : IRequestHandler<DeleteDynamicFormDataAssignUser, long>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteDynamicFormDataAssignUserHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDynamicFormDataAssignUser request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.DeleteDynamicFormDataAssignUser(request.Id, request.Ids);
+        }
+    }
     public class InsertDynamicFormApprovedHandler : IRequestHandler<InsertDynamicFormApproved, DynamicFormApproved>
     {
         private readonly IDynamicFormQueryRepository _queryRepository;

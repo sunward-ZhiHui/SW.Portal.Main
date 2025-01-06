@@ -167,37 +167,10 @@ namespace Infrastructure.Repository.Query
             //                            AND TNH.Status = 'Open'";
 
                 var query = @"WITH DistinctTopics AS (
-                                SELECT DISTINCT ECAT.TopicId
+                                SELECT DISTINCT ECAT.ConversationId
                                 FROM EmailConversationParticipant ECAT
                                 WHERE ECAT.UserId = @UserId
-                            )
-
-                            -- First SELECT statement
-                            SELECT 
-                                A.ID,
-                                0 AS AppointmentType, 
-                                A.StartDate,    
-                                A.EndDate,      
-                                A.Caption AS Caption,      
-                                A.Label,
-                                A.Status,
-                                --A.AllDay,
-                                1 AS AllDay,
-                                A.Recurrence,
-                                A.Location,
-                                A.Description,
-                                A.AddedByUserID,
-                                A.AddedDate,
-                                0 AS Accepted,
-                                NEWID() AS SessionId,
-                                'Appointment' AS StatusType,
-                                2 AS ResourceId,
-	                            '' as UserTag,
-	                            '' as OtherTag
-                            FROM Appointment A
-                            WHERE A.AddedByUserID = @UserId
-
-                            UNION ALL
+                            )                         
 
                             -- Second SELECT statement
                             SELECT 
@@ -228,7 +201,7 @@ namespace Infrastructure.Repository.Query
 	                            ECTUT.UserTag as UserTag,
 	                            EAC.Name as OtherTag
                             FROM EmailConversations TS
-                            INNER JOIN DistinctTopics DT ON DT.TopicId = TS.TopicID
+                            INNER JOIN DistinctTopics DT ON DT.ConversationId = TS.ID
                             LEFT JOIN EmailTopicUserTags ECTUT ON ECTUT.TopicId = TS.TopicID AND ECTUT.AddedByUserID = @UserId
                             LEFT JOIN EmailActivityCatgorys EAC ON EAC.TopicId = TS.TopicID	
                             WHERE TS.DueDate IS NOT NULL

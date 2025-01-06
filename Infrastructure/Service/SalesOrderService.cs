@@ -792,16 +792,18 @@ namespace Infrastructure.Service
                                         ItemNo = f.Item_No,
                                         Description = f.Description,
                                         Description1 = f.Description_2,
-                                        //  CompletionDate = f.Completion_Date == DateTime.MinValue ? null : f.Completion_Date,
-                                        //  RemainingQuantity = f.Remaining_Quantity,
                                         BatchNo = f.Batch_No,
                                         Status = "Released",
-                                        //  OutputQty = f.Finished_Quantity,
                                         StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
                                         LastSyncDate = DateTime.Now,
                                     };
 
                                     prodNotStartList.Add(prodNotStart);
+                                }
+                                else
+                                {
+                                    exist.BatchNo= f.Batch_No;
+                                    prodNotStartList.Add(exist);
                                 }
                             }
                         }

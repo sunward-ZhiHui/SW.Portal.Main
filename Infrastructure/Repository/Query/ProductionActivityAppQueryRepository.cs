@@ -265,6 +265,65 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<ReleaseProdOrderLine>> GetAllReleaseProdOrderLineAsyncPO(long? CompanyId)
+        {
+            List<ReleaseProdOrderLine> productActivityAppModels = new List<ReleaseProdOrderLine>();
+            try
+            {
+                var productionsimulationlist = new List<ProductionSimulation>();
+                var navprodOrderLineList = new List<NavprodOrderLine>();
+                var navItesmList = new List<Navitems>();
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("CompanyID", CompanyId);
+                    var results = await connection.QueryMultipleAsync("select ProdOrderNo,BatchNo from ProductionSimulation where companyid=@CompanyID;" +
+                        "select * from ReleaseProdOrderLine where companyid=@CompanyID AND ProdOrderNo!='' AND  RePlanRefNo is not null;" +
+                        "select No,BatchNos,PackSize from Navitems where companyid=@CompanyID;", parameters);
+                    productionsimulationlist = results.Read<ProductionSimulation>().ToList();
+                    navprodOrderLineList = results.Read<NavprodOrderLine>().ToList();
+                    navItesmList = results.Read<Navitems>().ToList();
+                }
+                if (navprodOrderLineList != null && navprodOrderLineList.Count > 0)
+                {
+                    var productActivityApps = navprodOrderLineList.Where(w => w.ProdOrderNo != null && w.ProdOrderNo != "" && w.CompanyId == CompanyId && w.RePlanRefNo != null).Select(s => new { s.RePlanRefNo, s.BatchNo, s.CompanyId }).Distinct().ToList();
+
+                    if (productActivityApps != null && productActivityApps.Count > 0)
+                    {
+                        long i = 1;
+                        var navprodOrderLine = navprodOrderLineList.Select(s => new { s.RePlanRefNo, s.CompanyId, s.ItemNo, s.Description }).ToList();
+                        productActivityApps.ForEach(s =>
+                        {
+                            var navItems = navprodOrderLine.Where(f => f.RePlanRefNo == s.RePlanRefNo && f.CompanyId == CompanyId).Select(x => x.ItemNo).ToList();
+                            var description = "";
+                            var batchNo = "";
+                            batchNo = productionsimulationlist.Where(p => p.ProdOrderNo == s.RePlanRefNo).Select(x => x.BatchNo).FirstOrDefault();
+                            description = navprodOrderLine.FirstOrDefault(f => f.RePlanRefNo == s.RePlanRefNo && f.CompanyId == CompanyId)?.Description;
+                            var batchNos = navItesmList.Where(w => navItems.Contains(w.No) && w.BatchNos != null).Select(b => b.BatchNos).Distinct().ToList();
+                            var packSize = navItesmList.Where(w => navItems.Contains(w.No) && w.PackSize != null).Select(b => b.PackSize).Distinct().ToList();
+                            ReleaseProdOrderLine productActivityApp = new ReleaseProdOrderLine();
+                            productActivityApp.ReleaseProdOrderLineId = i;
+                            productActivityApp.ProdOrderNo = s.RePlanRefNo;
+                            productActivityApp.Description = description;
+                            productActivityApp.BatchNo = s.BatchNo;
+                            productActivityApp.Name = s.RePlanRefNo + " || " + batchNo + (description == "" ? "" : ("||" + description));
+                            productActivityApp.CompanyId = s.CompanyId;
+                            productActivityApp.BatchNos = navItems != null ? string.Join("||", batchNos) : "";
+                            productActivityApp.BatchSize = navItems != null ? string.Join("||", packSize) : "";
+                            i++;
+                            productActivityAppModels.Add(productActivityApp);
+                        });
+                    }
+                }
+                return productActivityAppModels;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<NavprodOrderLineModel>> GetAllAsyncPO(long? CompanyId)
         {
             List<NavprodOrderLineModel> productActivityAppModels = new List<NavprodOrderLineModel>();
@@ -646,7 +705,7 @@ namespace Infrastructure.Repository.Query
                         }
                         parameters.Add("ProductActivityCaseLineId", PPAlist.ProductActivityCaseLineId);
                         parameters.Add("ProductionActivityRoutineAppLineId", PPAlist.ProductionActivityRoutineAppLineId);
-                    
+
                         parameters.Add("IsOthersOptions", PPAlist.IsOthersOptions == true ? true : false);
                         parameters.Add("ProdActivityResultID", PPAlist.ProdActivityResultId);
                         parameters.Add("RoutineStatusId", PPAlist.RoutineStatusId);
@@ -660,7 +719,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
-                       
+
                         parameters.Add("IsCheckReferSupportDocument", PPAlist.IsCheckReferSupportDocument == true ? true : false);
                         parameters.Add("IsCheckNoIssue", PPAlist.IsCheckNoIssue == true ? true : false);
                         var ProfileNo = string.Empty;
@@ -692,7 +751,7 @@ namespace Infrastructure.Repository.Query
 
                             await connection.ExecuteAsync(appquery, parameters);
                         }
-                        
+
                         else
                         {
 
@@ -730,15 +789,15 @@ namespace Infrastructure.Repository.Query
                             await connection.ExecuteAsync(Deletequery);
                         }
                         var parameter = new DynamicParameters();
-                      
+
                         if (PPAlist.FPDDIds != null)
                         {
                             var FPData = PPAlist.FPDDIds.ToList();
                             if (FPData.Count > 0)
                             {
-                                
-                               foreach(string f in FPData)
-                               {
+
+                                foreach (string f in FPData)
+                                {
                                     var querys = string.Empty;
                                     parameter.Add("FPDD", f, DbType.String);
 
@@ -750,7 +809,29 @@ namespace Infrastructure.Repository.Query
                                     }
                                 }
 
-                                
+
+                            }
+                        }
+                        if (PPAlist.ReleaseProdOrderLineDDIds != null)
+                        {
+                            var FPData = PPAlist.ReleaseProdOrderLineDDIds.ToList();
+                            if (FPData.Count > 0)
+                            {
+
+                                foreach (string f in FPData)
+                                {
+                                    var querys = string.Empty;
+                                    parameter.Add("FPDD", f, DbType.String);
+
+
+                                    querys += "INSERT INTO [ProdOrderMultiple](ReleaseProdOrderNameMultiple,ProductionActivityRoutineAppLineId,Type) VALUES (@FPDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'Release ProdOrderLine');\r\n";
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+
+
                             }
                         }
                         if (PPAlist.ProcessDDIds != null)
@@ -758,13 +839,13 @@ namespace Infrastructure.Repository.Query
                             var ProcessData = PPAlist.ProcessDDIds.ToList();
                             if (ProcessData.Count > 0)
                             {
-                               
+
                                 foreach (string f in ProcessData)
                                 {
                                     var querys = string.Empty;
                                     parameter.Add("ProcessDD", f, DbType.String);
 
-                                    
+
                                     querys += "INSERT INTO [ProdOrderMultiple](ProcessDDMultiple,ProductionActivityRoutineAppLineId,Type) " +
                                                         "VALUES (@ProcessDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'Process');\r\n";
 
@@ -773,7 +854,7 @@ namespace Infrastructure.Repository.Query
                                         await connection.ExecuteAsync(querys, parameter);
                                     }
                                 }
-                               
+
                             }
                         }
                         if (PPAlist.RawMaterialDDIds != null)
@@ -795,7 +876,7 @@ namespace Infrastructure.Repository.Query
                                         await connection.ExecuteAsync(querys, parameter);
                                     }
                                 }
-                               
+
                             }
                         }
                         if (PPAlist.PackingMaterialDDIds != null)
@@ -803,10 +884,10 @@ namespace Infrastructure.Repository.Query
                             var PackingMaterialData = PPAlist.PackingMaterialDDIds.ToList();
                             if (PackingMaterialData.Count > 0)
                             {
-                               
+
                                 foreach (string f in PackingMaterialData)
                                 {
-                                  
+
                                     var querys = string.Empty;
                                     parameter.Add("PackingMaterialDD", f, DbType.String);
                                     querys += "INSERT INTO [ProdOrderMultiple](PackingMaterialDDMultiple,ProductionActivityRoutineAppLineId,Type) " +
@@ -816,7 +897,7 @@ namespace Infrastructure.Repository.Query
                                         await connection.ExecuteAsync(querys, parameter);
                                     }
                                 }
-                               
+
                             }
                         }
                         if (PPAlist.ProductNameIds != null)
@@ -857,7 +938,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-       
+
     }
 }
 

@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     public interface IIpirAppQueryRepostitory
     {
         Task<IReadOnlyList<IpirApp>> GetAllByAsync();
+        Task<IReadOnlyList<IpirApp>> GetAllListByAsync();
         Task<IReadOnlyList<IPIRReportingInformation>> GetAllIPIRmobileByAsync(long IpirappId);
         Task<IpirApp> InsertOrUpdateIpirApp(IpirApp value);
         Task<IpirApp> UpdateIpirPIC(IpirApp value);

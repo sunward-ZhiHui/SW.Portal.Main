@@ -25,6 +25,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllIpirMobileAppQueryHandler : IRequestHandler<GetAllIpirMobileAppQuery, List<IpirApp>>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public GetAllIpirMobileAppQueryHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<List<IpirApp>> Handle(GetAllIpirMobileAppQuery request, CancellationToken cancellationToken)
+        {
+            return (List<IpirApp>)await iIpirAppQueryRepostitory.GetAllListByAsync();
+        }
+
+    }
     public class GetAllIpirAppOneQueryHandler : IRequestHandler<GetAllIpirAppOneQuery, IpirApp>
     {
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;

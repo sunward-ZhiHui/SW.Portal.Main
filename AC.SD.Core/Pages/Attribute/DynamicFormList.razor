@@ -107,7 +107,7 @@
         <Columns>
             @if (dataColumnNames != null && dataColumnNames.Count() > 0)
             {
-                
+
                 foreach (var s in dataColumnNames)
                 {
                     if (s.IsDynamicGrid == true)
@@ -485,7 +485,7 @@
                                         a.ApplicationMaster.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm",OrderBy=a.GridDisplaySeqNo });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -527,7 +527,7 @@
                                 }
 
                             });
-                            var isSet = dataColumnNames.Where(w => w.Type == "DynamicForm" && w.OrderBy>0).ToList();
+                            var isSet = dataColumnNames.Where(w => w.Type == "DynamicForm" && w.OrderBy > 0).ToList();
                             if (isSet.Count() > 0)
                             {
                                 dataColumnNames = dataColumnNames.OrderBy(o => o.OrderBy).ToList();
@@ -1485,7 +1485,13 @@
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
         string backurl = rep1 + "/" + _selectedItems.SessionId;
+        string names1 = "dynamicFormMenuList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+        {
+            backurl = "DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionId;
+        }
         if (_selectedItems != null)
         {
             var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();

@@ -714,11 +714,27 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseQrCodePopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         Closed="EulaPopupLockClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@_dynamicformData?.SessionId"></AC.SD.Core.Pages.Attribute.DynamicFormDataEmailAddSubContent>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     bool? IsDynamicGridForm { get; set; } = false; bool? IsPrintWithoutGridForm { get; set; } = false;
     bool isPrint { get; set; } = false; int colSpanMd { get; set; } = 3; bool isMainHeader { get; set; } = false;
     private string? displayNonePrintForm { get; set; } = "display:none;";
     private string? mainStyle { get; set; } = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 335px);";
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
@@ -2337,6 +2353,7 @@
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
+        createEmailpopup = false;
         lockpopup = false;
         IsSectionLockOpen = false;
         StateHasChanged();

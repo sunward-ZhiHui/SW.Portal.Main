@@ -3828,6 +3828,12 @@
         if (_dynamicformData != null)
         {
             string backurl = rep1;
+            string[] UrlList = rep1.Split("/");
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                backurl = "DynamicMasterSetupList/dynamicforms/" + SessionId + "/" + SessionIds;
+            }
             var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();
             if (result == true)
             {
@@ -6590,9 +6596,9 @@
                                                editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
                                            }
                                            else if (ff.DataSourceTable == "ReleaseProdOrderLine")
-                                             {
-                                                 editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{4}|{5}");
-                                             }
+                                           {
+                                               editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{4}|{5}");
+                                           }
                                            else
                                            {
                                                editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
@@ -9229,7 +9235,7 @@
             var listDataSub = new List<AttributeDetails>();
             if (isLoadDropdown == true)
             {
-                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o=>o.AttributeDetailName).ToList() : new List<AttributeDetails>();
+                listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
             }
             else
             {
@@ -9559,7 +9565,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), accesspropertyAppMaster);
-                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o=>o.AttributeDetailName).ToList() : new List<AttributeDetails>();
+                var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
                 //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
@@ -10200,7 +10206,7 @@
                 var valueDataAppMaster = propertyAppMaster.GetValue(Data);
                 var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accesspropertyAppMaster);
-                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o=>o.AttributeDetailName).ToList() : new List<AttributeDetails>();
+                var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);

@@ -186,7 +186,7 @@
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                                     <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                    <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
+                                   @*  <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" /> *@
                                     <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
@@ -2665,6 +2665,12 @@
         if (_dynamicformData != null)
         {
             string backurl = rep1;
+            string names1 = "dynamicFormMenuList";
+            string[] UrlList = rep1.Split("/");
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                backurl = "DynamicMasterSetupList/dynamicforms/" + SessionId + "/" + SessionIds;
+            }
             var result = await refDynamicFormDataEmailAddSubContentGrid?.saveEmailSubjectContent();
             if (result == true)
             {

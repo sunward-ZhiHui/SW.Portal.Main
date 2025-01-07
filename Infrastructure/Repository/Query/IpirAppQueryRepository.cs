@@ -101,6 +101,78 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<IpirApp>> GetAllListByAsync()
+        {
+            List<IpirApp> IpirApps = new List<IpirApp>();
+            try
+            {
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
+                            t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type,
+                             (select Top 1 Concat(RePlanRefNo,'|',Description) From NAVProdOrderLine where RePlanRefNo = t1.ProdOrderNo) as ProdOrderNoDescription from IpirApp t1  
+                            JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
+                            JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
+                            LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
+                            LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
+                            Left JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
+                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
+                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy Order By t1.addedDate Desc;
+							";
+                var result = new List<IpirApp>();
+                using (var connection = CreateConnection())
+                {
+                    result = (await connection.QueryAsync<IpirApp>(query)).ToList();
+                }
+                if (result != null && result.Count > 0)
+                {
+
+                    var IpirAppIds = result.ToList().Select(s => s.IpirAppId).ToList();
+                    var sessionIds = result.ToList().Where(w => w.SessionID != null).Select(s => s.SessionID).ToList();
+                    var resultData = await GetMultipleQueryAsync(sessionIds, IpirAppIds);
+                    var documents = resultData.Documents.ToList();
+                    var appUser = resultData.ApplicationUser.ToList();
+                    var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
+
+
+                    result.ForEach(s =>
+                    {
+                        s.ActivityIssueRelates = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").ToList() : new List<IpirAppIssueDep>();
+                        s.ActivityIssueRelateIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").Select(z => z.ActivityInfoIssueId).ToList() : new List<long?>();
+                        s.DepartmentIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Department").Select(z => z.DepartmentID).ToList() : new List<long?>();
+
+                        if (documents != null && s.SessionID != null)
+                        {
+                            var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
+                            if (counts != null)
+                            {
+
+                                s.DocumentId = counts.DocumentId;
+                                s.FileProfileTypeId = counts.FilterProfileTypeId;
+                                s.DocumentID = counts.DocumentId;
+                                s.DocumentParentId = counts.DocumentParentId;
+                                s.FileName = counts.FileName;
+                                s.DocProfileNo = counts.ProfileNo;
+                                s.FilePath = counts.FilePath;
+                                s.UniqueSessionId = counts.UniqueSessionId;
+                                s.IsNewPath = counts.IsNewPath == true ? true : false;
+                                s.ContentType = counts.ContentType;
+                                s.IsLocked = counts.IsLocked;
+                                s.LockedByUserId = counts.LockedByUserId;
+                                s.ModifiedDate = counts.UploadDate;
+                                s.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
+                                s.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
+
+                            }
+                        }
+                        IpirApps.Add(s);
+                    });
+                }
+                return IpirApps;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<IPIRReportingInformation>> GetAllIPIRmobileByAsync(long IpirappId)
         {
             List<IPIRReportingInformation> IpirApps = new List<IPIRReportingInformation>();

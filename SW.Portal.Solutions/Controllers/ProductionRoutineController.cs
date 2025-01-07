@@ -671,7 +671,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var response = new Services.ResponseModel<IpirAppModel>();
 
-            var result = await _mediator.Send(new GetAllIpirAppQuery());
+            var result = await _mediator.Send(new GetAllIpirMobileAppQuery());
 
 
             var displayResult = result?.Select(topic => new IpirAppModel

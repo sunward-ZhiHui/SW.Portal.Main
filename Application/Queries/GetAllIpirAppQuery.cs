@@ -15,6 +15,10 @@ namespace Application.Queries
     {
         public string? SearchString { get; set; }
     }
+    public class GetAllIpirMobileAppQuery : PagedRequest, IRequest<List<IpirApp>>
+    {
+        public string? SearchString { get; set; }
+    }
     public class GetAllIpirAppOneQuery : PagedRequest, IRequest<IpirApp>
     {
         public string? SearchString { get; set; }

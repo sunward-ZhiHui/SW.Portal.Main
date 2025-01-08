@@ -66,6 +66,34 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("GetDynamicFormDataListPaging")]
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataListPaging(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId,int PageNo)
+        {
+
+            var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
+            var response = new Services.ResponseModel<DynamicFormDataResponse>();
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
+           
+           var finalresult = result.Skip((PageNo - 1) * 20)
+                .Take(20)
+                .ToList();
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = finalresult;
+
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = finalresult;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
 
         [HttpGet("GetDynamicFormDataListItem")]
         public async Task<ActionResult<Services.ResponseModel<List<ExpandoObject>>>> GetDynamicFormDataListItem(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)

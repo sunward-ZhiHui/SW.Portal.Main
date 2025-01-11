@@ -14,6 +14,32 @@
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
 
+<DxButton Text="@ButtonText" Click="@ToggleRecording" CssClass="record-button"></DxButton>
+
+@if (IsRecording)
+{
+    <p>Recording... Press the button again to stop.</p>
+}
+
+@if (Recordings.Any())
+{
+    <h3>Recordings</h3>
+    <ul>
+        @foreach (var recording in Recordings)
+        {
+            <li>
+                <audio controls>
+                    <source src="@recording.Url" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" />
+            </li>
+        }
+    </ul>
+}
+
+
+
 
 <DxHtmlEditor @bind-Value="@Markup" Height="200px">
     <DxHtmlEditorMentions>
@@ -24,6 +50,61 @@
 </DxHtmlEditor>
 
 @code {
+
+
+    private bool IsRecording { get; set; }
+    private string ButtonText => IsRecording ? "Stop Recording" : "Start Recording";
+
+    private List<Recording> Recordings { get; set; } = new();
+
+    private async Task ToggleRecording()
+    {
+        if (IsRecording)
+        {
+            await StopRecording();
+        }
+        else
+        {
+            await StartRecording();
+        }
+    }
+
+    private async Task StartRecording()
+    {
+        IsRecording = true;
+        await JSRuntime.InvokeVoidAsync("startVoiceRecording");
+    }
+
+    private async Task StopRecording()
+    {
+        IsRecording = false;
+        var recordingUrl = await JSRuntime.InvokeAsync<string>("stopVoiceRecording");
+
+        // Add the new recording to the list
+        Recordings.Add(new Recording
+            {
+                Id = Guid.NewGuid(),
+                Url = recordingUrl
+            });
+    }
+
+    private void DeleteRecording(Guid id)
+    {
+        var recording = Recordings.FirstOrDefault(r => r.Id == id);
+        if (recording != null)
+        {
+            Recordings.Remove(recording);
+        }
+    }
+
+    private class Recording
+    {
+        public Guid Id { get; set; }
+        public string Url { get; set; }
+    }
+
+
+
     private List<ViewEmployee>? _participant;
     public ApplicationUser? applicationUser { get; private set; }
     private ViewEmployee[] _participantData { get; set; }

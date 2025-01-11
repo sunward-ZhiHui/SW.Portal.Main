@@ -60,6 +60,8 @@ namespace Core.Entities
         public bool? IsNextFlow { get; set; } = false;
         public string? DynamicFormName { get; set; }
         public string? DynamicFormSectionName { get; set; }
+        public int? DynamicFormWorkFlowApprovalCount { get; set; }
+        public bool? IsDynamicFormWorkFlowApproval { get; set; } = false;
     }
     public class DynamicFormWorkFlowSection
     {
@@ -142,6 +144,10 @@ namespace Core.Entities
         public long? DelegateWorkFlowFormChangedId { get; set; }
         public Guid? FormSessionId { get; set; }
         public Guid? FormDataSessionId { get; set; }
+        public string? ApprovedStatus {  get; set; }
+        public bool? IsApproved { get; set; }
+        public int? DynamicFormWorkFlowApprovalCount { get; set; }
+        public bool? IsDynamicFormWorkFlowApproval { get; set; } = false;
     }
     public class DynamicFormDataUploadByPermission
     {

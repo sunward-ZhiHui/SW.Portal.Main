@@ -48,6 +48,7 @@
                     <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                     <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
+                    <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                 </Items>
             </DxMenu>
         </div>
@@ -279,7 +280,22 @@
         <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createAuditpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Audit Trail"
+         Closed="EulaPopupLockClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_selectedItems?.SessionId"></DynamicFormsAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
+    bool createAuditpopup { get; set; } = false;
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
     private DynamicGridForms refDynamicGridForms { get; set; }
@@ -363,6 +379,13 @@
             }
         }
     }
+    async Task addAuditTrail()
+    {
+        if (_selectedItems != null)
+        {
+            createAuditpopup = true;
+        }
+    }
     async Task UpdateDataAsync()
     {
         try
@@ -382,7 +405,7 @@
                 if (_dynamicForm != null && applicationUser != null)
                 {
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false));
+                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false,true));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -1364,6 +1387,7 @@
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
+        createAuditpopup = false;
         lockpopup = false;
         InvokeAsync(UpdateDataAsync);
         StateHasChanged();

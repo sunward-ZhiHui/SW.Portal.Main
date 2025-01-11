@@ -60,6 +60,8 @@
         <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
         <DxGridDataColumn FieldName="ActualUserName" Caption="Assigned User" />
         <DxGridDataColumn FieldName="DelegateSectionUserName" Caption="Delegate User" />
+        <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
+        <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
         <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
         <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
         <DxGridDataColumn FieldName="CurrentApprovalUserName" Caption="Current Approver" />
@@ -224,7 +226,7 @@
     [Parameter]
     public long? dynamicFormId { get; set; }
     public bool ApprovalEnabledApproval { get; set; } = false;
-    public bool AddNewEnabledApproval { get; set; } = false;public bool AddEditEnabledApproval { get; set; } = false;
+    public bool AddNewEnabledApproval { get; set; } = false; public bool AddEditEnabledApproval { get; set; } = false;
     public bool DeleteEnabledApproval { get; set; } = false; public bool DelegateEnabledApproval { get; set; } = false;
     private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
     public DynamicFormWorkFlowForm _selectedDynamicFormWorkFlowItems { get; set; }
@@ -255,7 +257,7 @@
     }
     public async Task loadDatas()
     {
-        AddNewEnabledApproval = false; DeleteEnabledApproval = false;DelegateEnabledApproval = false;AddEditEnabledApproval = false;ApprovalEnabledApproval = false;
+        AddNewEnabledApproval = false; DeleteEnabledApproval = false; DelegateEnabledApproval = false; AddEditEnabledApproval = false; ApprovalEnabledApproval = false;
         _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
         EditEnabledApproval = false; dynamicFormSectionIds = new List<long?>();
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(dynamicFormId, _dynamicformData?.DynamicFormDataId));
@@ -291,8 +293,12 @@
                     dynamicFormWorkFlowForm.ActualUserId = listsItems[0].ActualUserId;
                     dynamicFormWorkFlowForm.ActualUserName = listsItems[0].ActualUserName;
                     dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted = listsItems[0].DynamicFormWorkFlowApprovalFormCompleted;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormTotalCount = listsItems[0].DynamicFormWorkFlowFormTotalCount;
+                    dynamicFormWorkFlowForm.IsDynamicFormWorkFlowApproval = listsItems[0].DynamicFormWorkFlowFormTotalCount > 0 ? true : false;
                     dynamicFormWorkFlowForm.CurrentApprovalUserId = listsItems[0].CurrentApprovalUserId;
                     dynamicFormWorkFlowForm.CurrentApprovalUserName = listsItems[0].CurrentApprovalUserName;
+                    dynamicFormWorkFlowForm.ApprovedStatus = listsItems[0].ApprovedStatus;
+                    dynamicFormWorkFlowForm.IsApproved = listsItems[0].IsApproved;
                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
                 });
             }
@@ -310,8 +316,8 @@
                         EditEnabledApproval = true;
                         if (_dynamicformData?.DynamicFormDataId > 0)
                         {
-                            AddNewEnabledApproval = true;  
-                            if (_selectedDynamicFormWorkFlowItems.FlowStatusID==1 )
+                            AddNewEnabledApproval = true;
+                            if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
                             {
 
                             }
@@ -555,10 +561,10 @@
         }
         StateHasChanged();
     }
-    
+
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
-         Blukdeletepopup  = false;
+        Blukdeletepopup = false;
         await loadDatas();
         //RevokeBack?.Invoke();
     }

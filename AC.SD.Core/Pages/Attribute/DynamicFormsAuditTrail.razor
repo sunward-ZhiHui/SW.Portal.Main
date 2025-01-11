@@ -1,0 +1,122 @@
+﻿@using System.Dynamic;
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JS;
+@inject NavigationManager NavigationManager
+@using Newtonsoft.Json.Linq;
+@using Newtonsoft.Json;
+@implements IAsyncDisposable
+@inject ClipboardService ClipboardService
+@using System.Collections.ObjectModel
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_DynamicFormDataAuditList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="DynamicFormDataAuditId"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="w-100"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowClick="OnRowclick"
+            VirtualScrollingEnabled="true">
+
+        <Columns>
+            <DxGridDataColumn FieldName="RowNum" Caption="Row Num" MinWidth="20" />
+            <DxGridDataColumn FieldName="PreUser" MinWidth="50" Caption="Prev User" />
+            <DxGridDataColumn FieldName="PreUpdateDate" Caption="Prev Update Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormDataAudit)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.PreUpdateDate != DateTime.MinValue)
+                        {
+                            startDate = item.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditUser" MinWidth="50" Caption="Current User"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditDateTime" Caption="Current Update Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormDataAudit)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDateTime.HasValue && item.AuditDateTime != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="RowNum" />
+        </TotalSummary>
+        <DetailRowTemplate>
+            <DynamicFormsAuditTrailFormView Items="(DynamicFormDataAudit)context.DataItem" />
+        </DetailRowTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; } = true; bool EditEnabled { get; set; } = false; private DynamicFormDataAudit _selectedItems;
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<DynamicFormDataAudit> _DynamicFormDataAuditList { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadData();
+    }
+    async Task loadData()
+    {
+        EditEnabled = false;
+        _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditList(SessionId));
+        if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+        {
+            _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+            EditEnabled = true;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataAuditId");
+        _selectedItems = _DynamicFormDataAuditList.FirstOrDefault(f => f.DynamicFormDataAuditId == (long?)UniqueId);
+        EditEnabled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

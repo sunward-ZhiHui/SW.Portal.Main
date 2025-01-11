@@ -868,5 +868,21 @@ namespace Application.Queries
     public class GetDynamicFormDataAssignUserAllList : PagedRequest, IRequest<List<DynamicFormDataAssignUser>>
     {
     }
+    public class GetDynamicFormDataAuditList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
+    {
+        public Guid? SessionId { get; private set; }
+        public GetDynamicFormDataAuditList(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class GetDynamicFormDataAuditBySessionList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
+    {
+        public Guid? SessionId { get; private set; }
+        public GetDynamicFormDataAuditBySessionList(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
 }
 

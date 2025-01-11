@@ -900,7 +900,7 @@
 </DxPopup>
 <DxPopup @bind-Visible="@QrCodePopupVisible"
          CssClass="popup-demo-events"
-         ShowFooter="true" HeaderText="Scan Qr Code" CloseOnEscape="false" ShowCloseButton="false" MinWidth="1000" MinHeight="200" MaxWidth="1000" MaxHeight="800" CloseOnOutsideClick="false">
+         ShowFooter="true" HeaderText="Scan Qr Code" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
     <BodyContentTemplate>
         <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_QrCodeReader" StartCameraAutomatically="true" Title="" ShowStart="false" ShowStop="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true" OnBarcodeReceived="TicketNoReceivedBarcodeText" />
     </BodyContentTemplate>

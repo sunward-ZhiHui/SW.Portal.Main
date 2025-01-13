@@ -1881,10 +1881,28 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormData> GetDynamicFormDataOneByIdAsync(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", Id);
+                var query = "select * from DynamicFormData Where DynamicFormDataId=@DynamicFormDataId;";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
             {
+                var preData = await GetDynamicFormDataOneByIdAsync(dynamicFormData.DynamicFormDataId > 0 ? dynamicFormData.DynamicFormDataId : 0);
                 using (var connection = CreateConnection())
                 {
                     try
@@ -1950,6 +1968,10 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertOrUpdateFormWorkFlowSectionNoWorkFlowStart(dynamicFormData.DynamicFormId, dynamicFormData.DynamicFormDataId, dynamicFormData.AddedByUserID);
                         }
+                        if (preData != null)
+                        {
+                            await InsertAuditTrail(dynamicFormData, preData);
+                        }
                         return dynamicFormData;
                     }
 
@@ -1962,6 +1984,107 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        private async Task<DynamicFormData> InsertAuditTrail(DynamicFormData CurrentData, DynamicFormData PrevData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        Guid? SessionId = Guid.NewGuid();
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", CurrentData.DynamicFormDataId);
+                        parameters.Add("AuditUserId", CurrentData.ModifiedByUserID);
+                        parameters.Add("AuditDateTime", DateTime.Now, DbType.DateTime);
+                        parameters.Add("PreUserID", PrevData.ModifiedByUserID);
+                        parameters.Add("PreUpdateDate", PrevData.ModifiedDate, DbType.DateTime);
+                        parameters.Add("PrevData", PrevData.DynamicFormItem, DbType.String);
+                        parameters.Add("CurrentData", CurrentData.DynamicFormItem, DbType.String);
+                        parameters.Add("SessionId", SessionId, DbType.Guid);
+                        dynamic PrevDatajsonObj = new object();
+                        if (PrevData.DynamicFormItem != null && IsValidJson(PrevData.DynamicFormItem))
+                        {
+                            PrevDatajsonObj = JsonConvert.DeserializeObject(PrevData.DynamicFormItem);
+                        }
+                        dynamic CurrentDatajsonObj = new object();
+                        if (CurrentData.DynamicFormItem != null && IsValidJson(CurrentData.DynamicFormItem))
+                        {
+                            CurrentDatajsonObj = JsonConvert.DeserializeObject(CurrentData.DynamicFormItem);
+                            if (CurrentDatajsonObj != null)
+                            {
+                                int i = 0;
+                                foreach (var item in CurrentDatajsonObj)
+                                {
+                                    var itemKey = (string)item.Name;
+                                    string? itemValue = null;
+                                    if (item.Value is JArray)
+                                    {
+                                        var valuesData = item.Value;
+                                        List<long?> listData = valuesData.ToObject<List<long?>>();
+                                        if (listData != null && listData.Count() > 0)
+                                        {
+                                            itemValue = string.Join(",", listData);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        itemValue = (string)item.Value;
+                                    }
+                                    var spliData = itemKey.Split("_");
+                                    string? PreValueSet = null;
+                                    var GetKeyName = PrevDatajsonObj?.ContainsKey(itemKey);
+                                    if (GetKeyName == true)
+                                    {
+                                        var itemValueData = PrevDatajsonObj[itemKey];
+                                        if (itemValueData is JArray)
+                                        {
+                                            List<long?> listDatas = itemValueData.ToObject<List<long?>>();
+                                            if (listDatas != null && listDatas.Count() > 0)
+                                            {
+                                                PreValueSet = string.Join(",", listDatas);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            PreValueSet = (string)PrevDatajsonObj[itemKey];
+                                        }
+                                    }
+                                    if (itemValue != PreValueSet)
+                                    {
+                                        if (i == 0)
+                                        {
+                                            query += "INSERT INTO DynamicFormDataAudit(DynamicFormDataId,AuditUserId,AuditDateTime,PreUserID,PreUpdateDate,PrevData,CurrentData,SessionId,CurrentValueId,PrevValueId,DynamicFormSectionAttributeId,AttributeId)  OUTPUT INSERTED.DynamicFormDataAuditId VALUES " +
+                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@PrevData,@CurrentData,@SessionId,'" + itemValue + "','" + PreValueSet + "'," + spliData[0] + ",'" + itemKey + "');\n\r";
+                                        }
+                                        else
+                                        {
+                                            query += "INSERT INTO DynamicFormDataAudit(DynamicFormDataId,AuditUserId,AuditDateTime,PreUserID,PreUpdateDate,SessionId,CurrentValueId,PrevValueId,DynamicFormSectionAttributeId,AttributeId)  OUTPUT INSERTED.DynamicFormDataAuditId VALUES " +
+                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@SessionId,'" + itemValue + "','" + PreValueSet + "'," + spliData[0] + ",'" + itemKey + "');\n\r";
+                                        }
+                                        i++;
+                                    }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.ExecuteAsync(query, parameters);
+                        }
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+                return CurrentData;
             }
             catch (Exception exp)
             {
@@ -3859,7 +3982,7 @@ namespace Infrastructure.Repository.Query
                 List<DynamicFormWorkFlow> dynamicFormWorkFlows = new List<DynamicFormWorkFlow>();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                var query = "select t1.*, \r\nt3.Name as UserGroup, \r\nt3.Description as UserGroupDescription, \r\nt4.Name as DynamicFormName,  \r\nt5.Name as LevelName, t6.NickName, t6.FirstName, t6.LastName, t7.Name as DepartmentName,  \r\nt8.Name as DesignationName,  \r\nCONCAT(case when t6.NickName is NULL  then  t6.FirstName  ELSE   t6.NickName END,' | ',t6.LastName) as FullName  \r\nfrom DynamicFormWorkFlow t1  \r\nLEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID  \r\nLEFT JOIN DynamicForm t4 ON t4.ID=t1.DynamicFormId  \r\nLEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID  \r\nJOIN Employee t6 ON t1.UserID=t6.UserID  \r\nLEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID  \r\nLEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID   where  t1.DynamicFormId=@dynamicFormId";
+                var query = "select (select Count(tt1.DynamicFormWorkFlowApprovalID) from DynamicFormWorkFlowApproval tt1 where tt1.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID ) as DynamicFormWorkFlowApprovalCount,t1.*, \r\nt3.Name as UserGroup, \r\nt3.Description as UserGroupDescription, \r\nt4.Name as DynamicFormName,  \r\nt5.Name as LevelName, t6.NickName, t6.FirstName, t6.LastName, t7.Name as DepartmentName,  \r\nt8.Name as DesignationName,  \r\nCONCAT(case when t6.NickName is NULL  then  t6.FirstName  ELSE   t6.NickName END,' | ',t6.LastName) as FullName  \r\nfrom DynamicFormWorkFlow t1  \r\nLEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID  \r\nLEFT JOIN DynamicForm t4 ON t4.ID=t1.DynamicFormId  \r\nLEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID  \r\nJOIN Employee t6 ON t1.UserID=t6.UserID  \r\nLEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID  \r\nLEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID   where  t1.DynamicFormId=@dynamicFormId";
                 var result = new List<DynamicFormWorkFlow>();
                 using (var connection = CreateConnection())
                 {
@@ -3881,6 +4004,10 @@ namespace Infrastructure.Repository.Query
                                 s.SelectDynamicFormSectionIDs = lists.Select(a => a.DynamicFormSectionId).ToList();
                                 s.SectionName = string.Join(',', lists.Select(z => z.SectionName).ToList());
                             }
+                        }
+                        if (s.DynamicFormWorkFlowApprovalCount > 0)
+                        {
+                            s.IsDynamicFormWorkFlowApproval = true;
                         }
                         dynamicFormWorkFlows.Add(s);
                     });
@@ -4714,6 +4841,8 @@ namespace Infrastructure.Repository.Query
                                     {
                                         s.CurrentApprovalUserId = dynamicFormWorkFlowApprovedForms.ApproverUserId;
                                         s.CurrentApprovalUserName = dynamicFormWorkFlowApprovedForms.ApproverUserName;
+                                        s.IsApproved = dynamicFormWorkFlowApprovedForms.IsApproved;
+                                        s.ApprovedStatus = dynamicFormWorkFlowApprovedForms.IsApproved == false ? "Rejected" : (dynamicFormWorkFlowApprovedForms.IsApproved == true ? "Approved" : "");
                                     }
                                 }
                             }
@@ -7085,6 +7214,55 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? SessionId)
+        {
+            try
+            {
+                List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "Select Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
+                    "(select TOP(1) t7.AuditDateTime from DynamicFormDataAudit t7 where t7.Sessionid=t1.Sessionid order by t7.DynamicFormDataAuditId asc)as AuditDateTime,\r\n" +
+                    "(select TOP(1) t6.PreUpdateDate from DynamicFormDataAudit t6 where t6.Sessionid=t1.Sessionid order by t6.DynamicFormDataAuditId asc)as PreUpdateDate,\r\n" +
+                    "(select TOP(1) t4.PreUserID from DynamicFormDataAudit t4 where t4.Sessionid=t1.Sessionid order by t4.DynamicFormDataAuditId asc)as PreUserID,\r\n" +
+                    "(select TOP(1) t5.AuditUserId from DynamicFormDataAudit t5 where t5.Sessionid=t1.Sessionid order by t5.DynamicFormDataAuditId asc)as AuditUserId,\r\n" +
+                    "(select TOP(1) t3.DynamicFormDataId from DynamicFormDataAudit t3 where t3.Sessionid=t1.Sessionid order by t3.DynamicFormDataAuditId asc)as DynamicFormDataId,\r\n" +
+                    "(select TOP(1) t2.DynamicFormDataAuditId from DynamicFormDataAudit t2 where t2.Sessionid=t1.Sessionid order by t2.DynamicFormDataAuditId asc)as DynamicFormDataAuditId from DynamicFormDataAudit t1  group by t1.Sessionid)tt1\r\n" +
+                    "JOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID\n\r" +
+                    "JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
+                    "JOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId where tt2.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                }
+                return dynamicFormDataAudits;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId)
+        {
+            try
+            {
+                List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t2.IsDeleted,Row_Number() Over (Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                }
+                return dynamicFormDataAudits;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

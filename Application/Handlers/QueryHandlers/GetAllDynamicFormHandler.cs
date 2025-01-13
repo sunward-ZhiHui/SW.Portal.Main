@@ -1519,5 +1519,30 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
-    
+    public class GetDynamicFormDataAuditListHandler : IRequestHandler<GetDynamicFormDataAuditList, List<DynamicFormDataAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAuditListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId);
+        }
+    }
+    public class GetDynamicFormDataAuditBySessionListHandler : IRequestHandler<GetDynamicFormDataAuditBySessionList, List<DynamicFormDataAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAuditBySessionListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditBySessionList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditBySessionList(request.SessionId);
+        }
+
+
+    }
 }

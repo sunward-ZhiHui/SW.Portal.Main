@@ -14,7 +14,7 @@ namespace Core.Repositories.Query
 {
     public interface IAttributeQueryRepository : IQueryRepository<AttributeHeader>
     {
-        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId,bool? IsSubFormLoad);
+        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId,bool? IsSubFormLoad,bool? isNoDelete);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName(bool? IsSubForm, string? type, long? subId);
         Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource();
         Task<IReadOnlyList<DynamicFormFilter>> GetFilterDataSource();
@@ -29,7 +29,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByMobileList(IDictionary<string, JsonElement> DynamicMasterParentIds, long? applicationMasterParentId);
         Task<DropDownOptionsGridListModel> GetDynamicGridNested(List<long?> DynamicFormDataId, long? userId);
-        Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId,Guid? DynamicFormSectionGridAttributeSessionId, string? BaseUrl,bool? IsAll);
+        Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId,Guid? DynamicFormSectionGridAttributeSessionId, string? BaseUrl,bool? IsAll,int? PageNo,int? PageSize);
         Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId);
         Task<IReadOnlyList<AttributeDetails>> GetAttributeDetailsDataSource(long? AttributeId);
         Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery();

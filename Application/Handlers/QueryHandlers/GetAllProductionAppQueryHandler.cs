@@ -92,6 +92,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllProductionActivityFBNumberAppQueryHandler : IRequestHandler<GetAllProductionActivityFPNumberAppQuery, List<NavprodOrderLineModel>>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
+        public GetAllProductionActivityFBNumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
+        {
+            _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
+        }
+        public async Task<List<NavprodOrderLineModel>> Handle(GetAllProductionActivityFPNumberAppQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavprodOrderLineModel>)await _productionactivityappponumberQueryRepository.GetAllFpAsyncPO(request.companyID);
+        }
+
+    }
     public class GetAllReleaseProdOrderLineAppQueryHandler : IRequestHandler<GetAllReleaseProdOrderLineAppQuery, List<ReleaseProdOrderLine>>
     {
         private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;

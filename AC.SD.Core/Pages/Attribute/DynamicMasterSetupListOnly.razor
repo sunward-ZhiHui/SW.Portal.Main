@@ -35,6 +35,7 @@
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
@@ -185,6 +186,14 @@
         if (_selectedItems != null && _selectedItems.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrlPaging()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=" + _selectedItems.SessionID + "&&PageNo=1&&PageSize=50";
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }

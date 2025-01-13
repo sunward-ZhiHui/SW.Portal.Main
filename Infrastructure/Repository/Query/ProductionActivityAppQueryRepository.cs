@@ -324,6 +324,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<NavprodOrderLineModel>> GetAllFpAsyncPO(long? CompanyId)
+        {
+            List<NavprodOrderLineModel> productActivityAppModels = new List<NavprodOrderLineModel>();
+            try
+            {
+                var navprodOrderLineList = new List<NavprodOrderLineModel>();
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("CompanyID", CompanyId);
+                    var results = await connection.QueryMultipleAsync("select * from NavprodOrderLine where companyid=@CompanyID AND ProdOrderNo!='' AND  RePlanRefNo is not null", parameters);
+                    productActivityAppModels = results.Read<NavprodOrderLineModel>().ToList();
+                }
+                return productActivityAppModels;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<NavprodOrderLineModel>> GetAllAsyncPO(long? CompanyId)
         {
             List<NavprodOrderLineModel> productActivityAppModels = new List<NavprodOrderLineModel>();

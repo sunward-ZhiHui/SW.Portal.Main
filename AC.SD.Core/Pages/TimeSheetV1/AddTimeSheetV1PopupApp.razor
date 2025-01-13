@@ -43,397 +43,404 @@
         </div>
     </div>
 </div>
-<div class="" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 210px);">
-<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
+<div class="" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 250px);">
+    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
 
-    <DataAnnotationsValidator />
-    <DxFormLayout CssClass="w-100">
-        @*  <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
-        <DxComboBox Data="@_ponumberActivities"
-        NullText="Select ProdOrderNo..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="Name"
-        ValueFieldName="NavprodOrderLineId"
-        ValueChanged="@((long? prod) => SelectedItemprod(prod))"
-        Value="Data.NavprodOrderLineId"
-        ValueExpression="@(() => Data.NavprodOrderLineId )"
-        ShowValidationIcon="true">
-        </DxComboBox>
-        <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
-        </DxFormLayoutItem> *@
-        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-
-            <DxComboBox Data="@_plantItems"
-                        NullText="Select Company..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        TextFieldName="Description"
-                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                        ValueFieldName="PlantID"
-                        @bind-Value="@Data.CompanyID"
-                        ShowValidationIcon="true">
-
+        <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            @*  <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
+            <DxComboBox Data="@_ponumberActivities"
+            NullText="Select ProdOrderNo..."
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="Name"
+            ValueFieldName="NavprodOrderLineId"
+            ValueChanged="@((long? prod) => SelectedItemprod(prod))"
+            Value="Data.NavprodOrderLineId"
+            ValueExpression="@(() => Data.NavprodOrderLineId )"
+            ShowValidationIcon="true">
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.CompanyID)" />
-        </DxFormLayoutItem>
+            <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
+            </DxFormLayoutItem> *@
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
 
-        @*   <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
-        <DxComboBox Data="@_ponumberActivities"
-        NullText="Select Ticket No..."
-        ValueChanged="@((string? prod) => SelectedItemprod(prod))"
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="Name"
-        ValueFieldName="ProdOrderNo"
-        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-        ListRenderMode="ListRenderMode.Virtual"
-        Value="@Data.FPDD"
-        ValueExpression="@(() => Data.FPDD )"
-        ShowValidationIcon="true">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Ticket No"
-        Click="@(_ => OnButtonFPClick())" />
-        </Buttons>
-        </DxComboBox> *@
-        @* <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan FP"
-        Click="@(_ => OnButtonFPClick())" />
-        </Buttons>
-        </DxTextBox> *@
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            TextFieldName="Description"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ValueFieldName="PlantID"
+                            @bind-Value="@Data.CompanyID"
+                            ShowValidationIcon="true">
 
-        @*  </DxFormLayoutItem> *@
-        @*   <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible"> *@
-        @*   <DxTextBox Text="@Data.ProcessDD" spellcheck="true" ShowValidationIcon="true" NullText="Process" TextExpression="@(() => Data.ProcessDD )" TextChanged="@((newValue) => ProcessOnTextChanged(newValue))">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Process"
-        Click="@(_ => OnButtonProcessClick())" />
-        </Buttons>
-        </DxTextBox> *@
-        @*  <DxComboBox Data="@_RawMatItemList"
-        NullText="Select Process No..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="ItemNoDescription"
-        ValueFieldName="ItemNo"
-        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-        ListRenderMode="ListRenderMode.Virtual"
-        @bind-Value="@Data.ProcessDD"
-        ShowValidationIcon="true">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Process"
-        Click="@(_ => OnButtonProcessClick())" />
-        </Buttons>
-        </DxComboBox>
-        </DxFormLayoutItem> *@
-        @*   <DxFormLayoutItem Caption="Raw Material:" ColSpanMd="6" Visible="@RawMaterialVisible"> *@
-        @* <DxTextBox Text="@Data.RawMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Raw Material" TextExpression="@(() => Data.RawMaterialDD )" TextChanged="@((newValue) => RawMaterialOnTextChanged(newValue))">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Raw Material"
-        Click="@(_ => OnButtonRawMaterialClick())" />
-        </Buttons>
-        </DxTextBox> *@
-        @*  <DxComboBox Data="@_RawMatItemList1"
-        NullText="Select Raw Material..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="ItemNoDescription"
-        ValueFieldName="ItemNo"
-        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-        ListRenderMode="ListRenderMode.Virtual"
-        @bind-Value="@Data.RawMaterialDD"
-        ShowValidationIcon="true">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Raw Material"
-        Click="@(_ => OnButtonRawMaterialClick())" />
-        </Buttons>
-        </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Packing Material:" ColSpanMd="6" Visible="@PackingMaterialVisible"> *@
-        @* <DxTextBox Text="@Data.PackingMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Packing Material" TextExpression="@(() => Data.PackingMaterialDD )" TextChanged="@((newValue) => PackingMaterialOnTextChanged(newValue))">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Packing Material"
-        Click="@(_ => OnButtonPackingMaterialClick())" />
-        </Buttons>
-        </DxTextBox> *@
-        @*  <DxComboBox Data="@_RawMatItemList2"
-        NullText="Select Packing Material..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="ItemNoDescription"
-        ValueFieldName="ItemNo"
-        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-        ListRenderMode="ListRenderMode.Virtual"
-        @bind-Value="@Data.PackingMaterialDD"
-        ShowValidationIcon="true">
-        <Buttons>
-        <DxEditorButton IconCssClass="fa fa-qrcode"
-        Tooltip="Scan Packing Material"
-        Click="@(_ => OnButtonPackingMaterialClick())" />
-        </Buttons>
-        </DxComboBox>
-        </DxFormLayoutItem> *@
+                </DxComboBox>
+                <ValidationMessage For="@(() => Data.CompanyID)" />
+            </DxFormLayoutItem>
 
-        <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
-            <DxComboBox Data="@_ManuFactureProcessLines"
-                        NullText="Select Routine..."
-                        Enabled="false"
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-                        @bind-Text="@TimeSheetRoutine"
-                        Value="@Data.ManufacturingProcessChildId"
-                        ValueExpression="@(() => Data.ManufacturingProcessChildId )"
-                        ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
-                        ShowValidationIcon="true">
-                <Buttons>
-                    <DxEditorButton IconCssClass="fa fa-qrcode"
-                                    Tooltip="Scan Routine"
-                                    Click="@(_ => OnManufacScanButtonClick())" />
-                </Buttons>
+            @*   <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
+            <DxComboBox Data="@_ponumberActivities"
+            NullText="Select Ticket No..."
+            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="Name"
+            ValueFieldName="ProdOrderNo"
+            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+            ListRenderMode="ListRenderMode.Virtual"
+            Value="@Data.FPDD"
+            ValueExpression="@(() => Data.FPDD )"
+            ShowValidationIcon="true">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Ticket No"
+            Click="@(_ => OnButtonFPClick())" />
+            </Buttons>
+            </DxComboBox> *@
+            @* <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan FP"
+            Click="@(_ => OnButtonFPClick())" />
+            </Buttons>
+            </DxTextBox> *@
+
+            @*  </DxFormLayoutItem> *@
+            @*   <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible"> *@
+            @*   <DxTextBox Text="@Data.ProcessDD" spellcheck="true" ShowValidationIcon="true" NullText="Process" TextExpression="@(() => Data.ProcessDD )" TextChanged="@((newValue) => ProcessOnTextChanged(newValue))">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Process"
+            Click="@(_ => OnButtonProcessClick())" />
+            </Buttons>
+            </DxTextBox> *@
+            @*  <DxComboBox Data="@_RawMatItemList"
+            NullText="Select Process No..."
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="ItemNoDescription"
+            ValueFieldName="ItemNo"
+            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+            ListRenderMode="ListRenderMode.Virtual"
+            @bind-Value="@Data.ProcessDD"
+            ShowValidationIcon="true">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Process"
+            Click="@(_ => OnButtonProcessClick())" />
+            </Buttons>
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.ManufacturingProcessChildId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
-            <DxComboBox Data="@_categoryItems"
-                        NullText="Select Category ..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-                        ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
-                        Value="@Data.ProdActivityCategoryChildId"
-                        ValueExpression="@(() => Data.ProdActivityCategoryChildId )"
-                        @bind-Text="@Category"
-                        ShowValidationIcon="true">
+            </DxFormLayoutItem> *@
+            @*   <DxFormLayoutItem Caption="Raw Material:" ColSpanMd="6" Visible="@RawMaterialVisible"> *@
+            @* <DxTextBox Text="@Data.RawMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Raw Material" TextExpression="@(() => Data.RawMaterialDD )" TextChanged="@((newValue) => RawMaterialOnTextChanged(newValue))">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Raw Material"
+            Click="@(_ => OnButtonRawMaterialClick())" />
+            </Buttons>
+            </DxTextBox> *@
+            @*  <DxComboBox Data="@_RawMatItemList1"
+            NullText="Select Raw Material..."
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="ItemNoDescription"
+            ValueFieldName="ItemNo"
+            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+            ListRenderMode="ListRenderMode.Virtual"
+            @bind-Value="@Data.RawMaterialDD"
+            ShowValidationIcon="true">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Raw Material"
+            Click="@(_ => OnButtonRawMaterialClick())" />
+            </Buttons>
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
-        </DxFormLayoutItem>
-
-        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
-            <DxComboBox Data="@_actionItems"
-                        NullText="Select ActionDropdown..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-                        ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
-                        Value="@Data.ProdActivityActionChildD"
-                        ValueExpression="@(() => Data.ProdActivityActionChildD )"
-                        @bind-Text="@Action"
-                        ShowValidationIcon="true">
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Packing Material:" ColSpanMd="6" Visible="@PackingMaterialVisible"> *@
+            @* <DxTextBox Text="@Data.PackingMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Packing Material" TextExpression="@(() => Data.PackingMaterialDD )" TextChanged="@((newValue) => PackingMaterialOnTextChanged(newValue))">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Packing Material"
+            Click="@(_ => OnButtonPackingMaterialClick())" />
+            </Buttons>
+            </DxTextBox> *@
+            @*  <DxComboBox Data="@_RawMatItemList2"
+            NullText="Select Packing Material..."
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="ItemNoDescription"
+            ValueFieldName="ItemNo"
+            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+            ListRenderMode="ListRenderMode.Virtual"
+            @bind-Value="@Data.PackingMaterialDD"
+            ShowValidationIcon="true">
+            <Buttons>
+            <DxEditorButton IconCssClass="fa fa-qrcode"
+            Tooltip="Scan Packing Material"
+            Click="@(_ => OnButtonPackingMaterialClick())" />
+            </Buttons>
             </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Status:" ColSpanMd="6">
-            <DxComboBox Data="@_StatusList"
-                        NullText="Select Status..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="CodeValue"
-                        ValueFieldName="CodeId"
-                        Enabled="@EnableStatus"
-                        @bind-Value="Data.StatusID"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.StatusID)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
-            <DxTagBox NullText="Select Routine Info..."
-                      Data="@_ActivityMaster"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Text"
-                      ValueFieldName="Id"
-                      @bind-Values="@Data.RoutineInfoIds"
-                      CssClass="cw-480" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
-            <DxComboBox Data="@_ActivityResult"
-                        NullText="Select Activity Result..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Text"
-                        ValueFieldName="Id"
-                        @bind-Value="Data.ProdActivityResultId"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Routine Status:" ColSpanMd="6">
-            <DxComboBox Data="@_ActivityStatusItem"
-                        NullText="Select Routine Status..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Text"
-                        ValueFieldName="Id"
-                        @bind-Value="Data.RoutineStatusId"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
+            </DxFormLayoutItem> *@
+
+            <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
+                <DxComboBox Data="@_ManuFactureProcessLines"
+                            NullText="Select Routine..."
+                            Enabled="false"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            @bind-Text="@TimeSheetRoutine"
+                            Value="@Data.ManufacturingProcessChildId"
+                            ValueExpression="@(() => Data.ManufacturingProcessChildId )"
+                            ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
+                            ShowValidationIcon="true">
+                    <Buttons>
+                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                        Tooltip="Scan Routine"
+                                        Click="@(_ => OnManufacScanButtonClick())" />
+                    </Buttons>
+                </DxComboBox>
+                <ValidationMessage For="@(() => Data.ManufacturingProcessChildId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+                <DxComboBox Data="@_categoryItems"
+                            NullText="Select Category ..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
+                            Value="@Data.ProdActivityCategoryChildId"
+                            ValueExpression="@(() => Data.ProdActivityCategoryChildId )"
+                            @bind-Text="@Category"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
+                <DxComboBox Data="@_actionItems"
+                            NullText="Select ActionDropdown..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
+                            Value="@Data.ProdActivityActionChildD"
+                            ValueExpression="@(() => Data.ProdActivityActionChildD )"
+                            @bind-Text="@Action"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status:" ColSpanMd="6">
+                <DxComboBox Data="@_StatusList"
+                            NullText="Select Status..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            Enabled="@EnableStatus"
+                            @bind-Value="Data.StatusID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => Data.StatusID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
+                <DxTagBox NullText="Select Routine Info..."
+                          Data="@_ActivityMaster"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          TextFieldName="Text"
+                          ValueFieldName="Id"
+                          @bind-Values="@Data.RoutineInfoIds"
+                          CssClass="cw-480" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityResult"
+                            NullText="Select Activity Result..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Text"
+                            ValueFieldName="Id"
+                            @bind-Value="Data.ProdActivityResultId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Routine Status:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityStatusItem"
+                            NullText="Select Routine Status..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Text"
+                            ValueFieldName="Id"
+                            @bind-Value="Data.RoutineStatusId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
 
 
-        <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
-            <DxMemo @bind-Text="Data.LineComment" Rows="5" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
-            <DxMemo @bind-Text="Data.Others" Rows="5" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Type:" ColSpanMd="12">
-            <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
-                        SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                <DxMemo @bind-Text="Data.LineComment" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+                <DxMemo @bind-Text="Data.Others" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Type:" ColSpanMd="12">
+                <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
+                            SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
 
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="11" Visible="@FPVisible">
-            <DxTagBox NullText="Select FP..."
-                      Data="@_ponumberActivities"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Name"
-                      ValueFieldName="ProdOrderNo"
-                      @bind-Values="@Data.FPDDIds"
-                      CssClass="cw-480">
-
-
-                <Columns>
-
-                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
-                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
-                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />
-                </Columns>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="11" Visible="@FPVisible">
+                <DxTagBox NullText="Select FP..."
+                          Data="@_ponumberActivities"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          EditFormat="{0}|{1}|{2}|{3}"
+                          TextFieldName="ProdOrderNo"
+                          ValueFieldName="RePlanRefNo"
+                          @bind-Values="@Data.FPDDIds"
+                          CssClass="cw-480">
 
 
-            </DxTagBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@FPVisible">
-            <DxButton IconCssClass="fa fa-qrcode"
-                      Click="@(_ => OnButtonFPClick())">
-            </DxButton>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Release ProdOrder Multiple:" ColSpanMd="11" Visible="@ReleaseProdOrderLineVisible">
-            <DxTagBox NullText="Select Release ProdOrder..."
-                      Data="@_ReleaseProdOrderLineList"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Name"
-                      ValueFieldName="ProdOrderNo"
-                      @bind-Values="@Data.ReleaseProdOrderLineDDIds"
-                      CssClass="cw-480">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
+                        <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.RePlanRefNo)" Caption="RePlan RefNo" />
+                        <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
+                        <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />
+                    </Columns>
 
 
-                <Columns>
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@FPVisible">
+                <DxButton IconCssClass="fa fa-qrcode"
+                          Click="@(_ => OnButtonFPClick())">
+                </DxButton>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Release ProdOrder Multiple:" ColSpanMd="11" Visible="@ReleaseProdOrderLineVisible">
+                <DxTagBox NullText="Select Release ProdOrder..."
+                          Data="@_ReleaseProdOrderLineList"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          TextFieldName="Name"
+                          ValueFieldName="ProdOrderNo"
+                          @bind-Values="@Data.ReleaseProdOrderLineDDIds"
+                          CssClass="cw-480">
 
-                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.ProdOrderNo)" Caption="ProdOrder No" />
-                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.BatchNo)" Caption="Batch No" />
-                    <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.Description)" Caption="Description" />
-                </Columns>
+
+                    <Columns>
+
+                        <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.ProdOrderNo)" Caption="ProdOrder No" />
+                        <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.BatchNo)" Caption="Batch No" />
+                        <DxListEditorColumn FieldName="@nameof(ReleaseProdOrderLine.Description)" Caption="Description" />
+                    </Columns>
 
 
-            </DxTagBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ReleaseProdOrderLineVisible">
-            <DxButton IconCssClass="fa fa-qrcode"
-                      Click="@(_ => OnButtonReleaseClick())">
-            </DxButton>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="11" Visible="@ProcessVisible">
-            <DxTagBox NullText="Select Process..."
-                      Data="@_RawMatItemList"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="ItemNoDescription"
-                      ValueFieldName="ItemNo"
-                      @bind-Values="@Data.ProcessDDIds"
-                      CssClass="cw-480">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ReleaseProdOrderLineVisible">
+                <DxButton IconCssClass="fa fa-qrcode"
+                          Click="@(_ => OnButtonReleaseClick())">
+                </DxButton>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="11" Visible="@ProcessVisible">
+                <DxTagBox NullText="Select Process..."
+                          Data="@_RawMatItemList"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          TextFieldName="ItemNoDescription"
+                          ValueFieldName="ItemNo"
+                          @bind-Values="@Data.ProcessDDIds"
+                          CssClass="cw-480">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
 
-                </Columns>
-            </DxTagBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ProcessVisible">
-            <DxButton IconCssClass="fa fa-qrcode"
-                      Click="@(_ => OnButtonProcessClick())">
-            </DxButton>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Raw Material Multiple:" ColSpanMd="11" Visible="@RawMaterialVisible">
-            <DxTagBox NullText="Select Raw Material..."
-                      Data="@_RawMatItemList1"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="ItemNoDescription"
-                      ValueFieldName="ItemNo"
-                      @bind-Values="@Data.RawMaterialDDIds"
-                      CssClass="cw-480">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+                    </Columns>
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@ProcessVisible">
+                <DxButton IconCssClass="fa fa-qrcode"
+                          Click="@(_ => OnButtonProcessClick())">
+                </DxButton>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Raw Material Multiple:" ColSpanMd="11" Visible="@RawMaterialVisible">
+                <DxTagBox NullText="Select Raw Material..."
+                          Data="@_RawMatItemList1"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          TextFieldName="ItemNoDescription"
+                          ValueFieldName="ItemNo"
+                          @bind-Values="@Data.RawMaterialDDIds"
+                          CssClass="cw-480">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
 
-                </Columns>
-            </DxTagBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@RawMaterialVisible">
-            <DxButton IconCssClass="fa fa-qrcode"
-                      Click="@(_ => OnButtonRawMaterialClick())">
-            </DxButton>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Packing Material Multiple:" ColSpanMd="11" Visible="@PackingMaterialVisible">
-            <DxTagBox NullText="Select Packing Material..."
-                      Data="@_RawMatItemList2"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="ItemNoDescription"
-                      ValueFieldName="ItemNo"
-                      @bind-Values="@Data.PackingMaterialDDIds"
-                      CssClass="cw-480">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
-                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+                    </Columns>
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@RawMaterialVisible">
+                <DxButton IconCssClass="fa fa-qrcode"
+                          Click="@(_ => OnButtonRawMaterialClick())">
+                </DxButton>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Packing Material Multiple:" ColSpanMd="11" Visible="@PackingMaterialVisible">
+                <DxTagBox NullText="Select Packing Material..."
+                          Data="@_RawMatItemList2"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          TextFieldName="ItemNoDescription"
+                          ValueFieldName="ItemNo"
+                          @bind-Values="@Data.PackingMaterialDDIds"
+                          CssClass="cw-480">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                        <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
 
-                </Columns>
-            </DxTagBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@PackingMaterialVisible">
-            <DxButton IconCssClass="fa fa-qrcode"
-                      Click="@(_ => OnButtonPackingMaterialClick())">
-            </DxButton>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Product Name:" ColSpanMd="12" Visible="@ProductNameVisible">
-            <DxTagBox NullText="Select Product Name..."
-                      Data="@_ProductNameList"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Value"
-                      ValueFieldName="ApplicationMasterDetailID"
-                      @bind-Values="@Data.ProductNameIds"
-                      CssClass="cw-480">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Value)" Caption="Product Name" />
-                    <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Description)" Caption="Description" />
+                    </Columns>
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn" Visible="@PackingMaterialVisible">
+                <DxButton IconCssClass="fa fa-qrcode"
+                          Click="@(_ => OnButtonPackingMaterialClick())">
+                </DxButton>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Product Name:" ColSpanMd="12" Visible="@ProductNameVisible">
+                <DxTagBox NullText="Select Product Name..."
+                          Data="@_ProductNameList"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          TextFieldName="Value"
+                          ValueFieldName="ApplicationMasterDetailID"
+                          @bind-Values="@Data.ProductNameIds"
+                          CssClass="cw-480">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Value)" Caption="Product Name" />
+                        <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Description)" Caption="Description" />
 
-                </Columns>
-            </DxTagBox>
+                    </Columns>
+                </DxTagBox>
 
-        </DxFormLayoutItem>
+            </DxFormLayoutItem>
 
-    </DxFormLayout>
-</EditForm>
+        </DxFormLayout>
+    </EditForm>
 </div>
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
@@ -1081,8 +1088,8 @@
                 RawMaterialDDIds = Data.RawMaterialDDIds,
                 PackingMaterialDDIds = Data.PackingMaterialDDIds,
                 ProductNameIds = Data.ProductNameIds,
-                ReleaseProdOrderLineDDIds=Data.ReleaseProdOrderLineDDIds,
-                ReleaseProdOrderLineDD=Data.ReleaseProdOrderLineDD,
+                ReleaseProdOrderLineDDIds = Data.ReleaseProdOrderLineDDIds,
+                ReleaseProdOrderLineDD = Data.ReleaseProdOrderLineDD,
                 StatusID = Data.StatusID,
                 TimeSheetAction = true,
                 LotNo = Data.LotNo,
@@ -1456,7 +1463,7 @@
         {
             if (Data.CompanyID > 0)
             {
-                _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Data.CompanyID));
+                _ponumberActivities = await Mediator.Send(new GetAllProductionActivityFPNumberAppQuery(Data.CompanyID));
 
                 FPVisible = true;
                 ProcessVisible = false;

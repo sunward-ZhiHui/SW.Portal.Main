@@ -160,6 +160,7 @@
                                             <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                         </Items>
                                     </DxMenuItem>
+                                    <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                     @* @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -195,6 +196,7 @@
                                             <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                         </Items>
                                     </DxMenuItem>
+                                    <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                     @*  @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -737,7 +739,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseQrCodePopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createAuditpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Audit Trail"
+         Closed="EulaPopupLockClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId"></DynamicFormsAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool EditEnabled { get; set; } = false;
+    private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
+    bool createAuditpopup { get; set; } = false;
     bool? IsGridDynamicGridForm { get; set; } = false; bool? IsGridPrintWithoutGridForm { get; set; } = false;
     private AC.SD.Core.Pages.Attribute.DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContentGrid { get; set; }
     bool isGridPrint { get; set; } = false; int GridcolSpanMd { get; set; } = 3; bool isGridMainHeader { get; set; } = false;
@@ -941,7 +959,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); IsGridDynamicGridForm = false; IsGridPrintWithoutGridForm = false;
+        await onshowLoading(); IsGridDynamicGridForm = false; IsGridPrintWithoutGridForm = false;EditEnabled = false;
         isGridPrint = false; GridcolSpanMd = 3; isGridMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
@@ -982,7 +1000,7 @@
                         _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                         if (_dynamicformData != null)
                         {
-                            isUserLocked = true; emailEnabled = true;
+                            isUserLocked = true; emailEnabled = true;EditEnabled = true;
                             if (_dynamicformData.IsLocked == true && _dynamicformData.LockedUserId > 0)
                             {
                                 LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
@@ -1267,7 +1285,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true,true));
                         _DynamicFormSectionIds = _AttributeHeader.DynamicFormSectionAttributeSections.Select(s => s.DynamicFormSectionId).Distinct().ToList();
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
@@ -1818,8 +1836,16 @@
             }
         }
     }
+    async Task addAuditTrail()
+    {
+        if (_dynamicformData != null)
+        {
+            createAuditpopup = true;
+        }
+    }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
+        createAuditpopup = false;
         lockpopup = false;
         createEmailpopup = false;
         StateHasChanged();

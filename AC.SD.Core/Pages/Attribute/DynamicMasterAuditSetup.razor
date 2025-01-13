@@ -1,0 +1,6 @@
+﻿@page "/DynamicMasterSetup/dynamicFormsaudittrail/{SessionId:guid}"
+<DynamicFormsAuditTrail SessionId="@SessionId"></DynamicFormsAuditTrail>
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+}

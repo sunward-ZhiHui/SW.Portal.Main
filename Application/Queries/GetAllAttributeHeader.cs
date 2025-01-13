@@ -79,11 +79,13 @@ namespace Application.Queries
         public DynamicForm DynamicForm { get; set; }
         public long? UserId { get; set; }
         public bool? IsSubFormLoad { get; set; }
-        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId, bool? isSubFormLoad)
+        public bool? IsNoDelete { get; set; } = true;
+        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId, bool? isSubFormLoad, bool? IsNoDelete)
         {
             this.DynamicForm = dynamicForm;
             this.UserId = userId;
             this.IsSubFormLoad = isSubFormLoad;
+            this.IsNoDelete = IsNoDelete;
         }
     }
     public class GetAllBySessionAttributeName : PagedRequest, IRequest<AttributeHeader>
@@ -193,7 +195,9 @@ namespace Application.Queries
         public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
         public string? BaseUrl { get; set; }
         public bool? IsAll { get; set; }
-        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll)
+        public int? PageNo { get; set; }
+        public int? PageSizes { get; set; }
+        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll, int? pageNo, int? pageSize)
         {
             this.DynamicFormSessionId = dynamicFormSessionId;
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
@@ -201,6 +205,8 @@ namespace Application.Queries
             this.DynamicFormSectionGridAttributeSessionId = dynamicFormSectionGridAttributeSessionId;
             this.BaseUrl = baseUrl;
             this.IsAll = isAll;
+            this.PageNo = pageNo;
+            this.PageSizes = pageSize;
         }
     }
     public class GetDynamicFormAttributeApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>
@@ -246,7 +252,7 @@ namespace Application.Queries
     public class GetAllDynamicFormDataOneApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>
     {
         public Guid? DynamicFormDataSessionId { get; set; }
-        
+
         public GetAllDynamicFormDataOneApi(Guid? dynamicFormDataSessionId)
         {
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
@@ -270,6 +276,6 @@ namespace Application.Queries
             this.IsAll = isAll;
         }
     }
-    
+
 
 }

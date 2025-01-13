@@ -131,6 +131,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeGridSequenceSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<long> DeleteDynamicFormDataAssignUser(long? Id, List<long?> Ids);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? sessionId);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId);
     }
 
 }

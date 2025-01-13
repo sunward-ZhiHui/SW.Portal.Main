@@ -61,9 +61,11 @@
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" />
+                        <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@AddEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -301,8 +303,23 @@
         <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createAuditpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Audit Trail"
+         Closed="EulaPopupClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_selectedItems.SessionId"></DynamicFormsAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool createAuditpopup { get; set; } = false;
     bool isBackDisabled { get; set; } = true;
+    private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
     private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
@@ -453,7 +470,7 @@
                     if (_dynamicForm != null)
                     {
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false)));
+                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false,true)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -1233,6 +1250,34 @@
             return false;
         }
     }
+    async Task addAuditTrail()
+    {
+        createAuditpopup = true;
+        // string str = NavigationManager.Uri;
+        // string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        // string[] UrlList = rep1.Split("/");
+        // string names = "DynamicMasterSetupList";
+        // if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.                                                            ())
+        // {
+        //     var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicFormsaudittrail/ " + _selectedItems.SessionId;
+        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
+        // }
+        // else
+        // {
+        //     string names1 = "dynamicFormMenuList";
+        //     if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+        //     {
+        //         var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicFormsaudittrail/" + _selectedItems.SessionId;
+        //         await JS.InvokeVoidAsync("window.open", url, "_blank");
+        //     }
+        //     else
+        //     {
+        //         var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormsaudittrail/" + _selectedItems.SessionId;
+        //         await JS.InvokeVoidAsync("window.open", url, "_blank");
+        //     }
+
+        // }
+    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -1300,6 +1345,11 @@
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _dynamicForm.SessionID;
             await JS.InvokeVoidAsync("window.open", url, "_blank");
         }
+    }
+    async Task OpenOdataUrlPaging()
+    {
+        var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=" + _dynamicForm.SessionID + "&&PageNo=1&&PageSize=50";
+        await JS.InvokeVoidAsync("window.open", url, "_blank");
     }
     async Task OpenOdataUrl()
     {
@@ -1575,7 +1625,7 @@
         PopupDynamicFormGridLists = false;
         Blukdeletepopup = false;
         createEmailpopup = false;
-
+        createAuditpopup = false;
         // await UpdateDataAsync();
     }
     void OpenApprovalForm()

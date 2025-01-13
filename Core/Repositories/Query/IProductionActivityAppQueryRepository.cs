@@ -22,6 +22,7 @@ namespace Core.Repositories.Query
         Task<long> InsertProductionRoutine(ProductionActivityRoutineAppModel PPAlist);
 
         Task<IReadOnlyList<ReleaseProdOrderLine>> GetAllReleaseProdOrderLineAsyncPO(long? CompanyId);
+        Task<IReadOnlyList<NavprodOrderLineModel>> GetAllFpAsyncPO(long? CompanyId);
     }
 
 }

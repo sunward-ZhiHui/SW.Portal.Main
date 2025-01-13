@@ -30,20 +30,21 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
-               @*  <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                @*  <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                     <Items>
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
-                 <DxMenuItem Text="Add Menu" IconCssClass="fa fa-bars" Click="@addMenu" />
-              </Items>
+                <DxMenuItem Text="Add Menu" IconCssClass="fa fa-bars" Click="@addMenu" />
+            </Items>
         </DxMenu>
     </div>
 </div>
@@ -313,6 +314,14 @@
         if (_selectedItems != null && _selectedItems.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrlPaging()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=" + _selectedItems.SessionID + "&&PageNo=1&&PageSize=50";
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }

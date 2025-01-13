@@ -882,7 +882,14 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(UpdateEmailTopicSubjectDueDate request, CancellationToken cancellationToken)
         {
             var req = await _emailTopicsQueryRepository.UpdateSubjectDueDate(request);
-            return req;
+            EmailActivityCatgorys emailActivityCatgorys = new EmailActivityCatgorys();
+            emailActivityCatgorys.TopicId = request.TopicID;
+            emailActivityCatgorys.UserTagIds = request.UserTagIds;
+            emailActivityCatgorys.AddedByUserID = request.ModifiedByUserID;
+            emailActivityCatgorys.AddedDate = request.ModifiedDate.Value;
+             var req1 = await _emailTopicsQueryRepository.InsertUserTagMultiple(emailActivityCatgorys);
+
+            return req1;
         }
     }
     public class InsertEmailDueDateHistoryHandler : IRequestHandler<InsertEmailDueDateHistory, long>

@@ -117,7 +117,8 @@ namespace Core.Entities
         public bool? openAccessUserLink { get; set; }
         public string? UserTag { get; set; }
         public string? OtherTag { get; set; }
-
+        [NotMapped]
+        public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
     }
     public class EmailDocumentModel
     {        

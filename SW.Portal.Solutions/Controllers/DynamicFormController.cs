@@ -29,6 +29,7 @@ using Method = RestSharp.Method;
 using Microsoft.Ajax.Utilities;
 using Core.Repositories.Query.Base;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Linq;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -47,7 +48,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null,null));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;
@@ -66,24 +67,52 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
-        [HttpGet("GetDynamicFormDataListPaging")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataListPaging(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId,int PageNo)
-        {
 
+        [HttpGet("GetDynamicFormDataListPaging")]
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataListPaging(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
+        {
+            int? PageNo = 1; int? PageSize = 50;
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
+            var query = HttpContext.Request.Query.ToList();
+            var PageNoExis = query.Where(w => w.Key.ToLower() == "pageNo".ToLower()).FirstOrDefault().Key;
+            if (PageNoExis != null)
+            {
+                var PageNos = query.Where(w => w.Key.ToLower() == "pageNo".ToLower()).FirstOrDefault().Value;
+                if (!string.IsNullOrEmpty(PageNos))
+                {
+                    decimal pNo = decimal.Parse(PageNos);
+                    if (pNo > 0)
+                    {
+                        PageNo = (int?)Math.Round(pNo);
+                    }
+                }
+            }
+            var PageSizeExis = query.Where(w => w.Key.ToLower() == "PageSize".ToLower()).FirstOrDefault().Key;
+            if (PageSizeExis != null)
+            {
+                var PageSizes = query.Where(w => w.Key.ToLower() == "PageSize".ToLower()).FirstOrDefault().Value;
+                if (!string.IsNullOrEmpty(PageSizes))
+                {
+                    decimal pNo = decimal.Parse(PageSizes);
+                    if (pNo > 0)
+                    {
+                        PageSize = (int?)Math.Round(pNo);
+                    }
+                }
+            }
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
-           
-           var finalresult = result.Skip((PageNo - 1) * 20)
-                .Take(20)
-                .ToList();
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, PageNo, PageSize));
+            /* PageNo = PageNo > 0 ? PageNo : 1;
+             var finalresult = result.Skip((int)((PageNo - 1) * 20))
+                 .Take(20)
+                 .ToList();*/
             response.ResponseCode = Services.ResponseCode.Success;
-            response.Results = finalresult;
+            response.Results = result;
 
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = finalresult;
+                response.Results = result;
 
             }
             catch (Exception ex)

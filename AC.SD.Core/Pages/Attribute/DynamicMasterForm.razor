@@ -50,6 +50,7 @@
                                 <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                                 <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
+                                <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenuItem>
                     </Items>
@@ -511,6 +512,14 @@
         if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
         {
             var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOdataUrlPaging()
+    {
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=" + _dynamicFormData.SessionID + "&&PageNo=1&&PageSize=50";
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }

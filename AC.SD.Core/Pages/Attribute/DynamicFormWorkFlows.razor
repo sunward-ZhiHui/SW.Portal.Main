@@ -92,6 +92,7 @@
             <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="40" />
             <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
             <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="40" />
+            <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -227,6 +228,7 @@
          HeaderText="Add Section Approval"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
+         Closed="EulaPopupApprovalClosed"
          Width="1000px">
     <BodyContentTemplate>
         <DynamicFormWorkFlowApprovalForm @ref="refDynamicFormWorkFlowApprovalForm" SelectedItems="@_selectedItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></DynamicFormWorkFlowApprovalForm>
@@ -439,6 +441,12 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
+    void EulaPopupApprovalClosed(PopupClosedEventArgs args)
+    {
+        SectionApprovalPopup = false;
+        InvokeAsync(UpdateDataAsync);
+        StateHasChanged();
+    }
     async Task OnDeleteApprovalDataItem(GridDataItemDeletingEventArgs e)
     {
 
@@ -521,6 +529,7 @@
     void CloseSectionApprovalEnabled()
     {
         SectionApprovalPopup = false;
+        InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
     async Task bulkDelete()

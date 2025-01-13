@@ -143,6 +143,7 @@
                                 {
                                     <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                                 }
+                                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenu>
                     }
@@ -178,6 +179,7 @@
                                 {
                                     <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                                 }
+                                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenu>
                     }
@@ -729,7 +731,23 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createAuditpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Audit Trail"
+         Closed="EulaPopupLockClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId"></AC.SD.Core.Pages.Attribute.DynamicFormsAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool EditEnabled { get; set; } = false;
+    private AC.SD.Core.Pages.Attribute.DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
+    bool createAuditpopup { get; set; } = false;
     bool? IsDynamicGridForm { get; set; } = false; bool? IsPrintWithoutGridForm { get; set; } = false;
     bool isPrint { get; set; } = false; int colSpanMd { get; set; } = 3; bool isMainHeader { get; set; } = false;
     private string? displayNonePrintForm { get; set; } = "display:none;";
@@ -1034,7 +1052,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
+        await onshowLoading(); EditEnabled = false; IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
@@ -1073,7 +1091,7 @@
                         _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                         if (_dynamicformData != null)
                         {
-                            isUserLocked = true; emailEnabled = true;
+                            isUserLocked = true; emailEnabled = true;EditEnabled = true;
                             if (_dynamicformData.IsLocked == true && _dynamicformData.LockedUserId > 0)
                             {
                                 LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
@@ -1356,7 +1374,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true,true));
                         _DynamicFormSectionIds = _AttributeHeader.DynamicFormSectionAttributeSections.Select(s => s.DynamicFormSectionId).Distinct().ToList();
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
@@ -2353,6 +2371,7 @@
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
+        createAuditpopup = false;
         createEmailpopup = false;
         lockpopup = false;
         IsSectionLockOpen = false;
@@ -2618,6 +2637,13 @@
             DivisionValue = item as ViewDivision;
         }
         dropDownBox.HideDropDown();
+    }
+    async Task addAuditTrail()
+    {
+        if (_dynamicformData != null)
+        {
+            createAuditpopup = true;
+        }
     }
     string? QueryDivisionText(DropDownBoxQueryDisplayTextContext arg)
     {

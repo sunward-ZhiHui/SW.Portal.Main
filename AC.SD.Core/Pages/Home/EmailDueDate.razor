@@ -164,7 +164,7 @@
                 <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0" ></DxSpinEdit>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
-                <DxComboBox Data="@_UserTagList"
+                @*<DxComboBox Data="@_UserTagList"
                             NullText="Select User Tag..."
                             ListRenderMode="ListRenderMode.Virtual"
                             SearchMode="ListSearchMode.AutoSearch"
@@ -175,7 +175,19 @@
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             @bind-Value="@types.UserTag"
                             @bind-Text="@UserTagName">
-                </DxComboBox>                                
+                </DxComboBox>*@
+                <DxTagBox Data="_UserTagList"
+                          @bind-Values="DataUserTagIds"
+                          NullText="Select User Tag"
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ValueFieldName="ID"
+                          TextFieldName="UserTag"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          CssClass="cw-480">
+                    <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
+                </DxTagBox>
             </DxFormLayoutItem>
              <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
                 <DxComboBox Data="@_AllCategory"
@@ -465,6 +477,7 @@
     public Action<string> SubViewAllTopicId { get; set; }
     private string? BaseUrl;
     string DuedateReason { get; set; } = "";
+    public IEnumerable<long?> DataUserTagIds { get; set; } = new List<long?>();
     async Task onRefresh()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -530,7 +543,7 @@
             }
         }
     }
-    void OnRowClick(GridRowClickEventArgs e)
+    async void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = null;
@@ -549,6 +562,22 @@
             {
                 LockDueDateEnable = true;
                 IsSubjectNoOfDays = true;
+            }
+            var _getUserTag = await Mediator.Send(new GetByUserTage(_selectedItems.EmailTopicID, applicationUser.UserID));
+
+            if (_getUserTag.Count > 0)
+            {
+
+
+                //  dataUserTag.UserTag = _getUserTag[0].UserTag;
+                //  dataUserTag.UserTagId = _getUserTag[0].UserTagId;
+                DataUserTagIds = _getUserTag.Select(s => s.UserTagId).ToList();
+
+            }
+            else
+            {
+                DataUserTagIds = null;
+               
             }
         }
         else
@@ -666,6 +695,7 @@
                 DueDate = emailTopics.DueDate,
                 UserId = emailTopics.UserId,
                 UserTag = UserTagName,
+                UserTagIds = DataUserTagIds,
                 OtherTag = OthersTagName,
                 openAccessUserLink = _openAccessUserLink != null ? true : false,
                 ModifiedByUserID = applicationUser.UserID,

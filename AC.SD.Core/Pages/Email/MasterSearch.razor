@@ -577,7 +577,10 @@
     public Action<List<string>>? ToTopicIds { get; set; }
     [Parameter]
     public Action EnableUnArchiveAll { get; set; }
-  
+    [Parameter]
+    public Action EnableClose { get; set; }
+    [Parameter]
+    public Action EnableOpen { get; set; }
     List<string> ConditionList = new List<string>() { "AND", "OR" };
     List<DropDownModel> LikeList = new List<DropDownModel>();
     List<DropDownModelSubject> LikeListSubject = new List<DropDownModelSubject>();
@@ -772,7 +775,20 @@
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewAllTopicId?.Invoke(SelectedReplyId);
         await Task.Delay(1000); // Example asynchronous operation
-                                //await LoadReplyData();
+        await ParticipantCloseList();                //await LoadReplyData();
+        StateHasChanged();
+    }
+    public async Task ParticipantCloseList()
+    {
+        var List = await Mediator.Send(new GetEmailParticipantList(long.Parse(SelectedReplyId), applicationUser.UserID));
+        if (List[0].IsClosed == true)
+        {
+            EnableOpen.Invoke();
+        }
+        else
+        {
+            EnableClose.Invoke();
+        }
         StateHasChanged();
     }
     public async Task loadLibaryList(string txt)

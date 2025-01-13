@@ -557,9 +557,15 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("UserID", UserID);
 
-                var query = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
+                var query1 = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
                                 LEFT JOIN UserMultiple UM ON UM.AppointmentID = A.ID
                                 WHERE (UM.UserID = @UserID OR A.AddedByUserID = @UserID)
+                                  AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE())  
+                                      OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))";
+
+                var query = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
+                                LEFT JOIN UserMultiple UM ON UM.AppointmentID = A.ID
+                                WHERE (UM.UserID = @UserID AND UM.IsAccepted = 1)
                                   AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE())  
                                       OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))";
 

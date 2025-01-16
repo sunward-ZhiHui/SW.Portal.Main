@@ -1,0 +1,308 @@
+﻿@page "/OdataGridList"
+ @using RestSharp;
+ @using Newtonsoft.Json;
+ @using Newtonsoft.Json.Linq;
+ @using System.Dynamic;
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="First" IconCssClass="fa fa-angle-left" Click="@OnFirst" />
+                        <DxMenuItem Text="Prev" IconCssClass="fa fa-angle-double-left" Click="@OnPrev" Enabled="PrevEnabled" />
+                        <DxMenuItem Text="Next" IconCssClass="fa fa-angle-right" Click="@OnNext" Enabled="NextEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid Data="@DataSource" @ref="Grid"
+            PageSize="@PageSize"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            VirtualScrollingEnabled="true"
+            ShowSearchBox="true"
+            SearchText="@searchText"
+            SearchTextChanged="OnSearchTextChanged"
+            TextWrapEnabled="false">
+        <Columns>
+            <DxGridDataColumn FieldName="dynamicFormDataId" />
+            <DxGridDataColumn FieldName="profileNo" Caption="Profile No" />
+            <DxGridDataColumn FieldName="name" />
+            <DxGridDataColumn FieldName="50_Attr$Routinedropdown" />
+            <DxGridDataColumn FieldName="11362_Attr$SOP_document_List" />
+            <DxGridDataColumn FieldName="11363_Attr$3P's_Document_List" />
+            <DxGridDataColumn FieldName="53_Attr$Description" />
+            <DxGridDataColumn FieldName="11361_Attr$Detail_information" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="profileNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    int AllPageNo { get; set; } = 100000;
+    public string? searchText { get; set; }
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; } = true; bool PrevEnabled { get; set; } = true; bool NextEnabled { get; set; } = true;
+    public int PageSize = 10;
+    public List<dynamic> DataSource { get; set; } = new List<dynamic>();
+    public List<dynamic> DataSource1 { get; set; } = new List<dynamic>();
+    public List<long> searchBalanceIds = new List<long>();
+    public string? Baseurl = "https://localhost:44300/api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=da8ccbfb-a595-4b1f-bd41-70c0954b41ed";
+    public string? url = string.Empty;
+    int PageNo { get; set; } = 1; int PrevPageNo { get; set; } = 1;
+    private int apiSearchCount { get; set; } = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        await GenerateList();
+        // await loadData();
+    }
+    string GenerateUrl()
+    {
+        string urlString = Baseurl + "&&PageNo=" + PageNo + "&&PageSize=" + PageSize;
+        return urlString;
+    }
+    public async Task loadData()
+    {
+        DataSource = new List<dynamic>();
+        List<dynamic> DataSource2 = new List<dynamic>();
+        PanelVisible = true;
+        await Task.Delay(50);
+        StateHasChanged();
+        for (int i = 1; i <= AllPageNo; i++)
+        {
+            PanelVisible = true;
+            PageNo = i;
+            var result = restApi();
+            if (result != null && result.Count() > 0)
+            {
+                DataSource.AddRange(result);
+                // List<dynamic> DataSource1 = new List<dynamic>();
+                // if (result != null && result.Count > 0)
+                // {
+                //     result.ForEach(f =>
+                //     {
+                //         List<string> nameValue = new List<string>();
+                //         ExpandoObject listData = f.ToObject<ExpandoObject>();
+                //         DataSource.Add(listData);
+                //     });
+                // }
+                PanelVisible = false;
+                // StateHasChanged();
+
+            }
+            else
+            {
+                PanelVisible = false;
+                break;
+            }
+        }
+        //DataSource = DataSource2;
+        StateHasChanged();
+    }
+    private async Task GenerateList()
+    {
+        DataSource = new List<dynamic>();
+        PanelVisible = true;
+        DataSource = restApi();
+        if (DataSource.Count() > 0)
+        {
+            PanelVisible = false;
+        }
+        else
+        {
+            PanelVisible = false;
+        }
+    }
+    private List<dynamic> restApi()
+    {
+        List<dynamic> DataSourceItem = new List<dynamic>();
+        string? Url = GenerateUrl();
+        var options = new RestClientOptions
+        {
+            //MaxTimeout = 5 * 1000,
+        };
+        var client = new RestClient(options);
+        var request = new RestRequest(Url, Method.Get);
+        RestResponse response = client.Get(request);
+        var deserial = JsonConvert.DeserializeObject<dynamic>(response.Content);
+        if (deserial.results.Count > 0)
+        {
+            var counts = deserial.results.Count;
+            for (int i = 0; i < counts; i++)
+            {
+                if (deserial.results[i].objectDataItems != null)
+                {
+                    var result = deserial.results[i].objectDataItems;
+                    DataSourceItem.Add(result);
+                }
+            }
+        }
+        return DataSourceItem;
+    }
+    async Task OnFirst()
+    {
+        if (PageNo > 0)
+        {
+            PageNo = 1;
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                searchBalanceIds = new List<long>();
+                await loadFilterData(PageNo, searchText);
+            }
+            else
+            {
+                await GenerateList();
+            }
+        }
+    }
+    async Task OnNext()
+    {
+        if (PageNo > 0)
+        {
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                DataSource1 = new List<dynamic>();
+                await loadFilterData(PageNo, searchText);
+                PageNo = PageNo + 1;
+            }
+            else
+            {
+                PageNo = PageNo + 1;
+                await GenerateList();
+            }
+        }
+    }
+    async Task OnPrev()
+    {
+        if (PageNo > 0)
+        {
+            if (PageNo != 1)
+            {
+                PageNo = PageNo - 1;
+            }
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                await loadFilterData(PageNo, searchText);
+            }
+            else
+            {
+                await GenerateList();
+            }
+        }
+    }
+    async Task OnSearchTextChanged(string? newSearchText)
+    {
+        searchText = newSearchText;
+        PrevPageNo = PageNo;
+        int searchPageCount = 1; DataSource1 = new List<dynamic>(); searchBalanceIds = new List<long>();
+        if (!string.IsNullOrEmpty(newSearchText))
+        {
+            await loadFilterData(searchPageCount, newSearchText);
+        }
+        else
+        {
+            PageNo = PrevPageNo;
+            await GenerateList();
+        }
+    }
+    async Task loadFilterData(int searchPageCount, string? newSearchText)
+    {
+        bool? breakData = false;
+        if (apiSearchCount <= 2)
+        {
+            var listData = restApi();
+            if (listData != null && listData.Count > 0)
+            {
+
+                listData.ForEach(f =>
+                {
+                    if (breakData == true)
+                    {
+                        return;
+                    }
+                    List<string> nameValue = new List<string>();
+                    ExpandoObject listData = f.ToObject<ExpandoObject>();
+                    var li = listData.ToList();
+                    bool? isExtis = false;
+                    li.ForEach(l =>
+                    {
+                        if (l.Key.ToLower() == "dynamicFormDataId".ToLower())
+                        {
+                            long? Ids = (long?)l.Value;
+                            if (Ids > 0)
+                            {
+                                var ex = searchBalanceIds.Where(x => searchBalanceIds.Contains(x)).Count();
+                                if (ex > 0)
+                                {
+                                    isExtis = true;
+                                }
+                            }
+                        }
+                    });
+                    if (isExtis == false)
+                    {
+                        li.ForEach(l =>
+                        {
+                            if (l.Key.ToLower() != "dynamicFormDataId".ToLower() && l.Key.ToLower() != "name".ToLower() && l.Key.ToLower() != "SessionId".ToLower())
+                            {
+                                if (l.Value != null)
+                                {
+                                    string value = l.Value?.ToString();
+                                    if (!string.IsNullOrEmpty(value))
+                                    {
+                                        nameValue.Add(value);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    if (nameValue != null && nameValue.Count() > 0)
+                    {
+                        var exits = nameValue.Where(s => s != null && s.ToLower().Contains(newSearchText?.ToLower())).ToList();
+                        if (exits.Count() > 0)
+                        {
+
+                            DataSource1.Add(f);
+                        }
+                    }
+
+                });
+            }
+            else
+            {
+                apiSearchCount++;
+            }
+            var DataSourceItemCount = DataSource1.Count();
+            if (DataSourceItemCount > PageSize)
+            {
+                PageNo = searchPageCount;
+                //searchBalanceIds = DataSource1.Take(PageSize).Select(a => (long)a.dynamicFormDataId).ToList();
+                DataSource1 = DataSource1.Take(PageSize).ToList();
+                breakData = true;
+            }
+            else
+            {
+                searchPageCount = searchPageCount + 1;
+                PageNo = searchPageCount;
+                await loadFilterData(searchPageCount, newSearchText);
+            }
+        }
+        else
+        {
+            apiSearchCount = 0;
+            PageNo = 1;
+        }
+        searchBalanceIds = DataSource1.Select(a => (long)a.dynamicFormDataId).ToList();
+        DataSource = DataSource1;
+    }
+}

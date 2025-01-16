@@ -3199,8 +3199,8 @@ namespace Infrastructure.Repository.Query
                                 {
                                     if (PageNo > 0)
                                     {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY;";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY);";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
                                     }
                                     else
                                     {
@@ -3214,8 +3214,8 @@ namespace Infrastructure.Repository.Query
                                 {
                                     if (PageNo > 0)
                                     {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY;";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY);";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
 
                                     }
                                     else
@@ -3229,9 +3229,9 @@ namespace Infrastructure.Repository.Query
                             {
                                 if (PageNo > 0)
                                 {
-                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY;";
+                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
                                     query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
-                                       "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize * PageNo) + " ROWS ONLY) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                       "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
                                 }
                                 else

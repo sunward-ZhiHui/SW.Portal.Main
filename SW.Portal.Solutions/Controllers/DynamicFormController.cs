@@ -43,6 +43,7 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetDynamicFormDataList")]
+
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
 

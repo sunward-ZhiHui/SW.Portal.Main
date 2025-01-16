@@ -127,12 +127,12 @@
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                              
-                           <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds ="onViewEmailUnArchiveClick"  EnableUnArchiveAll = "EnableUnArchiveAll"></MasterSearch> 
-                        }
+
+                                <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailUnArchiveClick" EnableUnArchiveAll="EnableUnArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen"></MasterSearch>
+                            }
                         else if (isLeftMenuvisible == "Administrator")
                         {
-                            <AdminEmail @ref=RefAdminSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></AdminEmail>
+                                <AdminEmail @ref=RefAdminSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ></AdminEmail>
                         }
                         </div>
                     </div>
@@ -6660,13 +6660,29 @@
     {
         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,0));
         toastService.ShowToast("The Selected Topic Open Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        RefAssignTo?.ParticipantCloseList();
+        if (isLeftMenuvisible == "AssignTo")
+        {
+            RefAssignTo?.ParticipantCloseList();
+        }
+        if (isLeftMenuvisible == "Library")
+        {
+            RefMasterSearch?.ParticipantCloseList();
+        }
+       
     }
     public async void SubmitClose()
     {
         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,1));
         toastService.ShowToast("The Selected Topic Close Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        RefAssignTo?.ParticipantCloseList();
+         if (isLeftMenuvisible == "AssignTo")
+        {
+           RefAssignTo?.ParticipantCloseList();
+        }
+        if(isLeftMenuvisible == "Library")
+        {
+            RefMasterSearch?.ParticipantCloseList();
+        }
+       
     }
     private void ClearDiscussionList()
     {

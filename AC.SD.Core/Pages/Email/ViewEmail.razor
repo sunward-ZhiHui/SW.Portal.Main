@@ -1086,6 +1086,7 @@
                         <DxMenuItem IconCssClass="fa fa-archive" @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
                         <DxMenuItem IconCssClass="fa fa-tag" @onclick="onUserTagPop" Text="User Tag"/>
                         <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" />
+                          <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyWendy" Text="Notify PA" />
                          @if(_openAccessUserLink != null)
                          {
                              <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyPA" Text="Notify JD" />
@@ -1105,7 +1106,17 @@
          ShowFooter="false"
          ShowCloseButton="true">
     <BodyContentTemplate>
-        <Notifypa @ref="refNotifypa" applicationUser="@applicationUser" topicList="@_headTopic[0]" Page ="@isLeftMenuvisible" ClosePopNotify="onCloseNotifyPop"></Notifypa>
+        <Notifypa @ref="refNotifypa" applicationUser="@applicationUser" Type ="JD" topicList="@_headTopic[0]" Page ="@isLeftMenuvisible" ClosePopNotify="onCloseNotifyPop"></Notifypa>
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isNotifyWendypupVisible"
+         HeaderText="Notify PA"
+         CloseOnOutsideClick="false"
+         ShowFooter="false"
+         ShowCloseButton="true">
+    <BodyContentTemplate>
+        <Notifypa @ref="refNotifypa" applicationUser="@applicationUser" Type ="PA" topicList="@_headTopic[0]"  Page ="@isLeftMenuvisible" ClosePopNotify="onCloseNotifyPaPop"></Notifypa>
     </BodyContentTemplate>
 </DxPopup>
 
@@ -1765,6 +1776,7 @@
 
 @code {
     private bool isNotifyPAPopupVisible = false;
+     private bool isNotifyWendypupVisible = false;
     private Notifypa refNotifypa;
     long reply_id = 0;
     string UserTagTxt { get; set; }    
@@ -1782,6 +1794,12 @@
         IsOpenFlyout = false;
         InvokeAsync(StateHasChanged);
     }
+     private void onCloseNotifyPaPop()
+     {
+        isNotifyWendypupVisible = false;
+        IsOpenFlyout = false;
+        InvokeAsync(StateHasChanged);
+     }
     async Task OnButtonUserGroupToClick()
     {
         IsUserGroupToOpen = false;
@@ -3782,6 +3800,10 @@
         var url = BaseUrl + "ViewEmail/Emailprint/" + _headTopic[0].SessionId + "/" + isLeftMenuvisible;
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);
+    }
+    private void onNotifyWendy()
+    {
+        isNotifyWendypupVisible = true;
     }
     private void onNotifyPA()
     {

@@ -60,8 +60,9 @@ namespace Core.Repositories.Query
         Task<EmailTopics> GetTopicListAsync();
         Task<List<EmailDueDateHistory>> GetEmailDueDateHistoryList(long id);
         Task<long> UpdateDueDate(EmailTopics EmailTopics);      
-        Task<List<EmailNotifyPA>> GetNotifyPAAsync();
-        Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId);
+        Task<List<EmailNotifyPA>> GetNotifyPAAsync(string? Type);
+        Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId,string Type);
+        Task<EmailNotifyPA> GetByIdNotifyPAPrintAsync(Guid sessionId);
         Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA);
         Task<long> UpdateNotifyPAAsync(EmailNotifyPA emailNotifyPA);
         Task<long> UpdateCommentNotifyPAAsync(EmailNotifyPA emailNotifyPA);

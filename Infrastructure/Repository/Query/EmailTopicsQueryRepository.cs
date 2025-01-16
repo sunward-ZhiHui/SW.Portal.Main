@@ -2188,12 +2188,32 @@ namespace Infrastructure.Repository.Query
                 }
             }
         }
-        public async Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId)
+        public async Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId, string Type)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
+                parameters.Add("Type", Type);
+
+                var query = @"select * from EmailNotifyPA WHERE SessionID = @sessionId and Type = @Type";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QuerySingleOrDefaultAsync<EmailNotifyPA>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<EmailNotifyPA> GetByIdNotifyPAPrintAsync(Guid sessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("sessionId", sessionId);
+              
 
                 var query = @"select * from EmailNotifyPA WHERE SessionID = @sessionId";
                 using (var connection = CreateConnection())
@@ -2206,10 +2226,12 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailNotifyPA>> GetNotifyPAAsync()
+        public async Task<List<EmailNotifyPA>> GetNotifyPAAsync(string? Type)
         {
             try
             {
+                var parameters = new DynamicParameters();
+                parameters.Add("Type", Type);
                 //var query = @"select CONCAT(E.FirstName, ' - ' ,E.LastName) AS AddedBy,ENP.*,EC.AddedDate AS EmailCreatedDate,EC.LastUpdateDate,AMD.Value AS CategoryName from EmailNotifyPA ENP
                 //            INNER JOIN Employee E ON E.UserID = ENP.AddedByUserID
                 //            INNER JOIN EmailConversations EC ON EC.SessionId = ENP.SessionID
@@ -2220,11 +2242,11 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN Employee E ON E.UserID = ENP.AddedByUserID
                             INNER JOIN EmailConversations EC ON EC.SessionId = ENP.SessionID
                             LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = ENP.NotifyTypeID
-							Where ENP.IsDelete Is Null
-                            ORDER BY ENP.AddedDate DESC";
+							Where ENP.IsDelete Is Null AND ENP.Type = @Type
+                            ORDER BY ENP.AddedDate DESC ";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailNotifyPA>(query)).ToList();
+                    return (await connection.QueryAsync<EmailNotifyPA>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -2246,8 +2268,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Description", emailNotifyPA.Description);
                         parameters.Add("ModifiedByUserID", emailNotifyPA.ModifiedByUserID);
                         parameters.Add("ModifiedDate", emailNotifyPA.ModifiedDate);
+                        parameters.Add("Type", emailNotifyPA.Type);
 
-                        var query = "Update EmailNotifyPA SET NotifyTypeID =@NotifyTypeID ,Description =@Description,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+                        var query = "Update EmailNotifyPA SET Type = @Type, NotifyTypeID =@NotifyTypeID ,Description =@Description,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -2291,8 +2314,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SessionId", emailNotifyPA.SessionId);
                         parameters.Add("AddedByUserID", emailNotifyPA.AddedByUserID);
                         parameters.Add("AddedDate", emailNotifyPA.AddedDate);
+                        parameters.Add("Type", emailNotifyPA.Type);
 
-                        var query = " INSERT INTO EmailNotifyPA (Name,Page,NotifyTypeID,Description,SessionId,AddedByUserID,AddedDate) VALUES (@Name,@Page,@NotifyTypeID,@Description,@SessionId,@AddedByUserID,@AddedDate)";
+                        var query = " INSERT INTO EmailNotifyPA (Type,Name,Page,NotifyTypeID,Description,SessionId,AddedByUserID,AddedDate) VALUES (@Type,@Name,@Page,@NotifyTypeID,@Description,@SessionId,@AddedByUserID,@AddedDate)";
 
                         rowsAffected = await connection.ExecuteAsync(query, parameters);
 

@@ -2653,12 +2653,12 @@ namespace Infrastructure.Repository.Query
                     // {
                     List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).Distinct().ToList();
                     List<long> attributeSubFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710).Select(a => a.AttributeId.Value).Distinct().ToList();
-                    attributeResultDetails = await GetAttributeDetails(attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent,true);
+                    attributeResultDetails = await GetAttributeDetails(attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent, true);
                     var attributeDetails = attributeResultDetails.AttributeDetails;
                     attributeHeaderListModel.AttributeDetails = attributeDetails != null && attributeDetails.Count > 0 ? attributeDetails.Where(w => attributeIds.Contains(w.AttributeID)).ToList() : new List<AttributeDetails>();
                     var AttributeDetailsIds = attributeHeaderListModel.AttributeDetails.Select(s => s.AttributeDetailID).ToList();
                     List<long?> applicationMasterSubIds = new List<long?>();
-                    var attributeSubResultDetails = await GetAttributeDetails(new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent,true);
+                    var attributeSubResultDetails = await GetAttributeDetails(new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent, true);
 
                     if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
                     {
@@ -3151,6 +3151,7 @@ namespace Infrastructure.Repository.Query
             var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
+                int? Count1 = 0; int? Count2 = 0;
                 List<long?> Ids = new List<long?>();
                 List<long?> userIds = new List<long?>();
                 List<Guid?> SessionIds = new List<Guid?>();
@@ -3201,6 +3202,8 @@ namespace Infrastructure.Repository.Query
                                     {
                                         query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
                                         query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
                                     }
                                     else
                                     {
@@ -3216,7 +3219,8 @@ namespace Infrastructure.Repository.Query
                                     {
                                         query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
                                         query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
-
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
                                     }
                                     else
                                     {
@@ -3232,6 +3236,9 @@ namespace Infrastructure.Repository.Query
                                     query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
                                     query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
                                        "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                    query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                    query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
+                                    "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
                                 }
                                 else
@@ -3251,6 +3258,10 @@ namespace Infrastructure.Repository.Query
                                 userIds.AddRange(dynamicFormData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
                                 DynamicFormDataIds.AddRange(dynamicFormData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
                                 dynamicFormGridData = results.Read<DynamicFormData>().ToList();
+                                if (PageNo > 0)
+                                {
+                                    Count1 = results.Read<DynamicFormData>().Count(); Count2 = results.Read<DynamicFormData>().Count();
+                                }
                                 if (dynamicFormGridData != null && dynamicFormGridData.Count() > 0)
                                 {
                                     DynamicFormDataIds.AddRange(dynamicFormGridData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
@@ -3291,7 +3302,7 @@ namespace Infrastructure.Repository.Query
                             }
                             var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
                             var PlantDependencySubAttributeDetailss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.ToList() : new List<AttributeDetails>();
-                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, PageNo, pageSize);
+                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, PageNo, pageSize, Count1, Count2);
                         }
                     }
                 }
@@ -3362,7 +3373,7 @@ namespace Infrastructure.Repository.Query
                             }
                             var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
                             var PlantDependencySubAttributeDetailss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.ToList() : new List<AttributeDetails>();
-                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, string.Empty, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, null, null);
+                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, string.Empty, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, null, null, null, null);
                         }
                     }
                 }
@@ -3379,7 +3390,7 @@ namespace Infrastructure.Repository.Query
 
 
         }
-        private List<DynamicFormDataResponse> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems, int? pageNo, int? pageSize)
+        private List<DynamicFormDataResponse> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems, int? pageNo, int? pageSize, int? count1, int? count2)
         {
             var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             List<object> listItems = new List<object>();
@@ -3401,6 +3412,7 @@ namespace Infrastructure.Repository.Query
                         IDictionary<string, object> objectData = new ExpandoObject();
                         List<object> list = new List<object>();
                         List<DynamicFormReportItems> dynamicFormReportItems = new List<DynamicFormReportItems>();
+                        dynamicFormData.TotalPage = count1;
                         dynamicFormData.SortOrderByNo = r.SortOrderByNo;
                         dynamicFormData.DynamicFormDataId = r.DynamicFormDataId;
                         dynamicFormData.ProfileNo = r.ProfileNo;
@@ -3477,7 +3489,7 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormReportItems1.DynamicFormSectionGridAttributeSessionId = s.SessionId;
                                         var gridDataItem = dynamicFormGridData?.Where(a => a.DynamicFormDataGridId == r.DynamicFormDataId && a.DynamicFormId == s.DynamicFormGridDropDownId && a.DynamicFormSectionGridAttributeId == s.DynamicFormSectionAttributeId).OrderBy(o => o.GridSortOrderByNo).ToList();
                                         var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
-                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems, pageNo, pageSize);
+                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems, pageNo, pageSize, gridDataItem?.Count(),null);
                                         var datass = res?.Select(s => s.ObjectDataItems).ToList();
                                         // dynamicFormReportItems1.GridItems = res;
                                         dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();

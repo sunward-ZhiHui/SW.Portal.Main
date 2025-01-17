@@ -21,6 +21,9 @@ using static iTextSharp.text.pdf.AcroFields;
 using Microsoft.Data.Edm.Values;
 using Org.BouncyCastle.Utilities;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Dynamic;
 
 namespace Infrastructure.Repository.Query
 {
@@ -40,31 +43,37 @@ namespace Infrastructure.Repository.Query
                 DynamicFormDataListItems DynamicFormDataListItems = new DynamicFormDataListItems();
 
                 var query = "select t1.* from DynamicForm t1 where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.ID=@DynamicFormID;\n";
-                query += "select t1.* from DynamicFormSection t1 Where t1.DynamicFormID=@DynamicFormID;\n";
+                query += "select t1.* from DynamicFormSection t1 Where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormID IN(select t2.ID from DynamicForm t2 where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.ID=@DynamicFormID);\n";
                 query += "select t1.* from DynamicFormApproval t1 Where t1.DynamicFormID=@DynamicFormID;\n";
                 query += "select t1.* from DynamicFormWorkFlow t1 Where t1.DynamicFormID=@DynamicFormID;\n";
                 query += "select t1.* from DynamicFormWorkFlowSection t1 Where t1.DynamicFormWorkFlowID IN (select t2.DynamicFormWorkFlowID from DynamicFormWorkFlow t2 where t2.DynamicFormID=@DynamicFormID);\n";
                 query += "select t1.* from DynamicFormWorkFlowApproval t1 where t1.DynamicFormWorkFlowID IN(select t2.DynamicFormWorkFlowID from DynamicFormWorkFlow t2 Where t2.DynamicFormID=@DynamicFormID);\n";
 
-                query += "select t1.* from DynamicFormSectionAttribute t1 Where t1.DynamicFormSectionID IN (select t2.DynamicFormSectionID from DynamicFormSection t2 Where t2.DynamicFormID=@DynamicFormID);\n";
-                query += "select t1.* from DynamicFormSectionAttributeSectionParent t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where t3.DynamicFormID=@DynamicFormID));\n";
-                query += "select t1.* from DynamicFormSectionAttributeSection t1 where t1.DynamicFormSectionAttributeSectionParentID IN \r\n(select t2.DynamicFormSectionAttributeSectionParentID from DynamicFormSectionAttributeSectionParent t2 where t2.DynamicFormSectionAttributeID IN\r\n(select t3.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t3 Where t3.DynamicFormSectionID IN(Select t4.DynamicFormSectionID from DynamicFormSection t4 where t4.DynamicFormID= @DynamicFormID)));\n";
-                query += "select t1.* from DynamicFormSectionSecurity t1 where DynamicFormSectionID IN(select t2.DynamicFormSectionID from DynamicFormSection t2 Where t2.DynamicFormID=@DynamicFormID);\n";
-                query += "select t1.* from DynamicFormSectionAttributeSecurity t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where t3.DynamicFormID=@DynamicFormID));\n";
+                query += "select t1.* from DynamicFormSectionAttribute t1 Where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormSectionID IN (select t2.DynamicFormSectionID from DynamicFormSection t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormID=@DynamicFormID);\n";
+                query += "select t1.* from DynamicFormSectionAttributeSectionParent t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where (t3.IsDeleted is null OR t3.IsDeleted=0) AND t3.DynamicFormID=@DynamicFormID));\n";
+                query += "select t1.* from DynamicFormSectionAttributeSection t1 where t1.DynamicFormSectionAttributeSectionParentID IN \r\n(select t2.DynamicFormSectionAttributeSectionParentID from DynamicFormSectionAttributeSectionParent t2 where  t2.DynamicFormSectionAttributeID IN\r\n(select t3.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t3 Where (t3.IsDeleted is null OR t3.IsDeleted=0) AND t3.DynamicFormSectionID IN(Select t4.DynamicFormSectionID from DynamicFormSection t4 where (t4.IsDeleted is null OR t4.IsDeleted=0) AND t4.DynamicFormID= @DynamicFormID)));\n";
+                query += "select t1.* from DynamicFormSectionSecurity t1 where DynamicFormSectionID IN(select t2.DynamicFormSectionID from DynamicFormSection t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormID=@DynamicFormID);\n";
+                query += "select t1.* from DynamicFormSectionAttributeSecurity t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND  t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where t3.DynamicFormID=@DynamicFormID));\n";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
                     DynamicFormDataListItems.DynamicForm = results.ReadAsync<DynamicForm>().Result.FirstOrDefault();
-                    DynamicFormDataListItems.DynamicFormSection = results.ReadAsync<DynamicFormSection>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormApproval = results.ReadAsync<DynamicFormApproval>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormWorkFlow = results.ReadAsync<DynamicFormWorkFlow>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormWorkFlowSection = results.ReadAsync<DynamicFormWorkFlowSection>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormWorkFlowApproval = results.ReadAsync<DynamicFormWorkFlowApproval>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormSectionAttribute = results.ReadAsync<DynamicFormSectionAttribute>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormSectionAttributeSectionParent = results.ReadAsync<DynamicFormSectionAttributeSectionParent>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormSectionAttributeSection = results.ReadAsync<DynamicFormSectionAttributeSection>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormSectionSecurity = results.ReadAsync<DynamicFormSectionSecurity>().Result.ToList();
-                    DynamicFormDataListItems.DynamicFormSectionAttributeSecurity = results.ReadAsync<DynamicFormSectionAttributeSecurity>().Result.ToList();
+                    if (DynamicFormDataListItems.DynamicForm != null)
+                    {
+                        DynamicFormDataListItems.DynamicFormSection = results.ReadAsync<DynamicFormSection>().Result.ToList();
+                        DynamicFormDataListItems.DynamicFormApproval = results.ReadAsync<DynamicFormApproval>().Result.ToList();
+                        DynamicFormDataListItems.DynamicFormWorkFlow = results.ReadAsync<DynamicFormWorkFlow>().Result.ToList();
+                        DynamicFormDataListItems.DynamicFormWorkFlowSection = results.ReadAsync<DynamicFormWorkFlowSection>().Result.ToList();
+                        DynamicFormDataListItems.DynamicFormWorkFlowApproval = results.ReadAsync<DynamicFormWorkFlowApproval>().Result.ToList();
+                        if (DynamicFormDataListItems.DynamicFormSection != null && DynamicFormDataListItems.DynamicFormSection.Count() > 0)
+                        {
+                            DynamicFormDataListItems.DynamicFormSectionAttribute = results.ReadAsync<DynamicFormSectionAttribute>().Result.ToList();
+                            DynamicFormDataListItems.DynamicFormSectionAttributeSectionParent = results.ReadAsync<DynamicFormSectionAttributeSectionParent>().Result.ToList();
+                            DynamicFormDataListItems.DynamicFormSectionAttributeSection = results.ReadAsync<DynamicFormSectionAttributeSection>().Result.ToList();
+                            DynamicFormDataListItems.DynamicFormSectionSecurity = results.ReadAsync<DynamicFormSectionSecurity>().Result.ToList();
+                            DynamicFormDataListItems.DynamicFormSectionAttributeSecurity = results.ReadAsync<DynamicFormSectionAttributeSecurity>().Result.ToList();
+                        }
+                    }
                 }
                 return DynamicFormDataListItems;
             }
@@ -126,8 +135,8 @@ namespace Infrastructure.Repository.Query
                         {
                             await GetDynamicFormData(result, dynamicForms, NewDynamicFormId);
                             await InsertOrUpdateDynamicFormData(result, UserId, DateTime, NewDynamicFormId);
-                            await InsertDynamicFormDataSectionLock(result, NewDynamicFormId, "",0);
-                            await InsertDynamicFormApproved(result, NewDynamicFormId, "",0);
+                            await InsertDynamicFormDataSectionLock(result, NewDynamicFormId, "", 0);
+                            await InsertDynamicFormApproved(result, NewDynamicFormId, "", 0);
                             await InsertDynamicFormWorkFlowForm(result, NewDynamicFormId, "", 0);
                             await InsertDynamicFormDataGrid(result, UserId, DateTime, NewDynamicFormId);
                         }
@@ -165,14 +174,15 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("AddedDate", DateTime, DbType.DateTime);
                                 parameters.Add("ModifiedDate", DateTime, DbType.DateTime);
                                 parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeID);
+                                parameters.Add("IsAutoNumberEnabled", dynamicFormSection.IsAutoNumberEnabled == true ? true : null);
                                 parameters.Add("IsVisible", dynamicFormSection.IsVisible);
                                 parameters.Add("IsReadOnly", dynamicFormSection.IsReadOnly);
                                 parameters.Add("IsReadWrite", dynamicFormSection.IsReadWrite);
                                 parameters.Add("Instruction", dynamicFormSection.Instruction, DbType.String);
                                 parameters.Add("SectionFileProfileTypeId", dynamicFormSection.SectionFileProfileTypeId);
-                                var query = "INSERT INTO DynamicFormSection(SectionFileProfileTypeId,SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite,Instruction)  " +
+                                var query = "INSERT INTO DynamicFormSection(IsAutoNumberEnabled,SectionFileProfileTypeId,SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite,Instruction)  " +
                                     "OUTPUT INSERTED.DynamicFormSectionId VALUES " +
-                                    "(@SectionFileProfileTypeId,@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite,@Instruction)";
+                                    "(@IsAutoNumberEnabled,@SectionFileProfileTypeId,@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite,@Instruction)";
                                 dynamicFormSection.DynamicFormCloneSectionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                                 if (result.DynamicFormSectionSecurity != null && result.DynamicFormSectionSecurity.Count() > 0)
@@ -496,7 +506,7 @@ namespace Infrastructure.Repository.Query
                     result.DynamicFormData = resultData != null ? resultData : new List<DynamicFormData>();
                     var DynamicFormDataIds = string.Join(',', resultData.Select(s => s.DynamicFormDataId).ToList());
                     var query1 = string.Empty;
-                    query1 += "select t1.* from DynamicFormData t1 where t1.DynamicFormDataGridID IN(" + DynamicFormDataIds + ");\n";
+                    query1 += "select t1.* from DynamicFormData t1 where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormDataGridID IN(" + DynamicFormDataIds + ");\n";
                     query1 += "select t1.* from DynamicFormApproved t1 where t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";
                     query1 += "select t1.* from DynamicFormApprovedChanged t1 Where t1.DynamicFormApprovedID IN(select t2.DynamicFormApprovedID from DynamicFormApproved t2 where t2.DynamicFormDataID IN(" + DynamicFormDataIds + "));\n";
                     query1 += "select t1.* from DynamicFormDataSectionLock t1 where t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";
@@ -527,7 +537,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         public async Task<DynamicFormDataListItems> InsertOrUpdateDynamicFormData(DynamicFormDataListItems result, long? UserId, DateTime DateTime, long DynamicFormId)
         {
             try
@@ -541,13 +577,44 @@ namespace Infrastructure.Repository.Query
                             int i = 0;
                             foreach (var dynamicFormData in result.DynamicFormData)
                             {
+                                
                                 long? NewDynamicFormSectionGridAttributeId = null;
                                 if (dynamicFormData.DynamicFormSectionGridAttributeId > 0)
                                 {
                                     NewDynamicFormSectionGridAttributeId = result.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == dynamicFormData.DynamicFormSectionGridAttributeId)?.NewDynamicFormSectionAttributeId;
                                 }
                                 var parameters = new DynamicParameters();
-                                parameters.Add("DynamicFormItem", dynamicFormData.DynamicFormItem, DbType.String);
+                                IDictionary<string, object> objectDataList = new ExpandoObject();
+                                dynamic jsonObj = new object();
+                                if (dynamicFormData.DynamicFormItem != null && IsValidJson(dynamicFormData.DynamicFormItem))
+                                {
+                                    jsonObj = JsonConvert.DeserializeObject(dynamicFormData.DynamicFormItem);
+                                    ExpandoObject listData = jsonObj.ToObject<ExpandoObject>();
+                                    var li = listData.ToList();
+                                    if (li != null && li.Count() > 0)
+                                    {
+                                        li.ForEach(f =>
+                                        {
+                                            var keyData = f.Key;
+                                            var valueData = f.Value;
+                                            var keyDatas = keyData.Split("_").ToList();
+                                            if (keyDatas != null && keyDatas.Count() > 0)
+                                            {
+                                                var key = keyDatas[0];
+                                                var keyCount = key.Count();
+                                                var aa = keyData.Substring(keyCount, keyData.Length - keyCount);
+                                                var dId = result.DynamicFormSectionAttribute.FirstOrDefault(r => r.DynamicFormSectionAttributeId == long.Parse(key))?.NewDynamicFormSectionAttributeId;
+                                                if (dId > 0)
+                                                {
+                                                    string setData = dId + aa;
+                                                    objectDataList[setData] = valueData;
+                                                }
+                                            }
+
+                                        });
+                                    }
+                                }
+                                parameters.Add("DynamicFormItem", JsonConvert.SerializeObject(objectDataList), DbType.String);
                                 parameters.Add("DynamicFormId", DynamicFormId);
                                 parameters.Add("SessionId", Guid.NewGuid(), DbType.Guid);
                                 parameters.Add("AddedByUserID", UserId);
@@ -588,7 +655,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<DynamicFormDataListItems> InsertDynamicFormDataSectionLock(DynamicFormDataListItems result, long DynamicFormId, string? IsGrid,long  NewDynamicFormDataId)
+        public async Task<DynamicFormDataListItems> InsertDynamicFormDataSectionLock(DynamicFormDataListItems result, long DynamicFormId, string? IsGrid, long NewDynamicFormDataId)
         {
             try
             {
@@ -642,7 +709,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DynamicFormDataListItems> InsertDynamicFormApproved(DynamicFormDataListItems result, long DynamicFormId, string? IsGrid,long NewDynamicFormDataId)
+        public async Task<DynamicFormDataListItems> InsertDynamicFormApproved(DynamicFormDataListItems result, long DynamicFormId, string? IsGrid, long NewDynamicFormDataId)
         {
             try
             {
@@ -706,7 +773,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DynamicFormDataListItems> InsertDynamicFormWorkFlowForm(DynamicFormDataListItems result, long NewDynamicFormId, string? IsGrid,long NewDynamicFormDataId)
+        public async Task<DynamicFormDataListItems> InsertDynamicFormWorkFlowForm(DynamicFormDataListItems result, long NewDynamicFormId, string? IsGrid, long NewDynamicFormDataId)
         {
             try
             {
@@ -972,8 +1039,8 @@ namespace Infrastructure.Repository.Query
                 if (!string.IsNullOrEmpty(DynamicFormDataIds))
                 {
                     var query1 = string.Empty;
-                    query1 += "select t1.* from DynamicFormData t1 where t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";
-                    query1 += "select t1.* from DynamicFormData t1 where t1.DynamicFormDataGridID IN(" + DynamicFormDataId + ");\n";
+                    query1 += "select t1.* from DynamicFormData t1 where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";
+                    query1 += "select t1.* from DynamicFormData t1 where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormDataGridID IN(" + DynamicFormDataId + ");\n";
                     query1 += "select t1.* from DynamicFormApproved t1 where t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";
                     query1 += "select t1.* from DynamicFormApprovedChanged t1 Where t1.DynamicFormApprovedID IN(select t2.DynamicFormApprovedID from DynamicFormApproved t2 where t2.DynamicFormDataID IN(" + DynamicFormDataIds + "));\n";
                     query1 += "select t1.* from DynamicFormDataSectionLock t1 where t1.DynamicFormDataID IN(" + DynamicFormDataIds + ");\n";

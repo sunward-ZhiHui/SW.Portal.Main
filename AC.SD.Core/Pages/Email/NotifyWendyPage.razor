@@ -1,4 +1,5 @@
-﻿@using Application.Commands;
+﻿@page "/NotifyPA"
+@using Application.Commands;
 @using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
@@ -19,14 +20,13 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization;
 @implements IAsyncDisposable
-@page "/NotifypaPage"
 
 <style>
     .center-container {
         display: flex;
         justify-content: center;
         align-items: center;
-       
+
         height: calc(100vh - 210px);
         margin: 0;
     }
@@ -51,8 +51,6 @@
             margin-top: 10px;
         }
 </style>
- @if(_openAccessUserLink != null)
-{
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
             <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -155,23 +153,14 @@
         </TotalSummary>
     </DxGrid>
 
-}
-else
-{
-    <div class="center-container">
-        <div class="warning-message">
-            <h1>Access Denied</h1>
-            <p>You do not have permission to view this page.</p>
-        </div>
-    </div>
-}
+
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="NOVATO"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
-       
+
         <p>
 
             Do you want to Remove From Listing?
@@ -186,7 +175,7 @@ else
     <BodyContentTemplate>
         <div style="height: calc(100vh - 250px);overflow:auto;">
             @{
-              <DxMemo ReadOnly = "true" Rows="18" @bind-Text ="@Comment"></DxMemo>
+                <DxMemo ReadOnly="true" Rows="18" @bind-Text="@Comment"></DxMemo>
 
             }
         </div>
@@ -203,7 +192,7 @@ else
     </BodyContentTemplate>
 </DxPopup>
 @code {
-    private OpenAccessUserLink? _openAccessUserLink { get; set; }
+   // private OpenAccessUserLink? _openAccessUserLink { get; set; }
     public bool PrintEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
     IGrid EmailNotifyPAGrid { get; set; }
@@ -222,11 +211,11 @@ else
     string Description;
     bool EmailEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
-    {       
+    {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        await JSRuntime.InvokeAsync<string>("showLoading");    
+        await JSRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
+        //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         await UpdateDataAsync();
         //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
 
@@ -234,15 +223,15 @@ else
     }
     async Task UpdateDataAsync()
     {
-        _emailNotifyData = await Mediator.Send(new GetNotifyPAList("JD"));
+        _emailNotifyData = await Mediator.Send(new GetNotifyPAList("PA"));
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow)
-        {           
+        {
             if (e.VisibleIndex % 2 == 1)
             {
-                e.CssClass = "alt-item non-selectable-row";               
+                e.CssClass = "alt-item non-selectable-row";
             }
         }
     }
@@ -288,7 +277,7 @@ else
 
         var url = BaseUrl + "ViewEmail/EmailNotifyPrint/" + lst.SessionId + "/" + lst.Page;
         string script = $"window.open('{url}', '_blank');";
-        await JSRuntime.InvokeVoidAsync("eval", script);      
+        await JSRuntime.InvokeVoidAsync("eval", script);
 
         StateHasChanged();
     }

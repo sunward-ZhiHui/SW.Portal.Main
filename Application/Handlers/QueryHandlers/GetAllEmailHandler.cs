@@ -751,7 +751,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<List<EmailNotifyPA>> Handle(GetNotifyPAList request, CancellationToken cancellationToken)
         {
-            var req = await _emailTopicsQueryRepository.GetNotifyPAAsync();
+            var req = await _emailTopicsQueryRepository.GetNotifyPAAsync(request.Type);
             return req;
         }
     }
@@ -766,11 +766,25 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<EmailNotifyPA> Handle(GetByIdNotifyPAList request, CancellationToken cancellationToken)
         {
-            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAAsync(request.sessionId);
+            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAAsync(request.sessionId,request.Type);
             return req;
         }
     }
+    public class GetByIdNotifyPAListPrintHandler : IRequestHandler<GetByIdNotifyPAListPrint, EmailNotifyPA>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
 
+        public GetByIdNotifyPAListPrintHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<EmailNotifyPA> Handle(GetByIdNotifyPAListPrint request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAPrintAsync(request.sessionId);
+            return req;
+        }
+    }
 
 
 

@@ -478,7 +478,7 @@
     async Task NotesPage()
     {
         //await JSRuntime.InvokeVoidAsync("printPage");
-        var list = await Mediator.Send(new GetByIdNotifyPAList(TopicSessionId));
+        var list = await Mediator.Send(new GetByIdNotifyPAListPrint(TopicSessionId));
         if(list.Comment != null)
         {
             Comment = list.Comment;

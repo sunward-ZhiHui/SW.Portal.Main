@@ -459,16 +459,32 @@ namespace Application.Queries
     }
     public class GetNotifyPAList : IRequest<List<EmailNotifyPA>>
     {
+        public string? Type { get; private set; }
+        public GetNotifyPAList(string? Type)
+        {
+            this.Type = Type;
+        }
     }
     public class GetByIdNotifyPAList : IRequest<EmailNotifyPA>
     {
         public Guid sessionId { get; private set; }
-        public GetByIdNotifyPAList(Guid SessionId)
+        public string Type { get; private set; }
+        public GetByIdNotifyPAList(Guid SessionId, string type)
         {
             this.sessionId = SessionId;
+            Type = type;
         }
-    }   
-
+    }
+    public class GetByIdNotifyPAListPrint : IRequest<EmailNotifyPA>
+    {
+        public Guid sessionId { get; private set; }
+      
+        public GetByIdNotifyPAListPrint(Guid SessionId)
+        {
+            this.sessionId = SessionId;
+           
+        }
+    }
     public class UpdateEmailTimelineEvent : EmailTimelineEvent, IRequest<long>
     {
     }

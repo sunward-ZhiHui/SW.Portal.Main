@@ -63,6 +63,8 @@
     [Parameter]
     public string? Page { get; set; }
     [Parameter]
+    public string? Type { get; set; }
+    [Parameter]
     public EmailTopics? topicList { get; set; }
     EmailNotifyPA Data = new EmailNotifyPA();
     private List<View_ApplicationMasterDetail>? _notifyCategoryList;
@@ -81,8 +83,8 @@
                     NotifyTypeID = Data.NotifyTypeID,
                     Description = Data.Description,                    
                     ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now
-
+                    ModifiedDate = DateTime.Now,
+                        Type = Type
                 };
 
             var result = await Mediator.Send(UpdateReq);
@@ -100,8 +102,8 @@
                     Description = Data.Description,
                     SessionId = topicList.SessionId,
                     AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now
-
+                    AddedDate = DateTime.Now,
+                    Type = Type
                 };
 
             var result = await Mediator.Send(UpdateReq);
@@ -110,7 +112,7 @@
 
 
         }
-        
+
         Data = new EmailNotifyPA();
         topicList = new EmailTopics();
 
@@ -125,20 +127,23 @@
     {
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-
-        var list = await Mediator.Send(new GetByIdNotifyPAList(topicList.SessionId.Value));
-
-        if(list != null)
+        if (Type != null)
         {
-            Data.ID = list.ID;
-            Data.NotifyTypeID = list.NotifyTypeID;
-            Data.Description = list.Description;
-        }
-        else
-        {
-            Data.ID = 0;
-        }
+            var list = await Mediator.Send(new GetByIdNotifyPAList(topicList.SessionId.Value, Type));
 
+
+
+            if (list != null)
+            {
+                Data.ID = list.ID;
+                Data.NotifyTypeID = list.NotifyTypeID;
+                Data.Description = list.Description;
+            }
+            else
+            {
+                Data.ID = 0;
+            }
+        }
         _notifyCategoryList = await Mediator.Send(new GetAllApplicationMasterDetailQuery(403));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");

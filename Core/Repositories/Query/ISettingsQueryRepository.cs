@@ -19,6 +19,7 @@ namespace Core.Repositories.Query
         Task<OpenAccessUser> GetAllByAsync(string? AccessType);
         Task<OpenAccessUserLink> GetDMSAccessByUser(long? UserID);
         Task<OpenAccessUserLink> GetEmailAccessByUser(long? UserID);
+        Task<OpenAccessUserLink> GetNotifyPAAccessByUser(long? UserID);
         Task<OpenAccessUserLink> GetEmailOtherTagAccessByUser(long? UserID);
         Task<IReadOnlyList<OpenAccessUserLink>> GetDocumentAccessTypeEmptyAsync(string? accessType);
     }

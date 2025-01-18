@@ -51,6 +51,8 @@
             margin-top: 10px;
         }
 </style>
+ @if(_openAccessUserLink != null)
+  {
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
             <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -153,7 +155,16 @@
         </TotalSummary>
     </DxGrid>
 
-
+}
+else
+{
+    <div class="center-container">
+        <div class="warning-message">
+            <h1>Access Denied</h1>
+            <p>You do not have permission to view this page.</p>
+        </div>
+    </div>
+}
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="NOVATO"
@@ -192,7 +203,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
-   // private OpenAccessUserLink? _openAccessUserLink { get; set; }
+    private OpenAccessUserLink? _openAccessUserLink { get; set; }
     public bool PrintEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
     IGrid EmailNotifyPAGrid { get; set; }
@@ -215,7 +226,7 @@
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         await JSRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
+        _openAccessUserLink = await Mediator.Send(new GetNotifyPAAccessByUser(applicationUser.UserID));
         await UpdateDataAsync();
         //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
 

@@ -274,6 +274,11 @@
                             <i class="fa fa-calendar-check"></i>
                             <p>Appointment <span>@_appointmentsCount</span></p>
                         </div>
+                        <div class="list-item1" @onclick="() => GoAppointments()">
+                            <i class="fa fa-calendar-check"></i>
+                            <p>Invitation <span>@_InvitationCount / @_UserCreatedAppointmentCount</span></p>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -328,6 +333,8 @@
     long _WorkflowNotificationCount { get; set; }
     long _approvelNotificationCount { get; set; }
     long _appointmentsCount { get; set; }
+    long _InvitationCount { get; set; }
+    long _UserCreatedAppointmentCount { get; set; }
     long _NotificationCount { get; set; }
     private List<DynamicForm> _dynamicForm;
     private List<DynamicFormDataWrokFlow> _WorkFlowdynamicForm;
@@ -365,8 +372,10 @@
             _memoNotificationCount = _MemoList.Count;
 
             _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));
+            _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
+            _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
 
-            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount;
+            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
         }
 
         await InvokeAsync(StateHasChanged);
@@ -420,13 +429,15 @@
             _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
             _approvelNotificationCount = _dynamicForm.Count;
-            _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));            
+            _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));   
+            _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
+            _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
         }
       
        
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
-        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount;
+        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
 
         await InvokeAsync(StateHasChanged);
     }

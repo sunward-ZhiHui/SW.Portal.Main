@@ -55,6 +55,23 @@ namespace Application.Queries
         {
             this.UserID = UserID;
         }
+    }
+    public class GetUserCreatedSchedulerCout : PagedRequest, IRequest<int>
+    {
+        public long UserID { get; private set; }
+        public GetUserCreatedSchedulerCout(long UserID)
+        {
+            this.UserID = UserID;
+        }
+    }
+    
+    public class GetInvitationCout : PagedRequest, IRequest<int>
+    {
+        public long UserID { get; private set; }
+        public GetInvitationCout(long UserID)
+        {
+            this.UserID = UserID;
+        }
     }    
     public class GetGenderRatio : PagedRequest, IRequest<List<GenderRatio>>
     {

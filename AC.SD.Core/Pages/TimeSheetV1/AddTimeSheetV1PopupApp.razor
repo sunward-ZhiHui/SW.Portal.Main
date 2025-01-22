@@ -1295,24 +1295,23 @@
         RawMaterial = args.BarcodeText;
         if (RawMaterial != null)
         {
-            var RawMaterialdd = _RawMatItemList1.Where(f => f.ItemNo == RawMaterial).ToList();
-            if (RawMaterialdd.Count > 0)
+            var ScanData = RawMaterial.Split("~");
+            if (ScanData.Length > 0)
             {
-
-                if (RawMaterialDDIds.Contains(RawMaterial) == false)
+                var RawMaterialdd = _RawMatItemList1.Where(f => f.ItemNo.ToLower() == ScanData[0].ToLower()).ToList();
+                if (RawMaterialdd.Count > 0)
                 {
-                    RawMaterialDDIds.Add(RawMaterial);
-
-
+                    if (RawMaterialDDIds.Contains(ScanData[0]) == false)
+                    {
+                        RawMaterialDDIds.Add(ScanData[0]);
+                    }
                 }
-
+                else
+                {
+                    toastService.ShowToast("Invaild Raw Material", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                Data.RawMaterialDDIds = new List<string?>(RawMaterialDDIds);
             }
-            else
-            {
-                toastService.ShowToast("Invaild Raw Material", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            Data.RawMaterialDDIds = new List<string?>(RawMaterialDDIds);
-
         }
         else
         {

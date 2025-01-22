@@ -1998,17 +1998,9 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
-                        var query = string.Empty;
+
                         Guid? SessionId = Guid.NewGuid();
-                        var parameters = new DynamicParameters();
-                        parameters.Add("DynamicFormDataId", CurrentData.DynamicFormDataId);
-                        parameters.Add("AuditUserId", CurrentData.ModifiedByUserID);
-                        parameters.Add("AuditDateTime", DateTime.Now, DbType.DateTime);
-                        parameters.Add("PreUserID", PrevData.ModifiedByUserID);
-                        parameters.Add("PreUpdateDate", PrevData.ModifiedDate, DbType.DateTime);
-                        parameters.Add("PrevData", PrevData.DynamicFormItem, DbType.String);
-                        parameters.Add("CurrentData", CurrentData.DynamicFormItem, DbType.String);
-                        parameters.Add("SessionId", SessionId, DbType.Guid);
+
                         dynamic PrevDatajsonObj = new object();
                         if (PrevData.DynamicFormItem != null && IsValidJson(PrevData.DynamicFormItem))
                         {
@@ -2059,25 +2051,38 @@ namespace Infrastructure.Repository.Query
                                     }
                                     if (itemValue != PreValueSet)
                                     {
+                                        var query = string.Empty;
+                                        var parameters = new DynamicParameters();
+                                        parameters.Add("DynamicFormDataId", CurrentData.DynamicFormDataId);
+                                        parameters.Add("AuditUserId", CurrentData.ModifiedByUserID);
+                                        parameters.Add("AuditDateTime", DateTime.Now, DbType.DateTime);
+                                        parameters.Add("PreUserID", PrevData.ModifiedByUserID);
+                                        parameters.Add("PreUpdateDate", PrevData.ModifiedDate, DbType.DateTime);
+                                        parameters.Add("PrevData", PrevData.DynamicFormItem, DbType.String);
+                                        parameters.Add("CurrentData", CurrentData.DynamicFormItem, DbType.String);
+                                        parameters.Add("SessionId", SessionId, DbType.Guid);
+                                        parameters.Add("CurrentValueId", itemValue, DbType.String);
+                                        parameters.Add("PrevValueId", PreValueSet, DbType.String);
                                         if (i == 0)
                                         {
                                             query += "INSERT INTO DynamicFormDataAudit(DynamicFormDataId,AuditUserId,AuditDateTime,PreUserID,PreUpdateDate,PrevData,CurrentData,SessionId,CurrentValueId,PrevValueId,DynamicFormSectionAttributeId,AttributeId)  OUTPUT INSERTED.DynamicFormDataAuditId VALUES " +
-                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@PrevData,@CurrentData,@SessionId,'" + itemValue + "','" + PreValueSet + "'," + spliData[0] + ",'" + itemKey + "');\n\r";
+                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@PrevData,@CurrentData,@SessionId,@CurrentValueId,@PrevValueId," + spliData[0] + ",'" + itemKey + "');\n\r";
                                         }
                                         else
                                         {
                                             query += "INSERT INTO DynamicFormDataAudit(DynamicFormDataId,AuditUserId,AuditDateTime,PreUserID,PreUpdateDate,SessionId,CurrentValueId,PrevValueId,DynamicFormSectionAttributeId,AttributeId)  OUTPUT INSERTED.DynamicFormDataAuditId VALUES " +
-                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@SessionId,'" + itemValue + "','" + PreValueSet + "'," + spliData[0] + ",'" + itemKey + "');\n\r";
+                                        "(@DynamicFormDataId,@AuditUserId,@AuditDateTime,@PreUserID,@PreUpdateDate,@SessionId,@CurrentValueId,@PrevValueId," + spliData[0] + ",'" + itemKey + "');\n\r";
+                                        }
+                                        if (!string.IsNullOrEmpty(query))
+                                        {
+                                            await connection.ExecuteAsync(query, parameters);
                                         }
                                         i++;
                                     }
                                 }
                             }
                         }
-                        if (!string.IsNullOrEmpty(query))
-                        {
-                            await connection.ExecuteAsync(query, parameters);
-                        }
+
                     }
                     catch (Exception exp)
                     {

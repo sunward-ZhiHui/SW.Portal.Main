@@ -1,4 +1,4 @@
-﻿@page "/OdataGridList"
+﻿@page "/OdataGridList/OdataGridList1"
  @using RestSharp;
  @using Newtonsoft.Json;
  @using Newtonsoft.Json.Linq;
@@ -10,9 +10,6 @@
                 Text="Fetching Data...">
     <div class="menu-bar-content-container col-md-12">
         <div class="card w-100" style="margin-bottom:1px;">
-
-
-
             <div class="card-body p-0">
 
                 <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -20,30 +17,15 @@
                         DisplayMode="MenuDisplayMode.Auto">
 
                     <Items>
-                        <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                        <DxMenuItem Position="ItemPosition.End" Text="Export" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
                     </Items>
                 </DxMenu>
 
             </div>
-
-
         </div>
     </div>
-    <div class="card" style="margin-bottom:10px;">
-        <div class="card-body p-0" style="margin-left: 10px;margin-top: 10px;margin-bottom: 10px;">
-            <div class="row">
-                <div class="">
-                    <DxPager PageCount="@PageCount"
-                             ActivePageIndex="@ActivePageIndex" ActivePageIndexChanged="OnActivePageIndexChanged" NavigationMode="PagerNavigationMode.InputBox"
-                             SizeMode="SizeMode.Medium">
-                    </DxPager>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <DxGrid Data="@DataSource" @ref="Grid"
-            PageSize="@PageSize"
+            PageSize="50"
             ShowGroupPanel="true" ShowGroupedColumns="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -52,14 +34,11 @@
             SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
             SearchText="@searchText"
             SearchTextChanged="OnSearchTextChanged"
-            CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
             style="height: calc(100vh - 280px);"
             CssClass="w-100"
             TextWrapEnabled="false">
         <Columns>
-            <DxGridDataColumn FieldName="dynamicFormDataId" Visible="false" />
             <DxGridDataColumn FieldName="profileNo" Caption="Profile No" />
-            <DxGridDataColumn FieldName="name" Visible="false" />
             <DxGridDataColumn FieldName="10973_Attr$QC_Reference_No_-_PDJ" Caption="QC Reference No - PDJ" />
             <DxGridDataColumn FieldName="10972_Attr$FP_Batch_information" Caption="FP Batch information" />
             <DxGridDataColumn FieldName="11013_Attr$Machine" Caption="Machine" />
@@ -67,21 +46,9 @@
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="profileNo" />
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Custom" Name="Custom" FieldName="profileNo" />
+            
         </TotalSummary>
     </DxGrid>
-    <div class="card" style="margin-bottom:10px;">
-        <div class="card-body p-0" style="margin-left: 10px;margin-top: 10px;margin-bottom: 10px;">
-            <div class="row">
-                <div class="">
-                    <DxPager PageCount="@PageCount"
-                             ActivePageIndex="@ActivePageIndex" ActivePageIndexChanged="OnActivePageIndexChanged" NavigationMode="PagerNavigationMode.InputBox"
-                             SizeMode="SizeMode.Medium">
-                    </DxPager>
-                </div>
-            </div>
-        </div>
-    </div>
 </DxLoadingPanel>
 @code {
     //main Grid
@@ -92,7 +59,7 @@
     bool PanelVisible { get; set; } = true;
     public int PageSize = 50;
     public List<dynamic> DataSource { get; set; } = new List<dynamic>();
-     bool ExportSelectedRowsOnly { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     //
     public string? Baseurl = "https://portal.sunwardpharma.com:8423/api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=d59cfc4b-8e20-4114-9d77-63f683b53056";
     public string? url = string.Empty;
@@ -103,6 +70,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GenerateList();
+        await loadData();
     }
     string GenerateUrl()
     {
@@ -117,55 +85,19 @@
         }
 
     }
-    void Grid_CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
-    {
-        if (e.Item.Name == "Custom")
-            e.DisplayText = string.Format("Total Records: {0}", TotalRecords);
-    }
-    async Task OnActivePageIndexChanged(int activePageIndex)
-    {
-        ActivePageIndex = activePageIndex;
-        if (!string.IsNullOrEmpty(searchText))
-        {
-            PageNo = ActivePageIndex + 1;
-            filterPagination(ActivePageIndex + 1);
-        }
-        else
-        {
-            PagePageNo = ActivePageIndex + 1;
-            PageNo = ActivePageIndex + 1;
-            await GenerateList();
-        }
-    }
-    void filterPagination(int filterPageNo)
-    {
-        if (DataSource1 != null && DataSource1.Count() > 0)
-        {
-            var pCount = DataSource1.Count();
-            TotalRecords = pCount;
-            if (pCount > 0)
-            {
-                PageCount = ((pCount - 1) / PageSize) + 1;
-            }
-            DataSource = DataSource1.Skip((int)((filterPageNo - 1) * PageSize)).Take(PageSize).ToList();
-        }
-        PanelVisible = false;
-
-    }
     async Task GenerateList()
     {
         PanelVisible = true;
         var DataSources = await restApi();
         if (DataSources.Count() > 0)
         {
-            DataSource = DataSources;
-            PanelVisible = false;
         }
         else
         {
             DataSource = new List<dynamic>();
             PanelVisible = false;
         }
+        StateHasChanged();
     }
     async Task<List<dynamic>> restApi()
     {
@@ -197,22 +129,11 @@
         }
         return DataSourceItem;
     }
-    async Task OnSearchTextChanged(string? newSearchText)
+    void OnSearchTextChanged(string? newSearchText)
     {
-        DataSource = new List<dynamic>(); DataSource1 = new List<dynamic>(); TotalRecords = 0;
         searchText = newSearchText;
-        int searchPageCount = 1;
-        if (!string.IsNullOrEmpty(newSearchText))
-        {
-            await loadFilterData(searchPageCount, newSearchText);
-        }
-        else
-        {
-            PageNo = 1; PagePageNo = 1;
-            await GenerateList();
-        }
     }
-    async Task loadFilterData(int searchPageCount, string? newSearchText)
+    async Task loadData()
     {
         for (int i = 1; i <= PageCount; i++)
         {
@@ -223,35 +144,12 @@
             {
                 listData.ForEach(f =>
                 {
-                    List<string> nameValue = new List<string>();
-                    ExpandoObject listData = f.ToObject<ExpandoObject>();
-                    var li = listData.ToList();
-                    li.ForEach(l =>
-                    {
-                        if (l.Key.ToLower() != "dynamicFormDataId".ToLower() && l.Key.ToLower() != "name".ToLower() && l.Key.ToLower() != "SessionId".ToLower())
-                        {
-                            if (l.Value != null)
-                            {
-                                string value = l.Value?.ToString();
-                                if (!string.IsNullOrEmpty(value))
-                                {
-                                    nameValue.Add(value);
-                                }
-                            }
-                        }
-                    });
-                    if (nameValue != null && nameValue.Count() > 0)
-                    {
-                        var exits = nameValue.Where(s => s != null && s.ToLower().Contains(newSearchText?.ToLower())).ToList();
-                        if (exits.Count() > 0)
-                        {
-                            DataSource1.Add(f);
-                        }
-                    }
+                    DataSource1.Add(f);
                 });
             }
         }
-        filterPagination(1);
+        DataSource = DataSource1;
+        PanelVisible = false;
         StateHasChanged();
     }
     async Task ExportXlsx_Click()

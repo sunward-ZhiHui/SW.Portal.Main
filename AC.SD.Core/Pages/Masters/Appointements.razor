@@ -16,6 +16,7 @@
 @inject IJSRuntime jsRuntime
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient;
+@inject DataRefreshService RefreshService
 
 
 <style scoped>
@@ -263,6 +264,8 @@
         appointmentslist = await Mediator.Send(new GetSchedulerList(applicationUser.UserID));
 
         DataStorage.AppointmentsSource = appointmentslist.ToList();
+
+        await RefreshService.RequestRefreshAsync();
         StateHasChanged();
     }
 
@@ -403,10 +406,10 @@
             }
 
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
-
-
+            
+            
+            await RefreshService.RequestRefreshAsync();
             await jsRuntime.InvokeVoidAsync("location.reload");
-
         }
 
     }
@@ -474,6 +477,7 @@
     {
         var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID,true,ID));
         await acceptvisiblefalse(ID);
+        await RefreshService.RequestRefreshAsync();
         toastService.ShowToast("Appointment Accepted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async void OnRejectClick(long ID)

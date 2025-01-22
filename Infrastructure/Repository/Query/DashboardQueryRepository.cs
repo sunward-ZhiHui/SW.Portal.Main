@@ -549,6 +549,59 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<int> GetUserCreatedSchedulerCountAsync(long UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("UserID", UserID);
+
+                var query = @"SELECT COUNT(A.ID) AS AppointmentCount FROM Appointment A where AddedByUserID = @UserID 
+                        AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE()) OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QuerySingleOrDefaultAsync<int>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<int> GetInvitationCountAsync(long UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("UserID", UserID);               
+
+                var query = @"SELECT COUNT(A.ID) AS AppointmentCount
+                            FROM Appointment A
+                            CROSS APPLY (
+                                SELECT DISTINCT AppointmentID, IsAccepted 
+                                FROM UserMultiple 
+                                WHERE UserID = @UserID
+                            ) UM
+                            WHERE UM.AppointmentID = A.ID
+                              AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE()) 
+                                   OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))
+                              AND (UM.IsAccepted IS NULL OR UM.IsAccepted = 2)";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QuerySingleOrDefaultAsync<int>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<int> GetSchedulerCountAsync(long UserID)
         {
             try
@@ -557,13 +610,13 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("UserID", UserID);
 
-                var query1 = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
+                var query1 = @"SELECT COUNT(A.ID) AS AppointmentCount FROM Appointment A
                                 LEFT JOIN UserMultiple UM ON UM.AppointmentID = A.ID
                                 WHERE (UM.UserID = @UserID OR A.AddedByUserID = @UserID)
                                   AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE())  
                                       OR CONVERT(DATE, A.EndDate) >= CONVERT(DATE, GETDATE()))";
 
-                var query = @"SELECT COUNT(*) AS AppointmentCount FROM Appointment A
+                var query = @"SELECT COUNT(A.ID) AS AppointmentCount FROM Appointment A
                                 LEFT JOIN UserMultiple UM ON UM.AppointmentID = A.ID
                                 WHERE (UM.UserID = @UserID AND UM.IsAccepted = 1)
                                   AND (CONVERT(DATE, A.StartDate) >= CONVERT(DATE, GETDATE())  

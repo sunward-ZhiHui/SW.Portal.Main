@@ -16,6 +16,7 @@ namespace Core.Entities
         public long ID { get; set; }        
         public string? TicketNo { get; set; }
         [Required(ErrorMessage = "Please Enter Subject Name.")]
+        [MaxLength(300,ErrorMessage = "The text exceeds the 300 character limit. Please correct it.")]
         public string? TopicName { get; set; }       
         public long? TypeId { get; set; }
         public string? UserType { get; set; }

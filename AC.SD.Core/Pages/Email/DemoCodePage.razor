@@ -1,0 +1,77 @@
+﻿@page "/rtl"
+@using DevExpress.Blazor
+
+<style>
+    .toggler-btn {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .toggler-btn:hover {
+            background-color: #218838;
+        }
+
+    .toggle-content {
+        background: #fdfdfe;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+
+
+<div dir="rtl" style="text-align: right;">
+    <h2>RTL Toggler Example (Conditional Rendering)</h2>
+
+    <!-- Toggle Button -->
+    <DxButton Click="ToggleContent" CssClass="toggler-btn">
+        @((IsContentVisible ? "Close Content" : "Open Content"))
+    </DxButton>
+
+    <!-- Conditionally Rendered Content -->
+    @if (IsContentVisible)
+    {
+        <div class="toggle-content" style="margin-top: 20px;">
+            <h3>Visible Content</h3>
+            <p>This content is rendered dynamically based on the button click.</p>
+
+            <!-- Example DevExpress DataGrid -->
+            <DxDataGrid Data="@Data" ShowBorders="true" PageSize="5">
+                <DxDataGridColumn Field="ID" Caption="ID" />
+                <DxDataGridColumn Field="Name" Caption="Name" />
+                <DxDataGridColumn Field="Age" Caption="Age" />
+            </DxDataGrid>
+        </div>
+    }
+</div>
+
+@code {
+    // Flag to control rendering
+    bool IsContentVisible = false;
+
+    // Sample data for the DataGrid
+    List<Person> Data = new()
+    {
+        new Person { ID = 1, Name = "John", Age = 28 },
+        new Person { ID = 2, Name = "Sarah", Age = 33 },
+        new Person { ID = 3, Name = "Michael", Age = 40 }
+    };
+
+    // Method to toggle rendering
+    void ToggleContent()
+    {
+        IsContentVisible = !IsContentVisible;
+    }
+
+    public class Person
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+}

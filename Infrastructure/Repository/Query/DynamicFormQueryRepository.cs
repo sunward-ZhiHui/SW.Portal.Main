@@ -1205,7 +1205,7 @@ namespace Infrastructure.Repository.Query
                 var query = "select t1.DynamicFormSectionAttributeID,\r\nt1.DynamicFormSectionID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AttributeID,\r\nt1.SortOrderBy,\r\nt1.ColSpan,\r\nt1.DisplayName,\r\nt1.IsMultiple,\r\nt1.IsRequired,\r\nt1.RequiredMessage,\r\nt1.IsSpinEditType,\r\nt1.FormUsedCount,\r\nt1.IsDisplayTableHeader,\r\nt1.FormToolTips,\r\nt1.IsVisible,\r\nt1.IsDeleted,\r\nt1.IsSetDefaultValue,\r\nt1.IsDefaultReadOnly,t9.Name DynamicGridName,\r\n(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,\r\nt5.SectionName,t6.ControlTypeId,t6.AttributeName,t7.CodeValue as ControlType from \r\nDynamicFormSectionAttribute t1 \r\nJOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\nLEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
                     "LEFT JOIN DynamicForm t9 ON t9.ID=t5.DynamicFormID\r\n" +
-                    "Where (t9.IsDeleted=0 or t9.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  \r\nAND t6.ControlTypeID=2704 AND t9.ID=@DynamicFormId;\r\n";
+                    "Where (t9.IsDeleted=0 or t9.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  \r\nAND (t1.IsVisible=1 or t1.IsVisible is null) AND t6.ControlTypeID=2704 AND t9.ID=@DynamicFormId order by t1.SortOrderBy asc;\r\n";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
@@ -7268,6 +7268,29 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormFormulaMathFun>> GetDynamicFormFormulaMathFunList()
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var query = "select * from DynamicFormFormulaMathFun";
+                    try
+                    {
+                        var result = (await connection.QueryAsync<DynamicFormFormulaMathFun>(query)).ToList();
+                        return result;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
             }
         }
     }

@@ -884,5 +884,9 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class GetDynamicFormFormulaMathFunList : PagedRequest, IRequest<List<DynamicFormFormulaMathFun>>
+    {
+
+    }
 }
 

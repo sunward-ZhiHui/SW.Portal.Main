@@ -66,6 +66,15 @@
         $('#TextareaSpinInsert').val(value);
         return value;
     }
+    function GetMathFuctionSet(texts) {
+        var v = $('#TextareaSpinInsert').val();
+        var cursorPos = $('#TextareaSpinInsert').prop('selectionStart');
+        var textBefore = v.substring(0, cursorPos);
+        var textAfter = v.substring(cursorPos, v.length);
+        var display = textBefore + texts + textAfter;
+        $('#TextareaSpinInsert').val(display);
+        return display;
+    }
 </script>
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -103,6 +112,9 @@
                                 ValueChanged="@((long? plant) => onChangedDynamicFormSectionAttributeSpinData(plant))"
                                 ShowValidationIcon="true">
                         <Columns>
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.DynamicFormSectionAttributeId)"
+                                                Caption="Unique Id"
+                                                Width="180px" />
                             <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.DisplayName)"
                                                 Caption="Name"
                                                 Width="180px" />
@@ -134,7 +146,32 @@
                         </div>
                     </div>
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Math Function" ColSpanMd="10">
+                    <DxComboBox Data="@_DynamicFormFormulaMathFun"
+                                NullText="Select Match Function..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DisplayName"
+                                ValueFieldName="DynamicFormFormulaMathFunId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                Value="@Data.DynamicFormFormulaMathFunId"
+                                ValueExpression="@(() => Data.DynamicFormFormulaMathFunId )"
+                                ValueChanged="@((long? plant) => onChangedDynamicFormFormulaMathFun(plant))"
+                                ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormFormulaMathFun.DisplayName)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormFormulaMathFun.FunctionName)"
+                                                Caption="Function Name" />
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormFormulaMathFun.Description)"
+                                                Caption="Description" />
 
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Data.DynamicFormFormulaMathFunId)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
                     <textarea rows="5" id="TextareaSpinInsert" style="width:100%;display:none;" @onkeyup="@((e) => onchangeFormulaTextBox())"></textarea>
                     <DxMemo @bind-Text="@Data.FormulaTextBox" style="display:none;" />
@@ -155,7 +192,7 @@
          Closed="EulaPopupFormulaClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm"  SelectedItems="@SelectedItems"  RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm" SelectedItems="@SelectedItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />
@@ -174,6 +211,7 @@
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeSpinData;
+    private List<DynamicFormFormulaMathFun>? _DynamicFormFormulaMathFun;
     DynamicFormSectionAttribute Data = new DynamicFormSectionAttribute();
     protected override async Task OnInitializedAsync()
     {
@@ -184,12 +222,27 @@
         Data.AttributeId = SelectedItems.AttributeId; Data.GridDropDownDynamicFormID = 0;
         Data.FormulaDynamicSectionAttributeId = SelectedItems.FormulaDynamicSectionAttributeId;
         _dynamicFormSectionAttributeSpinData = await Mediator.Send(new GetDynamicFormSectionAttributeForSpinEdit(Items.DynamicFormId));
+        _DynamicFormFormulaMathFun = await Mediator.Send(new GetDynamicFormFormulaMathFunList());
         await jsRuntime.InvokeVoidAsync("setTextareaSpinInsert", SelectedItems.FormulaTextBox);
     }
     async Task OnItemClick(ToolbarItemClickEventArgs e)
     {
         var result = await jsRuntime.InvokeAsync<string>("callButtonFunction", e.ItemName);
         Data.FormulaTextBox = result;
+    }
+    async Task onChangedDynamicFormFormulaMathFun(long? dynamicFormFormulaMathFunId)
+    {
+        Data.DynamicFormFormulaMathFunId = dynamicFormFormulaMathFunId;
+        if (dynamicFormFormulaMathFunId > 0 && _DynamicFormFormulaMathFun != null && _DynamicFormFormulaMathFun.Count() > 0)
+        {
+            var result = _DynamicFormFormulaMathFun.FirstOrDefault(f => f.DynamicFormFormulaMathFunId == dynamicFormFormulaMathFunId);
+            if (result != null)
+            {
+                await jsRuntime.InvokeAsync<string>("GetMathFuctionSet", result.FunctionName + "(");
+                Data.FormulaTextBox = await jsRuntime.InvokeAsync<string>("GetTextareaSpinFocus");
+
+            }
+        }
     }
     async Task onChangedDynamicFormSectionAttributeSpinData(long? dynamicFormSectionAttributeId)
     {

@@ -276,6 +276,8 @@ namespace Application.Queries
             this.IsAll = isAll;
         }
     }
-
+    public class GetAttributeHeaderDataSource1 : PagedRequest, IRequest<List<object>>
+    {
+    }
 
 }

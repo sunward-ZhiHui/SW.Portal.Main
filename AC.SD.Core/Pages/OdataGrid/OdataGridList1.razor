@@ -33,7 +33,10 @@
             ShowSearchBox="true"
             SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
             SearchText="@searchText"
+            KeyFieldName="dynamicFormDataId"
             SearchTextChanged="OnSearchTextChanged"
+            CustomizeElement="Grid_CustomizeElement"
+            FocusedRowEnabled="true"
             style="height: calc(100vh - 280px);"
             CssClass="w-100"
             TextWrapEnabled="false">
@@ -48,6 +51,44 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="profileNo" />
             
         </TotalSummary>
+        <DetailRowTemplate>
+            @{
+                var employee = (dynamic)context.DataItem;
+                var e1 = (long?)employee["dynamicFormDataId"];
+                var e2 = subGridItems(e1);
+            }
+            <DxGrid Data="e2" AutoCollapseDetailRow="true"
+                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    KeyFieldName="dynamicFormDataId"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    FocusedRowEnabled="true"
+                    CssClass="ch-360">
+                <Columns>
+                    <DxGridDataColumn FieldName="profileNo" Caption="Profile No" />
+                    <DxGridDataColumn FieldName="name" Visible="false" />
+                    <DxGridDataColumn FieldName="10981_Attr$Type_of_Moisture_Test" Caption="QC Reference No - PDJ" />
+                    <DxGridDataColumn FieldName="10981_392_AppMaster$QC_Moisture_test_method" Caption="FP Batch information" />
+                    <DxGridDataColumn FieldName="11042_Attr$Retest" Caption="Machine" />
+                    <DxGridDataColumn FieldName="10986_Attr$Mass_of_Container_/g" Caption="Machine" />
+                    <DxGridDataColumn FieldName="10987_Attr$M<ass_of_Container_+_Sample_Before_Drying_/g" Caption="Machine" />
+                    <DxGridDataColumn FieldName="10982_Attr$Date_of_Test" Caption="Date" Context="context1">
+                        <CellDisplayTemplate>
+                            @{
+                                dynamic item = (dynamic)context1.DataItem;
+                                DateTime? items = (DateTime?)item["10982_Attr$Date_of_Test"];
+                            }
+                            @(items != null ? (items?.ToString("dd-MMM-yyyy")) : null)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGrid>
+        </DetailRowTemplate>
     </DxGrid>
 </DxLoadingPanel>
 @code {
@@ -60,6 +101,7 @@
     public int PageSize = 50;
     public List<dynamic> DataSource { get; set; } = new List<dynamic>();
     bool ExportSelectedRowsOnly { get; set; }
+    public List<dynamic> DataSourceItems { get; set; } = new List<dynamic>();
     //
     public string? Baseurl = "https://portal.sunwardpharma.com:8423/api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=d59cfc4b-8e20-4114-9d77-63f683b53056";
     public string? url = string.Empty;
@@ -85,6 +127,36 @@
         }
 
     }
+    private List<dynamic> subGridItems(long? dynamicFormDataId)
+    {
+        List<dynamic> ListItems = new List<dynamic>();
+        if (DataSourceItems.Count > 0)
+        {
+            var counts = DataSourceItems.Count;
+            for (int i = 0; i < counts; i++)
+            {
+                if ((long?)DataSourceItems[i].dynamicFormDataId == dynamicFormDataId)
+                {
+                    var ListItemss = DataSourceItems[i].dynamicFormReportItems;
+                    var ListItemsCount = ListItemss.Count;
+                    if (ListItemsCount > 0)
+                    {
+                        for (int j = 0; j < ListItemsCount; j++)
+                        {
+                            bool? listOne = (bool?)ListItemss[j].isGrid;
+                            if (listOne == true)
+                            {
+                                ListItems.AddRange(ListItemss[j].gridSingleItems);
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return ListItems;
+    }
     async Task GenerateList()
     {
         PanelVisible = true;
@@ -109,6 +181,7 @@
         var deserial = JsonConvert.DeserializeObject<dynamic>(response.Content);
         if (deserial.results.Count > 0)
         {
+            DataSourceItems.AddRange(deserial.results);
             var counts = deserial.results.Count;
             for (int i = 0; i < counts; i++)
             {
@@ -135,6 +208,7 @@
     }
     async Task loadData()
     {
+        DataSourceItems = new List<dynamic>();
         for (int i = 1; i <= PageCount; i++)
         {
             PanelVisible = true;

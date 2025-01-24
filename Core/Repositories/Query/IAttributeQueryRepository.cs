@@ -36,5 +36,6 @@ namespace Core.Repositories.Query
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormDataOneApiAsync(Guid? DynamicFormDataSessionId);
         Task<IReadOnlyList<ExpandoObject>> GetAllDataObjectDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);
+        Task<List<object>> GetAttributeHeaderDataSource1();
     }
 }

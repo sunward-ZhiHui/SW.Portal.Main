@@ -1545,4 +1545,18 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormFormulaMathFunListHandler : IRequestHandler<GetDynamicFormFormulaMathFunList, List<DynamicFormFormulaMathFun>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormFormulaMathFunListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormFormulaMathFun>> Handle(GetDynamicFormFormulaMathFunList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormFormulaMathFun>)await _dynamicFormQueryRepository.GetDynamicFormFormulaMathFunList();
+        }
+
+
+    }
 }

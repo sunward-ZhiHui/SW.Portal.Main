@@ -277,7 +277,7 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                            @*  <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
+                              <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -297,7 +297,7 @@ else
 
                                 </DxTagBox>
                                
-                            </DxFormLayoutItem> *@
+                            </DxFormLayoutItem> 
                             @if (ActiveSessionId != null)
                             {
 

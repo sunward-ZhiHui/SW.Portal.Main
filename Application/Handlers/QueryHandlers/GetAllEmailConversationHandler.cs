@@ -591,7 +591,15 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateEmailCoversation request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.Insert(request);
-            if(request.ReplyId == 0)
+           // var DeleteCopyEmail = await _conversationQueryRepository.DeleteCopyEmail(req);
+             EmailTopics data = new EmailTopics();
+            data.ID = req;
+            data.CopyEmailIds = request.CopyEmailIds;
+            data.SessionId = request.SessionId;
+            data.AddedByUserID = request.AddedByUserID;
+            data.AddedDate = request.AddedDate;
+            var insertcopyemail = await _conversationQueryRepository.InsertCopyEmail(data);
+            if (request.ReplyId == 0)
             {
                 var updatereq = await _conversationQueryRepository.LastUserIDUpdate(req, request.AddedByUserID.Value);
             }

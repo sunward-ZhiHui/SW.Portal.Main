@@ -10,6 +10,7 @@ using Google.Protobuf.Collections;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Edm.Values;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -17,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
@@ -161,6 +163,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                var res = await GetAttributeHeaderDataSource1();
                 var query = "select t1.*,t9.Name as DynamicFormName,(CASE WHEN t1.AttributeIsVisible is null  THEN 1  ELSE t1.AttributeIsVisible END) AS AttributeIsVisible,t6. UserName as AddedBy,t7. UserName as ModifiedBy,t2.CodeValue as ControlType,t2.CodeValue as ControlTypes,t5.Plantcode as AttributeCompany,t4.DisplayName as DataSourceDisplayName,t4.DataSourceTable from AttributeHeader t1  " +
                     "JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId\n\r" +
                     "LEFT JOIN AttributeHeaderDataSource t4 ON t4.AttributeHeaderDataSourceID=t1.DataSourceId\n\r" +
@@ -195,6 +198,51 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+        public async Task<List<object>> GetAttributeHeaderDataSource1()
+        {
+            try
+            {
+                var query = "select t1.* from AttributeHeaderDataSource t1";
+                using (var connection = CreateConnection())
+                {
+                    var results = await ExecuteQueryAsync(query);
+                    return results;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<List<object>> ExecuteQueryAsync(object sql)
+        {
+            List<object> result = new List<object>();
+            using (var connection = CreateConnection())
+            {
+                using (SqlCommand command = new SqlCommand((string)sql, (SqlConnection)connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            string name = string.Empty; object value = string.Empty;
+                            IDictionary<string, object> objectDataList = new ExpandoObject();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                name = reader.GetName(i); value = reader.GetValue(i);
+                                objectDataList[name] = value;
+                            }
+                            result.Add(objectDataList);
+                        }
+                    }
+                    connection.Close();
+                }
+
+            }
+
+            return result;
         }
         public async Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource()
         {
@@ -3489,7 +3537,7 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormReportItems1.DynamicFormSectionGridAttributeSessionId = s.SessionId;
                                         var gridDataItem = dynamicFormGridData?.Where(a => a.DynamicFormDataGridId == r.DynamicFormDataId && a.DynamicFormId == s.DynamicFormGridDropDownId && a.DynamicFormSectionGridAttributeId == s.DynamicFormSectionAttributeId).OrderBy(o => o.GridSortOrderByNo).ToList();
                                         var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
-                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems, pageNo, pageSize, gridDataItem?.Count(),null);
+                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems, pageNo, pageSize, gridDataItem?.Count(), null);
                                         var datass = res?.Select(s => s.ObjectDataItems).ToList();
                                         // dynamicFormReportItems1.GridItems = res;
                                         dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();

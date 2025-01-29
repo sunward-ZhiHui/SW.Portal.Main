@@ -105,11 +105,19 @@ namespace Core.Entities
         public string? ColorCode { get; set; }
         public int? GridDisplaySeqNo { get; set; }
         public string? DynamicFormName { get; set; }
+        public long? DynamicFormFormulaMathFunId {  get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {
         public string? Value { get; set; }
         public string? Text { get; set; }
 
+    }
+    public class DynamicFormFormulaMathFun
+    {
+        public long DynamicFormFormulaMathFunId { get; set; }
+        public string? DisplayName { get; set; }
+        public string? FunctionName { get; set; }
+        public string? Description { get; set; }
     }
 }

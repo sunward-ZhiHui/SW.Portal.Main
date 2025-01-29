@@ -1853,6 +1853,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
                         parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
                         parameterss.Add("IsLockDueDate", EmailTopics.IsLockDueDate);
+                        parameterss.Add("CopyEmailIds", string.Join(",", EmailTopics.CopyEmailIds));
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
                     }
@@ -1927,6 +1928,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
                         parameterss.Add("ExpiryDueDate", EmailTopics.ExpiryDueDate);
                         parameterss.Add("IsLockDueDate", EmailTopics.IsLockDueDate);
+                        parameterss.Add("CopyEmailIds", string.Join(",", EmailTopics.CopyEmailIds));
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         if (EmailTopics.ActivityType == "DynamicForm")
@@ -3344,6 +3346,45 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+
+        public async  Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync()
+        {
+            try
+            {
+                var query = @"select  Distinct Name as CopyEmailName ,SessionID as ConversationSessionID,ReplyId from EmailConversations Where ReplyId = 0";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<List<EmailTopics>> GetByCopyEmailList(long ID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", ID);
+                var query = @"select ECP.EmailConversationsId,ECP.EmailConversationsSessionid From EmailTopics ET 
+                                INNER Join EmailConversations EC ON EC.TopicID = ET.ID 
+                                INNER Join EmailCopyLink ECP ON ECP.EmailConversationsId = EC.ID
+                                WHERE ET.ID = @ID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 

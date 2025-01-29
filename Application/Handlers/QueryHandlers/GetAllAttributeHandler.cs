@@ -123,7 +123,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId,request.IsSubFormLoad,request.IsNoDelete);
+            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId, request.IsSubFormLoad, request.IsNoDelete);
         }
     }
     public class GetAttributeHeaderDataSourceHandler : IRequestHandler<GetAttributeHeaderDataSource, List<AttributeHeaderDataSource>>
@@ -317,7 +317,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataResponse>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId,request.DynamicFormDataSessionId,request.DynamicFormDataGridSessionId,request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl,request.IsAll,request.PageNo,request.PageSizes);
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll, request.PageNo, request.PageSizes);
         }
     }
     public class GetDynamicFormAttributeApiHandler : IRequestHandler<GetDynamicFormAttributeApi, List<DynamicFormDataResponse>>
@@ -397,7 +397,22 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ExpandoObject>> Handle(GetDynamicFormObjectsApi request, CancellationToken cancellationToken)
         {
-            return (List<ExpandoObject>) await _attrubutequeryRepository.GetAllDataObjectDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll);
+            return (List<ExpandoObject>)await _attrubutequeryRepository.GetAllDataObjectDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll);
+        }
+    }
+    public class GetAttributeHeaderDataSource1Handler : IRequestHandler<GetAttributeHeaderDataSource1, List<object>>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAttributeHeaderDataSource1Handler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<object>> Handle(GetAttributeHeaderDataSource1 request, CancellationToken cancellationToken)
+        {
+            return (List<object>)await _attrubutequeryRepository.GetAttributeHeaderDataSource1();
         }
     }
 }

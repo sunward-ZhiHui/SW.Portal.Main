@@ -25,6 +25,7 @@ using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Core.EntityModels;
 using Infrastructure.Data;
+using Google.Cloud.Firestore;
 
 namespace Infrastructure.Repository.Query
 {
@@ -2541,6 +2542,94 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<EmailTopics>(query, parameters)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<long> InsertCopyEmail(EmailTopics copyemail)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        Guid SessionID = Guid.NewGuid();
+                        var querys = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("EmailConversationsId", copyemail.ID);
+                        parameters.Add("SessionID", SessionID);
+                        parameters.Add("AddedByUserID", copyemail.AddedByUserID);
+                        parameters.Add("CopyEmailIds", copyemail.CopyEmailIds);
+                       
+                        parameters.Add("AddedDate", copyemail.AddedDate);
+                       
+                       
+
+                        if (copyemail.CopyEmailIds != null)
+                        {
+                            var listData = copyemail.CopyEmailIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                listData.ForEach(s =>
+                                {
+                                   
+                                    querys += "INSERT INTO [EmailCopyLink](EmailConversationsSessionid,EmailConversationsId,SessionID,AddedByUserID,AddedDate) VALUES ( " +"'" +s + "'"+ "," + copyemail.ID + ",@SessionID,@AddedByUserID,@AddedDate);"; 
+                                });
+
+                            }
+                        }
+
+                       
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            await connection.ExecuteAsync(querys, parameters);
+                        }
+
+                        return copyemail.ID;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async  Task<long> DeleteCopyEmail(long ConversationID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ConversationID", ConversationID);
+                       
+
+                        var query = "DELETE  FROM EmailCopyLink WHERE EmailConversationsId = @ConversationID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
             }
             catch (Exception exp)
             {

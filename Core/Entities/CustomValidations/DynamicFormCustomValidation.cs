@@ -288,7 +288,17 @@ namespace Core.Entities.CustomValidations
                 var datas = (DynamicFormSectionAttribute)validationContext.ObjectInstance;
                 if (!string.IsNullOrEmpty(datas.FormulaTextBox))
                 {
-                    var values = datas.FormulaTextBox.Split("$");
+                    string str = datas.FormulaTextBox;
+                    if (!string.IsNullOrEmpty(datas.FormulaTextBox))
+                    {
+                        for (int i = 20001; i-- > 0;)
+                        {
+                            str = str.Replace("^" + i, "");
+                            str = str.Replace("-" + i, "");
+                            str = str.Replace("/" + i, "");
+                        }
+                    }
+                    var values = str.Split("$");
                     var formulaText = datas.FormulaTextBox;
                     List<string> list = new List<string>();
                     if (values.Length > 0)
@@ -401,7 +411,7 @@ namespace Core.Entities.CustomValidations
                 {
                     return new ValidationResult("This field is Required", new[] { validationContext.MemberName });
                 }
-                
+
             }
             else
             {

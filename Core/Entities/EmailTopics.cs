@@ -145,5 +145,15 @@ namespace Core.Entities
         public int? ReplyCount { get; set; }
         [NotMapped]
         public Guid? ActiveSessionId { get; set; }
+        [NotMapped]
+       // public IEnumerable<Guid> CopyEmailIds { get; set; } = new List<Guid> { Guid.Empty };
+
+       public IEnumerable<Guid>? CopyEmailIds { get; set; } =  null;
+        [NotMapped]
+        public Guid? ConversationSessionID { get; set; }
+        [NotMapped]
+        public string? CopyEmailName { get; set; }
+        [NotMapped]
+        public Guid? EmailConversationsSessionid { get; set; } 
     }
 }

@@ -1545,4 +1545,68 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormFormulaMathFunListHandler : IRequestHandler<GetDynamicFormFormulaMathFunList, List<DynamicFormFormulaMathFun>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormFormulaMathFunListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormFormulaMathFun>> Handle(GetDynamicFormFormulaMathFunList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormFormulaMathFun>)await _dynamicFormQueryRepository.GetDynamicFormFormulaMathFunList();
+        }
+
+
+    }
+    public class GetDynamicFormSectionSecuritySettingListHandler : IRequestHandler<GetDynamicFormSectionSecuritySettingList, List<DynamicFormSectionSecurity>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionSecuritySettingListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionSecurity>> Handle(GetDynamicFormSectionSecuritySettingList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionSecurity>)await _dynamicFormQueryRepository.GetDynamicFormSectionSecuritySettingList(request.Id);
+        }
+
+
+    }
+    public class GetDynamicFormWorkFlowApprovalSettingListHandler : IRequestHandler<GetDynamicFormWorkFlowApprovalSettingList, List<DynamicFormWorkFlowApproval>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowApprovalSettingListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowApproval>> Handle(GetDynamicFormWorkFlowApprovalSettingList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowApproval>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovalSettingList(request.Id);
+        }
+    }
+    public class GetDynamicFormSectionAttributeSecuritySettingListHandler : IRequestHandler<GetDynamicFormSectionAttributeSecuritySettingList, List<DynamicFormSectionAttributeSecurity>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeSecuritySettingListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttributeSecurity>> Handle(GetDynamicFormSectionAttributeSecuritySettingList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttributeSecurity>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeSecuritySettingList(request.Id);
+        }
+    }
+    public class GetDynamicFormSectionAttributeSectionParentSettingsHandler : IRequestHandler<GetDynamicFormSectionAttributeSectionParentSettings, List<DynamicFormSectionAttributeSectionParent>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeSectionParentSettingsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttributeSectionParent>> Handle(GetDynamicFormSectionAttributeSectionParentSettings request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttributeSectionParent>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeSectionParentSettings(request.Id);
+        }
+    }
 }

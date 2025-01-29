@@ -44,6 +44,7 @@
                 <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Menu" IconCssClass="fa fa-bars" Click="@addMenu" />
+                <DxMenuItem Text="Settings" IconCssClass="fa fa-cog" Click="@addSettings" />
             </Items>
         </DxMenu>
     </div>
@@ -404,5 +405,9 @@
     void addMenu()
     {
         Menupopup = true;
+    }
+    void addSettings()
+    {
+        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterSetupSettingReport/" + _selectedItems.SessionID);
     }
 }

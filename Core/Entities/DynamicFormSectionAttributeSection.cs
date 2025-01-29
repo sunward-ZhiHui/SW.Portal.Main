@@ -36,5 +36,16 @@ namespace Core.Entities
         [Required(ErrorMessage = "Section Name is required")]
         public IEnumerable<long?> DynamicFormSectionIds { get; set; } = new List<long?>();
         public int? SequenceNo { get; set; }
+        public long? DynamicFormId { get; set; }
+        public string? FormName { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public string? SectionName { get; set; }
+        public string? DisplayName { get; set; }
+        public long? DataSourceId { get; set; }
+        public string? DataSourceTable { get; set; }
+        public long? AttributeId { get; set; }
+        public int? ControlTypeId { get; set; }
+        public string? DropDownTypeId { get; set; }
+        public string? ApplicationMasterIds { get; set; }
     }
 }

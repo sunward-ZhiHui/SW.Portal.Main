@@ -888,5 +888,38 @@ namespace Application.Queries
     {
 
     }
+    public class GetDynamicFormSectionSecuritySettingList : PagedRequest, IRequest<List<DynamicFormSectionSecurity>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionSecuritySettingList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetDynamicFormWorkFlowApprovalSettingList : PagedRequest, IRequest<List<DynamicFormWorkFlowApproval>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormWorkFlowApprovalSettingList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetDynamicFormSectionAttributeSecuritySettingList : PagedRequest, IRequest<List<DynamicFormSectionAttributeSecurity>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionAttributeSecuritySettingList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetDynamicFormSectionAttributeSectionParentSettings : PagedRequest, IRequest<List<DynamicFormSectionAttributeSectionParent>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionAttributeSectionParentSettings(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
 }
 

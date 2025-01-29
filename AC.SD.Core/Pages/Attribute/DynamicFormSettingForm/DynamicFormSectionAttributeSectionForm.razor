@@ -1,0 +1,177 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+<DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMAttributeSectionGrid" Data="@_dynamicFormSectionAttributeSectionParentList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DynamicFormSectionAttributeSectionParentId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+            <DxGridDataColumn FieldName="DynamicFormSectionAttributeSectionParentId" Visible="false" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section Name" MinWidth="20" GroupIndex="0" />
+            <DxGridDataColumn FieldName="DisplayName" Caption="Display Name" MinWidth="20" GroupIndex="0" />
+            <DxGridDataColumn FieldName="DynamicSectionName" Caption="Control Section" MinWidth="20">
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ValueName" Caption="Value" MinWidth="20">
+                @* <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttributeSectionParent)context.DataItem;
+                        var Names = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => item.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+                    }
+                    @(string.Join(',', Names.ToList()))
+                </CellDisplayTemplate> *@
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DynamicSectionName" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool PanelAttibuteVisible { get; set; }
+    IGrid? SMAttributeSectionGrid { get; set; }
+    [Parameter]
+    public long? DynamicFormId { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    private List<DynamicFormSectionAttributeSectionParent>? _dynamicFormSectionAttributeSectionParentList { get; set; }
+    private List<AttributeDetails>? _ShowSectionVisibleAllDataItems;
+    private DynamicFormSectionAttributeSectionParent _selectedAttributeItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            _dynamicFormSectionAttributeSectionParentList = await Mediator.Send(new GetDynamicFormSectionAttributeSectionParentSettings(DynamicFormId));
+            if (_dynamicFormSectionAttributeSectionParentList != null && _dynamicFormSectionAttributeSectionParentList.Count() > 0)
+            {
+                List<long?> appMasterIds = new List<long?>(); List<long?> appMasterParentIds = new List<long?>();
+                List<string?> DataSourceTables = new List<string?>() { "Plant" };
+                _dynamicFormSectionAttributeSectionParentList.ForEach(s =>
+                {
+                    if (s.DataSourceTable != "DynamicGrid" && s.DataSourceTable != "ApplicationMaster" && s.DataSourceTable != "ApplicationMasterParent")
+                    {
+                        DataSourceTables.Add(s.DataSourceTable);
+                    }
+                    if (s.DataSourceTable == "ApplicationMaster" || s.DataSourceTable == "ApplicationMasterParent")
+                    {
+                        if (!string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            if (s.DataSourceTable == "ApplicationMaster")
+                            {
+                                var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                                if (applicationMasterIds.Count > 0)
+                                {
+                                    appMasterIds = applicationMasterIds;
+                                    DataSourceTables.Add(s.DataSourceTable);
+                                }
+                            }
+                            if (s.DataSourceTable == "ApplicationMasterParent")
+                            {
+                                var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                                if (applicationMasterIds.Count > 0)
+                                {
+                                    appMasterParentIds = applicationMasterIds;
+                                    DataSourceTables.Add(s.DataSourceTable);
+                                }
+                            }
+                        }
+                    }
+                });
+                _ShowSectionVisibleAllDataItems = await Mediator.Send(new GetDataSourceDropDownList(null, DataSourceTables.Distinct().ToList(), null, appMasterIds, appMasterParentIds));
+                foreach (var SelectedItems in _dynamicFormSectionAttributeSectionParentList)
+                {
+                    if (SelectedItems.ControlTypeId == 2702 || SelectedItems.ControlTypeId == 2708)
+                    {
+                        if (SelectedItems.DropDownTypeId == null)
+                        {
+                            var lists = await Mediator.Send(new GetAttributeDetailsDataSource(SelectedItems.AttributeId));
+                            var Names = lists != null && lists.Count() > 0 ? (lists.Where(w => SelectedItems.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+                            SelectedItems.ValueName = string.Join(',', Names.ToList());
+                        }
+                        else
+                        {
+                            if (_ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0)
+                            {
+                                _ShowSectionVisibleAllDataItems = _ShowSectionVisibleAllDataItems.Where(w => w.DropDownTypeId != "Plant").ToList();
+                                if (SelectedItems.DataSourceTable == "ApplicationMasterParent")
+                                {
+                                    _ShowSectionVisibleAllDataItems = _ShowSectionVisibleAllDataItems.Where(w => w.ParentId == null).ToList();
+                                }
+                                var Names = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => SelectedItems.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+                                SelectedItems.ValueName = string.Join(',', Names.ToList());
+                            }
+
+                        }
+                    }
+                }
+                _selectedAttributeItems = _dynamicFormSectionAttributeSectionParentList.FirstOrDefault();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttributeSectionParentId");
+        _selectedAttributeItems = _dynamicFormSectionAttributeSectionParentList.FirstOrDefault(f => f.DynamicFormSectionAttributeSectionParentId == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    public void ClearData()
+    {
+        _dynamicFormSectionAttributeSectionParentList?.Clear();
+        _selectedAttributeItems = null;
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        ClearData();
+
+    }
+}

@@ -36,5 +36,8 @@ namespace Core.Entities
         public string? DynamicFormName { get; set; }
         public string? DynamicFormSectionName { get; set; }
         public int? SequenceNo { get; set; }
+        public long? DynamicFormId { get; set; }
+        public bool? IsAllowDelegateUser { get; set; } = false;
+        public bool? IsParallelWorkflow { get; set; } = false;
     }
 }

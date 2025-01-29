@@ -1115,14 +1115,14 @@
                                                                                             }                                                                                 
                                                                                         </div>
 
-                                                                                        @{
+                                                                                       @*  @{
                                                                                             dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
                                                                                         }
 
                                                                                         <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(items))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
                                                                             <i class="fa fa-envelope"></i> Info
                                                                         </button>
-
+ *@
                                                                                         
 
                                                                                         @* <DxToolbar>
@@ -2371,7 +2371,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 @code {
     internal List<EmailTopics>? _CopyLinkList;
-    bool IsInfoOpen { get; set; } = true;
+    bool IsInfoOpen { get; set; } = false;
     void ToggleInfo()
     {
         IsInfoOpen = !IsInfoOpen;

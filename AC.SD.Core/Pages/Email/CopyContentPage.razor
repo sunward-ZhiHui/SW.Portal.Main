@@ -1,0 +1,28 @@
+﻿<div>
+
+
+    <div style="margin-top: 10px; border: 1px solid #ddd; padding: 10px;">
+        <p>Content for item ID: @ItemId</p>            
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public Guid? sessionId { get; set; }
+
+    [Parameter] public long ItemId { get; set; }
+
+
+    protected override async void OnInitialized()
+    {
+        var sId = sessionId;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var sId = sessionId;
+        var id = ItemId;
+    }
+
+}

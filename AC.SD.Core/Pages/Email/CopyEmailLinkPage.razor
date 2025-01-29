@@ -1,0 +1,66 @@
+﻿@page "/CopyEmailLinkInfoPage"
+@using Application.Queries
+@using MediatR
+@using global::Core.Entities
+@inject IMediator Mediator
+
+@if (DataSource == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <div class="cw-480">
+      @*   <DxAccordion Data="@DataSource"
+                     ShowFilterPanel="true"
+                     RootItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End"
+                     SubItemExpandButtonIconCssClass="icon-square-plus"
+                     SubItemCollapseButtonIconCssClass="icon-square-minus"
+                     SubItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End">
+            <DataMappings>
+                <DxAccordionDataMapping Text="Name"
+                                        Key="EmailCopyLinkID"
+                                        ParentKey="EmailConversationsId" />
+            </DataMappings>
+        </DxAccordion> *@
+        <DxAccordion ExpandMode="ExpandMode"
+                     ExpandCollapseAction="ExpandCollapseAction"
+                     AnimationType="LayoutAnimationType.Slide" SelectionMode="NavigationSelectionMode.Single"
+                     SelectionChanged="SelectionChanged">
+                <Items>
+            @foreach(var (employee, i) in Items) {
+                <DxAccordionItem Text=@($"{employee.Name}") Expanded=@(i == 0)>
+                    <ContentTemplate>
+                        <div class="py-3 px-3" tabindex="0">
+                            <div>@employee.EmailConversationsSessionid</div>
+                                <div>@employee.SessionID</div>
+                        </div>
+                    </ContentTemplate>
+                </DxAccordionItem> 
+            }
+        </Items>
+        </DxAccordion>
+    </div>
+}
+
+@code {
+    IEnumerable<EmailCopyLink> DataSource;
+    IEnumerable<(EmailCopyLink, int)> Items;
+    AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
+    AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
+    protected override async Task OnInitializedAsync()
+    {
+        DataSource = await Mediator.Send(new GetConversationList(1774)); ;
+        Items = DataSource.Select((item, index) => (item, index));
+        await base.OnInitializedAsync();
+    }
+    void SelectionChanged(AccordionSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItems.Any())
+        {
+            
+        }
+    }
+}

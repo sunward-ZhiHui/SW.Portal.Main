@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailTopics>> GetAllAsync();
         Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync();
+        Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID);
         EmailActivityCatgorys GetUserAsync(string? Usertag);
        
         Task<List<EmailTopics>> GetByIdAsync(Int64 id);             

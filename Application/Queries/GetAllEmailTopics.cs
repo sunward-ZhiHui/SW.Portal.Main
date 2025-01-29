@@ -420,6 +420,14 @@ namespace Application.Queries
             this.ConversationId = ConversationId;
         }
     }
+    public class GetConversationList : PagedRequest, IRequest<List<EmailCopyLink>>
+    {
+        public long ConversationId { get; private set; }
+        public GetConversationList(long ConversationId)
+        {
+            this.ConversationId = ConversationId;
+        }
+    }
     public class GetConversationGroupParticipantsList : PagedRequest, IRequest<List<EmailConversationAssignToUserGroup>>
     {
         public long ConversationId { get; private set; }

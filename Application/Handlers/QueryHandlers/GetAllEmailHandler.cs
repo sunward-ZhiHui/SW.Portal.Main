@@ -564,6 +564,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetConversationPList(request.ConversationId);
         }
     }
+    public class GetConversationListHandler : IRequestHandler<GetConversationList, List<EmailCopyLink>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetConversationListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailCopyLink>> Handle(GetConversationList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailCopyLink>)await _emailTopicsQueryRepository.GetConversationList(request.ConversationId);
+        }
+    }
     public class GetConversationGroupParticipantListHandler : IRequestHandler<GetConversationGroupParticipantsList, List<EmailConversationAssignToUserGroup>>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

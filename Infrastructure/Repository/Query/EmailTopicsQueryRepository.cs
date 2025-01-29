@@ -3386,6 +3386,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async  Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID)
+        {
+            try
+            {
+
+                var query = @"select *,EM.Name from EmailCopyLink EC 
+                            Left Join EmailConversations EM ON EM.ID =EC.EmailConversationsId
+                            Where EC.EmailConversationsId = @ConversationID";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationID", ConversationID);
+
+                using (var connection = CreateConnection())
+                {
+                    return(await connection.QueryAsync<EmailCopyLink>(query, parameters)).ToList();
+                  
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 
 }

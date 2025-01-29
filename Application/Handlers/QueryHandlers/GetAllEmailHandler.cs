@@ -327,6 +327,20 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetByIdEmailCopyHandler : IRequestHandler<GetByIdEmailCopy, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetByIdEmailCopyHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetByIdEmailCopy request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetByCopyEmailList(request.ID);
+
+        }
+    }
     public class GetByIdEmailTopicCCHandler : IRequestHandler<GetByIdEmailTopicCC, List<EmailTopics>>
     {
 
@@ -1001,6 +1015,19 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<EmailTopics>> Handle(GetAllEmailTopics request, CancellationToken cancellationToken)
         {
             return (List<EmailTopics>)await _queryRepository.GetListAsync();
+        }
+    }
+    public class GetAllEmailTopicsListHandler : IRequestHandler<GetAllEmailTopicsList, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _queryRepository;
+        public GetAllEmailTopicsListHandler(IEmailTopicsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetAllEmailTopicsList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTopics>)await _queryRepository.GetAllEmailTopicsAsync();
         }
     }
     public class GetActivityEmailTopicsHandler : IRequestHandler<GetActivityEmailTopics, List<ActivityEmailTopics>>

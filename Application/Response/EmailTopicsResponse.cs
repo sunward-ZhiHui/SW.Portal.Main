@@ -64,5 +64,7 @@ namespace Application.Response
         public bool? IsLockDueDate { get; set; }
         [NotMapped]
         public Guid? ActiveSessionId { get; set; }
+        [NotMapped]
+        public IEnumerable<Guid>? CopyEmailIds { get; set; } = new List<Guid>();
     }
 }

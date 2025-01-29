@@ -119,6 +119,16 @@ namespace Core.Entities
         public string? OtherTag { get; set; }
         [NotMapped]
         public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
+        [NotMapped]
+        // public IEnumerable<Guid> CopyEmailIds { get; set; } = new List<Guid> { Guid.Empty };
+
+        public IEnumerable<Guid>? CopyEmailIds { get; set; } = null;
+        [NotMapped]
+        public Guid? ConversationSessionID { get; set; }
+        [NotMapped]
+        public string? CopyEmailName { get; set; }
+        [NotMapped]
+        public Guid? EmailConversationsSessionid { get; set; }
     }
     public class EmailDocumentModel
     {        

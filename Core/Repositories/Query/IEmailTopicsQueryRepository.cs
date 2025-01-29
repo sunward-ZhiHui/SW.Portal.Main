@@ -12,6 +12,7 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailTopics>> GetAllAsync();
+        Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync();
         EmailActivityCatgorys GetUserAsync(string? Usertag);
        
         Task<List<EmailTopics>> GetByIdAsync(Int64 id);             
@@ -22,6 +23,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);
         Task<List<EmailTopics>> GetByIdTopicListAsync(Int64 id);
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);
+        Task<List<EmailTopics>> GetByCopyEmailList(long ID);
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
         Task<List<long>> GetByIdUserGroupToList(Int64 UserId);
         Task<List<long>> GetByIdUserGroupCCList(Int64 UserId);

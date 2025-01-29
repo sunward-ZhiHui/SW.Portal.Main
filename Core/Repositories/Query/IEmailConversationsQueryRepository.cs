@@ -16,6 +16,8 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailConversations>> GetAllAsync();
         Task<long> Insert(EmailConversations company);
+        Task<long> InsertCopyEmail(EmailTopics copyemail);
+        Task<long> DeleteCopyEmail(long ConversationID);
         Task<String> SendPushNotification(long Id);
         Task<long> LastUserIDUpdate(long ReplyId,long UserId);
         Task<long> LastUpdateDateEmailTopic(long TopicId);

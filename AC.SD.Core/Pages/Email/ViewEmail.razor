@@ -1117,7 +1117,25 @@
                                                                             <DxFormLayoutItem Caption="From" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                                                                             </DxFormLayoutItem>
+                                                                            @*  <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
+                                                                                <DxTagBox Data="_CopyLinkList"
+                                                                                      SearchMode="ListSearchMode.AutoSearch"
+                                                                                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                                      NullText="Select Copy Email..."
+                                                                                      Values="@Data?.CopyEmailIds"
+                                                                                      ValuesExpression="@(() => Data.CopyEmailIds )"
+                                                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                      ValueFieldName="ConversationSessionID"
+                                                                                      TextFieldName="CopyEmailName"
+                                                                                      ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
+                                                                                      ListRenderMode="ListRenderMode.Virtual"
+                                                                                      CssClass="cw-480">
 
+                                                                                <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
+                                 
+
+                                                                            </DxTagBox>
+                                                                            </DxFormLayoutItem> *@
                                                                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                                                                             {
                                                                                 @if (isCheckAllowParticipant)
@@ -2201,9 +2219,10 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+    internal List<EmailTopics>? _CopyLinkList;
     private bool isAuthorization { get; set; } = true;
     private bool isNotifyPAPopupVisible = false;
-     private bool isNotifyWendypupVisible = false;
+    private bool isNotifyWendypupVisible = false;
     private Notifypa refNotifypa;
     long reply_id = 0;
     string UserTagTxt { get; set; }    
@@ -2221,12 +2240,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         IsOpenFlyout = false;
         InvokeAsync(StateHasChanged);
     }
-     private void onCloseNotifyPaPop()
-     {
+    private void onCloseNotifyPaPop()
+    {
         isNotifyWendypupVisible = false;
         IsOpenFlyout = false;
         InvokeAsync(StateHasChanged);
-     }
+    }
     async Task OnButtonUserGroupToClick()
     {
         IsUserGroupToOpen = false;
@@ -2249,7 +2268,23 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         IsUserGroupToOpen = true;
         StateHasChanged();
     }
+    void onEmailCopyChanged(IEnumerable<Guid>? values)
+    {
 
+        if (values != null)
+        {
+            Data.CopyEmailIds = values;
+
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+
+            Data.CopyEmailIds = null;
+        }
+
+        StateHasChanged();
+    }
     async Task OnButtonUserGroupCCClick()
     {       
         IsUserGroupCCOpen = false;
@@ -6104,7 +6139,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
-
+        Data.CopyEmailIds = null;
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
         //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
@@ -6309,15 +6345,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
-        //await Task.Delay(1000);
+                           //await Task.Delay(1000);
         await onRichTxtChangeFontsize(); // Call your other function here
-        //await JSRuntime.InvokeAsync<string>("hideLoading");
+                                         //await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void OnDateChanged(DateTime? newValue)
     {       
         if(newValue != null)
         {
-             LockDueDateEnable = true;
+            LockDueDateEnable = true;
 
         }
         else
@@ -6326,8 +6362,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             LockDueDateEnable = false;
         }
 
-       Data.DueDate = newValue;      
-       StateHasChanged();
+        Data.DueDate = newValue;      
+        StateHasChanged();
     }
     async void onBackFileProfileType(string url)
     {
@@ -6355,7 +6391,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
-
+        Data.CopyEmailIds = null;
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
         if (id > 0)
         {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
@@ -6437,7 +6474,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     sCCIds = CCtags.ToList();
 
 
-                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
@@ -6535,7 +6572,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 
-            
+
             Data.Name = _replyComment[0].Name;
             Data.From = applicationUser.UserName;
             IsReadOnly = false;
@@ -6543,8 +6580,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             Data.DynamicFormID = null;
             Data.EmailFormDataSessionID = null;
             Data.EmailFormSectionSessionID = null;  
-            
-          
+
+
             await Task.Delay(1000);           
             submitCount = 0;
             await onRichTxtChangeFontsize(); 
@@ -6589,7 +6626,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         }
         else
         {
-             ArchiveEnabled = false;            
+            ArchiveEnabled = false;            
         }
         if (text == "Library" && SelectedGroups.Count > 0)
         {
@@ -6664,7 +6701,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         }
         else
         {
-            
+
             isAddParticipant = false;
             isComponentVisible = false;
             isEllipsis = true;
@@ -6991,7 +7028,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     CCUserGroup = sCCUserGroup,
                     IsLockDueDate = Data.IsLockDueDate,
                     ParticipantsUserGroup = sParticipantsUserGroup,
-                    UserType = Data.UserType
+                    UserType = Data.UserType,
+                    CopyEmailIds = Data.CopyEmailIds
                 };
             var result = await Mediator.Send(createReq);
 
@@ -7075,6 +7113,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     private void onRestText()
     {
         Data.Message = null;
+        Data.CopyEmailIds = null;
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {

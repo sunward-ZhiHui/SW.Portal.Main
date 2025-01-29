@@ -330,7 +330,27 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
+                           @*  <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
+                                <DxTagBox Data="_CopyLinkList"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          NullText="Select Copy Email..."
+                                          Values="@Data?.CopyEmailIds"
+                                          ValuesExpression="@(() => Data.CopyEmailIds )"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ConversationSessionID"
+                                          TextFieldName="CopyEmailName"
+                                          ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          CssClass="cw-480">
 
+                                    <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
+
+
+
+                                </DxTagBox>
+                             
+                            </DxFormLayoutItem> *@
                               <DxFormLayoutItem ColSpanMd="12">
                                 <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
 
@@ -505,7 +525,7 @@ else
                                 <DxFormLayout CssClass="w-100 ">
                                     <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-                                        <div class="" style="overflow:auto; height: calc(100vh - 525px);">
+                                        <div class="" style="overflow:auto; height: calc(100vh - 455px);">
                                             <DxUpload @ref="uploadComponent" Name="files"
                                                       Visible="@AttachmentUploadVisible"
                                                       AcceptedFileTypes=@AcceptedFileTypes
@@ -676,6 +696,7 @@ else
     IEnumerable<UserGroup>  SelectCcGroup { get; set; }
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
+    internal List<EmailTopics>? _CopyLinkList;
     async Task OnButtonUserGroupToClick()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -740,6 +761,26 @@ else
             Data.ToUserGroupIds = new List<long> { -1 };
             Data.ToIds = null;
         }
+        StateHasChanged();
+    }
+    void onEmailCopyChanged(IEnumerable<Guid>? values)
+    {
+        if (values != null)
+        {
+           
+            
+                Data.CopyEmailIds = values;
+           
+           
+        }
+        else
+        {
+           
+           
+            Data.CopyEmailIds = null;
+        }
+       
+
         StateHasChanged();
     }
     bool LockDueDateEnable = false;
@@ -1394,8 +1435,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-
-
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -1459,14 +1499,14 @@ else
 
                     var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
                     var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
-
+                    var filteredEmailCopyList = await Mediator.Send(new GetByIdEmailCopy(actItem[0].ID));
                     IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
 
                     Data.ToIds = filteredToList.Select(s => s.UserId.Value).ToList();
                     sToIds = Totags.ToList();
                     Data.CCIds = filteredCCList.Select(s => s.UserId.Value).ToList();
-
+                    Data.CopyEmailIds = filteredEmailCopyList.Select(s => s.EmailConversationsSessionid.Value).ToList();
                     sCCIds = CCtags.ToList();
                 }
                 else
@@ -1476,7 +1516,7 @@ else
 
                     Data.ToUserGroupIds = null;
                     Data.ToIds = new List<long> { -1 };
-
+                    Data.CopyEmailIds = null;
 
                     _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
                     _ToUserGroup = _participantUserGroup;
@@ -1865,7 +1905,8 @@ else
                 ParticipantsUserGroup = sParticipantsUserGroup,
                      TagLock = Data.TagLock,
                         NoOfDays = Data.NoOfDays,
-                        IsLockDueDate = Data.IsLockDueDate
+                        IsLockDueDate = Data.IsLockDueDate,
+                        CopyEmailIds = Data.CopyEmailIds
                 };
         try
         {

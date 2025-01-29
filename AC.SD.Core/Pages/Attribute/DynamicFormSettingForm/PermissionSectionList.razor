@@ -1,0 +1,73 @@
+﻿@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using MediatR;
+@inject IMediator Mediator
+@using Application.Queries;
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="SMGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_documentUserRoleLists"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DynamicFormSectionSecurityId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 ,100})"
+            PageSize="100"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 505px);"
+            FocusedRowEnabled="true"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="DynamicFormSectionSecurityId" Visible="false" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section Name" MinWidth="170" GroupIndex="0" />
+            <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="170" />
+            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="170" />
+            <DxGridDataColumn FieldName="IsVisible" Caption="Is Visible" MinWidth="100" />
+            <DxGridDataColumn FieldName="IsReadWrite" Caption="Read & Write" MinWidth="100" />
+            <DxGridDataColumn FieldName="IsReadOnly" Caption="Read Only" MinWidth="100" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FullName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid? SMGrid { get; set; }
+    [Parameter]
+    public long? DynamicFormId { get; set; }
+    public List<DynamicFormSectionSecurity> _documentUserRoleLists { get; set; }
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await loadData(DynamicFormId);
+    }
+    public async Task loadData(long? dynamicFormId)
+    {
+        DynamicFormId = dynamicFormId;
+        _documentUserRoleLists = new List<DynamicFormSectionSecurity>();
+        if (dynamicFormId > 0)
+        {
+            _documentUserRoleLists = await Mediator.Send(new GetDynamicFormSectionSecuritySettingList(dynamicFormId));
+        }
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _documentUserRoleLists?.Clear();
+    }
+}

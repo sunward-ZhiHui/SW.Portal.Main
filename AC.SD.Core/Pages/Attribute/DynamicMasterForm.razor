@@ -53,6 +53,7 @@
                                 <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenuItem>
+                        <DxMenuItem Text="Settings" IconCssClass="fa fa-cog" Click="@addSettings" />
                     </Items>
                 </DxMenu>
             </div>
@@ -536,6 +537,13 @@
         if (_dynamicFormData != null)
         {
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _dynamicFormData.SessionID);
+        }
+    }
+    void addSettings()
+    {
+        if (_dynamicFormData != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterSetupSettingReport/" + _dynamicFormData.SessionID);
         }
     }
     void addCloneOpen()

@@ -185,7 +185,7 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("RegistrationRequestForm/" + _selectedItems.SessionId);
+        NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + _selectedItems.SessionId);
     }
     void OnRowclick(GridRowClickEventArgs e)
     {
@@ -287,11 +287,11 @@
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("RegistrationRequestForm/" + _selectedItems.SessionId);
+        NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + _selectedItems.SessionId);
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("RegistrationRequestForm");
+        NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm");
 
     }
     void addDelete()

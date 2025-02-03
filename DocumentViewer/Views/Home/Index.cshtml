@@ -141,7 +141,8 @@
                                                     {
                                                         events.OnCustomCommandExecuted(@Model.Extensions == "xlsx" ? "onCustomCommandExecuted" : "onCustomCommandXlsExecuted");
                                                     })
-                                                    .ConfirmOnLosingChanges(confirm => confirm.Enabled(ViewBag.isDownload == "Yes" ? true : false))
+                                                        .ConfirmOnLosingChanges(c => c.Enabled(false))
+                                                    //.ConfirmOnLosingChanges(confirm => confirm.Enabled(ViewBag.isDownload == "Yes" ? true : false))
                                                 .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
                                                             .Open(Model.PathUrl).ReadOnly(ViewBag.isDownload == "Yes" ? false : true)
                                                             //.Open(@Model.DocumentId, @Model.Extensions == "xlsx" ? DevExpress.Spreadsheet.DocumentFormat.Xlsx : DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes)

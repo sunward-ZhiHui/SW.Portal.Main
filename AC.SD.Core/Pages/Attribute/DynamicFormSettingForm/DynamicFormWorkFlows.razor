@@ -11,14 +11,29 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
 
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisibleApproval"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="SMWorkFlowGrids" Data="@_dynamicFormApprovalData"
+    <DxGrid @ref="Grid5" Data="@_dynamicFormApprovalData"
             ShowGroupPanel="true"
             ShowGroupedColumns="true"
             ShowSearchBox="true"
@@ -65,17 +80,25 @@
 </DxLoadingPanel>
 
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     [Parameter]
     public long? dynamicFormId { get; set; }
     bool PanelVisibleApproval { get; set; }
     private List<DynamicFormWorkFlow>? _dynamicFormApprovalData;
-    IGrid? SMWorkFlowGrids { get; set; }
+    IGrid? Grid5 { get; set; }
     private DynamicFormWorkFlow _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
         await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid5.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     public async Task loadChildData(long? dynamicFormIds)
     {

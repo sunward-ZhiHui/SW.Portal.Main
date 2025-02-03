@@ -1637,6 +1637,8 @@
                                 AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                 addTempSectionAttribute.DataType = a.DataType;
                                 addTempSectionAttribute.DynamicAttributeName = a.DynamicAttributeName;
+                                addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + a.DisplayName;
+                                addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_";
                                 addTempSectionAttribute.ID = a.DynamicFormSectionAttributeId;
                                 addTempSectionAttributes.Add(addTempSectionAttribute);
                                 if (a.ControlTypeId == 2704)
@@ -1652,7 +1654,9 @@
                                         objectNameLists.Add(nameData);
                                         AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
                                         addTempSectionAttributess.DataType = a.DataType;
+                                        addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster_" + ab.ApplicationMasterName;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
+                                        addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster_";
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
                                         {
@@ -1663,6 +1667,8 @@
                                             AddTempSectionAttribute addTempSectionAttributesss = new AddTempSectionAttribute();
                                             addTempSectionAttributesss.DataType = dataTypess;
                                             addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
+                                            addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_";
+                                            addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_" + ab.ApplicationMasterName;
                                             addTempSectionAttributes.Add(addTempSectionAttributesss);
                                         }
                                     });
@@ -1680,6 +1686,8 @@
                                             AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
                                             addTempSectionAttributess.DataType = a.DataType;
                                             addTempSectionAttributess.DynamicAttributeName = nameData;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + r + "_DynamicGrid" + a.DisplayName;
+                                            addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + r + "_DynamicGrid_";
                                             addTempSectionAttributes.Add(addTempSectionAttributess);
                                         });
                                     }
@@ -1694,6 +1702,8 @@
                                         AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
                                         addTempSectionAttributess.DataType = a.DataType;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
+                                        addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar_" + ab.ApplicationMasterName;
+                                        addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar_";
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         loadApplicationMasterParentDataList(a, ab, typesLists, objectNameLists);
                                         if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
@@ -1705,6 +1715,8 @@
                                             AddTempSectionAttribute addTempSectionAttributesss = new AddTempSectionAttribute();
                                             addTempSectionAttributesss.DataType = dataTypess;
                                             addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_" + ab.ApplicationMasterName;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_";
                                             addTempSectionAttributes.Add(addTempSectionAttributesss);
                                         }
                                     });
@@ -1722,6 +1734,8 @@
                                         AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
                                         addTempSectionAttributess.DataType = dataTypes;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
+                                        addTempSectionAttributess.DynamicAttributeFieldName = nameData;
+                                        addTempSectionAttributess.UniqueId = nameData+"_";
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                     });
                                     if (a.IsSetDefaultValue == true)
@@ -1748,6 +1762,8 @@
                                                         AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                                         addTempSectionAttribute.DataType = d.SubDataType;
                                                         addTempSectionAttribute.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
+                                                        addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + d.Description;
+                                                        addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_";
                                                         addTempSectionAttributes.Add(addTempSectionAttribute);
                                                         typesLists.Add(d.SubDataType);
                                                         objectNameLists.Add(a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName);
@@ -1759,6 +1775,8 @@
                                                                 var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                                                                 addTempSectionAttributeSub.DataType = d.SubDataType;
                                                                 addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                                                                addTempSectionAttributeSub.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_";
+                                                                addTempSectionAttributeSub.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_" + ab.ApplicationMasterName;
                                                                 addTempSectionAttributes.Add(addTempSectionAttributeSub);
                                                                 typesLists.Add(d.SubDataType);
                                                                 objectNameLists.Add(appendAppMaster);
@@ -1790,6 +1808,8 @@
                                                             AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                                             addTempSectionAttribute.DataType = d.SubDataType;
                                                             addTempSectionAttribute.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
+                                                            addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_";
+                                                            addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + d.Description;
                                                             addTempSectionAttributes.Add(addTempSectionAttribute);
                                                             typesLists.Add(d.SubDataType);
                                                             objectNameLists.Add(a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName);
@@ -1801,6 +1821,8 @@
                                                                     var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                                                                     addTempSectionAttributeSub.DataType = d.SubDataType;
                                                                     addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                                                                    addTempSectionAttributeSub.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_" + ab.ApplicationMasterName;
+                                                                    addTempSectionAttributeSub.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_";
                                                                     addTempSectionAttributes.Add(addTempSectionAttributeSub);
                                                                     typesLists.Add(d.SubDataType);
                                                                     objectNameLists.Add(appendAppMaster);
@@ -1832,7 +1854,8 @@
                                             AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                             addTempSectionAttribute.DataType = typeof(string);
                                             addTempSectionAttribute.DynamicAttributeName = appendNames;
-                                            //addTempSectionAttribute.ID = a.DynamicFormSectionAttributeId;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = appendNames;
+                                            addTempSectionAttribute.UniqueId =appendNames+"_";
                                             addTempSectionAttributes.Add(addTempSectionAttribute);
                                             objectNameLists.Add(appendNames);
                                         }
@@ -2237,6 +2260,8 @@
             AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
             addTempSectionAttributess.DataType = dynamicFormSectionAttribute.DataType;
             addTempSectionAttributess.DynamicAttributeName = nameData;
+            addTempSectionAttributess.UniqueId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar_";
+            addTempSectionAttributess.DynamicAttributeFieldName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar_" + dataList.ApplicationMasterName;
             addTempSectionAttributes.Add(addTempSectionAttributess);
             loadApplicationMasterParentDataList(dynamicFormSectionAttribute, dataList, typesLists, objectNameLists);
         }
@@ -3278,6 +3303,7 @@
                 {
                     var editReq = new InsertOrUpdateDynamicFormData
                         {
+                            AddTempSectionAttributes = addTempSectionAttributes,
                             DynamicFormProfile = Datas,
                             ProfileId = _dynamicformData.ProfileId,
                             ProfileNo = _dynamicformData.ProfileNo,
@@ -3337,6 +3363,7 @@
                 {
                     var createReq = new InsertOrUpdateDynamicFormData
                         {
+                            AddTempSectionAttributes = addTempSectionAttributes,
                             DynamicFormProfile = Datas,
                             ProfileId = dynamicFormData.ProfileId,
                             DynamicFormItem = strJson,
@@ -3409,6 +3436,7 @@
                 {
                     var editReq = new InsertOrUpdateDynamicFormData
                         {
+                            AddTempSectionAttributes = addTempSectionAttributes,
                             DynamicFormProfile = Datas,
                             ProfileId = _dynamicformData.ProfileId,
                             ProfileNo = _dynamicformData.ProfileNo,
@@ -3468,6 +3496,7 @@
                 {
                     var createReq = new InsertOrUpdateDynamicFormData
                         {
+                            AddTempSectionAttributes = addTempSectionAttributes,
                             DynamicFormProfile = Datas,
                             ProfileId = dynamicFormData.ProfileId,
                             DynamicFormItem = strJson,

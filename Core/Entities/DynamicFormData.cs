@@ -108,6 +108,7 @@ namespace Core.Entities
         public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
         public long? NewDynamicFormDataId { get; set; }
         public long? DynamicFormApprovedId { get; set; }
+        public List<AddTempSectionAttribute> AddTempSectionAttributes { get; set; }=new List<AddTempSectionAttribute>();
     }
     public class DynamicFormProfile
     {
@@ -190,5 +191,13 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public DateTime? AddedDate { get; set; }
         
+    }
+    public class Table_Schema
+    {
+        public string? TABLE_NAME { get; set; }
+        public string? COLUMN_NAME { get; set; }
+        public string? DATA_TYPE { get; set; }
+        public string? IS_NULLABLE { get; set; }
+        public int? CHARACTER_MAXIMUM_LENGTH { get; set; }
     }
 }

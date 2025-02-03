@@ -12,12 +12,27 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
 
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisibleApproval"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="SMApprovalGrid" Data="@_dynamicFormApprovalData"
+    <DxGrid @ref="Grid7" Data="@_dynamicFormApprovalData"
             ShowGroupPanel="true"
             ShowGroupedColumns="true"
             ShowSearchBox="true"
@@ -56,11 +71,12 @@
     </DxGrid>
 </DxLoadingPanel>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     [Parameter]
     public long? dynamicFormId { get; set; }
     bool PanelVisibleApproval { get; set; }
     private List<DynamicFormApproval>? _dynamicFormApprovalData;
-    IGrid? SMApprovalGrid { get; set; }
+    IGrid? Grid7 { get; set; }
     private DynamicFormApproval _selectedItems;
     private DynamicFormApproval _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
@@ -68,6 +84,13 @@
     {
         await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     public async Task loadChildData(long? dynamicFormIds)
     {

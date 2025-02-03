@@ -7,13 +7,18 @@ using Core.Repositories.Query;
 using Dapper;
 using DevExpress.Xpo.DB.Helpers;
 using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
+using Google.Protobuf.WellKnownTypes;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Data.Edm.Library;
 using Microsoft.Data.Edm.Values;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
+using NAV;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -21,11 +26,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
+using static Azure.Core.HttpHeader;
+using static Duende.IdentityServer.Models.IdentityResources;
 using static iText.IO.Image.Jpeg2000ImageData;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static iTextSharp.text.pdf.AcroFields;
@@ -1972,6 +1981,7 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertAuditTrail(dynamicFormData, preData);
                         }
+                        //await CreateDynamicTable(dynamicFormData, insert);
                         return dynamicFormData;
                     }
 
@@ -1984,6 +1994,378 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicForm> GetDynamicFormOneByIdAsync(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", Id);
+                var query = "select * from DynamicForm Where ID=@DynamicFormId;";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<List<object>> ExecuteQueryAsync(object sql)
+        {
+            List<object> result = new List<object>();
+            using (var connection = CreateConnection())
+            {
+                using (SqlCommand command = new SqlCommand((string)sql, (SqlConnection)connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            string name = string.Empty; object value = string.Empty;
+                            IDictionary<string, object> objectDataList = new ExpandoObject();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                name = reader.GetName(i); value = reader.GetValue(i);
+                                objectDataList[name] = value;
+                            }
+                            result.Add(objectDataList);
+                        }
+                    }
+                    connection.Close();
+                }
+
+            }
+
+            return result;
+        }
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataItemList(AttributeHeaderListModel _AttributeHeader, DynamicForm _dynamicForm)
+        {
+            try
+            {
+                List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
+                string query = string.Empty;
+                query += "select t6.IsApproval,t6.FileProfileTypeId,t6.Name,t6.ScreenID,t1.*,t2.CodeValue as StatusCode,CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as AddedBy,\r\nCONCAT(case when t4.NickName is NULL OR  t4.NickName='' then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) as ModifiedBy,\r\n(case when t1.LockedUserId>0 Then CONCAT(case when t5.NickName is NULL OR  t5.NickName='' then  t5.FirstName ELSE  t5.NickName END,' | ',t5.LastName) ELSE null END) as LockedUser\r\nfrom DynamicFormData t1\r\nJOIN CodeMaster t2 ON t2.CodeID=t1.StatusCodeID\r\nJOIN Employee t3 ON t3.UserID=t1.AddedByUserID\r\nJOIN Employee t4 ON t4.UserID=t1.ModifiedByUserID\r\nLEFT JOIN Employee t5 ON t5.UserID = t1.LockedUserId\r\nJOIN DynamicForm t6 ON t6.ID = t1.DynamicFormID AND (t6.IsDeleted is Null OR t6.IsDeleted=0) AND (t1.IsDeleted is Null OR t1.IsDeleted=0)\r\r";
+                if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                {
+                    _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>
+                    {
+
+                    });
+                }
+                using (var connection = CreateConnection())
+                {
+
+                }
+                return dynamicFormData;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<DynamicFormData> CreateDynamicTable(DynamicFormData dynamicFormData, bool? insert)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var result = await GetDynamicFormOneByIdAsync(dynamicFormData.DynamicFormId);
+                        if (result != null && result.ID > 0)
+                        {
+                            if (dynamicFormData.AddTempSectionAttributes != null && dynamicFormData.AddTempSectionAttributes.Count() > 0)
+                            {
+                                dynamic jsonObjs = new object();
+                                if (IsValidJson(dynamicFormData.DynamicFormItem))
+                                {
+                                    jsonObjs = JsonConvert.DeserializeObject(dynamicFormData.DynamicFormItem);
+
+                                }
+                                string tableName = "DynamicForm_" + result.ScreenID.ToLower();
+                                var parameters = new DynamicParameters();
+                                var parameters1 = new DynamicParameters();
+                                parameters1.Add("tableName", tableName, DbType.String);
+                                parameters.Add("DynamicFormDataID", dynamicFormData.DynamicFormDataId);
+                                var query = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME =@tableName;";
+                                var res = (await connection.QueryAsync<Table_Schema>(query, parameters1)).ToList();
+                                string createsql = "create table " + tableName + " (";
+                                string alterSql = string.Empty;
+                                createsql += "[DynamicFormDataItemID] [bigint] IDENTITY(1,1) NOT NULL,[DynamicFormDataID] [bigint] NULL,";
+                                int i = 0;
+                                var COLUMN_NAMEList = res.Select(s => s.COLUMN_NAME).Distinct().ToList();
+                                dynamicFormData.AddTempSectionAttributes.ForEach(s =>
+                                {
+                                    if (!string.IsNullOrEmpty(s.DynamicAttributeName))
+                                    {
+                                        var Names = jsonObjs.ContainsKey(s.DynamicAttributeName);
+                                        var attrName = s.DynamicAttributeName.Replace(" ", "_");
+                                        if (s.DataType == typeof(long?))
+                                        {
+                                            createsql += "[" + attrName + "] [bigint] NULL,";
+                                            long? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<long?>();
+                                                }
+                                                parameters.Add(attrName, namess);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(DateTime?))
+                                        {
+                                            createsql += "[" + attrName + "] [datetime] NULL,";
+                                            DateTime? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<DateTime?>();
+                                                }
+                                                parameters.Add(attrName, namess, DbType.DateTime);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(TimeSpan?))
+                                        {
+                                            createsql += "[" + attrName + "] [timestamp] NULL,";
+                                            TimeSpan? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<TimeSpan?>();
+                                                }
+                                                parameters.Add(attrName, namess, DbType.Time);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(decimal?))
+                                        {
+                                            createsql += "[" + attrName + "] [decimal](18, 5) NULL,";
+                                            decimal? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<decimal?>();
+                                                }
+                                                parameters.Add(attrName, namess, DbType.Decimal);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(int?))
+                                        {
+                                            createsql += "[" + attrName + "] [int] NULL,";
+                                            int? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<int?>();
+                                                }
+                                                parameters.Add(attrName, namess);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(bool?))
+                                        {
+                                            createsql += "[" + attrName + "] [bit] NULL,";
+                                            bool? namess = null;
+                                            if (Names == true)
+                                            {
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<bool?>();
+                                                }
+                                                parameters.Add(attrName, namess);
+                                            }
+                                        }
+                                        else if (s.DataType == typeof(IEnumerable<long?>))
+                                        {
+                                            createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                            if (Names == true)
+                                            {
+                                                string? namess = null;
+                                                var itemDepValue = jsonObjs[s.DynamicAttributeName];
+                                                var values = (JArray)itemDepValue;
+                                                if (values != null)
+                                                {
+                                                    List<long?> listData = values.ToObject<List<long?>>();
+                                                    if (listData != null && listData.Count() > 0)
+                                                    {
+                                                        namess = string.Join(',', listData);
+                                                    }
+                                                }
+                                                parameters.Add(attrName, namess, DbType.String);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                            if (Names == true)
+                                            {
+                                                string? namess = null;
+                                                var itemValue = jsonObjs[s.DynamicAttributeName];
+                                                if (itemValue != null)
+                                                {
+                                                    namess = itemValue.ToObject<string>();
+                                                }
+                                                parameters.Add(attrName, namess, DbType.String);
+                                            }
+                                        }
+                                        var exits = res.Where(w => w.COLUMN_NAME.ToLower() == s.DynamicAttributeName.ToLower()).FirstOrDefault();
+                                        if (exits == null)
+                                        {
+                                            if (s.DataType == typeof(long?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bigint] NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(DateTime?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [datetime] NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(TimeSpan?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [timestamp] NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(decimal?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [decimal](18, 5) NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(int?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [int] NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(bool?))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bit] NULL;\n";
+                                            }
+                                            else if (s.DataType == typeof(IEnumerable<long?>))
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [nvarchar](2000) NULL;\n";
+                                            }
+                                            else
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [nvarchar](2000) NULL;\n";
+                                            }
+                                        }
+                                        i++;
+                                    }
+                                });
+                                createsql += "CONSTRAINT [PK_" + tableName + "] PRIMARY KEY CLUSTERED \r\n(\r\n\t[DynamicFormDataItemID] ASC\r\n)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]\r\n) ON [PRIMARY]";
+                                if (i > 0)
+                                {
+                                    if (res.Count() > 0)
+                                    {
+                                        if (!string.IsNullOrEmpty(alterSql))
+                                        {
+                                            using (SqlCommand command = new SqlCommand((string)alterSql, (SqlConnection)connection))
+                                            {
+                                                connection.Open();
+                                                await command.ExecuteNonQueryAsync();
+                                                connection.Close();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!string.IsNullOrEmpty(createsql))
+                                        {
+                                            using (SqlCommand command = new SqlCommand((string)createsql, (SqlConnection)connection))
+                                            {
+                                                connection.Open();
+                                                await command.ExecuteNonQueryAsync();
+                                                connection.Close();
+                                            }
+                                        }
+                                    }
+                                    await InsertOrUpdateDynamicFormDataItem(tableName, dynamicFormData, parameters, insert);
+                                }
+                            }
+                        }
+                        return dynamicFormData;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicFormData> InsertOrUpdateDynamicFormDataItem(string? TableName, DynamicFormData dynamicFormData, DynamicParameters parameters, bool? insert)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameterss = new DynamicParameters();
+                        parameterss.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                        var querys = "select Count(*) from " + TableName + " Where DynamicFormDataId=@DynamicFormDataId;";
+                        var res = await connection.ExecuteScalarAsync<int>(querys, parameterss);
+                        var query = string.Empty;
+                        if (res > 0)
+                        {
+                            if (parameters is DynamicParameters subDynamic)
+                            {
+                                query += "UPDATE " + TableName + " SET\r";
+                                var names = string.Empty;
+                                if (subDynamic.ParameterNames is not null)
+                                {
+                                    foreach (var keyValue in subDynamic.ParameterNames)
+                                    {
+                                        names += "[" + keyValue + "]=";
+                                        names += "@" + keyValue + ",";
+                                    }
+                                }
+                                query += names.TrimEnd(',') + "\rwhere DynamicFormDataId = " + dynamicFormData.DynamicFormDataId + ";";
+                                await connection.ExecuteAsync(query, parameters);
+                            }
+                        }
+                        else
+                        {
+                            if (parameters is DynamicParameters subDynamic)
+                            {
+                                query += "INSERT INTO " + TableName + "(\r";
+                                var values = string.Empty;
+                                var names = string.Empty;
+                                if (subDynamic.ParameterNames is not null)
+                                {
+                                    foreach (var keyValue in subDynamic.ParameterNames)
+                                    {
+                                        names += "[" + keyValue + "],";
+                                        values += "@" + keyValue + ",";
+                                    }
+                                }
+                                query += names.TrimEnd(',') + ")\rOUTPUT INSERTED.DynamicFormDataItemID VALUES(" + values.TrimEnd(',') + ");";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                            }
+                        }
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+                return dynamicFormData;
             }
             catch (Exception exp)
             {

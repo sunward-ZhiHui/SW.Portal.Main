@@ -40,7 +40,7 @@
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
                                 <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
                                <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
-                                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" />
+                               @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" /> *@
                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" /> 
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                 <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
@@ -109,6 +109,7 @@
             <DxGridDataColumn FieldName="MachineName" Caption="Machine" MinWidth="180" />
             <DxGridDataColumn FieldName="ReportingPersonalName" Caption="Reporting Personal" MinWidth="180" Visible="false"/>
             <DxGridDataColumn FieldName="DetectedByName" Caption="Detected By" MinWidth="180" />
+            <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="180" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
             <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="180" />
         </Columns>

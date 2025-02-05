@@ -93,6 +93,8 @@ namespace Core.Entities
         public string? ProdOrderNoDescription { get; set; }
         [NotMapped]
         public string? StatusName { get; set; }
+        [NotMapped]
+        public string? Subject { get; set; }
     }
     public class IpirAppIssueDep
     {

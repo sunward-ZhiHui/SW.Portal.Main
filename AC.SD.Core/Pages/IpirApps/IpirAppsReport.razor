@@ -109,8 +109,16 @@
             <DxGridDataColumn FieldName="MachineName" Caption="Machine" MinWidth="180" />
             <DxGridDataColumn FieldName="ReportingPersonalName" Caption="Reporting Personal" MinWidth="180" Visible="false"/>
             <DxGridDataColumn FieldName="DetectedByName" Caption="Detected By" MinWidth="180" />
+            <DxGridDataColumn FieldName="Subject" Caption="Subject Name" MinWidth="180" />
             <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="180" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (IpirApp)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="180" />
         </Columns>
         <TotalSummary>

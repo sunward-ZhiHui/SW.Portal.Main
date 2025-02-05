@@ -750,12 +750,12 @@
                                         if (s.IsSpinEditType == "decimal")
                                         {
                                             decimal? values = itemValue == null ? null : (decimal)itemValue;
-                                            objectData[attrName] = values;
+                                            objectData[attrName] = values==null?"":values.ToString();
                                         }
                                         else
                                         {
                                             int? values = itemValue == null ? null : (int)itemValue;
-                                            objectData[attrName] = values;
+                                            objectData[attrName] = values == null ? "" : values.ToString();
                                         }
                                     }
                                     else if (s.ControlType == "CheckBox")

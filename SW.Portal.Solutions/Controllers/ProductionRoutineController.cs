@@ -1109,7 +1109,11 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<IpirAppModel>();
             if (IpirAppModel.CompanyID > 0 )
             {
-
+                var Profileresult = await iIpirAppQueryRepostitory.GetProfileType();
+                if (Profileresult != null)
+                {
+                    IpirAppModel.ProfileId = Profileresult[0].ProfileId;
+                }
 
                 IpirApp FilterData = new IpirApp();
                 {

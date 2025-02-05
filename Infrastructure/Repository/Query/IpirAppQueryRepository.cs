@@ -501,7 +501,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ProfileNo", ProfileNo, DbType.String);
                             value.SessionID = Guid.NewGuid();
                             parameters.Add("SessionID", value.SessionID, DbType.Guid);
-                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
+                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileID,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
 				                       OUTPUT INSERTED.IpirAppId ,INSERTED.SessionID
 				                       VALUES (@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
@@ -985,6 +985,25 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<IReadOnlyList<DocumentProfileNoSeries>> GetProfileType()
+        {
+            try
+            {
+                var query = @"select ProfileID AS ProfileId from DocumentProfileNoSeries where  Abbreviation='MIR'
+";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentProfileNoSeries>(query)).ToList();
+                  
+                }
+               
             }
             catch (Exception exp)
             {

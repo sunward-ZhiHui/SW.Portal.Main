@@ -1351,7 +1351,18 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = result.Count > 0 ? result : new List<DocumentsModel> { new DocumentsModel() };
+                if (result.Count > 0)
+                {
+                    response.Results = result;
+                }
+                else
+                {
+                    List<DocumentsModel> list = new List<DocumentsModel>()
+                    {
+                        new DocumentsModel { AddedDate = DateTime.Now }
+                    };
+                    response.Results = list;
+                }
             }
             catch (Exception ex)
             {

@@ -1,0 +1,220 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
+
+          <div class="card w-100 tooltips" style="margin-bottom:10px; margin-top:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+
+                            <DxMenuItem Text="Save"  IconCssClass="fas fa-save" Click="@SubmitFormExternally"  />
+                          
+                    </Items>
+                </DxMenu>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="card w-100 " style=" height: calc(100vh - 300px);">
+             <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+               
+                    <DataAnnotationsValidator />
+                      <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                    <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="12" >
+                        <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.SupportingDocFileProfileID" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.SupportingDocFileProfileID)" />
+                    </DxFormLayoutItem>
+                    </DxFormLayout>
+                </div>
+            </div>
+        </div>
+               
+            </EditForm>
+</div>
+  
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select SW Library"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 300px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+              
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+@code {
+    EditContext _editContext;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    private IncidentAppSettings Data = new IncidentAppSettings();
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+    void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            Data.SupportingDocFileProfileID = nodeName.FileProfileTypeId;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel>
+     GetFileProfileTypePath(List<DocumentsModel>
+     foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+        foldersList = new List<FileProfileTypeModel>
+        ();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string>
+                                    FolderPathLists = new List<string>
+                                        ();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel>
+       foldersListItems, DocumentsModel s, List<string>
+       foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    async Task HandleValidSubmit()
+    {
+        var dataResult = await Mediator.Send(new GetAllIncidentAppSettingsQuery());
+
+        if (dataResult.Count == 0)
+        {
+            var req = new CreateincidentApp
+                {
+                    SupportingDocFileProfileID = Data.SupportingDocFileProfileID
+                };
+            var result = await Mediator.Send(req);
+        }
+        else
+        {
+            var req1 = new EditIncidentApp
+            {
+                IncidentAppSettingsID = dataResult[0].IncidentAppSettingsID,
+                    SupportingDocFileProfileID = Data.SupportingDocFileProfileID
+            };
+            var result = await Mediator.Send(req1);
+        }
+        Data.SupportingDocFileProfileID = null;
+        LinkFilterFileprofiletypeName = null;
+        toastService.ShowToast("Incident App Profile Set Successfully!", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        fileProfileTypeDocumentsAll?.Clear();
+    }
+}

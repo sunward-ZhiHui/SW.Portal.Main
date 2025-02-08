@@ -1,24 +1,86 @@
-﻿<div>
-    <div style="margin-top: 10px; border: 1px solid #ddd; padding: 10px;">
-        <p>Content for item ID: @ItemId</p>            
-    </div>
+﻿@using Application.Queries
+@using MediatR
+@using global::Core.Entities
+@inject IMediator Mediator
 
-</div>
+
+@if (DataSource == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <div class="cw-480">
+        @*   <DxAccordion Data="@DataSource"
+                     ShowFilterPanel="true"
+                     RootItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End"
+                     SubItemExpandButtonIconCssClass="icon-square-plus"
+                     SubItemCollapseButtonIconCssClass="icon-square-minus"
+                     SubItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End">
+            <DataMappings>
+                <DxAccordionDataMapping Text="Name"
+                                        Key="EmailCopyLinkID"
+                                        ParentKey="EmailConversationsId" />
+            </DataMappings>
+        </DxAccordion> *@
+        <DxAccordion ExpandMode="ExpandMode" style="width:100%"
+        ExpandCollapseAction="ExpandCollapseAction"
+        AnimationType="LayoutAnimationType.Slide" SelectionMode="NavigationSelectionMode.Single"
+        SelectionChanged="SelectionChanged">
+            <Items>
+                @foreach (var (employee, i) in Items)
+                {
+                    <DxAccordionItem Text=@($"{employee.Name}") Expanded=@(i == 0)>
+                        <ContentTemplate>
+                            @* <div class="py-3 px-3" tabindex="0">
+                                <div>@employee.EmailConversationsSessionid</div>
+                                <div>@employee.SessionID</div>
+                            </div> *@
+                            <div>
+                                <CopyEmailLinkPage ConSessionId="@employee.SessionID.Value"></CopyEmailLinkPage>
+                            </div>
+                        </ContentTemplate>
+                    </DxAccordionItem>
+                }
+            </Items>
+        </DxAccordion>
+    </div>
+}
+
+
 
 @code {
 
     [Parameter] public long ItemId { get; set; }
 
-
-    protected override async void OnInitialized()
+    IEnumerable<EmailCopyLink> DataSource;
+    IEnumerable<(EmailCopyLink, int)> Items;
+    AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
+    AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
+    protected override async Task OnInitializedAsync()
     {
-        //var sId = sessionId;
+
+    }
+    void SelectionChanged(AccordionSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItems.Any())
+        {
+
+        }
     }
 
     protected override async Task OnParametersSetAsync()
-    {
-        //var sId = sessionId;
+    {   
         var id = ItemId;
+        if(ItemId > 0)
+        {
+            DataSource = await Mediator.Send(new GetConversationList(ItemId)); ;
+            Items = DataSource.Select((item, index) => (item, index));
+        }
+        
+       
     }
 
 }

@@ -129,6 +129,7 @@ namespace Core.Entities
         public string? CopyEmailName { get; set; }
         [NotMapped]
         public Guid? EmailConversationsSessionid { get; set; }
+        public long? CopyLinkEmailIds { get; set; } = null;
     }
     public class EmailDocumentModel
     {        

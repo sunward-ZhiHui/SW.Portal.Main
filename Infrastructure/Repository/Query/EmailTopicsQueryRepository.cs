@@ -3348,15 +3348,21 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async  Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync()
+        public async  Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync(long UserId)
         {
             try
             {
-                var query = @"select  Distinct Name as CopyEmailName ,SessionID as ConversationSessionID,ReplyId from EmailConversations Where ReplyId = 0";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                var query = @"SELECT Distinct EC.Name as CopyEmailName ,EC.SessionID as ConversationSessionID,EC.ReplyId 
+                        FROM EmailConversations EC
+                        INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
+                        WHERE EC.ReplyId = 0";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailTopics>(query)).ToList();
+                    return (await connection.QueryAsync<EmailTopics>(query,parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -3393,7 +3399,7 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"select *,EM.Name from EmailCopyLink EC 
-                            Left Join EmailConversations EM ON EM.ID =EC.EmailConversationsId
+                            INNER JOIN EmailConversations EM ON EM.SessionId =EC.EmailConversationsSessionid
                             Where EC.EmailConversationsId = @ConversationID";
 
                 var parameters = new DynamicParameters();

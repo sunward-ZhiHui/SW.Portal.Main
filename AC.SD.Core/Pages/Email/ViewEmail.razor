@@ -52,6 +52,10 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @inject DataRefreshService RefreshService
 <style scoped>
+    .dheight
+    {
+        height: calc(100vh - 200px);
+    } 
     .drawer {
     position: fixed;
     top: 0;
@@ -502,20 +506,22 @@
                         </div>
                     </div>
 
-                    <DxDrawer CssClass="demo-drawer-overview-right"
-                    @bind-IsOpen="IsInfoOpen"
-                    Mode="DrawerMode.Overlap"
-                    Position="DrawerPosition.Right"
-                    PanelWidth="225px">
+                    <DxDrawer CssClass="demo-drawer-overview-right dheight"
+                        @bind-IsOpen="IsInfoOpen"
+                        Mode="DrawerMode.Overlap"
+                        Position="DrawerPosition.Right"
+                        PanelWidth="95%">
                         <HeaderTemplate>
-                            Header
+                            Attachment Email
                             <DxButton Attributes="GetCloseInfoButtonAttributes()"
                             Click="CloseInfo"
-                            IconCssClass="tb-icon icon-close"
+                            IconCssClass="fa fa-times"
                             RenderStyle="ButtonRenderStyle.Link" />
                         </HeaderTemplate>
                         <BodyTemplate>
-                            <CopyContentPage ItemId="@ecID" ></CopyContentPage>
+                            <div style="width:100%;">
+                                <CopyContentPage ItemId="@ecID" ></CopyContentPage>
+                            </div>                            
                         </BodyTemplate>
                         <FooterTemplate>
                             <DxButton Click="CloseInfo"
@@ -1005,6 +1011,16 @@
                                                             }
                                                             <div class="uk-card-body">
 
+
+
+                                                                @if (item.CopyLinkEmailIds != null)
+                                                                {
+                                                                     dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
+
+                                                                    <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(item))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
+                                                                        <i class="fa fa-envelope"></i> Attachment Email
+                                                                    </button>
+                                                                }
                                                                 <div>
                                                                     @{
                                                                         byte[] htmlBinaryData = item.FileData; // Your HTML binary data
@@ -1102,28 +1118,15 @@
 
 
                                                                                         <div>
-                                                                                            @if(items.CopyEmailIds != null)
+                                                                                            @if (items.CopyLinkEmailIds != null)
                                                                                             {
-                                                                                                <button type="button" @onclick="@(() => ToggleContent(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;background: #000000;margin-top: 10px;color: white;" class="">
-                                                                                                    <i class="fa fa-envelope"></i> @((IsContentVisible ? "Close Content" : "Open Content"))
-                                                                                                </button>
+                                                                                                { dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;}
 
-                                                                                                @if (copyitemVisibility.ContainsKey(item.ID) && copyitemVisibility[item.ID])
-                                                                                                {
-                                                                                                    <CopyContentPage ItemId="@item.ID"></CopyContentPage>
-                                                                                                }                                                                                      
+                                                                                                <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(items))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
+                                                                                                    <i class="fa fa-envelope"></i> Attachment Email
+                                                                                                </button>                                                                          
                                                                                             }                                                                                 
                                                                                         </div>
-
-                                                                                       @*  @{
-                                                                                            dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
-                                                                                        }
-
-                                                                                        <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(items))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
-                                                                            <i class="fa fa-envelope"></i> Info
-                                                                        </button>
- *@
-                                                                                        
 
                                                                                         @* <DxToolbar>
                                                                                             <Items>               
@@ -1136,10 +1139,6 @@
                                                                                                 Text="Info" />
                                                                                             </Items>
                                                                                         </DxToolbar> *@
-
-
-
-
 
                                                                                         @*  <button class="toggle-btn" @onclick="OpenDrawer">Open Drawer</button>
 
@@ -1261,25 +1260,7 @@
                                                                                     <DxFormLayoutItem Caption="From" ColSpanMd="12">
                                                                                         <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                                                                                     </DxFormLayoutItem>
-                                                                                    @*  <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
-                                                                                <DxTagBox Data="_CopyLinkList"
-                                                                                      SearchMode="ListSearchMode.AutoSearch"
-                                                                                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                                                                      NullText="Select Copy Email..."
-                                                                                      Values="@Data?.CopyEmailIds"
-                                                                                      ValuesExpression="@(() => Data.CopyEmailIds )"
-                                                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                      ValueFieldName="ConversationSessionID"
-                                                                                      TextFieldName="CopyEmailName"
-                                                                                      ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
-                                                                                      ListRenderMode="ListRenderMode.Virtual"
-                                                                                      CssClass="cw-480">
-
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
-
-
-                                                                            </DxTagBox>
-                                                                            </DxFormLayoutItem> *@
+                                                                                     
                                                                                     @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                                                                                     {
                                                                                         @if (isCheckAllowParticipant)
@@ -1442,6 +1423,26 @@
                                                                                             </DxTagBox>
                                                                                         </DxFormLayoutItem>
                                                                                     }
+
+                                                                                    @*  <DxFormLayoutItem Caption="Attachment Email" ColSpanMd="12">
+                                                                                        <DxTagBox Data="_CopyLinkList"
+                                                                                                  SearchMode="ListSearchMode.AutoSearch"
+                                                                                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                                                  NullText="Select Attachment Email"
+                                                                                                  Values="@Data?.CopyEmailIds"
+                                                                                                  ValuesExpression="@(() => Data.CopyEmailIds )"
+                                                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                  ValueFieldName="ConversationSessionID"
+                                                                                                  TextFieldName="CopyEmailName"
+                                                                                                  ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
+                                                                                                  ListRenderMode="ListRenderMode.Virtual"
+                                                                                                  CssClass="cw-480">
+
+                                                                                            <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
+                                                                                        </DxTagBox>
+                                                                                    </DxFormLayoutItem>  *@
+
+
                                                                                     @if(newSubjectreply == 1)
                                                                                     {      
                                                                                         <DxFormLayoutItem Caption="Due Date" ColSpanMd="3">                                                                                
@@ -6359,7 +6360,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         Data.CopyEmailIds = null;
-        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
         //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
@@ -6611,7 +6612,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         Data.CopyEmailIds = null;
-        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
         if (id > 0)
         {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();

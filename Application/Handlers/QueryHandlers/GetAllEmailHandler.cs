@@ -1039,7 +1039,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetAllEmailTopicsList request, CancellationToken cancellationToken)
         {
-            return (List<EmailTopics>)await _queryRepository.GetAllEmailTopicsAsync();
+            return (List<EmailTopics>)await _queryRepository.GetAllEmailTopicsAsync(request.UserId);
         }
     }
     public class GetActivityEmailTopicsHandler : IRequestHandler<GetActivityEmailTopics, List<ActivityEmailTopics>>

@@ -277,11 +277,11 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                             @*  <DxFormLayoutItem Caption="Copy Email" ColSpanMd="12">
+                          @*    <DxFormLayoutItem Caption="Attachment Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          NullText="Select Copy Email..."
+                                          NullText="Select Attachment Email..."
                                           Values="@Data?.CopyEmailIds"
                                           ValuesExpression="@(() => Data.CopyEmailIds )"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -297,7 +297,7 @@ else
 
                                 </DxTagBox>
                                
-                            </DxFormLayoutItem>  *@
+                            </DxFormLayoutItem>   *@
                             @if (ActiveSessionId != null)
                             {
 
@@ -1863,7 +1863,7 @@ else
     {
         //_subscription = ApplicationState.RegisterOnPersisting(Persist);
         _editContext = new EditContext(Data);
-        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList());
+        
         //var tasks = new List<Task>();
 
 
@@ -1894,6 +1894,8 @@ else
             AppUserId = applicationUser.UserID;
 
         }
+
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
 
         Follow = new List<string>
         {

@@ -1057,7 +1057,7 @@ namespace Infrastructure.Repository.Query
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
-                                FC.IsLockDueDate
+                                FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
                             FROM
                                 EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
@@ -1066,6 +1066,7 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            OUTER APPLY(SELECT DISTINCT  EmailConversationsId FROM EmailCopyLink WHERE EmailConversationsId = FC.ID)CEL
                             OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
                                         INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
                             OUTER APPLY(select TOP 1 df.Name from DynamicFormData dfd
@@ -1100,13 +1101,15 @@ namespace Infrastructure.Repository.Query
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
-                                DYSN.SectionName AS DynamicFormEmailSectionName,FC.IsLockDueDate
+                                DYSN.SectionName AS DynamicFormEmailSectionName,FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
 
                             FROM
                             EmailConversations FC
+                            INNER JOIN EmailConversationParticipant ECPP ON ECPP.ConversationId = FC.ID AND ECPP.UserId = @UserId
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                            
                             INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID       
+                            OUTER APPLY(SELECT DISTINCT  EmailConversationsId FROM EmailCopyLink WHERE EmailConversationsId = FC.ID)CEL
                             OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
                                         INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
@@ -1724,10 +1727,11 @@ namespace Infrastructure.Repository.Query
                 var query = @"
             SELECT FC.Name, FC.ID, FC.AddedDate, CONCAT(AU.FirstName, '-', AU.NickName) as UserName, 
                    AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData, EN.IsRead, 
-                   EN.ID as EmailNotificationId, ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType 
+                   EN.ID as EmailNotificationId, ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType,ECL.EmailConversationsId AS CopyLinkEmailIds
             FROM EmailConversations FC
             INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
             LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+            OUTER APPLY(SELECT DISTINCT  EmailConversationsId FROM EmailCopyLink WHERE EmailConversationsId = FC.ID)ECL
             WHERE FC.ReplyId = @ReplyId
             ORDER BY FC.AddedDate DESC";
 

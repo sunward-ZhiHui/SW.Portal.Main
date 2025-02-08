@@ -11,9 +11,13 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-    public class GetAllEmailTopicsList : PagedRequest, IRequest<List<EmailTopics>>
+    public class GetAllEmailTopicsList :  IRequest<List<EmailTopics>>
     {
-        public string SearchString { get; set; }
+        public long UserId { get; private set; }
+        public GetAllEmailTopicsList(long userId)
+        {
+            this.UserId = userId;
+        }
     }
     public class UpdateTopicArchive : EmailTopics, IRequest<long>
     {

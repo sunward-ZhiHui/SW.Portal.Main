@@ -12,17 +12,29 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
 
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
 
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
 
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
 
-
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="SMAttributeGrid" Data="@_dynamicFormSectionAttributeData" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid3" Data="@_dynamicFormSectionAttributeData" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -45,7 +57,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
-            <DxGridDataColumn FieldName="SectionName" Caption="SectionName" GroupIndex="0" MinWidth="40" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section Name" GroupIndex="0" MinWidth="40" />
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
             <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40">
                 <CellDisplayTemplate>
@@ -90,15 +102,15 @@
                 <DxGridDataColumn FieldName="IsMultiple" Caption="Is Multiple" MinWidth="80" />
                 <DxGridDataColumn FieldName="IsRequired" Caption="Is Required" MinWidth="80" />
                 <DxGridDataColumn FieldName="RequiredMessage" Caption="Required Msg" MinWidth="80" />
-                <DxGridDataColumn FieldName="ColSpan" Caption="ColSpan" MinWidth="20" />
+                <DxGridDataColumn FieldName="ColSpan" Caption="Col Span" MinWidth="20" />
                 <DxGridDataColumn FieldName="IsDisplayTableHeader" Caption="Is Table Header" MinWidth="20" />
                 <DxGridDataColumn FieldName="IsSetDefaultValue" Caption="Is Set Default Value" MinWidth="50" />
                 <DxGridDataColumn FieldName="IsDefaultReadOnly" Caption="Is Default ReadOnly" MinWidth="50" />
                 <DxGridDataColumn FieldName="IsSpinEditType" Caption="Spin Type" MinWidth="20" />
-                <DxGridDataColumn FieldName="IsMultiple" Caption="Is Multiple" MinWidth="20" />
                 <DxGridDataColumn FieldName="IsDisplayDropDownHeader" Caption="Is Dropdown Header" MinWidth="20" />
                 <DxGridDataColumn FieldName="IsDependencyMultiple" Caption="Is Dropdown Multiple" MinWidth="20" />
                 <DxGridDataColumn FieldName="RadioLayout" Caption="Radio Layout" MinWidth="20" />
+                <DxGridDataColumn FieldName="FormToolTips" Caption="Tool Tips" MinWidth="20" />
             }
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
@@ -111,13 +123,14 @@
 
 
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     [Parameter]
     public long? DynamicFormId { get; set; }
     [Parameter]
     public bool? IsFormula { get; set; } = false;
     bool PanelAttibuteVisible { get; set; }
     private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData;
-    IGrid? SMAttributeGrid { get; set; }
+    IGrid? Grid3 { get; set; }
     private DynamicFormSectionAttribute _selectedAttributeItems;
     public ApplicationUser? applicationUser { get; private set; }
 
@@ -126,6 +139,13 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid3.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     async Task UpdateDataAsync()
     {

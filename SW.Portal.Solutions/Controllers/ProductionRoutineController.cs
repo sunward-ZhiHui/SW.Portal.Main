@@ -39,10 +39,11 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
         private readonly ISoCustomerQueryRepository _SoCustomerQueryRepository;
+        private readonly IIncidentAppSettingsQueryRepository _QueryRepository;
         private readonly IJSRuntime _jSRuntime;
         private readonly IConfiguration _configuration;
 
-        public ProductionRoutineController(IConfiguration configuration ,IJSRuntime JsRuntime ,IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
+        public ProductionRoutineController(IIncidentAppSettingsQueryRepository QueryRepository,IConfiguration configuration ,IJSRuntime JsRuntime ,IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
@@ -52,6 +53,7 @@ namespace SW.Portal.Solutions.Controllers
             iIpirAppQueryRepostitory = ipirAppQueryRepostitory;
             _jSRuntime = JsRuntime;
             _configuration = configuration;
+            _QueryRepository = QueryRepository;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -291,7 +293,7 @@ namespace SW.Portal.Solutions.Controllers
                     IsOthersOptions = value.IsOthersOptions,
                     TimeSheetAction = true,
                     IsTemplateUpload = value.IsTemplateUpload,
-
+                    ActionType = "TimeSheet",
                     ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
                     RoutineInfoIds = value.RoutineInfoIds.Count() > 0 ? value.RoutineInfoIds : new List<long?>(),
                     LotNo = value.LotNo,
@@ -1109,7 +1111,11 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<IpirAppModel>();
             if (IpirAppModel.CompanyID > 0 )
             {
-
+                var Profileresult = await iIpirAppQueryRepostitory.GetProfileType();
+                if (Profileresult != null)
+                {
+                    IpirAppModel.ProfileId = Profileresult[0].ProfileId;
+                }
 
                 IpirApp FilterData = new IpirApp();
                 {
@@ -1345,7 +1351,18 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = result.Count > 0 ? result : new List<DocumentsModel> { new DocumentsModel() };
+                if (result.Count > 0)
+                {
+                    response.Results = result;
+                }
+                else
+                {
+                    List<DocumentsModel> list = new List<DocumentsModel>()
+                    {
+                        new DocumentsModel { AddedDate = DateTime.Now }
+                    };
+                    response.Results = list;
+                }
             }
             catch (Exception ex)
             {
@@ -1462,6 +1479,25 @@ namespace SW.Portal.Solutions.Controllers
                     response.ErrorMessages.Add(ex.Message);
                 }
             }
+            return Ok(response);
+        }
+        [HttpGet("GetIncidentAppProfileList")]
+        public async Task<ActionResult<Services.ResponseModel<List<IncidentAppSettings>>>> GetIncidentAppProfileList()
+        {
+            var response = new Services.ResponseModel<IncidentAppSettings>();
+            var result = await _QueryRepository.GetAllAsync();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = (List<IncidentAppSettings>)(result.Count > 0 ? result : new List<IncidentAppSettings> { new IncidentAppSettings() });
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
             return Ok(response);
         }
         //[HttpGet("GetCompanyListTest")]

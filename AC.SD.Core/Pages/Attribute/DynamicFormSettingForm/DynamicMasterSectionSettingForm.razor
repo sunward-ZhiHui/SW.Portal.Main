@@ -14,14 +14,34 @@
 @implements IAsyncDisposable
 
 
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
 
+
+
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+
+        </div>
+
+
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="SMGrid" Data="@_dynamicFormSectionData" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid8" Data="@_dynamicFormSectionData" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -58,6 +78,7 @@
 
 
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     bool GridSequencePopUp { get; set; } = false;
     private AddPermissionSection refAddPermissionSection;
     private AddGridSequence refAddGridSequence;
@@ -68,7 +89,7 @@
     private string gridHeight = "calc(100vh - 230px - 143px)";
     private List<DynamicFormSection>? _dynamicFormSectionData;
     private List<AttributeHeader>? _attributeHeaderData;
-    IGrid? SMGrid { get; set; }
+    IGrid? Grid8 { get; set; }
     private DynamicFormSection _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
@@ -80,6 +101,13 @@
     {
         dynamicFormId = dynamicFormIds;
         await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid8.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     async Task UpdateDataAsync()
     {

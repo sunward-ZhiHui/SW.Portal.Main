@@ -17,8 +17,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @inject NavigationManager NavigationManager
-@page "/RegistrationRequestForm"
-@page "/RegistrationRequestForm/{SessionId:guid}"
+@page "/RegistrationRequestList/RegistrationRequestForm"
+@page "/RegistrationRequestList/RegistrationRequestForm/{SessionId:guid}"
 @implements IAsyncDisposable
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -446,7 +446,7 @@
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
 
-            NavigationManager.NavigateTo("RegistrationRequestForm/" + Data.SessionId + "");
+            NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + Data.SessionId + "");
 
 
             StateHasChanged();
@@ -460,7 +460,7 @@
     {
         if (SessionId != null)
         {
-            NavigationManager.NavigateTo("RegistrationRequestForm");
+            NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm");
         }
         else
         {

@@ -916,7 +916,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('Location_',t1.IctmasterId) as AttributeDetailNameId,'Location' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as ZoneName,t4.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n";
+                query += "select CONCAT(t1.Name,'|',t1.Description) as NameList,CONCAT('Location_',t1.IctmasterId) as AttributeDetailNameId,'Location' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as ZoneName,t4.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")

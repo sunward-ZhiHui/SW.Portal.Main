@@ -5,7 +5,22 @@
 @using Application.Queries;
 @inject AC.SD.Core.Services.ToastService toastService
 @implements IAsyncDisposable
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
 
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+
+        </div>
+    </div>
+</div>
 
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
@@ -13,7 +28,7 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="SMGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <DxGrid @ref="Grid2" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_documentUserRoleLists"
             ShowGroupPanel="true" ShowGroupedColumns="true"
@@ -49,7 +64,8 @@
     </DxGrid>
 </DxLoadingPanel>
 @code {
-    IGrid? SMGrid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    IGrid? Grid2 { get; set; }
     [Parameter]
     public long? DynamicFormId { get; set; }
     public List<DynamicFormSectionAttributeSecurity> _documentUserRoleLists { get; set; }
@@ -57,6 +73,13 @@
     protected override async Task OnInitializedAsync()
     {
         await loadData(DynamicFormId);
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid2.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     public async Task loadData(long? dynamicFormSectionAttributeId)
     {

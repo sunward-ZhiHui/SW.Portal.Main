@@ -91,6 +91,10 @@ namespace Core.Entities
         public string? DocProfileNo { get; set; }
         [NotMapped]
         public string? ProdOrderNoDescription { get; set; }
+        [NotMapped]
+        public string? StatusName { get; set; }
+        [NotMapped]
+        public string? Subject { get; set; }
     }
     public class IpirAppIssueDep
     {

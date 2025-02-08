@@ -2,7 +2,11 @@
 @page "/DynamicMasterSetup/DynamicMasterSetupSettingReport/{SessionIds:guid}"
 @using Application.Commands;
 @using Application.Queries;
+@using DocumentFormat.OpenXml
+@using DocumentFormat.OpenXml.Packaging
+@using DocumentFormat.OpenXml.Spreadsheet
 @using MediatR
+@using System.IO
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.Repositories.Query;
@@ -19,6 +23,8 @@
 @* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment _hostingEnvironment
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -26,7 +32,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-               
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@getExcel" />
             </Items>
         </DxMenu>
     </div>
@@ -148,11 +154,11 @@
                             <DxFormLayoutTabPage Caption="Formula">
                                 <AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicMasterSectionAttributeForm @ref="refDynamicMasterSectionAttributeFormulaForm" IsFormula="true" DynamicFormId="@dynamicFormId"></AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicMasterSectionAttributeForm>
                             </DxFormLayoutTabPage>
-                            <DxFormLayoutTabPage Caption="Control Permission">
-                                <AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributePermissionList @ref="refDynamicFormSectionAttributePermissionList"  DynamicFormId="@dynamicFormId"></AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributePermissionList>
+                            <DxFormLayoutTabPage Caption="Control Permission Form">
+                                <AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributePermissionList @ref="refDynamicFormSectionAttributePermissionList" DynamicFormId="@dynamicFormId"></AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributePermissionList>
                             </DxFormLayoutTabPage>
-                             <DxFormLayoutTabPage Caption="Control Value">
-                                <AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributeSectionForm @ref="refDynamicFormSectionAttributeSectionForm"  DynamicFormId="@dynamicFormId"></AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributeSectionForm>
+                            <DxFormLayoutTabPage Caption="Control Value">
+                                <AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributeSectionForm @ref="refDynamicFormSectionAttributeSectionForm" DynamicFormId="@dynamicFormId"></AC.SD.Core.Pages.Attribute.DynamicFormSettingForm.DynamicFormSectionAttributeSectionForm>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
@@ -190,7 +196,15 @@
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     private List<ViewPlants>? _plantItems;
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
-    private List<DynamicFormSection>? _dynamicFormSectionData;
+    private List<DynamicFormSection>? _dynamicFormSectionData { get; set; }
+    private List<DynamicFormApproval>? _dynamicFormApprovalData { get; set; }
+    public List<DynamicFormSectionSecurity> _documentUserRoleLists { get; set; }
+    public List<DynamicFormWorkFlow> _dynamicFormWorkFlowData { get; set; }
+    private List<DynamicFormWorkFlowApproval>? _dynamicFormWorkFlowApprovalData { get; set; }
+    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData { get; set; }
+    public List<DynamicFormSectionAttributeSecurity> _dynamicFormSectionAttributeSecurityList { get; set; }
+    private List<DynamicFormSectionAttributeSectionParent>? _dynamicFormSectionAttributeSectionParentList { get; set; }
+    private List<AttributeDetails>? _ShowSectionVisibleAllDataItems;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -198,6 +212,7 @@
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
+
     }
     void backUrl()
     {
@@ -309,10 +324,92 @@
                 await refDynamicMasterSectionSettingForm.loadChildData(dynamicFormId);
             }
         }
+        _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
+        _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormApproval(dynamicFormId));
+        _documentUserRoleLists = await Mediator.Send(new GetDynamicFormSectionSecuritySettingList(dynamicFormId));
+        _dynamicFormWorkFlowData = await Mediator.Send(new GetDynamicFormWorkFlow(dynamicFormId));
+        _dynamicFormWorkFlowApprovalData = await Mediator.Send(new GetDynamicFormWorkFlowApprovalSettingList(dynamicFormId));
+        _dynamicFormSectionAttributeData = await Mediator.Send(new GetDynamicFormSectionAttributeAll(dynamicFormId));
+        _dynamicFormSectionAttributeSecurityList = await Mediator.Send(new GetDynamicFormSectionAttributeSecuritySettingList(dynamicFormId));
+        await GetDynamicFormSectionAttributeSectionParentSettingsList();
         StateHasChanged();
 
     }
+    async Task GetDynamicFormSectionAttributeSectionParentSettingsList()
+    {
+        try
+        {
+            _dynamicFormSectionAttributeSectionParentList = await Mediator.Send(new GetDynamicFormSectionAttributeSectionParentSettings(dynamicFormId));
+            if (_dynamicFormSectionAttributeSectionParentList != null && _dynamicFormSectionAttributeSectionParentList.Count() > 0)
+            {
+                List<long?> appMasterIds = new List<long?>(); List<long?> appMasterParentIds = new List<long?>();
+                List<string?> DataSourceTables = new List<string?>() { "Plant" };
+                _dynamicFormSectionAttributeSectionParentList.ForEach(s =>
+                {
+                    if (s.DataSourceTable != "DynamicGrid" && s.DataSourceTable != "ApplicationMaster" && s.DataSourceTable != "ApplicationMasterParent")
+                    {
+                        DataSourceTables.Add(s.DataSourceTable);
+                    }
+                    if (s.DataSourceTable == "ApplicationMaster" || s.DataSourceTable == "ApplicationMasterParent")
+                    {
+                        if (!string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            if (s.DataSourceTable == "ApplicationMaster")
+                            {
+                                var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                                if (applicationMasterIds.Count > 0)
+                                {
+                                    appMasterIds = applicationMasterIds;
+                                    DataSourceTables.Add(s.DataSourceTable);
+                                }
+                            }
+                            if (s.DataSourceTable == "ApplicationMasterParent")
+                            {
+                                var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                                if (applicationMasterIds.Count > 0)
+                                {
+                                    appMasterParentIds = applicationMasterIds;
+                                    DataSourceTables.Add(s.DataSourceTable);
+                                }
+                            }
+                        }
+                    }
+                });
+                _ShowSectionVisibleAllDataItems = await Mediator.Send(new GetDataSourceDropDownList(null, DataSourceTables.Distinct().ToList(), null, appMasterIds, appMasterParentIds));
+                foreach (var SelectedItems in _dynamicFormSectionAttributeSectionParentList)
+                {
+                    if (SelectedItems.ControlTypeId == 2702 || SelectedItems.ControlTypeId == 2708)
+                    {
+                        if (SelectedItems.DropDownTypeId == null)
+                        {
+                            var lists = await Mediator.Send(new GetAttributeDetailsDataSource(SelectedItems.AttributeId));
+                            var Names = lists != null && lists.Count() > 0 ? (lists.Where(w => SelectedItems.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+                            SelectedItems.ValueName = string.Join(',', Names.ToList());
+                        }
+                        else
+                        {
+                            if (_ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0)
+                            {
+                                _ShowSectionVisibleAllDataItems = _ShowSectionVisibleAllDataItems.Where(w => w.DropDownTypeId != "Plant").ToList();
+                                if (SelectedItems.DataSourceTable == "ApplicationMasterParent")
+                                {
+                                    _ShowSectionVisibleAllDataItems = _ShowSectionVisibleAllDataItems.Where(w => w.ParentId == null).ToList();
+                                }
+                                var Names = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => SelectedItems.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+                                SelectedItems.ValueName = string.Join(',', Names.ToList());
+                            }
 
+                        }
+                    }
+                }
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
     private List<FileProfileTypeModel>
         GetFileProfileTypePath(List<DocumentsModel>
         foldersListItem, long? id)
@@ -357,5 +454,804 @@
             fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
         }
         return fileProfileTypeModel;
+    }
+    Cell CreateTextCell(string name, string name2, int i)
+    {
+        Cell fileNamecell = new Cell();
+        return fileNamecell;
+    }
+    public async Task getExcel()
+    {
+        string folderName = _hostingEnvironment.ContentRootPath + @"\AppUpload";
+        string newFolderName = "ConvertExcel";
+        string serverPath = System.IO.Path.Combine(folderName, newFolderName);
+        if (!System.IO.Directory.Exists(serverPath))
+        {
+            System.IO.Directory.CreateDirectory(serverPath);
+        }
+        string FromLocation = folderName + @"\" + newFolderName + @"\" + _dynamicFormData.Name + ".xlsx";
+        using (SpreadsheetDocument spreadsheetDoc = SpreadsheetDocument.Create(FromLocation, SpreadsheetDocumentType.Workbook))
+        {
+            // Add a WorkbookPart to the document.
+            WorkbookPart workbookpart = spreadsheetDoc.AddWorkbookPart();
+            workbookpart.Workbook = new Workbook();
+            Sheets sheets = spreadsheetDoc.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
+            addSectionEntry(spreadsheetDoc, workbookpart, sheets, 1, "Section Entry");
+            addDynamicFormApprovalData(spreadsheetDoc, workbookpart, sheets, 2, "Approval Level");
+            addPermissionSectionList(spreadsheetDoc, workbookpart, sheets, 3, "Section Permission");
+            addDynamicFormWorkFlow(spreadsheetDoc, workbookpart, sheets, 4, "WorkFlow");
+            addDynamicFormWorkFlowApprovalUser(spreadsheetDoc, workbookpart, sheets, 5, "WorkFlow Approval User");
+            addAttributeForm(spreadsheetDoc, workbookpart, sheets, 6, "Attribute Form");
+            addAttributeFormFormula(spreadsheetDoc, workbookpart, sheets, 7, "Formula");
+            addControlPermissionForm(spreadsheetDoc, workbookpart, sheets, 8, "Control Permission Form");
+            addControlValue(spreadsheetDoc, workbookpart, sheets, 9, "Control Value");
+        }
+        FileStream stream = System.IO.File.OpenRead(FromLocation);
+        var br = new BinaryReader(stream);
+        Byte[] documentStream = br.ReadBytes((Int32)stream.Length);
+        Stream streams = new MemoryStream(documentStream);
+        stream.Close();
+        await JSRuntime.InvokeVoidAsync("downloadFile", _dynamicFormData.Name + ".xlsx", documentStream, "");
+        System.IO.File.Delete((string)FromLocation);
+    }
+    void addSectionEntry(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Sort Order By");
+        headers.Add("Is AutoNumber");
+        headers.Add("SW Library Name");
+        headers.Add("Modified By");
+        headers.Add("Modified Date");
+        headersAdd(titleRow, headers);
+
+        // Append Row to SheetData
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0)
+        {
+            _dynamicFormSectionData.ForEach(i =>
+            {
+                Row row = new Row();
+                row.AppendChild(addCellValues("String", i.SectionName));
+                row.AppendChild(addCellValues("String", i.SortOrderBy > 0 ? i.SortOrderBy.ToString() : null));
+                row.AppendChild(addCellValues("String", i.IsAutoNumberEnabled.ToString()));
+                row.AppendChild(addCellValues("String", i.SectionFileProfileTypeName));
+                row.AppendChild(addCellValues("String", i.ModifiedBy));
+                row.AppendChild(addCellValues("Date", i.ModifiedDate != null ? i.ModifiedDate.ToString() : null));
+                sheetData.AppendChild(row);
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:F" + _dynamicFormSectionData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void headersAdd(Row headerRow, List<string> headersBy)
+    {
+        foreach (string column in headersBy)
+        {
+            Cell cellHeader = new Cell();
+            cellHeader.DataType = CellValues.InlineString;
+            Run run1 = new Run();
+            run1.Append(new Text(column));
+
+            RunProperties run1Properties = new RunProperties();
+            run1Properties.Append(new Bold());
+            run1.RunProperties = run1Properties;
+            InlineString inlineString = new InlineString();
+            inlineString.Append(run1);
+            cellHeader.Append(inlineString);
+            headerRow.AppendChild(cellHeader);
+        }
+    }
+    void generateEmptyHeader(Row row, int OutlineLevels, string name)
+    {
+        Cell fileNamecell = new Cell();
+        fileNamecell.DataType = CellValues.String;
+        fileNamecell.CellValue = new CellValue(name);
+        if (OutlineLevels > 0)
+        {
+            row.OutlineLevel = 1;
+            row.Collapsed = false;
+        }
+        row.AppendChild(fileNamecell);
+    }
+    void addDynamicFormApprovalData(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Approval User");
+        headers.Add("Approval Level");
+        headers.Add("Description");
+        headers.Add("Modified By");
+        headers.Add("Modified Date");
+        headersAdd(titleRow, headers);
+
+        // Append Row to SheetData
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count() > 0)
+        {
+            _dynamicFormApprovalData.ForEach(i =>
+            {
+                Row row = new Row();
+                row.AppendChild(addCellValues("String", i.ApprovalUser));
+                row.AppendChild(addCellValues("String", i.SortOrderBy > 0 ? i.SortOrderBy.ToString() : null));
+                row.AppendChild(addCellValues("String", i.Description));
+                row.AppendChild(addCellValues("String", i.ModifiedBy));
+                row.AppendChild(addCellValues("Date", i.ModifiedDate != null ? i.ModifiedDate.ToString() : null));
+                sheetData.AppendChild(row);
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:E" + _dynamicFormApprovalData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addPermissionSectionList(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Name");
+        headers.Add("Department");
+        headers.Add("Designation");
+        headers.Add("Is Visible");
+        headers.Add("Read & Write");
+        headers.Add("Read Only");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_documentUserRoleLists != null && _documentUserRoleLists.Count() > 0)
+        {
+            List<long?> sectionIds = _documentUserRoleLists.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _documentUserRoleLists.Where(w => w.DynamicFormSectionId == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.FullName));
+                        row.AppendChild(addCellValues("String", i.DepartmentName));
+                        row.AppendChild(addCellValues("String", i.DesignationName));
+                        row.AppendChild(addCellValues("String", i.IsVisible.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsReadWrite.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsReadOnly.ToString()));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:G" + _documentUserRoleLists.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addDynamicFormWorkFlow(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Sequence No");
+        headers.Add("Is Parallel Workflow");
+        headers.Add("Is Allow Change Section Approval");
+        headers.Add("User");
+        headers.Add("Department");
+        headers.Add("Designation");
+        headers.Add("Section");
+        headers.Add("Is Approval User Exit");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormWorkFlowData != null && _dynamicFormWorkFlowData.Count() > 0)
+        {
+            List<int?> sectionIds = _dynamicFormWorkFlowData.Select(s => s.SequenceNo).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormWorkFlowData.Where(w => w.SequenceNo == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("int", i.SequenceNo > 0 ? i.SequenceNo.ToString() : null));
+                        row.AppendChild(addCellValues("String", i.IsParallelWorkflow.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsAllowDelegateUser.ToString()));
+                        row.AppendChild(addCellValues("String", i.FullName));
+                        row.AppendChild(addCellValues("String", i.DepartmentName));
+                        row.AppendChild(addCellValues("String", i.DesignationName));
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.IsDynamicFormWorkFlowApproval.ToString()));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:H" + _dynamicFormWorkFlowData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addDynamicFormWorkFlowApprovalUser(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Sequence No");
+        headers.Add("User");
+        headers.Add("Section");
+        headers.Add("Is Parallel Workflow");
+        headers.Add("Is Allow Change Section Approval");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormWorkFlowApprovalData != null && _dynamicFormWorkFlowApprovalData.Count() > 0)
+        {
+            List<int?> sectionIds = _dynamicFormWorkFlowApprovalData.Select(s => s.SequenceNo).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormWorkFlowApprovalData.Where(w => w.SequenceNo == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+
+                        row.AppendChild(addCellValues("int", i.SequenceNo > 0 ? i.SequenceNo.ToString() : null));
+                        row.AppendChild(addCellValues("String", i.UserName));
+                        row.AppendChild(addCellValues("String", i.DynamicFormSectionName));
+                        row.AppendChild(addCellValues("String", i.IsParallelWorkflow.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsAllowDelegateUser.ToString()));
+
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:E" + _dynamicFormWorkFlowApprovalData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    private Cell addCellValues(string dataType, string? value)
+    {
+        Cell fileNamecell = new Cell();
+        if (dataType == "Boolean")
+        {
+            fileNamecell.DataType = CellValues.Boolean;
+            fileNamecell.CellValue = new CellValue(Convert.ToBoolean(value));
+        }
+        else if (dataType == "int")
+        {
+            fileNamecell.DataType = CellValues.Number;
+            fileNamecell.CellValue = new CellValue(Convert.ToInt16(value));
+        }
+        else if (dataType == "long")
+        {
+            fileNamecell.DataType = CellValues.String;
+            fileNamecell.CellValue = new CellValue(value);
+        }
+        else if (dataType == "Date")
+        {
+            fileNamecell.DataType = CellValues.String;
+            DateTime DateData = DateTime.Parse(value);
+            fileNamecell.CellValue = new CellValue(DateData.ToString("dd-MMM-yyyy"));
+        }
+        else if (dataType == "DateTime")
+        {
+            fileNamecell.DataType = CellValues.String;
+            DateTime DateData = DateTime.Parse(value);
+            fileNamecell.CellValue = new CellValue(DateData.ToString("dd-MMM-yyyy hh:mm tt"));
+        }
+        else
+        {
+            fileNamecell.DataType = CellValues.String;
+            fileNamecell.CellValue = new CellValue(value);
+        }
+        return fileNamecell;
+    }
+    void addAttributeForm(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Label Name");
+        headers.Add("Control Type");
+        headers.Add("Data Source");
+        headers.Add("Sort By");
+        headers.Add("Is Visible");
+        headers.Add("Is Multiple");
+        headers.Add("Is Required");
+        headers.Add("Required Msg");
+        headers.Add("Col Span");
+        headers.Add("Is Table Header");
+        headers.Add("Is Set Default Value");
+        headers.Add("Is Default ReadOnly");
+        headers.Add("Spin Type");
+        headers.Add("Is Dropdown Header");
+        headers.Add("Is Dropdown Multiple");
+        headers.Add("Radio Layout");
+        headers.Add("Tool Tips");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormSectionAttributeData != null && _dynamicFormSectionAttributeData.Count() > 0)
+        {
+            List<long?> sectionIds = _dynamicFormSectionAttributeData.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormSectionAttributeData.Where(w => w.DynamicFormSectionId == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.DisplayName));
+                        row.AppendChild(addCellValues("String", i.ControlType));
+                        row.AppendChild(addCellValues("String", i.DataSourceDisplayName));
+                        row.AppendChild(addCellValues("Number", i.SortOrderBy.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsVisible.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsMultiple.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsRequired.ToString()));
+                        row.AppendChild(addCellValues("String", i.RequiredMessage));
+                        row.AppendChild(addCellValues("int", i.ColSpan.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsDisplayTableHeader.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsSetDefaultValue.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsDefaultReadOnly.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsSpinEditType));
+                        row.AppendChild(addCellValues("String", i.IsDisplayDropDownHeader.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsDependencyMultiple.ToString()));
+                        row.AppendChild(addCellValues("String", i.RadioLayout));
+                        row.AppendChild(addCellValues("String", i.FormToolTips));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:P" + _dynamicFormSectionAttributeData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addAttributeFormFormula(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Label Name");
+        headers.Add("Control Type");
+        headers.Add("Formula Text");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormSectionAttributeData != null && _dynamicFormSectionAttributeData.Count() > 0)
+        {
+            List<long?> sectionIds = _dynamicFormSectionAttributeData.Where(w => w.FormulaTextBox != null && w.FormulaTextBox != "").Select(s => s.DynamicFormSectionId).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormSectionAttributeData.Where(w => w.FormulaTextBox != null && w.FormulaTextBox != "").Where(w => w.DynamicFormSectionId == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.DisplayName));
+                        row.AppendChild(addCellValues("String", i.ControlType));
+                        row.AppendChild(addCellValues("String", i.FormulaTextBox));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:P" + _dynamicFormSectionAttributeData.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addControlPermissionForm(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Display Name");
+        headers.Add("Name");
+        headers.Add("Department");
+        headers.Add("Designation");
+        headers.Add("Is Access");
+        headers.Add("Is View Format");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormSectionAttributeSecurityList != null && _dynamicFormSectionAttributeSecurityList.Count() > 0)
+        {
+            List<long?> sectionIds = _dynamicFormSectionAttributeSecurityList.Select(s => s.DynamicFormSectionAttributeId).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormSectionAttributeSecurityList.Where(w => w.DynamicFormSectionAttributeId == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.DisplayName));
+                        row.AppendChild(addCellValues("String", i.FullName));
+                        row.AppendChild(addCellValues("String", i.DepartmentName));
+                        row.AppendChild(addCellValues("String", i.DesignationName));
+                        row.AppendChild(addCellValues("String", i.IsAccess.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsViewFormatOnly.ToString()));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:G" + _dynamicFormSectionAttributeSecurityList.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
+    }
+    void addControlValue(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        headers.Add("Section Name");
+        headers.Add("Display Name");
+        headers.Add("Control Section");
+        headers.Add("Value");
+        headersAdd(titleRow, headers);
+        sheetData.AppendChild(titleRow);
+        if (_dynamicFormSectionAttributeSectionParentList != null && _dynamicFormSectionAttributeSectionParentList.Count() > 0)
+        {
+            List<long?> sectionIds = _dynamicFormSectionAttributeSectionParentList.Select(s => s.DynamicFormSectionAttributeId).Distinct().ToList();
+            sectionIds.ForEach(a =>
+            {
+                var _documentUserRoleListss = _dynamicFormSectionAttributeSectionParentList.Where(w => w.DynamicFormSectionAttributeId == a).ToList();
+                if (_documentUserRoleListss != null && _documentUserRoleListss.Count() > 0)
+                {
+                    Row row1 = new Row();
+                    for (int k = 0; k < headers.Count(); k++)
+                    {
+                        generateEmptyHeader(row1, k == 0 ? 0 : 1, string.Empty);
+                    }
+                    sheetData.AppendChild(row1);
+                    _documentUserRoleListss.ForEach(i =>
+                    {
+                        Row row = new Row();
+                        row.AppendChild(addCellValues("String", i.SectionName));
+                        row.AppendChild(addCellValues("String", i.DisplayName));
+                        row.AppendChild(addCellValues("String", i.DynamicSectionName));
+                        row.AppendChild(addCellValues("String", i.ValueName));
+                        if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
+                        {
+
+                        }
+                        else
+                        {
+                            row.OutlineLevel = 1;
+                        }
+                        sheetData.AppendChild(row);
+                    });
+
+                }
+            });
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:D" + _dynamicFormSectionAttributeSectionParentList.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
     }
 }

@@ -11,13 +11,29 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="SMAttributeSectionGrid" Data="@_dynamicFormSectionAttributeSectionParentList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid1" Data="@_dynamicFormSectionAttributeSectionParentList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -59,8 +75,9 @@
     </DxGrid>
 </DxLoadingPanel>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     bool PanelAttibuteVisible { get; set; }
-    IGrid? SMAttributeSectionGrid { get; set; }
+    IGrid? Grid1 { get; set; }
     [Parameter]
     public long? DynamicFormId { get; set; }
     [Parameter]
@@ -71,6 +88,13 @@
     protected override async Task OnInitializedAsync()
     {
         await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid1.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
     }
     async Task UpdateDataAsync()
     {

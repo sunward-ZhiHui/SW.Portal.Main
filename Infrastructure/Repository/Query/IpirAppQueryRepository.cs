@@ -34,17 +34,17 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
-                            t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type,
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,AMD2.Value as StatusName,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
+                            t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type,t1.FixedAssetNo as Subject,
                              (select Top 1 Concat(RePlanRefNo,'|',Description) From NAVProdOrderLine where RePlanRefNo = t1.ProdOrderNo) as ProdOrderNoDescription from IpirApp t1  
                             JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
                             JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
                             LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
                             LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
                             Left JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
-                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
-                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy
-							";
+                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal
+							Left Join ApplicationMasterDetail AMD2 ON AMD2.ApplicationMasterDetailID =T1.ActivityStatusID
+                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy";
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {
@@ -501,7 +501,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ProfileNo", ProfileNo, DbType.String);
                             value.SessionID = Guid.NewGuid();
                             parameters.Add("SessionID", value.SessionID, DbType.Guid);
-                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
+                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileID,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
 				                       OUTPUT INSERTED.IpirAppId ,INSERTED.SessionID
 				                       VALUES (@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
@@ -985,6 +985,25 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<IReadOnlyList<DocumentProfileNoSeries>> GetProfileType()
+        {
+            try
+            {
+                var query = @"select ProfileID AS ProfileId from DocumentProfileNoSeries where  Abbreviation='MIR'
+";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentProfileNoSeries>(query)).ToList();
+                  
+                }
+               
             }
             catch (Exception exp)
             {

@@ -34,7 +34,7 @@
                     @{
                         var item = (EmailTopics)context.DataItem;
                     }
-                    <div style="width:100%">
+                    <div style="width:100%" class="b-grndActive @(item.SessionId)">
                         <strong>@item.FirstName</strong>
                         @if (item.DueDate.HasValue)
                         {

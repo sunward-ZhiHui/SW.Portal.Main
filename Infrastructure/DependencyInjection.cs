@@ -179,6 +179,7 @@ namespace Infrastructure
             services.AddScoped<IPageContext, PageContext>();
             services.AddScoped<IHandFireJobQueryRepository, HandFireJobQueryRepository>();
             services.AddScoped<IRegistrationRequestQueryRepository, RegistrationRequestQueryRepository>();
+            services.AddScoped<IIncidentAppSettingsQueryRepository, IncidentAppSettingsQueryRepository>();
             return services;
         }
     }

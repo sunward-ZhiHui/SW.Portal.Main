@@ -382,6 +382,7 @@ namespace SW.Portal.Solutions.Controllers
                 FilterData.GetTypes = "User";
                 FilterData.LocationId = RoutineDetailModel.LocationId;
                 FilterData.TimeSheetAction = true;
+                FilterData.ActionType = "TimeSheet";
                 var result = await _mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
 
 

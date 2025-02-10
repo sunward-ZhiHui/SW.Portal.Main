@@ -24,7 +24,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM IncidentAppSettings";
+                var query = @"SELECT FT.Name,IA.* FROM IncidentAppSettings IA
+                    Left Join FileProfileType FT ON FT.FileProfileTypeID = IA.SupportingDocFileProfileID";
 
                 using (var connection = CreateConnection())
                 {

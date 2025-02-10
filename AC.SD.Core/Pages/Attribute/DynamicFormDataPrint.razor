@@ -1,41 +1,69 @@
-﻿@using System.Dynamic;
-@using global::Core.Entities.Views;
-
-@inject IMediator Mediator
-@using Application.Queries;
-@using MediatR
+﻿@using Application.Queries;
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
 @using global::Core.Entities;
-@using global::Core.EntityModels;
-@using global::Core.Repositories.Query;
+@using MediatR
+@inject IMediator Mediator
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject IJSRuntime JS;
-@inject NavigationManager NavigationManager
-@using Newtonsoft.Json.Linq;
-@using Newtonsoft.Json;
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@using System.Collections;
+@using System.Dynamic;
+@inject IJSRuntime JSRuntime;
 @implements IAsyncDisposable
-@inject ClipboardService ClipboardService
-@using System.Collections.ObjectModel
+@using global::Core.Entities.Views;
+@inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-
-
+<script>
+    function htmlpdfGenerateForm() {
+        var element = document.getElementById('htmlPdfPrintForm');
+        var opt = {
+            margin: 0.5,
+            filename: 'myfile.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { useCORS: true, letterRendering: true, }, pagebreak: { avoid: "tr" },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compressPDF: true }
+        };
+        // New Promise-based usage:
+        //var openUrl= html2pdf().set(opt).from(element).output("bloburl");
+        html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+            window.open(pdf.output('bloburl'), '_blank');
+        });
+        return "ok";
+    }
+    function printFullPages() {
+        // Use the 'print.js' library here
+        printJS({
+            printable: 'htmlPdfPrintForm', // ID of the content to print
+            type: 'html',
+        });
+    }
+</script>
 <style scoped>
-    .ui-state-highlight {
-        background-color: rgba(var(--bs-primary-rgb), .3);
-    }
+    /*  table {
+                                                        font-family: arial, sans-serif;
+                                                        border-collapse: collapse;
+                                                        width: 100%;
+                                                    }
 
-    .ui-state-hover {
-        background: rgba(var(--bs-primary-rgb), .3);
-    }
+                                                    th {
+                                                        border: 1px solid;
+                                                        padding: 8px;
+                                                        font-weight: bold;
 
-    .ui-draggable-dragging {
-        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
-    }
 
-    .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
-        cursor: pointer;
-    }
+                                                    }
 
+                                                    td {
+                                                        border: 1px solid;
+                                                        padding: 8px;
+
+                                                    } */
+
+    /* tr:nth-child(even) {
+                                                            background-color: #dddddd;
+                                                        } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -43,387 +71,138 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
-                @if (isBackDisabled == true)
-                {
-                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                }
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
-                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
-                <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
-                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
-                <DxMenuItem Text="OData" IconCssClass="fa fa-link">
-                    <Items>
-                        <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@AddEnabled" />
-                        <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
-                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
-                        <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" />
-                        <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@AddEnabled" />
-                    </Items>
-                </DxMenuItem>
-                <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+
+               @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
+                <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@printForm" />
             </Items>
         </DxMenu>
     </div>
 </div>
-<div class="demo-breadcrumbs-container theme-blazing-berry">
-    <div class="breadcrumb">
-        <div class="demo-breadcrumbs sidebar-hidden">
-            <!--!-->
-
-            <div class="items">
-                <a href="javascript:void(0);">@_dynamicForm?.Name</a>
-            </div>
-        </div>
-    </div>
-</div>
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-    <DxGrid @ref="Grid"
-            Data="Items" @key="@myKey"
-            EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            KeyFieldName="DynamicFormDataId"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            style="height: calc(100vh - 260px);"
-            CssClass="w-100"
-            PageSize="20"
-            FocusedRowEnabled="true"
-            AllowSelectRowByClick="true"
-            RowClick="OnRowclick"
-            CustomizeElement="Grid_CustomizeElement"
-            AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            VirtualScrollingEnabled="true"
-            RowDoubleClick="OnRowDoubleClick">
-
-        <Columns>
-            @if (dataColumnNames != null && dataColumnNames.Count() > 0)
+<div id="htmlPdfPrintForm">
+    @if (_dynamicForm != null)
+    {
+        query = string.Empty;
+        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+        query += "<tr>";
+        query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
+        query += "</tr>";
+        query += "</table>";
+        query += "<tr>";
+        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+        query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
+        query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.ProfileNo : "") + "</td>";
+        query += "</tr>";
+        query += "<tr>";
+        query += "<th width=\"30%\" style=\"text-align:left;border:1px solid;padding: 8px;font-weight:bold;\">Added By</th>";
+        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.AddedBy : "") + "</td>";
+        query += "</tr>";
+        query += "<tr>";
+        query += "<th width=\"30%\" style=\"text-align:left; border: 1px solid;padding: 8px;font-weight: bold;\">Added Date</th>";
+        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? (Application.Common.Helper.Helper.FormatDateTime(_dynamicformDataList[0]?.AddedDate == null ? DateTime.Now : _dynamicformDataList[0]?.AddedDate)) : "") + "</td>";
+        query += "</tr>";
+        query += "</table>";
+        @if (_AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSection.Count() > 0)
+        {
+            _AttributeHeader.DynamicFormSection.ForEach(s =>
             {
+                query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                query += "<tr>";
+                query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
+                query += "</tr>";
+                query += "</table>";
 
-                foreach (var s in dataColumnNames)
+                if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
                 {
-                    if (s.IsDynamicGrid == true)
-                    {
-                        <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="40">
-                            <CellDisplayTemplate>
-                                @{
-                                    dynamic item = (ExpandoObject)context.DataItem;
-                                }
-                                <i class="fa fa-wpforms" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" onclick="@(() => openFormGridList(s,(ExpandoObject)context.DataItem))"></i>
-
-                            </CellDisplayTemplate>
-                        </DxGridDataColumn>
-                    }
-                    else
-                    {
-                        if (s.Value == "IsFileprofileTypeDocument")
+                    var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
+                    query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                    dynamicFormSectionAttribute.ForEach(a =>
+    {
+        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+        if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+        {
+            dataColumnNamesList.ForEach(b =>
+            {
+                        object? valueData = null;
+                        var byName = (IDictionary<string, object>)_dynamicformObjectData;
+                        if (byName != null)
                         {
-
-                            <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40">
-                                <CellDisplayTemplate>
-                                    @{
-                                        dynamic item = (ExpandoObject)context.DataItem;
-                                        var items = (int?)item.IsFileprofileTypeDocument;
-                                        var isDraft = (bool?)item.IsDraft;
-                                        var isLocked = (bool?)item.IsLocked;
-                                        var lockedUser = (string?)item.LockedUser;
-                                    }
-                                    @if (items > 0)
-                                    {
-                                        <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
-                                    }
-                                    @if (isDraft != null)
-                                    {
-                                        var emailName = isDraft == true ? "Draft" : "View Email";
-                                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
-                                    }
-                                    @if (isLocked == true)
-                                    {
-                                        <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="Locked By:@lockedUser"></i>
-                                    }
-                                </CellDisplayTemplate>
-                            </DxGridDataColumn>
-                        }
-                        else
-                        {
-                            if (s.Value == "ModifiedDate")
-                            {
-                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
-                                    <CellDisplayTemplate>
-                                        @{
-                                            dynamic item = (ExpandoObject)context.DataItem;
-                                            DateTime? items = (DateTime?)item.ModifiedDate;
-                                        }
-                                        @(items != null ? Application.Common.Helper.Helper.FormatDateTime(items) : null)
-                                    </CellDisplayTemplate>
-                                </DxGridDataColumn>
-                            }
-                            else
-                            {
-                                if (s.ControlType == "DateEdit")
-                                {
-                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                DateTime? items = null;
-                                                dynamic item = (ExpandoObject)context.DataItem;
-                                                if (!string.IsNullOrEmpty(s.Value))
-                                                {
-                                                    var listName = ((IDictionary<String, Object>)item)[s.Value];
-                                                    if (listName == null || listName == "")
-                                                    {
-                                                    }
-                                                    else
-                                                    {
-                                                        items = (DateTime?)listName;
-                                                    }
-                                                }
-                                            }
-                                            @(items != null ? Application.Common.Helper.Helper.FormatDate(items) : null)
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                }
-                                else
-                                {
-                                    if (s.Value == "ProfileNo")
-                                    {
-                                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortIndex="0" SortOrder="GridColumnSortOrder.Descending" />
-                                    }
-                                    else
-                                    {
-                                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                }
+    if (!string.IsNullOrEmpty(b.Value))
+    {
+        if (byName.ContainsKey(b.Value))
+        {
+            valueData = byName[b.Value];
+        }
+    }
+    if (a.ControlType == "DateEdit")
+    {
+        valueData = valueData != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)valueData) : null;
+    }
+    if (a.ControlType == "TimeEdit")
+    {
+        if (valueData != "")
+        {
+            TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
+            if (values != null)
+            {
+                int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
+                DateTime dateTimes = new DateTime();
+                var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
+                valueData = dd1.ToString("hh:mm tt");
             }
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
+        }
+    }
+    if (a.ControlType == "CheckBox")
+    {
+        bool? values = valueData == null ? false : (bool)valueData;
+        if (values == true)
+        {
+            //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+        }
+        else
+        {
+            // valueData = "";
+        }
+    }
+    if (a.ControlTypeId == 2712)
+    {
+        valueData = "";
+    }
+                        }
+                        query += "<tr>";
+                        query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                        query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                        query += "</tr>";
+                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
+                    });
+        }
+    });
+                    query += "</table>";
+                }
+            });
 
-
-
-<DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="Delete"
-         ShowCloseButton="true"
-         Closed="EulaPopupClosed"
-         Width="300px">
-    <BodyContentTemplate>
-        <p>
-            Do you want to delete
-        </p>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
-    </FooterContentTemplate>
-</DxPopup>
-<DxPopup @bind-Visible="@PopupUpload"
-         HeaderText="Upload Documents"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true"
-         ShowFooter="false"
-         Closed="EulaPopupClosed"
-         Width="1000px">
-    <BodyContentTemplate>
-        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
-    </BodyContentTemplate>
-</DxPopup>
-
-<DxPopup @bind-Visible="@createEmailpopup"
-         ShowFooter="true"
-         ShowCloseButton="true"
-         HeaderText="Create Email"
-         Closed="EulaPopupClosed"
-         Width="1000px">
-    <BodyContentTemplate>
-        @* <p>
-        Are you sure create Email?
-        </p> *@
-        <DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@_selectedItems.SessionId"></DynamicFormDataEmailAddSubContent>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
-
-    </FooterContentTemplate>
-</DxPopup>
-<DxPopup @bind-Visible="@PopupDynamicFormGridLists"
-         HeaderText="Dynamic Form Grid List"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true"
-         ShowFooter="false"
-         Closed="EulaPopupClosed"
-         Width="1000px">
-    <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists @ref="refDynamicFormGridLists" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
-    </BodyContentTemplate>
-</DxPopup>
-<DxPopup @bind-Visible="@lockpopup"
-         ShowFooter="true"
-         HeaderText="Delete"
-         ShowCloseButton="true"
-         Closed="EulaPopupLockClosed"
-         Width="300px">
-    <BodyContentTemplate>
-        <p>
-            Do you want to @LockedName this record?
-        </p>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
-    </FooterContentTemplate>
-</DxPopup>
-<DxPopup @bind-Visible="@PopupApprovalForm"
-         HeaderText="Approval Form"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true"
-         ShowFooter="false"
-         Closed="EulaPopupClosed"
-         Width="1000px">
-    <BodyContentTemplate>
-        <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
-    </BodyContentTemplate>
-</DxPopup>
-<DxPopup @bind-Visible="@createAuditpopup"
-         ShowFooter="true"
-         ShowCloseButton="true"
-         HeaderText="Audit Trail"
-         Closed="EulaPopupClosed"
-         Width="1500px">
-    <BodyContentTemplate>
-        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_selectedItems.SessionId"></DynamicFormsAuditTrail>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
-    </FooterContentTemplate>
-</DxPopup>
+            @((MarkupString)query)
+        }
+    }
+</div>
 @code {
-    bool createAuditpopup { get; set; } = false;
-    bool isBackDisabled { get; set; } = true;
-    private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
-    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
-    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
-    private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
-    private IDisposable? DynamicFormPage5;
-    Guid myKey { get; set; } = Guid.NewGuid();
+    private string? mainStyle { get; set; } = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);";
+    public dynamic _dynamicformObjectData { get; set; }
+    public string? query { get; set; } = string.Empty;
+    private DynamicForm _dynamicForm;
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
     public Guid? FormSessionId { get; set; }
-    IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; } = true;
-    bool createEmailpopup { get; set; } = false; bool PopupDynamicFormGridLists { get; set; } = false;
-    private DynamicForm _dynamicForm; public long? FileProfileTypeId { get; set; }
-    private DocumentsModel _documentsDmsData;
-    public ApplicationUser? applicationUser { get; private set; }
-    private DynamicFormData _selectedItems;
-    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false; bool lockpopup { get; set; } = false; bool PopupApprovalForm { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false; bool isApprovalEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false; bool AddOneEnabled { get; set; } = false;
-    bool fileEnabled { get; set; } = false; bool emailEnabled { get; set; } = false;
-    private List<DynamicFormData> _dynamicformDataList;
     private AttributeHeaderListModel _AttributeHeader;
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
-    private List<object>? _dynamicformObjectDataList = new List<object>();
-    private static int colRowNameWidthInPx = 200;
-    private static int colDataWidthInPx = 100;
-    public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
-    private string colDataWidth = $"{colDataWidthInPx}px";
-    private string colRowNameWidth = $"{colRowNameWidthInPx}px";
+    public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
-    ObservableCollection<object> Items { get; set; } = new ObservableCollection<object>();
-    bool ReInitializeDragging { get; set; }
-    DotNetObjectReference<DynamicFormList> DotNetHelper { get; set; }
-    IJSObjectReference JsModule { get; set; }
-    bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock";
-    public Guid? DynamicFormSessionId { get; set; }
-    public Guid? MainSessionId { get; set; }
-    public long? DynamicFormDataGridId { get; set; }
-    public long? DynamicFormSectionGridAttributeIds { get; set; }
+    public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
+    private List<object>? _dynamicformObjectDataList = new List<object>();
+    private List<DynamicFormData> _dynamicformDataList;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-    }
-
-
-    private ValueTask OnLocationChanging(LocationChangingContext context)
-    {
-        if (context.TargetLocation == "/counter")
-        {
-            context.PreventNavigation();
-        }
-
-        return ValueTask.CompletedTask;
-    }
-    public void clearData()
-    {
-        DynamicFormPage5?.Dispose();
-        refUploadDoumentDynamicFiles?.DisposeAsync();
-        refDynamicFormApprovedFormList?.DisposeAsync();
-        refDynamicFormGridLists?.DisposeAsync();
-        _dynamicForm = null;
-        _documentsDmsData = null;
-        _selectedItems = null;
-        _dynamicformDataList?.Clear();
-        _AttributeHeader = null;
-        dataColumnNames?.Clear();
-        _dynamicformObjectDataList?.Clear();
-        _dynamicFormSectionAttributeList?.Clear();
-        PlantDependencySubAttributeDetails?.Clear();
-        Items?.Clear();
-    }
-    async Task openPrintForm()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems.SessionId;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-            {
-                var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems.SessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-            else
-            {
-                var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems.SessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-
-        }
-    }
-    public async ValueTask DisposeAsync()
-    {
-        // System.GC.Collect();
-        clearData();
-        //  GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -433,52 +212,128 @@
         }
         base.OnParametersSet();
     }
-    async Task onshowLoading()
+    string loadSubFormHtml(long dynamicFormSectionAttributeId)
     {
-        await JS.InvokeAsync<string>("showLoading");
-    }
-    async Task onhideLoading()
-    {
-        await JS.InvokeAsync<string>("hideLoading");
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        string subQuery = string.Empty;
+        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == dynamicFormSectionAttributeId && w.IsSubForm == true).ToList();
+        if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
         {
+            dataColumnNamesList.ForEach(b =>
+            {
+                object? valueData = null;
+                var byName = (IDictionary<string, object>)_dynamicformObjectData;
+                if (byName != null)
+                {
+                    if (!string.IsNullOrEmpty(b.Value))
+                    {
+                        if (byName.ContainsKey(b.Value))
+                        {
+                            valueData = byName[b.Value];
+                        }
+                    }
+                    if (b.ControlType == "DateEdit")
+                    {
+                        valueData = valueData != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)valueData) : null;
+                    }
+                    if (b.ControlType == "TimeEdit")
+                    {
+                        if (valueData != "")
+                        {
+                            TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
+                            if (values != null)
+                            {
+                                int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
+                                DateTime dateTimes = new DateTime();
+                                var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
+                                valueData = dd1.ToString("hh:mm tt");
+                            }
+                        }
+                    }
+                    if (b.ControlType == "CheckBox")
+                    {
+                        bool? values = valueData == null ? false : (bool)valueData;
+                        if (values == true)
+                        {
+                            //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+                        }
+                        else
+                        {
+                            // valueData = "";
+                        }
+                    }
 
-            DynamicFormPage5 = NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
-            JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
-
-            DotNetHelper = DotNetObjectReference.Create(this);
-            await JsModule.InvokeVoidAsync("setDotNetHelper", DotNetHelper);
-            await JsModule.InvokeVoidAsync("initialize");
+                }
+                subQuery += "<tr>";
+                subQuery += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                subQuery += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                subQuery += "</tr>";
+            });
+        }
+        return subQuery;
+    }
+    void backUrl()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        string names2 = "dynamicForms";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            if (UrlList[1].ToLower() == names2.ToLower())
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + FormSessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + SessionId);
+            }
         }
         else
         {
-            if (ReInitializeDragging)
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
             {
-                ReInitializeDragging = false;
-                await JsModule.InvokeVoidAsync("initialize");
+                if (UrlList[1].ToLower() == names2.ToLower())
+                {
+                    NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + FormSessionId);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("dynamicFormMenuList/dynamicFormMenuList/" + SessionId);
+                }
             }
+            else
+            {
+                if (UrlList[1].ToLower() == names2.ToLower())
+                {
+                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + FormSessionId);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + SessionId);
+                }
+            }
+
         }
+    }
+    async Task printForm()
+    {
+        await JSRuntime.InvokeVoidAsync("printFullPages");
+        // mainStyle = "";
+        // var result = await JSRuntime.InvokeAsync<string>("htmlpdfGenerateForm");
+        // if (result == "ok")
+        // {
+        //     mainStyle = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 210px);";
+        //     toastService.ShowToast("Print Form Generated.", AC.SD.Core.Services.ToastLevel.Success);
+        // }
+        // StateHasChanged();
     }
     async Task UpdateDataAsync()
     {
         try
         {
-            string str = NavigationManager.Uri;
-            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-            string[] UrlList = rep1.Split("/");
-            string names = "dynamicFormMenuList".ToLower();
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-            {
-                isBackDisabled = false;
-            }
-            PanelVisible = true;
-            //await onshowLoading();
-            _selectedItems = null; FileProfileTypeId = null;
-            dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>(); isLocked = false; AddOneEnabled = false;
-            EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false; isApprovalEnabled = false;
+            dataColumnNames = new List<DropDownOptionsModel>(); _dynamicformObjectDataList = new List<object>();
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
@@ -488,7 +343,7 @@
             // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
             if (SessionId != null)
             {
-                _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
+                _dynamicformObjectDataList = new List<object>();
                 var dynamicForms = Task.Factory.StartNew(() => Mediator.Send(new GetAllDynamicFormList(SessionId, -1)));
                 await Task.WhenAll(dynamicForms);
                 _dynamicForm = await dynamicForms.Result;
@@ -496,7 +351,7 @@
                 {
                     if (_dynamicForm != null)
                     {
-                        _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
+                        _dynamicformObjectDataList = new List<object>();
                         var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
@@ -524,16 +379,16 @@
                                 if (a.DataSourceTable == "ApplicationMaster")
                                 {
                                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
-                                    if (a.IsDisplayTableHeader == true && a.ApplicationMaster.Count() > 0)
+                                    if (a.ApplicationMaster.Count() > 0)
                                     {
                                         a.ApplicationMaster.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId });
                                             }
                                         });
                                     }
@@ -541,17 +396,17 @@
                                 else if (a.DataSourceTable == "ApplicationMasterParent")
                                 {
                                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
-                                    if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
+                                    if (a.ApplicationMasterParents.Count() > 0)
                                     {
                                         a.ApplicationMasterParents.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
                                             RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
                                             }
                                         });
                                     }
@@ -566,10 +421,31 @@
                                     a.AttributeHeaderDataSource.ForEach(dd =>
                                     {
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = dd.DisplayName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = dd.DisplayName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
                                     });
                                 }
+                                if (a.ControlType == "CheckBox")
+                                {
+                                    loadSubHeaders(a.SubAttributeHeaders, a, dataColumnNames);
+                                }
+                                else
+                                {
+                                    if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                    {
+                                        var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == a.AttributeId && mm.DropDownTypeId == null).ToList();
+                                        if (attrDetails != null && attrDetails.Count > 0)
+                                        {
 
+                                            attrDetails.ForEach(u =>
+                                            {
+                                                if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                {
+                                                    loadSubHeaders(u.SubAttributeHeaders, a, dataColumnNames);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
                             });
                             var isSet = dataColumnNames.Where(w => w.Type == "DynamicForm" && w.OrderBy > 0).ToList();
                             if (isSet.Count() > 0)
@@ -614,17 +490,16 @@
                         }
                         if (_dynamicForm != null)
                         {
-                            var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null)));
-                            await Task.WhenAll(_dynamicformDataLists);
-                            _dynamicformDataList = await _dynamicformDataLists.Result;
-                        }
-                        _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                        if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
-                        {
                             if (FormSessionId != null)
                             {
-                                _dynamicformDataList = _dynamicformDataList.Where(w => w.SessionId == FormSessionId).ToList();
+                                var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, FormSessionId)));
+                                await Task.WhenAll(_dynamicformDataLists);
+                                _dynamicformDataList = await _dynamicformDataLists.Result;
                             }
+                        }
+                        _dynamicformObjectDataList = new List<object>();
+                        if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
+                        {
                             _dynamicformDataList.ForEach(s =>
                             {
                                 dynamic jsonObj = new object();
@@ -964,6 +839,22 @@
                                                             {
                                                                 objectData[attrName] = string.Empty;
                                                             }
+                                                            if (s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                                            {
+                                                                var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == s.AttributeId && mm.DropDownTypeId == null).ToList();
+                                                                if (attrDetails != null && attrDetails.Count > 0)
+                                                                {
+
+                                                                    attrDetails.ForEach(u =>
+                                                                    {
+                                                                        if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                                        {
+                                                                            loadSubHeadersData(u.SubAttributeHeaders, s, jsonObj, objectData);
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+
                                                             if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
                                                             {
 
@@ -1050,6 +941,7 @@
                                                         {
                                                             bool? values = itemValue == null ? false : (bool)itemValue;
                                                             objectData[attrName] = values;
+                                                            loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
                                                         }
                                                         else
                                                         {
@@ -1137,12 +1029,10 @@
 
                                     });
                                 }
-                                _dynamicformObjectDataList.Add(objectData);
+                                //_dynamicformObjectDataList.Add(objectData);
+                                _dynamicformObjectData = objectData;
                             });
-                            //EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
-                            _selectedItems = _dynamicformDataList.FirstOrDefault();
-                            FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                            //Grid.SetFocusedRowIndex(0);
+
                         }
                     }
                     else
@@ -1153,25 +1043,201 @@
                 }
                 else
                 {
-                    AddEnabled = false;
                 }
-                if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
-                {
-                    Items = new ObservableCollection<object>(_dynamicformObjectDataList);
-                    //Grid.SetFocusedRowIndex(0);
-                }
+
             }
             else
             {
 
             }
-            //await onhideLoading();
-            PanelVisible = false;
             StateHasChanged();
         }
         catch (Exception ex)
         {
 
+        }
+    }
+    void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)
+    {
+        if (SubAttrsHeader != null && SubAttrsHeader.Count > 0)
+        {
+            SubAttrsHeader.ForEach(d =>
+            {
+                var subAttrName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
+                dataColumnNames.Add(new DropDownOptionsModel() { IsSubForm = true, ControlType = d.ControlType, Value = subAttrName, Text = d.Description, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
+                if (d.DataSourceTable == "ApplicationMaster" && d.SubApplicationMaster != null && d.SubApplicationMaster.Count() > 0)
+                {
+                    d.SubApplicationMaster.ForEach(ab =>
+                    {
+                        var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                        dataColumnNames.Add(new DropDownOptionsModel() { IsSubForm = true, ControlType = d.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
+                    });
+                }
+            });
+        }
+    }
+    void loadSubHeadersData(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, dynamic jsonObjs, IDictionary<string, object> objectData)
+    {
+        if (SubAttrsHeader != null && SubAttrsHeader.Count > 0)
+        {
+            SubAttrsHeader.ForEach(d =>
+            {
+                var subAttrName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
+                var SubNamess = jsonObjs.ContainsKey(subAttrName);
+                if (SubNamess == true)
+                {
+                    var itemValues = jsonObjs[subAttrName];
+                    if (itemValues is JArray)
+                    {
+                        var values = (JArray)itemValues;
+                        List<long?> listDatas = values.ToObject<List<long?>>();
+                        if (d.IsMultiple == true || d.ControlType == "TagBox")
+                        {
+                            var ValueSet = string.Empty;
+                            if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                            {
+                                var listName = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                            }
+                            objectData[subAttrName] = ValueSet;
+                        }
+                    }
+                    else if (d.ControlType == "ListBox" && d.IsMultiple == false)
+                    {
+                        var ValueSet = string.Empty;
+                        long? values = itemValues == null ? null : (long)itemValues;
+                        if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                        {
+                            var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                            ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                        }
+                        objectData[subAttrName] = ValueSet;
+
+                    }
+                    else
+                    {
+                        if (d.ControlType == "TextBox" || d.ControlType == "Memo")
+                        {
+                            var values = (string)itemValues;
+                            objectData[subAttrName] = values;
+
+                        }
+                        else if (d.ControlType == "QR Code")
+                        {
+                            var values = (string)itemValues;
+                            objectData[subAttrName] = values;
+
+                        }
+                        else if (d.ControlType == "ComboBox" || d.ControlType == "Radio" || d.ControlType == "RadioGroup")
+                        {
+                            long? values = itemValues == null ? null : (long)itemValues;
+                            var ValueSet = string.Empty;
+                            if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                            {
+                                var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                            }
+                            objectData[subAttrName] = ValueSet;
+                        }
+                        else if (d.ControlType == "CheckBox")
+                        {
+                            bool? values = itemValues == null ? false : (bool)itemValues;
+                            objectData[subAttrName] = values;
+
+                        }
+                        else if (d.ControlType == "DateEdit")
+                        {
+                            DateTime? values = itemValues == null ? null : (DateTime)itemValues;
+                            objectData[subAttrName] = values;
+
+                        }
+                        else if (d.ControlType == "TimeEdit")
+                        {
+                            TimeSpan? values = itemValues == null ? null : (TimeSpan)itemValues;
+                            objectData[subAttrName] = values;
+
+                        }
+                        else if (d.ControlType == "SpinEdit")
+                        {
+                            if (d.IsAttributeSpinEditType == "decimal")
+                            {
+                                decimal? values = itemValues == null ? null : (decimal)itemValues;
+                                objectData[subAttrName] = values;
+                            }
+                            else
+                            {
+                                int? values = itemValues == null ? null : (int)itemValues;
+                                objectData[subAttrName] = values;
+                            }
+                        }
+                    }
+                    if (d.DataSourceTable == "ApplicationMaster" && d.SubApplicationMaster != null && d.SubApplicationMaster.Count() > 0)
+                    {
+                        d.SubApplicationMaster.ForEach(ab =>
+                        {
+                            var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                            var SubNamesss = jsonObjs.ContainsKey(appendAppMaster);
+                            if (SubNamesss == true)
+                            {
+                                var itemValues = jsonObjs[appendAppMaster];
+                                if (itemValues is JArray)
+                                {
+                                    var values = (JArray)itemValues;
+                                    List<long?> listDatas = values.ToObject<List<long?>>();
+                                    if (d.IsMultiple == true || d.ControlType == "TagBox")
+                                    {
+                                        var ValueSet = string.Empty;
+                                        if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                        {
+                                            var listName = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                            ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                        }
+                                        objectData[appendAppMaster] = ValueSet;
+
+                                    }
+                                }
+                                else
+                                {
+                                    if (d.ControlType == "ComboBox")
+                                    {
+                                        long? values = itemValues == null ? null : (long)itemValues;
+                                        var ValueSet = string.Empty;
+                                        if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                        {
+                                            var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                            ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                        }
+                                        objectData[appendAppMaster] = ValueSet;
+                                    }
+                                    else
+                                    {
+                                        if (d.ControlType == "ListBox" && d.IsMultiple == false)
+                                        {
+                                            long? values = itemValues == null ? null : (long)itemValues;
+                                            var ValueSet = string.Empty;
+                                            if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                            {
+                                                var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                            }
+                                            objectData[appendAppMaster] = ValueSet;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+
+                }
+
+            });
         }
     }
     void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
@@ -1232,7 +1298,7 @@
             if (listss != null)
             {
                 var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
-                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = dynamicFormSectionAttribute.ControlType, Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo });
+                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = dynamicFormSectionAttribute.ControlType, Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
                 RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
@@ -1277,490 +1343,8 @@
             return false;
         }
     }
-    async Task addAuditTrail()
+    public async ValueTask DisposeAsync()
     {
-        createAuditpopup = true;
-        // string str = NavigationManager.Uri;
-        // string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        // string[] UrlList = rep1.Split("/");
-        // string names = "DynamicMasterSetupList";
-        // if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.                                                            ())
-        // {
-        //     var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicFormsaudittrail/ " + _selectedItems.SessionId;
-        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
-        // }
-        // else
-        // {
-        //     string names1 = "dynamicFormMenuList";
-        //     if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-        //     {
-        //         var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicFormsaudittrail/" + _selectedItems.SessionId;
-        //         await JS.InvokeVoidAsync("window.open", url, "_blank");
-        //     }
-        //     else
-        //     {
-        //         var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormsaudittrail/" + _selectedItems.SessionId;
-        //         await JS.InvokeVoidAsync("window.open", url, "_blank");
-        //     }
 
-        // }
-    }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-        if (e.ElementType == GridElementType.DataRow)
-        {
-            e.Attributes["data-visible-index"] = e.VisibleIndex;
-        }
-    }
-    async void OnRowclick(GridRowClickEventArgs e)
-    {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
-        _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
-        FileProfileTypeId = _selectedItems?.FileProfileTypeId;
-        //await DynamicFormOnDms();
-        EditEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock"; AddOneEnabled = true;
-        DeleteEnabled = true; fileEnabled = true; emailEnabled = true; isApprovalEnabled = false;
-        if (_selectedItems.IsApproval == true)
-        {
-            isApprovalEnabled = true;
-        }
-        if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
-        {
-            LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
-            if (_selectedItems.LockedUserId != applicationUser.UserID)
-            {
-                isLocked = false;
-                // EditEnabled = false;
-                DeleteEnabled = false; fileEnabled = false; emailEnabled = false;
-                if (_selectedItems.IsApproval == true)
-                {
-                    isApprovalEnabled = false;
-                }
-            }
-        }
-    }
-    async Task OpenOneOdataUrl()
-    {
-        // if (_selectedItems != null && _selectedItems.SessionId != null)
-        // {
-        //     var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormOneDataList?DynamicFormSessionId=" + _selectedItems.SessionId;
-        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
-        // }
-        if (_dynamicForm != null && _dynamicForm.SessionID != null)
-        {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicForm.SessionID;
-            await ClipboardService.WriteTextAsync(url);
-            toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
-        }
-    }
-    async Task OpenEmptyOdataUrl()
-    {
-        if (_dynamicForm != null && _dynamicForm.SessionID != null)
-        {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicForm.SessionID;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
-        }
-    }
-    async Task OpenOdataUrl1()
-    {
-        if (_dynamicForm != null && _dynamicForm.SessionID != null)
-        {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListItem?DynamicFormSessionId=" + _dynamicForm.SessionID;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
-        }
-    }
-    async Task OpenOdataUrlPaging()
-    {
-        var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=" + _dynamicForm.SessionID + "&&PageNo=1&&PageSize=50";
-        await JS.InvokeVoidAsync("window.open", url, "_blank");
-    }
-    async Task OpenOdataUrl()
-    {
-        if (_dynamicForm != null && _dynamicForm.SessionID != null)
-        {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicForm.SessionID;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
-        }
-    }
-    async Task DynamicFormOnDms()
-    {
-        fileEnabled = false;
-        _documentsDmsData = await Mediator.Send(new GetDynamicFormDataBySessionIdForDMS(_selectedItems.SessionId));
-        if (_documentsDmsData != null && _documentsDmsData.DocumentID > 0)
-        {
-            fileEnabled = true;
-        }
-        StateHasChanged();
-    }
-    void OpenLock()
-    {
-        if (_selectedItems != null)
-        {
-            var sectionLock = _selectedItems?.DynamicFormDataSectionLock.Count(dc => dc.IsLocked == true);
-            if (sectionLock > 0)
-            {
-                toastService.ShowToast("Section Already Locked.", AC.SD.Core.Services.ToastLevel.Info);
-            }
-            else
-            {
-                lockpopup = true;
-            }
-        }
-    }
-    void EulaPopupLockClosed(PopupClosedEventArgs args)
-    {
-        lockpopup = false;
-        InvokeAsync(UpdateDataAsync);
-        StateHasChanged();
-    }
-    async Task bulkLock()
-    {
-        if (_selectedItems != null)
-        {
-            DynamicFormData dynamicFormData = new DynamicFormData();
-            dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
-            dynamicFormData.IsLocked = _selectedItems.IsLocked == true ? null : true;
-            if (dynamicFormData.IsLocked == true)
-            {
-                dynamicFormData.LockedUserId = applicationUser.UserID;
-                dynamicFormData.LockedUser = applicationUser.UserName;
-            }
-            var result = await Mediator.Send(new UpdateDynamicFormLocked(dynamicFormData));
-            if (result.DynamicFormDataId > 0)
-            {
-                LockedName = "Lock"; fafaunlock = "fa fa-lock";
-                if (dynamicFormData.IsLocked == true)
-                {
-                    _selectedItems.IsLocked = dynamicFormData.IsLocked;
-                    _selectedItems.LockedUserId = applicationUser.UserID;
-                    _selectedItems.LockedUser = applicationUser.UserName;
-                    LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
-                }
-                lockpopup = false;
-                if (dynamicFormData.IsLocked == true)
-                {
-                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                }
-                else
-                {
-                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                }
-
-            }
-        }
-        StateHasChanged();
-    }
-    void addDetailFile()
-    {
-        if (_selectedItems != null)
-        {
-            PopupUpload = true;
-            // NavigationManager.NavigateTo("fileprofiletype/" + _documentsDmsData.FileProfileTypeSessionId + "/" + _selectedItems.SessionId);
-        }
-    }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
-    {
-        OnRowclick(e);
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-            {
-                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-            }
-            else
-            {
-                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-            }
-
-        }
-    }
-    void addNew()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId);
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-            {
-                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId);
-            }
-            else
-            {
-                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
-            }
-
-        }
-    }
-    async Task OpenMailMergeUrl()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicFormMailMerge/" + SessionId;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-            {
-                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicFormMailMerge/" + SessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-            else
-            {
-                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-        }
-    }
-    async Task addDetailEmailCreate()
-    {
-        var _selectedItemsDAta = await Mediator.Send(new GetDynamicFormDataBySessionId(_selectedItems.SessionId));
-        if (_selectedItemsDAta != null)
-        {
-            if (_selectedItemsDAta.IsDraft == null)
-            {
-                createEmailpopup = true;
-            }
-            if (_selectedItemsDAta.IsDraft == true)
-            {
-                var url = NavigationManager.BaseUri + "EmailDrafts";
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-            if (_selectedItemsDAta.IsDraft == false)
-            {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-            }
-        }
-    }
-    async Task createEmailYes()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string backurl = rep1 + "/" + _selectedItems.SessionId;
-        string names1 = "dynamicFormMenuList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-        {
-            backurl = "DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionId;
-        }
-        if (_selectedItems != null)
-        {
-            var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();
-            if (result == true)
-            {
-                var insertData = new DynamicFormData
-                    {
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        SessionId = _selectedItems.SessionId,
-                        ProfileNo = _selectedItems.ProfileNo,
-                        StatusCodeID = 1,
-                        DynamicFormDataId = _selectedItems.DynamicFormDataId,
-                        BackUrl = backurl
-                    };
-                var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
-                if (response.DynamicFormDataId > 0)
-                {
-                    toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                    createEmailpopup = false;
-                    var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
-                    await JS.InvokeVoidAsync("window.open", url, "_blank");
-                    await UpdateDataAsync();
-                }
-            }
-        }
-        StateHasChanged();
-    }
-    void addEdit()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
-            {
-                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-            }
-            else
-            {
-                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-            }
-
-        }
-
-    }
-    void backUrl()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList");
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup");
-
-        }
-    }
-    void addDetailDelete()
-    {
-        Blukdeletepopup = true;
-    }
-
-    void EulaPopupClosed()
-    {
-        //BackUpload();
-        PopupApprovalForm = false;
-        PopupDynamicFormGridLists = false;
-        Blukdeletepopup = false;
-        createEmailpopup = false;
-        createAuditpopup = false;
-        // await UpdateDataAsync();
-    }
-    void OpenApprovalForm()
-    {
-        PopupApprovalForm = true;
-    }
-    void BackApprovalForm()
-    {
-        InvokeAsync(UpdateDataAsync);
-        PopupApprovalForm = false;
-        StateHasChanged();
-    }
-    void openFormGridList(DropDownOptionsModel dropDownOptionsModel, object datas)
-    {
-        var values = dropDownOptionsModel.Value;
-        if (!string.IsNullOrEmpty(values))
-        {
-            dynamic item = (ExpandoObject)datas;
-            var DynamicFormSessionIds = (Guid?)((IDictionary<String, Object>)item)[values];
-            if (DynamicFormSessionIds != null)
-            {
-                DynamicFormSessionId = DynamicFormSessionIds;
-                MainSessionId = (Guid?)item.SessionId;
-                DynamicFormDataGridId = (long?)item.DynamicFormDataId;
-                DynamicFormSectionGridAttributeIds = dropDownOptionsModel.Id;
-                PopupDynamicFormGridLists = true;
-            }
-        }
-        StateHasChanged();
-    }
-    void BackUpload()
-    {
-        InvokeAsync(UpdateDataAsync);
-        PopupUpload = false;
-        StateHasChanged();
-
-    }
-    async Task bulkDelete()
-    {
-        var request = new DeleteDynamicFormData(_selectedItems);
-        await Mediator.Send(request);
-        Blukdeletepopup = false;
-        await UpdateDataAsync();
-    }
-    [JSInvokable]
-    public async Task ReorderGridRows(int draggableRowVisibleIndex, int prevRowVisibleIndex, int nextRowVisibleIndex)
-    {
-        var hasPrevRow = prevRowVisibleIndex > -1;
-        var hasNextRow = nextRowVisibleIndex > -1;
-
-        var sourceItem = (dynamic)Grid.GetDataItem(draggableRowVisibleIndex);
-        var hasSamePosition = hasPrevRow && draggableRowVisibleIndex == prevRowVisibleIndex + 1 || hasNextRow && draggableRowVisibleIndex == nextRowVisibleIndex - 1;
-        if (hasSamePosition)
-            return;
-
-        var moveTop = false;
-        if (!hasPrevRow || prevRowVisibleIndex <= draggableRowVisibleIndex)
-            moveTop = true;
-        var newVisibleIndex = moveTop ? nextRowVisibleIndex : prevRowVisibleIndex;
-
-        var sourceItemIndex = Items.IndexOf(sourceItem);
-        var newItemIndex = Items.IndexOf((object)Grid.GetDataItem(newVisibleIndex));
-        // Items.Move(sourceItemIndex, newItemIndex);
-
-        myKey = Guid.NewGuid();
-        ReInitializeDragging = true;
-        DynamicFormData dynamicFormData = new DynamicFormData();
-        dynamicFormData.DynamicFormDataId = (long)sourceItem.DynamicFormDataId;
-        dynamicFormData.DynamicFormId = (long?)sourceItem.DynamicFormId;
-        dynamicFormData.SortOrderAnotherBy = sourceItemIndex + 1;
-        dynamicFormData.SortOrderByNo = newItemIndex + 1;
-        if (dynamicFormData.SortOrderByNo > 0)
-        {
-            var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
-            await Mediator.Send(request);
-            await UpdateDataAsync();
-            toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
-        }
-        StateHasChanged();
-    }
-
-    private RenderFragment BuildDataColumns()
-    {
-        RenderFragment columns = b =>
-        {
-            int counter = 0;
-            if (dataColumnNames != null && dataColumnNames.Count() > 0)
-            {
-                dataColumnNames.ForEach(s =>
-                {
-                    int count = 0;
-                    b.OpenComponent(counter, typeof(DxGridDataColumn));
-                    b.AddAttribute(count + 1, "FieldName", s.Value);
-                    b.AddAttribute(count + 1, "AllowSort", true);
-                    b.AddAttribute(count + 1, "SortMode", DevExpress.Blazor.GridColumnSortMode.Custom);
-                    b.AddAttribute(count + 1, "Caption", s.Text);
-                    b.AddAttribute(count + 1, "Visible", s.IsVisible);
-                    // b.AddAttribute(count + 1, "CellDisplayTemplate ", (RenderFragment<GridDataColumnCellDisplayTemplateContext>)((context) => (a) =>
-                    // {
-                    //     a.OpenElement(count + 1, "div");
-                    //     a.AddContent(count + 1, s.Text);
-                    //     a.CloseElement();
-                    // }));
-                    b.CloseComponent();
-                });
-            }
-        };
-
-        return columns;
     }
 }

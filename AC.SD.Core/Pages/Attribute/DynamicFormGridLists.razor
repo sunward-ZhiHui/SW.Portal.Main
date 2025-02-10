@@ -49,6 +49,7 @@
                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                     <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                 </Items>
             </DxMenu>
         </div>
@@ -386,6 +387,33 @@
             createAuditpopup = true;
         }
     }
+    async Task openPrintForm()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+        else
+        {
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+
+        }
+    }
     async Task UpdateDataAsync()
     {
         try
@@ -507,7 +535,7 @@
                     }
                     if (DynamicFormDataGridId > 0)
                     {
-                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId));
+                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId,null));
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {

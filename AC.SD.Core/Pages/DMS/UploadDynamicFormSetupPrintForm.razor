@@ -1,0 +1,9 @@
+﻿@page "/fileprofiletype/dynamicPrintForm/{SessionId:guid}"
+@page "/fileprofiletype/dynamicPrintForm/{SessionId:guid}/{FormSessionId:guid}"
+<AC.SD.Core.Pages.Attribute.DynamicFormDataPrint SessionId="@SessionId" FormSessionId="@FormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormDataPrint>
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    [Parameter]
+    public Guid? FormSessionId { get; set; }
+}

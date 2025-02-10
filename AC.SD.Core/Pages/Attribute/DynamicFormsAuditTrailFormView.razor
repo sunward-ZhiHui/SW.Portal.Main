@@ -731,7 +731,7 @@
                                     }
                                     else if (s.ControlType == "TimeEdit")
                                     {
-                                        TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                        TimeSpan? values = itemValue == null ? null : (TimeSpan?)itemValue;
                                         if (values != null)
                                         {
                                             int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;

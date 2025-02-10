@@ -92,7 +92,8 @@
                             }
                             else
                             {
-                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                             }
                         </Items>
                     </DxMenu>
@@ -134,13 +135,15 @@
                                 {
                                     <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                         <Items>
-                                            <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                            <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                            <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                            <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                         </Items>
                                     </DxMenuItem>
                                 }
                                 else
                                 {
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                     <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                                 }
                                 <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
@@ -170,14 +173,16 @@
                                 {
                                     <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                         <Items>
-                                            <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                            <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                            <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                            <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                         </Items>
                                     </DxMenuItem>
                                 }
                                 else
                                 {
-                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                    <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                 }
                                 <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                             </Items>
@@ -3400,6 +3405,11 @@
         PopupUpload = false;
         StateHasChanged();
 
+    }
+    async Task openPrintForm()
+    {
+      var url = NavigationManager.BaseUri + "fileprofiletype/dynamicPrintForm/" + _dynamicform?.SessionID + "/" + _dynamicformData?.SessionId; 
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
     public async ValueTask DisposeAsync()
     {

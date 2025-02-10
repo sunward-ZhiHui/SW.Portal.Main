@@ -1,0 +1,116 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using Newtonsoft.Json.Linq;
+@using System.Collections;
+@using System.Dynamic;
+@using global::Core.AttributeDynamicData;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@inject IMediator Mediator
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+
+            </Items>
+        </DxMenu>
+
+    </div>
+</div>
+<DxGrid @ref="SMShareGrid" Data="_DynamicFormDataAttrUploadListItems"
+        KeyFieldName="DynamicFormDataAttrUploadId"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        CssClass="ch-360"
+        FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
+        CustomizeElement="Grid_CustomizeElement"
+        RowClick="OnRowClick"
+        style="padding:10px;height: calc(100vh - 500px);"
+        AutoExpandAllGroupRows="true"
+        VirtualScrollingEnabled="true"
+        SelectionMode="GridSelectionMode.Single">
+    <Columns>
+        <DxGridDataColumn  Caption="" MinWidth="30">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormDataAttrUpload)context.DataItem;
+                }
+                @if (item.DynamicFormDataAttrUploadId > 0)
+                {
+                    <i class="fa fa-cloud-upload" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.UploadedUser"></i>
+                }
+                else
+                {
+                    <i class="fa fa-cloud-upload" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;"></i>
+                }
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="30" />
+        <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="30" />
+        <DxGridDataColumn FieldName="UploadDate" Caption="Upload Date" MinWidth="40" />
+        <DxGridDataColumn FieldName="UploadedUser" Caption="Uploaded User" />
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+    </TotalSummary>
+</DxGrid>
+@code {
+    private List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadListItems { get; set; }
+    private DynamicFormDataAttrUpload _selectedItems;
+    IGrid? SMShareGrid { get; set; }
+    [Parameter]
+    public ApplicationUser _applicationUser { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute dynamicFormSectionAttribute { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public IEnumerable _DynamicFormDataAttrUploadShowList { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (_DynamicFormDataAttrUploadShowList != null)
+        {
+            _DynamicFormDataAttrUploadListItems = _DynamicFormDataAttrUploadShowList.Cast<DynamicFormDataAttrUpload>().ToList();
+        }
+    }
+    void onBack()
+    {
+        RevokeBack.Invoke();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataAttrUploadId");
+        _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault(f => f.DynamicFormDataAttrUploadId == (long?)UniqueId);
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

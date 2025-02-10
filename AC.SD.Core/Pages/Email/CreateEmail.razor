@@ -277,11 +277,11 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                          @*    <DxFormLayoutItem Caption="Attachment Email" ColSpanMd="12">
+                              <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          NullText="Select Attachment Email..."
+                                          NullText="Select Attach Email"
                                           Values="@Data?.CopyEmailIds"
                                           ValuesExpression="@(() => Data.CopyEmailIds )"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -297,7 +297,7 @@ else
 
                                 </DxTagBox>
                                
-                            </DxFormLayoutItem>   *@
+                            </DxFormLayoutItem>   
                             @if (ActiveSessionId != null)
                             {
 

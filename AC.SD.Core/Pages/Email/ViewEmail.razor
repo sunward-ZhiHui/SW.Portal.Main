@@ -512,7 +512,7 @@
                         Position="DrawerPosition.Right"
                         PanelWidth="95%">
                         <HeaderTemplate>
-                            Attachment Email
+                            Attached Email
                             <DxButton Attributes="GetCloseInfoButtonAttributes()"
                             Click="CloseInfo"
                             IconCssClass="fa fa-times"
@@ -1018,7 +1018,7 @@
                                                                      dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
 
                                                                     <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(item))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
-                                                                        <i class="fa fa-envelope"></i> Attachment Email
+                                                                        <i class="fa fa-envelope"></i> Attached Email
                                                                     </button>
                                                                 }
                                                                 <div>
@@ -1123,7 +1123,7 @@
                                                                                                 { dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;}
 
                                                                                                 <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(items))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
-                                                                                                    <i class="fa fa-envelope"></i> Attachment Email
+                                                                                                    <i class="fa fa-envelope"></i> Attached Email
                                                                                                 </button>                                                                          
                                                                                             }                                                                                 
                                                                                         </div>
@@ -1424,11 +1424,11 @@
                                                                                         </DxFormLayoutItem>
                                                                                     }
 
-                                                                                    @*  <DxFormLayoutItem Caption="Attachment Email" ColSpanMd="12">
+                                                                                    <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                                                                         <DxTagBox Data="_CopyLinkList"
                                                                                                   SearchMode="ListSearchMode.AutoSearch"
                                                                                                   SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                                                                                  NullText="Select Attachment Email"
+                                                                                                  NullText="Select Attach Email"
                                                                                                   Values="@Data?.CopyEmailIds"
                                                                                                   ValuesExpression="@(() => Data.CopyEmailIds )"
                                                                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -1440,7 +1440,7 @@
 
                                                                                             <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
                                                                                         </DxTagBox>
-                                                                                    </DxFormLayoutItem>  *@
+                                                                                    </DxFormLayoutItem>
 
 
                                                                                     @if(newSubjectreply == 1)

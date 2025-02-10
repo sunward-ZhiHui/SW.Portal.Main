@@ -383,7 +383,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId);
         }
 
 
@@ -1607,6 +1607,34 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DynamicFormSectionAttributeSectionParent>> Handle(GetDynamicFormSectionAttributeSectionParentSettings request, CancellationToken cancellationToken)
         {
             return (List<DynamicFormSectionAttributeSectionParent>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeSectionParentSettings(request.Id);
+        }
+    }
+
+    public class GetDynamicFormDataAttrUploadHandler : IRequestHandler<GetDynamicFormDataAttrUpload, List<DynamicFormDataAttrUpload>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAttrUploadHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAttrUpload>> Handle(GetDynamicFormDataAttrUpload request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAttrUpload>)await _dynamicFormQueryRepository.GetDynamicFormDataAttrUpload(request.Id,request.DynamicFormDataId);
+        }
+    }
+
+    public class InsertDynamicFormDataAttrUploadHandler : IRequestHandler<InsertDynamicFormDataAttrUpload, DynamicFormDataAttrUpload>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormDataAttrUploadHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataAttrUpload> Handle(InsertDynamicFormDataAttrUpload request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormDataAttrUpload(request.DynamicFormDataAttrUpload);
+
         }
     }
 }

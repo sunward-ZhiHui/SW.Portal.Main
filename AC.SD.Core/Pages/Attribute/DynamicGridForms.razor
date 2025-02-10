@@ -85,6 +85,7 @@
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                             @* @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -111,6 +112,7 @@
                             <Items>
                                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                 @* @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -161,6 +163,7 @@
                                         </Items>
                                     </DxMenuItem>
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                     @* @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -197,6 +200,7 @@
                                         </Items>
                                     </DxMenuItem>
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                     @*  @if (IsGridDynamicGridForm == true)
                         {
                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -907,6 +911,33 @@
         }
         displayNoneGridPrintForm = "display:none;";
         StateHasChanged();
+    }
+    async Task openPrintForm()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _dynamicformData?.SessionId;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+        else
+        {
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + _dynamicformData?.SessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicPrintForm/" + SessionId + "/" + _dynamicformData?.SessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+
+        }
     }
     public async Task PrintGridWithoutGridForm()
     {
@@ -3604,7 +3635,7 @@
                             if (Data.GetType().GetProperty(attrNames) != null)
                             {
                                 var avluess = Data.GetType().GetProperty(attrNames).GetValue(Data);
-                                expressions.Bind(strAlpha.ToUpper()+ strAlpha.ToUpper(), avluess == null ? 0 : avluess);
+                                expressions.Bind(strAlpha.ToUpper() + strAlpha.ToUpper(), avluess == null ? 0 : avluess);
                             }
                             else
                             {

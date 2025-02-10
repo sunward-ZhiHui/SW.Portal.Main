@@ -330,11 +330,11 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                           @*  <DxFormLayoutItem Caption="Attachment Email" ColSpanMd="12">
+                             <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          NullText="Select Attachment Email"
+                                          NullText="Select Attach Email"
                                           Values="@Data?.CopyEmailIds"
                                           ValuesExpression="@(() => Data.CopyEmailIds )"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -350,7 +350,7 @@ else
 
                                 </DxTagBox>
                              
-                            </DxFormLayoutItem> *@
+                            </DxFormLayoutItem>
                               <DxFormLayoutItem ColSpanMd="12">
                                 <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
 
@@ -1435,12 +1435,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
+        
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
         AppUserId = applicationUser.UserID;
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)); 
 

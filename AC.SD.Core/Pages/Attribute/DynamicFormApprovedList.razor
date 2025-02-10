@@ -417,7 +417,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                         }
                     }
 
-                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null, null));
+                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null, null,null));
                     _dynamicformObjectDataList = new List<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {

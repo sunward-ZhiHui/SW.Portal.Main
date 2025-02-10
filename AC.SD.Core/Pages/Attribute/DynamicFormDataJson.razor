@@ -1,0 +1,21 @@
+﻿@page "/attributesetups"
+@using Newtonsoft.Json
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        string json = "[" +
+    "{\"36_Attr\":\"2024-05-02T18:04:16.4832376+08:00\",\"37_Attr\":39,\"38_Attr\":\"Fix export to excel and filter issue.\",\"39_Attr\":1,\"40_Attr\":\"2024-05-03T00:00:00\",\"41_Attr\":55,\"39_1_Employee_Dependency\":37}," +
+    "{\"36_Attr\":\"2024-05-02T18:05:09.4768487+08:00\",\"37_Attr\":40,\"38_Attr\":\"Data sync back to NAV create sales order\",\"39_Attr\":1,\"39_1_Employee_Dependency\":37,\"40_Attr\":\"2024-05-17T00:00:00\",\"41_Attr\":50}" +
+    "]";
+
+        var items = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(json);
+
+        string searchTerm = "excel"; // Example search term
+        var filteredItems = items.Where(item => item.Values.Any(value => value != null && value.ToString().IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0));
+
+        foreach (var item in filteredItems)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(item, Formatting.Indented));
+        }
+    }
+}

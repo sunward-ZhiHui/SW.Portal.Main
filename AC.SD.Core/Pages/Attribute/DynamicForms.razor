@@ -49,6 +49,10 @@
         width: 100%;
         height: auto;
     }
+
+    .dxbl-upload-cancel-btn {
+        display: none;
+    }
 </style>
 <script>
     function htmlpdfGenerate() {
@@ -92,14 +96,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />  
                                     }
                                 </Items>
                             </DxMenu>
@@ -115,14 +121,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                 </Items>
                             </DxMenu>
@@ -142,14 +150,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                       <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                 </Items>
                             </DxMenu>
@@ -165,14 +175,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                 </Items>
                             </DxMenu>
@@ -218,14 +230,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -264,14 +278,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -303,14 +319,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -338,14 +356,16 @@
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
                                             <Items>
-                                                <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -921,8 +941,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@imageUploadPopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Image List"
+         Closed="EulaPopupLockClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList @ref="refDynamicFormUploadImageList" RevokeBack="backImageUpload" _DynamicFormDataAttrUploadShowList="@_DynamicFormDataAttrUploadShowList" dynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool imageUploadPopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
+    private AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList refDynamicFormUploadImageList { get; set; }
     private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
     bool createAuditpopup { get; set; } = false;
     bool? IsDynamicGridForm { get; set; } = false; bool? IsPrintWithoutGridForm { get; set; } = false;
@@ -1033,6 +1068,8 @@
     bool createEmailpopup { get; set; } = false; bool emailEnabled { get; set; } = false; public DynamicFormSection dynamicFormSectionData { get; set; }
     Object DataGridObject { get; set; } = new Object(); private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     bool QrCodePopupVisible { get; set; } = false; private BarcodeReader _QrCodeReader; public PropertyInfo? PropertyQrCodeInfo { get; set; }
+    public List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadList { get; set; } = new List<DynamicFormDataAttrUpload>();
+    public List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadShowList { get; set; } = new List<DynamicFormDataAttrUpload>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -1085,6 +1122,33 @@
         if (_dynamicformData != null)
         {
             createAuditpopup = true;
+        }
+    }
+    async Task openPrintForm()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + SessionIds;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+        else
+        {
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + SessionIds;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicPrintForm/" + SessionId + "/" + SessionIds;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+
         }
     }
     public async Task PrintForm()
@@ -1270,7 +1334,7 @@
     {
         await onshowLoading();
 
-        _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
+        _DropDownBoxGridModel = new List<DropDownBoxGridModel>(); _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>(); _DynamicFormDataAttrUploadShowList = new List<DynamicFormDataAttrUpload>();
         IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; EditEnabled = false;
         _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
@@ -1735,7 +1799,7 @@
                                         addTempSectionAttributess.DataType = dataTypes;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributess.DynamicAttributeFieldName = nameData;
-                                        addTempSectionAttributess.UniqueId = nameData+"_";
+                                        addTempSectionAttributess.UniqueId = nameData + "_";
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                     });
                                     if (a.IsSetDefaultValue == true)
@@ -1855,7 +1919,7 @@
                                             addTempSectionAttribute.DataType = typeof(string);
                                             addTempSectionAttribute.DynamicAttributeName = appendNames;
                                             addTempSectionAttribute.DynamicAttributeFieldName = appendNames;
-                                            addTempSectionAttribute.UniqueId =appendNames+"_";
+                                            addTempSectionAttribute.UniqueId = appendNames + "_";
                                             addTempSectionAttributes.Add(addTempSectionAttribute);
                                             objectNameLists.Add(appendNames);
                                         }
@@ -2177,6 +2241,7 @@
     }
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
+        imageUploadPopup = false;
         createAuditpopup = false;
         lockpopup = false;
         IsSectionLockOpen = false;
@@ -3735,6 +3800,11 @@
         BackUpload();
         isApprovedPopup = false;
     }
+    void backImageUpload()
+    {
+        imageUploadPopup = false;
+        StateHasChanged();
+    }
     void addUploadDocument()
     {
         var _DynamicFormDataUploadByPermission = DynamicFormDataUploadByPermissions;
@@ -3919,6 +3989,30 @@
         }
         StateHasChanged();
     }
+    async Task OnShowImageUploadClick(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+
+        _DynamicFormDataAttrUploadShowList = new List<DynamicFormDataAttrUpload>();
+        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        {
+            var response = await Mediator.Send(new GetDynamicFormDataAttrUpload(dynamicFormSectionAttribute.DynamicFormSectionAttributeId, _dynamicformData.DynamicFormDataId));
+            if (response != null && response.Count() > 0)
+            {
+                _DynamicFormDataAttrUploadShowList = response;
+            }
+        }
+        if (_DynamicFormDataAttrUploadList != null && _DynamicFormDataAttrUploadList.Count() > 0)
+        {
+            var datas = _DynamicFormDataAttrUploadList.Where(w => w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+            if (datas != null && datas.Count() > 0)
+            {
+                _DynamicFormDataAttrUploadShowList.AddRange(datas);
+            }
+        }
+        _filterDynamicFormSectionAttribute = dynamicFormSectionAttribute;
+        imageUploadPopup = true;
+        StateHasChanged();
+    }
     void OnTooltipsClick(string? attrName, string? toolTips)
     {
         _tooltipShowId = attrName;
@@ -4083,6 +4177,63 @@
         {
             toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    public static string FormatSize(decimal bytes)
+    {
+        string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
+        int counter = 0;
+        decimal number = (decimal)bytes;
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number = number / 1024;
+            counter++;
+        }
+        return string.Format("{0:n1} {1}", number, suffixes[counter]);
+    }
+    async Task OnFilesUploading(FilesUploadingEventArgs args, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+
+        if (_dynamicformData == null)
+        {
+            toastService.ShowToast("Save Form after upload Image", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        if (_DynamicFormDataAttrUploadList == null)
+        {
+            _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
+        }
+        foreach (var file in args.Files)
+        {
+            var fileName = file.Name.ToLower();
+            var exits = _DynamicFormDataAttrUploadList.Where(w => w.FileName.ToLower() == fileName && w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).FirstOrDefault();
+            if (exits == null)
+            {
+                using var stream = new System.IO.MemoryStream();
+                await file.OpenReadStream(file.Size).CopyToAsync(stream);
+                byte[] imageArray = stream.ToArray();
+                var imgBase64Str = Convert.ToBase64String(imageArray);
+                DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
+                dynamicFormDataAttrUpload.DynamicFormSectionAttributeId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId;
+                dynamicFormDataAttrUpload.SessionId = new Guid(file.Guid);
+                dynamicFormDataAttrUpload.ImageType = file.Type;
+                dynamicFormDataAttrUpload.FileName = file.Name;
+                dynamicFormDataAttrUpload.FileSize = file.Size;
+                dynamicFormDataAttrUpload.DynamicFormDataId = _dynamicformData != null ? _dynamicformData.DynamicFormDataId : null;
+                dynamicFormDataAttrUpload.FileSizes = file.Size > 0 ? FormatSize((long)file.Size) : "";
+                dynamicFormDataAttrUpload.ImageData = imageArray;
+                dynamicFormDataAttrUpload.UploadedUserId = applicationUser.UserID;
+                dynamicFormDataAttrUpload.UploadedUser = applicationUser.UserName;
+                dynamicFormDataAttrUpload.UploadDate = DateTime.Now;
+                _DynamicFormDataAttrUploadList.Add(dynamicFormDataAttrUpload);
+            }
+            else
+            {
+                using var stream = new System.IO.MemoryStream();
+                await file.OpenReadStream(file.Size).CopyToAsync(stream);
+                //byte[] imageArray = stream.ToArray();
+                toastService.ShowToast("This File already exits." + file.Name, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        //}
     }
     void OnCheckedChangedItem(bool? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
@@ -5165,6 +5316,17 @@
                                  editor.AddAttribute(i + 1, "aria-hidden", true);
                                  editor.CloseElement();
                              }
+                             if (s.ControlType == "Upload Image")
+                             {
+                                 editor.OpenElement(i + 1, "i");
+                                 editor.AddAttribute(i + 1, "class", "fa fa-image");
+                                 editor.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                                 editor.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-ImageUpload-{s.DynamicFormSectionAttributeId}"));
+                                 editor.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnShowImageUploadClick(s)));
+                                 editor.AddAttribute(i + 1, "title", "Click Here Show Uploaded Images");
+                                 editor.AddAttribute(i + 1, "aria-hidden", true);
+                                 editor.CloseElement();
+                             }
                              if (s.DropDownTypeId == "Data Source")
                              {
                                  if (s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
@@ -5210,6 +5372,17 @@
                                  editor.AddAttribute(j + 1, "DynamicFormDataGridId", dynamicFormData?.DynamicFormDataId);
                                  editor.CloseComponent();
                              }
+                         }
+                         else if (s.ControlType == "Upload Image")
+                         {
+                             editor.OpenComponent<DxFileInput>(j + 1);
+                             editor.AddAttribute(j + 1, "UploadMode", UploadMode.Instant);
+                             editor.AddAttribute(j + 1, "AllowMultiFileUpload", true);
+                             editor.AddAttribute(j + 1, "ShowFileList", false);
+                             editor.AddAttribute(j + 1, "AllowCancel", false);
+                             editor.AddAttribute(j + 1, "AcceptedFileTypes", new List<string> { "image/*" });
+                             editor.AddAttribute(j + 1, "FilesUploading", EventCallback.Factory.Create<FilesUploadingEventArgs>(this, str => OnFilesUploading(str, s)));
+                             editor.CloseComponent();
                          }
                          else if (s.ControlType == "QR Code")
                          {

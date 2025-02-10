@@ -21,6 +21,7 @@
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
         <DataAnnotationsValidator />
+        @* <DxFileInput FilesUploading="OnFilesUploading" UploadMode="UploadMode.OnButtonClick" /> *@
         <div class="card-header text-center py-3">
             <h4>Register with DevExpress</h4>
             <p class="tm-8 mb-0 fw-normal fs-825">
@@ -37,9 +38,11 @@
 </p>
 
 @code {
-        IGrid? TransferPermissionsWorkFlowGrid { get; set; }
-        string FormSubmitResult = "";
-        UserDatas Data { get; set; } = new UserDatas();
+
+    DxFileInput dxFileInput;
+    IGrid? TransferPermissionsWorkFlowGrid { get; set; }
+    string FormSubmitResult = "";
+    UserDatas Data { get; set; } = new UserDatas();
     private List<ViewEmployee>? _usersAllList;
     private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     public class UserDatas
@@ -67,6 +70,16 @@
     string searchText { get; set; }
     int SortOrder { get; set; } = 0;
     string FilterRowValue { get; set; }
+    async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            /* The following code is intended for demonstration purposes only.
+            Do not read a stream directly in memory to avoid performance and security-related issues. */
+            using var stream = new System.IO.MemoryStream();
+            await file.OpenReadStream(file.Size).CopyToAsync(stream);
+        }
+    }
     public List<ViewEmployee> loadUserLists()
     {
         List<ViewEmployee> ViewEmployee = new List<ViewEmployee>();
@@ -354,97 +367,102 @@
                                 var propertyDependency = Data.GetType().GetProperty(property.Name);
                                 var valueData = propertyDependency.GetValue(Data);
                                 int n = 0;
-                                editor.OpenComponent<DxDropDownBox>(j++);
-                                editor.AddAttribute(j++, "DropDownWidthMode", DropDownWidthMode.ContentOrEditorWidth);
-                                editor.AddAttribute(j++, "Value", valueData);
-                                editor.AddAttribute(j++, "ValueExpression", lambda1);
-                                editor.AddAttribute(j++, "DropDownVisible", false);
-                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnValueChanged(str, propertyDependency)));
-                                editor.AddAttribute(j++, "DropDownVisibleChanged", EventCallback.Factory.Create<bool>(this, str => OnDropDownVisibleChanges(str)));
-                                editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                editor.AddAttribute(j++, "QueryDisplayText", QueryPlantText);
-                                editor.AddAttribute(j++, "CssClass", "cw-480");
-                                editor.AddAttribute(j++, "DropDownBodyTemplate", (RenderFragment<DropDownBoxTemplateContext>)((context) => (b) =>
-                            {
-                                b.OpenComponent<DxGrid>(n++);
-                                b.AddAttribute(n++, "Data", _usersAllList);
-                                b.AddAttribute(n++, "KeyFieldName", "UserID");
-                                b.AddAttribute(n++, "HighlightRowOnHover", true);
-                                b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByAnd);
-                                b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Single);
-                                b.AddAttribute(n++, "AllowSelectRowByClick", true);
-                                b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
-                                b.AddAttribute(n++, "FocusedRowEnabled", true);
-                                b.AddAttribute(n++, "TextWrapEnabled", false);
-                                b.AddAttribute(n++, "CssClass", "templateGrid");
-                                b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
-                                b.AddAttribute(n++, "PageSizeSelectorVisible", true);
-                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
-                                b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", true);
-                                b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
-                                b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
-                                b.AddAttribute(n++, "PageSizeChanged", EventCallback.Factory.Create<int>(this, item => OnPageSizeChanged(item, property.Name)));
-                                b.AddAttribute(n++, "searchText", GridDropBoxData != null ? GridDropBoxData.SearchText : null);
-                                b.AddAttribute(n++, "SearchTextChanged", EventCallback.Factory.Create<string>(this, item => OnSearchTextChanged(item, property.Name)));
-                                b.AddAttribute(n++, "PageIndex", GridDropBoxData != null ? GridDropBoxData.GridPageIndex : 0);
-                                b.AddAttribute(n++, "PageIndexChanged", EventCallback.Factory.Create<int>(this, item => OnPageIndexChanged(item, property.Name)));
-                                b.AddAttribute(n++, "ShowSearchBox", true);
-                                b.AddAttribute(n++, "SelectedDataItem", context.DropDownBox.Value as ViewEmployee);
-                                b.AddAttribute(n++, "SelectedDataItemChanged", EventCallback.Factory.Create<object>(this, item => GridSelectedDataItemChanged(item, context.DropDownBox, property)));
-                                b.AddAttribute(n++, "Columns", (RenderFragment)((layoutItemBuilders) =>
-                                {
-                                    layoutItemBuilders.OpenComponent<DxGridSelectionColumn>(0);
-                                    layoutItemBuilders.AddAttribute(0, "AllowSelectAll", true);
-                                    layoutItemBuilders.AddAttribute(1, "Width", "60px");
-                                    layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(1);
-                                    layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
-                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
-                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortIndex : -1);
-                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
-                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
-                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
-                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
-                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
-                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
-                                    layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
-                                    layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "LastName");
-                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
-                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortIndex : -1);
-                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 2)));
-                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortOrder : 0);
-                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.FilterRowValue : null);
-                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 2)));
-                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
-                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 2)));
-                                    layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(3);
-                                    layoutItemBuilders.AddAttribute(0, "FieldName", "NickName");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "NickName");
-                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
-                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortIndex : -1);
-                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 3)));
-                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortOrder : 0);
-                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.FilterRowValue : null);
-                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 3)));
-                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
-                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 3)));
-                                    layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(4);
-                                    layoutItemBuilders.AddAttribute(0, "FieldName", "DesignationName");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "DesignationName");
-                                    layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(5);
-                                    layoutItemBuilders.AddAttribute(0, "FieldName", "CompanyName");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "CompanyName");
-                                    layoutItemBuilders.CloseComponent();
-                                }));
-                                b.CloseComponent();
-                            }));
+                                editor.OpenComponent<DxFileInput>(j++);
+                                editor.AddAttribute(j++, "UploadMode", UploadMode.Instant);
+                                editor.AddAttribute(j++, "AllowMultiFileUpload", false);
+                                editor.AddAttribute(j++, "FilesUploading", EventCallback.Factory.Create<FilesUploadingEventArgs>(this, str => OnFilesUploading(str)));
                                 editor.CloseComponent();
+                                //     editor.OpenComponent<DxDropDownBox>(j++);
+                                //     editor.AddAttribute(j++, "DropDownWidthMode", DropDownWidthMode.ContentOrEditorWidth);
+                                //     editor.AddAttribute(j++, "Value", valueData);
+                                //     editor.AddAttribute(j++, "ValueExpression", lambda1);
+                                //     editor.AddAttribute(j++, "DropDownVisible", false);
+                                //     editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnValueChanged(str, propertyDependency)));
+                                //     editor.AddAttribute(j++, "DropDownVisibleChanged", EventCallback.Factory.Create<bool>(this, str => OnDropDownVisibleChanges(str)));
+                                //     editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                //     editor.AddAttribute(j++, "QueryDisplayText", QueryPlantText);
+                                //     editor.AddAttribute(j++, "CssClass", "cw-480");
+                                //     editor.AddAttribute(j++, "DropDownBodyTemplate", (RenderFragment<DropDownBoxTemplateContext>)((context) => (b) =>
+                                // {
+                                //     b.OpenComponent<DxGrid>(n++);
+                                //     b.AddAttribute(n++, "Data", _usersAllList);
+                                //     b.AddAttribute(n++, "KeyFieldName", "UserID");
+                                //     b.AddAttribute(n++, "HighlightRowOnHover", true);
+                                //     b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByAnd);
+                                //     b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Single);
+                                //     b.AddAttribute(n++, "AllowSelectRowByClick", true);
+                                //     b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
+                                //     b.AddAttribute(n++, "FocusedRowEnabled", true);
+                                //     b.AddAttribute(n++, "TextWrapEnabled", false);
+                                //     b.AddAttribute(n++, "CssClass", "templateGrid");
+                                //     b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
+                                //     b.AddAttribute(n++, "PageSizeSelectorVisible", true);
+                                //     b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
+                                //     b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", true);
+                                //     b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
+                                //     b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
+                                //     b.AddAttribute(n++, "PageSizeChanged", EventCallback.Factory.Create<int>(this, item => OnPageSizeChanged(item, property.Name)));
+                                //     b.AddAttribute(n++, "searchText", GridDropBoxData != null ? GridDropBoxData.SearchText : null);
+                                //     b.AddAttribute(n++, "SearchTextChanged", EventCallback.Factory.Create<string>(this, item => OnSearchTextChanged(item, property.Name)));
+                                //     b.AddAttribute(n++, "PageIndex", GridDropBoxData != null ? GridDropBoxData.GridPageIndex : 0);
+                                //     b.AddAttribute(n++, "PageIndexChanged", EventCallback.Factory.Create<int>(this, item => OnPageIndexChanged(item, property.Name)));
+                                //     b.AddAttribute(n++, "ShowSearchBox", true);
+                                //     b.AddAttribute(n++, "SelectedDataItem", context.DropDownBox.Value as ViewEmployee);
+                                //     b.AddAttribute(n++, "SelectedDataItemChanged", EventCallback.Factory.Create<object>(this, item => GridSelectedDataItemChanged(item, context.DropDownBox, property)));
+                                //     b.AddAttribute(n++, "Columns", (RenderFragment)((layoutItemBuilders) =>
+                                //     {
+                                //         layoutItemBuilders.OpenComponent<DxGridSelectionColumn>(0);
+                                //         layoutItemBuilders.AddAttribute(0, "AllowSelectAll", true);
+                                //         layoutItemBuilders.AddAttribute(1, "Width", "60px");
+                                //         layoutItemBuilders.CloseComponent();
+                                //         layoutItemBuilders.OpenComponent<DxGridDataColumn>(1);
+                                //         layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
+                                //         layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
+                                //         layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                //         layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortIndex : -1);
+                                //         layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                //         layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
+                                //         layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
+                                //         layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                //         layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                //         layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                //         layoutItemBuilders.CloseComponent();
+                                //         layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
+                                //         layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
+                                //         layoutItemBuilders.AddAttribute(1, "Caption", "LastName");
+                                //         layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                //         layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortIndex : -1);
+                                //         layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 2)));
+                                //         layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortOrder : 0);
+                                //         layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.FilterRowValue : null);
+                                //         layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 2)));
+                                //         layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                //         layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 2)));
+                                //         layoutItemBuilders.CloseComponent();
+                                //         layoutItemBuilders.OpenComponent<DxGridDataColumn>(3);
+                                //         layoutItemBuilders.AddAttribute(0, "FieldName", "NickName");
+                                //         layoutItemBuilders.AddAttribute(1, "Caption", "NickName");
+                                //         layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                //         layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortIndex : -1);
+                                //         layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 3)));
+                                //         layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortOrder : 0);
+                                //         layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.FilterRowValue : null);
+                                //         layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 3)));
+                                //         layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                //         layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 3)));
+                                //         layoutItemBuilders.CloseComponent();
+                                //         layoutItemBuilders.OpenComponent<DxGridDataColumn>(4);
+                                //         layoutItemBuilders.AddAttribute(0, "FieldName", "DesignationName");
+                                //         layoutItemBuilders.AddAttribute(1, "Caption", "DesignationName");
+                                //         layoutItemBuilders.CloseComponent();
+                                //         layoutItemBuilders.OpenComponent<DxGridDataColumn>(5);
+                                //         layoutItemBuilders.AddAttribute(0, "FieldName", "CompanyName");
+                                //         layoutItemBuilders.AddAttribute(1, "Caption", "CompanyName");
+                                //         layoutItemBuilders.CloseComponent();
+                                //     }));
+                                //     b.CloseComponent();
+                                // }));
+                                //     editor.CloseComponent();
 
 
                             })));
@@ -522,13 +540,13 @@
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
                                     layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
                                     layoutItemBuilders.AddAttribute(2, "AllowSort", true);
-                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn==1 ? GridDropBoxData.SortIndex : -1);
-                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 1)));
                                     layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
                                     layoutItemBuilders.AddAttribute(0, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
-                                    layoutItemBuilders.AddAttribute(6, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(6, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 1)));
                                     layoutItemBuilders.AddAttribute(7, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
-                                    layoutItemBuilders.AddAttribute(8, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 1)));
                                     layoutItemBuilders.CloseComponent();
                                     layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
@@ -634,13 +652,13 @@
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
                                     layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
                                     layoutItemBuilders.AddAttribute(2, "AllowSort", true);
-                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn ==1 ? GridDropBoxData.SortIndex : -1);
-                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 1)));
                                     layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
                                     layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
-                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 1)));
                                     layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
-                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 1)));
                                     layoutItemBuilders.CloseComponent();
                                     layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");

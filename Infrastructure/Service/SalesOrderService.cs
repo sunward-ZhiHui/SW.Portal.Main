@@ -262,13 +262,9 @@ namespace Infrastructure.Service
                                 ItemNo = b.Item_No,
                                 ItemDescription = b.Description,
                                 BatchNo = b.Batch_No,
-                                // BalanceQuantity = b.Remaining_Quantity,
                                 ExpiryDate = b.g_dteExpDate,
                                 LocationCode = b.Location_Code,
                                 ManufacturingDate = b.g_dteMfgDate,
-                                // QuantityOnHand = b.Remaining_Quantity,
-                                //  NavQuantity = b.Remaining_Quantity,
-
                             });
                         }
                     });

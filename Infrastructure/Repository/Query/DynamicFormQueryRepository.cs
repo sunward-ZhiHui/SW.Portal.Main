@@ -2700,7 +2700,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId)
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId,Guid? DynamicFormDataSessionId)
         {
             try
             {
@@ -2709,6 +2709,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
+                parameters.Add("DynamicFormDataSessionId", DynamicFormDataSessionId,DbType.Guid);
                 var query = "select t5.IsApproval,(case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  ''\r\n ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID," +
                     "(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName, (case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as AddedBy," +
                     "(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
@@ -2721,6 +2722,10 @@ namespace Infrastructure.Repository.Query
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
                     "LEFT JOIN DynamicFormSectionAttribute t6 ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
+                if(DynamicFormDataSessionId!=null)
+                {
+                    query += "AND t1.SessionId=@DynamicFormDataSessionId\r\n";
+                }
                 if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
                 {
                     if (DynamicFormSectionGridAttributeId > 0)
@@ -7782,6 +7787,69 @@ namespace Infrastructure.Repository.Query
                     });
                 }
                 return _dynamicFormSectionAttributeSectionParent;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAttrUpload>> GetDynamicFormDataAttrUpload(long? DynamicFormSectionAttributeId,long? DynamicFormDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormSectionAttributeID", DynamicFormSectionAttributeId);
+                parameters.Add("DynamicFormDataId", DynamicFormDataId);
+                var query = "select t1.*,t2.DisplayName,CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  '' ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName , (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) as UploadedUser\r\nfrom DynamicFormDataAttrUpload t1 " +
+                    "JOIN DynamicFormSectionAttribute t2 ON t2.DynamicFormSectionAttributeID=t1.DynamicFormSectionAttributeID AND (t1.IsDeleted is null OR t1.IsDeleted=0) " +
+                    "JOIN Employee t3 ON t3.UserID=t1.UploadedUserID Where t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataAttrUpload>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataAttrUpload> InsertDynamicFormDataAttrUpload(List<DynamicFormDataAttrUpload> value)
+        {
+            try
+            {
+                DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (value != null && value.Count() > 0)
+                        {
+                            foreach (var item in value)
+                            {
+                                var query = string.Empty;
+                                var parameters = new DynamicParameters();
+                                parameters.Add("DynamicFormSectionAttributeId", item.DynamicFormSectionAttributeId);
+                                parameters.Add("DynamicFormDataId", item.DynamicFormDataId);
+                                parameters.Add("ImageData", item.ImageData,DbType.Byte);
+                                parameters.Add("UploadedUserId", item.UploadedUserId);
+                                parameters.Add("ImageType", item.ImageType,DbType.String);
+                                parameters.Add("FileSize", item.FileSize, DbType.Decimal);
+                                parameters.Add("UploadDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("FileSizes", item.FileSizes, DbType.String);
+                                parameters.Add("SessionId", item.SessionId, DbType.Guid);
+                                query += "INSERT INTO [DynamicFormDataAttrUpload](DynamicFormDataId,ImageData,UploadedUserId,ImageType,DynamicFormSectionAttributeId,FileSize,UploadDate,FileSizes,SessionId) OUTPUT INSERTED.DynamicFormDataAttrUploadId " +
+                                "VALUES (@DynamicFormDataId,@ImageData,@UploadedUserId,@ImageType,@DynamicFormSectionAttributeId,@FileSize,@UploadDate,@FileSizes,@SessionId);\r\n";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                            }
+                        }
+                        return dynamicFormDataAttrUpload;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
             }
             catch (Exception exp)
             {

@@ -216,12 +216,14 @@ namespace Application.Queries
         public long? UserId { get; set; }
         public long? DynamicFormDataGridId { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
-        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId)
+        public Guid? DynamicFormDataSessionId {  get; set; }
+        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId, Guid? dynamicFormDataSessionId)
         {
             this.Id = id;
             this.UserId = userId;
             this.DynamicFormDataGridId = dynamicFormDataGridId;
             this.DynamicFormSectionGridAttributeId = dynamicFormSectionGridAttributeId;
+            this.DynamicFormDataSessionId = dynamicFormDataSessionId;
         }
     }
     public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>
@@ -920,6 +922,23 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-    
+    public class InsertDynamicFormDataAttrUpload : PagedRequest, IRequest<DynamicFormDataAttrUpload>
+    {
+        public List<DynamicFormDataAttrUpload> DynamicFormDataAttrUpload { get; set; }
+        public InsertDynamicFormDataAttrUpload(List<DynamicFormDataAttrUpload> dynamicFormDataAttrUploads)
+        {
+            this.DynamicFormDataAttrUpload = dynamicFormDataAttrUploads;
+        }
+    }
+    public class GetDynamicFormDataAttrUpload : PagedRequest, IRequest<List<DynamicFormDataAttrUpload>>
+    {
+        public long? Id { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormDataAttrUpload(long? id, long? dynamicFormDataId)
+        {
+            this.Id = id;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
 }
 

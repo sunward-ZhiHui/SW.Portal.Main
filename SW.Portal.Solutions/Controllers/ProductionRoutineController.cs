@@ -382,6 +382,7 @@ namespace SW.Portal.Solutions.Controllers
                 FilterData.GetTypes = "User";
                 FilterData.LocationId = RoutineDetailModel.LocationId;
                 FilterData.TimeSheetAction = true;
+                FilterData.ActionType = "TimeSheet";
                 var result = await _mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
 
 
@@ -1105,14 +1106,14 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpPost("InsertIncidentApp")]
-        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIncidentApp(IpirAppModel IpirAppModel)
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIncidentApp([FromBody]IpirAppModel IpirAppModel)
         {
             var message = new List<string>();
             var response = new Services.ResponseModel<IpirAppModel>();
             if (IpirAppModel.CompanyID > 0 )
             {
                 var Profileresult = await iIpirAppQueryRepostitory.GetProfileType();
-                if (Profileresult != null)
+                if (Profileresult.Count > 0)
                 {
                     IpirAppModel.ProfileId = Profileresult[0].ProfileId;
                 }

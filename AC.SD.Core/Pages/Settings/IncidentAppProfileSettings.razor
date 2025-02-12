@@ -118,6 +118,13 @@
     {
         _editContext = new EditContext(Data);
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        var dataResult = await Mediator.Send(new GetAllIncidentAppSettingsQuery());
+        if(dataResult.Count > 0)
+        {
+            Data.SupportingDocFileProfileID = dataResult[0].SupportingDocFileProfileID;
+            LinkFilterFileprofiletypeName = dataResult[0].Name;
+        }
+        StateHasChanged();
     }
     private async Task SubmitFormExternally()
     {
@@ -209,8 +216,8 @@
             };
             var result = await Mediator.Send(req1);
         }
-        Data.SupportingDocFileProfileID = null;
-        LinkFilterFileprofiletypeName = null;
+       // Data.SupportingDocFileProfileID = null;
+        //LinkFilterFileprofiletypeName = null;
         toastService.ShowToast("Incident App Profile Set Successfully!", AC.SD.Core.Services.ToastLevel.Success);
     }
     public async ValueTask DisposeAsync()

@@ -105,7 +105,7 @@ namespace Core.Entities
         public string? ColorCode { get; set; }
         public int? GridDisplaySeqNo { get; set; }
         public string? DynamicFormName { get; set; }
-        public long? DynamicFormFormulaMathFunId {  get; set; }
+        public long? DynamicFormFormulaMathFunId { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {
@@ -119,5 +119,31 @@ namespace Core.Entities
         public string? DisplayName { get; set; }
         public string? FunctionName { get; set; }
         public string? Description { get; set; }
+    }
+    public class DynamicFormSectionAttributes
+    {
+        public long DynamicFormSectionAttributeId { get; set; }
+        public string? UniqueDynamicAttributeName { get; set; }
+        public string? SectionName { get; set; }
+        public string? DisplayName { get; set; }
+        public string? ControlType { get; set; }
+        public string? AppCodeId { get; set; }
+        public string? AppCodeName { get; set; }
+        public long? AttributeId { get; set; }
+    }
+    public class DynamicFormSectionAttributesList
+    {
+        public string? UniqueDynamicAttributeName { get; set; }
+        public string? SectionName { get; set; }
+        public string? DisplayName { get; set; }
+        public string? ControlType { get; set; }
+    }
+    public class AttributeDetailsList
+    {
+        public long AttributeDetailId { get; set; }
+        public long? AttributeId { get; set; }
+        public string? AttributeDetailName { get; set; }
+        public string? Description { get; set; }
+        public string? AttributeDetailNameId { get; set; }
     }
 }

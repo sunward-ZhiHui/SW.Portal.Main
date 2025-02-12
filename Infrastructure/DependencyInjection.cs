@@ -180,6 +180,7 @@ namespace Infrastructure
             services.AddScoped<IHandFireJobQueryRepository, HandFireJobQueryRepository>();
             services.AddScoped<IRegistrationRequestQueryRepository, RegistrationRequestQueryRepository>();
             services.AddScoped<IIncidentAppSettingsQueryRepository, IncidentAppSettingsQueryRepository>();
+            services.AddScoped<IDynamicFormOdataQueryRepository, DynamicFormOdataQueryRepository>();
             return services;
         }
     }

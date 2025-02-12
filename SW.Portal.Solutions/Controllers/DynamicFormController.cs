@@ -37,10 +37,68 @@ namespace SW.Portal.Solutions.Controllers
     public class DynamicFormController : Controller
     {
         private readonly IMediator _mediator;
-        public DynamicFormController(IMediator mediator)
+        private readonly IDynamicFormOdataQueryRepository _dynamicFormOdataQueryRepository;
+        public DynamicFormController(IMediator mediator, IDynamicFormOdataQueryRepository dynamicFormOdataQueryRepository)
         {
             _mediator = mediator;
+            _dynamicFormOdataQueryRepository = dynamicFormOdataQueryRepository;
 
+        }
+        [HttpGet("GetDynamicFormDropdownList")]
+
+        public async Task<ActionResult<Services.ResponseModel<List<object>>>> GetDynamicFormDropdownList(Guid? DynamicFormSessionId, string? attrName)
+        {
+            List<object> attributeDetails = new List<object>();
+            var response = new Services.ResponseModel<object>();
+            var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
+            if (_dynamicForm != null && _dynamicForm.ID > 0)
+            {
+                var result = await _dynamicFormOdataQueryRepository.GetDropdownList(_dynamicForm.ID, attrName);
+                if (result != null && result.Count() > 0)
+                {
+                    attributeDetails = result.ToList();
+                }
+            }
+            response.Results = attributeDetails;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+            return Ok(response);
+        }
+        [HttpGet("GetDynamicFormAttributeItemList")]
+
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormSectionAttributesList>>>> GetDynamicFormAttributeItemList(Guid? DynamicFormSessionId)
+        {
+            List<DynamicFormSectionAttributesList> dynamicFormSectionAttributesLists = new List<DynamicFormSectionAttributesList>();
+            var response = new Services.ResponseModel<DynamicFormSectionAttributesList>();
+            var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
+            if (_dynamicForm != null && _dynamicForm.ID > 0)
+            {
+                var result = await _dynamicFormOdataQueryRepository.GetDynamicFormSectionAttributeList(_dynamicForm.ID);
+                if (result != null && result.Count() > 0)
+                {
+                    dynamicFormSectionAttributesLists = result.ToList();
+                }
+            }
+            response.Results = dynamicFormSectionAttributesLists;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
         [HttpGet("GetDynamicFormDataList")]
 
@@ -49,7 +107,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null,null));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null, null));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;

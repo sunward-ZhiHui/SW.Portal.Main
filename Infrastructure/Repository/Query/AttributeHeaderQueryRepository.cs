@@ -11,11 +11,13 @@ using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.Edm.Values;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -3194,12 +3196,68 @@ namespace Infrastructure.Repository.Query
             }
             return _dynamicformObjectDataList;
         }
-        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl, bool? IsAll, int? PageNo, int? pageSize)
+        public async Task<List<DynamicFormData>> GetGridDynamicFormData(long? DynamicFormId, List<long> Ids)
+        {
+            try
+            {
+                var dynamicFormIdss = Ids != null && Ids.Count() > 0 ? Ids : new List<long>() { -1 };
+                var query = "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=@DynamicFormId AND DynamicFormDataID in(" + string.Join(',', dynamicFormIdss.Distinct()) + "));\r\n";
+                var parameters = new DynamicParameters();
+
+                parameters.Add("DynamicFormId", DynamicFormId);
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                    if (result != null && result.Count() > 0)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return new List<DynamicFormData>();
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<ApplicationUser>> GetGridDynamicFormDataUsers(List<long?> Ids)
+        {
+            try
+            {
+                var userIds = Ids != null && Ids.Count() > 0 ? Ids : new List<long?>() { -1 };
+                var query2 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                var parameters = new DynamicParameters();
+
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<ApplicationUser>(query2, parameters)).ToList();
+                    if (result != null && result.Count() > 0)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return new List<ApplicationUser>();
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl, bool? IsAll, int? PageNo, int? pageSize, List<DynamicFormFilterOdata> dynamicFormFilterOdatas)
         {
             var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
-                int? Count1 = 0; int? Count2 = 0;
+                int? Count1 = 0; int? Count2 = 0; List<DynamicFormData> DynamicFormDataFilter = new List<DynamicFormData>();
+                int? defaultPageSize = dynamicFormFilterOdatas.Count() > 0 ? 100 : pageSize;
                 List<long?> Ids = new List<long?>();
                 List<long?> userIds = new List<long?>();
                 List<Guid?> SessionIds = new List<Guid?>();
@@ -3238,78 +3296,123 @@ namespace Infrastructure.Repository.Query
                         }
                         var result = await connection.QueryMultipleAsync(query, parameters);
                         _dynamicForm = result.Read<DynamicForm>().FirstOrDefault();
-                        var query1 = string.Empty;
+                        List<long> DynamicFormDataIds = new List<long>();
                         if (_dynamicForm != null && _dynamicForm.ID > 0)
                         {
                             Ids.Add(_dynamicForm?.ID);
-                            if (IsAll == true)
+                            if (dynamicFormFilterOdatas != null && dynamicFormFilterOdatas.Count() > 0)
                             {
-                                if (DynamicFormDataSessionId != null)
+                                for (int i = 1; i <= 10000; i++)
                                 {
-                                    if (PageNo > 0)
+                                    var query1 = string.Empty;
+                                    if (IsAll == true)
                                     {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
-                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
-                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                        if (DynamicFormDataSessionId != null)
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
+                                        }
+                                        else
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
+                                        }
                                     }
-                                    else
-                                    {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
-                                    }
+                                    if (!string.IsNullOrEmpty(query1))
+                                    {
+                                        var results = await connection.QueryMultipleAsync(query1, parameters);
+                                        var resultData = results.Read<DynamicFormData>().ToList();
+                                        dynamicFormData.AddRange(resultData);
+                                        // var dynamicFormGridDatas = results.Read<DynamicFormData>().ToList();
+                                        if (resultData.Count() == 0)
+                                        {
+                                            break;
+                                        }
 
-                                }
-                                else
-                                {
-                                    if (PageNo > 0)
-                                    {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY);";
-                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
-                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
-                                    }
-                                    else
-                                    {
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
-                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                        // dynamicFormGridData.AddRange(dynamicFormGridDatas);
+
                                     }
                                 }
                             }
                             else
                             {
-                                if (PageNo > 0)
+                                int? i = PageNo;
+                                var query1 = string.Empty;
+                                if (IsAll == true)
                                 {
-                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY;";
-                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
-                                       "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((PageNo - 1) * pageSize) + " ROWS FETCH NEXT " + (pageSize) + " ROWS ONLY) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
-                                    query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
-                                    query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
-                                    "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                    if (DynamicFormDataSessionId != null)
+                                    {
+                                        if (PageNo > 0)
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY);";
+                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
+                                        }
+                                        else
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        if (PageNo > 0)
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY);";
+                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+
+
+                                        }
+                                        else
+                                        {
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
-                                    query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
-                                    "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                    if (PageNo > 0)
+                                    {
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
+                                           "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                        query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
+                                        "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
+                                    }
+                                    else
+                                    {
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + " order by SortOrderByNo asc ;";
+                                        query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) " +
+                                        "AND DynamicFormDataGridID IN(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND Sessionid='" + DynamicFormDataSessionId + "' AND  dynamicformid=" + _dynamicForm?.ID + ") AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
+
+                                    }
                                 }
-                            }
-                            if (!string.IsNullOrEmpty(query1))
-                            {
-                                List<long> DynamicFormDataIds = new List<long>();
-                                var results = await connection.QueryMultipleAsync(query1, parameters);
-                                dynamicFormData = results.Read<DynamicFormData>().ToList();
+
+                                if (!string.IsNullOrEmpty(query1))
+                                {
+                                    var results = await connection.QueryMultipleAsync(query1, parameters);
+                                    var resultData = results.Read<DynamicFormData>().ToList();
+                                    var dynamicFormGridDatas = results.Read<DynamicFormData>().ToList();
+                                    if (PageNo > 0)
+                                    {
+                                        Count1 = results.Read<DynamicFormData>().Count(); Count2 = results.Read<DynamicFormData>().Count();
+                                    }
+                                    dynamicFormData.AddRange(resultData);
+                                    dynamicFormGridData.AddRange(dynamicFormGridDatas);
+                                }
                                 userIds.AddRange(dynamicFormData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
                                 userIds.AddRange(dynamicFormData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
                                 DynamicFormDataIds.AddRange(dynamicFormData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
-                                dynamicFormGridData = results.Read<DynamicFormData>().ToList();
-                                if (PageNo > 0)
-                                {
-                                    Count1 = results.Read<DynamicFormData>().Count(); Count2 = results.Read<DynamicFormData>().Count();
-                                }
+
+
                                 if (dynamicFormGridData != null && dynamicFormGridData.Count() > 0)
                                 {
                                     DynamicFormDataIds.AddRange(dynamicFormGridData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
@@ -3317,6 +3420,7 @@ namespace Infrastructure.Repository.Query
                                     userIds.AddRange(dynamicFormGridData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
                                     Ids.AddRange(dynamicFormGridData.Where(w => w.DynamicFormId > 0).Select(s => s.DynamicFormId).Distinct().ToList());
                                 }
+                                dynamicFormGridData = await GetGridDynamicFormData(_dynamicForm.ID, DynamicFormDataIds);
                                 DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
                                 if (userIds.Count() > 0)
                                 {
@@ -3330,6 +3434,59 @@ namespace Infrastructure.Repository.Query
                     }
                     if (_dynamicForm != null && _dynamicForm.ID > 0)
                     {
+
+                        if (dynamicFormFilterOdatas != null && dynamicFormFilterOdatas.Count() > 0)
+                        {
+                            if (dynamicFormData != null && dynamicFormData.Count() > 0)
+                            {
+                                dynamicFormData.ForEach(d =>
+                                {
+                                    if (IsValidJson(d.DynamicFormItem))
+                                    {
+                                        string json = "[" + d.DynamicFormItem + "]";
+                                        JArray dataArray = JArray.Parse(json);
+                                        if (dynamicFormFilterOdatas.Count() > 0)
+                                        {
+                                            var filteredResultss = dataArray.ToList();
+
+                                            dynamicFormFilterOdatas.ForEach(t =>
+                                            {
+                                                if (t.Key != null && t.Value != null)
+                                                {
+                                                    filteredResultss = filteredResultss.Where(item => item[t.Key] != null && item[t.Key].ToString().Contains(t.Value, StringComparison.OrdinalIgnoreCase)).ToList(); ;
+                                                }
+                                            });
+                                            if (filteredResultss.ToList().Count() > 0)
+                                            {
+                                                DynamicFormDataFilter.Add(d);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            List<long> DynamicFormDataIds = new List<long>();
+                            PageNo = PageNo > 0 ? PageNo : 1;
+                            DynamicFormDataFilter = DynamicFormDataFilter.Skip((int)((PageNo - 1) * pageSize)).Take(pageSize.Value).ToList();
+                            userIds.AddRange(DynamicFormDataFilter.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
+                            userIds.AddRange(DynamicFormDataFilter.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
+                            DynamicFormDataIds.AddRange(DynamicFormDataFilter.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
+                            dynamicFormGridData = await GetGridDynamicFormData(_dynamicForm.ID, DynamicFormDataIds);
+
+                            if (dynamicFormGridData != null && dynamicFormGridData.Count() > 0)
+                            {
+                                DynamicFormDataIds.AddRange(dynamicFormGridData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
+                                userIds.AddRange(dynamicFormGridData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
+                                userIds.AddRange(dynamicFormGridData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
+                                Ids.AddRange(dynamicFormGridData.Where(w => w.DynamicFormId > 0).Select(s => s.DynamicFormId).Distinct().ToList());
+                            }
+                            appUsers = await GetGridDynamicFormDataUsers(userIds);
+                             DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
+                            Count1 = DynamicFormDataFilter.Count();
+                        }
+                        else
+                        {
+                            DynamicFormDataFilter = dynamicFormData;
+                        }
                         AttributeHeaderListModel _AttributeHeader = new AttributeHeaderListModel();
                         _AttributeHeader = await GetAllAttributeNameByIdAsync(Ids, 1);
 
@@ -3350,7 +3507,7 @@ namespace Infrastructure.Repository.Query
                             }
                             var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
                             var PlantDependencySubAttributeDetailss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.ToList() : new List<AttributeDetails>();
-                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, PageNo, pageSize, Count1, Count2);
+                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, DynamicFormDataFilter, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems, PageNo, pageSize, Count1, Count2);
                         }
                     }
                 }
@@ -4409,12 +4566,12 @@ namespace Infrastructure.Repository.Query
             }
             return _dynamicformObjectDataList;
         }
-        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll, int? PageNo, int? PageSize)
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll, int? PageNo, int? PageSize, List<DynamicFormFilterOdata> dynamicFormFilterOdatas)
         {
             var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
-                _dynamicformObjectDataList = await GetAllDynamicFormAllApiAsync(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, BasUrl, IsAll, PageNo, PageSize);
+                _dynamicformObjectDataList = await GetAllDynamicFormAllApiAsync(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, BasUrl, IsAll, PageNo, PageSize, dynamicFormFilterOdatas);
                 return _dynamicformObjectDataList;
             }
             catch (Exception exp)
@@ -5012,7 +5169,7 @@ namespace Infrastructure.Repository.Query
                                                                 {
                                                                     long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
                                                                     var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
-                                                                    if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || dd.DataSourceTable=="Location")
+                                                                    if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || dd.DataSourceTable == "Location")
                                                                     {
                                                                         listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
                                                                     }
@@ -5046,7 +5203,7 @@ namespace Infrastructure.Repository.Query
                                                     if (Svalues != null)
                                                     {
                                                         var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                                        if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable=="Location")
+                                                        if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
                                                         {
                                                             listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                         }
@@ -5562,12 +5719,12 @@ namespace Infrastructure.Repository.Query
                 if (_dynamicFormGrids != null && _dynamicFormGrids.ID > 0 && dynamicFormDatas != null && dynamicFormDatas.DynamicFormDataId > 0)
                 {
                     long? dynamicFormSectionAttributeId = dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.DynamicFormSectionAttributeId > 0 ? dynamicFormSectionAttribute.DynamicFormSectionAttributeId : null;
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId,null);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId, null);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 else
                 {
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null,null);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)

@@ -71,7 +71,7 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("GetDynamicFormAttributeItemList")]
+       /* [HttpGet("GetDynamicFormAttributeItemList")]
 
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormSectionAttributesList>>>> GetDynamicFormAttributeItemList(Guid? DynamicFormSessionId)
         {
@@ -99,15 +99,15 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
-        }
+        }*/
         [HttpGet("GetDynamicFormDataList")]
 
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
-
+            List<DynamicFormFilterOdata> dynamicFormFilterOdatas=new List<DynamicFormFilterOdata>();
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null, null));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null, null, dynamicFormFilterOdatas));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;
@@ -130,9 +130,33 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetDynamicFormDataListPaging")]
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataListPaging(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
+            List<string> DynamicFormDataDefList = new List<string>() { "PageSize", "pageNo", "DynamicFormSessionId", "DynamicFormDataSessionId", "DynamicFormDataGridSessionId", "DynamicFormSectionGridAttributeSessionId" };
+            List<DynamicFormFilterOdata> DynamicFormFilterOdatas = new List<DynamicFormFilterOdata>();
             int? PageNo = 1; int? PageSize = 50;
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var query = HttpContext.Request.Query.ToList();
+            if (query != null && query.Count > 0)
+            {
+                DynamicFormDataDefList = DynamicFormDataDefList.Select(s => s.ToLower()).ToList();
+                query.ForEach(q =>
+                {
+                    if (!string.IsNullOrEmpty(q.Key))
+                    {
+                        if (!DynamicFormDataDefList.Contains(q.Key.ToLower()))
+                        {
+                            var values = (string?)q.Value;
+                            if (!string.IsNullOrEmpty(values))
+                            {
+                                DynamicFormFilterOdata dynamicFormFilterOdata = new DynamicFormFilterOdata();
+                                dynamicFormFilterOdata.Key = q.Key;
+                                dynamicFormFilterOdata.Value = (string?)q.Value;
+                                DynamicFormFilterOdatas.Add(dynamicFormFilterOdata);
+                            }
+                        }
+                    }
+
+                });
+            }
             var PageNoExis = query.Where(w => w.Key.ToLower() == "pageNo".ToLower()).FirstOrDefault().Key;
             if (PageNoExis != null)
             {
@@ -160,7 +184,7 @@ namespace SW.Portal.Solutions.Controllers
                 }
             }
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, PageNo, PageSize));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, PageNo, PageSize, DynamicFormFilterOdatas));
             /* PageNo = PageNo > 0 ? PageNo : 1;
              var finalresult = result.Skip((int)((PageNo - 1) * 20))
                  .Take(20)

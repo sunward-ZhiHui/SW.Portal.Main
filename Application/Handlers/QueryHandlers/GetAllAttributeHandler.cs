@@ -317,7 +317,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataResponse>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll, request.PageNo, request.PageSizes);
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll, request.PageNo, request.PageSizes,request.DynamicFormFilterOdatas);
         }
     }
     public class GetDynamicFormAttributeApiHandler : IRequestHandler<GetDynamicFormAttributeApi, List<DynamicFormDataResponse>>

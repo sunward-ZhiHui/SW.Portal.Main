@@ -48,8 +48,9 @@
                             <Items>
                                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
                                 <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
+                                @* <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@EditEnabled" /> *@
                                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
-                                <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" />
+                               @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" /> *@
                                 <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenuItem>
@@ -291,7 +292,22 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@OdataAttrListpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Odata Attribute"
+         Closed="EulaPopupClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormOdataAttrLists @ref="refDynamicFormOdataAttrLists" SessionId="_dynamicFormData?.SessionID" dynamicFormId="@_dynamicFormData?.ID"></DynamicFormOdataAttrLists>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
+    bool OdataAttrListpopup { get; set; } = false;
     private IDisposable? DynamicFormPage7; private DynamicFormReports refDynamicFormReports;
     bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -500,12 +516,21 @@
             toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
         }
     }
+    async Task OpenFilterDropDownOdataUrl()
+    {
+        if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDropdownList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
     async Task OpenEmptyOdataUrl()
     {
         if (_dynamicFormData != null && _dynamicFormData.SessionID != null)
         {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            // var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeItemList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            // await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            OdataAttrListpopup = true;
         }
     }
     async Task OpenOdataUrl1()
@@ -581,6 +606,7 @@
     {
         Blukdeletepopup = false;
         DynamicFormReportsBypopup = false;
+        OdataAttrListpopup = false;
     }
     async Task bulkDelete(DynamicForm dynamicForm)
     {

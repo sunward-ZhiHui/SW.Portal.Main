@@ -98,6 +98,9 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="Pages\Attribute\DynamicFormOdataAttrLists.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\Attribute\DynamicFormSettingForm\DynamicFormWorkFlowApprovals.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

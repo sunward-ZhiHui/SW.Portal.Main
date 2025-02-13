@@ -130,13 +130,18 @@ namespace Core.Entities
         public string? AppCodeId { get; set; }
         public string? AppCodeName { get; set; }
         public long? AttributeId { get; set; }
+        public long? UniqueIndex { get; set; }
     }
     public class DynamicFormSectionAttributesList
     {
+        public long UniqueId { get; set; }
+        public long? Index { get; set; }
         public string? UniqueDynamicAttributeName { get; set; }
         public string? SectionName { get; set; }
         public string? DisplayName { get; set; }
         public string? ControlType { get; set; }
+        public long? UniqueIndex { get; set; }
+
     }
     public class AttributeDetailsList
     {

@@ -59,8 +59,9 @@
                     <Items>
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
+                        @* <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@AddEnabled" /> *@
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
-                        <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" />
+                       @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" /> *@
                         <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@AddEnabled" />
                     </Items>
                 </DxMenuItem>
@@ -316,9 +317,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@OdataAttrListpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Odata Attribute"
+         Closed="EulaPopupClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormOdataAttrLists @ref="refDynamicFormOdataAttrLists" SessionId="_dynamicForm?.SessionID" dynamicFormId="@_dynamicForm?.ID"></DynamicFormOdataAttrLists>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-    bool createAuditpopup { get; set; } = false;
+    bool createAuditpopup { get; set; } = false; bool OdataAttrListpopup { get; set; } = false;
     bool isBackDisabled { get; set; } = true;
+    private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
     private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
     private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
@@ -1357,12 +1372,22 @@
             toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
         }
     }
+
+    async Task OpenFilterDropDownOdataUrl()
+    {
+        if (_dynamicForm != null && _dynamicForm.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDropdownList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
     async Task OpenEmptyOdataUrl()
     {
         if (_dynamicForm != null && _dynamicForm.SessionID != null)
         {
-            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicForm.SessionID;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
+            // var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            // await JS.InvokeVoidAsync("window.open", url, "_blank");
+            OdataAttrListpopup = true;
         }
     }
     async Task OpenOdataUrl1()
@@ -1652,7 +1677,7 @@
         PopupDynamicFormGridLists = false;
         Blukdeletepopup = false;
         createEmailpopup = false;
-        createAuditpopup = false;
+        createAuditpopup = false; OdataAttrListpopup = false;
         // await UpdateDataAsync();
     }
     void OpenApprovalForm()

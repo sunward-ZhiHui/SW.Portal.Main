@@ -131,14 +131,19 @@ namespace Infrastructure.Repository.Query
                 var result = await GetDynamicFormSectionAttribute(dynamicFormID);
                 if (result != null && result.Count() > 0)
                 {
+                    long i = 1;
                     result.ToList().ForEach(s =>
                     {
                         DynamicFormSectionAttributesList dynamicFormSectionAttributes1 = new DynamicFormSectionAttributesList();
+                        dynamicFormSectionAttributes1.UniqueId = s.DynamicFormSectionAttributeId;
                         dynamicFormSectionAttributes1.DisplayName = s.DisplayName;
                         dynamicFormSectionAttributes1.ControlType = s.ControlType;
                         dynamicFormSectionAttributes1.SectionName = s.SectionName;
                         dynamicFormSectionAttributes1.UniqueDynamicAttributeName = s.UniqueDynamicAttributeName;
+                        dynamicFormSectionAttributes1.UniqueIndex = s.UniqueIndex;
+                        dynamicFormSectionAttributes1.Index = i;
                         dynamicFormSectionAttributes.Add(dynamicFormSectionAttributes1);
+                        i++;
                     });
                 }
                 return dynamicFormSectionAttributes;
@@ -190,6 +195,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (DynamicFormSectionAttribute != null && DynamicFormSectionAttribute.Count() > 0)
                 {
+                    long? i = 1;
                     DynamicFormSectionAttribute.ForEach(s =>
                     {
                         DynamicFormSectionAttributes dynamicFormSectionAttributes1 = new DynamicFormSectionAttributes();
@@ -198,6 +204,7 @@ namespace Infrastructure.Repository.Query
                         dynamicFormSectionAttributes1.ControlType = s.ControlType;
                         dynamicFormSectionAttributes1.SectionName = s.SectionName;
                         dynamicFormSectionAttributes1.AttributeId = s.AttributeId;
+                        dynamicFormSectionAttributes1.UniqueIndex = i;
                         if (s.DataSourceTable != null && s.DropDownTypeId == "Data Source")
                         {
                             dynamicFormSectionAttributes1.AppCodeId = s.DataSourceTable;
@@ -232,6 +239,7 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormSectionAttributes2.AppCodeId = attHdr.DataSourceTable;
                                         dynamicFormSectionAttributes2.UniqueDynamicAttributeName = nameData;
                                         dynamicFormSectionAttributes2.AppCodeName = "DataSource";
+                                        dynamicFormSectionAttributes2.UniqueIndex = i;
                                         dynamicFormSectionAttributes.Add(dynamicFormSectionAttributes2);
                                     }
                                 });
@@ -256,6 +264,7 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormSectionAttributes2.UniqueDynamicAttributeName = nameData;
                                         dynamicFormSectionAttributes2.AppCodeId = attHdr.ApplicationMasterId.ToString();
                                         dynamicFormSectionAttributes2.AppCodeName = "ApplicationMaster";
+                                        dynamicFormSectionAttributes2.UniqueIndex = i;
                                         dynamicFormSectionAttributes.Add(dynamicFormSectionAttributes2);
                                     }
                                 });
@@ -280,12 +289,14 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormSectionAttributes2.UniqueDynamicAttributeName = nameData;
                                         dynamicFormSectionAttributes2.AppCodeId = attHdr.ApplicationMasterParentCodeId.ToString();
                                         dynamicFormSectionAttributes2.AppCodeName = "ApplicationMasterParent";
+                                        dynamicFormSectionAttributes2.UniqueIndex = i;
                                         dynamicFormSectionAttributes.Add(dynamicFormSectionAttributes2);
-                                        loadApplicationMasterParentDataList(s, attHdr, ApplicationMasterParent, dynamicFormSectionAttributes);
+                                        loadApplicationMasterParentDataList(s, attHdr, ApplicationMasterParent, dynamicFormSectionAttributes, i);
                                     }
                                 });
                             }
                         }
+                        i++;
                     });
                 }
                 return dynamicFormSectionAttributes;
@@ -295,7 +306,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        void loadApplicationMasterParentDataList(DynamicFormSectionAttribute dynamicFormSectionAttribute, ApplicationMasterParent applicationMasterParent, List<ApplicationMasterParent?> ApplicationMasterParents, List<DynamicFormSectionAttributes> dynamicFormSectionAttributes)
+        void loadApplicationMasterParentDataList(DynamicFormSectionAttribute dynamicFormSectionAttribute, ApplicationMasterParent applicationMasterParent, List<ApplicationMasterParent?> ApplicationMasterParents, List<DynamicFormSectionAttributes> dynamicFormSectionAttributes, long? i)
         {
             var dataList = ApplicationMasterParents.FirstOrDefault(f => f.ParentId == applicationMasterParent.ApplicationMasterParentCodeId);
             if (dataList != null)
@@ -309,8 +320,9 @@ namespace Infrastructure.Repository.Query
                 dynamicFormSectionAttributes2.SectionName = dynamicFormSectionAttribute.SectionName;
                 dynamicFormSectionAttributes2.AppCodeId = dataList.ApplicationMasterParentCodeId.ToString();
                 dynamicFormSectionAttributes2.AppCodeName = "ApplicationMasterParent";
+                dynamicFormSectionAttributes2.UniqueIndex = i;
                 dynamicFormSectionAttributes.Add(dynamicFormSectionAttributes2);
-                loadApplicationMasterParentDataList(dynamicFormSectionAttribute, dataList, ApplicationMasterParents, dynamicFormSectionAttributes);
+                loadApplicationMasterParentDataList(dynamicFormSectionAttribute, dataList, ApplicationMasterParents, dynamicFormSectionAttributes, i);
             }
         }
 

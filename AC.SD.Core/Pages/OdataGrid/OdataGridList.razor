@@ -41,7 +41,32 @@
             </div>
         </div>
     </div>
+    <DxFormLayout CssClass="w-100">
 
+        <DxFormLayoutItem Caption="QC Reference No - PDJ" ColSpanMd="6">
+            <DxTextBox @bind-Text="@QCReferenceNo" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Machine" ColSpanMd="6">
+            <DxTextBox @bind-Text="@MachineName" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="FP Batch information" ColSpanMd="6">
+            <DxComboBox Data="@_FPBatchinformationItems"
+                        NullText="Select FP Batch information..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="attributeDetailName"
+                        ValueFieldName="attributeDetailID"
+                        @bind-Value="FPBatchinformationId"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="" ColSpanMd="4">
+            <DxButton Text="Search" Click="searchPage"></DxButton><DxButton Text="Clear" Click="ClearsearchPage"></DxButton>
+        </DxFormLayoutItem>
+    </DxFormLayout>
     <DxGrid Data="@DataSource" @ref="Grid"
             PageSize="@PageSize"
             KeyFieldName="dynamicFormDataId"
@@ -62,7 +87,6 @@
         <Columns>
             <DxGridDataColumn FieldName="dynamicFormDataId" Visible="false" />
             <DxGridDataColumn FieldName="profileNo" Caption="Profile No" />
-            <DxGridDataColumn FieldName="name" Visible="false" />
             <DxGridDataColumn FieldName="10973_Attr$QC_Reference_No_-_PDJ" Caption="QC Reference No - PDJ" />
             <DxGridDataColumn FieldName="10972_Attr$FP_Batch_information" Caption="FP Batch information" />
             <DxGridDataColumn FieldName="11013_Attr$Machine" Caption="Machine" />
@@ -125,6 +149,9 @@
     </div>
 </DxLoadingPanel>
 @code {
+    //Change This SessionId For Every Dyanamic Form
+    public string? SessionId { get; set; } = "d59cfc4b-8e20-4114-9d77-63f683b53056";
+    public string? MainBaseurl = "https://portal.sunwardpharma.com:8423/api/DynamicForm/";
     //main Grid
     int PageCount { get; set; } = 0; int TotalRecords { get; set; } = 0; int PageNo { get; set; } = 1;
     int ActivePageIndex { get; set; } = 0;
@@ -134,21 +161,82 @@
     public int PageSize = 50;
     public List<dynamic> DataSource { get; set; } = new List<dynamic>();
     bool ExportSelectedRowsOnly { get; set; }
-    //
-    public string? Baseurl = "https://portal.sunwardpharma.com:8423/api/DynamicForm/GetDynamicFormDataListPaging?DynamicFormSessionId=d59cfc4b-8e20-4114-9d77-63f683b53056";
+    public string? Baseurl = string.Empty;
+
     public string? url = string.Empty;
     int PagePageNo { get; set; } = 1;
-    private int apiSearchCount { get; set; } = 0;
-    public List<dynamic> DataSource1 { get; set; } = new List<dynamic>();
     public List<dynamic> DataSourceItems { get; set; } = new List<dynamic>();
-    public List<string> ColumnList { get; set; } = new List<string>();
+    private List<ExpandoObject>? _FPBatchinformationItems;
+    long? FPBatchinformationId { get; set; }
+    long? EmployeeId { get; set; }
+    string? QCReferenceNo { get; set; }
+    string? MachineName { get; set; }
+    public IDictionary<string, object> dynamicsData = new ExpandoObject();
     protected override async Task OnInitializedAsync()
     {
+        Baseurl = MainBaseurl + "GetDynamicFormDataListPaging?DynamicFormSessionId=" + SessionId;
+
+        //DropDown Form Select Values in Search Options
+        _FPBatchinformationItems = await generateDropdown("10972_Attr");
         await GenerateList();
+    }
+    void submitForm()
+    {
+        dynamicsData["10972_Attr"] = FPBatchinformationId;
+        dynamicsData["10973_Attr"] = QCReferenceNo;
+        dynamicsData["11013_Attr"] = MachineName;
+    }
+    async Task ClearsearchPage()
+    {
+        FPBatchinformationId = null; QCReferenceNo = null; MachineName = null;
+        DataSource = new List<dynamic>(); TotalRecords = 0;
+        PageNo = 1; PagePageNo = 1; PageCount = 0; ActivePageIndex = 0;
+        StateHasChanged();
+        await GenerateList();
+    }
+    async Task searchPage()
+    {
+        DataSource = new List<dynamic>();  TotalRecords = 0;
+        PageNo = 1; PagePageNo = 1; PageCount = 0; ActivePageIndex = 0;
+        StateHasChanged();
+        submitForm();
+        await GenerateList();
+    }
+    async Task<List<ExpandoObject>> generateDropdown(string? attrName)
+    {
+        List<ExpandoObject>? list = new List<ExpandoObject>();
+        string Url = MainBaseurl + "GetDynamicFormDropdownList?DynamicFormSessionId=" + SessionId + "&&attrName=" + attrName;
+        var client = new RestClient(Url);
+        var request = new RestRequest(Url, Method.Get);
+        RestResponse response = await client.ExecuteAsync(request);
+        var deserial = JsonConvert.DeserializeObject<dynamic>(response.Content);
+        if (deserial.results.Count > 0)
+        {
+            var counts = deserial.results.Count;
+            for (int i = 0; i < counts; i++)
+            {
+                var itemValue = deserial.results[i];
+                dynamic listData = itemValue.ToObject<ExpandoObject>();
+                list.Add(listData);
+            }
+        }
+        return list;
     }
     string GenerateUrl()
     {
         string urlString = Baseurl + "&&PageNo=" + PagePageNo + "&&PageSize=" + PageSize;
+        submitForm();
+        var datad = dynamicsData.ToList();
+        if (datad != null && datad.Count() > 0)
+        {
+            datad.ForEach(f =>
+            {
+                if (f.Value != null)
+                {
+                    urlString += "&&" + f.Key + "=" + (f.Value.ToString());
+                }
+            });
+        }
         return urlString;
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -167,33 +255,11 @@
     async Task OnActivePageIndexChanged(int activePageIndex)
     {
         ActivePageIndex = activePageIndex;
-        if (!string.IsNullOrEmpty(searchText))
-        {
-            PageNo = ActivePageIndex + 1;
-            filterPagination(ActivePageIndex + 1);
-        }
-        else
-        {
-            PagePageNo = ActivePageIndex + 1;
-            PageNo = ActivePageIndex + 1;
-            await GenerateList();
-        }
+        PagePageNo = ActivePageIndex + 1;
+        PageNo = ActivePageIndex + 1;
+        await GenerateList();
     }
-    void filterPagination(int filterPageNo)
-    {
-        if (DataSource1 != null && DataSource1.Count() > 0)
-        {
-            var pCount = DataSource1.Count();
-            TotalRecords = pCount;
-            if (pCount > 0)
-            {
-                PageCount = ((pCount - 1) / PageSize) + 1;
-            }
-            DataSource = DataSource1.Skip((int)((filterPageNo - 1) * PageSize)).Take(PageSize).ToList();
-        }
-        PanelVisible = false;
 
-    }
     async Task GenerateList()
     {
         PanelVisible = true;
@@ -208,36 +274,6 @@
             DataSource = new List<dynamic>();
             PanelVisible = false;
         }
-    }
-    private List<dynamic> subGridItems(long? dynamicFormDataId)
-    {
-        List<dynamic> ListItems = new List<dynamic>();
-        if (DataSourceItems.Count > 0)
-        {
-            var counts = DataSourceItems.Count;
-            for (int i = 0; i < counts; i++)
-            {
-                if ((long?)DataSourceItems[i].dynamicFormDataId == dynamicFormDataId)
-                {
-                    var ListItemss = DataSourceItems[i].dynamicFormReportItems;
-                    var ListItemsCount = ListItemss.Count;
-                    if (ListItemsCount > 0)
-                    {
-                        for (int j = 0; j < ListItemsCount; j++)
-                        {
-                            bool? listOne = (bool?)ListItemss[j].isGrid;
-                            if (listOne == true)
-                            {
-                                ListItems.AddRange(ListItemss[j].gridSingleItems);
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        return ListItems;
     }
     async Task<List<dynamic>> restApi()
     {
@@ -272,60 +308,7 @@
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
-        DataSource = new List<dynamic>(); DataSource1 = new List<dynamic>(); TotalRecords = 0;
         searchText = newSearchText;
-        int searchPageCount = 1; DataSourceItems = new List<dynamic>();
-        if (!string.IsNullOrEmpty(newSearchText))
-        {
-            await loadFilterData(searchPageCount, newSearchText);
-        }
-        else
-        {
-            PageNo = 1; PagePageNo = 1;
-            await GenerateList();
-        }
-    }
-    async Task loadFilterData(int searchPageCount, string? newSearchText)
-    {
-        for (int i = 1; i <= PageCount; i++)
-        {
-            PanelVisible = true;
-            PagePageNo = i;
-            var listData = await restApi();
-            if (listData != null && listData.Count > 0)
-            {
-                listData.ForEach(f =>
-                {
-                    List<string> nameValue = new List<string>();
-                    ExpandoObject listData = f.ToObject<ExpandoObject>();
-                    var li = listData.ToList();
-                    li.ForEach(l =>
-                    {
-                        if (l.Key.ToLower() != "dynamicFormDataId".ToLower() && l.Key.ToLower() != "name".ToLower() && l.Key.ToLower() != "SessionId".ToLower())
-                        {
-                            if (l.Value != null)
-                            {
-                                string value = l.Value?.ToString();
-                                if (!string.IsNullOrEmpty(value))
-                                {
-                                    nameValue.Add(value);
-                                }
-                            }
-                        }
-                    });
-                    if (nameValue != null && nameValue.Count() > 0)
-                    {
-                        var exits = nameValue.Where(s => s != null && s.ToLower().Contains(newSearchText?.ToLower())).ToList();
-                        if (exits.Count() > 0)
-                        {
-                            DataSource1.Add(f);
-                        }
-                    }
-                });
-            }
-        }
-        filterPagination(1);
-        StateHasChanged();
     }
     async Task ExportXlsx_Click()
     {
@@ -333,5 +316,35 @@
             {
                 ExportSelectedRowsOnly = ExportSelectedRowsOnly
             });
+    }
+    private List<dynamic> subGridItems(long? dynamicFormDataId)
+    {
+        List<dynamic> ListItems = new List<dynamic>();
+        if (DataSourceItems.Count > 0)
+        {
+            var counts = DataSourceItems.Count;
+            for (int i = 0; i < counts; i++)
+            {
+                if ((long?)DataSourceItems[i].dynamicFormDataId == dynamicFormDataId)
+                {
+                    var ListItemss = DataSourceItems[i].dynamicFormReportItems;
+                    var ListItemsCount = ListItemss.Count;
+                    if (ListItemsCount > 0)
+                    {
+                        for (int j = 0; j < ListItemsCount; j++)
+                        {
+                            bool? listOne = (bool?)ListItemss[j].isGrid;
+                            if (listOne == true)
+                            {
+                                ListItems.AddRange(ListItemss[j].gridSingleItems);
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return ListItems;
     }
 }

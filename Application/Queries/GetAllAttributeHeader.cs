@@ -197,7 +197,8 @@ namespace Application.Queries
         public bool? IsAll { get; set; }
         public int? PageNo { get; set; }
         public int? PageSizes { get; set; }
-        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll, int? pageNo, int? pageSize)
+        public List<DynamicFormFilterOdata> DynamicFormFilterOdatas { get; set; }
+        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll, int? pageNo, int? pageSize, List<DynamicFormFilterOdata> dynamicFormFilterOdatas)
         {
             this.DynamicFormSessionId = dynamicFormSessionId;
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
@@ -207,6 +208,7 @@ namespace Application.Queries
             this.IsAll = isAll;
             this.PageNo = pageNo;
             this.PageSizes = pageSize;
+            this.DynamicFormFilterOdatas = dynamicFormFilterOdatas;
         }
     }
     public class GetDynamicFormAttributeApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>

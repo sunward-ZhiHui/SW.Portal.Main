@@ -37,19 +37,77 @@ namespace SW.Portal.Solutions.Controllers
     public class DynamicFormController : Controller
     {
         private readonly IMediator _mediator;
-        public DynamicFormController(IMediator mediator)
+        private readonly IDynamicFormOdataQueryRepository _dynamicFormOdataQueryRepository;
+        public DynamicFormController(IMediator mediator, IDynamicFormOdataQueryRepository dynamicFormOdataQueryRepository)
         {
             _mediator = mediator;
+            _dynamicFormOdataQueryRepository = dynamicFormOdataQueryRepository;
 
         }
+        [HttpGet("GetDynamicFormDropdownList")]
+
+        public async Task<ActionResult<Services.ResponseModel<List<object>>>> GetDynamicFormDropdownList(Guid? DynamicFormSessionId, string? attrName)
+        {
+            List<object> attributeDetails = new List<object>();
+            var response = new Services.ResponseModel<object>();
+            var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
+            if (_dynamicForm != null && _dynamicForm.ID > 0)
+            {
+                var result = await _dynamicFormOdataQueryRepository.GetDropdownList(_dynamicForm.ID, attrName);
+                if (result != null && result.Count() > 0)
+                {
+                    attributeDetails = result.ToList();
+                }
+            }
+            response.Results = attributeDetails;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+            return Ok(response);
+        }
+       /* [HttpGet("GetDynamicFormAttributeItemList")]
+
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormSectionAttributesList>>>> GetDynamicFormAttributeItemList(Guid? DynamicFormSessionId)
+        {
+            List<DynamicFormSectionAttributesList> dynamicFormSectionAttributesLists = new List<DynamicFormSectionAttributesList>();
+            var response = new Services.ResponseModel<DynamicFormSectionAttributesList>();
+            var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
+            if (_dynamicForm != null && _dynamicForm.ID > 0)
+            {
+                var result = await _dynamicFormOdataQueryRepository.GetDynamicFormSectionAttributeList(_dynamicForm.ID);
+                if (result != null && result.Count() > 0)
+                {
+                    dynamicFormSectionAttributesLists = result.ToList();
+                }
+            }
+            response.Results = dynamicFormSectionAttributesLists;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }*/
         [HttpGet("GetDynamicFormDataList")]
 
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
-
+            List<DynamicFormFilterOdata> dynamicFormFilterOdatas=new List<DynamicFormFilterOdata>();
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null,null));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, null, null, dynamicFormFilterOdatas));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;
@@ -72,9 +130,33 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetDynamicFormDataListPaging")]
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataListPaging(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
+            List<string> DynamicFormDataDefList = new List<string>() { "PageSize", "pageNo", "DynamicFormSessionId", "DynamicFormDataSessionId", "DynamicFormDataGridSessionId", "DynamicFormSectionGridAttributeSessionId" };
+            List<DynamicFormFilterOdata> DynamicFormFilterOdatas = new List<DynamicFormFilterOdata>();
             int? PageNo = 1; int? PageSize = 50;
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var query = HttpContext.Request.Query.ToList();
+            if (query != null && query.Count > 0)
+            {
+                DynamicFormDataDefList = DynamicFormDataDefList.Select(s => s.ToLower()).ToList();
+                query.ForEach(q =>
+                {
+                    if (!string.IsNullOrEmpty(q.Key))
+                    {
+                        if (!DynamicFormDataDefList.Contains(q.Key.ToLower()))
+                        {
+                            var values = (string?)q.Value;
+                            if (!string.IsNullOrEmpty(values))
+                            {
+                                DynamicFormFilterOdata dynamicFormFilterOdata = new DynamicFormFilterOdata();
+                                dynamicFormFilterOdata.Key = q.Key;
+                                dynamicFormFilterOdata.Value = (string?)q.Value;
+                                DynamicFormFilterOdatas.Add(dynamicFormFilterOdata);
+                            }
+                        }
+                    }
+
+                });
+            }
             var PageNoExis = query.Where(w => w.Key.ToLower() == "pageNo".ToLower()).FirstOrDefault().Key;
             if (PageNoExis != null)
             {
@@ -102,7 +184,7 @@ namespace SW.Portal.Solutions.Controllers
                 }
             }
             var response = new Services.ResponseModel<DynamicFormDataResponse>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, PageNo, PageSize));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true, PageNo, PageSize, DynamicFormFilterOdatas));
             /* PageNo = PageNo > 0 ? PageNo : 1;
              var finalresult = result.Skip((int)((PageNo - 1) * 20))
                  .Take(20)

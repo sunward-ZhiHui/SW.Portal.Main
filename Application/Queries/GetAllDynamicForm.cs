@@ -940,5 +940,13 @@ namespace Application.Queries
             this.DynamicFormDataId = dynamicFormDataId;
         }
     }
+    public class GetDynamicFormAttributeItemList : PagedRequest, IRequest<List<DynamicFormSectionAttributesList>>
+    {
+        public long? ID { get; set; }
+        public GetDynamicFormAttributeItemList(long? ID)
+        {
+            this.ID = ID;
+        }
+    }
 }
 

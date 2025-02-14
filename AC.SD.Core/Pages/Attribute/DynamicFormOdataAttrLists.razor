@@ -1,0 +1,165 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    <DxMenuItem Position="ItemPosition.Start" Text="DropDown Url" IconCssClass="fa fa-link" Click="OpenFilterDropDownOdataUrl" Enabled="@IsEnabled" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisibleApproval"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid7" Data="@_dynamicFormApprovalData"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="Index"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowApprovalClick"
+            AllowSelectRowByClick="true"
+            style="height: calc(100vh - 220px);"
+            CustomizeElement="Grid_CustomizeApprovalElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            VirtualScrollingEnabled="true"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+            <DxGridDataColumn FieldName="Index" MinWidth="10" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section Name" GroupIndex="0" MinWidth="40" />
+            @* <DxGridDataColumn FieldName="UniqueIndex" Caption="Index" GroupIndex="0" MinWidth="5" /> *@
+            <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="10" />
+            <DxGridDataColumn FieldName="UniqueDynamicAttributeName" Caption="Attribute Name" MinWidth="50" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    [Parameter]
+    public long? dynamicFormId { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    bool PanelVisibleApproval { get; set; }
+    bool IsEnabled { get; set; } = false;
+    private List<DynamicFormSectionAttributesList>? _dynamicFormApprovalData;
+    IGrid? Grid7 { get; set; }
+    private DynamicFormSectionAttributesList _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    List<string> controlTypes = new List<string>() { "ComboBox", "Radio", "TagBox", "RadioGroup", "ListBox" };
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task OpenFilterDropDownOdataUrl()
+    {
+        if (SessionId != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDropdownList?DynamicFormSessionId=" + SessionId + "&&attrName=" + _selectedItems?.UniqueDynamicAttributeName;
+            await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisibleApproval = true; IsEnabled = false;
+            if (dynamicFormId > 0)
+            {
+                _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormAttributeItemList(dynamicFormId));
+
+                if (_dynamicFormApprovalData.Count > 0)
+                {
+                    _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
+                    if (controlTypes.Contains(_selectedItems.ControlType))
+                    {
+                        IsEnabled = true;
+                    }
+                }
+            }
+            else
+            {
+                _dynamicFormApprovalData = new List<DynamicFormSectionAttributesList>();
+            }
+            PanelVisibleApproval = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowApprovalClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "Index");
+        _selectedItems = _dynamicFormApprovalData.FirstOrDefault(f => f.Index == (long?)UniqueId);
+        IsEnabled = false;
+        if (controlTypes.Contains(_selectedItems.ControlType))
+        {
+            IsEnabled = true;
+        }
+        StateHasChanged();
+    }
+
+    public void ClearData()
+    {
+        _dynamicFormApprovalData?.Clear();
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        ClearData();
+    }
+}

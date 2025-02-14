@@ -190,7 +190,12 @@ namespace Core.Entities
         public string? AddedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? AddedDate { get; set; }
-        
+
+    }
+    public class DynamicFormFilterOdata
+    {
+        public string? Key { get; set; }
+        public string? Value { get; set; }
     }
     public class Table_Schema
     {

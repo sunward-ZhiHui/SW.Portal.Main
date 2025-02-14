@@ -1637,4 +1637,16 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormAttributeItemListHandler : IRequestHandler<GetDynamicFormAttributeItemList, List<DynamicFormSectionAttributesList>>
+    {
+        private readonly IDynamicFormOdataQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormAttributeItemListHandler(IDynamicFormOdataQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttributesList>> Handle(GetDynamicFormAttributeItemList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttributesList>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeList(request.ID);
+        }
+    }
 }

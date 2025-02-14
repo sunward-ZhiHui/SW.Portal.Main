@@ -922,6 +922,17 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetDynamicFormDataUploadCheckValidation : PagedRequest, IRequest<DynamicFormDataUpload>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public GetDynamicFormDataUploadCheckValidation(long? dynamicFormDataId, long? dynamicFormSectionId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+            this.DynamicFormSectionId = dynamicFormSectionId;
+        }
+    }
+    
     public class InsertDynamicFormDataAttrUpload : PagedRequest, IRequest<DynamicFormDataAttrUpload>
     {
         public List<DynamicFormDataAttrUpload> DynamicFormDataAttrUpload { get; set; }

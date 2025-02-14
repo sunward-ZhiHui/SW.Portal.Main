@@ -39,7 +39,7 @@ else
                                 <div>@employee.SessionID</div>
                             </div> *@
                             <div>
-                                <CopyEmailLinkPage ConSessionId="@employee.SessionID.Value"></CopyEmailLinkPage>
+                                <CopyEmailLinkPage ConversationID = "@ItemId" ConSessionId="@employee.SessionID.Value"></CopyEmailLinkPage>
                             </div>
                         </ContentTemplate>
                     </DxAccordionItem>

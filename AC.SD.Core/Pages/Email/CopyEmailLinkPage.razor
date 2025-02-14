@@ -451,12 +451,31 @@
                     <p>You do not have permission to view this page.</p>
                 </div>
             </div>
+           @*  <button type="button" @onclick="@(() => OpenRequest())" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" class="">
+                <i class="fa fa-reply"></i> Sent Request
+            </button> *@
         }
     </div>
 </div>
+<DxPopup @bind-Visible="@MessageVisible" ShowFooter="true" HeaderText="Warning Info">
+    <BodyContentTemplate Context="PopupContext">
+       
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Request Message :" ColSpanMd="12">
+                <DxMemo @bind-Text="@Message"></DxMemo>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+     
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />
+    </FooterContentTemplate>
+</DxPopup>
 
 
 @code {
+    public bool MessageVisible { get; set; } = false;
     DxRichEdit? richEdit { get; set; }
     [Parameter]
     public Guid? ConSessionId { get; set; }
@@ -464,7 +483,7 @@
     public Guid? TopicSessionId { get; set; }
     [Parameter]
     public string? Page { get; set; }
-
+    string Message = "";
     string dynamicShowSubject = "showOpenSubject_";
     public List<EmailConversations>? _discussionList;
     internal List<Documents>? _topicDocList;
@@ -474,10 +493,13 @@
     internal string? DocumentViewUrl;
     string SelectedGroup = "none";
     string isLeftMenuvisible = "All";
+     [Parameter]
+    public long ConversationID { get; set; }
     async Task PrintPage()
     {
         //await JSRuntime.InvokeVoidAsync("printPage");
         await JSRuntime.InvokeVoidAsync("printFullPage");
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     protected override void OnInitialized()
     {
@@ -517,6 +539,10 @@
         undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
 
 
+    }
+    public void OpenRequest()
+    {
+        MessageVisible = true;
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -611,5 +637,114 @@
     {
         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
+    async void onSentDueDateRequest()
+    {
+        string sessionidString = ConSessionId.ToString();
+        var lsts = await Mediator.Send(new GetListBySession(sessionidString));
+        //var lst = CurrentEmailConversations;
+        var cList = await Mediator.Send(new GetRequestEmailToCCList(ConversationID));
+        var duedate = Message;
 
+
+        var participantIds = new List<long>();
+        var AssigntoIdss = new List<long>();
+        var AssignccIdss = new List<long>();
+
+        if (cList.Count > 0)
+        {
+
+            if (cList[0].ToIds.HasValue)
+                participantIds.Add(cList[0].ToIds.Value);
+
+            if (long.TryParse(cList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+            // foreach(var id in AssignccIdss)
+            // {
+            //     AssigntoIdss.Add(id);
+            // }
+
+            // AssignccIdss = new List<long>();
+        }
+        else
+        {
+            var ToOnlyList = await Mediator.Send(new GetRequestEmailToOnlyList(ConversationID));
+
+
+            if (ToOnlyList[0].ToIds.HasValue)
+                participantIds.Add(ToOnlyList[0].ToIds.Value);
+
+            if (long.TryParse(ToOnlyList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].ToIds.HasValue ? new List<long> { ToOnlyList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+
+        }
+
+
+        var emailconlist = new EmailConversations
+            {
+                TopicID = lsts[0].ID,
+                AssigntoIds = AssigntoIdss,
+                AssignccIds = AssignccIdss,
+                //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+                Message = Message,
+                PlistIdss = "",
+                AllowPlistids = "",
+                IsAllowParticipants = false,
+                Urgent = false,
+                ConIds = 0,
+                ReplyId = ConversationID,
+                AllParticipantIds = participantIds.Distinct().ToList(),
+                ParticipantId = applicationUser.UserID,
+                Name = lsts[0].Name,
+                AddedByUserID = applicationUser.UserID,
+                From = "",
+                LastName = "",
+                UserCode = "",
+                UserName = "",
+                FirstName = "",
+                UserEmail = "",
+                FileData = new byte[0],
+                FirebaseDocKey = "",
+
+            };
+
+        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+        string url = BaseUrl + "OnSubmitReply";
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
+        var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        // Send the POST request with the content
+        var response = await httpClient.PostAsync(url, content);
+        var msg = response.StatusCode;
+
+
+
+
+
+
+        // if (RTopicId == 0)
+        // {
+        //     await LoadDataPosts();
+        // }
+        // else
+        // {
+        //     await LoadReplyDataPosts();
+        // }
+
+        MessageVisible = false;
+        Message = "";
+        StateHasChanged();
+    }
 }

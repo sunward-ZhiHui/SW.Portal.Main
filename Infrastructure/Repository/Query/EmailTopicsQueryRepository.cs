@@ -194,7 +194,8 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT AddedByUserID as ToIds, STRING_AGG(UserId, ',') AS CcIds
+                var query = @"SELECT AddedByUserID as ToIds
+                                --, STRING_AGG(UserId, ',') AS CcIds
                                 FROM EmailConversationAssignTo
                                 WHERE ConversationId = @ConId
                                 GROUP BY AddedByUserID";

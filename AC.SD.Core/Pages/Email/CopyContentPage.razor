@@ -39,7 +39,7 @@ else
                                 <div>@employee.SessionID</div>
                             </div> *@
                             <div>
-                                <CopyEmailLinkPage ConversationID = "@ItemId" ConSessionId="@employee.SessionID.Value"></CopyEmailLinkPage>
+                                <CopyEmailLinkPage ConversationID="@ItemId" ConSessionId="@employee.SessionID.Value" onCloseRequest="onClosed"></CopyEmailLinkPage>
                             </div>
                         </ContentTemplate>
                     </DxAccordionItem>
@@ -52,7 +52,9 @@ else
 
 
 @code {
-
+    [Parameter]
+    public Action? OnCloseRequestMsg { get; set; }
+    
     [Parameter] public long ItemId { get; set; }
 
     IEnumerable<EmailCopyLink> DataSource;
@@ -79,8 +81,10 @@ else
             DataSource = await Mediator.Send(new GetConversationList(ItemId)); ;
             Items = DataSource.Select((item, index) => (item, index));
         }
-        
-       
+    }
+    private async void onClosed()
+    {
+        OnCloseRequestMsg?.Invoke();
     }
 
 }

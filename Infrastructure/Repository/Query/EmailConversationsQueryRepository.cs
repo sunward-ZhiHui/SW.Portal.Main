@@ -502,7 +502,7 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }        
+        }
         public async Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(long TopicId, long UserId, string Option)
         {
             try
@@ -524,7 +524,7 @@ namespace Infrastructure.Repository.Query
                     var sessionids = res.Select(c => c.SessionId).Distinct().ToList();
 
                     await Task.WhenAll(res.Select(async topic =>
-                    {                        
+                    {
                         topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
                         topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
 
@@ -566,6 +566,73 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> GetTotalNotificationCountAsyncold(long UserId)
+        {
+            try
+            {
+                var query = @"
+            ;WITH UniqueTopics AS (
+                SELECT 
+                    COALESCE(FS.NotificationCount, 0) AS NotificationCount,
+                    ROW_NUMBER() OVER (PARTITION BY TS.ID ORDER BY TS.ID DESC) AS RowNum
+                FROM EmailTopics TS
+                INNER JOIN EmailConversationParticipant ECPS 
+                    ON ECPS.TopicId = TS.ID 
+                    AND ECPS.UserId = @UserId 
+                    AND (ECPS.IsArchive = 0 OR ECPS.IsArchive IS NULL)
+                INNER JOIN EmailConversations ECS ON ECS.TopicId = TS.ID                            
+                INNER JOIN EmailConversationAssignTo TP ON ECS.ID = TP.ConversationId
+                INNER JOIN Employee E ON TS.TopicFrom = E.UserId
+                CROSS APPLY (
+                    SELECT SUM(FN.NotificationCount) AS NotificationCount 
+                    FROM EmailConversations EC
+                    INNER JOIN EmailConversationParticipant ECP 
+                        ON ECP.ConversationId = EC.ID 
+                        AND ECP.UserId = @UserId
+                    CROSS APPLY (
+                        SELECT DISTINCT ReplyId = 
+                            CASE WHEN ECC.ReplyId > 0 THEN ECC.ReplyId ELSE ECC.ID END
+                        FROM EmailConversations ECC 
+                        LEFT JOIN EmailConversationAssignTo AST 
+                            ON AST.ConversationId = ECC.ID 
+                            AND (AST.UserId = @UserId OR AST.AddedByUserID = @UserId)
+                        LEFT JOIN EmailConversationAssignCC ECA 
+                            ON ECA.ConversationId = ECC.ID 
+                            AND (ECA.UserId = @UserId OR ECA.AddedByUserID = @UserId)
+                        WHERE ECC.TopicID = TS.ID 
+                    ) K
+                    CROSS APPLY (
+                        SELECT COUNT(ECCS.ID) AS NotificationCount
+                        FROM EmailConversations ECCS
+                        INNER JOIN EmailNotifications EN 
+                            ON ECCS.ID = EN.ConversationId 
+                            AND EN.IsRead = 0
+                        WHERE EN.TopicId = EC.TopicID 
+                            AND EN.UserId = ECP.UserId 
+                            AND (EC.ID = ECCS.ReplyId OR EC.ID = ECCS.ID)
+                    ) FN 
+                    WHERE EC.ID = K.ReplyId 
+                ) FS 
+                WHERE
+                    TP.UserId = @UserId 
+                    AND TS.OnDraft = 0 
+            )
+            SELECT COALESCE(SUM(NotificationCount), 0) AS TotalNotificationCount
+            FROM UniqueTopics
+            WHERE RowNum = 1;";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.ExecuteScalarAsync<long>(query, new { UserId });
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception if needed, but return 0 on failure
+                return 0;
+            }
+        }
+
         public async Task<long> GetTotalNotificationCountAsync(long UserId)
         {
             try
@@ -573,9 +640,13 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId, DbType.Int64);
 
-                using (var connection = CreateConnection())
-                {                    
-                    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure,commandTimeout: 300);
+                using (var connection = CreateConnection()) 
+                {
+                    return await connection.ExecuteScalarAsync<long>(
+                        "sp_Select_Email_NotificationCount",
+                        parameters,
+                        commandType: CommandType.StoredProcedure
+                    );
                 }
             }
             catch (Exception)

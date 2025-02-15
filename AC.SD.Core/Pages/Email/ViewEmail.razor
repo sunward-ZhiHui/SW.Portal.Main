@@ -54,7 +54,7 @@
 <style scoped>
     .dheight
     {
-        height: calc(100vh - 200px);
+    height: calc(100vh - 200px);
     } 
     .drawer {
     position: fixed;
@@ -507,10 +507,11 @@
                     </div>
 
                     <DxDrawer CssClass="demo-drawer-overview-right dheight"
-                        @bind-IsOpen="IsInfoOpen"
-                        Mode="DrawerMode.Overlap"
-                        Position="DrawerPosition.Right"
-                        PanelWidth="95%">
+                    @bind-IsOpen="IsInfoOpen"
+                    Mode="DrawerMode.Overlap"
+                    Position="DrawerPosition.Right"
+                    CloseOnTargetContentClick="false"
+                    PanelWidth="95%">
                         <HeaderTemplate>
                             Attached Email
                             <DxButton Attributes="GetCloseInfoButtonAttributes()"
@@ -520,7 +521,7 @@
                         </HeaderTemplate>
                         <BodyTemplate>
                             <div style="width:100%;">
-                                <CopyContentPage ItemId="@ecID" ></CopyContentPage>
+                                <CopyContentPage ItemId="@ecID" OnCloseRequestMsg="onRequestReload" ></CopyContentPage>
                             </div>                            
                         </BodyTemplate>
                         <FooterTemplate>
@@ -1015,7 +1016,7 @@
 
                                                                 @if (item.CopyLinkEmailIds != null)
                                                                 {
-                                                                     dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
+                                                                    dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
 
                                                                     <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(item))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px;margin-top: 10px; " class="">
                                                                         <i class="fa fa-envelope"></i> Attached Email
@@ -1260,7 +1261,7 @@
                                                                                     <DxFormLayoutItem Caption="From" ColSpanMd="12">
                                                                                         <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                                                                                     </DxFormLayoutItem>
-                                                                                     
+
                                                                                     @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                                                                                     {
                                                                                         @if (isCheckAllowParticipant)
@@ -1426,17 +1427,17 @@
 
                                                                                     <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                                                                         <DxTagBox Data="_CopyLinkList"
-                                                                                                  SearchMode="ListSearchMode.AutoSearch"
-                                                                                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                                                                                  NullText="Select Attach Email"
-                                                                                                  Values="@Data?.CopyEmailIds"
-                                                                                                  ValuesExpression="@(() => Data.CopyEmailIds )"
-                                                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                                  ValueFieldName="ConversationSessionID"
-                                                                                                  TextFieldName="CopyEmailName"
-                                                                                                  ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
-                                                                                                  ListRenderMode="ListRenderMode.Virtual"
-                                                                                                  CssClass="cw-480">
+                                                                                        SearchMode="ListSearchMode.AutoSearch"
+                                                                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                                        NullText="Select Attach Email"
+                                                                                        Values="@Data?.CopyEmailIds"
+                                                                                        ValuesExpression="@(() => Data.CopyEmailIds )"
+                                                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                        ValueFieldName="ConversationSessionID"
+                                                                                        TextFieldName="CopyEmailName"
+                                                                                        ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
+                                                                                        ListRenderMode="ListRenderMode.Virtual"
+                                                                                        CssClass="cw-480">
 
                                                                                             <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
                                                                                         </DxTagBox>
@@ -2383,9 +2384,10 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         ecID = emailConversations.ID;
         IsInfoOpen = true;
     }
-    void CloseInfo()
+    private void CloseInfo()
     {
         IsInfoOpen = false;
+        StateHasChanged();
     }
     Dictionary<string, object> GetCloseInfoButtonAttributes()
     {
@@ -5468,7 +5470,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         IsContentVisible = !IsContentVisible;
 
-         if (copyitemVisibility.ContainsKey(id) && copyitemVisibility[id])
+        if (copyitemVisibility.ContainsKey(id) && copyitemVisibility[id])
         {
             // If it's open, close it
             copyitemVisibility[id] = false;
@@ -6565,15 +6567,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
-        //await Task.Delay(1000);
+                           //await Task.Delay(1000);
         await onRichTxtChangeFontsize(); // Call your other function here
-        //await JSRuntime.InvokeAsync<string>("hideLoading");
+                                         //await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void OnDateChanged(DateTime? newValue)
     {       
         if(newValue != null)
         {
-             LockDueDateEnable = true;
+            LockDueDateEnable = true;
 
         }
         else
@@ -6582,8 +6584,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             LockDueDateEnable = false;
         }
 
-       Data.DueDate = newValue;      
-       StateHasChanged();
+        Data.DueDate = newValue;      
+        StateHasChanged();
     }
     async void onBackFileProfileType(string url)
     {
@@ -6694,7 +6696,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     sCCIds = CCtags.ToList();
 
 
-                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
@@ -7341,15 +7343,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         AddPopupArchive = false;
 
     }
-   
+
     void HandleInvalidSubmit()
     {
 
     } 
-      private async void EnableClose()
+    private async void EnableClose()
     {
         isCloseEnabled = true;
-         isOpenEnabled = false;
+        isOpenEnabled = false;
         StateHasChanged();
     }
     private async void EnableOpen()
@@ -7358,13 +7360,13 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         isCloseEnabled = false;
         StateHasChanged();
     }
-     private async void DisableOpenClose()
+    private async void DisableOpenClose()
     {
         isOpenEnabled = false;
         isCloseEnabled = false;
         StateHasChanged();
     }
-     public async void SubmitOpen()
+    public async void SubmitOpen()
     {
         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,0));
         toastService.ShowToast("The Selected Topic Open Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -7376,21 +7378,21 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         {
             RefMasterSearch?.ParticipantCloseList();
         }
-       
+
     }
     public async void SubmitClose()
     {
         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,1));
         toastService.ShowToast("The Selected Topic Close Successfully", AC.SD.Core.Services.ToastLevel.Success);
-         if (isLeftMenuvisible == "AssignTo")
+        if (isLeftMenuvisible == "AssignTo")
         {
-           RefAssignTo?.ParticipantCloseList();
+            RefAssignTo?.ParticipantCloseList();
         }
         if(isLeftMenuvisible == "Library")
         {
             RefMasterSearch?.ParticipantCloseList();
         }
-       
+
     }
     private void ClearDiscussionList()
     {
@@ -7400,9 +7402,23 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             _discussionList = null;
 
             // Optionally, force garbage collection
-             //GC.Collect();
-             //GC.WaitForPendingFinalizers();
-             //GC.Collect();
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+            //GC.Collect();
         }
+    }    
+    private async void onRequestReload()
+    {
+        if (RTopicId == 0)
+        {
+            await LoadDataPosts();
+        }
+        else
+        {
+            await LoadReplyDataPosts();
+        }
+
+
+        CloseInfo();
     }
 }

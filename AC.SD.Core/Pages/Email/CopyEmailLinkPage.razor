@@ -445,19 +445,20 @@
         }
         else
         {
+            <button type="button" @onclick="@(() => OpenRequest())" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px; background: #00a9e6; color: white;padding: 10px; float: right; margin-top: 10px;" class="">
+                <i class="fa fa-reply"></i> Sent Request
+            </button>
             <div class="center-container">
                 <div class="warning-message">
                     <h1>Access Denied</h1>
                     <p>You do not have permission to view this page.</p>
                 </div>
             </div>
-           @*  <button type="button" @onclick="@(() => OpenRequest())" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" class="">
-                <i class="fa fa-reply"></i> Sent Request
-            </button> *@
+           
         }
     </div>
 </div>
-<DxPopup @bind-Visible="@MessageVisible" ShowFooter="true" HeaderText="Warning Info">
+<DxPopup @bind-Visible="@MessageVisible" ShowFooter="true" HeaderText="Request">
     <BodyContentTemplate Context="PopupContext">
        
         <DxFormLayout>
@@ -475,6 +476,8 @@
 
 
 @code {
+    [Parameter]
+    public Action? onCloseRequest { get; set; }
     public bool MessageVisible { get; set; } = false;
     DxRichEdit? richEdit { get; set; }
     [Parameter]
@@ -698,8 +701,9 @@
                 TopicID = lsts[0].ID,
                 AssigntoIds = AssigntoIdss,
                 AssignccIds = AssignccIdss,
-                //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
-                Message = Message,
+                Message = $"Request Attached Email Access Denied: \"{lsts[0].TopicName}\"<br/><br/>" +
+                    "<strong>Reason:</strong><br/>" +
+                        $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{Message}",                
                 PlistIdss = "",
                 AllowPlistids = "",
                 IsAllowParticipants = false,
@@ -708,7 +712,7 @@
                 ReplyId = ConversationID,
                 AllParticipantIds = participantIds.Distinct().ToList(),
                 ParticipantId = applicationUser.UserID,
-                Name = lsts[0].Name,
+                Name = lsts[0].TopicName,
                 AddedByUserID = applicationUser.UserID,
                 From = "",
                 LastName = "",
@@ -732,7 +736,7 @@
 
 
 
-
+        onCloseRequest?.Invoke();
 
         // if (RTopicId == 0)
         // {

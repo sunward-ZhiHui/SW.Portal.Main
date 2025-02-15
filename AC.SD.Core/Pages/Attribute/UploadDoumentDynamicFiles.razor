@@ -1495,7 +1495,16 @@
         {
             if (_editContext.Validate())
             {
-                await this.HandleValidSubmit();
+                var exits = await Mediator.Send(new GetDynamicFormDataUploadCheckValidation(dynamicFormSection1.DynamicFormDataId,dynamicFormSection1.DynamicFormSectionId));
+                if (exits == null)
+                {
+                    await this.HandleValidSubmit();
+                }
+                else
+                {
+                    var MyMessage = "This Section File Already Exits.";
+                    toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                }
             }
         }
     }

@@ -1637,6 +1637,21 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormDataUploadCheckValidationHandler : IRequestHandler<GetDynamicFormDataUploadCheckValidation, DynamicFormDataUpload>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public GetDynamicFormDataUploadCheckValidationHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataUpload> Handle(GetDynamicFormDataUploadCheckValidation request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetDynamicFormDataUploadCheckValidation(request.DynamicFormDataId,request.DynamicFormSectionId);
+
+        }
+    }
+
     public class GetDynamicFormAttributeItemListHandler : IRequestHandler<GetDynamicFormAttributeItemList, List<DynamicFormSectionAttributesList>>
     {
         private readonly IDynamicFormOdataQueryRepository _dynamicFormQueryRepository;

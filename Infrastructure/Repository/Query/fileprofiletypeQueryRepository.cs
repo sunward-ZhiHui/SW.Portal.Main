@@ -830,8 +830,8 @@ namespace Infrastructure.Repository.Query
                     var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
                     if (documentSearchModel.AttachSessionId == null)
                     {
-                       // linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
-                        List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1};
+                        // linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
+                        List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1 };
                         linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                         var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                         var filterQuery = string.Empty;
@@ -1019,7 +1019,7 @@ namespace Infrastructure.Repository.Query
                 var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
 
                 //linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
-                List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1};
+                List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1 };
                 linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                 var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                 var filterQuery = string.Empty;
@@ -2229,8 +2229,9 @@ namespace Infrastructure.Repository.Query
                         value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
                         if (value.FileProfileTypeIds.Count() > 0)
                         {
-                            value.FileProfileTypeIds.ForEach(f =>
+                            foreach (var f in value.FileProfileTypeIds)
                             {
+                                query = string.Empty;
                                 if (value.Type == "User")
                                 {
                                     if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
@@ -2317,11 +2318,12 @@ namespace Infrastructure.Repository.Query
                                         });
                                     }
                                 }
-                            });
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                await connection.QuerySingleOrDefaultAsync<long>(query, null);
+                                if (!string.IsNullOrEmpty(query))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(query, null);
+                                }
                             }
+
                         }
                         return value;
                     }

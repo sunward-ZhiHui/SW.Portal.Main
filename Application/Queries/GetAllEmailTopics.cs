@@ -546,6 +546,10 @@ namespace Application.Queries
     {
 
     }
+    public class InsertTransferEmailHistory :TransferEmailHistory,IRequest<long>
+    {
+
+    }
     public class GetEmailDueDateHistory : PagedRequest, IRequest<List<EmailDueDateHistory>>
     {
         public long ID { get; private set; }

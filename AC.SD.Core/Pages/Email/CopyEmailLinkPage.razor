@@ -701,7 +701,7 @@
                 TopicID = lsts[0].ID,
                 AssigntoIds = AssigntoIdss,
                 AssignccIds = AssignccIdss,
-                Message = $"Request Attached Email Access Denied: \"{lsts[0].TopicName}\"<br/><br/>" +
+                Message = $"Request Attached Email Access Denied: \"{lsts[0].TopicName}\" <a href='ViewEmail/{lsts[0].SessionId}/Email' target='_blank' style='font-weight: bold;'>View Email</a> <br/><br/>" +
                     "<strong>Reason:</strong><br/>" +
                         $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{Message}",                
                 PlistIdss = "",

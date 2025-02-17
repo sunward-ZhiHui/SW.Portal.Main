@@ -21,8 +21,8 @@
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
+        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+        DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateEmailConversation" Enabled="@UpdateEmailConversationEnabled" />
                 @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteEmailConversationDelete" Enabled="@DeleteEmailConversationEnabled" /> *@
@@ -31,31 +31,31 @@
     </div>
 </div>
 <DxLoadingPanel @bind-Visible="PanelEmailConversationVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
+IsContentBlocked="true"
+ApplyBackgroundShading="true"
+IndicatorAreaVisible="false"
+Text="Fetching Data...">
 
     <DxGrid @ref="TransferPermissionsEmailConversationUserGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="EmailConversationUsers"
-            ShowGroupPanel="true" ShowGroupedColumns="true"
-            KeyFieldName="ID"
-            ShowSearchBox="true"
-            VirtualScrollingEnabled="true"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360"
-            style="height: calc(100vh - 420px);"
-            FocusedRowEnabled="true"
-            SelectedDataItemsChanged="@SelectedEmailConversationDataItemsChanged"
-            AllowSelectRowByClick="true">
+    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+    Data="EmailConversationUsers"
+    ShowGroupPanel="true" ShowGroupedColumns="true"
+    KeyFieldName="ID"
+    ShowSearchBox="true"
+    VirtualScrollingEnabled="true"
+    PagerNavigationMode="PagerNavigationMode.InputBox"
+    PageSizeSelectorVisible="true"
+    PageSizeSelectorAllRowsItemVisible="true"
+    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+    PageSize="20"
+    SelectionMode="GridSelectionMode.Multiple"
+    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+    AutoExpandAllGroupRows="true"
+    CssClass="ch-360"
+    style="height: calc(100vh - 420px);"
+    FocusedRowEnabled="true"
+    SelectedDataItemsChanged="@SelectedEmailConversationDataItemsChanged"
+    AllowSelectRowByClick="true">
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="ID" Visible="false" />
@@ -211,7 +211,9 @@
 
 
                         await sentReplyTransfer(ids, fromnamestring, tonamestring, createdstring);
-                        
+
+                        await InsertTransferEmailHistory(ids, Data.FromUserId.Value, Data.ToUserId.Value, applicationUser.UserID);
+
                         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         await loadEmailConversation();
 
@@ -230,6 +232,27 @@
         }
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task InsertTransferEmailHistory(List<EmailConversations> ids,long fromid,long toid,long creadedid)
+    {
+        foreach(var id in ids)
+        {
+
+            var emailTransferHistory = new InsertTransferEmailHistory
+                {
+                    ConversationID = id.ConversationId.Value,
+                    FromId = fromid,
+                    ToId = toid,
+                    TopicID = id.TopicID,
+                    ReplyId = id.ConversationId.Value,
+                    UserID = creadedid,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+
+                };
+
+            var result = await Mediator.Send(emailTransferHistory);
+        }
     }
     private async Task sentReplyTransfer(List<EmailConversations> ids,string fromname,string toname,string sendername)
     {

@@ -948,6 +948,23 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class InsertTransferEmailHistoryHandler : IRequestHandler<InsertTransferEmailHistory, long>
+    {
+      
+        private readonly IQueryRepository<TransferEmailHistory> _queryRepository;
+
+        public InsertTransferEmailHistoryHandler(IQueryRepository<TransferEmailHistory> queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+
+        public async Task<long> Handle(InsertTransferEmailHistory request, CancellationToken cancellationToken)
+        {
+            var req = await _queryRepository.InsertQuery(request);
+            return req;
+        }
+    }
     public class GetEmailDueDateHistoryHandler : IRequestHandler<GetEmailDueDateHistory, List<EmailDueDateHistory>>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Repository.Query.Base
 {
@@ -38,6 +41,45 @@ namespace Infrastructure.Repository.Query.Base
             using var connection = CreateConnection();
             return await connection.GetListPagedAsync<T>(pageNo, pageSize, condition, orderby);
         }
+        public async Task<long> InsertQuery(T entity)
+        {
+            using var _connection = CreateConnection();
+
+            // Get properties that are not identity columns and are not marked with [NotMapped]
+            var properties = typeof(T).GetProperties()
+                                      .Where(p => p.CanRead && p.GetValue(entity) != null
+                                                 && p.GetCustomAttribute<Dapper.NotMappedAttribute>() == null
+                                                 && !p.GetCustomAttribute<DatabaseGeneratedAttribute>()?.DatabaseGeneratedOption.Equals(DatabaseGeneratedOption.Identity) == true)
+                                      .ToList();
+
+            // Check if we have valid properties to insert
+            if (properties.Count == 0)
+            {
+                throw new InvalidOperationException("No valid properties found for insertion.");
+            }
+
+            // Create the columns and values string for the INSERT statement
+            string tableName = typeof(T).Name;
+            string columns = string.Join(", ", properties.Select(p => p.Name));
+            string values = string.Join(", ", properties.Select(p => "@" + p.Name));
+
+            // Construct the SQL query
+            string sql = $"INSERT INTO {tableName} ({columns}) VALUES ({values}); SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+
+            try
+            {
+                // Execute the SQL query and get the inserted ID
+                var insertedId = await _connection.ExecuteScalarAsync<long>(sql, entity);
+                return insertedId;
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
         public void Add(T entity)
         {
             using var connection = CreateConnection();

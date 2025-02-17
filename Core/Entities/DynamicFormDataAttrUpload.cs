@@ -22,5 +22,6 @@ namespace Core.Entities
         public long? UploadedUserId { get; set; }
         public string? UploadedUser { get; set; }
         public string? DisplayName { get; set; }
+        public int? UniqueId { get; set; }
     }
 }

@@ -1664,4 +1664,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormSectionAttributesList>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeList(request.ID);
         }
     }
+    public class DeleteDynamicFormDataAttrUploadHandler : IRequestHandler<DeleteDynamicFormDataAttrUpload, DynamicFormDataAttrUpload>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormDataAttrUploadHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataAttrUpload> Handle(DeleteDynamicFormDataAttrUpload request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormDataAttrUpload(request.DynamicFormDataAttrUpload);
+
+        }
+    }
 }

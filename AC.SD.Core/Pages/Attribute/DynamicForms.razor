@@ -105,7 +105,7 @@
                                     else
                                     {
                                         <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />  
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                 </Items>
                             </DxMenu>
@@ -158,7 +158,7 @@
                                     }
                                     else
                                     {
-                                       <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                         <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
                                     }
                                 </Items>
@@ -946,9 +946,11 @@
          ShowCloseButton="true"
          HeaderText="Image List"
          Closed="EulaPopupLockClosed"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList @ref="refDynamicFormUploadImageList" RevokeBack="backImageUpload" _DynamicFormDataAttrUploadShowList="@_DynamicFormDataAttrUploadShowList" dynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList>
+        <AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList @ref="refDynamicFormUploadImageList" OnItemSelected="@revokeDynamicFormUploadImageList" _dynamicformData="@_dynamicformData" RevokeBack="backImageUpload" _DynamicFormDataAttrUploadShowList="@_DynamicFormDataAttrUploadList" dynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -1069,7 +1071,6 @@
     Object DataGridObject { get; set; } = new Object(); private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     bool QrCodePopupVisible { get; set; } = false; private BarcodeReader _QrCodeReader; public PropertyInfo? PropertyQrCodeInfo { get; set; }
     public List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadList { get; set; } = new List<DynamicFormDataAttrUpload>();
-    public List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadShowList { get; set; } = new List<DynamicFormDataAttrUpload>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -1141,7 +1142,7 @@
             if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
             {
                 var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + SessionIds;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
             else
             {
@@ -1334,7 +1335,7 @@
     {
         await onshowLoading();
 
-        _DropDownBoxGridModel = new List<DropDownBoxGridModel>(); _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>(); _DynamicFormDataAttrUploadShowList = new List<DynamicFormDataAttrUpload>();
+        _DropDownBoxGridModel = new List<DropDownBoxGridModel>(); _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
         IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; EditEnabled = false;
         _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
@@ -3991,24 +3992,6 @@
     }
     async Task OnShowImageUploadClick(DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
-
-        _DynamicFormDataAttrUploadShowList = new List<DynamicFormDataAttrUpload>();
-        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
-        {
-            var response = await Mediator.Send(new GetDynamicFormDataAttrUpload(dynamicFormSectionAttribute.DynamicFormSectionAttributeId, _dynamicformData.DynamicFormDataId));
-            if (response != null && response.Count() > 0)
-            {
-                _DynamicFormDataAttrUploadShowList = response;
-            }
-        }
-        if (_DynamicFormDataAttrUploadList != null && _DynamicFormDataAttrUploadList.Count() > 0)
-        {
-            var datas = _DynamicFormDataAttrUploadList.Where(w => w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
-            if (datas != null && datas.Count() > 0)
-            {
-                _DynamicFormDataAttrUploadShowList.AddRange(datas);
-            }
-        }
         _filterDynamicFormSectionAttribute = dynamicFormSectionAttribute;
         imageUploadPopup = true;
         StateHasChanged();
@@ -4190,50 +4173,69 @@
         }
         return string.Format("{0:n1} {1}", number, suffixes[counter]);
     }
+    async Task revokeDynamicFormUploadImageList(DynamicFormDataAttrUpload dynamicFormDataAttrUploads)
+    {
+        var indexof = _DynamicFormDataAttrUploadList.IndexOf(dynamicFormDataAttrUploads);
+        _DynamicFormDataAttrUploadList.RemoveAt(indexof);
+    }
     async Task OnFilesUploading(FilesUploadingEventArgs args, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
 
         if (_dynamicformData == null)
         {
+            foreach (var file in args.Files)
+            {
+                using var stream = new System.IO.MemoryStream();
+                await file.OpenReadStream(file.Size).CopyToAsync(stream);
+            }
             toastService.ShowToast("Save Form after upload Image", AC.SD.Core.Services.ToastLevel.Error);
         }
-        if (_DynamicFormDataAttrUploadList == null)
+        else
         {
-            _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
-        }
-        foreach (var file in args.Files)
-        {
-            var fileName = file.Name.ToLower();
-            var exits = _DynamicFormDataAttrUploadList.Where(w => w.FileName.ToLower() == fileName && w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).FirstOrDefault();
-            if (exits == null)
+            if (_DynamicFormDataAttrUploadList == null)
             {
-                using var stream = new System.IO.MemoryStream();
-                await file.OpenReadStream(file.Size).CopyToAsync(stream);
-                byte[] imageArray = stream.ToArray();
-                var imgBase64Str = Convert.ToBase64String(imageArray);
-                DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
-                dynamicFormDataAttrUpload.DynamicFormSectionAttributeId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId;
-                dynamicFormDataAttrUpload.SessionId = new Guid(file.Guid);
-                dynamicFormDataAttrUpload.ImageType = file.Type;
-                dynamicFormDataAttrUpload.FileName = file.Name;
-                dynamicFormDataAttrUpload.FileSize = file.Size;
-                dynamicFormDataAttrUpload.DynamicFormDataId = _dynamicformData != null ? _dynamicformData.DynamicFormDataId : null;
-                dynamicFormDataAttrUpload.FileSizes = file.Size > 0 ? FormatSize((long)file.Size) : "";
-                dynamicFormDataAttrUpload.ImageData = imageArray;
-                dynamicFormDataAttrUpload.UploadedUserId = applicationUser.UserID;
-                dynamicFormDataAttrUpload.UploadedUser = applicationUser.UserName;
-                dynamicFormDataAttrUpload.UploadDate = DateTime.Now;
-                _DynamicFormDataAttrUploadList.Add(dynamicFormDataAttrUpload);
+                _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
             }
-            else
+            foreach (var file in args.Files)
             {
-                using var stream = new System.IO.MemoryStream();
-                await file.OpenReadStream(file.Size).CopyToAsync(stream);
-                //byte[] imageArray = stream.ToArray();
-                toastService.ShowToast("This File already exits." + file.Name, AC.SD.Core.Services.ToastLevel.Error);
+                var fileName = file.Name.ToLower();
+                var exits = _DynamicFormDataAttrUploadList.Where(w => w.FileName.ToLower() == fileName && w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).FirstOrDefault();
+                if (exits == null)
+                {
+                    using var stream = new System.IO.MemoryStream();
+                    await file.OpenReadStream(file.Size).CopyToAsync(stream);
+                    byte[] imageArray = stream.ToArray();
+                    var imgBase64Str = Convert.ToBase64String(imageArray);
+                    DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
+                    dynamicFormDataAttrUpload.DynamicFormSectionAttributeId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId;
+                    dynamicFormDataAttrUpload.SessionId = new Guid(file.Guid);
+                    dynamicFormDataAttrUpload.ImageType = file.Type;
+                    dynamicFormDataAttrUpload.FileName = file.Name;
+                    dynamicFormDataAttrUpload.FileSize = file.Size;
+                    dynamicFormDataAttrUpload.DynamicFormDataId = _dynamicformData != null ? _dynamicformData.DynamicFormDataId : null;
+                    dynamicFormDataAttrUpload.FileSizes = file.Size > 0 ? FormatSize((long)file.Size) : "";
+                    dynamicFormDataAttrUpload.ImageData = imageArray;
+                    dynamicFormDataAttrUpload.UploadedUserId = applicationUser.UserID;
+                    dynamicFormDataAttrUpload.UploadedUser = applicationUser.UserName;
+                    dynamicFormDataAttrUpload.UploadDate = DateTime.Now;
+                    //_DynamicFormDataAttrUploadList.Add(dynamicFormDataAttrUpload);
+                    List<DynamicFormDataAttrUpload> dynamicFormDataAttrUploads = new List<DynamicFormDataAttrUpload>();
+                    dynamicFormDataAttrUploads.Add(dynamicFormDataAttrUpload);
+                    var result = await Mediator.Send(new InsertDynamicFormDataAttrUpload(dynamicFormDataAttrUploads));
+                    if (result != null)
+                    {
+                        toastService.ShowToast("File Uploaded Success", AC.SD.Core.Services.ToastLevel.Success);
+                    }
+                }
+                else
+                {
+                    using var stream = new System.IO.MemoryStream();
+                    await file.OpenReadStream(file.Size).CopyToAsync(stream);
+                    //byte[] imageArray = stream.ToArray();
+                    toastService.ShowToast("This File already exits." + file.Name, AC.SD.Core.Services.ToastLevel.Error);
+                }
             }
         }
-        //}
     }
     void OnCheckedChangedItem(bool? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
@@ -5379,6 +5381,7 @@
                              editor.AddAttribute(j + 1, "UploadMode", UploadMode.Instant);
                              editor.AddAttribute(j + 1, "AllowMultiFileUpload", true);
                              editor.AddAttribute(j + 1, "ShowFileList", false);
+                             //editor.AddAttribute(j + 1, "Visible", _dynamicformData != null ? true : false);
                              editor.AddAttribute(j + 1, "AllowCancel", false);
                              editor.AddAttribute(j + 1, "AcceptedFileTypes", new List<string> { "image/*" });
                              editor.AddAttribute(j + 1, "FilesUploading", EventCallback.Factory.Create<FilesUploadingEventArgs>(this, str => OnFilesUploading(str, s)));

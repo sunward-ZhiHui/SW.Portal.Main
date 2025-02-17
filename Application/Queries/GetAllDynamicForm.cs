@@ -959,5 +959,14 @@ namespace Application.Queries
             this.ID = ID;
         }
     }
+    public class DeleteDynamicFormDataAttrUpload : PagedRequest, IRequest<DynamicFormDataAttrUpload>
+    {
+        public DynamicFormDataAttrUpload DynamicFormDataAttrUpload { get; private set; }
+        public DeleteDynamicFormDataAttrUpload(DynamicFormDataAttrUpload dynamicFormDataAttrUpload)
+        {
+            this.DynamicFormDataAttrUpload = dynamicFormDataAttrUpload;
+        }
+    }
+    
 }
 

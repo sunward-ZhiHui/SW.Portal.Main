@@ -7850,7 +7850,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormDataId", DynamicFormDataId);
                 var query = "select t1.*,t2.DisplayName,CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  '' ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName , (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) as UploadedUser\r\nfrom DynamicFormDataAttrUpload t1 " +
                     "JOIN DynamicFormSectionAttribute t2 ON t2.DynamicFormSectionAttributeID=t1.DynamicFormSectionAttributeID AND (t1.IsDeleted is null OR t1.IsDeleted=0) " +
-                    "JOIN Employee t3 ON t3.UserID=t1.UploadedUserID Where t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;";
+                    "JOIN Employee t3 ON t3.UserID=t1.UploadedUserID Where t1.DynamicFormDataId=@DynamicFormDataId AND t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormDataAttrUpload>(query, parameters)).ToList();
@@ -7878,16 +7878,18 @@ namespace Infrastructure.Repository.Query
                                 var parameters = new DynamicParameters();
                                 parameters.Add("DynamicFormSectionAttributeId", item.DynamicFormSectionAttributeId);
                                 parameters.Add("DynamicFormDataId", item.DynamicFormDataId);
-                                parameters.Add("ImageData", item.ImageData, DbType.Byte);
+                                parameters.Add("ImageData", item.ImageData, DbType.Binary);
                                 parameters.Add("UploadedUserId", item.UploadedUserId);
                                 parameters.Add("ImageType", item.ImageType, DbType.String);
                                 parameters.Add("FileSize", item.FileSize, DbType.Decimal);
                                 parameters.Add("UploadDate", DateTime.Now, DbType.DateTime);
                                 parameters.Add("FileSizes", item.FileSizes, DbType.String);
+                                parameters.Add("FileName", item.FileName, DbType.String);
                                 parameters.Add("SessionId", item.SessionId, DbType.Guid);
-                                query += "INSERT INTO [DynamicFormDataAttrUpload](DynamicFormDataId,ImageData,UploadedUserId,ImageType,DynamicFormSectionAttributeId,FileSize,UploadDate,FileSizes,SessionId) OUTPUT INSERTED.DynamicFormDataAttrUploadId " +
-                                "VALUES (@DynamicFormDataId,@ImageData,@UploadedUserId,@ImageType,@DynamicFormSectionAttributeId,@FileSize,@UploadDate,@FileSizes,@SessionId);\r\n";
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                                query += "INSERT INTO [DynamicFormDataAttrUpload](FileName,DynamicFormDataId,ImageData,UploadedUserId,ImageType,DynamicFormSectionAttributeId,FileSize,UploadDate,FileSizes,SessionId) OUTPUT INSERTED.DynamicFormDataAttrUploadId " +
+                                "VALUES (@FileName,@DynamicFormDataId,@ImageData,@UploadedUserId,@ImageType,@DynamicFormSectionAttributeId,@FileSize,@UploadDate,@FileSizes,@SessionId);\r\n";
+                                var result=await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                                dynamicFormDataAttrUpload.DynamicFormDataAttrUploadId = result;
                             }
                         }
                         return dynamicFormDataAttrUpload;
@@ -7902,6 +7904,34 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataAttrUpload> DeleteDynamicFormDataAttrUpload(DynamicFormDataAttrUpload dynamicFormDataAttrUpload)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataAttrUploadId", dynamicFormDataAttrUpload.DynamicFormDataAttrUploadId);
+                        var query = "Delete from DynamicFormDataAttrUpload where DynamicFormDataAttrUploadId=@DynamicFormDataAttrUploadId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormDataAttrUpload;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
             }
         }
     }

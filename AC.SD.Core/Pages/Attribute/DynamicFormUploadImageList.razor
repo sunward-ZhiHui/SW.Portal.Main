@@ -2,6 +2,8 @@
 @using Newtonsoft.Json.Linq;
 @using System.Collections;
 @using System.Dynamic;
+@using System.IO
+@using System.Drawing
 @using global::Core.AttributeDynamicData;
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
@@ -23,14 +25,15 @@
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
-
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="View Image" IconCssClass="fa fa-image" Click="@addViewImage" Enabled="@DeleteEnabled" />
             </Items>
         </DxMenu>
 
     </div>
 </div>
 <DxGrid @ref="SMShareGrid" Data="_DynamicFormDataAttrUploadListItems"
-        KeyFieldName="DynamicFormDataAttrUploadId"
+        KeyFieldName="UniqueId"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -49,7 +52,7 @@
         VirtualScrollingEnabled="true"
         SelectionMode="GridSelectionMode.Single">
     <Columns>
-        <DxGridDataColumn  Caption="" MinWidth="30">
+        <DxGridDataColumn Caption="" MinWidth="30">
             <CellDisplayTemplate>
                 @{
                     var item = (DynamicFormDataAttrUpload)context.DataItem;
@@ -73,7 +76,44 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
     </TotalSummary>
 </DxGrid>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         CloseOnEscape="false"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => deleteDeleteDynamicFormDataAttrUpload())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Imagepopup"
+         ShowFooter="true"
+         HeaderText="Image"
+         Closed="EulaPopupClosed"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <div style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);">
+            <img src="@imagesrc" width="@width" height="@height" />
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    int? height { get; set; }
+    int? width { get; set; }
+    string? imagesrc { get; set; }
+    bool Imagepopup { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
     private List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadListItems { get; set; }
     private DynamicFormDataAttrUpload _selectedItems;
     IGrid? SMShareGrid { get; set; }
@@ -82,14 +122,90 @@
     [Parameter]
     public DynamicFormSectionAttribute dynamicFormSectionAttribute { get; set; }
     [Parameter]
+    public DynamicFormData _dynamicformData { get; set; }
+    [Parameter]
     public Action RevokeBack { get; set; }
     [Parameter]
     public IEnumerable _DynamicFormDataAttrUploadShowList { get; set; }
+    [Parameter]
+    public EventCallback<DynamicFormDataAttrUpload> OnItemSelected { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
+    async Task LoadData()
+    {
+        DeleteEnabled = false;
+        var _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
+        _DynamicFormDataAttrUploadListItems = new List<DynamicFormDataAttrUpload>();
+        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        {
+            var response = await Mediator.Send(new GetDynamicFormDataAttrUpload(dynamicFormSectionAttribute.DynamicFormSectionAttributeId, _dynamicformData.DynamicFormDataId));
+            if (response != null && response.Count() > 0)
+            {
+                _DynamicFormDataAttrUploadList = response;
+            }
+        }
         if (_DynamicFormDataAttrUploadShowList != null)
         {
-            _DynamicFormDataAttrUploadListItems = _DynamicFormDataAttrUploadShowList.Cast<DynamicFormDataAttrUpload>().ToList();
+            var list = _DynamicFormDataAttrUploadShowList.Cast<DynamicFormDataAttrUpload>().ToList();
+            if (list != null && list.Count() > 0)
+            {
+                _DynamicFormDataAttrUploadList.AddRange(list.Where(w => w.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList());
+            }
+        }
+        if (_DynamicFormDataAttrUploadList != null && _DynamicFormDataAttrUploadList.Count() > 0)
+        {
+            int i = 1;
+            _DynamicFormDataAttrUploadList.ForEach(s =>
+            {
+                s.UniqueId = i;
+                _DynamicFormDataAttrUploadListItems.Add(s);
+                i++;
+            });
+            _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault();
+            DeleteEnabled = true;
+            SMShareGrid.SetFocusedRowIndex(0);
+            StateHasChanged();
+        }
+    }
+    string ResizeImage(DynamicFormDataAttrUpload dynamicFormDataAttrUpload)
+    {
+        using (var ms = new MemoryStream(dynamicFormDataAttrUpload.ImageData))
+        {
+            var image = System.Drawing.Image.FromStream(ms);
+
+            var ratioX = (double)1500 / image.Width;
+            var ratioY = (double)700 / image.Height;
+
+            var ratio = Math.Min(ratioX, ratioY);
+
+            var width = (int)(image.Width * ratio);
+            var height = (int)(image.Height * ratio);
+
+            var newImage = new Bitmap(width, height);
+
+            Graphics.FromImage(newImage).DrawImage(image, 0, 0, width, height);
+
+            Bitmap bmp = new Bitmap(newImage);
+
+            ImageConverter converter = new ImageConverter();
+
+            var data = (byte[])converter.ConvertTo(bmp, typeof(byte[]));
+
+            return "data:" + dynamicFormDataAttrUpload.ImageType + ";base64," + Convert.ToBase64String(data);
+        }
+    }
+    async Task addViewImage()
+    {
+        imagesrc = "";
+        if (_selectedItems != null && _selectedItems.ImageData != null)
+        {
+            imagesrc = ResizeImage(_selectedItems);
+            // System.Drawing.Image image = System.Drawing.Image.FromStream(new System.IO.MemoryStream(_selectedItems.ImageData));
+            //height = image.Height; width = image.Width;
+            // imagesrc = "data:" + _selectedItems.ImageType + ";base64," + Convert.ToBase64String(_selectedItems.ImageData);
+            Imagepopup = true;
         }
     }
     void onBack()
@@ -106,9 +222,49 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataAttrUploadId");
-        _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault(f => f.DynamicFormDataAttrUploadId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueId");
+        _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault(f => f.UniqueId == (int?)UniqueId);
 
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task deleteDeleteDynamicFormDataAttrUpload()
+    {
+        try
+        {
+            if (_selectedItems.DynamicFormDataAttrUploadId > 0)
+            {
+                var response = await Mediator.Send(new DeleteDynamicFormDataAttrUpload(_selectedItems));
+                if (response != null)
+                {
+                    Blukdeletepopup = false;
+                    toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await LoadData();
+                }
+            }
+            else
+            {
+                var indexof = _DynamicFormDataAttrUploadListItems.IndexOf(_selectedItems);
+                _DynamicFormDataAttrUploadListItems.RemoveAt(indexof);
+                toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                _DynamicFormDataAttrUploadShowList = _DynamicFormDataAttrUploadListItems;
+                Blukdeletepopup = false;
+                await OnItemSelected.InvokeAsync(_selectedItems);
+                await LoadData();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false; Imagepopup = false;
+        // await LoadData();
     }
     public async ValueTask DisposeAsync()
     {

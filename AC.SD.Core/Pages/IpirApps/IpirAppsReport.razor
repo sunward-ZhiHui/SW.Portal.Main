@@ -369,7 +369,7 @@
                 else
                 {
 
-                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("Deviationtrackingflow"));
+                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("DeviationtrackingflowMalaysia"));
                     if (result != null && result.ID > 0)
                     {
                         var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsDeviationFormEnable.ActivityInfoIssueId;

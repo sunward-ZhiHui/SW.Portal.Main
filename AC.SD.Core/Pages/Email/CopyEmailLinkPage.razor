@@ -101,7 +101,7 @@
                                 @{
                                     dynamicShowSubject = "showOpenSubject_" + item.ID;
                                 }
-                                <div id="@dynamicShowSubject" class="handline fa fa-ellipsis-v" style="font-size: 18px;    font-weight: bold; float: right; margin-top: -20px;"></div>
+                                <div id="@dynamicShowSubject" class="" style="font-size: 18px;    font-weight: bold; float: right; margin-top: -20px;"></div>
                                 @if (item.IsAllowParticipants.GetValueOrDefault(false))
                                 {
                                     <span class="primary_color_icon" style="margin-top: 5px;"><i class="fa fa-users" aria-hidden="true"></i></span>
@@ -298,12 +298,12 @@
                                                     {
                                                         @if (items.IsRead.GetValueOrDefault(false))
                                                         {
-                                                            <span class="primary_color_icon handline" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+                                                            <span class="primary_color_icon handline" title="Mark as unread"><i class="" aria-hidden="true"></i></span>
 
                                                         }
                                                         else
                                                         {
-                                                            <span class="primary_color_icon handline" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                            <span class="primary_color_icon handline" title="Mark as read"><i class="" aria-hidden="true"></i></span>
                                                         }
 
                                                     }

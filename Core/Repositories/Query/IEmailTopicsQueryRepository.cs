@@ -15,8 +15,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync(long UserId);
         Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID);
         EmailActivityCatgorys GetUserAsync(string? Usertag);
-       
-        Task<List<EmailTopics>> GetByIdAsync(Int64 id);             
+        Task<IReadOnlyList<TransferEmailHistory>> GetEmailHistoryList(long ID);
+         Task<List<EmailTopics>> GetByIdAsync(Int64 id);             
         Task<List<EmailTopics>> GetUserTopicList(Int64 UserId);
         Task<List<RequestEmail>> RequestEmailToCCList(Int64 ConId);
         Task<List<RequestEmail>> RequestEmailParticipantList(Int64 conversationID);
@@ -96,5 +96,6 @@ namespace Core.Repositories.Query
         Task<long> DeleteNotify(long id);   
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);
         Task<IReadOnlyList<Documents>> GetDynamicFormDataDynamicFormDataUploadList(Guid? SessionIds);
+        Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory);
     }
 }

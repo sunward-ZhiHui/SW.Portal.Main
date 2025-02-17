@@ -22,5 +22,13 @@ namespace Core.Entities
         public DateTime AddedDate { get; set; }
         [NotMapped]
         public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? FromName { get; set; }
+        [NotMapped]
+        public string? ToName { get; set; }
+        [NotMapped]
+        public string? TransferBy { get; set; }
+        [NotMapped]
+        public string? TopicName { get;set; }
     }
 }

@@ -16,6 +16,14 @@
     .dxbl-grid-detail-cell {
         padding: 10px 5px 10px 20px !important; 
     }
+
+    td:has(> .b-grndActive) {
+        background-color: #dbdbdb; 
+    }
+
+
+
+
 </style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
     <DxGrid Data="@_forumTopicTo"
@@ -34,7 +42,7 @@
                     @{
                         var item = (EmailTopics)context.DataItem;
                     }
-                    <div style="width:100%" class="b-grndActive @(item.SessionId)">
+                    <div style="width:100%" class="@(item.TopicName == MSearchText?.Trim() ? "b-grndActive" : "nobg")">
                         <strong>@item.FirstName</strong>
                         @if (item.DueDate.HasValue)
                         {

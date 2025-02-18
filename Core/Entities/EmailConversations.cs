@@ -130,6 +130,8 @@ namespace Core.Entities
         [NotMapped]
         public Guid? EmailConversationsSessionid { get; set; }
         public long? CopyLinkEmailIds { get; set; } = null;
+        [NotMapped]
+        public string? PreviosUser { get; private set; }
     }
     public class EmailDocumentModel
     {        

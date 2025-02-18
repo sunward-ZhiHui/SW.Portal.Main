@@ -3418,6 +3418,70 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async  Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FromId", transferEmailHistory.FromId);
+                        parameters.Add("ToId", transferEmailHistory. ToId);
+                        parameters.Add("TopicID", transferEmailHistory.TopicID);
+                        parameters.Add("ConversationID", transferEmailHistory.ConversationID);
+                        parameters.Add("ReplyId", transferEmailHistory.ReplyId);
+                        parameters.Add("UserID", transferEmailHistory.UserID);
+                        parameters.Add("AddedByUserID", transferEmailHistory.AddedByUserID);
+                        parameters.Add("AddedDate", transferEmailHistory.AddedDate);
+
+                        var query = @"insert into TransferEmailHistory(FromId,ToId,TopicID,ConversationID,ReplyId,UserID,AddedByUserID,AddedDate)
+                                      Values(@FromId,@ToId,@TopicID,@ConversationID,@ReplyId,@UserID,@AddedByUserID,@AddedDate)";
+
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<IReadOnlyList<TransferEmailHistory>> GetEmailHistoryList(long ID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", ID);
+                var query = @"Select EC.TopicName, AU1.userName as FromName,AU2.userName as ToName,AU3.userName as TransferBy ,TH.* from TransferEmailHistory TH
+                                Inner Join EmailTopics EC ON EC.ID = TH.TopicId
+                                Inner JOIN ApplicationUser AU1 ON AU1.UserID = TH.FromId
+                                Inner JOIN ApplicationUser AU2 ON AU2.UserID = TH.ToId
+                                Inner JOIN ApplicationUser AU3 ON AU3.UserID = TH.AddedByUserID Where TH.ToId = @ID
+                                ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TransferEmailHistory>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 
 }

@@ -658,4 +658,12 @@ namespace Application.Queries
             this.SessionID = sessionID;
         }
     }
+    public class GetAllEmailHistoryQuery : PagedRequest, IRequest<List<TransferEmailHistory>>
+    {
+        public long ID { get; set; }
+        public GetAllEmailHistoryQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
 }

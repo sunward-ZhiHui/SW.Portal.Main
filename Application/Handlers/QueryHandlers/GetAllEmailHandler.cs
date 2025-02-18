@@ -950,18 +950,18 @@ namespace CMS.Application.Handlers.QueryHandlers
     }
     public class InsertTransferEmailHistoryHandler : IRequestHandler<InsertTransferEmailHistory, long>
     {
-      
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
         private readonly IQueryRepository<TransferEmailHistory> _queryRepository;
 
-        public InsertTransferEmailHistoryHandler(IQueryRepository<TransferEmailHistory> queryRepository)
+        public InsertTransferEmailHistoryHandler(IQueryRepository<TransferEmailHistory> queryRepository, IEmailTopicsQueryRepository emailTopicsQueryRepository)
         {
             _queryRepository = queryRepository;
-
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
         }
 
         public async Task<long> Handle(InsertTransferEmailHistory request, CancellationToken cancellationToken)
         {
-            var req = await _queryRepository.InsertQuery(request);
+            var req = await _emailTopicsQueryRepository.InsertTransferHistory(request);
             return req;
         }
     }
@@ -1292,6 +1292,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<Documents>> Handle(GetDynamicFormDataDynamicFormDataUploadList request, CancellationToken cancellationToken)
         {
             return (List<Documents>)await _emailTopicsQueryRepository.GetDynamicFormDataDynamicFormDataUploadList(request.SessionID);
+        }
+    }
+    public class GetEmailHistoryListHandler : IRequestHandler<GetAllEmailHistoryQuery, List<TransferEmailHistory>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailHistoryListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<TransferEmailHistory>> Handle(GetAllEmailHistoryQuery request, CancellationToken cancellationToken)
+        {
+            return (List<TransferEmailHistory>)await _emailTopicsQueryRepository.GetEmailHistoryList(request.ID);
+
         }
     }
 }

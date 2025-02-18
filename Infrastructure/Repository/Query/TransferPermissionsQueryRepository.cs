@@ -210,11 +210,16 @@ namespace Infrastructure.Repository.Query
             try
             {
                 userIds = userIds != null ? userIds : -1;
-                var query = "select t1.*,t3.TopicName,t4.Name as EmailConversationName,t2.UserName from EmailConversationParticipant t1\r\n" +
-                    "JOIN ApplicationUser t2 ON t1.UserId=t2.UserID\r\n" +
-                    "JOIN EmailTopics t3 ON t3.ID=t1.TopicId\r\nJOIN EmailConversations t4 ON t4.ID=t1.ConversationId\r\n\r\n " +
-                    "WHERE  t1.UserID in(" + string.Join(',', userIds) + ")";
+                //var query = "select t1.*,t3.TopicName,t4.Name as EmailConversationName,t2.UserName from EmailConversationParticipant t1\r\n" +
+                //    "JOIN ApplicationUser t2 ON t1.UserId=t2.UserID\r\n" +
+                //    "JOIN EmailTopics t3 ON t3.ID=t1.TopicId\r\nJOIN EmailConversations t4 ON t4.ID=t1.ConversationId\r\n\r\n " +
+                //    "WHERE  t1.UserID in(" + string.Join(',', userIds) + ")";
 
+                var query = "select t1.*,t3.TopicName,t4.Name as EmailConversationName,t2.UserName,TEH.PreviosUser from EmailConversationParticipant t1\r\n" +
+                  "JOIN ApplicationUser t2 ON t1.UserId=t2.UserID\r\n" +
+                  "JOIN EmailTopics t3 ON t3.ID=t1.TopicId\r\nJOIN EmailConversations t4 ON t4.ID=t1.ConversationId\r\n\r\n " +
+                  "Outer Apply (\r\n\t\t\t\t\t  SELECT Top 1 TH.FromId,TH.ToId,TH.ConversationID,TH.TopicID,TH.AddedDate,AU1.UserName as PreviosUser FROM TransferEmailHistory TH\r\n\t\t\t\t\t  Left Join ApplicationUser AU1 ON AU1.UserID = TH.FromId\r\n\t\t\t\t\tWhere ConversationID = t1.ConversationId\r\n\t\t\t\t\tOrder By TH.AddedDate Desc\r\n ) as TEH " +
+                  "WHERE  t1.UserID in(" + string.Join(',', userIds) + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<EmailConversations>(query)).ToList();

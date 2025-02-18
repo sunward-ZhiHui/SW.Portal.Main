@@ -110,8 +110,8 @@ namespace DocumentViewer.Controllers
 
                                         viewmodel.DocumentId = Guid.NewGuid().ToString();
                                         viewmodel.ContentType = contentType;
-                                        System.GC.Collect();
-                                        GC.SuppressFinalize(this);
+                                        //System.GC.Collect();
+                                        //GC.SuppressFinalize(this);
                                     }
                                     else
                                     {

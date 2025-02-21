@@ -195,9 +195,8 @@
                                 <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))">
 
                                 </DxTabPage>
-                                <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
-
-                                </DxTabPage> 
+                                <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))"></DxTabPage> 
+                                <DxTabPage Text="Transfer" CssClass="@((isLeftMenuvisible == "Transfer" ? "tActive": "transfer"))" Click="@(() => OnLeftMenuItemClick("Transfer"))"></DxTabPage> 
                                 @if(_openAccessUserLink != null)
                                 {
                                     <DxTabPage Text="Administrator" CssClass="@((isLeftMenuvisible == "Administrator" ? "tActive": "administrator"))" Click="@(() => OnLeftMenuItemClick("Administrator"))"></DxTabPage>   
@@ -229,6 +228,10 @@
                             {
 
                                 <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailUnArchiveClick" EnableUnArchiveAll="EnableUnArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen"></MasterSearch>
+                            }
+                            else if(isLeftMenuvisible == "Transfer")
+                            {
+                                <TransferEmail @ref=RefTransferEamil GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></TransferEmail>
                             }
                             else if (isLeftMenuvisible == "Administrator")
                             {
@@ -3600,6 +3603,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     private GroupParticipantList? RefTopicAddGroupPList { get; set; }
     private AssignToEmail? RefAssignTo { get; set; }
     private AllEmail? RefAssignAll{ get; set; }
+    private TransferEmail? RefTransferEamil { get; set; }
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
     private EmailAttachment? RefEmailDoc { get; set; }
@@ -6206,6 +6210,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             RefAssignAll?.Dispose();
         }
 
+        if(RefTransferEamil is IAsyncDisposable asyncDisposableRefTransferEamil)
+        {
+            await asyncDisposableRefTransferEamil.DisposeAsync();
+        }
+        else
+        {
+            RefTransferEamil?.Dispose();
+        }
+
         if (RefAssignTo is IAsyncDisposable asyncDisposableRefAssignTo)
         {
             await asyncDisposableRefAssignTo.DisposeAsync();
@@ -6321,6 +6334,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         RefTopicAddGroupPList?.Dispose();
         RefAssignTo?.DisposeAsync();
         RefAssignAll?.Dispose();
+        RefTransferEamil?.Dispose();
         RefTopicTagList?.Dispose();
         RefTopicTodo?.Dispose();
         RefEmailDoc?.Dispose();

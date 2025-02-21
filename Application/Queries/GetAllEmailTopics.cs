@@ -119,6 +119,18 @@ namespace Application.Queries
             this.PageSize = pageSize;
         }
     }
+    public class GetEmailTopicTransfer : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public string SearchTxt { get; private set; }
+        public GetEmailTopicTransfer(long UserId, string searchTxt, int pageNumber, int pageSize)
+        {
+            this.UserId = UserId;
+            this.SearchTxt = searchTxt;
+            this.PageNumber = pageNumber;
+            this.PageSize = pageSize;
+        }
+    }
     public class GetEmailTopicToSearch : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

@@ -1252,6 +1252,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DocumentsModel>> GetinsertAllDocumntsForSecurity(List<long?> fileProfileTypeId)
+        {
+            try
+            {
+                List<DocumentsModel> documentsModels = new List<DocumentsModel>();
+                fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
+                var query = "select DocumentID,FilterProfileTypeID,IsDelete from Documents where IsLatest=1 and (IsDelete is null OR IsDelete=0)  AND FilterProfileTypeID in(" + string.Join(',', fileProfileTypeId) + ")";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DocumentsModel>(query, null)).ToList();
+                    return result != null ? result : new List<DocumentsModel>();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DocumentUserRole>> GetDocumentUserExitsRoleByDocEmptyAsync(List<long?> fileProfileTypeId)
         {
             try
@@ -2211,12 +2229,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    ///value.FileProfileTypeIds = new List<long?>();
                     value.FileProfileTypeIds.Add(value.FileProfileTypeId);
-                    //if(value.SelectFileProfileTypeId>0)
-                    //{
-                    //   value.FileProfileTypeIds.Add(value.SelectFileProfileTypeId);
-                    // }
                     value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
                     var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeIds);
                     var userExitsByRoles = await GetDocumentUserExitsRoleByDocEmptyAsync(value.FileProfileTypeIds);
@@ -2322,6 +2335,124 @@ namespace Infrastructure.Repository.Query
                                 {
                                     await connection.QuerySingleOrDefaultAsync<long>(query, null);
                                 }
+                            }
+
+                        }
+                        if (value.IsUpdateAllDocument == true)
+                        {
+                            await InsertFileProfileTypeAccessDocumentAll(value);
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentUserRoleModel> InsertFileProfileTypeAccessDocumentAll(DocumentUserRoleModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    value.FileProfileTypeIds.Add(value.FileProfileTypeId);
+                    value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                    var docs = await GetinsertAllDocumntsForSecurity(value.FileProfileTypeIds);
+                    var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeIds);
+                    var userExitsByRoles = await GetDocumentUserExitsRoleByDocEmptyAsync(value.FileProfileTypeIds);
+                    var userGroupUsers = await GetUserGroupUser();
+                    var LevelUsers = await GetLeveMasterUsers(value.SelectLevelMasterIDs);
+
+                    try
+                    {
+                        var query = string.Empty;
+                        value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                        if (value.FileProfileTypeIds.Count() > 0)
+                        {
+                            foreach (var f in value.FileProfileTypeIds)
+                            {
+                                var docData = docs.Where(w => w.FilterProfileTypeId == f).ToList();
+                                var userExitsRoless = userExitsRoles.ToList().Where(w => w.FileProfileTypeId == f).ToList();
+                                if (userExitsRoles != null && userExitsRoles.Count() > 0)
+                                {
+                                    var query1 = string.Empty;
+                                    foreach (var user in userExitsRoless)
+                                    {
+                                        var counts1 = userExitsRoles.Where(w => w.FileProfileTypeId == f && w.UserId == user.UserId && w.DocumentId == null).Count();
+                                        if (counts1 == 0)
+                                        {
+                                            query1 += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId\r";
+                                            if (user.LevelId > 0)
+                                            {
+                                                query1 += ",LevelId";
+                                            }
+                                            if (user.UserGroupId > 0)
+                                            {
+                                                query1 += ",UserGroupId";
+                                            }
+                                            query1 += "\r) OUTPUT INSERTED.DocumentUserRoleId\r";
+                                            query1 += "VALUES (" + f + "," + user.UserId + "," + user.RoleId + "";
+                                            if (user.LevelId > 0)
+                                            {
+                                                query1 += "," + user.LevelId + "";
+                                            }
+                                            if (user.UserGroupId > 0)
+                                            {
+                                                query1 += "," + user.UserGroupId + "";
+                                            }
+                                            query1 += ");";
+                                        }
+                                    }
+                                    if (!string.IsNullOrEmpty(query1))
+                                    {
+                                        await connection.QuerySingleOrDefaultAsync<long>(query1, null);
+                                    }
+                                }
+
+                                foreach (var docId in docData)
+                                {
+                                    query = string.Empty;
+                                    foreach (var user in userExitsRoless)
+                                    {
+                                        var counts = userExitsByRoles.Where(w => w.FileProfileTypeId == f && w.UserId == user.UserId && w.DocumentId == docId.DocumentID).Count();
+                                        if (counts == 0)
+                                        {
+                                            query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,DocumentID\r";
+                                            if (user.LevelId > 0)
+                                            {
+                                                query += ",LevelId";
+                                            }
+                                            if (user.UserGroupId > 0)
+                                            {
+                                                query += ",UserGroupId";
+                                            }
+                                            query += "\r) OUTPUT INSERTED.DocumentUserRoleId\r";
+                                            query += "VALUES (" + f + "," + user.UserId + "," + user.RoleId + "," + docId.DocumentID + "";
+                                            if (user.LevelId > 0)
+                                            {
+                                                query += "," + user.LevelId + "";
+                                            }
+                                            if (user.UserGroupId > 0)
+                                            {
+                                                query += "," + user.UserGroupId + "";
+                                            }
+                                            query += ");";
+                                        }
+                                    }
+                                    if (!string.IsNullOrEmpty(query))
+                                    {
+                                        await connection.QuerySingleOrDefaultAsync<long>(query, null);
+                                    }
+                                }
+
+
                             }
 
                         }

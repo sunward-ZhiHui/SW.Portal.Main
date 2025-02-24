@@ -1,4 +1,4 @@
-﻿<DemoScriptLoader @ref=@scriptLoaderRef Src="_content/AC.SD.Core/lib/scroll-view.js" />
+﻿@* <DemoScriptLoader @ref=@scriptLoaderRef Src="_content/AC.SD.Core/lib/scroll-view.js" /> *@
 
 <div @attributes=@Attributes class="blazor-scroll-view @CssClass" @ref=@elementRef>
     @ChildContent
@@ -19,10 +19,10 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if(firstRender) {
-            await scriptLoaderRef.Loaded;
-            await scriptLoaderRef.InvokeVoidAsync("DevExpress.ui.ensureScrollView", elementRef);
-            if(ScriptLoaded != null)
-                await ScriptLoaded.Invoke();
+            // await scriptLoaderRef.Loaded;
+            // await scriptLoaderRef.InvokeVoidAsync("DevExpress.ui.ensureScrollView", elementRef);
+            // if(ScriptLoaded != null)
+            //     await ScriptLoaded.Invoke();
         }
     }
 }

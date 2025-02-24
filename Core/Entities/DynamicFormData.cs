@@ -160,6 +160,7 @@ namespace Core.Entities
     public class DynamicFormDataResponse
     {
         public int? TotalPage { get; set; } = 0;
+        public string? FormLink { get; set; }   
         public long DynamicFormDataId { get; set; }
         public long? DynamicFormId { get; set; }
         public string? ProfileNo { get; set; }

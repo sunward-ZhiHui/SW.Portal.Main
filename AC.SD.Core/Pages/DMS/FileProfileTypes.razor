@@ -59,8 +59,8 @@
                     </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" title="Move" IconCssClass="fa fa-sign-in" style="@isMoveEnabled" Click="@(() => OnFileProfilteMoveDocuments())" id=@($"flyout-overview-target-container-MoveDocuments") />
                     <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" title="Profile Info" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" title="Permission" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
+                    <DxMenuItem Position="ItemPosition.Start" title="@ProfileTypeInfoName" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
+                    <DxMenuItem Position="ItemPosition.Start" title="@PermissionName" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
@@ -279,7 +279,7 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="170" />
-                <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="170" >
+                <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -291,9 +291,9 @@
                         }
                         @startDate
                     </CellDisplayTemplate>
-                    </DxGridDataColumn>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="170" />
-                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" >
+                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -305,7 +305,7 @@
                         }
                         @startDate
                     </CellDisplayTemplate>
-                    </DxGridDataColumn>
+                </DxGridDataColumn>
             </Columns>
             <TotalSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
@@ -750,6 +750,8 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private string? PermissionName { get; set; }
+    private string? ProfileTypeInfoName { get; set; }
     private HistoryPopup refHistoryPopup;
     private MissingUploadFileProfileType refMissingUploadFileProfileType;
     private AddFileProfileTypeInfo refAddFileProfileTypeInfo;
@@ -949,8 +951,8 @@
     {
         try
         {
-            
-            PanelVisible = true;
+
+            PanelVisible = true; PermissionName = ""; ProfileTypeInfoName = "";
             //await onshowLoading();
             searchText = null; SearchText = null; _fileContentList = null; _openAccessUserLink = null; _fileProfileselectedlstItems = null;
             isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
@@ -972,7 +974,10 @@
                 isMoveEnabled = "";
                 isCheckAllEnabled = true;
             }
-            FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
+            var FileProfileTypeNames = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId);
+            FileProfileTypeId = FileProfileTypeNames?.FileProfileTypeId;
+            PermissionName = "Security-" + FileProfileTypeNames?.FileName;
+            ProfileTypeInfoName = "Profile Type Info-" + FileProfileTypeNames?.FileName;
             if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true && MainSessionId != null)
             {
                 isCreateFolder = true;
@@ -1047,7 +1052,7 @@
                     _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
 
                     await permissionEnabled();
-                   // Grid.MakeRowVisible(Grid.GetVisibleRowCount() - 1);
+                    // Grid.MakeRowVisible(Grid.GetVisibleRowCount() - 1);
                     Grid.SetFocusedRowIndex(0);
                     StateHasChanged();
                 }
@@ -1078,9 +1083,9 @@
                         }
                         StateHasChanged();
                     }
-                    
+
                 }
-                
+
             }
         }
         catch (Exception ex)
@@ -1172,8 +1177,8 @@
             moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false;
             IsGrantAdminPermission = false;
             isCreateDynamicDocumentEnabled = false;
-            isCreateSubFolder = false;isEdit = false; isDelete = false; 
-            isProfileInfoEnabled = false; isMoveEnabled = "display:none;";isFilterMore = "display:none";
+            isCreateSubFolder = false; isEdit = false; isDelete = false;
+            isProfileInfoEnabled = false; isMoveEnabled = "display:none;"; isFilterMore = "display:none";
             if (fileTypeData != null)
             {
                 isFilterMore = "";
@@ -1193,9 +1198,9 @@
                                 isVisibleParentMore = "";
                             }
                             moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
-                            isEdit = true; isDelete = true; 
+                            isEdit = true; isDelete = true;
                             isCreateSubFolder = true;
-                              IsGrantAdminPermission = true;
+                            IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                             {
                                 isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
@@ -1271,7 +1276,7 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                                 isCreateSubFolder = true;
+                                isCreateSubFolder = true;
                             }
                         }
                     }
@@ -2274,7 +2279,7 @@
     {
         if (LinkFilterFileprofiletypeRowIndexId > 0)
         {
-           // TreeList?.SetFocusedRowIndex((int)LinkFilterFileprofiletypeRowIndexId - 1); 
+            // TreeList?.SetFocusedRowIndex((int)LinkFilterFileprofiletypeRowIndexId - 1);
         }
         // LinkFilterFileprofiletypeRowIndexId = TreeList?.GetFocusedRowIndex();
     }
@@ -2288,7 +2293,7 @@
             LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             LinkFilterFileprofiletypeId = nodeName.FileProfileTypeId;
             LinkFilterFileprofiletypeSessionId = nodeName.SessionID;
-            
+
         }
         IsFileProfileTypeFilterDocOpen = false;
         StateHasChanged();

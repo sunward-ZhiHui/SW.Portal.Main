@@ -180,7 +180,8 @@
         </DxTabPage>
     </DxTabs>
     <DxFormLayout>
-        <DxFormLayoutItem Caption="Sunward Libraries" ColSpanMd="6">
+
+        <DxFormLayoutItem Caption="Sunward Libraries" ColSpanMd="10">
             <DxTextBox NullText="Select Sunward Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
                 <Buttons>
                     <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-User")
@@ -191,6 +192,9 @@
                                     Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())"></DxEditorButton>
                 </Buttons>
             </DxTextBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Is Security Add Existing Documents" ColSpanMd="4">
+            <DxCheckBox @bind-Checked="Data.IsUpdateAllDocument"></DxCheckBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem ColSpanMd="2">
             <DxButton Click="@SubmitFormExternally" Enabled="saveEnabled"
@@ -292,7 +296,8 @@
                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                 DisplayMode="MenuDisplayMode.Auto">
                             <Items>
-                                <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                                <DxMenuItem Text="Select & Close" IconCssClass="fa fa-reply" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                                @* <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) /> *@
                                 <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
                                 <DxMenuItem Text="Collapse All" IconCssClass="fa fa-expand" Click=@collapseTreeAll />
                                 <DxMenuItem Text="@checkAllUncheckedText" IconCssClass="fa fa-check" Click=@OnButtonFileProfileTypeAllClick />
@@ -408,6 +413,7 @@
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         Data.Type = "User";
+        Data.IsUpdateAllDocument = false;
         Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         fileProfileTypeDocuments = GetChild(FileProfileTypeId).ToList();
@@ -693,15 +699,63 @@
     }
     async Task HandleValidSubmit()
     {
-        saveEnabled = false;
-        var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
-        if (!string.IsNullOrEmpty(response.Type))
+        if (Data.FileProfileTypeIds != null && Data.FileProfileTypeIds.Count() > 0)
         {
-            saveEnabled = true;
-            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            int count = 0;
+            var totalCount = Data.FileProfileTypeIds.Count();
+            foreach (var item in Data.FileProfileTypeIds)
+            {
+                saveEnabled = false;
+                DocumentUserRoleModel Data1 = new DocumentUserRoleModel();
+                Data1.RoleID = Data.RoleID;
+                Data1.UserGroupRoleID = Data.UserGroupRoleID;
+                Data1.LevelRoleID = Data.LevelRoleID;
+                Data1.Type = Data.Type;
+                Data1.SelectLevelMasterIDs = Data.SelectLevelMasterIDs;
+                Data1.SelectUserGroupIDs = Data.SelectUserGroupIDs;
+                Data1.SelectUserIDs = Data.SelectUserIDs;
+                Data1.DocumentID = Data.DocumentID;
+                Data1.IsUpdateAllDocument = Data.IsUpdateAllDocument;
+                Data1.FileProfileTypeId = Data.FileProfileTypeId;
+                if (count == 0)
+                {
+                    List<long?> ids = new List<long?>();
+                    ids.Add(item);
+                    Data1.FileProfileTypeIds = ids;
+                }
+                var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data1));
+                if (!string.IsNullOrEmpty(response.Type))
+                {
+                    saveEnabled = true;
+                    var names = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == item).FirstOrDefault();
+                    toastService.ShowToast(names?.Name + "- Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                // if ((count + 1) == totalCount)
+                // {
+                //     Data.SelectUserIDs = new List<long>(); Data.SelectUserGroupIDs = new List<long>(); Data.SelectLevelMasterIDs = new List<long>(); Data.IsUpdateAllDocument = false;
+                //     saveEnabled = true; LinkFilterFileprofiletypeName = string.Empty; Data.FileProfileTypeIds = new List<long?>();
+                //     await refDocumentUserRoleListsUser.loadData(FileProfileTypeId, DocumentId);
+                //     StateHasChanged();
+                // }
+            }
+            Data.SelectUserIDs = new List<long>(); Data.SelectUserGroupIDs = new List<long>(); Data.SelectLevelMasterIDs = new List<long>(); Data.IsUpdateAllDocument = false;
+            saveEnabled = true; LinkFilterFileprofiletypeName = string.Empty; Data.FileProfileTypeIds = new List<long?>();
             await refDocumentUserRoleListsUser.loadData(FileProfileTypeId, DocumentId);
+            StateHasChanged();
         }
-        StateHasChanged();
+        else
+        {
+            saveEnabled = false;
+            var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
+            if (!string.IsNullOrEmpty(response.Type))
+            {
+                Data.SelectUserIDs = new List<long>(); Data.SelectUserGroupIDs = new List<long>(); Data.SelectLevelMasterIDs = new List<long>(); Data.IsUpdateAllDocument = false;
+                saveEnabled = true; LinkFilterFileprofiletypeName = string.Empty; Data.FileProfileTypeIds = new List<long?>();
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await refDocumentUserRoleListsUser.loadData(FileProfileTypeId, DocumentId);
+            }
+            StateHasChanged();
+        }
     }
     void HandleInvalidSubmit()
     {

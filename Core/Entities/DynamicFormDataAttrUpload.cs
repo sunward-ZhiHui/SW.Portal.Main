@@ -24,4 +24,9 @@ namespace Core.Entities
         public string? DisplayName { get; set; }
         public int? UniqueId { get; set; }
     }
+    public class CarouselData
+    {
+        public string? Source { get; set; }
+        public string? AlternateText { get; set; }
+    }
 }

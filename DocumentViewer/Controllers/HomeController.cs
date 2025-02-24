@@ -28,6 +28,7 @@ using System.IO.Compression;
 using DevExpress.ClipboardSource.SpreadsheetML;
 using DevExpress.Office.Drawing;
 using DevExpress.Data.Filtering.Helpers;
+using static DevExpress.Utils.HashCodeHelper.Primitives;
 
 namespace DocumentViewer.Controllers
 {
@@ -190,7 +191,7 @@ namespace DocumentViewer.Controllers
                                     }
                                     else
                                     {
-                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
                                         var streamData = webResponse.Content.ReadAsStream();
                                         if (Extension == "msg" || Extension == "eml")
                                         {
@@ -202,6 +203,29 @@ namespace DocumentViewer.Controllers
                                             viewmodel.Type = contentType.Split("/")[0].ToLower();
                                             Stream byteArrayAccessor() => streamData;
                                             viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+
+                                        }*/
+                                        using var webResponse = await webClient.GetAsync(new Uri(fileurl), HttpCompletionOption.ResponseHeadersRead);
+                                        await using var streamData = await webResponse.Content.ReadAsStreamAsync();
+
+                                        if (Extension == "msg")
+                                        {
+                                            viewmodel.Type = Extension;
+                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
+
+                                            // Read stream into a byte array to avoid memory leaks
+                                            byte[] fileBytes;
+                                            using (var memoryStream = new MemoryStream())
+                                            {
+                                                await streamData.CopyToAsync(memoryStream);
+                                                fileBytes = memoryStream.ToArray();
+                                            }
+
+                                            viewmodel.ContentAccessorByBytes = () => fileBytes;
                                         }
                                     }
                                     viewmodel.DocumentId = Guid.NewGuid().ToString();
@@ -246,7 +270,7 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpPost]
-        public IActionResult ExportUrl(string base64, string fileName, DevExpress.AspNetCore.RichEdit.DocumentFormat format, long? id)
+        public async Task<IActionResult> ExportUrlAsync(string base64, string fileName, DevExpress.AspNetCore.RichEdit.DocumentFormat format, long? id)
         {
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
             if (currentDocuments != null)
@@ -260,23 +284,45 @@ namespace DocumentViewer.Controllers
                 {
                     pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                 }
-                if (!string.IsNullOrEmpty(pathurl))
+                /*if (!string.IsNullOrEmpty(pathurl))
                 {
                     byte[] fileContents = System.Convert.FromBase64String(base64);
                     System.IO.File.WriteAllBytesAsync(pathurl, fileContents);
+                }*/
+                if (!string.IsNullOrEmpty(pathurl))
+                {
+                    byte[] buffer = new byte[4096]; // Small buffer to process in chunks
+                    using (var inputStream = new MemoryStream(Convert.FromBase64String(base64)))
+                    using (var outputStream = new FileStream(pathurl, FileMode.Create, FileAccess.Write, FileShare.None, buffer.Length, true))
+                    {
+                        int bytesRead;
+                        while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            await outputStream.WriteAsync(buffer, 0, bytesRead);
+                        }
+                    }
                 }
-
             }
             return Ok();
         }
         public IActionResult RibbonDownloadXlsx(SpreadsheetClientState spreadsheetState)
         {
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            MemoryStream stream = new MemoryStream();
+            /*MemoryStream stream = new MemoryStream();
             spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
             stream.Position = 0;
             const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));
+            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));*/
+            using (MemoryStream stream = new MemoryStream())
+            {
+                spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
+                stream.Position = 0; // Reset position for reading
+
+                const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = HttpContext.Session.GetString("fileName") ?? "default.xlsx";
+
+                return File(stream.ToArray(), XlsxContentType, fileName);
+            }
         }
         [HttpPost]
         public void RibbonSaveToFile(SpreadsheetClientState spreadsheetState)
@@ -315,14 +361,25 @@ namespace DocumentViewer.Controllers
         {
 
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            MemoryStream stream = new MemoryStream();
+            /*MemoryStream stream = new MemoryStream();
             spreadsheet.SaveCopy(stream, DocumentFormat.Xls);
             stream.Position = 0;
             const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));
+            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));*/
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
+                stream.Position = 0; // Reset position for reading
+
+                const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                string fileName = HttpContext.Session.GetString("fileName") ?? "default.xlsx";
+
+                return File(stream.ToArray(), XlsxContentType, fileName);
+            }
         }
         [HttpGet("DownloadFromUrl")]
-        public IActionResult DownloadFromUrl(string? url)
+        public async Task<IActionResult> DownloadFromUrlAsync(string? url)
         {
             try
             {
@@ -348,11 +405,20 @@ namespace DocumentViewer.Controllers
                         {
                             currentDocuments.ContentType = "application/octet-stream";
                         }
-                        var result = DownloadExtention.GetUrlContent(fileurl);
+                        /*var result = DownloadExtention.GetUrlContent(fileurl);
                         if (result != null && result.Result != null)
                         {
                             return File(result.Result, currentDocuments.ContentType, currentDocuments.FileName);
+                        }*/
+                        var result = await GetUrlContent(fileurl);
+                        if (result != null)
+                        {
+                            return new FileStreamResult(result, currentDocuments.ContentType)
+                            {
+                                FileDownloadName = currentDocuments.FileName
+                            };
                         }
+                        return BadRequest("File not found or cannot be downloaded.");
                     }
                 }
             }
@@ -361,6 +427,16 @@ namespace DocumentViewer.Controllers
                 throw new Exception(ex.Message);
             }
             return Ok("file is not exist");
+        }
+        public static async Task<Stream> GetUrlContent(string url)
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadAsStreamAsync(); // ASP.NET will dispose this in FileStreamResult
         }
         [HttpGet("Maildownloadfromurl")]
         public async Task<IActionResult> Maildownloadfromurl(string? url)
@@ -390,13 +466,24 @@ namespace DocumentViewer.Controllers
                         {
                             currentDocuments.ContentType = "application/octet-stream";
                         }
-                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
                         var streamData = webResponse.Content.ReadAsStream();
                         var streamDatas = GetOutLookMailDocuments(streamData, Extension);
                         if (streamDatas != null)
                         {
                             return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
+                        }*/
+                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+
+                        await using (var streamData = await webResponse.Content.ReadAsStreamAsync()) // Ensure async disposal
+                        {
+                            var streamDatas = GetOutLookMailDocuments(streamData, Extension);
+                            if (streamDatas != null)
+                            {
+                                return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
+                            }
                         }
+                        return BadRequest("Failed to process the file.");
                     }
                 }
             }

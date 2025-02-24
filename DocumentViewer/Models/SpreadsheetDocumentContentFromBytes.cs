@@ -17,7 +17,7 @@ namespace DocumentViewer.Models
         public string? Url { get; set; }
         public string? PathUrl { get; set; }
         // public Func<byte[]> ContentAccessorByBytes { get; set; }
-        public Func<Stream> ContentAccessorByBytes { get; set; }
+        public Func<byte[]> ContentAccessorByBytes { get; set; }
         public string? PlainTextBytes { get; set; }
         public bool? IsRead { get; set; } = false;
         public bool? IsDownload { get; set; } = false;

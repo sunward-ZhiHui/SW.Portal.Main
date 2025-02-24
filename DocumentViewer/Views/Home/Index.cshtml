@@ -3,6 +3,16 @@
     <input name="SpreadsheetWorkSessionId" type="hidden" value="" />
 </form>
 <script type="text/javascript">
+    $(window).on("beforeunload", function () {
+        var richEdit = $("#DemoRichEdit").dxRichEdit("instance");
+        richEdit.off("customCommandExecuted"); // Unsubscribe from the custom event
+    });
+    function onPageUnload() {
+        var spreadsheet = $("#spreadsheet").dxSpreadsheet("instance");
+        spreadsheet.off("customCommandExecuted");
+    }
+
+    $(window).on("beforeunload", onPageUnload);
     function onCustomCommandExecuted(s, e) {
         switch (e.commandName) {
             case 'save':
@@ -147,6 +157,7 @@
                                                             .Open(Model.PathUrl).ReadOnly(ViewBag.isDownload == "Yes" ? false : true)
                                                             //.Open(@Model.DocumentId, @Model.Extensions == "xlsx" ? DevExpress.Spreadsheet.DocumentFormat.Xlsx : DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes)
                                                         )
+
                     }
                     else
                     {

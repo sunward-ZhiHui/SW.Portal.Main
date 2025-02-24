@@ -3480,7 +3480,7 @@ namespace Infrastructure.Repository.Query
                                 Ids.AddRange(dynamicFormGridData.Where(w => w.DynamicFormId > 0).Select(s => s.DynamicFormId).Distinct().ToList());
                             }
                             appUsers = await GetGridDynamicFormDataUsers(userIds);
-                             DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
+                            DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
                             Count1 = DynamicFormDataFilter.Count();
                         }
                         else
@@ -3618,6 +3618,8 @@ namespace Infrastructure.Repository.Query
                         List<object> list = new List<object>();
                         List<DynamicFormReportItems> dynamicFormReportItems = new List<DynamicFormReportItems>();
                         dynamicFormData.TotalPage = count1;
+                        var splitString = BasUrl.Split("api");
+                        dynamicFormData.FormLink = splitString[0] + "DynamicMasterSetupList/dynamicForms/" + _dynamicForm.SessionID + "/" + r.SessionId;
                         dynamicFormData.SortOrderByNo = r.SortOrderByNo;
                         dynamicFormData.DynamicFormDataId = r.DynamicFormDataId;
                         dynamicFormData.ProfileNo = r.ProfileNo;
@@ -4032,6 +4034,28 @@ namespace Infrastructure.Repository.Query
                                                     {
                                                         listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                     }
+                                                    if (s.DataSourceTable == "Employee" || s.DataSourceTable == "ItemBatchInfo")
+                                                    {
+                                                        if (_AttributeHeader != null)
+                                                        {
+                                                            var nameList = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                            if (nameList != null && nameList.Count() > 0)
+                                                            {
+                                                                listName = new List<string?>();
+                                                                nameList.ForEach(n =>
+                                                                {
+                                                                    if (s.DataSourceTable == "Employee")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description);
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }
                                                     ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
 
                                                 }
@@ -4104,6 +4128,28 @@ namespace Infrastructure.Repository.Query
                                                             {
                                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                             }
+                                                            if (s.DataSourceTable == "Employee" || s.DataSourceTable == "ItemBatchInfo")
+                                                            {
+                                                                if (_AttributeHeader != null)
+                                                                {
+                                                                    var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                                    if (nameList != null && nameList.Count() > 0)
+                                                                    {
+                                                                        listName = new List<string?>();
+                                                                        nameList.ForEach(n =>
+                                                                        {
+                                                                            if (s.DataSourceTable == "Employee")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.Description);
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
                                                             ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                         }
                                                     }
@@ -4163,6 +4209,28 @@ namespace Infrastructure.Repository.Query
                                                                         {
                                                                             listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
                                                                         }
+                                                                        if (dd.DataSourceTable == "Employee" || dd.DataSourceTable == "ItemBatchInfo")
+                                                                        {
+                                                                            if (PlantDependencySubAttributeDetails != null)
+                                                                            {
+                                                                                var nameList = PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).ToList();
+                                                                                if (nameList != null && nameList.Count() > 0)
+                                                                                {
+                                                                                    listName = new List<string?>();
+                                                                                    nameList.ForEach(n =>
+                                                                                    {
+                                                                                        if (dd.DataSourceTable == "Employee")
+                                                                                        {
+                                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description);
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }
                                                                         var lists = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                         opts1.Add("Value", lists);
                                                                         objectData[nameData] = opts1;
@@ -4196,6 +4264,16 @@ namespace Infrastructure.Repository.Query
                                                                     if (dd.DataSourceTable == "Location")
                                                                     {
                                                                         listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                    }
+                                                                    if (dd.DataSourceTable == "Employee")
+                                                                    {
+                                                                        var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                                        listss = nameList?.AttributeDetailName + "|" + nameList?.Description + "|" + nameList?.DesignationName;
+                                                                    }
+                                                                    if (dd.DataSourceTable == "ItemBatchInfo")
+                                                                    {
+                                                                        var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                                        listss = nameList?.AttributeDetailName + "|" + nameList?.Description;
                                                                     }
                                                                     opts1.Add("Value", listss);
                                                                     objectData[nameData] = opts1;
@@ -4234,6 +4312,25 @@ namespace Infrastructure.Repository.Query
                                                         if (s.DataSourceTable == "Location")
                                                         {
                                                             listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                        }
+                                                        if (s.DataSourceTable == "Employee" || s.DataSourceTable == "ItemBatchInfo")
+                                                        {
+                                                            var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                            if (nameList != null && nameList.Count() > 0)
+                                                            {
+                                                                listName = new List<string?>();
+                                                                nameList.ForEach(n =>
+                                                                {
+                                                                    if (s.DataSourceTable == "Employee")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description);
+                                                                    }
+                                                                });
+                                                            }
                                                         }
                                                         ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                     }

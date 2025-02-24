@@ -97,11 +97,20 @@
          HeaderText="Image"
          Closed="EulaPopupClosed"
          CloseOnEscape="false"
+         Height="500px"
          Width="1000px">
     <BodyContentTemplate>
-        <div style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);">
-            <img src="@imagesrc" width="@width" height="@height" />
-        </div>
+        @*  <div style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);">
+        <img src="@imagesrc" width="@width" height="@height" />
+        </div> *@
+        <DxCarousel Width="800px"
+                    Height="300px"
+                    Data="carouselDatas"
+                    ImageSrcField="Source"
+                    ImageAltField="AlternateText"
+                    LoopNavigationEnabled="true"
+                    ImageSizeMode="CarouselImageSizeMode.FitProportional">
+        </DxCarousel>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -111,7 +120,7 @@
     int? height { get; set; }
     int? width { get; set; }
     string? imagesrc { get; set; }
-    bool Imagepopup { get; set; } = false;
+    bool Imagepopup { get; set; } = false; bool isEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     private List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadListItems { get; set; }
@@ -129,13 +138,14 @@
     public IEnumerable _DynamicFormDataAttrUploadShowList { get; set; }
     [Parameter]
     public EventCallback<DynamicFormDataAttrUpload> OnItemSelected { get; set; }
+    List<CarouselData> carouselDatas = new List<CarouselData>();
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
     }
     async Task LoadData()
     {
-        DeleteEnabled = false;
+        DeleteEnabled = false; carouselDatas = new List<CarouselData>(); isEnabled = false;
         var _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
         _DynamicFormDataAttrUploadListItems = new List<DynamicFormDataAttrUpload>();
         if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
@@ -157,12 +167,22 @@
         if (_DynamicFormDataAttrUploadList != null && _DynamicFormDataAttrUploadList.Count() > 0)
         {
             int i = 1;
+
             _DynamicFormDataAttrUploadList.ForEach(s =>
             {
+                CarouselData carouselData = new CarouselData();
                 s.UniqueId = i;
                 _DynamicFormDataAttrUploadListItems.Add(s);
+                // carouselData.Source = ResizeImage(s);
+                if (s.ImageData != null)
+                {
+                    carouselData.Source = "data:" + s.ImageType + ";base64," + Convert.ToBase64String(s.ImageData);
+                    carouselData.AlternateText = s.FileName;
+                    carouselDatas.Add(carouselData);
+                }
                 i++;
             });
+            isEnabled = true;
             _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault();
             DeleteEnabled = true;
             SMShareGrid.SetFocusedRowIndex(0);
@@ -201,7 +221,7 @@
         imagesrc = "";
         if (_selectedItems != null && _selectedItems.ImageData != null)
         {
-            imagesrc = ResizeImage(_selectedItems);
+            //imagesrc = ResizeImage(_selectedItems);
             // System.Drawing.Image image = System.Drawing.Image.FromStream(new System.IO.MemoryStream(_selectedItems.ImageData));
             //height = image.Height; width = image.Width;
             // imagesrc = "data:" + _selectedItems.ImageType + ";base64," + Convert.ToBase64String(_selectedItems.ImageData);

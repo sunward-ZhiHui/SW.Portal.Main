@@ -57,6 +57,7 @@ namespace Core.EntityModels
         public string? DesignationName { get; set; }
         public string? FullName { get; set; }
         public long? SelectFileProfileTypeId { get; set; }
+        public bool IsUpdateAllDocument { get; set; } = false;
 
     }
     public class LeveMasterUsersModel

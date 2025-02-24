@@ -94,7 +94,7 @@ namespace DocumentViewer.Controllers
                                     if (contentType != null)
                                     {
                                         var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
-                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
                                         var streamData = webResponse.Content.ReadAsStream();
                                         if (Extension == "msg")
                                         {
@@ -106,6 +106,28 @@ namespace DocumentViewer.Controllers
                                             viewmodel.Type = contentType.Split("/")[0].ToLower();
                                             Stream byteArrayAccessor() => streamData;
                                             viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        }*/
+                                        using var webResponse = await webClient.GetAsync(new Uri(fileurl), HttpCompletionOption.ResponseHeadersRead);
+                                        await using var streamData = await webResponse.Content.ReadAsStreamAsync();
+
+                                        if (Extension == "msg")
+                                        {
+                                            viewmodel.Type = Extension;
+                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
+
+                                            // Read stream into a byte array to avoid memory leaks
+                                            byte[] fileBytes;
+                                            using (var memoryStream = new MemoryStream())
+                                            {
+                                                await streamData.CopyToAsync(memoryStream);
+                                                fileBytes = memoryStream.ToArray();
+                                            }
+
+                                            viewmodel.ContentAccessorByBytes = () => fileBytes;
                                         }
 
                                         viewmodel.DocumentId = Guid.NewGuid().ToString();

@@ -1,9 +1,9 @@
 /*!
  * DevExpress Gantt (dx-gantt)
- * Version: 4.1.56
- * Build date: Mon Jun 10 2024
+ * Version: 4.1.57
+ * Build date: Mon Jan 20 2025
  *
- * Copyright (c) 2012 - 2024 Developer Express Inc. ALL RIGHTS RESERVED
+ * Copyright (c) 2012 - 2025 Developer Express Inc. ALL RIGHTS RESERVED
  * Read about DevExpress licensing here: https://www.devexpress.com/Support/EULAs
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -18107,9 +18107,9 @@ var CustomTaskRender = (function () {
     };
     CustomTaskRender.prototype.drawCustomTask = function (taskTemplateContainer, taskIndex) {
         var _this = this;
-        if (!this.taskElements[taskIndex])
-            return;
         var viewItem = this.getViewItem(taskIndex);
+        if (!viewItem || !this.taskElements[taskIndex])
+            return;
         viewItem.visible = !!taskTemplateContainer.innerHTML;
         this.taskElements[taskIndex].innerHTML = taskTemplateContainer.innerHTML;
         viewItem.size.height = this.taskElements[taskIndex].offsetHeight;

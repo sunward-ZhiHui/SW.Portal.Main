@@ -4,7 +4,8 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject AC.SD.Core.Services.DemoThemeService Themes
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
+@using System.Resources
+@using DevExpress.Blazor
 <!DOCTYPE html>
 <html lang="en">
 <head>  
@@ -163,6 +164,26 @@
     </script>
     <script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs.index.min.js"></script>
     <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
+    @* Uncomment the following lines if your application uses the Dashboard or JS-based Reports  *@
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/devextreme-quill/1.6.3/dx-quill.min.js"></script>
+    <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script>
+
+    @DxResourceManager.RegisterScripts((config) =>
+        {
+            config.Unregister(CommonResources.DevExtremeJS);
+            config.Unregister(BlazorResources.QuillJS);
+            
+        })
+    @*<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+    <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+    <LayoutView Layout="@typeof(MainLayout)">
+    <p>Sorry, there's nothing at this address.</p>
+    </LayoutView>
+    </NotFound>
+    </Router>*@
 </body>
 
 </html>

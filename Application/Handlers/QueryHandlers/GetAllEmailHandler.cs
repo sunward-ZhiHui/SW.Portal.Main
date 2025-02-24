@@ -157,6 +157,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetTopicToList(request.UserId, request.SearchTxt, request.PageNumber, request.PageSize);
         }
     }
+    public class GetEmailTopicTransferHandler : IRequestHandler<GetEmailTopicTransfer, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailTopicTransferHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailTopicTransfer request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicTransferList(request.UserId, request.SearchTxt, request.PageNumber, request.PageSize);
+        }
+    }
     public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>
     {
 

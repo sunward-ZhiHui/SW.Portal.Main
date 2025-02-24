@@ -810,6 +810,36 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<List<EmailTopics>> GetTopicTransferList(long UserId, string searchTxt, int pageNumber, int pageSize)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
+                        parameters.Add("PageNumber", pageNumber);
+                        parameters.Add("PageSize", pageSize);
+                        parameters.Add("Option", "SELECT_ASSIGN_TRANSFER");
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Transfer_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        connection.Close();
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt, int pageNumber, int pageSize)
         {
             try

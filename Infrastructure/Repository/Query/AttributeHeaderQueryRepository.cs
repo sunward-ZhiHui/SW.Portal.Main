@@ -1263,7 +1263,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId)
+        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId,List<long?> DynamicFormDataId)
         {
             try
             {
@@ -1287,7 +1287,7 @@ namespace Infrastructure.Repository.Query
                 if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
                 {
                     dynamicFormIds.AddRange(DynamicFormId);
-                    dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, null, true);
+                    dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, DynamicFormDataId, true);
                     //dropDownOptionsGridListModel.DynamicFormData = dynamicFormDatas;
                 }
                 return dropDownOptionsGridListModel;
@@ -1592,6 +1592,8 @@ namespace Infrastructure.Repository.Query
                                 obj.DynamicFormDataGridProfileNo = s.DynamicFormDataGridProfileNo;
                                 obj.SessionId = s.SessionId;
                                 obj.DynamicFormName = s.Name;
+                                obj.SortOrderByNo = s.SortOrderByNo;
+                                obj.GridSortOrderByNo = s.GridSortOrderByNo;
                                 var dynamicFormSectionAttribute = new List<DynamicFormSectionAttribute>();
                                 if (isTableHeader == true)
                                 {

@@ -1,4 +1,5 @@
 ﻿using DevExpress.AspNetCore.Spreadsheet;
+using DevExpress.Office.Drawing;
 using DevExpress.Xpo;
 using DocumentViewer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace DocumentViewer.Controllers
         {
             @ViewBag.isExpired = "No";
             @ViewBag.isDownload = "No";
-            HttpContext.Session.Remove("Share");
+            HttpContext.Session.Remove("Share"); var pathurl = string.Empty;
             SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
@@ -70,10 +71,12 @@ namespace DocumentViewer.Controllers
                         {
                             if (currentDocuments.IsNewPath == true)
                             {
+                                pathurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 fileurl = fileNewUrl + currentDocuments.FilePath;
                             }
                             else
                             {
+                                pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 fileurl = fileOldUrl + currentDocuments.FilePath;
                             }
                             try
@@ -94,23 +97,10 @@ namespace DocumentViewer.Controllers
                                     if (contentType != null)
                                     {
                                         var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
-                                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                        var streamData = webResponse.Content.ReadAsStream();
-                                        if (Extension == "msg")
-                                        {
-                                            viewmodel.Type = Extension;
-                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
-                                        }
-                                        else
-                                        {
-                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                            Stream byteArrayAccessor() => streamData;
-                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                        }*/
-                                        using var webResponse = await webClient.GetAsync(new Uri(fileurl), HttpCompletionOption.ResponseHeadersRead);
-                                        await using var streamData = await webResponse.Content.ReadAsStreamAsync();
 
-                                        if (Extension == "msg")
+                                        var streamData = await ConvertFileToMemoryStreamAsync(pathurl);
+
+                                        if (Extension == "msg" || Extension == "eml")
                                         {
                                             viewmodel.Type = Extension;
                                             viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
@@ -132,8 +122,6 @@ namespace DocumentViewer.Controllers
 
                                         viewmodel.DocumentId = Guid.NewGuid().ToString();
                                         viewmodel.ContentType = contentType;
-                                        //System.GC.Collect();
-                                        //GC.SuppressFinalize(this);
                                     }
                                     else
                                     {
@@ -154,6 +142,16 @@ namespace DocumentViewer.Controllers
                 }
             }
             return View(viewmodel);
+        }
+        async Task<Stream> ConvertFileToMemoryStreamAsync(string filePath)
+        {
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                MemoryStream memoryStream = new MemoryStream();
+                await fileStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream; // Caller is responsible for disposing
+            }
         }
         [HttpPost]
         public ContentResult DxDocRequest()

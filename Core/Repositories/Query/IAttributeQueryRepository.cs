@@ -30,7 +30,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByMobileList(IDictionary<string, JsonElement> DynamicMasterParentIds, long? applicationMasterParentId);
         Task<DropDownOptionsGridListModel> GetDynamicGridNested(List<long?> DynamicFormDataId, long? userId);
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId,Guid? DynamicFormSectionGridAttributeSessionId, string? BaseUrl,bool? IsAll,int? PageNo,int? PageSize,List<DynamicFormFilterOdata> dynamicFormFilterOdatas);
-        Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId);
+        Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId, List<long?> DynamicFormDataId);
         Task<IReadOnlyList<AttributeDetails>> GetAttributeDetailsDataSource(long? AttributeId);
         Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery();
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);

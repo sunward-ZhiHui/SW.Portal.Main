@@ -343,7 +343,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DropDownOptionsGridListModel> Handle(GetDynamicGridDropDownById request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId);
+            return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId,request.DynamicFormDataId);
         }
     }
     public class GetAttributeDetailsDataSourceHandler : IRequestHandler<GetAttributeDetailsDataSource, List<AttributeDetails>>

@@ -76,10 +76,12 @@ namespace Application.Queries
        public List<long?> DynamicFormId { get;set; }
 
         public long? Userid { get; set; }
-        public GetDynamicFormItemLineDropdoenList(List<long?> DynamicFormId, long? userid)
+        public List<long?> DynamicFormDataId { get; set; }
+        public GetDynamicFormItemLineDropdoenList(List<long?> DynamicFormId, long? userid, List<long?> dynamicFormDataId)
         {
             this.DynamicFormId = DynamicFormId;
             this.Userid = userid;
+            this.DynamicFormDataId = dynamicFormDataId;
         }
     }
 

@@ -207,10 +207,19 @@
         try
         {
             PanelVisible = true;
+            var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("ProductSpecification"));
+            var result1 = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("MasterRegistrationInformation"));
             List<long?> dynamicFormIds = new List<long?>();
-            dynamicFormIds.Add(20);
-            dynamicFormIds.Add(10134);
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
+            if (result != null && result.ID > 0)
+            {
+                dynamicFormIds.Add(result.ID);
+            }
+            if (result1 != null && result1.ID > 0)
+            {
+                dynamicFormIds.Add(result1.ID);
+            }
+             List<long?> ids = new List<long?>();
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID, ids));
             dropDownOptionsGridListModel = list;
             _dynamicformObjectDataList = new List<ExpandoObject>();
             if (list.ObjectData != null)

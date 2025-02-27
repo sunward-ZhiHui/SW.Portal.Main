@@ -188,14 +188,21 @@
                         responseType: 'blob'
                     },
                     success: function (data) {
-                        var a = document.createElement('a');
-                        var url = window.URL.createObjectURL(data);
-                        a.href = url;
-                        a.download = fileName + ".zip";
-                        document.body.append(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
+                        if(data.size>0)
+                        {
+                            var a = document.createElement('a');
+                            var url = window.URL.createObjectURL(data);
+                            a.href = url;
+                            a.download = fileName + ".zip";
+                            document.body.append(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                        }
+                        else
+                        {
+                            alert("File is not exist")
+                        }
                     },
                     error: function (ex) {
                         if (ex.status == 500) {

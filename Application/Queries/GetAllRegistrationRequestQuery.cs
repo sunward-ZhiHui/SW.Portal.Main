@@ -60,4 +60,13 @@ namespace Application.Queries
             this.RegistrationRequestDueDateAssignment = registrationRequestDueDateAssignment;
         }
     }
+    public class GetRegistrationRequestVariationForm : PagedRequest, IRequest<List<RegistrationRequestVariationForm>>
+    {
+        public long? RegistrationRequestId { get; set; }
+        public GetRegistrationRequestVariationForm(long? registrationRequestId)
+        {
+            this.RegistrationRequestId = registrationRequestId;
+        }
+    }
+    
 }

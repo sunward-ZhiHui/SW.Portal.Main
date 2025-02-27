@@ -89,6 +89,7 @@
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
             AutoExpandAllGroupRows="true"
+            VirtualScrollingEnabled="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowDoubleClick="OnRowDoubleClick">
@@ -197,6 +198,9 @@
                 }
             }
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 

@@ -2,6 +2,7 @@
 @using Application.Queries;
 @using Application.Response;
 @using MediatR
+@using System.Dynamic
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
@@ -55,7 +56,7 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-
+    
     <DxGrid @ref="SMGrid" Data="@_dynamicFormSectionData" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -132,7 +133,7 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DueDate" />
         </TotalSummary>
     </DxGrid>
-</DxLoadingPanel>
+ </DxLoadingPanel>
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
@@ -154,6 +155,7 @@
     private List<ViewDepartment> _departmentItems;
     [Parameter]
     public RegistrationRequest _registrationRequestData { get; set; }
+
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -179,6 +181,7 @@
     protected override async Task OnInitializedAsync()
     {
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+
         await UpdateDataAsync();
     }
     public async Task loadChildData(RegistrationRequest dynamicFormIds)

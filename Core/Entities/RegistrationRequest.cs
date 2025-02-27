@@ -38,6 +38,7 @@ namespace Core.Entities
         public List<long?> VariationNoIds { get; set; } = new List<long?>();
         public string? ProductSpecificationDynamicForm { get; set; }
         public string? VariationNo { get; set; }
+        public object? ObjectData { get; set; }
     }
     public class RegistrationRequestVariation
     {
@@ -45,6 +46,15 @@ namespace Core.Entities
         public long RegistrationRequestVariationId { get; set; }
         public long? RegistrationRequestId { get; set; }
         public long? DynamicFormDataId { get; set; }
+    }
+    public class RegistrationRequestVariationForm
+    {
+        public long RegistrationRequestVariationFormId { get; set; }
+        public long? RegistrationRequestVariationId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public long? RegDynamicFormDataID { get; set; }
+        public string? Description { get; set; }
+        public string? RegDynamicFormDataNameId { get; set; }
     }
     public class RegistrationRequestDueDateAssignment
     {

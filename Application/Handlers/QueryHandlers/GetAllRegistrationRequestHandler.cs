@@ -110,4 +110,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.InsertorUpdateRegistrationRequestDueDateAssignment(request);
         }
     }
+    public class GetRegistrationRequestVariationFormtHandler : IRequestHandler<GetRegistrationRequestVariationForm, List<RegistrationRequestVariationForm>>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public GetRegistrationRequestVariationFormtHandler(IRegistrationRequestQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<RegistrationRequestVariationForm>> Handle(GetRegistrationRequestVariationForm request, CancellationToken cancellationToken)
+        {
+            return (List<RegistrationRequestVariationForm>)await _queryRepository.GetRegistrationRequestVariationForm(request.RegistrationRequestId);
+        }
+    }
 }

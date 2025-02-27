@@ -191,46 +191,39 @@ namespace DocumentViewer.Controllers
                                     }
                                     else
                                     {
-                                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                        var streamData = webResponse.Content.ReadAsStream();
-                                        if (Extension == "msg" || Extension == "eml")
+                                        if (System.IO.File.Exists(pathurl))
                                         {
-                                            viewmodel.Type = Extension;
-                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
-                                        }
-                                        else
-                                        {
-                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                            Stream byteArrayAccessor() => streamData;
-                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                            var streamData = await ConvertFileToMemoryStreamAsync(pathurl);
 
-                                        }*/
-                                        using var webResponse = await webClient.GetAsync(new Uri(fileurl), HttpCompletionOption.ResponseHeadersRead);
-                                        await using var streamData = await webResponse.Content.ReadAsStreamAsync();
-
-                                        if (Extension == "msg")
-                                        {
-                                            viewmodel.Type = Extension;
-                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
-                                        }
-                                        else
-                                        {
-                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
-
-                                            // Read stream into a byte array to avoid memory leaks
-                                            byte[] fileBytes;
-                                            using (var memoryStream = new MemoryStream())
+                                            if (Extension == "msg" || Extension == "eml")
                                             {
-                                                await streamData.CopyToAsync(memoryStream);
-                                                fileBytes = memoryStream.ToArray();
+                                                viewmodel.Type = Extension;
+                                                viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
                                             }
+                                            else
+                                            {
+                                                viewmodel.Type = contentType.Split("/")[0].ToLower();
 
-                                            viewmodel.ContentAccessorByBytes = () => fileBytes;
+                                                // Read stream into a byte array to avoid memory leaks
+                                                byte[] fileBytes;
+                                                using (var memoryStream = new MemoryStream())
+                                                {
+                                                    await streamData.CopyToAsync(memoryStream);
+                                                    fileBytes = memoryStream.ToArray();
+                                                }
+
+                                                viewmodel.ContentAccessorByBytes = () => fileBytes;
+                                            }
+                                            viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                            @ViewBag.isFile = "Yes";
+                                            viewmodel.ContentType = contentType;
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Id = 0;
                                         }
                                     }
-                                    viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                    @ViewBag.isFile = "Yes";
-                                    viewmodel.ContentType = contentType;
+                                    
                                     return View(viewmodel);
                                 }
                                 else
@@ -284,11 +277,7 @@ namespace DocumentViewer.Controllers
                 {
                     pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                 }
-                /*if (!string.IsNullOrEmpty(pathurl))
-                {
-                    byte[] fileContents = System.Convert.FromBase64String(base64);
-                    System.IO.File.WriteAllBytesAsync(pathurl, fileContents);
-                }*/
+
                 if (!string.IsNullOrEmpty(pathurl))
                 {
                     byte[] buffer = new byte[4096]; // Small buffer to process in chunks
@@ -308,11 +297,7 @@ namespace DocumentViewer.Controllers
         public IActionResult RibbonDownloadXlsx(SpreadsheetClientState spreadsheetState)
         {
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            /*MemoryStream stream = new MemoryStream();
-            spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
-            stream.Position = 0;
-            const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));*/
+
             using (MemoryStream stream = new MemoryStream())
             {
                 spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
@@ -361,11 +346,6 @@ namespace DocumentViewer.Controllers
         {
 
             var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            /*MemoryStream stream = new MemoryStream();
-            spreadsheet.SaveCopy(stream, DocumentFormat.Xls);
-            stream.Position = 0;
-            const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));*/
 
             using (MemoryStream stream = new MemoryStream())
             {
@@ -395,30 +375,23 @@ namespace DocumentViewer.Controllers
                         var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
                         if (currentDocuments.IsNewPath == true)
                         {
-                            fileurl = fileNewUrl + currentDocuments.FilePath;
+                            fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                         }
                         else
                         {
-                            fileurl = fileOldUrl + currentDocuments.FilePath;
+                            fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                         }
                         if (Extension == "msg")
                         {
                             currentDocuments.ContentType = "application/octet-stream";
                         }
-                        /*var result = DownloadExtention.GetUrlContent(fileurl);
-                        if (result != null && result.Result != null)
+                        var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                        return new FileStreamResult(stream, currentDocuments.ContentType)
                         {
-                            return File(result.Result, currentDocuments.ContentType, currentDocuments.FileName);
-                        }*/
-                        var result = await GetUrlContent(fileurl);
-                        if (result != null)
-                        {
-                            return new FileStreamResult(result, currentDocuments.ContentType)
-                            {
-                                FileDownloadName = currentDocuments.FileName
-                            };
-                        }
-                        return BadRequest("File not found or cannot be downloaded.");
+                            FileDownloadName = currentDocuments.FileName
+                        };
+
+
                     }
                 }
             }
@@ -428,15 +401,15 @@ namespace DocumentViewer.Controllers
             }
             return Ok("file is not exist");
         }
-        public static async Task<Stream> GetUrlContent(string url)
+        async Task<Stream> ConvertFileToMemoryStreamAsync(string filePath)
         {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            return await response.Content.ReadAsStreamAsync(); // ASP.NET will dispose this in FileStreamResult
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                MemoryStream memoryStream = new MemoryStream();
+                await fileStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream; // Caller is responsible for disposing
+            }
         }
         [HttpGet("Maildownloadfromurl")]
         public async Task<IActionResult> Maildownloadfromurl(string? url)
@@ -456,34 +429,28 @@ namespace DocumentViewer.Controllers
                         var filnames = currentDocuments.FileName != null ? currentDocuments.FileName?.TrimEnd('.') : "ZipFile";
                         if (currentDocuments.IsNewPath == true)
                         {
-                            fileurl = fileNewUrl + currentDocuments.FilePath;
+                            fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                         }
                         else
                         {
-                            fileurl = fileOldUrl + currentDocuments.FilePath;
+                            fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                         }
                         if (Extension == "msg")
                         {
                             currentDocuments.ContentType = "application/octet-stream";
                         }
-                        /*var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                        var streamData = webResponse.Content.ReadAsStream();
-                        var streamDatas = GetOutLookMailDocuments(streamData, Extension);
-                        if (streamDatas != null)
-                        {
-                            return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
-                        }*/
-                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
 
-                        await using (var streamData = await webResponse.Content.ReadAsStreamAsync()) // Ensure async disposal
+                        var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                        if (stream != null)
                         {
-                            var streamDatas = GetOutLookMailDocuments(streamData, Extension);
+                            var streamDatas = GetOutLookMailDocuments(stream, Extension);
+
                             if (streamDatas != null)
                             {
                                 return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
                             }
                         }
-                        return BadRequest("Failed to process the file.");
+
                     }
                 }
             }
@@ -491,7 +458,7 @@ namespace DocumentViewer.Controllers
             {
                 throw new Exception(ex.Message);
             }
-            return Ok("file is not exist");
+            return Ok();
         }
         [HttpPost]
         public ContentResult DxDocRequest()

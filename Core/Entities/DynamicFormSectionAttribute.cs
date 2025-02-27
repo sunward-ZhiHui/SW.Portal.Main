@@ -106,6 +106,7 @@ namespace Core.Entities
         public int? GridDisplaySeqNo { get; set; }
         public string? DynamicFormName { get; set; }
         public long? DynamicFormFormulaMathFunId { get; set; }
+        public string? MasterName { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

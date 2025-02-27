@@ -203,7 +203,8 @@
         if (_dynamicForm != null && _dynamicForm.Count() > 0)
         {
             var _dynamicFormIds = _dynamicForm.Select(s => (long?)s.ID).ToList();
-            _dropDownOptionsGridList = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(_dynamicFormIds, applicationUser.UserID));
+            List<long?> ids = new List<long?>();
+            _dropDownOptionsGridList = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(_dynamicFormIds, applicationUser.UserID, ids));
         }
     }
     protected override async Task OnParametersSetAsync()

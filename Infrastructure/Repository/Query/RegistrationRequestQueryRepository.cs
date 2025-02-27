@@ -16,6 +16,9 @@ using NAV;
 using Application.Queries;
 using Infrastructure.Data;
 using static iText.IO.Image.Jpeg2000ImageData;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Dynamic;
+using Newtonsoft.Json;
 
 namespace Infrastructure.Repository.Query
 {
@@ -157,6 +160,24 @@ namespace Infrastructure.Repository.Query
                 throw (new ApplicationException(exp.Message));
             }
         }
+        public async Task<IReadOnlyList<RegistrationRequestVariationForm>> GetRegistrationRequestVariationForm(long? RegistrationRequestId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("RegistrationRequestId", RegistrationRequestId);
+
+                var query = "select t1.*,t2.DynamicFormDataID as RegDynamicFormDataID,(CONCAT(t2.DynamicFormDataID,'_',t1.DynamicFormDataID,'_Id')) as RegDynamicFormDataNameID  from RegistrationRequestVariationForm t1 JOIN RegistrationRequestVariation t2 ON t1.RegistrationRequestVariationID=t2.RegistrationRequestVariationID Where t2.RegistrationRequestId = @RegistrationRequestId";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<RegistrationRequestVariationForm>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<RegistrationRequest> InsertorUpdateRegistrationRequest(RegistrationRequest value)
         {
             try
@@ -193,7 +214,8 @@ namespace Infrastructure.Repository.Query
                         var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         value.RegistrationRequestId = rowsAffected;
                     }
-                    var querys = string.Empty;
+                    await InsertRegistrationRequestVariation(value);
+                    /*var querys = string.Empty;
                     querys += "Delete from RegistrationRequestVariation where RegistrationRequestID=" + value.RegistrationRequestId + ";\r\n";
                     if (value.VariationNoIds != null && value.VariationNoIds.Count() > 0)
                     {
@@ -206,7 +228,7 @@ namespace Infrastructure.Repository.Query
                     if (!string.IsNullOrEmpty(querys))
                     {
                         var rowsAffected = await connection.ExecuteAsync(querys);
-                    }
+                    }*/
                     return value;
 
                 }
@@ -218,6 +240,115 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+        public async Task<IReadOnlyList<RegistrationRequestVariation>> InsertRegistrationRequestVariation(RegistrationRequest registrationRequest)
+        {
+            try
+            {
+                var result = new List<RegistrationRequestVariation>();
+                var parameters = new DynamicParameters();
+                parameters.Add("RegistrationRequestId", registrationRequest.RegistrationRequestId);
+                var query = "select t1.* from RegistrationRequestVariation t1 Where t1.RegistrationRequestId=@RegistrationRequestId;";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    result = results.ReadAsync<RegistrationRequestVariation>().Result.ToList();
+
+                    var ids = result.Select(x => x.DynamicFormDataId).ToList();
+                    var excelpt = ids.Except(registrationRequest.VariationNoIds).ToList();
+                    var querys = string.Empty;
+                    if (excelpt.Count > 0)
+                    {
+                        excelpt.ForEach(x =>
+                        {
+                            var result1 = result.FirstOrDefault(a => a.DynamicFormDataId == x);
+                            if (result1 != null)
+                            {
+                                querys += "Delete from RegistrationRequestVariationForm where RegistrationRequestVariationId=" + result1?.RegistrationRequestVariationId + ";\r\n";
+                                querys += "Delete from RegistrationRequestVariation where RegistrationRequestVariationId=" + result1?.RegistrationRequestVariationId + ";\r\n";
+                            }
+                        });
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            var rowsAffected = await connection.ExecuteAsync(querys);
+                        }
+                    }
+                    List<RegistrationRequestVariation> resultData = new List<RegistrationRequestVariation>();
+                    if (registrationRequest.VariationNoIds != null && registrationRequest.VariationNoIds.Count() > 0)
+                    {
+                        foreach (var s in registrationRequest.VariationNoIds)
+                        {
+                            var queryss = string.Empty;
+                            var result1 = result.FirstOrDefault(a => a.DynamicFormDataId == s);
+                            if (result1 != null)
+                            {
+                                resultData.Add(result1);
+                            }
+                            else
+                            {
+                                queryss += "INSERT INTO RegistrationRequestVariation(RegistrationRequestID,DynamicFormDataID) OUTPUT INSERTED.RegistrationRequestVariationId VALUES " +
+                            "(" + registrationRequest.RegistrationRequestId + "," + s + ");\n\r";
+                                var rowsAffected1 = await connection.QuerySingleOrDefaultAsync<long>(queryss);
+                                RegistrationRequestVariation registrationRequestVariation = new RegistrationRequestVariation();
+                                registrationRequestVariation.DynamicFormDataId = s;
+                                registrationRequestVariation.RegistrationRequestVariationId = rowsAffected1;
+                                resultData.Add(registrationRequestVariation);
+                            }
+                        }
+                    }
+                    if (resultData.Count > 0)
+                    {
+                        var RegistrationRequestVariationIds = resultData.Select(s => s.RegistrationRequestVariationId).ToList();
+                        RegistrationRequestVariationIds = RegistrationRequestVariationIds.Count() > 0 ? RegistrationRequestVariationIds : new List<long>() { -1 };
+                        var queryForm = "select t1.* from RegistrationRequestVariationForm t1 JOIN RegistrationRequestVariation t2 ON t1.RegistrationRequestVariationID=t2.RegistrationRequestVariationID Where t2.RegistrationRequestID=" + registrationRequest.RegistrationRequestId + " AND t1.RegistrationRequestVariationId IN(" + string.Join(',', RegistrationRequestVariationIds) + ");";
+                        var RegistrationRequestVariationForm = (await connection.QueryAsync<RegistrationRequestVariationForm>(queryForm)).ToList();
+                        var queryData = string.Empty;
+                        if (registrationRequest.ObjectData != null)
+                        {
+                            string json = JsonConvert.SerializeObject(registrationRequest.ObjectData);
+
+                            ExpandoObject eo = JsonConvert.DeserializeObject<ExpandoObject>(json);
+                            foreach (var v in eo)
+                            {
+                                var v1 = v.Key;
+                                var v2 = (string?)v.Value;
+                                if (!string.IsNullOrEmpty(v2))
+                                {
+                                    var v3 = v1.Split('_');
+                                    var parameterss = new DynamicParameters();
+                                    var DynamicFormDataIds = Convert.ToInt64(v3[0]);
+                                    var vid = resultData.FirstOrDefault(f => f.DynamicFormDataId == DynamicFormDataIds);
+                                    if (vid != null)
+                                    {
+                                        var DynamicFormDataIdData = Convert.ToInt64(v3[1]);
+                                        parameterss.Add("RegistrationRequestVariationId", vid.RegistrationRequestVariationId);
+                                        parameterss.Add("DynamicFormDataID", v3[1]);
+                                        parameterss.Add("Description", v2, DbType.String);
+                                        var exits = RegistrationRequestVariationForm.FirstOrDefault(f => f.RegistrationRequestVariationId == vid.RegistrationRequestVariationId && f.DynamicFormDataId == DynamicFormDataIdData);
+                                        if (exits == null)
+                                        {
+                                            var querya = "INSERT INTO RegistrationRequestVariationForm(RegistrationRequestVariationId,DynamicFormDataID,Description) OUTPUT INSERTED.RegistrationRequestVariationFormID VALUES " +
+                                                "(@RegistrationRequestVariationId,@DynamicFormDataID,@Description)";
+                                            var rowsAffecteda = await connection.QuerySingleOrDefaultAsync<long>(querya, parameterss);
+                                        }
+                                        else
+                                        {
+                                            parameterss.Add("RegistrationRequestVariationFormId", exits?.RegistrationRequestVariationFormId);
+                                            var querya = "UPDATE RegistrationRequestVariationForm SET Description=@Description WHERE RegistrationRequestVariationFormId = @RegistrationRequestVariationFormId";
+                                            await connection.ExecuteAsync(querya, parameterss);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<RegistrationRequestDueDateAssignment> InsertorUpdateRegistrationRequestDueDateAssignment(RegistrationRequestDueDateAssignment value)
         {

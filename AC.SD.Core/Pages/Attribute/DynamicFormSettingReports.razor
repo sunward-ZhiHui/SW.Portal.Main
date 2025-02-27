@@ -930,6 +930,7 @@
         headers.Add("Label Name");
         headers.Add("Control Type");
         headers.Add("Data Source");
+        headers.Add("Master Name");
         headers.Add("Sort By");
         headers.Add("Is Visible");
         headers.Add("Is Multiple");
@@ -966,7 +967,21 @@
                         row.AppendChild(addCellValues("String", i.SectionName));
                         row.AppendChild(addCellValues("String", i.DisplayName));
                         row.AppendChild(addCellValues("String", i.ControlType));
-                        row.AppendChild(addCellValues("String", i.DataSourceDisplayName));
+                        var DataSourceNames = i.DataSourceDisplayName;
+                        if (i.ControlTypeId == 2712)
+                        {
+                            DataSourceNames = i.DynamicGridName;
+                        }
+                        if (i.DataSourceTable == "DynamicGrid")
+                        {
+                            DataSourceNames += " - " + i.DynamicGridName;
+                        }
+                        if (i.IsFilterDataSource == true)
+                        {
+                            DataSourceNames = "Is Filter - " + i.FilterDataSourceDisplayName;
+                        }
+                        row.AppendChild(addCellValues("String", DataSourceNames));
+                        row.AppendChild(addCellValues("String", i.MasterName));
                         row.AppendChild(addCellValues("Number", i.SortOrderBy.ToString()));
                         row.AppendChild(addCellValues("String", i.IsVisible.ToString()));
                         row.AppendChild(addCellValues("String", i.IsMultiple.ToString()));

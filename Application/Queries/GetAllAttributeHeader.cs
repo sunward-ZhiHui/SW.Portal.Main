@@ -233,10 +233,12 @@ namespace Application.Queries
     {
         public List<long?> DynamicFormId { get; set; }
         public long? UserId { get; set; }
-        public GetDynamicGridDropDownById(List<long?> dynamicFormId, long? userId)
+        public List<long?> DynamicFormDataId { get; set; }
+        public GetDynamicGridDropDownById(List<long?> dynamicFormId, long? userId, List<long?> dynamicFormDataId)
         {
             this.DynamicFormId = dynamicFormId;
             this.UserId = userId;
+            this.DynamicFormDataId = dynamicFormDataId;
         }
     }
     public class GetAttributeDetailsDataSource : PagedRequest, IRequest<List<AttributeDetails>>

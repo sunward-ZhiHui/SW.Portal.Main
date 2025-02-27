@@ -132,6 +132,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Appointment>)await _queryRepository.GetUserListAsync(request.AppointmentID);
         }
     }
+    public class GetEmailListHandler : IRequestHandler<GetEmailTopicListQuery, List<Appointment>>
+    {
+
+        private readonly IDashboardQueryRepository _queryRepository;
+        public GetEmailListHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetEmailTopicListQuery request, CancellationToken cancellationToken)
+        {
+
+            return (List<Appointment>)await _queryRepository.GetEmailListAsync(request.AppointmentID);
+        }
+    }
     public class GetUserListSchedulerNotificationHandler : IRequestHandler<GetUserListSchedulerNotificationQuery, List<Appointment>>
     {
 
@@ -238,7 +252,14 @@ namespace CMS.Application.Handlers.QueryHandlers
                     var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
                 }
             }
-           
+            if (request.CopyEmailIds != null)
+            {
+                foreach (var item in request.CopyEmailIds)
+                {
+                    request.ConversationId = item;
+                    var newappointment = await _dashboardQueryRepository.AddAppointmentEmailinsertAsync(request);
+                }
+            }
 
             return newlist;
 
@@ -262,6 +283,15 @@ namespace CMS.Application.Handlers.QueryHandlers
                 {
                     request.UserID = item;
                     var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
+                }
+            }
+            if (request.CopyEmailIds != null)
+            {
+                var deletemultiple = await _dashboardQueryRepository.DeleteEmailmultipleAsync(request.ID);
+                foreach (var item in request.CopyEmailIds)
+                {
+                    request.ConversationId = item;
+                    var newappointment = await _dashboardQueryRepository.AddAppointmentEmailinsertAsync(request);
                 }
             }
             return newlist;

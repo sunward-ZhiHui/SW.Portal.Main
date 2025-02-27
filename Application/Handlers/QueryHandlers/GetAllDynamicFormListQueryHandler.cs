@@ -172,7 +172,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<DropDownOptionsGridListModel> Handle(GetDynamicFormItemLineDropdoenList request, CancellationToken cancellationToken)
         {
-           var dynamiclist =await _QueryRepository.GetDynamicGridDropDownById(request.DynamicFormId,request.Userid);
+           var dynamiclist =await _QueryRepository.GetDynamicGridDropDownById(request.DynamicFormId,request.Userid, request.DynamicFormDataId);
             return dynamiclist;
         }
     }

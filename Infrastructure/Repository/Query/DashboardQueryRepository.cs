@@ -964,5 +964,103 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
                 throw new Exception(exp.Message, exp);
             };
         }
+        public async Task<long> AddAppointmentEmailinsertAsync(Appointment userMultiple)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+
+                        parameters.Add("AppointmentID", userMultiple.ID);
+                        parameters.Add("ConversationId", userMultiple.ConversationId);
+                        parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
+                        parameters.Add("AddedDate", userMultiple.AddedDate);
+
+
+                        var query = @"INSERT INTO AppointmentEmailMultiple (AppointmentID,ConversationId,AddedByUserID,AddedDate)
+                               OUTPUT  INSERTED.AppointmentEmailMultipleID  VALUES (@AppointmentID,@ConversationId,@AddedByUserID,@AddedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public async  Task<IReadOnlyList<Appointment>> GetEmailListAsync(long Appointmentid)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("AppointmentID", Appointmentid);
+                var query = @"SELECT EC.Name AS EmailTopicName,UM.ConversationId FROM AppointmentEmailMultiple UM
+                              Left Join EmailConversations Ec ON Ec.ID = UM.ConversationId
+                              Where AppointmentID = @AppointmentID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<long> DeleteEmailmultipleAsync(long appointmentid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("id", appointmentid);
+
+                        var query = @"Delete From AppointmentEmailMultiple where AppointmentID = @id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
     }
 }

@@ -96,7 +96,7 @@ namespace Core.Entities
         public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
         public List<DynamicFormSectionAttributeSection> DynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
         public List<DynamicForm> DynamicFormAll = new List<DynamicForm>();
-        public List<DynamicFormSectionAttrFormulaFunction> DynamicFormSectionAttrFormulaFunctions { get; set; }=new List<DynamicFormSectionAttrFormulaFunction>();
+        public List<DynamicFormSectionAttrFormulaFunction> DynamicFormSectionAttrFormulaFunctions { get; set; } = new List<DynamicFormSectionAttrFormulaFunction>();
     }
     public class DynamicFormGridModel
     {
@@ -178,5 +178,23 @@ namespace Core.Entities
         public string? SearchText { get; set; }
         public int SortOrder { get; set; } = 0;
         public string? FilterRowValue { get; set; }
+    }
+    public class VariationRequirementInformationModel
+    {
+        public long DynamicFormDataId { get; set; }
+        public string? DynamicFormDataNameId { get; set; }
+        public string? RegistrationPartsName { get; set; }
+        public string? RegistrationPartsId { get; set; }
+        public string? SectionName { get; set; }
+        public string? SectionId { get; set; }
+        public string? DescriptionId { get; set; }
+        public string? DescriptionName { get; set; }
+        public string? Description { get; set; }
+        public Type? DescriptionType { get; set; }
+        public long? DynamicFormId { get; set; }
+        public long? SortOrderByNo { get; set; }
+        public long? DynamicFormDataGridId { get; set; }
+        public string? ByNameId { get; set; }
+        public string? ByName { get; set; }
     }
 }

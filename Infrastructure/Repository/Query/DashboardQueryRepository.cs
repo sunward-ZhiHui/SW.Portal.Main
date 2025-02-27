@@ -18,15 +18,27 @@ using IdentityModel.Client;
 using System.Security.Cryptography;
 using static IdentityModel.OidcConstants;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using System.Text.RegularExpressions;
+using System.Xml;
+using HtmlAgilityPack;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Infrastructure.Repository.Query
 {
     public class DashboardQueryRepository : QueryRepository<EmailScheduler>, IDashboardQueryRepository
     {
-        public DashboardQueryRepository(IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+        public DashboardQueryRepository(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, IEmailConversationsQueryRepository emailConversationsQueryRepository)
             : base(configuration)
         {
-
+            _configuration = configuration;
+            _hostingEnvironment = webHostEnvironment;
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
         }
         
        
@@ -522,7 +534,146 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        public async Task<List<Appointment>> GetPendingAppointmentAsync()
+        {
+            try
+            {
 
+                var query = @"SELECT  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID FROM Appointment A
+WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
+
+//CAST(GETDATE() AS DATE) BETWEEN CAST(A.StartDate AS DATE) AND CAST(A.EndDate AS DATE)
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long>> GetAppointmentUserMultipleAsync(long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("id", id);
+
+                var query = @"SELECT UserID FROM UserMultiple WHERE (IsAccepted = 1   OR IsAccepted IS NULL) and AppointmentID = @id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<long>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception("Error retrieving user IDs.", exp);
+            }
+        }
+
+        public async Task<string> GetPendingRemindersAsync()
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+
+            //string title = "Title";
+
+            //string bodymsg = "welocme";
+
+            var Result = await GetPendingAppointmentAsync();
+
+            List<string> tokenStringList = new List<string>();
+
+            var hosturls = "Dashboard/1";
+            foreach (var item in Result)
+            {
+                string title = item.Caption;
+                string bodymsg = item.Description;
+
+                var getuserid = await GetAppointmentUserMultipleAsync(item.ID);
+                foreach(var items in getuserid)
+                {                    
+                    var tokens = await _emailConversationsQueryRepository.GetUserTokenListAsync(items);
+                    if (tokens.Count > 0)
+                    {
+                        foreach (var lst in tokens)
+                        {
+                            await PushNotification(lst.TokenID.ToString(), title, bodymsg, lst.DeviceType == "Mobile" ? "" : hosturls);
+                        }
+                    }
+                }
+            }
+
+            return "ok";
+        }
+        [HttpGet("PushNotification")]
+        public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
+        {
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+            var projectId = _configuration["FcmNotification:ProjectId"];
+            var oauthToken = await GetAccessTokenAsync(_hostingEnvironment);
+            var iconUrl = baseurl + "_content/AC.SD.Core/images/SWLogo.png";
+
+            var pushNotificationRequest = new
+            {
+                message = new
+                {
+                    token = tokens,
+                    notification = new
+                    {
+                        title = titles,
+                        body = message
+                    },
+                    webpush = new
+                    {
+                        fcm_options = new
+                        {
+                            link = hosturl
+                        }
+                    }
+                }
+            };
+
+            string url = $"https://fcm.googleapis.com/v1/projects/{projectId}/messages:send";
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", oauthToken);
+
+                try
+                {
+                    string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                    var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Log response content for debugging
+                    Console.WriteLine(responseContent);
+
+                    return responseContent; // Return response or analyze as needed
+                }
+                catch (Exception ex)
+                {
+                    // Log exceptions for further analysis
+                    Console.WriteLine($"Error sending notification: {ex.Message}");
+                    return $"Error: {ex.Message}";
+                }
+            }
+        }
+        private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
+        {
+            string relativePath = _configuration["FcmNotification:FilePath"];
+
+            string path = Path.Combine(env.ContentRootPath, relativePath);
+
+            GoogleCredential credential = await GoogleCredential.FromFileAsync(path, CancellationToken.None);
+
+            credential = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+
+            var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+            return token;
+        }
         public async Task<IReadOnlyList<Appointment>> GetSchedulerListAsync(long UserID)
         {
             try

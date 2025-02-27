@@ -154,6 +154,8 @@ namespace Core.Entities
         [NotMapped]
         public string? CopyEmailName { get; set; }
         [NotMapped]
-        public Guid? EmailConversationsSessionid { get; set; } 
+        public Guid? EmailConversationsSessionid { get; set; }
+        [NotMapped]
+        public long? ConversationID { get; set; }
     }
 }

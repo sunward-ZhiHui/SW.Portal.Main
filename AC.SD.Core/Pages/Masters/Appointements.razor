@@ -17,6 +17,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient;
 @inject DataRefreshService RefreshService
+@inject IJSRuntime JSRuntime;
 
 
 <style scoped>
@@ -168,6 +169,32 @@
                 </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
+          <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
+               <Template>
+                    <div style="margin-left: 25px; margin-top: 14px;">
+                    Email Subject Name
+                    <DxTagBox Data="_CopyLinkList"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select Email Subject Name"
+                              @bind-Values="CategoryData.CopyEmailIds" 
+                            
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="ConversationID"
+                              TextFieldName="CopyEmailName"
+                            
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+
+                     @*    <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" /> *@
+
+
+
+                    </DxTagBox>
+
+                </div>
+            </Template>
+        </DxSchedulerCustomFormLayoutItem>
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <ValidationSummary />
@@ -228,7 +255,7 @@
     public ApplicationUser? applicationUser { get; private set; }
     private Appointment SelectedEditList;
     internal List<ViewEmployee>? _Toparticipant;
-
+    internal List<EmailTopics>? _CopyLinkList;
     Appointment? CategoryData { get; set; } = new Appointment();
     DxScheduler Scheduler { get; set; }
     SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.CompactEditForm;
@@ -239,6 +266,7 @@
     SchedulerViewType ActiveViewType { get; set; } = SchedulerViewType.Week;
     //  public IEnumerable<long>? Ids { get; set; } = null;
     public List<long> Ids = new List<long> { };
+    public List<long> EmailIds = new List<long> { };
     DxSchedulerTimeSpanRange WorkTime = new DxSchedulerTimeSpanRange(TimeSpan.FromHours(9), TimeSpan.FromHours(18));
     bool IsInWorkTime(DxSchedulerAppointmentItem apt) =>
       apt.AllDay
@@ -253,9 +281,10 @@
     {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
+        _CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
 
         await UpdateDataAsync();
     }
@@ -293,8 +322,9 @@
         string s = JsonConvert.SerializeObject(args.Appointment.Id);
         var ID = long.Parse(s);
         Ids = new List<long> { };
+        EmailIds = new List<long> { };
         CategoryData.userIds = null;
-
+        CategoryData.CopyEmailIds = null;
         string startdate = args.Appointment.Start.ToString();
         DateTime convertedDate;
 
@@ -317,12 +347,30 @@
             list.Status = (int)args.Appointment.StatusId;
             SelectedEditList = list;
             var Userlist = await Mediator.Send(new GetUserListQuery(ID));
-            foreach (var item in Userlist)
+            if(Userlist != null)
             {
+                foreach (var item in Userlist)
+                {
 
-                Ids.Add(item.UserID.Value);
+                    Ids.Add(item.UserID.Value);
+                }
+                CategoryData.userIds = Ids;
             }
-            CategoryData.userIds = Ids;
+
+            var Emaillist = await Mediator.Send(new GetEmailTopicListQuery(ID));
+            if(Emaillist != null)
+            {
+                foreach (var item in Emaillist)
+                {
+                    if(item.ConversationId != null)
+                    {
+                        EmailIds.Add(item.ConversationId.Value);
+                    }
+                  
+                }
+                CategoryData.CopyEmailIds = EmailIds;
+            }
+            
             args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
 
         }
@@ -361,7 +409,8 @@
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                   new DxSchedulerCustomFieldMapping{ Name = "StatusType", Mapping = "StatusType" },
 
-                  new DxSchedulerCustomFieldMapping { Name = "userIds", Mapping = "userIds" }
+                  new DxSchedulerCustomFieldMapping { Name = "userIds", Mapping = "userIds" },
+                   new DxSchedulerCustomFieldMapping { Name = "CopyEmailIds", Mapping = "CopyEmailIds" }
             }
             },
 
@@ -372,6 +421,7 @@
     async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
     {
         Appointment insertedItem = e.Appointment.SourceObject as Appointment;
+        await JSRuntime.InvokeAsync<string>("showLoading");
 
         if (insertedItem != null)
         {
@@ -391,7 +441,7 @@
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     userIds=CategoryData?.userIds, 
-
+                    CopyEmailIds = CategoryData?.CopyEmailIds
 
                 };
 
@@ -411,6 +461,7 @@
             await RefreshService.RequestRefreshAsync();
             await jsRuntime.InvokeVoidAsync("location.reload");
         }
+         await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
     async Task AppointmentRemoving(SchedulerAppointmentOperationEventArgs e)
@@ -433,7 +484,7 @@
     {
 
         var appointment = e.Appointment.SourceObject as Appointment;
-
+         await JSRuntime.InvokeAsync<string>("showLoading");
         if (appointment != null)
         {
 
@@ -451,12 +502,13 @@
                             Location = e.Appointment.Location,
                             Description = e.Appointment.Description,
                             userIds =CategoryData.userIds,
+                            CopyEmailIds = CategoryData.CopyEmailIds,
                         AddedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
                         };
 
                 var ans = await Mediator.Send(InsertReq);
-                if (SelectedEditList.Caption != appointment.Caption || SelectedEditList.Description != appointment.Description || SelectedEditList.StartDate != appointment.StartDate || SelectedEditList.EndDate != appointment.EndDate || SelectedEditList.userIds != appointment.userIds)
+                if (SelectedEditList.Caption != appointment.Caption || SelectedEditList.Description != appointment.Description || SelectedEditList.StartDate != appointment.StartDate || SelectedEditList.EndDate != appointment.EndDate || SelectedEditList.userIds != appointment.userIds || SelectedEditList.CopyEmailIds != appointment.CopyEmailIds)
                 {
                     if (ans != null)
                     {
@@ -471,7 +523,7 @@
 
         }
         await UpdateDataAsync();
-
+         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async void OnAcceptClick(long ID)
     {

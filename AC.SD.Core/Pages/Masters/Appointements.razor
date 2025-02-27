@@ -113,8 +113,19 @@
 
                         </DxButton>
                </div>
-      
 
+            <div class="sc-tooltip-bottom-container">
+
+                <DxCheckBox CheckType="CheckType.Switch"
+                            LabelPosition="LabelPosition.Left"
+                            Enabled ="@AcceptVisible"
+                           Checked="@CategoryData.IsReminder"
+                        CheckedChanged="@((bool t) => CheckedChanged(t,s))"
+                            Alignment="CheckBoxContentAlignment.SpaceBetween">
+                   Remainder
+                </DxCheckBox>
+              
+            </div>
         }
 
     </AppointmentTooltipTemplate>
@@ -297,7 +308,20 @@
         await RefreshService.RequestRefreshAsync();
         StateHasChanged();
     }
+    async void CheckedChanged(bool value ,string ID)
+    {
+        CategoryData.IsReminder = value;
+        var updateRemainder = new UpdateReminder
+            {
+                AppointmentID = long.Parse(ID),
+                IsReminder = value,
+                UserID = applicationUser.UserID
 
+            };
+
+        var ans = await Mediator.Send(updateRemainder);
+
+    }
     public class CustomAppointmentFormInfo : SchedulerAppointmentFormInfo
     {
         public CustomAppointmentFormInfo(DxSchedulerAppointmentItem AppointmentItem, DxSchedulerDataStorage DataStorage, DxScheduler scheduler) : base(AppointmentItem, DataStorage, scheduler) { }
@@ -345,14 +369,18 @@
             list.EndDate = args.Appointment.End;
             list.Label = (int)args.Appointment.LabelId;
             list.Status = (int)args.Appointment.StatusId;
+
             SelectedEditList = list;
+           
             var Userlist = await Mediator.Send(new GetUserListQuery(ID));
+           
             if(Userlist != null)
             {
                 foreach (var item in Userlist)
                 {
 
                     Ids.Add(item.UserID.Value);
+                    
                 }
                 CategoryData.userIds = Ids;
             }
@@ -441,8 +469,8 @@
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     userIds=CategoryData?.userIds, 
-                    CopyEmailIds = CategoryData?.CopyEmailIds
-
+                    CopyEmailIds = CategoryData?.CopyEmailIds,
+                    IsReminder = true
                 };
 
             var ans = await Mediator.Send(InsertReq);
@@ -505,6 +533,8 @@
                             CopyEmailIds = CategoryData.CopyEmailIds,
                         AddedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
+                        IsReminder = true
+                      
                         };
 
                 var ans = await Mediator.Send(InsertReq);
@@ -568,7 +598,12 @@
 
 
         }
-
+        var remainderlist = await Mediator.Send(new GetUserRemainderListQuery(appointmentID, applicationUser.UserID));
+        if (remainderlist.Count > 0)
+        {
+            
+            CategoryData.IsReminder = remainderlist[0].IsReminder;
+        }
         StateHasChanged();
     }
     async Task acceptvisible(long ID)

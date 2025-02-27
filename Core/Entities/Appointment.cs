@@ -57,5 +57,7 @@ namespace Core.Entities
         public long? ConversationId { get; set; }
         [NotMapped]
         public string? EmailTopicName { get; set; }
+        [NotMapped]
+        public bool IsReminder { get; set; } = true;
     }
 }

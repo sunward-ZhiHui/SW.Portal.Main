@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Infrastructure.Repository.Query
 {
@@ -509,10 +510,11 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserID", userMultiple.UserID);
                         parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
                         parameters.Add("AddedDate", userMultiple.AddedDate);
-                      
+                        parameters.Add("IsReminder", userMultiple.IsReminder);
 
-                        var query = @"INSERT INTO UserMultiple (AppointmentID,UserID,AddedByUserID,AddedDate)
-                               OUTPUT  INSERTED.UserMultipleID  VALUES (@AppointmentID,@UserID,@AddedByUserID,@AddedDate)";
+
+                        var query = @"INSERT INTO UserMultiple (AppointmentID,UserID,AddedByUserID,AddedDate,IsReminder)
+                               OUTPUT  INSERTED.UserMultipleID  VALUES (@AppointmentID,@UserID,@AddedByUserID,@AddedDate,@IsReminder)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -561,7 +563,7 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
                 var parameters = new DynamicParameters();
                 parameters.Add("id", id);
 
-                var query = @"SELECT UserID FROM UserMultiple WHERE (IsAccepted = 1   OR IsAccepted IS NULL) and AppointmentID = @id";
+                var query = @"SELECT UserID FROM UserMultiple WHERE (IsAccepted = 1   OR IsAccepted IS NULL) and (IsReminder = 1   OR IsReminder IS NULL) and AppointmentID = @id";
 
                 using (var connection = CreateConnection())
                 {
@@ -793,7 +795,7 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
 
                 parameters.Add("AppointmentID", Appointmentid);
                 var query = @"
-                           SELECT EP.FirstName as UserName,UM.UserID,UM.IsAccepted FROM UserMultiple UM
+                           SELECT EP.FirstName as UserName,UM.UserID,UM.IsAccepted ,UM.IsReminder FROM UserMultiple UM
                              Left Join Employee EP ON EP.EmployeeID =UM.UserID
                              Where AppointmentID = @AppointmentID";
 
@@ -1061,6 +1063,70 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
             {
                 throw new Exception(exp.Message, exp);
             };
+        }
+
+        public  async Task<long> UpdateRemainder(Appointment appointment)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+
+                        parameters.Add("AppointmentID", appointment.AppointmentID);
+                        parameters.Add("IsReminder", appointment.IsReminder);
+                        parameters.Add("UserID", appointment.UserID);
+
+
+                        var query = @"Update UserMultiple set IsReminder = @IsReminder where UserID = @UserID and  AppointmentID = @AppointmentID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public async  Task<IReadOnlyList<Appointment>> GetUserRemainderListAsync(long id, long UserID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("id", id);
+                parameters.Add("UserID", UserID);
+
+                var query = @"SELECT IsReminder FROM UserMultiple 
+                             
+                              Where AppointmentID = @id and UserID = @UserID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

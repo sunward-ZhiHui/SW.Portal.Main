@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<int> GetInvitationCountAsync(long Userid);
         Task<int> GetUserCreatedSchedulerCountAsync(long Userid);
         Task<IReadOnlyList<Appointment>> GetUserListAsync(long Appointmentid);
+        Task<IReadOnlyList<Appointment>> GetUserRemainderListAsync(long id,long UserID);
         Task<IReadOnlyList<Appointment>> GetEmailListAsync(long Appointmentid);
         Task<IReadOnlyList<Appointment>> GetUserListNotificationAsync(long ID);
         Task<IReadOnlyList<Appointment>> GetNotificationCaptionAsync(long ID);
@@ -31,6 +32,7 @@ namespace Core.Repositories.Query
         Task<long> AddAppointmentEmailinsertAsync(Appointment userMultiple);
         Task<long> UpdateAcceptAsync(long userid,bool accept,long appointmentid);
            Task<long> UpdateAppointmentAsync(Appointment appointment);
+        Task<long> UpdateRemainder(Appointment appointment);
         Task<long> DeleteAppointmentAsync(long id);
         Task<long> DeleteUsermultipleAsync(long appointmentid);
         Task<long> DeleteEmailmultipleAsync(long appointmentid);

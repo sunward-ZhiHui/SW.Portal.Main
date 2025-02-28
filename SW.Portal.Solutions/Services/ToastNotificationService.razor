@@ -1,0 +1,18 @@
+﻿@inject Blazored.Toast.Services.IToastService ToastService
+
+@code {
+    protected override void OnInitialized()
+    {
+        ReminderBackgroundService.OnReminderTriggered += ShowReminderToast;
+    }
+
+    private void ShowReminderToast(string title, string message)
+    {
+        ToastService.ShowInfo(message);
+    }
+
+    public void Dispose()
+    {
+        ReminderBackgroundService.OnReminderTriggered -= ShowReminderToast;
+    }
+}

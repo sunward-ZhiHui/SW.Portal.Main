@@ -3386,7 +3386,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
 
-                var query = @"SELECT Distinct EC.Name as CopyEmailName ,EC.SessionID as ConversationSessionID,EC.ReplyId 
+                var query = @"SELECT Distinct EC.Name as CopyEmailName ,EC.SessionID as ConversationSessionID,EC.ReplyId ,EC.ID as ConversationID
                         FROM EmailConversations EC
                         INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
                         WHERE EC.ReplyId = 0";

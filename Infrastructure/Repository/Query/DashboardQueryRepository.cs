@@ -18,15 +18,29 @@ using IdentityModel.Client;
 using System.Security.Cryptography;
 using static IdentityModel.OidcConstants;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using System.Text.RegularExpressions;
+using System.Xml;
+using HtmlAgilityPack;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Google.Type;
 
 namespace Infrastructure.Repository.Query
 {
     public class DashboardQueryRepository : QueryRepository<EmailScheduler>, IDashboardQueryRepository
     {
-        public DashboardQueryRepository(IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+        public DashboardQueryRepository(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, IEmailConversationsQueryRepository emailConversationsQueryRepository)
             : base(configuration)
         {
-
+            _configuration = configuration;
+            _hostingEnvironment = webHostEnvironment;
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
         }
         
        
@@ -497,10 +511,11 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserID", userMultiple.UserID);
                         parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
                         parameters.Add("AddedDate", userMultiple.AddedDate);
-                      
+                        parameters.Add("IsReminder", userMultiple.IsReminder);
 
-                        var query = @"INSERT INTO UserMultiple (AppointmentID,UserID,AddedByUserID,AddedDate)
-                               OUTPUT  INSERTED.UserMultipleID  VALUES (@AppointmentID,@UserID,@AddedByUserID,@AddedDate)";
+
+                        var query = @"INSERT INTO UserMultiple (AppointmentID,UserID,AddedByUserID,AddedDate,IsReminder)
+                               OUTPUT  INSERTED.UserMultipleID  VALUES (@AppointmentID,@UserID,@AddedByUserID,@AddedDate,@IsReminder)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -522,7 +537,171 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        public async Task<List<Appointment>> GetPendingAppointmentAsync()
+        {
+            try
+            {
+                var currentDate = System.DateTime.Now.Date; 
+                var currentDateTime = System.DateTime.Now;  
 
+                var parameters = new DynamicParameters();
+                parameters.Add("@CurrentDate", currentDate);
+                parameters.Add("@CurrentDateTime", currentDateTime);
+
+                var query = @"SELECT A.ID, A.AppointmentType, A.Description, A.StartDate, A.EndDate, A.Label, 
+                                       A.Location, A.Recurrence, A.AllDay, A.Caption, A.Status, A.AddedByUserID
+                                FROM Appointment A
+                                WHERE                                     
+                                    CAST(A.StartDate AS DATE) = @CurrentDate 
+                                    AND CAST(A.EndDate AS DATE) = @CurrentDate                                    
+                                    AND A.StartDate >= @CurrentDateTime
+                                ORDER BY A.StartDate";
+
+                //CAST(GETDATE() AS DATE) BETWEEN CAST(A.StartDate AS DATE) AND CAST(A.EndDate AS DATE)
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long>> GetAppointmentUserMultipleAsync(long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("id", id);
+
+                var query = @"SELECT UserID FROM UserMultiple WHERE (IsAccepted = 1   OR IsAccepted IS NULL) and (IsReminder = 1   OR IsReminder IS NULL) and AppointmentID = @id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<long>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception("Error retrieving user IDs.", exp);
+            }
+        }
+
+        public async Task<string> GetPendingRemindersAsync()
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+
+            //string title = "Title";
+
+            //string bodymsg = "welocme";
+
+            var Result = await GetPendingAppointmentAsync();
+
+            List<string> tokenStringList = new List<string>();
+
+            var hosturls = "Dashboard/1";
+            foreach (var item in Result)
+            {
+                string title = $"Upcoming: {item.Caption}";
+                string bodymsg = $"{item.Description}\nStart: {item.StartDate:yyyy-MM-dd HH:mm}";
+
+
+                var getuserid = await GetAppointmentUserMultipleAsync(item.ID);
+                foreach(var items in getuserid)
+                {                    
+                    var tokens = await _emailConversationsQueryRepository.GetUserTokenListAsync(items);
+                    if (tokens.Count > 0)
+                    {
+                        foreach (var lst in tokens)
+                        {
+                            await PushNotification(lst.TokenID.ToString(), title, bodymsg, lst.DeviceType == "Mobile" ? "" : hosturls);
+                        }
+                    }
+                }
+            }
+
+            return "ok";
+        }        
+        public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
+        {
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+            var projectId = _configuration["FcmNotification:ProjectId"];
+            var oauthToken = await GetAccessTokenAsync(_hostingEnvironment);
+            var iconUrl = baseurl + "_content/AC.SD.Core/images/SWLogo.png";
+
+            var pushNotificationRequest = new
+            {
+                message = new
+                {
+                    token = tokens,
+                    notification = new
+                    {
+                        title = titles,
+                        body = message,
+                        image = iconUrl
+                    },
+                    android = new
+                    {
+                        notification = new
+                        {
+                            icon = iconUrl,  
+                            image = iconUrl
+                        }
+                    },
+                    webpush = new
+                    {
+                        fcm_options = new
+                        {
+                            link = hosturl
+                        },
+                        notification = new
+                        {
+                            icon = iconUrl  
+                        }
+                    }
+                }
+            };
+
+            string url = $"https://fcm.googleapis.com/v1/projects/{projectId}/messages:send";
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", oauthToken);
+
+                try
+                {
+                    string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                    var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Log response content for debugging
+                    Console.WriteLine(responseContent);
+
+                    return responseContent; // Return response or analyze as needed
+                }
+                catch (Exception ex)
+                {
+                    // Log exceptions for further analysis
+                    Console.WriteLine($"Error sending notification: {ex.Message}");
+                    return $"Error: {ex.Message}";
+                }
+            }
+        }
+        private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
+        {
+            string relativePath = _configuration["FcmNotification:FilePath"];
+
+            string path = Path.Combine(env.ContentRootPath, relativePath);
+
+            GoogleCredential credential = await GoogleCredential.FromFileAsync(path, CancellationToken.None);
+
+            credential = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+
+            var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+            return token;
+        }
         public async Task<IReadOnlyList<Appointment>> GetSchedulerListAsync(long UserID)
         {
             try
@@ -642,7 +821,7 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("AppointmentID", Appointmentid);
                 var query = @"
-                           SELECT EP.FirstName as UserName,UM.UserID,UM.IsAccepted FROM UserMultiple UM
+                           SELECT EP.FirstName as UserName,UM.UserID,UM.IsAccepted ,UM.IsReminder FROM UserMultiple UM
                              Left Join Employee EP ON EP.EmployeeID =UM.UserID
                              Where AppointmentID = @AppointmentID";
 
@@ -812,6 +991,168 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             };
+        }
+        public async Task<long> AddAppointmentEmailinsertAsync(Appointment userMultiple)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+
+                        parameters.Add("AppointmentID", userMultiple.ID);
+                        parameters.Add("ConversationId", userMultiple.ConversationId);
+                        parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
+                        parameters.Add("AddedDate", userMultiple.AddedDate);
+
+
+                        var query = @"INSERT INTO AppointmentEmailMultiple (AppointmentID,ConversationId,AddedByUserID,AddedDate)
+                               OUTPUT  INSERTED.AppointmentEmailMultipleID  VALUES (@AppointmentID,@ConversationId,@AddedByUserID,@AddedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public async  Task<IReadOnlyList<Appointment>> GetEmailListAsync(long Appointmentid)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("AppointmentID", Appointmentid);
+                var query = @"SELECT EC.Name AS EmailTopicName,UM.ConversationId FROM AppointmentEmailMultiple UM
+                              Left Join EmailConversations Ec ON Ec.ID = UM.ConversationId
+                              Where AppointmentID = @AppointmentID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<long> DeleteEmailmultipleAsync(long appointmentid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("id", appointmentid);
+
+                        var query = @"Delete From AppointmentEmailMultiple where AppointmentID = @id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public  async Task<long> UpdateRemainder(Appointment appointment)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+
+                        parameters.Add("AppointmentID", appointment.AppointmentID);
+                        parameters.Add("IsReminder", appointment.IsReminder);
+                        parameters.Add("UserID", appointment.UserID);
+
+
+                        var query = @"Update UserMultiple set IsReminder = @IsReminder where UserID = @UserID and  AppointmentID = @AppointmentID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public async  Task<IReadOnlyList<Appointment>> GetUserRemainderListAsync(long id, long UserID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("id", id);
+                parameters.Add("UserID", UserID);
+
+                var query = @"SELECT IsReminder FROM UserMultiple 
+                             
+                              Where AppointmentID = @id and UserID = @UserID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

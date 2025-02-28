@@ -36,6 +36,9 @@ namespace Core.Entities
 
         public IEnumerable<long>? userIds { get; set; } = null;
         [NotMapped]
+
+        public IEnumerable<long>? CopyEmailIds { get; set; } = null;
+        [NotMapped]
        
         public string UserName { get; set; } 
         [NotMapped]
@@ -45,7 +48,16 @@ namespace Core.Entities
         [NotMapped]
         public long? UserID { get; set; }
         [NotMapped]
-        public bool? IsAccepted { get; set; } 
-       
+        public bool? IsAccepted { get; set; }
+        [NotMapped]
+        public long AppointmentEmailMultipleID { get; set; }
+        [NotMapped]
+        public long? EmailAppointmentID { get; set; }
+        [NotMapped]
+        public long? ConversationId { get; set; }
+        [NotMapped]
+        public string? EmailTopicName { get; set; }
+        [NotMapped]
+        public bool IsReminder { get; set; } = true;
     }
 }

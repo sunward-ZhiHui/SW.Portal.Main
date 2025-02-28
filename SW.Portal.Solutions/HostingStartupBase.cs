@@ -118,6 +118,8 @@ namespace SW.Portal.Solutions.ServerSide
                         policy.RequireAuthenticatedUser());
                 });
 
+                services.AddHostedService<ReminderBackgroundService>();
+
                 services.AddScoped<FirebaseMessagingService>();
                 services.AddScoped<ToastService>();
                 services.AddScoped<IFirebaseSync, FirebaseSync>();

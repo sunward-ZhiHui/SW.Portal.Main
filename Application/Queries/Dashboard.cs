@@ -24,6 +24,24 @@ namespace Application.Queries
             this.AppointmentID = AppointmentID;
         }
     }
+    public class GetUserRemainderListQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long AppointmentID { get; private set; }
+        public long UserID { get; private set; }
+        public GetUserRemainderListQuery(long AppointmentID,long UserID)
+        {
+            this.AppointmentID = AppointmentID;
+            this.UserID = UserID;
+        }
+    }
+    public class GetEmailTopicListQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long AppointmentID { get; private set; }
+        public GetEmailTopicListQuery(long AppointmentID)
+        {
+            this.AppointmentID = AppointmentID;
+        }
+    }
     public class GetUserListSchedulerNotificationQuery : PagedRequest, IRequest<List<Appointment>>
     {
         public long ID { get; private set; }
@@ -105,7 +123,9 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
-    
+    public class UpdateReminder : Appointment, IRequest<long>
+    {
+    }
     public class AddAppointment : Appointment, IRequest<long>
     {
     }

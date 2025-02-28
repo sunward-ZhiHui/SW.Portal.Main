@@ -25,7 +25,7 @@ namespace DocumentViewer.Models
         public DbSet<OpenAccessUser> OpenAccessUser { get; set; }
         public DbSet<IpirApp> IpirApp { get; set; }
         public DbSet<DocumentsTrace> DocumentsTrace { get; set; }
-
+        public DbSet<FileProfileType> FileProfileType { get; set; }
     }
 }
 

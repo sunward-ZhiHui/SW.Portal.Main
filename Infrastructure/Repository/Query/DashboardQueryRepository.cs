@@ -26,6 +26,7 @@ using Newtonsoft.Json;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Google.Type;
 
 namespace Infrastructure.Repository.Query
 {
@@ -540,15 +541,27 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                var currentDate = System.DateTime.Now.Date; 
+                var currentDateTime = System.DateTime.Now;  
 
-                var query = @"SELECT  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID FROM Appointment A
-WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
+                var parameters = new DynamicParameters();
+                parameters.Add("@CurrentDate", currentDate);
+                parameters.Add("@CurrentDateTime", currentDateTime);
 
-//CAST(GETDATE() AS DATE) BETWEEN CAST(A.StartDate AS DATE) AND CAST(A.EndDate AS DATE)
+                var query = @"SELECT A.ID, A.AppointmentType, A.Description, A.StartDate, A.EndDate, A.Label, 
+                                       A.Location, A.Recurrence, A.AllDay, A.Caption, A.Status, A.AddedByUserID
+                                FROM Appointment A
+                                WHERE                                     
+                                    CAST(A.StartDate AS DATE) = @CurrentDate 
+                                    AND CAST(A.EndDate AS DATE) = @CurrentDate                                    
+                                    AND A.StartDate >= @CurrentDateTime
+                                ORDER BY A.StartDate";
+
+                //CAST(GETDATE() AS DATE) BETWEEN CAST(A.StartDate AS DATE) AND CAST(A.EndDate AS DATE)
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<Appointment>(query)).ToList();
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -592,8 +605,9 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
             var hosturls = "Dashboard/1";
             foreach (var item in Result)
             {
-                string title = item.Caption;
-                string bodymsg = item.Description;
+                string title = $"Upcoming: {item.Caption}";
+                string bodymsg = $"{item.Description}\nStart: {item.StartDate:yyyy-MM-dd HH:mm}";
+
 
                 var getuserid = await GetAppointmentUserMultipleAsync(item.ID);
                 foreach(var items in getuserid)
@@ -610,8 +624,7 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
             }
 
             return "ok";
-        }
-        [HttpGet("PushNotification")]
+        }        
         public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
         {
             var baseurl = _configuration["DocumentsUrl:BaseUrl"];
@@ -627,13 +640,26 @@ WHERE GETDATE() >= A.StartDate  AND GETDATE() <= A.EndDate";
                     notification = new
                     {
                         title = titles,
-                        body = message
+                        body = message,
+                        image = iconUrl
+                    },
+                    android = new
+                    {
+                        notification = new
+                        {
+                            icon = iconUrl,  
+                            image = iconUrl
+                        }
                     },
                     webpush = new
                     {
                         fcm_options = new
                         {
                             link = hosturl
+                        },
+                        notification = new
+                        {
+                            icon = iconUrl  
                         }
                     }
                 }

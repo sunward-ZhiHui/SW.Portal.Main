@@ -24,6 +24,8 @@ namespace DocumentViewer.Models
         public DateTime? ExpiryDate { get; set; }
         public bool? IsExpiryDate { get; set; } = false;
         public string? FileNameWithOutExtension { get; set; }
+        public bool? IsLatest { get; set; } = false;
+        public string? UniqueSessionId { get; set; }
     }
     public class PermissionModel
     {

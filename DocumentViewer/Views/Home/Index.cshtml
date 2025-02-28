@@ -3,24 +3,24 @@
     <input name="SpreadsheetWorkSessionId" type="hidden" value="" />
 </form>
 <script type="text/javascript">
-    $(window).on("beforeunload", function () {
-        var richEdit = $("#DemoRichEdit").dxRichEdit("instance");
-        richEdit.off("customCommandExecuted"); // Unsubscribe from the custom event
-    });
-    function onPageUnload() {
-        var spreadsheet = $("#spreadsheet").dxSpreadsheet("instance");
-        spreadsheet.off("customCommandExecuted");
-    }
-
-    $(window).on("beforeunload", onPageUnload);
+    var SpreadsheetWorkSessionIdUnique = "spreadsheet_" + "@Model.UniqueSessionId";
     function onCustomCommandExecuted(s, e) {
         switch (e.commandName) {
             case 'save':
+                let text = "Are you sure Version Saving?\nOK ->With Version in New Document \n  Cancel without version update Existing Document";
+                let isVersion = confirm(text) ? "Yes" : "No";
+                var documentId = "@Model.UniqueId";
                 var spreadsheetState = spreadsheet.getSpreadsheetState();
                 $.ajax({
                     type: 'POST',
                     url: '@Url.Action("RibbonSaveToFile")',
-                    data: { spreadsheetState: spreadsheetState }
+                    data: { spreadsheetState: spreadsheetState, id: documentId, isVersion: isVersion },
+                    success: function (response) {
+                        alert("Version Upload successful");
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Upload failed");
+                    }
                 });
                 break;
             case 'download':
@@ -31,37 +31,90 @@
                 break;
         }
     }
-    function onDocCustomCommandExecuted(s,e) { 
+    function base64ToBlob(base64, mimeType) {
+        const byteCharacters = atob(base64); // Decode Base64
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], { type: mimeType });
+    }
+
+    function onDocCustomCommandExecuted(s, e) {
         switch (e.commandName) {
             case 'save':
+                let text = "Are you sure Version Saving?\nOK ->With Version in New Document \n  Cancel without version update Existing Document";
+                let isVersion = confirm(text) ? "Yes" : "No";
+
+                // ✅ Clear previous handlers to prevent multiple AJAX calls
+                DemoRichEdit.events.saving.clearHandlers();
+
+                // Define a new saving handler
                 DemoRichEdit.events.saving.addHandler(function (s, e) {
-                    var documentId = @Model.UniqueId;
-                    console.log(e.fileName); console.log(e.format);
-                    console.log(e.base64);
+                    var documentId = "@Model.UniqueId";
+                    var contentType = "@Model.ContentType";
                     e.handled = true;
+
+                    const fileBlob = base64ToBlob(e.base64, contentType);
+                    const formData = new FormData();
+                    formData.append("file", fileBlob, e.fileName);
+                    formData.append("id", documentId);
+                    formData.append("isVersion", isVersion);
+
                     $.ajax({
                         type: 'POST',
                         url: '@Url.Action("ExportUrl")',
-                        data: { base64: e.base64, fileName: e.fileName, format: e.format, id: documentId }
+                        data: formData,
+                        processData: false,  // Prevent jQuery from processing the data
+                        contentType: false,  // Let the browser set the correct content type
+                        success: function (response) {
+                            alert("Version Upload successful");
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Upload failed");
+                        }
                     });
                 });
-                DemoRichEdit.saveDocument(DevExpress.RichEdit.DocumentFormat.OpenXml);
+                if ("@Model.ContentType" == "text/plain") {
+                    DemoRichEdit.saveDocument(DevExpress.RichEdit.DocumentFormat.PlainText);
+                }
+                else {
+                    DemoRichEdit.saveDocument(DevExpress.RichEdit.DocumentFormat.OpenXml);
+                }
                 break;
+
             case 'download':
-                var fileName = $("#fileName_id").html();
-                DemoRichEdit.downloadDocument(DevExpress.RichEdit.DocumentFormat.OpenXml, fileName);
+                var fileName = "@Model.FileNameWithOutExtension";
+                if ("@Model.ContentType" == "text/plain") {
+                    DemoRichEdit.downloadDocument(DevExpress.RichEdit.DocumentFormat.PlainText, fileName);
+                }
+                else {
+                    DemoRichEdit.downloadDocument(DevExpress.RichEdit.DocumentFormat.OpenXml, fileName);
+                }
                 break;
         }
     }
+
     function onCustomCommandXlsExecuted(s, e) {
         switch (e.commandName) {
             case 'save':
+                let text = "Are you sure Version Saving?\nOK ->With Version in New Document \n  Cancel without version update Existing Document";
+                let isVersion = confirm(text) ? "Yes" : "No";
+                var documentId = "@Model.UniqueId";
                 var spreadsheetState = spreadsheet.getSpreadsheetState();
                 $.ajax({
                     type: 'POST',
                     url: '@Url.Action("RibbonSaveToFile")',
-                    data: { spreadsheetState: spreadsheetState }
+                    data: { spreadsheetState: spreadsheetState, id: documentId, isVersion: isVersion },
+                    success: function (response) {
+                        alert("Version Upload successful");
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Upload failed");
+                    }
                 });
+                break;
                 break;
             case 'download':
                 var spreadsheetState = spreadsheet.getSpreadsheetState();
@@ -110,53 +163,54 @@
                     if (@Model.Extensions == "xlsx" || @Model.Extensions == "xls")
                     {
                         @(
-                                                            Html.DevExpress()
-                                                           .Spreadsheet("spreadsheet")
-                                                           .Height("calc(100vh - 70px)")
-                                                           .Width("100%")
-                                                           .Ribbon(ribbon => ribbon
-                                                            .Visible(true)
-                                                            .ActiveTabIndex(0)
-                                                            .Tabs(tabs =>
-                                                            {
-                                                                tabs.Clear();
-                                                                if (ViewBag.isDownload == "Yes")
-                                                                {
-                                                                    tabs.Add()
-                                                                    .Title("File")
-                                                                    .Items(items =>
-                                                                    {
-                                                                        items.AddButton()
-                                                                                .Text("Save")
-                                                                                .CommandName("save")
-                                                                                .ShowText(true)
-                                                                                .Icon("save");
-                                                                        if (@ViewBag.isDownload == "Yes")
-                                                                        {
-                                                                            items.AddButton()
-                                                                                .Text("Download")
-                                                                                .CommandName("download")
-                                                                                .ShowText(true)
-                                                                                .Icon("download");
-                                                                        }
-                                                                    });
-                                                                }
-                                                                tabs.AddHomeTab();
-                                                                tabs.AddInsertTab();
-                                                                tabs.AddFormulasTab();
-                                                                tabs.AddDataTab(); tabs.AddReviewTab(); tabs.AddViewTab();
-                                                            })
-                                                )
-                                                    .ClientSideEvents(events =>
-                                                    {
-                                                        events.OnCustomCommandExecuted(@Model.Extensions == "xlsx" ? "onCustomCommandExecuted" : "onCustomCommandXlsExecuted");
-                                                    })
-                                                        .ConfirmOnLosingChanges(c => c.Enabled(false))
-                                                    //.ConfirmOnLosingChanges(confirm => confirm.Enabled(ViewBag.isDownload == "Yes" ? true : false))
-                                                .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
-                                                            .Open(Model.PathUrl).ReadOnly(ViewBag.isDownload == "Yes" ? false : true)
-                                                            //.Open(@Model.DocumentId, @Model.Extensions == "xlsx" ? DevExpress.Spreadsheet.DocumentFormat.Xlsx : DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes)
-                                                        )
+                                                                                                                Html.DevExpress()
+                                                                                                               .Spreadsheet("spreadsheet")
+                                                                                                               .Height("calc(100vh - 70px)")
+                                                                                                               .Width("100%")
+                                                                                                               .Ribbon(ribbon => ribbon
+                                                                                                                .Visible(true)
+                                                                                                                .ActiveTabIndex(0)
+
+                                                                                                                .Tabs(tabs =>
+                                                                                                                {
+                                                                                                                    tabs.Clear();
+                                                                                                                    if (ViewBag.isDownload == "Yes")
+                                                                                                                    {
+                                                                                                                        tabs.Add()
+                                                                                                                        .Title("File")
+                                                                                                                        .Items(items =>
+                                                                                                                        {
+                                                                                                                            items.AddButton()
+                                                                                                                                    .Text("Save")
+                                                                                                                                    .CommandName("save")
+                                                                                                                                    .ShowText(true)
+                                                                                                                                    .Icon("save");
+                                                                                                                            if (@ViewBag.isDownload == "Yes")
+                                                                                                                            {
+                                                                                                                                items.AddButton()
+                                                                                                                                    .Text("Download")
+                                                                                                                                    .CommandName("download")
+                                                                                                                                    .ShowText(true)
+                                                                                                                                    .Icon("download");
+                                                                                                                            }
+                                                                                                                        });
+                                                                                                                    }
+                                                                                                                    tabs.AddHomeTab();
+                                                                                                                    tabs.AddInsertTab();
+                                                                                                                    tabs.AddFormulasTab();
+                                                                                                                    tabs.AddDataTab(); tabs.AddReviewTab(); tabs.AddViewTab();
+                                                                                                                })
+                                                                                                    )
+                                                                                                        .ClientSideEvents(events =>
+                                                                                                        {
+                                                                                                            events.OnCustomCommandExecuted(@Model.Extensions == "xlsx" ? "onCustomCommandExecuted" : "onCustomCommandXlsExecuted");
+                                                                                                        })
+                                                                                                        //.ConfirmOnLosingChanges(c => c.Enabled(false))
+                                                                                                        .ConfirmOnLosingChanges(confirm => confirm.Enabled(ViewBag.isDownload == "Yes" ? true : false))
+                                                                                                        .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
+                                                                                                                .Open(Model.PathUrl).ReadOnly(ViewBag.isDownload == "Yes" ? false : true)
+                                                                                                            //.Open(@Model.DocumentId, @Model.Extensions == "xlsx" ? DevExpress.Spreadsheet.DocumentFormat.Xlsx : DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes)
+                                                                                                            )
 
                     }
                     else
@@ -260,49 +314,50 @@
                         if (@Model.Extensions == "docx")
                         {
                             @(
-                                                       Html.DevExpress().RichEdit("DemoRichEdit")
-                                                       .Height("calc(100vh - 70px)")
-                                                       .Width("100%")
-                                                           //.ExportUrl(Url.Action("Export"))
-                                                           .ConfirmOnLosingChanges(c => c.Enabled(ViewBag.isDownload == "Yes" ? true : false))
-                                                                   .Open(Model.PathUrl)
-                                                           //.Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
-                                                       .ContextMenu(cm => cm
-                                                       .Enabled(false)
-                                                       ).Ribbon(ribbon => ribbon
-                                                       .Visible(true)
-                                                       .ActiveTabIndex(0)
-                                                       .Tabs(tabs =>
-                                                       {
-                                                           tabs.Clear();
-                                                               if (ViewBag.isDownload == "Yes")
-                                                               {
-                                                                   tabs.Add()
-                                                                   .Title("File")
-                                                                   .Items(items =>
-                                                                   {
-                                                                       items.AddButton()
-                                                                               .Text("Save")
-                                                                               .CommandName("save")
-                                                                               .ShowText(true)
-                                                                               .Icon("save");
-                                                                       if (@ViewBag.isDownload == "Yes")
-                                                                       {
-                                                                           items.AddButton()
-                                                                               .Text("Download")
-                                                                               .CommandName("download")
-                                                                               .ShowText(true)
-                                                                               .Icon("download");
-                                                                       }
-                                                                   });
-                                                               }
-                                                           tabs.AddHomeTab();
-                                                           tabs.AddInsertTab();
-                                                           tabs.AddPageLayoutTab();
-                                                           tabs.AddTableDesignContextTab();
-                                                           tabs.AddViewTab();
-                                                       })
-                                                           ).ReadOnly(ViewBag.isDownload == "Yes" ? false : true).OnCustomCommandExecuted("onDocCustomCommandExecuted"))
+                                                                                                           Html.DevExpress().RichEdit("DemoRichEdit")
+                                                                                                           .Height("calc(100vh - 70px)")
+                                                                                                           .Width("100%")
+                                                                                                               .ConfirmOnLosingChanges(c => c.Enabled(ViewBag.isDownload == "Yes" ? true : false))
+                                                                                                                       .Open(@Model.PathUrl)
+                                                                                                           .ContextMenu(cm => cm
+                                                                                                           .Enabled(false)
+                                                                                                           ).Ribbon(ribbon => ribbon
+                                                                                                           .Visible(true)
+                                                                                                           .ActiveTabIndex(0)
+                                                                                                           .Tabs(tabs =>
+                                                                                                           {
+                                                                                                               tabs.Clear();
+                                                                                                               if (@Model.IsLatest == true)
+                                                                                                               {
+                                                                                                                   if (ViewBag.isDownload == "Yes")
+                                                                                                                   {
+                                                                                                                       tabs.Add()
+                                                                                                                       .Title("File")
+                                                                                                                       .Items(items =>
+                                                                                                                       {
+                                                                                                                           items.AddButton()
+                                                                                                                                   .Text("Save")
+                                                                                                                                   .CommandName("save")
+                                                                                                                                   .ShowText(true)
+                                                                                                                                   .Icon("save");
+                                                                                                                           if (@ViewBag.isDownload == "Yes")
+                                                                                                                           {
+                                                                                                                               items.AddButton()
+                                                                                                                                   .Text("Download")
+                                                                                                                                   .CommandName("download")
+                                                                                                                                   .ShowText(true)
+                                                                                                                                   .Icon("download");
+                                                                                                                           }
+                                                                                                                       });
+                                                                                                                   }
+                                                                                                               }
+                                                                                                               tabs.AddHomeTab();
+                                                                                                               tabs.AddInsertTab();
+                                                                                                               tabs.AddPageLayoutTab();
+                                                                                                               tabs.AddTableDesignContextTab();
+                                                                                                               tabs.AddViewTab();
+                                                                                                           })
+                                                                                                                   ).ReadOnly(@Model.IsLatest == true ? (ViewBag.isDownload == "Yes" ? false : true) : true).OnCustomCommandExecuted("onDocCustomCommandExecuted"))
                         }
                         else
                         {
@@ -401,22 +456,51 @@
                     else
                     {
                         @(
-                                                    Html.DevExpress().RichEdit("DemoRichEdit")
-                                                    .Height("calc(100vh - 70px)")
-                                                    .Width("100%")
-                                                    .ConfirmOnLosingChanges(c => c.Enabled(false))
-                                                    .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
-                                                    .ContextMenu(cm => cm
-                                                    .Enabled(false)
-                                                    ).Ribbon(ribbon => ribbon
-                                                    .Tabs(tabs =>
-                                                    {
-                                                        tabs.RemoveByTitle("File");
-                                                    }).Tabs(tabs =>
-                                                    {
-                                                        tabs.RemoveByTitle("Mail Merge");
-                                                    })
-                                                    ).ReadOnly(true))
+                                                            Html.DevExpress().RichEdit("DemoRichEdit")
+                                                            .Height("calc(100vh - 70px)")
+                                                            .Width("100%")
+                                                                .ConfirmOnLosingChanges(c => c.Enabled(ViewBag.isDownload == "Yes" ? true : false))
+                                                                            .Open(@Model.PathUrl, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
+                                                            .ContextMenu(cm => cm
+                                                            .Enabled(false)
+                                                            ).Ribbon(ribbon => ribbon
+                                                            .Visible(true)
+                                                            .ActiveTabIndex(0)
+                                                            .Tabs(tabs =>
+                                                            {
+                                                                tabs.Clear();
+                                                                if (@Model.IsLatest == true)
+                                                                {
+                                                                    if (ViewBag.isDownload == "Yes")
+                                                                    {
+                                                                        tabs.Add()
+                                                                        .Title("File")
+                                                                        .Items(items =>
+                                                                        {
+                                                                            items.AddButton()
+                                                                                    .Text("Save")
+                                                                                    .CommandName("save")
+                                                                                    .ShowText(true)
+                                                                                    .Icon("save");
+                                                                            if (@ViewBag.isDownload == "Yes")
+                                                                            {
+                                                                                items.AddButton()
+                                                                                    .Text("Download")
+                                                                                    .CommandName("download")
+                                                                                    .ShowText(true)
+                                                                                    .Icon("download");
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                                tabs.AddHomeTab();
+                                                                tabs.AddInsertTab();
+                                                                tabs.AddPageLayoutTab();
+                                                                tabs.AddTableDesignContextTab();
+                                                                tabs.AddViewTab();
+                                                            })
+                                                                    ).ReadOnly(@Model.IsLatest == true ? (ViewBag.isDownload == "Yes" ? false : true) : true).OnCustomCommandExecuted("onDocCustomCommandExecuted"))
+
                     }
 
                 }

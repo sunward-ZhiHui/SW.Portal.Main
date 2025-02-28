@@ -157,6 +157,9 @@
              types.ToIds = new List<long> { -1 };
         }
         <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">
+            <DxFormLayoutItem Caption="Assignor :" ColSpanMd="4">
+                <DxTextBox @bind-Text="@types.Assignor" ReadOnly="true"></DxTextBox>
+             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
                 <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" Enabled="@LockDueDateEnable" TimeSectionVisible="false" />
             </DxFormLayoutItem>  
@@ -212,6 +215,15 @@
                    
                 </DxCheckBox>
             </DxFormLayoutItem>
+           <DxFormLayoutItem Caption="Assignee  :" ColSpanMd="4">
+                <DxTextBox @bind-Text="@types.Assignee" ReadOnly="true"></DxTextBox>
+           </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="Requested Due Date:" ColSpanMd="4">
+                 <DxDateEdit @bind-Date="@types.RequestedDueDate" ReadOnly="true" />
+             </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="Reason  :" ColSpanMd="4">
+                <DxTextBox @bind-Text="@types.Reason" ReadOnly="true"></DxTextBox>
+             </DxFormLayoutItem>
         </DxFormLayout>
 
     </EditFormTemplate>

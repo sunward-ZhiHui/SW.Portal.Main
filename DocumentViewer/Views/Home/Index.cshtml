@@ -16,7 +16,9 @@
                     url: '@Url.Action("RibbonSaveToFile")',
                     data: { spreadsheetState: spreadsheetState, id: documentId, isVersion: isVersion },
                     success: function (response) {
-                        alert("Version Upload successful");
+                        if (isVersion == "Yes") {
+                            alert("Version Upload successful");
+                        }
                     },
                     error: function (xhr, status, error) {
                         alert("Upload failed");
@@ -69,7 +71,9 @@
                         processData: false,  // Prevent jQuery from processing the data
                         contentType: false,  // Let the browser set the correct content type
                         success: function (response) {
-                            alert("Version Upload successful");
+                            if (isVersion == "Yes") {
+                                alert("Version Upload successful");
+                            }
                         },
                         error: function (xhr, status, error) {
                             alert("Upload failed");
@@ -108,7 +112,9 @@
                     url: '@Url.Action("RibbonSaveToFile")',
                     data: { spreadsheetState: spreadsheetState, id: documentId, isVersion: isVersion },
                     success: function (response) {
-                        alert("Version Upload successful");
+                        if (isVersion == "Yes") {
+                            alert("Version Upload successful");
+                        }
                     },
                     error: function (xhr, status, error) {
                         alert("Upload failed");
@@ -165,6 +171,7 @@
                         @(
                                                                                                                 Html.DevExpress()
                                                                                                                .Spreadsheet("spreadsheet")
+
                                                                                                                .Height("calc(100vh - 70px)")
                                                                                                                .Width("100%")
                                                                                                                .Ribbon(ribbon => ribbon

@@ -2750,6 +2750,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ID", emailConversations.ID);
                         parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
                         parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
+                        parameters.Add("Reason", emailConversations.Reason);
 
                         DateTime? expiryDueDate = null; // Use nullable DateTime
 
@@ -2767,7 +2768,7 @@ namespace Infrastructure.Repository.Query
 
                         parameters.Add("ExpiryDueDate", expiryDueDate, DbType.DateTime); // Use DbType.DateTime for null values
 
-                        var emailDueDateHistory = "INSERT INTO EmailDueDateHistory(ConversationID,UserID,DueDate,NoOfDays,ExpiryDueDate,AddedByUserID,AddedDate) VALUES (@ID,@ModifiedByUserID,@DueDate,@NoOfDays,@ExpiryDueDate,@ModifiedByUserID,@ModifiedDate)";
+                        var emailDueDateHistory = "INSERT INTO EmailDueDateHistory(Reason,ConversationID,UserID,DueDate,NoOfDays,ExpiryDueDate,AddedByUserID,AddedDate) VALUES (@Reason,@ID,@ModifiedByUserID,@DueDate,@NoOfDays,@ExpiryDueDate,@ModifiedByUserID,@ModifiedDate)";
 
                         var rowsAffected = await connection.ExecuteAsync(emailDueDateHistory, parameters);
 

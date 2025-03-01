@@ -4749,8 +4749,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             DueDate = _dataSubjectDuDate.DueDate,
             NoOfDays = _dataSubjectDuDate.NoOfDays,
             ModifiedByUserID = applicationUser.UserID,
-            ModifiedDate = DateTime.Now
-
+            ModifiedDate = DateTime.Now,
+            Reason = DuedateReason
         };
 
         var result = await Mediator.Send(emailDueDateHistory);

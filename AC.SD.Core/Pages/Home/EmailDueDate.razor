@@ -162,10 +162,19 @@
              </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
                 <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" Enabled="@LockDueDateEnable" TimeSectionVisible="false" />
-            </DxFormLayoutItem>  
-            <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
-                <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0" ></DxSpinEdit>
-            </DxFormLayoutItem>
+            </DxFormLayoutItem> 
+            @if(IsSubjectNoOfDays == true)
+            {
+                <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
+                    <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
+                </DxFormLayoutItem>
+            }
+            else
+            {
+                <DxFormLayoutItem Caption="" ColSpanMd="4" >
+                   
+                </DxFormLayoutItem>
+            }
             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
                 @*<DxComboBox Data="@_UserTagList"
                             NullText="Select User Tag..."
@@ -517,7 +526,7 @@
     protected override async Task OnInitializedAsync()
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        await JSRuntime.InvokeAsync<string>("showLoading");
+        await JSRuntime.InvokeAsync<string>("showLoading"); 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
         _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));

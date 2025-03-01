@@ -48,16 +48,9 @@
                         {
                             <span class="showDueDate">(@Application.Common.Helper.Helper.FormatDate(item.DueDate.Value))</span>
                         }
-                        @* @if (item.IsToDoDuDate.GetValueOrDefault(false))
+                        @if (item.IsToDoDuDate.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon" title="Todo DueDate"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-                        } *@
-
-                        @if (item.IsToDoDuDate == true) 
-                        {
-                            <span class="urgent_icon" title="Todo DueDate">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                            </span>
                         }
                         
                         @if (item.Urgent.GetValueOrDefault(false))
@@ -68,7 +61,6 @@
                         {
                             <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                         }
-
                         @if (item.IsClosed)
                         {
                             <span class="primary_color_icon" style="font-size:11px;color:brown;">Closed</span>

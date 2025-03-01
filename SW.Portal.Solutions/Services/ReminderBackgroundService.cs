@@ -21,17 +21,17 @@ namespace SW.Portal.Solutions.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //while (!stoppingToken.IsCancellationRequested)
-            //{
-            //    using (var scope = _serviceScopeFactory.CreateScope())
-            //    {
-            //        var dashboardQueryRepository = scope.ServiceProvider.GetRequiredService<IDashboardQueryRepository>();
-            //        var reminders = await dashboardQueryRepository.GetPendingRemindersAsync();
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var dashboardQueryRepository = scope.ServiceProvider.GetRequiredService<IDashboardQueryRepository>();
+                    var reminders = await dashboardQueryRepository.GetPendingRemindersAsync();
 
-            //    }
+                }
 
-            //    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Check every minute
-            //}
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken); // Check every minute
+            }
         }
     }
 }

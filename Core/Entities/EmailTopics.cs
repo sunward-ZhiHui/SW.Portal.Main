@@ -157,5 +157,13 @@ namespace Core.Entities
         public Guid? EmailConversationsSessionid { get; set; }
         [NotMapped]
         public long? ConversationID { get; set; }
+        [NotMapped]
+        public string? Assignor { get; set; }
+        [NotMapped]
+        public string? Assignee { get; set; }
+        [NotMapped]
+        public string? Reason { get; set; }
+        [NotMapped]
+        public DateTime? RequestedDueDate { get; set; }
     }
 }

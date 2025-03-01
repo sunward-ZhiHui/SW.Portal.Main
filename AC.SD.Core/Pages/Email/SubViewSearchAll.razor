@@ -52,11 +52,19 @@
                         {
                             <span class="urgent_icon" title="Todo DueDate"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                         }
+                        
+                        @if (item.Urgent.GetValueOrDefault(false))
+                        {
+                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                        }
+                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                        {
+                            <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                        }
                         @if (item.IsClosed)
-                        {                            
+                        {
                             <span class="primary_color_icon" style="font-size:11px;color:brown;">Closed</span>
                         }
-                       
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                             <text>@item.TopicName</text>

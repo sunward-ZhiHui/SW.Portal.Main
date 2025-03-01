@@ -132,6 +132,8 @@ namespace Core.Entities
         public long? CopyLinkEmailIds { get; set; } = null;
         [NotMapped]
         public string? PreviosUser { get; private set; }
+        [NotMapped]
+        public string? Reason { get; set; }
     }
     public class EmailDocumentModel
     {        

@@ -548,14 +548,21 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("@CurrentDate", currentDate);
                 parameters.Add("@CurrentDateTime", currentDateTime);
 
+                //var query = @"SELECT A.ID, A.AppointmentType, A.Description, A.StartDate, A.EndDate, A.Label, 
+                //                       A.Location, A.Recurrence, A.AllDay, A.Caption, A.Status, A.AddedByUserID
+                //                FROM Appointment A
+                //                WHERE                                     
+                //                    CAST(A.StartDate AS DATE) = @CurrentDate 
+                //                    AND CAST(A.EndDate AS DATE) = @CurrentDate                                    
+                //                    AND A.StartDate >= @CurrentDateTime
+                //                ORDER BY A.StartDate";
+
                 var query = @"SELECT A.ID, A.AppointmentType, A.Description, A.StartDate, A.EndDate, A.Label, 
-                                       A.Location, A.Recurrence, A.AllDay, A.Caption, A.Status, A.AddedByUserID
-                                FROM Appointment A
-                                WHERE                                     
-                                    CAST(A.StartDate AS DATE) = @CurrentDate 
-                                    AND CAST(A.EndDate AS DATE) = @CurrentDate                                    
-                                    AND A.StartDate >= @CurrentDateTime
-                                ORDER BY A.StartDate";
+                                   A.Location, A.Recurrence, A.AllDay, A.Caption, A.Status, A.AddedByUserID
+                            FROM Appointment A
+                            WHERE 
+                                A.StartDate BETWEEN @CurrentDateTime AND DATEADD(MINUTE, 10, @CurrentDateTime) 
+                            ORDER BY A.StartDate";
 
                 //CAST(GETDATE() AS DATE) BETWEEN CAST(A.StartDate AS DATE) AND CAST(A.EndDate AS DATE)
 

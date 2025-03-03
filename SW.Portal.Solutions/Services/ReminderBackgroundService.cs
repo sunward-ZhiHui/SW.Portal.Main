@@ -30,7 +30,7 @@ namespace SW.Portal.Solutions.Services
 
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken); // Check every minute
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Check every minute
             }
         }
     }

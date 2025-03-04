@@ -363,6 +363,7 @@
     }
     void OnDateChanged(DateTime? newValue)
     {
+        DuedateReason = "";
         if (newValue != null)
         {
             SelectedDueDate = newValue.Value;
@@ -483,8 +484,9 @@
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
         DueDateMessageVisible = false;
-
+        await EmailDueDateGrid.CancelEditAsync();
         await onRefresh();
+        
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }

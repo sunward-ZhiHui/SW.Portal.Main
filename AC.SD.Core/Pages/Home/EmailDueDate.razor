@@ -161,7 +161,7 @@
                 <DxTextBox @bind-Text="@types.Assignor" ReadOnly="true"></DxTextBox>
              </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
-                <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" Enabled="@LockDueDateEnable" TimeSectionVisible="false" />
+                <DxDateEdit  Date="@types.DueDate" MinDate="DateTime.Now" DateExpression="@(() => types.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" TimeSectionVisible="false" />
             </DxFormLayoutItem> 
             @if(IsSubjectNoOfDays == true)
             {
@@ -282,7 +282,22 @@
         <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />
     </FooterContentTemplate>
 </DxPopup>
-
+<DxPopup @bind-Visible="@DueDateMessageVisible" ShowFooter="true" HeaderText="Warning Info">
+    <BodyContentTemplate Context="PopupContext">
+         <div class="@((DueDateMessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span class="@((DueDateMessageHeader == "Warning Info" ? "TxtRed" :""))"> @DueDateMessageBody</span>
+        </div>
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Reason :" ColSpanMd="12">
+                <DxMemo @bind-Text="@DuedateReason"></DxMemo>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <span>@Application.Common.Helper.Helper.FormatDate(@SelectedDueDate)</span>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     IReadOnlyList<object> SelectedDataItems { get; set; }
     internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
@@ -299,7 +314,10 @@
     const string LocalStorageKey = "Grid-LayoutMyEmailDueDate-Data";
     bool LockDueDateEnable { get; set; } = true;
     bool DueDateEnable { get; set; } = false;
-
+    bool DueDateMessageVisible { get; set; } = false;
+    string DueDateMessageHeader = "Error";
+    string DueDateMessageBody = "";
+    DateTime SelectedDueDate { get; set; }
     async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
     {
         e.Layout = await LoadLayoutFromLocalStorageAsync();
@@ -343,9 +361,27 @@
         // await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
     }
+    void OnDateChanged(DateTime? newValue)
+    {
+        if (newValue != null)
+        {
+            SelectedDueDate = newValue.Value;
+
+        }
+        if(LockDueDateEnable == false)
+        {
+            DueDateMessageBody = "Warning Info , Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(_selectedItems.ExpiryDueDate) + ") days, contact your supervisor for guidance.";
+
+            DueDateMessageVisible = true;
+        }
+
+
+        StateHasChanged();
+    }
     async void onSentDueDateRequest()
     {
 
+        await JSRuntime.InvokeAsync<string>("showLoading");
         var lst = _selectedItems;       
         var duedate = _dataEditEamilTopics.DueDate;
         var cList = await Mediator.Send(new GetRequestEmailToCCList(_selectedItems.ID));
@@ -411,7 +447,7 @@
                 ReplyId = _selectedItems.ID,
                 AllParticipantIds = participantIds.Distinct().ToList(),
                 ParticipantId = applicationUser.UserID,
-                Name = _dataEditEamilTopics.TopicName,
+                Name = _selectedItems.TopicName,
                 AddedByUserID = applicationUser.UserID,
                 From = "",
                 LastName = "",
@@ -435,17 +471,22 @@
         var emailDueDateHistory = new InsertEmailDueDateHistory
             {
                 ID = (int)_selectedItems.ID,
-                DueDate = _dataEditEamilTopics.DueDate,
+                DueDate = SelectedDueDate,
                 NoOfDays = _dataEditEamilTopics.NoOfDays,
                 ModifiedByUserID = applicationUser.UserID,
-                ModifiedDate = DateTime.Now
+                ModifiedDate = DateTime.Now,
+                Reason = DuedateReason
 
             };
         var historyresult = await Mediator.Send(emailDueDateHistory);
         MessageVisible = false;
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+        DueDateMessageVisible = false;
+
         await onRefresh();
         StateHasChanged();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
     async Task RemoveLayoutFromLocalStorageAsync()
@@ -505,6 +546,7 @@
         _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
         EmailDueDateGrid.Reload();
+        StateHasChanged();
     }
     void addEdit()
     {

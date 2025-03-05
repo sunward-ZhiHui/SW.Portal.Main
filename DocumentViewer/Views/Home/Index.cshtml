@@ -513,15 +513,15 @@
                 }
                 else if (Model.Extensions == "pdf")
                 {
-                    @* <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe> *@
-                    <iframe id="pdfViewer" style="width: 100%; height: calc(100vh - 70px);"></iframe>
+                   <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe> 
+                    @* <iframe id="pdfViewer" style="width: 100%; height: calc(100vh - 70px);"></iframe> *@
 
                     <script>
                         document.addEventListener("DOMContentLoaded", function () {
                             var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // Mobile device detection
                             var toolbarValue = isMobile ? "1" : "0";
                             var pdfUrl = "@Model.Url?#toolbar=" + toolbarValue;
-                            document.getElementById("pdfViewer").src = pdfUrl;
+                            document.getElementById("pdfViewer").src = encodeURI(pdfUrl);
                         });
                     </script>
                 }

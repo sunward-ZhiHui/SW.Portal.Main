@@ -54,6 +54,7 @@ namespace DocumentViewer.Controllers
         }
         public async Task<IActionResult> Index(string url)
         {
+            bool isMobile = IsMobileDevice(HttpContext);
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty; var pathurl = string.Empty;
@@ -69,6 +70,8 @@ namespace DocumentViewer.Controllers
             if (userId != null)
             {
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
+
+                viewmodel.IsUserAgent = isMobile;
                 if (!string.IsNullOrEmpty(url))
                 {
                     var sessionId = new Guid(url);
@@ -270,6 +273,18 @@ namespace DocumentViewer.Controllers
             {
                 return Redirect("login?url=" + url);
             }
+        }
+        private bool IsMobileDevice(HttpContext contexts)
+        {
+            if (contexts.Request.Headers.TryGetValue("User-Agent", out var userAgent))
+            {
+                string userAgentString = userAgent.ToString().ToLower();
+                return userAgentString.Contains("iphone") ||
+                       userAgentString.Contains("ipad") ||
+                       userAgentString.Contains("ipod") ||
+                       userAgentString.Contains("android");
+            }
+            return false;
         }
         string RemoveAfterLastDot(string text)
         {

@@ -26,6 +26,7 @@ namespace DocumentViewer.Models
         public string? FileNameWithOutExtension { get; set; }
         public bool? IsLatest { get; set; } = false;
         public string? UniqueSessionId { get; set; }
+        public bool? IsUserAgent {  get; set; } = false;
     }
     public class PermissionModel
     {

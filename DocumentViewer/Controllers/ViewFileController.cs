@@ -22,10 +22,12 @@ namespace DocumentViewer.Controllers
         }
         public async Task<IActionResult> Index(Guid? url)
         {
+            bool isMobile = IsMobileDevice(HttpContext);
             @ViewBag.isExpired = "No";
             @ViewBag.isDownload = "No";
             HttpContext.Session.Remove("Share"); var pathurl = string.Empty;
             SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
+            viewmodel.IsUserAgent = isMobile;
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty;
@@ -142,6 +144,18 @@ namespace DocumentViewer.Controllers
                 }
             }
             return View(viewmodel);
+        }
+        private bool IsMobileDevice(HttpContext contexts)
+        {
+            if (contexts.Request.Headers.TryGetValue("User-Agent", out var userAgent))
+            {
+                string userAgentString = userAgent.ToString().ToLower();
+                return userAgentString.Contains("iphone") ||
+                       userAgentString.Contains("ipad") ||
+                       userAgentString.Contains("ipod") ||
+                       userAgentString.Contains("android");
+            }
+            return false;
         }
         async Task<Stream> ConvertFileToMemoryStreamAsync(string filePath)
         {

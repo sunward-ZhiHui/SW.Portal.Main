@@ -70,6 +70,37 @@
                             </DxComboBox>
                             <ValidationMessage For="@(() => Data.RegistrationCountryId)" />
                         </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
+                            <DxComboBox Data="@_documentProfileNoList"
+                                        NullText="Select Profile..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Name"
+                                        ValueFieldName="ProfileID"
+                                        Value="@Data.ProfileId"
+                                        Enabled="@PreProfileEnabled"
+                                        ValueExpression="@(() => Data.ProfileId )"
+                                        ValueChanged="@((long? plantData) => SelectedProfileChanged(plantData))"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        ShowValidationIcon="true">
+                                <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
+                                                        Caption="Name"
+                                                        Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Description)"
+                                                        Caption="Description" />
+                                    <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Abbreviation)"
+                                                        Caption="Abbreviation" />
+                                    <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.SampleDocumentNo)"
+                                                        Caption="Sample Document No" />
+                                </Columns>
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.ProfileId)" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
+                            <DxTextBox @bind-Text="@Data.ProfileNo" Enabled="false" />
+                        </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Item Information" ColSpanMd="12">
                             <DxDropDownBox @bind-Value="ItemValue"
                                            QueryDisplayText="QueryDisplayDynamicComboBoxText"
@@ -169,6 +200,7 @@
     </div>
 </div>
 @code {
+    public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
     private RegistrationRequestFormLine refRegistrationRequestFormLine;
     int ActiveSubTabIndex { get; set; } = 0;
     object ItemValue { get; set; }
@@ -189,11 +221,13 @@
     private List<RegistrationRequestVariationForm> RegistrationRequestVariationForm { get; set; }
     private List<DropDownOptionsModel> _Headergridlistss { get; set; }
     public string? varitionCode { get; set; }
+    public bool PreProfileEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _applicationMasterChildListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("154"));
+        _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         List<long?> dynamicFormIds = new List<long?>();
         var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("ProductSpecification"));
         if (result != null && result.ID > 0)
@@ -259,6 +293,14 @@
             }
         }
     }
+    void SelectedProfileChanged(long? country)
+    {
+        Data.ProfileId = null;
+        if (country > 0)
+        {
+            Data.ProfileId = country;
+        }
+    }
     async Task OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 0)
@@ -295,8 +337,8 @@
         Data.ExpectedSubmissionDate = null;
         Data.StatusCodeId = 1;
         Data.SubmissionDate = null;
-        Data.SubmissionNo = null;
-        Data.PurposeOfRegistration = null;
+        Data.SubmissionNo = null; PreProfileEnabled = true;
+        Data.PurposeOfRegistration = null; Data.ProfileId = null; Data.ProfileNo = null; Data.PreProfileId = null;
         Data.VariationNoIds = new List<long?>(); ItemValue = null; VariationNoValue = null; VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         _registrationRequestData = new RegistrationRequest(); RegistrationRequestVariationForm = new List<RegistrationRequestVariationForm>();
         if (SessionId != null)
@@ -306,7 +348,12 @@
             {
                 EditEnabled = true;
                 _registrationRequestData = dynamicFormData;
+                Data.ProfileId = dynamicFormData.ProfileId; Data.ProfileNo = dynamicFormData.ProfileNo; Data.PreProfileId = dynamicFormData.ProfileId;
                 Data.RegistrationRequestId = dynamicFormData.RegistrationRequestId;
+                if (dynamicFormData.ProfileId > 0)
+                {
+                    PreProfileEnabled = false;
+                }
                 Data.AddedBy = dynamicFormData.AddedBy;
                 Data.ModifiedUserId = dynamicFormData.ModifiedUserId;
                 Data.AddedByUserId = dynamicFormData.AddedByUserId;
@@ -559,7 +606,16 @@
             Data.ModifiedDate = DateTime.Now;
             Data.ModifiedBy = applicationUser.UserName;
             var request = new InsertorUpdateRegistrationRequest(Data);
-            await Mediator.Send(request);
+            var result = await Mediator.Send(request);
+            if (result.RegistrationRequestId > 0)
+            {
+                Data.PreProfileId = Data.ProfileId;
+                Data.ProfileNo = result.ProfileNo;
+                if (Data.PreProfileId > 0)
+                {
+                    PreProfileEnabled = false;
+                }
+            }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
             StateHasChanged();
@@ -567,8 +623,18 @@
         else
         {
             Data.SessionId = Guid.NewGuid();
+
             var request = new InsertorUpdateRegistrationRequest(Data);
             var result = await Mediator.Send(request);
+            if (result.RegistrationRequestId > 0)
+            {
+                Data.PreProfileId = Data.ProfileId;
+                Data.ProfileNo = result.ProfileNo;
+                if (Data.PreProfileId > 0)
+                {
+                    PreProfileEnabled = false;
+                }
+            }
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
 

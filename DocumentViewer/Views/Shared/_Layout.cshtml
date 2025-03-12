@@ -93,7 +93,7 @@
             <header>
                 <div class="profile-menu">
                     <div>Sunward Document Viewer</div>
-                    <div class="profile-info" style="text-align: right; dwidth: 67%;">
+                    <div class="profile-info" style="text-align: right; width: 67%;">
                         <span class="username">@Context.Session.GetString("user_name")</span>
                     </div>
                     <div class="dropdown">
@@ -103,6 +103,13 @@
                             {
                                 @if (@ViewBag.isFile == "Yes")
                                 {
+                                    @if (@ViewBag.isMobile == "Yes")
+                                    {
+                                        if (@ViewBag.FileExtension == "pdf")
+                                        {
+                                            <a href="javascript:void(0);" id="viewAllPAges">View All Pages</a>
+                                        }
+                                    }
                                     @if (@ViewBag.FileExtension == "msg" || @ViewBag.FileExtension == "eml")
                                     {
                                         <a href="javascript:void(0);" id="downloadMailClick">Download Mail Attachment</a>
@@ -162,7 +169,7 @@
     <script type="text/javascript">
         $('#logoutClick').on('click', function () {
             $.ajax({
-                url: '@Url.Action("logout","login")',
+                url: '@Url.Action("logout", "login")',
                 method: 'GET',
                 success: function (data) {
                     location.reload();
@@ -171,6 +178,9 @@
 
                 }
             });
+        });
+        $("#viewAllPAges").on('click', function () {
+            window.open("@ViewBag.Url", '_blank').focus();
         });
         $('#downloadMailClick').on('click', function () {
             const queryString = window.location.search;
@@ -188,8 +198,7 @@
                         responseType: 'blob'
                     },
                     success: function (data) {
-                        if(data.size>0)
-                        {
+                        if (data.size > 0) {
                             var a = document.createElement('a');
                             var url = window.URL.createObjectURL(data);
                             a.href = url;
@@ -199,8 +208,7 @@
                             a.remove();
                             window.URL.revokeObjectURL(url);
                         }
-                        else
-                        {
+                        else {
                             alert("File is not exist")
                         }
                     },

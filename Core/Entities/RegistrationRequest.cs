@@ -39,6 +39,11 @@ namespace Core.Entities
         public string? ProductSpecificationDynamicForm { get; set; }
         public string? VariationNo { get; set; }
         public object? ObjectData { get; set; }
+        [Required(ErrorMessage = "Profile is Required")]
+        public long? ProfileId { get; set; }
+        public string? ProfileName { get; set; }
+        public string? ProfileNo { get; set; }
+        public long? PreProfileId { get; set; }
     }
     public class RegistrationRequestVariation
     {

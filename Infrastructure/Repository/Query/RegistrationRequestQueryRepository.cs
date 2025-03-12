@@ -24,10 +24,11 @@ namespace Infrastructure.Repository.Query
 {
     public class RegistrationRequestQueryRepository : DbConnector, IRegistrationRequestQueryRepository
     {
-        public RegistrationRequestQueryRepository(IConfiguration configuration)
+        private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+        public RegistrationRequestQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
             : base(configuration)
         {
-
+            _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
         public async Task<IReadOnlyList<RegistrationRequest>> GetRegistrationRequest()
         {
@@ -35,7 +36,7 @@ namespace Infrastructure.Repository.Query
             {
                 var result = new List<RegistrationRequest>();
                 var resultData = new List<RegistrationRequestVariation>();
-                var query = "select t1.*,t2.Value as RegistrationCountry,t3.UserName as AddedBy,t4.UserName as ModifiedBy from RegistrationRequest t1\r\nJOIN ApplicationMasterChild t2 ON t1.RegistrationCountryID=t2.ApplicationMasterChildID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID where (t1.Isdeleted is null Or t1.Isdeleted=0);";
+                var query = "\r\nselect t1.*,t2.Value as RegistrationCountry,t3.UserName as AddedBy,t4.UserName as ModifiedBy,t5.Name as ProfileName from RegistrationRequest t1  JOIN ApplicationMasterChild t2 ON t1.RegistrationCountryID=t2.ApplicationMasterChildID JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID \r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID \r\nLEFT JOIN DocumentProfileNoSeries t5 ON t5.ProfileID=t1.ProfileID \r\nwhere (t1.Isdeleted is null Or t1.Isdeleted=0);";
                 query += "select * from RegistrationRequestVariation;";
                 using (var connection = CreateConnection())
                 {
@@ -65,7 +66,7 @@ namespace Infrastructure.Repository.Query
                 var resultData = new List<RegistrationRequestVariation>();
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t2.Value as RegistrationCountry,t3.UserName as AddedBy,t4.UserName as ModifiedBy from RegistrationRequest t1\r\nJOIN ApplicationMasterChild t2 ON t1.RegistrationCountryID=t2.ApplicationMasterChildID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID Where (t1.Isdeleted is null Or t1.Isdeleted=0) AND t1.SessionId=@SessionId;";
+                var query = "select t1.*,t2.Value as RegistrationCountry,t3.UserName as AddedBy,t4.UserName as ModifiedBy,t5.Name as ProfileName from RegistrationRequest t1  JOIN ApplicationMasterChild t2 ON t1.RegistrationCountryID=t2.ApplicationMasterChildID JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID \r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID \r\nLEFT JOIN DocumentProfileNoSeries t5 ON t5.ProfileID=t1.ProfileID \r\nwhere (t1.Isdeleted is null Or t1.Isdeleted=0) AND t1.SessionId=@SessionId;";
                 query += "select * from RegistrationRequestVariation;";
                 using (var connection = CreateConnection())
                 {
@@ -199,17 +200,31 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("PurposeOfRegistration", value.PurposeOfRegistration, DbType.String);
                     parameters.Add("StatusCodeId", value.StatusCodeId);
                     parameters.Add("RegistrationRequestId", value.RegistrationRequestId);
+                    parameters.Add("ProfileId", value.ProfileId);
                     if (value.RegistrationRequestId > 0)
                     {
-                        var query = "UPDATE RegistrationRequest SET PurposeOfRegistration=@PurposeOfRegistration,SubmissionNo=@SubmissionNo,RegistrationCountryId=@RegistrationCountryId,CCNo = @CCNo,ProductSpecificationDynamicFormId =@ProductSpecificationDynamicFormId,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
+                        var ProfileNo = value.ProfileNo;
+                        if (value.PreProfileId > 0)
+                        {
+                        }
+                        else
+                        {
+                            ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = value.ProfileId, Title = "Registration Request", StatusCodeID = 710 });
+                            value.ProfileNo = ProfileNo;
+                        }
+                        parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                        var query = "UPDATE RegistrationRequest SET ProfileNo=@ProfileNo,ProfileId=@ProfileId,PurposeOfRegistration=@PurposeOfRegistration,SubmissionNo=@SubmissionNo,RegistrationCountryId=@RegistrationCountryId,CCNo = @CCNo,ProductSpecificationDynamicFormId =@ProductSpecificationDynamicFormId,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
                             "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,ExpectedSubmissionDate=@ExpectedSubmissionDate WHERE RegistrationRequestId = @RegistrationRequestId";
 
                         await connection.ExecuteAsync(query, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO RegistrationRequest(PurposeOfRegistration,SubmissionNo,RegistrationCountryId,CCNo,ProductSpecificationDynamicFormId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,SubmissionDate,StatusCodeId,ExpectedSubmissionDate) OUTPUT INSERTED.RegistrationRequestId VALUES " +
-                            "(@PurposeOfRegistration,@SubmissionNo,@RegistrationCountryId,@CCNo,@ProductSpecificationDynamicFormId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@SubmissionDate,@StatusCodeId,@ExpectedSubmissionDate)";
+                        var ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = value.ProfileId, Title = "Registration Request", StatusCodeID = 710 });
+                        value.ProfileNo = ProfileNo;
+                        parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                        var query = "INSERT INTO RegistrationRequest(ProfileId,ProfileNo,PurposeOfRegistration,SubmissionNo,RegistrationCountryId,CCNo,ProductSpecificationDynamicFormId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,SubmissionDate,StatusCodeId,ExpectedSubmissionDate) OUTPUT INSERTED.RegistrationRequestId VALUES " +
+                            "(@ProfileId,@ProfileNo,@PurposeOfRegistration,@SubmissionNo,@RegistrationCountryId,@CCNo,@ProductSpecificationDynamicFormId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@SubmissionDate,@StatusCodeId,@ExpectedSubmissionDate)";
 
                         var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         value.RegistrationRequestId = rowsAffected;

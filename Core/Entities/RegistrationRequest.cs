@@ -60,6 +60,7 @@ namespace Core.Entities
         public long? RegDynamicFormDataID { get; set; }
         public string? Description { get; set; }
         public string? RegDynamicFormDataNameId { get; set; }
+        public string? DetailType { get; set; }
     }
     public class RegistrationRequestDueDateAssignment
     {

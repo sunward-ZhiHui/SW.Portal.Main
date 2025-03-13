@@ -331,7 +331,7 @@
             var request = new DeleteRegistrationRequest(_selectedItems);
             await Mediator.Send(request);
             Blukdeletepopup = false;
-            toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("Record Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
             await loadData();
         }
         catch (Exception eq)

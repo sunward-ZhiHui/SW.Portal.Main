@@ -192,6 +192,12 @@
                             <DxFormLayoutTabPage Caption="Section Entry">
                                 <RegistrationRequestFormLine @ref="refRegistrationRequestFormLine" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestFormLine>
                             </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Progress by registration department">
+                                <RegistrationRequestProgressByRegistrationDepartments @ref="refRegistrationRequestProgressByRegistrationDepartments" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestProgressByRegistrationDepartments>
+                            </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Assignment of Job for QC department">
+                                <RegistrationRequestAssignmentOfJobs @ref="refRegistrationRequestAssignmentOfJobs" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestAssignmentOfJobs>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -199,9 +205,28 @@
         </div>
     </div>
 </div>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool Blukdeletepopup { get; set; } = false;
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
     private RegistrationRequestFormLine refRegistrationRequestFormLine;
+    private RegistrationRequestProgressByRegistrationDepartments refRegistrationRequestProgressByRegistrationDepartments;
+    private RegistrationRequestAssignmentOfJobs refRegistrationRequestAssignmentOfJobs;
     int ActiveSubTabIndex { get; set; } = 0;
     object ItemValue { get; set; }
     object VariationNoValue { get; set; }
@@ -338,7 +363,7 @@
         Data.StatusCodeId = 1;
         Data.SubmissionDate = null;
         Data.SubmissionNo = null; PreProfileEnabled = true;
-        Data.PurposeOfRegistration = null; Data.ProfileId = null; Data.ProfileNo = null; Data.PreProfileId = null;
+        Data.PurposeOfRegistration = null; Data.ProfileId = null; Data.ProfileNo = null; Data.PreProfileId = null; ActiveSubTabIndex = 0;
         Data.VariationNoIds = new List<long?>(); ItemValue = null; VariationNoValue = null; VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         _registrationRequestData = new RegistrationRequest(); RegistrationRequestVariationForm = new List<RegistrationRequestVariationForm>();
         if (SessionId != null)
@@ -540,6 +565,7 @@
                     variationRequirementInformationModel.DynamicFormDataId = (long)eod.DynamicFormDataId;
                     variationRequirementInformationModel.DynamicFormDataGridId = (long?)eod.DynamicFormDataGridId;
                     variationRequirementInformationModel.DynamicFormDataNameId = DynamicFormDataGridId + "_" + AttributeDetailIds.ToString() + "_Id";
+                    variationRequirementInformationModel.DetailRequirementId = DynamicFormDataGridId + "_" + AttributeDetailIds.ToString() + "_ReqId";
                     variationRequirementInformationModel.DynamicFormId = (long?)eod.DynamicFormId;
                     variationRequirementInformationModel.RegistrationPartsId = "11408_157_AppMasterPar";
                     variationRequirementInformationModel.SectionId = "11408_158_AppMasterPar";
@@ -568,27 +594,58 @@
                     }
                     if (!string.IsNullOrEmpty(variationRequirementInformationModel.DescriptionName))
                     {
-                        VariationRequirementInformationModels.Add(variationRequirementInformationModel);
+                        var exits = VariationRequirementInformationModels.Where(f => f.DescriptionName != null && f.DescriptionName.ToLower() == variationRequirementInformationModel.DescriptionName.ToLower()).Count();
+                        if (exits == 0)
+                        {
+                            VariationRequirementInformationModels.Add(variationRequirementInformationModel);
+                        }
                     }
                 }
             }
         }
         if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
         {
-            Type[] typesList = VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DescriptionType).ToArray();
-            string[] objectNameList = VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DynamicFormDataNameId).ToArray();
+            int no = 1;
+            VariationRequirementInformationModels.ForEach(a =>
+            {
+                a.Index = no;
+                no++;
+            });
+            List<Type?> typesList = new List<Type?>();
+            typesList = VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DescriptionType).ToList();
+            typesList.AddRange(VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DescriptionType).ToList());
+            List<string?> objectNameList = new List<string?>();
+            objectNameList = VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DynamicFormDataNameId).ToList();
+            objectNameList.AddRange(VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DetailRequirementId).ToList());
             MyClassBuilder MCB = new MyClassBuilder("VariationForm");
-            Data.ObjectData = MCB.CreateObject(objectNameList, typesList);
+            Data.ObjectData = MCB.CreateObject(objectNameList.ToArray(), typesList.ToArray());
         }
         if (RegistrationRequestVariationForm != null && RegistrationRequestVariationForm.Count() > 0)
         {
             RegistrationRequestVariationForm.ForEach(r =>
             {
-                if (Data.ObjectData != null && !string.IsNullOrEmpty(r.RegDynamicFormDataNameId))
+                if (r.DetailType == "DetailInfo")
                 {
-                    if (Data.ObjectData.GetType().GetProperty(r.RegDynamicFormDataNameId) != null)
+                    if (Data.ObjectData != null && !string.IsNullOrEmpty(r.RegDynamicFormDataNameId))
                     {
-                        Data.ObjectData.GetType().GetProperty(r.RegDynamicFormDataNameId).SetValue(Data.ObjectData, r.Description);
+                        if (Data.ObjectData.GetType().GetProperty(r.RegDynamicFormDataNameId) != null)
+                        {
+                            if (r.DetailType == "DetailInfo")
+                            {
+                                Data.ObjectData.GetType().GetProperty(r.RegDynamicFormDataNameId).SetValue(Data.ObjectData, r.Description);
+                            }
+                        }
+                    }
+                }
+                if (r.DetailType == "DetailRequirement")
+                {
+                    if (Data.ObjectData != null)
+                    {
+                        var DetailRequirementId = r.RegDynamicFormDataID + "_" + r.DynamicFormDataId + "_ReqId";
+                        if (Data.ObjectData.GetType().GetProperty(DetailRequirementId) != null)
+                        {
+                            Data.ObjectData.GetType().GetProperty(DetailRequirementId).SetValue(Data.ObjectData, r.Description);
+                        }
                     }
                 }
             });
@@ -668,7 +725,28 @@
     }
     void addDetailDelete()
     {
-
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+        StateHasChanged();
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            var request = new DeleteRegistrationRequest(_registrationRequestData);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
+            await addNew();
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
+        }
     }
     public async ValueTask DisposeAsync()
     {
@@ -683,105 +761,202 @@
         {
             int i = 0;
             var propertyList = Data.ObjectData.GetType().GetProperties();
-            if (_Headergridlistss != null && _Headergridlistss.Count() > 0)
+            // if (_Headergridlistss != null && _Headergridlistss.Count() > 0)
+            //{
+            //_Headergridlistss.ForEach(q =>
+            //{
+            formLayoutBuilder.OpenComponent<DxFormLayout>(i);
+
+            formLayoutBuilder.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+    {
+        layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
+        layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.End);
+        layoutItemBuilder.AddAttribute(i + 1, "Expanded", true);
+        layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
+        layoutItemBuilder.AddAttribute(i + 1, "Visible", true);
+        layoutItemBuilder.AddAttribute(i + 1, "CssClass", "FormLayoutGroupCss");
+        layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+        {
+            b.OpenElement(i + 1, "div");
+            b.AddContent(i + 1, "Summary of requirement");
+            b.CloseElement();
+            b.OpenElement(i + 1, "div");
+            b.AddAttribute(i + 1, "style", "margin-left:auto;");
+            b.CloseElement();
+        }));
+        layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
+        {
+            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            // {
+            //     editor.OpenElement(i + 1, "div");
+            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+            //     editor.AddContent(i + 1, "Variation No");
+            //     editor.CloseElement();
+
+            // })));
+            // itemBuilder.CloseComponent();
+            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            // {
+            //     editor.OpenElement(i + 1, "div");
+            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+            //     editor.AddContent(i + 1, "No");
+            //     editor.CloseElement();
+
+            // })));
+            // itemBuilder.CloseComponent();
+            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            // {
+            //     editor.OpenElement(i + 1, "div");
+            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+            //     editor.AddContent(i + 1, "Detail information by guideline");
+            //     editor.CloseElement();
+
+            // })));
+            // itemBuilder.CloseComponent();
+            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            // {
+            //     editor.OpenElement(i + 1, "div");
+            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+            //     editor.AddContent(i + 1, "Department");
+            //     editor.CloseElement();
+
+            // })));
+            // itemBuilder.CloseComponent();
+            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            // {
+            //     editor.OpenElement(i + 1, "div");
+            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+            //     editor.AddContent(i + 1, "Detail Requirement");
+            //     editor.CloseElement();
+
+            // })));
+            // itemBuilder.CloseComponent();
+            if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
             {
-                _Headergridlistss.ForEach(q =>
-                {
-                    formLayoutBuilder.OpenComponent<DxFormLayout>(i);
-
-                    formLayoutBuilder.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
-                {
-                    layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
-                    layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.End);
-                    layoutItemBuilder.AddAttribute(i + 1, "Expanded", true);
-                    layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
-                    layoutItemBuilder.AddAttribute(i + 1, "Visible", true);
-                    layoutItemBuilder.AddAttribute(i + 1, "CssClass", "FormLayoutGroupCss");
-                    layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
-                    {
-                        b.OpenElement(i + 1, "div");
-                        b.AddContent(i + 1, q.Text);
-                        b.CloseElement();
-                        b.OpenElement(i + 1, "div");
-                        b.AddAttribute(i + 1, "style", "margin-left:auto;");
-                        b.CloseElement();
-                    }));
-                    layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
-                    {
-                        if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
+              VariationRequirementInformationModels.ForEach(a =>
                         {
-                            var ids = VariationRequirementInformationModels.Where(w => w.DynamicFormDataGridId == q.Id).Select(s => s.DynamicFormDataGridId).Distinct().ToList();
-                            ids.ToList().ForEach(b =>
+                            var s = Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId);
+                            if (s != null)
                             {
-                                var aList = VariationRequirementInformationModels.Where(w => w.DynamicFormDataGridId == b).OrderByDescending(o => o.SortOrderByNo).ToList();
-                                if (aList != null && aList.Count() > 0)
+                                var valueData = s.GetValue(Data.ObjectData);
+                                var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
+                                var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
+                                var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
+                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
                                 {
-                                    aList.ForEach(a =>
+                                    editor.OpenElement(i + 1, "div");
+                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                    editor.AddContent(i + 1, a.DescriptionName);
+                                    editor.CloseElement();
+
+                                })));
+                                itemBuilder.CloseComponent();
+                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                                {
+                                    editor.OpenElement(i + 1, "div");
+                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                    editor.AddContent(i + 1, a.Index);
+                                    editor.CloseElement();
+
+                                })));
+                                itemBuilder.CloseComponent();
+                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+                                var j = 0;
+                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                                {
+                                    // editor.OpenElement(i + 1, "div");
+                                    // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                    // editor.AddContent(i + 1, a.DescriptionName);
+                                    // editor.CloseElement();
+                                    editor.OpenComponent<DxMemo>(j + 1);
+                                    editor.AddAttribute(j + 1, "Text", valueData);
+                                    editor.AddAttribute(j + 1, "TextExpression", lambda);
+                                    editor.AddAttribute(j + 1, "Enabled", true);
+                                    editor.AddAttribute(j + 1, "Rows", 5);
+                                    editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                    editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data.ObjectData, str); }));
+                                    editor.CloseComponent();
+
+                                })));
+                                itemBuilder.CloseComponent();
+                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                                {
+                                    editor.OpenElement(i + 1, "div");
+                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                    editor.AddContent(i + 1, a.ByName);
+                                    editor.CloseElement();
+
+                                })));
+                                itemBuilder.CloseComponent();
+                                var s1 = Data.ObjectData.GetType().GetProperty(a.DetailRequirementId);
+                                if (s1 != null)
+                                {
+                                    var valueData1 = s1.GetValue(Data.ObjectData);
+                                    var propertyType1 = Nullable.GetUnderlyingType(s1.PropertyType) ?? s1.PropertyType;
+                                    var access1 = Expression.Property(Expression.Constant(Data.ObjectData), s1.Name);
+                                    var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(s1.PropertyType), access1);
+                                    itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                    itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+                                    var k = 0;
+                                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
                                     {
-                                        var s = Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId);
-                                        if (s != null)
-                                        {
-                                            var valueData = s.GetValue(Data.ObjectData);
-                                            var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
-                                            var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
-                                            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
-                                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
-                                            var j = 0;
-                                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                            {
-                                                editor.OpenElement(i + 1, "div");
-                                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                                                editor.AddContent(i + 1, a.DescriptionName);
-                                                editor.CloseElement();
-                                                editor.OpenComponent<DxMemo>(j + 1);
-                                                editor.AddAttribute(j + 1, "Text", valueData);
-                                                editor.AddAttribute(j + 1, "TextExpression", lambda);
-                                                editor.AddAttribute(j + 1, "Enabled", true);
-                                                editor.AddAttribute(j + 1, "Rows", 5);
-                                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                                editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data.ObjectData, str); }));
-                                                editor.CloseComponent();
+                                        // editor.OpenElement(i + 1, "div");
+                                        // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                        // editor.AddContent(i + 1, a.DescriptionName);
+                                        // editor.CloseElement();
+                                        editor.OpenComponent<DxMemo>(k + 1);
+                                        editor.AddAttribute(k + 1, "Text", valueData1);
+                                        editor.AddAttribute(k + 1, "TextExpression", lambda1);
+                                        editor.AddAttribute(k + 1, "Enabled", true);
+                                        editor.AddAttribute(k + 1, "Rows", 5);
+                                        editor.AddAttribute(k + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                        editor.AddAttribute(k + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s1.SetValue(Data.ObjectData, str); }));
+                                        editor.CloseComponent();
 
-                                            })));
-                                            itemBuilder.CloseComponent();
-                                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                            itemBuilder.AddAttribute(i++, "ColSpanMd", 4);
-                                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                            {
-                                                editor.OpenElement(i + 1, "div");
-                                                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-                                                editor.AddContent(i + 1, a.ByName);
-                                                editor.CloseElement();
-
-                                            })));
-                                            itemBuilder.CloseComponent();
-                                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                            itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-                                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                            {
-
-                                                editor.OpenComponent<DxButton>(i + 1);
-                                                editor.AddAttribute(i + 1, "Text", "Create Email");
-                                                editor.AddAttribute(i + 1, "RenderStyle", ButtonRenderStyle.Link);
-                                                editor.AddAttribute(i + 1, "RenderStyleMode", ButtonRenderStyleMode.Contained);
-                                                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                                editor.AddAttribute(i + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSectionButtionClick(str, a)));
-                                                editor.CloseComponent();
-
-                                            })));
-                                            itemBuilder.CloseComponent();
-                                        }
-                                    });
+                                    })));
+                                    itemBuilder.CloseComponent();
                                 }
-                            });
-                        }
-                    }));
-                    layoutItemBuilder.CloseComponent();
-                }));
-                    formLayoutBuilder.CloseComponent();
-                });
+                                // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                                // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                                // {
+
+                                //     editor.OpenComponent<DxButton>(i + 1);
+                                //     editor.AddAttribute(i + 1, "Text", "Create Email");
+                                //     editor.AddAttribute(i + 1, "RenderStyle", ButtonRenderStyle.Link);
+                                //     editor.AddAttribute(i + 1, "RenderStyleMode", ButtonRenderStyleMode.Contained);
+                                //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                //     editor.AddAttribute(i + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSectionButtionClick(str, a)));
+                                //     editor.CloseComponent();
+
+                                // })));
+                                // itemBuilder.CloseComponent();
+                            }
+                        });
             }
+        }));
+        layoutItemBuilder.CloseComponent();
+    }));
+            formLayoutBuilder.CloseComponent();
+            // });
+            // }
 
         }
     };

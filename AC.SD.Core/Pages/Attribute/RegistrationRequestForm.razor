@@ -786,61 +786,62 @@
         }));
         layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
         {
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Variation No");
-            //     editor.CloseElement();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "No");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "No");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Variation No");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Detail information by guideline");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Department");
-            //     editor.CloseElement();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Detail information by guideline");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Detail Requirement");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Department");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Detail Requirement");
+                editor.CloseElement();
+
+            })));
+            itemBuilder.CloseComponent();
             if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
             {
               VariationRequirementInformationModels.ForEach(a =>
@@ -858,7 +859,7 @@
                                 {
                                     editor.OpenElement(i + 1, "div");
                                     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                    editor.AddContent(i + 1, a.DescriptionName);
+                                    editor.AddContent(i + 1, a.Index);
                                     editor.CloseElement();
 
                                 })));
@@ -869,11 +870,12 @@
                                 {
                                     editor.OpenElement(i + 1, "div");
                                     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                    editor.AddContent(i + 1, a.Index);
+                                    editor.AddContent(i + 1, a.DescriptionName);
                                     editor.CloseElement();
 
                                 })));
                                 itemBuilder.CloseComponent();
+                                
                                 itemBuilder.OpenComponent<DxFormLayoutItem>(1);
                                 itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
                                 var j = 0;

@@ -54,7 +54,17 @@ namespace DocumentViewer.Controllers
         }
         public async Task<IActionResult> Index(string url)
         {
-            bool isMobile = IsMobileDevice(HttpContext);
+            var userId = HttpContext.Session.GetString("user_id");
+            Guid? sesId = null;
+            if (!string.IsNullOrEmpty(url))
+            {
+                bool isValid = Guid.TryParse(url, out _);
+                if (isValid == true)
+                {
+                    sesId = new Guid(url);
+                }
+            }
+            bool isMobile = IsMobileDevice(HttpContext, userId, sesId);
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty; var pathurl = string.Empty;
@@ -64,7 +74,7 @@ namespace DocumentViewer.Controllers
             HttpContext.Session.Remove("isView");
             HttpContext.Session.Remove("fileUrl"); HttpContext.Session.Remove("DocumentId");
             @ViewBag.isDownload = "No";
-            var userId = HttpContext.Session.GetString("user_id");
+
             @ViewBag.isUrl = "isUrl";
             @ViewBag.isFile = "No";
             if (userId != null)
@@ -72,6 +82,7 @@ namespace DocumentViewer.Controllers
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
 
                 viewmodel.IsUserAgent = isMobile;
+                @ViewBag.isMobile = isMobile == true ? "Yes" : "No";
                 if (!string.IsNullOrEmpty(url))
                 {
                     var sessionId = new Guid(url);
@@ -151,12 +162,16 @@ namespace DocumentViewer.Controllers
                                 pathurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 fileurl = fileNewUrl + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
+                                var paths = currentDocuments.FilePath.Replace(@"\", @"/");
+                                @ViewBag.Url = fileNewUrl + paths;
                             }
                             else
                             {
                                 fileurl = fileOldUrl + currentDocuments.FilePath;
                                 pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
+                                var paths = currentDocuments.FilePath.Replace(@"\", @"/");
+                                @ViewBag.Url = fileOldUrl + paths;
                             }
                         }
                         try
@@ -274,15 +289,31 @@ namespace DocumentViewer.Controllers
                 return Redirect("login?url=" + url);
             }
         }
-        private bool IsMobileDevice(HttpContext contexts)
+        private bool IsMobileDevice(HttpContext contexts, string? userId, Guid? sessId)
         {
             if (contexts.Request.Headers.TryGetValue("User-Agent", out var userAgent))
             {
                 string userAgentString = userAgent.ToString().ToLower();
-                return userAgentString.Contains("iphone") ||
+                long? userIds = Convert.ToInt64(userId);
+                var status = userAgentString.Contains("iphone") ||
                        userAgentString.Contains("ipad") ||
                        userAgentString.Contains("ipod") ||
                        userAgentString.Contains("android");
+                if (userIds > 0)
+                {
+                    var DocumentViewer = new DocumentViewers
+                    {
+                        UserId = userIds,
+                        Description = userAgentString,
+                        AddedDate = DateTime.Now,
+                        SessionId = sessId,
+                        IsMobile = status,
+                    };
+                    _context.Add(DocumentViewer);
+                    _context.SaveChanges();
+                }
+
+                return status;
             }
             return false;
         }

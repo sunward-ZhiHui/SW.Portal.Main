@@ -56,12 +56,12 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    
+
     <DxGrid @ref="SMGrid" Data="@_dynamicFormSectionData" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="RegistrationRequestDueDateAssignmentId"
+            KeyFieldName="RegistrationRequestComittmentLetterId"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -79,17 +79,17 @@
 
 
         <Columns>
-            <DxGridDataColumn FieldName="RegistrationRequestDueDateAssignmentId" Visible="false" />
-            <DxGridDataColumn FieldName="DueDate" Caption="Due Date" MinWidth="40" >
+            <DxGridDataColumn FieldName="RegistrationRequestComittmentLetterId" Visible="false" />
+            <DxGridDataColumn FieldName="CommittmentDate" Caption="Date" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
-                        var item = (RegistrationRequestDueDateAssignment)context.DataItem;
+                        var item = (RegistrationRequestComittmentLetter)context.DataItem;
                         var startDate = string.Empty;
-                        if (item.DueDate != DateTime.MinValue)
+                        if (item.CommittmentDate != DateTime.MinValue)
                         {
-                            if (item.DueDate != null)
+                            if (item.CommittmentDate != null)
                             {
-                                startDate = item.DueDate.Value.ToString("dd-MMM-yyyy");
+                                startDate = item.CommittmentDate.Value.ToString("dd-MMM-yyyy");
                             }
                         }
                     }
@@ -97,17 +97,36 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
-            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="40" />
-            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
+            <DxGridDataColumn FieldName="CommitmentInformation" Caption="Commitment Information" MinWidth="40" />
+            <DxGridDataColumn FieldName="CommitmentTime" Caption="Commitment Time" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (RegistrationRequestComittmentLetter)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.CommitmentTime != DateTime.MinValue)
+                        {
+                            if (item.CommitmentTime != null)
+                            {
+                                startDate = item.CommitmentTime.Value.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+
+            @* <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" /> *@
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (RegistrationRequestDueDateAssignment)EditFormContext.EditModel;
+                var types = (RegistrationRequestComittmentLetter)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-
+                <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Date" @bind-Date="@types.CommittmentDate" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Department" ColSpanMd="6">
                     <DxComboBox Data="@_departmentItems"
                                 NullText="Select Department..."
@@ -115,7 +134,7 @@
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="DepartmentName"
                                 ValueFieldName="DepartmentId"
-                                @bind-Value="@types.DepartmentId">
+                                @bind-Value="@types.ActionByDeptId">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                 Caption="Department Name"
@@ -133,13 +152,14 @@
 
                         </Columns>
                     </DxComboBox>
-                    <ValidationMessage For="@(() => types.DepartmentId)" />
+                    <ValidationMessage For="@(() => types.ActionByDeptId)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Due Date" ColSpanMd="6">
-                    <DxDateEdit NullText="Due Date" @bind-Date="@types.DueDate" />
+
+                <DxFormLayoutItem Caption="Commitment Information" ColSpanMd="12">
+                    <DxMemo @bind-Text="@types.CommitmentInformation" Rows="5" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
-                    <DxMemo @bind-Text="@types.Description" Rows="5" />
+                <DxFormLayoutItem Caption="Commitment Time" ColSpanMd="6">
+                    <DxDateEdit NullText="Commitment Time" @bind-Date="@types.CommitmentTime" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -148,7 +168,7 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DueDate" />
         </TotalSummary>
     </DxGrid>
- </DxLoadingPanel>
+</DxLoadingPanel>
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
@@ -169,14 +189,14 @@
 @code {
     private List<ViewDepartment> _departmentItems;
     [Parameter]
-    public RegistrationRequest _registrationRequestData { get; set; }
+    public RegistrationRequestProgressByRegistrationDepartment _registrationRequestData { get; set; }
 
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
-    private List<RegistrationRequestDueDateAssignment>? _dynamicFormSectionData;
+    private List<RegistrationRequestComittmentLetter>? _dynamicFormSectionData;
     IGrid? SMGrid { get; set; }
-    private RegistrationRequestDueDateAssignment _selectedItems;
+    private RegistrationRequestComittmentLetter _selectedItems;
     bool DeleteEnabled { get; set; } = false;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
@@ -190,7 +210,7 @@
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool AddEnabled { get; set; } = false;
-    private RegistrationRequestDueDateAssignment _selectlst;
+    private RegistrationRequestComittmentLetter _selectlst;
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     protected override async Task OnInitializedAsync()
@@ -199,14 +219,14 @@
 
         await UpdateDataAsync();
     }
-    public async Task loadChildData(RegistrationRequest dynamicFormIds)
+    public async Task loadChildData(RegistrationRequestProgressByRegistrationDepartment dynamicFormIds)
     {
         _registrationRequestData = dynamicFormIds;
         await UpdateDataAsync();
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var navitems = (RegistrationRequestDueDateAssignment)e.EditModel;
+        var navitems = (RegistrationRequestComittmentLetter)e.EditModel;
         if (e.IsNew)
         {
         }
@@ -220,10 +240,10 @@
         {
             PanelVisible = true; AddEnabled = false;
             EditEnabled = false; DeleteEnabled = false;
-            if (_registrationRequestData != null && _registrationRequestData.RegistrationRequestId > 0)
+            if (_registrationRequestData != null && _registrationRequestData.RegistrationRequestProgressByRegistrationDepartmentId > 0)
             {
                 AddEnabled = true;
-                _dynamicFormSectionData = await Mediator.Send(new GetRegistrationRequestDueDateAssignment(_registrationRequestData.RegistrationRequestId));
+                _dynamicFormSectionData = await Mediator.Send(new GetRegistrationRequestComittmentLetter(_registrationRequestData.RegistrationRequestProgressByRegistrationDepartmentId));
                 if (_dynamicFormSectionData.Count > 0)
                 {
                     _selectedItems = _dynamicFormSectionData.FirstOrDefault();
@@ -233,7 +253,7 @@
             }
             else
             {
-                _dynamicFormSectionData = new List<RegistrationRequestDueDateAssignment>();
+                _dynamicFormSectionData = new List<RegistrationRequestComittmentLetter>();
             }
             PanelVisible = false;
             StateHasChanged();
@@ -253,22 +273,23 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
-        var editModel = (RegistrationRequestDueDateAssignment)e.EditModel;
+        var editModel = (RegistrationRequestComittmentLetter)e.EditModel;
 
         if (e.IsNew)
         {
-            var createReq = new InsertorUpdateRegistrationRequestDueDateAssignment
+            var createReq = new InsertorUpdateRegistrationRequestComittmentLetter
                 {
-                    DepartmentId = editModel.DepartmentId,
-                    Description = editModel.Description,
-                    RegistrationRequestId = _registrationRequestData.RegistrationRequestId,
+                    ActionByDeptId=editModel.ActionByDeptId,
+                    CommitmentInformation = editModel.CommitmentInformation,
+                    CommitmentTime = editModel.CommitmentTime,
+                    CommittmentDate = editModel.CommittmentDate,
+                    RegistrationRequestProgressByRegistrationDepartmentId = _registrationRequestData.RegistrationRequestProgressByRegistrationDepartmentId,
                     SessionId = Guid.NewGuid(),
                     AddedByUserId = applicationUser.UserID,
                     ModifiedUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     StatusCodeId = 1,
                     AddedDate = DateTime.Now,
-                    DueDate = editModel.DueDate,
                 };
             try
             {
@@ -288,18 +309,19 @@
         }
         else
         {
-            var UpdateReq = new InsertorUpdateRegistrationRequestDueDateAssignment
+            var UpdateReq = new InsertorUpdateRegistrationRequestComittmentLetter
                 {
-                    DepartmentId = editModel.DepartmentId,
-                    Description = editModel.Description,
-                    RegistrationRequestId = _registrationRequestData.RegistrationRequestId,
-                    RegistrationRequestDueDateAssignmentId = editModel.RegistrationRequestDueDateAssignmentId,
+                    ActionByDeptId = editModel.ActionByDeptId,
+                    CommitmentInformation = editModel.CommitmentInformation,
+                    CommitmentTime = editModel.CommitmentTime,
+                    CommittmentDate = editModel.CommittmentDate,
+                    RegistrationRequestProgressByRegistrationDepartmentId = _registrationRequestData.RegistrationRequestProgressByRegistrationDepartmentId,
+                    RegistrationRequestComittmentLetterId = editModel.RegistrationRequestComittmentLetterId,
                     SessionId = Guid.NewGuid(),
                     AddedByUserId = editModel.AddedByUserId,
                     ModifiedUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     StatusCodeId = 1,
-                    DueDate = editModel.DueDate,
                     AddedDate = editModel.AddedDate,
                 };
             var result = await Mediator.Send(UpdateReq);
@@ -334,8 +356,8 @@
     {
         try
         {
-            var editModel = (RegistrationRequestDueDateAssignment)e.DataItem;
-            var request = new DeleteRegistrationRequestDueDateAssignment(editModel);
+            var editModel = (RegistrationRequestComittmentLetter)e.DataItem;
+            var request = new DeleteRegistrationRequestComittmentLetter(editModel);
             await Mediator.Send(request);
             await UpdateDataAsync();
             SMGrid.SetFocusedRowIndex(0);
@@ -353,14 +375,14 @@
         }
 
     }
-    void Onclick(DataGridSelection<RegistrationRequestDueDateAssignment> e)
+    void Onclick(DataGridSelection<RegistrationRequestComittmentLetter> e)
     {
     }
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RegistrationRequestDueDateAssignmentId");
-        _selectedItems = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestDueDateAssignmentId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RegistrationRequestComittmentLetterId");
+        _selectedItems = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestComittmentLetterId == (long?)UniqueId);
         DeleteEnabled = true;
         StateHasChanged();
 
@@ -385,9 +407,9 @@
 
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is RegistrationRequestDueDateAssignment dataselectItems)
+                    if (item is RegistrationRequestComittmentLetter dataselectItems)
                     {
-                        _selectlst = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestDueDateAssignmentId == dataselectItems.RegistrationRequestDueDateAssignmentId);
+                        _selectlst = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestComittmentLetterId == dataselectItems.RegistrationRequestComittmentLetterId);
                     }
                 }
                 SMGrid.StartEditDataItemAsync(_selectlst);
@@ -411,10 +433,10 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is RegistrationRequestDueDateAssignment selectData)
+                    if (item is RegistrationRequestComittmentLetter selectData)
                     {
 
-                        var request = new DeleteRegistrationRequestDueDateAssignment(selectData);
+                        var request = new DeleteRegistrationRequestComittmentLetter(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

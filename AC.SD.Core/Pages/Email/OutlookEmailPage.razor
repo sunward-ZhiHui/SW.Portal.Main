@@ -1,0 +1,160 @@
+﻿@page "/OutlookEmail"
+@using System.Net.Http.Json
+@using global::Core.Entities
+@inject HttpClient Http
+@inject OutlookEmailService EmailService
+@inject IJSRuntime JSRuntime;
+
+<h3 class="mb-3">Inbox</h3>
+
+
+@if (emails == null)
+{
+    <p class="text-muted">Loading emails...</p>
+}
+else if (emails.Count == 0)
+{
+    <p class="text-muted">No emails found.</p>
+}
+else
+{
+    <div class="email-list">
+        @foreach (var email in emails)
+        {
+            <div class="email-item" @onclick="() => ToggleEmail(email)">
+                <span class="sender">@email.FromName</span>
+                <span class="subject"><strong>@email.Subject</strong> - @((MarkupString)email.Preview)</span>
+                <span class="date">@email.Date.ToString("g")</span>
+            </div>
+
+
+            @if (email.IsExpanded)
+            {
+                <div class="email-detail">
+                    <p><strong>From:</strong> @email.FromName</p>
+                    <p><strong>Date:</strong> @email.Date.ToString("g")</p>
+                    <hr />
+                    <p>@((MarkupString)email.BodyHtml)</p>
+
+                    @if (email.Attachments?.Count > 0)
+                    {
+                        <div class="attachments">
+                            <strong>Attachments:</strong>
+                            <ul>
+                                @foreach (var attachment in email.Attachments)
+                                {
+                                    <li>
+                                        @* <a href="@attachment.DownloadUrl" target="_blank" download>@attachment.FileName</a> *@
+                                        <span>@attachment.FileName</span>
+                                        @* <a href="@attachment.DownloadUrl" target="_blank">@attachment.FileName</a> *@
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+}
+<style>
+    .email-list {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .email-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+
+        .email-item:hover {
+            background: #f5f5f5;
+        }
+
+    .sender {
+        font-weight: bold;
+        flex: 1;
+    }
+
+    .subject {
+        flex: 2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .date {
+        color: #999;
+        margin-left: auto;
+    }
+
+    .email-detail {
+        padding: 15px;
+        background: #f9f9f9;
+        border-top: 1px solid #ddd;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .attachments {
+        margin-top: 10px;
+        padding: 10px;
+        background: #eef;
+        border-radius: 5px;
+    }
+
+        .attachments ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .attachments li {
+            margin: 5px 0;
+        }
+</style>
+
+@code {
+    private List<EmailViewModel> emails = new List<EmailViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        var receivedEmails = await EmailService.ReceiveEmailsAsync();
+        emails = receivedEmails.Select(email => new EmailViewModel(email)).ToList();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+
+    private void ToggleEmail(EmailViewModel email)
+    {
+        email.IsExpanded = !email.IsExpanded;
+    }
+
+    public class EmailViewModel : EmailModel
+    {
+        public bool IsExpanded { get; set; } = false;
+        public string Preview { get; set; }
+        public List<EmailAttachmentModel> Attachments { get; set; }
+
+        public EmailViewModel(EmailModel email)
+        {
+            this.Subject = email.Subject;
+            this.FromName = email.FromName;
+            this.Date = email.Date;
+            this.BodyHtml = email.BodyHtml;
+            this.IsAttachment = email.IsAttachment;
+            this.Attachments = email.Attachments ?? new List<EmailAttachmentModel>();
+
+            this.Preview = !string.IsNullOrEmpty(email.BodyHtml)
+                ? email.BodyHtml.Length > 50 ? email.BodyHtml.Substring(0, 50) + "..." : email.BodyHtml
+                : "No preview available";
+        }
+    }
+    
+}

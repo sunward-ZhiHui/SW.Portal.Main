@@ -121,8 +121,11 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddHostedService<ReminderBackgroundService>();
 
                 services.AddScoped<FirebaseMessagingService>();
-                services.AddScoped<ToastService>();
+                services.AddScoped<ToastService>();                
                 services.AddScoped<IFirebaseSync, FirebaseSync>();
+                services.AddScoped<OutlookEmailService>();
+                services.AddSingleton<AttachmentService>();
+
 
                 services.AddSingleton<IJobFactory, SingletonJobFactory>();
                 services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();

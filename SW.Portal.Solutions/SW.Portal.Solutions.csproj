@@ -25,6 +25,7 @@
     <PackageReference Include="FireSharp" Version="2.0.4" />
     <PackageReference Include="Google.Apis.Auth" Version="1.62.0" />
     <PackageReference Include="itext7" Version="7.1.14" />
+    <PackageReference Include="MailKit" Version="4.11.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.10" />
     <PackageReference Include="MikaelDui.HtmlAgilityPack.Extensions" Version="0.0.3" />
     <PackageReference Include="MimeMapping" Version="2.0.0" />

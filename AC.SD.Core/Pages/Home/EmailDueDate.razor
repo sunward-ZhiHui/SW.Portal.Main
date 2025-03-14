@@ -161,7 +161,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
                 <DxTextBox @bind-Text="@types.Assignor" ReadOnly="true"></DxTextBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
-                <DxDateEdit  Date="@types.DueDate" MinDate="DateTime.Now" DateExpression="@(() => types.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" TimeSectionVisible="false" />
+                <DxDateEdit Date="@types.DueDate" DisplayFormat="dd-MMM-yyyy" Enabled="IsSubjectNoOfDays" MinDate="DateTime.Now" DateExpression="@(() => types.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" TimeSectionVisible="false" />
             </DxFormLayoutItem> 
             @if(IsSubjectNoOfDays == true)
             {
@@ -227,8 +227,8 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
             <DxFormLayoutItem Caption="Requested Name  :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Assignee" ReadOnly="true"></DxTextBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Requested Due Date:" ColSpanMd="4">
-                <DxDateEdit @bind-Date="@types.RequestedDueDate" ReadOnly="true" />
+            <DxFormLayoutItem Caption="Requested Due Date:" ColSpanMd="4">               
+                <DxDateEdit Date="@types.RequestedDueDate" DisplayFormat="dd-MMM-yyyy" Enabled="!IsSubjectNoOfDays" MinDate="DateTime.Now" DateExpression="@(() => types.RequestedDueDate)" DateChanged="@((DateTime? newValue) => OnRequestedDateChanged(newValue))" TimeSectionVisible="false" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Reason  :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Reason" ReadOnly="true"></DxTextBox>
@@ -360,6 +360,23 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
         // NavigationManager.NavigateTo(urls);
         // await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
+    }
+    void OnRequestedDateChanged(DateTime? newValue)
+    {
+        DuedateReason = "";
+        if (newValue != null)
+        {
+            SelectedDueDate = newValue.Value;
+        }
+        if (LockDueDateEnable == false)
+        {
+            DueDateMessageBody = "Warning Info , Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(_selectedItems.ExpiryDueDate) + ") days, contact your supervisor for guidance.";
+
+            DueDateMessageVisible = true;
+        }
+
+
+        StateHasChanged();
     }
     void OnDateChanged(DateTime? newValue)
     {

@@ -230,6 +230,8 @@ namespace Infrastructure.Repository.Query
                         value.RegistrationRequestId = rowsAffected;
                     }
                     await InsertRegistrationRequestVariation(value);
+                    await InsertRegistrationRequestAssignmentOfJob(value);
+
                     /*var querys = string.Empty;
                     querys += "Delete from RegistrationRequestVariation where RegistrationRequestID=" + value.RegistrationRequestId + ";\r\n";
                     if (value.VariationNoIds != null && value.VariationNoIds.Count() > 0)
@@ -255,6 +257,58 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+        public async Task<RegistrationRequestAssignmentOfJob> InsertRegistrationRequestAssignmentOfJob(RegistrationRequest registrationRequest)
+        {
+            try
+            {
+                RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
+                var resultData = await GetRegistrationRequestVariationForm(registrationRequest.RegistrationRequestId);
+                using (var connection = CreateConnection())
+                {
+                    var parameters1 = new DynamicParameters();
+                    parameters1.Add("RegistrationRequestId", registrationRequest.RegistrationRequestId);
+                    var query = "Delete from RegistrationRequestAssignmentOfJob  WHERE RegistrationRequestId = @RegistrationRequestId";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters1);
+                    if (resultData != null && resultData.Count() > 0)
+                    {
+                        var dynamicIds = resultData.Select(s => s.DynamicFormDataId).Distinct().ToList();
+                        if (dynamicIds != null && dynamicIds.Count() > 0)
+                        {
+                            foreach (var d in dynamicIds)
+                            {
+                                var data = resultData.Where(w => w.DynamicFormDataId == d).ToList();
+                                if (data != null && data.Count() > 0)
+                                {
+                                    var names = registrationRequest.VariationRequirementInformationModels.FirstOrDefault(f => f.DynamicFormDataId == d);
+                                    var parameters = new DynamicParameters();
+                                    parameters.Add("DetailInforamtionByGuideline", data.FirstOrDefault(f => f.DynamicFormDataId == d && f.DetailType == "DetailInfo")?.Description, DbType.String);
+                                    parameters.Add("DetailRequirement", data.FirstOrDefault(f => f.DynamicFormDataId == d && f.DetailType == "DetailRequirement")?.Description, DbType.String);
+                                    parameters.Add("SessionId", Guid.NewGuid(), DbType.Guid);
+                                    parameters.Add("AddedDate", registrationRequest.AddedDate, DbType.DateTime);
+                                    parameters.Add("AddedByUserId", registrationRequest.AddedByUserId);
+                                    parameters.Add("ModifiedDate", registrationRequest.AddedDate, DbType.DateTime);
+                                    parameters.Add("ModifiedUserId", registrationRequest.AddedByUserId);
+                                    parameters.Add("DepartmentId", names?.DepartmentId);
+                                    parameters.Add("StatusCodeId", 1);
+                                    parameters.Add("DynamicFormDataId", d);
+                                    parameters.Add("RegistrationRequestId", registrationRequest.RegistrationRequestId);
+                                    parameters.Add("JobNo", names?.DescriptionName, DbType.String);
+                                    var query1 = "INSERT INTO RegistrationRequestAssignmentOfJob(DynamicFormDataId,JobNo,DetailRequirement,RegistrationRequestId,DetailInforamtionByGuideline,DepartmentId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,StatusCodeId) OUTPUT INSERTED.RegistrationRequestAssignmentOfJobId VALUES " +
+                                    "(@DynamicFormDataId,@JobNo,@DetailRequirement,@RegistrationRequestId,@DetailInforamtionByGuideline,@DepartmentId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@StatusCodeId)";
+
+                                    var rowsAffected1 = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters);
+                                }
+                            }
+                        }
+                    }
+                }
+                return registrationRequestAssignmentOfJob;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<IReadOnlyList<RegistrationRequestVariation>> InsertRegistrationRequestVariation(RegistrationRequest registrationRequest)
         {
@@ -414,14 +468,15 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        public async Task<IReadOnlyList<RegistrationRequestAssignmentOfJob>> GetRegistrationRequestAssignmentOfJob(long? RegistrationRequestId)
+        public async Task<IReadOnlyList<RegistrationRequestAssignmentOfJob>> GetRegistrationRequestAssignmentOfJob(long? RegistrationRequestId, long? DepartmentId)
         {
             try
             {
                 var result = new List<RegistrationRequestAssignmentOfJob>();
                 var parameters = new DynamicParameters();
                 parameters.Add("RegistrationRequestId", RegistrationRequestId);
-                var query = "select t1.*,t3.UserName as AddedBy,t4.UserName as ModifiedBy,tt2.Name as DepartmentName from RegistrationRequestAssignmentOfJob t1\r\nJOIN RegistrationRequest t2 ON t1.RegistrationRequestID=t2.RegistrationRequestID\r\nLEFT JOIN Department tt2 ON t1.DepartmentID=tt2.DepartmentID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID Where t1.RegistrationRequestId=@RegistrationRequestId;";
+                parameters.Add("DepartmentId", DepartmentId);
+                var query = "select t1.*,t3.UserName as AddedBy,t4.UserName as ModifiedBy,tt2.Name as DepartmentName from RegistrationRequestAssignmentOfJob t1\r\nJOIN RegistrationRequest t2 ON t1.RegistrationRequestID=t2.RegistrationRequestID\r\nLEFT JOIN Department tt2 ON t1.DepartmentID=tt2.DepartmentID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID Where   t1.DepartmentId=@DepartmentId AND t1.RegistrationRequestId=@RegistrationRequestId;";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
@@ -455,17 +510,18 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("StatusCodeId", value.StatusCodeId);
                     parameters.Add("RegistrationRequestId", value.RegistrationRequestId);
                     parameters.Add("JobNo", value.JobNo, DbType.String);
+                    parameters.Add("DynamicFormDataId", value.DynamicFormDataId);
                     if (value.RegistrationRequestAssignmentOfJobId > 0)
                     {
-                        var query = "UPDATE RegistrationRequestAssignmentOfJob SET JobNo=@JobNo,DetailRequirement=@DetailRequirement,RegistrationRequestId=@RegistrationRequestId,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId,TargetDate=@TargetDate,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
+                        var query = "UPDATE RegistrationRequestAssignmentOfJob SET DynamicFormDataId=@DynamicFormDataId,JobNo=@JobNo,DetailRequirement=@DetailRequirement,RegistrationRequestId=@RegistrationRequestId,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId,TargetDate=@TargetDate,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
                             "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
 
                         await connection.ExecuteAsync(query, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO RegistrationRequestAssignmentOfJob(JobNo,DetailRequirement,RegistrationRequestId,DetailInforamtionByGuideline,DepartmentId,TargetDate,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,StatusCodeId) OUTPUT INSERTED.RegistrationRequestAssignmentOfJobId VALUES " +
-                            "(@JobNo,@DetailRequirement,@RegistrationRequestId,@DetailInforamtionByGuideline,@DepartmentId,@TargetDate,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@StatusCodeId)";
+                        var query = "INSERT INTO RegistrationRequestAssignmentOfJob(DynamicFormDataId,JobNo,DetailRequirement,RegistrationRequestId,DetailInforamtionByGuideline,DepartmentId,TargetDate,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,StatusCodeId) OUTPUT INSERTED.RegistrationRequestAssignmentOfJobId VALUES " +
+                            "(@DynamicFormDataId,@JobNo,@DetailRequirement,@RegistrationRequestId,@DetailInforamtionByGuideline,@DepartmentId,@TargetDate,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@StatusCodeId)";
 
                         var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         value.RegistrationRequestAssignmentOfJobId = rowsAffected;
@@ -723,7 +779,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("AddedByUserId", value.AddedByUserId);
                     parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
                     parameters.Add("ModifiedUserId", value.ModifiedUserId);
-                    parameters.Add("Assignment", value.Assignment,DbType.String);
+                    parameters.Add("Assignment", value.Assignment, DbType.String);
                     parameters.Add("StatusCodeId", value.StatusCodeId);
                     parameters.Add("RegistrationRequestProgressByRegistrationDepartmentId", value.RegistrationRequestProgressByRegistrationDepartmentId);
                     if (value.RegistrationRequestQueriesId > 0)

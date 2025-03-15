@@ -73,9 +73,11 @@ namespace Application.Queries
     public class GetRegistrationRequestAssignmentOfJob : PagedRequest, IRequest<List<RegistrationRequestAssignmentOfJob>>
     {
         public long? RegistrationRequestId { get; set; }
-        public GetRegistrationRequestAssignmentOfJob(long? registrationRequestId)
+        public long? DepartmentId {  get; set; }
+        public GetRegistrationRequestAssignmentOfJob(long? registrationRequestId, long? departmentId)
         {
             this.RegistrationRequestId = registrationRequestId;
+            this.DepartmentId = departmentId;
         }
     }
     public class InsertorUpdateRegistrationRequestAssignmentOfJob : RegistrationRequestAssignmentOfJob, IRequest<RegistrationRequestAssignmentOfJob>

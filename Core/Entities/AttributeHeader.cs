@@ -199,5 +199,6 @@ namespace Core.Entities
         public string? DetailRequirementId { get; set; }
         public string? DetailRequirementName { get; set; }
         public long? Index { get; set; }
+        public long? DepartmentId { get; set; }
     }
 }

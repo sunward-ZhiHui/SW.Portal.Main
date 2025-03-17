@@ -33,6 +33,7 @@ using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using System.Buffers.Text;
 using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
 using Azure.Core;
+using DevExpress.Web.Office;
 
 namespace DocumentViewer.Controllers
 {
@@ -77,6 +78,7 @@ namespace DocumentViewer.Controllers
 
             @ViewBag.isUrl = "isUrl";
             @ViewBag.isFile = "No";
+            //DocumentManager.CloseAllDocuments();
             if (userId != null)
             {
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
@@ -322,6 +324,47 @@ namespace DocumentViewer.Controllers
             int lastIndex = text.LastIndexOf(".");
             return lastIndex > 0 ? text.Substring(0, lastIndex) : text;
         }
+        [HttpPost("GetDocumentsVersionTrace")]
+        public string GetDocumentsVersionTrace()
+        {
+            var html = string.Empty;
+            var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
+            if (documentId > 0)
+            {
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+                    var query = from oal in _context.DocumentsVersionTrace
+                                join oau in _context.ApplicationUser on oal.UserId equals oau.UserId
+                                where oal.UserId == userId
+                                select new DocumentsVersionTrace
+                                {
+                                    DocumentsVersionTraceId = oal.DocumentsVersionTraceId,
+                                    UserId = oal.UserId,
+                                    DocumentId = oal.DocumentId,
+                                    SessionId = oal.SessionId,
+                                    UpdateDateTime = oal.UpdateDateTime,
+                                    UserName = oau.UserName,
+                                    Description = oal.Description,
+                                };
+                    var list = query.ToList();
+                    if (list != null && list.Count() > 0)
+                    {
+                        list.OrderByDescending(o => o.DocumentsVersionTraceId).ToList().ForEach(s =>
+                        {
+                            html += "<li>";
+                            html += "<span>" + s.UserName + "</span>";
+                            html += "<span class=\"event-date\">" + s.UpdateDateTime?.ToString("dd-MMM-yyyy hh.mm tt") + "</span>";
+                            html += "<p>" + s.Description + "</p>";
+                            html += "</li>";
+                        });
+                    }
+                }
+            }
+            return html;
+        }
+
         [HttpPost("ExportUrl")]
         public async Task<IActionResult> ExportUrl(IFormFile file, long? id, string? isVersion)
         {
@@ -460,6 +503,31 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpPost]
+        public IActionResult SaveComments(string? name)
+        {
+            var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+            var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
+            if (documentId > 0)
+            {
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    var DocumentsTrace = new DocumentsVersionTrace
+                    {
+                        UserId = userId,
+                        Description = name,
+                        DocumentId = currentDocuments.DocumentId,
+                        SessionId = currentDocuments.SessionId,
+                        UpdateDateTime = DateTime.Now,
+                    };
+                    _context.Add(DocumentsTrace);
+                    _context.SaveChanges();
+                    return Ok("success");
+                }
+            }
+            return Ok();
+        }
+        [HttpPost]
         public void RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
         {
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
@@ -493,10 +561,17 @@ namespace DocumentViewer.Controllers
                         VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
+
+                var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
+                string documentId = spreadsheet.DocumentId;
+                byte[] documentContent = spreadsheet.SaveCopy(DocumentFormat.Xlsx);
+                using (var fs = new FileStream(pathurl, FileMode.Create, FileAccess.Write))
+                {
+                    fs.Write(documentContent, 0, documentContent.Length);
+                }
+                //spreadsheet.Save();
+                saveUpdateUserData();
             }
-            var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            spreadsheet.Save();
-            saveUpdateUserData();
         }
         void saveUpdateUserData()
         {

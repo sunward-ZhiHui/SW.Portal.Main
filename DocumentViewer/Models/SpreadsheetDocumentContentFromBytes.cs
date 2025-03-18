@@ -27,6 +27,7 @@ namespace DocumentViewer.Models
         public bool? IsLatest { get; set; } = false;
         public string? UniqueSessionId { get; set; }
         public bool? IsUserAgent {  get; set; } = false;
+        public bool? IsLatestOpen { get; set; } = false;
     }
     public class PermissionModel
     {

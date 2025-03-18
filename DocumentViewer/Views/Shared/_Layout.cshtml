@@ -20,8 +20,8 @@
     <link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
     <link href="~/node_modules/devexpress-richedit/dist/dx.richedit.css" rel="stylesheet" />
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
-    
-     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <style>
@@ -165,8 +165,8 @@
     </div>
     </footer>*@
 
-    
-   
+
+
     @await RenderSectionAsync("Scripts", required: false)
 
 
@@ -190,13 +190,14 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const url = urlParams.get('url');
+            var IsLatestDoc = "@ViewBag.IsHistoryDoc";
             if (url != null) {
                 var fileName = $("#fileName_id").html();
                 if (fileName[fileName.length - 1] === ".")
                     fileName = fileName.slice(0, -1);
                 $.ajax({
                     url: '@Url.Action("Maildownloadfromurl")',
-                    data: { url: url },
+                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false },
                     method: 'GET',
                     xhrFields: {
                         responseType: 'blob'
@@ -231,9 +232,10 @@
             const url = urlParams.get('url');
             if (url != null) {
                 var fileName = $("#fileName_id").html();
+                var IsLatestDoc = "@ViewBag.IsHistoryDoc";
                 $.ajax({
                     url: '@Url.Action("downloadfromurl")',
-                    data: { url: url },
+                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false },
                     method: 'GET',
                     xhrFields: {
                         responseType: 'blob'

@@ -132,7 +132,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<RegistrationRequestAssignmentOfJob>> Handle(GetRegistrationRequestAssignmentOfJob request, CancellationToken cancellationToken)
         {
-            return (List<RegistrationRequestAssignmentOfJob>)await _queryRepository.GetRegistrationRequestAssignmentOfJob(request.RegistrationRequestId);
+            return (List<RegistrationRequestAssignmentOfJob>)await _queryRepository.GetRegistrationRequestAssignmentOfJob(request.RegistrationRequestId,request.DepartmentId);
         }
     }
     public class DeleteRegistrationRequestAssignmentOfJobHandler : IRequestHandler<DeleteRegistrationRequestAssignmentOfJob, RegistrationRequestAssignmentOfJob>

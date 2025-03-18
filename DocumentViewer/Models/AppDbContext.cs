@@ -27,6 +27,7 @@ namespace DocumentViewer.Models
         public DbSet<DocumentsTrace> DocumentsTrace { get; set; }
         public DbSet<FileProfileType> FileProfileType { get; set; }
         public DbSet<DocumentViewers> DocumentViewers { get; set; }
+        public DbSet<DocumentsVersionTrace> DocumentsVersionTrace{ get; set; }
     }
 }
 

@@ -31,5 +31,6 @@ namespace Core.Entities
         public string? AddedBy { get; set; }
         [NotMapped]
         public string? ModifiedBy { get; set; }
+        public long? DynamicFormDataId { get; set; }
     }
 }

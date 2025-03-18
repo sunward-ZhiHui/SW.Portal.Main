@@ -21,9 +21,9 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop" style="color:chocolate;">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" /> *@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" /> *@
             </Items>
         </DxMenu>
     </div>
@@ -80,12 +80,12 @@
 
         <Columns>
             <DxGridDataColumn FieldName="RegistrationRequestAssignmentOfJobId" Visible="false" />
-            
+
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
             <DxGridDataColumn FieldName="JobNo" Caption="No" MinWidth="40" />
             <DxGridDataColumn FieldName="DetailInforamtionByGuideline" Caption="Detail Inforamtion By Guideline" MinWidth="40" />
             <DxGridDataColumn FieldName="DetailRequirement" Caption="Detail Requirement" MinWidth="40" />
-            <DxGridDataColumn FieldName="TargetDate" Caption="Target Date" MinWidth="40" >
+            <DxGridDataColumn FieldName="TargetDate" Caption="Target Date" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
                         var item = (RegistrationRequestAssignmentOfJob)context.DataItem;
@@ -118,6 +118,7 @@
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="DepartmentName"
                                 ValueFieldName="DepartmentId"
+                                Enabled="false"
                                 @bind-Value="@types.DepartmentId">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
@@ -139,14 +140,14 @@
                     <ValidationMessage For="@(() => types.DepartmentId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="No" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.JobNo"></DxTextBox>
+                    <DxTextBox @bind-Text="@types.JobNo" Enabled="false"></DxTextBox>
                     <ValidationMessage For="@(() => types.JobNo)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Detail Inforamtion By Guideline" ColSpanMd="12">
-                    <DxMemo @bind-Text="@types.DetailInforamtionByGuideline" Rows="5" />
+                    <DxMemo @bind-Text="@types.DetailInforamtionByGuideline" Enabled="false" Rows="5" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Detail Requirement" ColSpanMd="12">
-                    <DxMemo @bind-Text="@types.DetailRequirement" Rows="5" />
+                    <DxMemo @bind-Text="@types.DetailRequirement" Enabled="false" Rows="5" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Target Date" ColSpanMd="6">
                     <DxDateEdit NullText="Target Date" @bind-Date="@types.TargetDate" />
@@ -180,7 +181,8 @@
     private List<ViewDepartment> _departmentItems;
     [Parameter]
     public RegistrationRequest _registrationRequestData { get; set; }
-
+    [Parameter]
+    public long? DepartmentId { get; set; }
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -233,7 +235,7 @@
             if (_registrationRequestData != null && _registrationRequestData.RegistrationRequestId > 0)
             {
                 AddEnabled = true;
-                _dynamicFormSectionData = await Mediator.Send(new GetRegistrationRequestAssignmentOfJob(_registrationRequestData.RegistrationRequestId));
+                _dynamicFormSectionData = await Mediator.Send(new GetRegistrationRequestAssignmentOfJob(_registrationRequestData.RegistrationRequestId, DepartmentId));
                 if (_dynamicFormSectionData.Count > 0)
                 {
                     _selectedItems = _dynamicFormSectionData.FirstOrDefault();
@@ -281,6 +283,7 @@
                     StatusCodeId = 1,
                     AddedDate = DateTime.Now,
                     TargetDate = editModel.TargetDate,
+                    DynamicFormDataId=editModel.DynamicFormDataId,
                 };
             try
             {
@@ -315,6 +318,7 @@
                     StatusCodeId = 1,
                     TargetDate = editModel.TargetDate,
                     AddedDate = editModel.AddedDate,
+                    DynamicFormDataId = editModel.DynamicFormDataId,
                 };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

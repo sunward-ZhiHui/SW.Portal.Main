@@ -111,6 +111,7 @@
                                     <DxGrid Data="@_dynamicformObjectDataList"
                                             KeyFieldName="DynamicFormDataId" ShowSearchBox="true"
                                             HighlightRowOnHover="true"
+                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
                                             SelectionMode="GridSelectionMode.Single"
                                             AllowSelectRowByClick="true"
@@ -128,6 +129,8 @@
                                     </DxGrid>
                                 </DropDownBodyTemplate>
                             </DxDropDownBox>
+                            <DxSpinEdit @bind-Value="@Data.ProductSpecificationDynamicFormId" ShowValidationIcon="true" style="display:none;" />
+                            <ValidationMessage For="@(() => Data.ProductSpecificationDynamicFormId)" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Variation No" ColSpanMd="12">
                             <DxDropDownBox @bind-Value="VariationNoValue"
@@ -139,8 +142,9 @@
                                     <DxGrid Data="@_dynamicformObjectDataVariationList"
                                             KeyFieldName="DynamicFormDataId" ShowSearchBox="true"
                                             HighlightRowOnHover="true"
+                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                            SelectionMode="GridSelectionMode.Multiple"
+                                            SelectionMode="GridSelectionMode.Single"
                                             AllowSelectRowByClick="true"
                                             FocusedRowEnabled="true"
                                             TextWrapEnabled="false"
@@ -156,6 +160,8 @@
                                     </DxGrid>
                                 </DropDownBodyTemplate>
                             </DxDropDownBox>
+                            <DxSpinEdit @bind-Value="@Data.VariationNoId" ShowValidationIcon="true" style="display:none;" />
+                            <ValidationMessage For="@(() => Data.VariationNoId)" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="CC No" ColSpanMd="6">
                             <DxTextBox @bind-Text="@Data.CCNo" ShowValidationIcon="true"></DxTextBox>
@@ -163,8 +169,59 @@
                             <ValidationMessage For="@(() => Data.CCNo)" />
                         </DxFormLayoutItem>
                     </DxFormLayoutGroup>
+                    <DxFormLayoutGroup ColSpanMd="12" Caption="Summary of requirement" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="true" AnimationType="LayoutAnimationType.Slide">
+                        <DxGrid @ref="Grid"
+                                Data="@VariationRequirementInformationModels"
+                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                ShowSearchBox="true"
+                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                TextWrapEnabled="false"
+                                PagerVisible="false" Context="Context">
+                            <Columns>
+                                @if (dataColumnNames != null && dataColumnNames.Count() > 0)
+                                {
+                                    foreach (var s in dataColumnNames)
+                                    {
+                                        if (s.Value == "DynamicFormDataNameId")
+                                        {
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                                <CellDisplayTemplate>
+                                                    @{
+                                                        var item = (VariationRequirementInformationModel)context.DataItem;
+                                                    }
+                                                    @BuildDataMemoBox(item, s.Value)
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                        }
+                                        else if (s.Value == "DetailRequirementId")
+                                        {
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                                <CellDisplayTemplate>
+                                                    @{
+                                                        var item = (VariationRequirementInformationModel)context.DataItem;
+                                                    }
+                                                    @BuildDataMemoBox(item, s.Value)
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                        }
+                                        else
+                                        {
+                                            if (s.Value == "No")
+                                            {
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="1%"></DxGridDataColumn>
+                                            }
+                                            else
+                                            {
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="19%"></DxGridDataColumn>
+                                            }
+                                        }
+                                    }
+                                }
+                            </Columns>
+                        </DxGrid>
+                    </DxFormLayoutGroup>
                 </DxFormLayout>
-                @CreateEditFormFields()
+                @* @CreateEditFormFields() *@
                 <DxFormLayout CssClass="w-100">
                     <DxFormLayoutGroup ColSpanMd="12" Caption="Progress of Submission" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
                         <DxFormLayoutItem Caption="Expected Submission Date" ColSpanMd="6">
@@ -189,15 +246,26 @@
                 <div class="cw-480 ch-220" style="margin-top:10px;">
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.Default" TabClick=@OnTabClick>
-                            <DxFormLayoutTabPage Caption="Section Entry">
-                                <RegistrationRequestFormLine @ref="refRegistrationRequestFormLine" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestFormLine>
-                            </DxFormLayoutTabPage>
+                            @* <DxFormLayoutTabPage Caption="Section Entry">
+                            <RegistrationRequestFormLine @ref="refRegistrationRequestFormLine" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestFormLine>
+                            </DxFormLayoutTabPage> *@
                             <DxFormLayoutTabPage Caption="Progress by registration department">
                                 <RegistrationRequestProgressByRegistrationDepartments @ref="refRegistrationRequestProgressByRegistrationDepartments" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestProgressByRegistrationDepartments>
                             </DxFormLayoutTabPage>
-                            <DxFormLayoutTabPage Caption="Assignment of Job for QC department">
-                                <RegistrationRequestAssignmentOfJobs @ref="refRegistrationRequestAssignmentOfJobs" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestAssignmentOfJobs>
-                            </DxFormLayoutTabPage>
+                            @* <DxFormLayoutTabPage Caption="Assignment of Job for QC department">
+                            <RegistrationRequestAssignmentOfJobs @ref="refRegistrationRequestAssignmentOfJobs" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestAssignmentOfJobs>
+                            </DxFormLayoutTabPage> *@
+                            @if (departments != null && departments.Count() > 0)
+                            {
+                                if (_registrationRequestData != null && _registrationRequestData.RegistrationRequestId > 0)
+                                {
+                                    foreach (var d in departments)
+                                    {
+                                        @renderLayoutTabPage(d)
+
+                                    }
+                                }
+                            }
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -222,6 +290,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    IGrid Grid { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
     private RegistrationRequestFormLine refRegistrationRequestFormLine;
@@ -247,6 +316,8 @@
     private List<DropDownOptionsModel> _Headergridlistss { get; set; }
     public string? varitionCode { get; set; }
     public bool PreProfileEnabled { get; set; } = true;
+    private List<DropDownOptionsListModel> departments { get; set; } = new List<DropDownOptionsListModel>();
+    private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -360,12 +431,17 @@
         Data.ProductSpecificationDynamicFormId = null;
         Data.SessionId = null; Data.CCNo = null;
         Data.ExpectedSubmissionDate = null;
-        Data.StatusCodeId = 1;
-        Data.SubmissionDate = null;
-        Data.SubmissionNo = null; PreProfileEnabled = true;
+        Data.StatusCodeId = 1; Data.VariationNoId = null;
+        Data.SubmissionDate = null; Data.VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
+        Data.SubmissionNo = null; PreProfileEnabled = true; dataColumnNames = new List<DropDownOptionsModel>();
         Data.PurposeOfRegistration = null; Data.ProfileId = null; Data.ProfileNo = null; Data.PreProfileId = null; ActiveSubTabIndex = 0;
         Data.VariationNoIds = new List<long?>(); ItemValue = null; VariationNoValue = null; VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         _registrationRequestData = new RegistrationRequest(); RegistrationRequestVariationForm = new List<RegistrationRequestVariationForm>();
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "Index", Text = "No", Type = "Form", IsVisible = true, OrderBy = 1 });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "DescriptionName", Text = "Variation No", Type = "Form", IsVisible = true, OrderBy = 2 });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataNameId", Text = "Detail information by guideline", Type = "Form", IsVisible = true, OrderBy = 3 });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "ByName", Text = "Department", Type = "Form", IsVisible = true, OrderBy = 4 });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "DetailRequirementId", Text = "Detail Requirement", Type = "Form", IsVisible = true, OrderBy = 5 });
         if (SessionId != null)
         {
             var dynamicFormData = await Mediator.Send(new GetRegistrationRequestBySession(SessionId));
@@ -395,6 +471,10 @@
                 Data.SubmissionNo = dynamicFormData.SubmissionNo;
                 Data.PurposeOfRegistration = dynamicFormData.PurposeOfRegistration;
                 Data.VariationNoIds = dynamicFormData.VariationNoIds;
+                if (dynamicFormData.VariationNoIds != null && dynamicFormData.VariationNoIds.Count() > 0)
+                {
+                    Data.VariationNoId = dynamicFormData.VariationNoIds.FirstOrDefault();
+                }
                 var ids = _dynamicformObjectDataList.Cast<dynamic>().Where(x => x.DynamicFormDataId == dynamicFormData.ProductSpecificationDynamicFormId).FirstOrDefault();
                 if (ids != null)
                 {
@@ -407,12 +487,12 @@
                 }
                 RegistrationRequestVariationForm = await Mediator.Send(new GetRegistrationRequestVariationForm(dynamicFormData.RegistrationRequestId));
                 await loadFormData(Data.VariationNoIds);
-                await refRegistrationRequestFormLine.loadChildData(_registrationRequestData);
+                await refRegistrationRequestProgressByRegistrationDepartments.loadChildData(_registrationRequestData);
             }
         }
         else
         {
-            await refRegistrationRequestFormLine.loadChildData(_registrationRequestData);
+            await refRegistrationRequestProgressByRegistrationDepartments.loadChildData(_registrationRequestData);
         }
         StateHasChanged();
 
@@ -434,11 +514,11 @@
     }
     string? QueryDisplayVariationDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
     {
-        string? returnData = string.Empty; varitionCode = "";
+        string? returnData = string.Empty; varitionCode = ""; Data.VariationNoId = null;
         Data.VariationNoIds = new List<long?>(); _Headergridlistss = new List<DropDownOptionsModel>();
         if (arg.Value == null)
         {
-            Data.ObjectData = null;
+            Data.ObjectData = null; departments = new List<DropDownOptionsListModel>();VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         }
         if (arg.Value != null)
         {
@@ -449,7 +529,7 @@
                 foreach (var item in collection)
                 {
                     DropDownOptionsModel _Headergridlists = new DropDownOptionsModel();
-                    dynamic eod = item;
+                    dynamic eod = item; Data.VariationNoId = (long?)eod.DynamicFormDataId;
                     Data.VariationNoIds.Add((long?)eod.DynamicFormDataId);
                     _Headergridlists.Text = (string)eod.DisplayItemsQuery;
                     _Headergridlists.Id = (long?)eod.DynamicFormDataId;
@@ -466,7 +546,8 @@
             }
         }
         varitionCode = varitionCode.TrimEnd(',');
-        CreateEditFormFields();
+        ActiveSubTabIndex = 0;
+        // CreateEditFormFields();
         return returnData.TrimEnd(',');
     }
     private RenderFragment BuildDataColumns()
@@ -487,6 +568,34 @@
                     b.AddAttribute(count + 1, "Visible", s.IsVisible);
                     b.CloseComponent();
                 });
+            }
+        };
+
+        return columns;
+    }
+    private RenderFragment BuildDataMemoBox(VariationRequirementInformationModel items, string? typeData)
+    {
+        RenderFragment columns = editor =>
+        {
+            if (Data.ObjectData != null)
+            {
+                var s = Data.ObjectData.GetType().GetProperty(typeData == "DynamicFormDataNameId" ? items.DynamicFormDataNameId : items.DetailRequirementId);
+                if (s != null)
+                {
+                    var valueData1 = s.GetValue(Data.ObjectData);
+                    var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
+                    var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
+                    var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
+                    int k = 0;
+                    editor.OpenComponent<DxMemo>(k + 1);
+                    editor.AddAttribute(k + 1, "Text", valueData1);
+                    editor.AddAttribute(k + 1, "TextExpression", lambda1);
+                    editor.AddAttribute(k + 1, "Enabled", true);
+                    editor.AddAttribute(k + 1, "Rows", 5);
+                    editor.AddAttribute(k + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor.AddAttribute(k + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data.ObjectData, str); }));
+                    editor.CloseComponent();
+                }
             }
         };
 
@@ -547,7 +656,7 @@
     async Task loadFormData(List<long?> vids)
     {
         var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("Variationrequirement"));
-        VariationRequirementInformationModels = new List<VariationRequirementInformationModel>(); Data.ObjectData = null;
+        VariationRequirementInformationModels = new List<VariationRequirementInformationModel>(); Data.ObjectData = null; departments = new List<DropDownOptionsListModel>();
         if (result != null && result.ID > 0 && vids != null && vids.Count() > 0)
         {
             List<long?> dynamicFormIds = new List<long?>();
@@ -591,6 +700,10 @@
                         {
                             variationRequirementInformationModel.ByName = (string?)item.Value;
                         }
+                        if (item.Key == "DepartmentIds")
+                        {
+                            variationRequirementInformationModel.DepartmentId = (long?)item.Value;
+                        }
                     }
                     if (!string.IsNullOrEmpty(variationRequirementInformationModel.DescriptionName))
                     {
@@ -605,11 +718,20 @@
         }
         if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
         {
+
             int no = 1;
             VariationRequirementInformationModels.ForEach(a =>
             {
                 a.Index = no;
                 no++;
+                var exitss = departments.Where(w => w.Id == a.DepartmentId).Count();
+                if (exitss == 0)
+                {
+                    DropDownOptionsListModel departmentData = new DropDownOptionsListModel();
+                    departmentData.Text = a.ByName;
+                    departmentData.Id = a.DepartmentId.Value;
+                    departments.Add(departmentData);
+                }
             });
             List<Type?> typesList = new List<Type?>();
             typesList = VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DescriptionType).ToList();
@@ -662,6 +784,7 @@
         {
             Data.ModifiedDate = DateTime.Now;
             Data.ModifiedBy = applicationUser.UserName;
+            Data.VariationRequirementInformationModels = VariationRequirementInformationModels;
             var request = new InsertorUpdateRegistrationRequest(Data);
             var result = await Mediator.Send(request);
             if (result.RegistrationRequestId > 0)
@@ -674,7 +797,7 @@
                 }
             }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
+            loading = false; ActiveSubTabIndex = 0;
             StateHasChanged();
         }
         else
@@ -694,7 +817,7 @@
             }
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
-
+            ActiveSubTabIndex = 0;
             NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + Data.SessionId + "");
 
 
@@ -755,6 +878,25 @@
     {
 
     }
+    private RenderFragment renderLayoutTabPage(DropDownOptionsListModel dropDownOptionsList)
+    {
+        RenderFragment item = b =>
+        {
+            b.OpenComponent<DxFormLayoutTabPage>(0);
+            b.AddAttribute(1, "Caption", dropDownOptionsList.Text);
+            b.AddAttribute(2, "ChildContent", (RenderFragment)((tabPageBuilder) =>
+            {
+                tabPageBuilder.OpenComponent<AC.SD.Core.Pages.Attribute.RegistrationRequestAssignmentOfJobs>(1);
+                tabPageBuilder.AddAttribute(2, "applicationUser", applicationUser);
+                tabPageBuilder.AddAttribute(3, "_registrationRequestData", _registrationRequestData);
+                tabPageBuilder.AddAttribute(4, "DepartmentId", dropDownOptionsList.Id);
+                tabPageBuilder.CloseElement();
+            }));
+            b.CloseComponent();
+        };
+        return item;
+    }
+
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
         if (Data.ObjectData != null && VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
@@ -786,170 +928,172 @@
         }));
         layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
         {
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Variation No");
-            //     editor.CloseElement();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 1);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "No");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "No");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Variation No");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Detail information by guideline");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Department");
-            //     editor.CloseElement();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Detail information by guideline");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
-            // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-            // itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-            // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-            // {
-            //     editor.OpenElement(i + 1, "div");
-            //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
-            //     editor.AddContent(i + 1, "Detail Requirement");
-            //     editor.CloseElement();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Department");
+                editor.CloseElement();
 
-            // })));
-            // itemBuilder.CloseComponent();
+            })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+                editor.OpenElement(i + 1, "div");
+                editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;font-weight:bold;");
+                editor.AddContent(i + 1, "Detail Requirement");
+                editor.CloseElement();
+
+            })));
+            itemBuilder.CloseComponent();
             if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
             {
-              VariationRequirementInformationModels.ForEach(a =>
-                        {
-                            var s = Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId);
-                            if (s != null)
-                            {
-                                var valueData = s.GetValue(Data.ObjectData);
-                                var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
-                                var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
-                                var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
-                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                {
-                                    editor.OpenElement(i + 1, "div");
-                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                    editor.AddContent(i + 1, a.DescriptionName);
-                                    editor.CloseElement();
+                VariationRequirementInformationModels.ForEach(a =>
+                      {
+                          var s = Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId);
+                          if (s != null)
+                          {
+                              var valueData = s.GetValue(Data.ObjectData);
+                              var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
+                              var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
+                              var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
+                              itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                              itemBuilder.AddAttribute(i++, "ColSpanMd", 1);
+                              itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                              {
+                                  editor.OpenElement(i + 1, "div");
+                                  editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                  editor.AddContent(i + 1, a.Index);
+                                  editor.CloseElement();
 
-                                })));
-                                itemBuilder.CloseComponent();
-                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                {
-                                    editor.OpenElement(i + 1, "div");
-                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                    editor.AddContent(i + 1, a.Index);
-                                    editor.CloseElement();
+                              })));
+                              itemBuilder.CloseComponent();
+                              itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                              itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+                              itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                              {
+                                  editor.OpenElement(i + 1, "div");
+                                  editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                  editor.AddContent(i + 1, a.DescriptionName);
+                                  editor.CloseElement();
 
-                                })));
-                                itemBuilder.CloseComponent();
-                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-                                var j = 0;
-                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                {
-                                    // editor.OpenElement(i + 1, "div");
-                                    // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                                    // editor.AddContent(i + 1, a.DescriptionName);
-                                    // editor.CloseElement();
-                                    editor.OpenComponent<DxMemo>(j + 1);
-                                    editor.AddAttribute(j + 1, "Text", valueData);
-                                    editor.AddAttribute(j + 1, "TextExpression", lambda);
-                                    editor.AddAttribute(j + 1, "Enabled", true);
-                                    editor.AddAttribute(j + 1, "Rows", 5);
-                                    editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                    editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data.ObjectData, str); }));
-                                    editor.CloseComponent();
+                              })));
+                              itemBuilder.CloseComponent();
 
-                                })));
-                                itemBuilder.CloseComponent();
-                                itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                {
-                                    editor.OpenElement(i + 1, "div");
-                                    editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                    editor.AddContent(i + 1, a.ByName);
-                                    editor.CloseElement();
+                              itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                              itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+                              var j = 0;
+                              itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                              {
+                                  // editor.OpenElement(i + 1, "div");
+                                  // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                  // editor.AddContent(i + 1, a.DescriptionName);
+                                  // editor.CloseElement();
+                                  editor.OpenComponent<DxMemo>(j + 1);
+                                  editor.AddAttribute(j + 1, "Text", valueData);
+                                  editor.AddAttribute(j + 1, "TextExpression", lambda);
+                                  editor.AddAttribute(j + 1, "Enabled", true);
+                                  editor.AddAttribute(j + 1, "Rows", 5);
+                                  editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                  editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s.SetValue(Data.ObjectData, str); }));
+                                  editor.CloseComponent();
 
-                                })));
-                                itemBuilder.CloseComponent();
-                                var s1 = Data.ObjectData.GetType().GetProperty(a.DetailRequirementId);
-                                if (s1 != null)
-                                {
-                                    var valueData1 = s1.GetValue(Data.ObjectData);
-                                    var propertyType1 = Nullable.GetUnderlyingType(s1.PropertyType) ?? s1.PropertyType;
-                                    var access1 = Expression.Property(Expression.Constant(Data.ObjectData), s1.Name);
-                                    var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(s1.PropertyType), access1);
-                                    itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                    itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
-                                    var k = 0;
-                                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                    {
-                                        // editor.OpenElement(i + 1, "div");
-                                        // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                                        // editor.AddContent(i + 1, a.DescriptionName);
-                                        // editor.CloseElement();
-                                        editor.OpenComponent<DxMemo>(k + 1);
-                                        editor.AddAttribute(k + 1, "Text", valueData1);
-                                        editor.AddAttribute(k + 1, "TextExpression", lambda1);
-                                        editor.AddAttribute(k + 1, "Enabled", true);
-                                        editor.AddAttribute(k + 1, "Rows", 5);
-                                        editor.AddAttribute(k + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                        editor.AddAttribute(k + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s1.SetValue(Data.ObjectData, str); }));
-                                        editor.CloseComponent();
+                              })));
+                              itemBuilder.CloseComponent();
+                              itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                              itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                              itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                              {
+                                  editor.OpenElement(i + 1, "div");
+                                  editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                                  editor.AddContent(i + 1, a.ByName);
+                                  editor.CloseElement();
 
-                                    })));
-                                    itemBuilder.CloseComponent();
-                                }
-                                // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                                // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
-                                // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                                // {
+                              })));
+                              itemBuilder.CloseComponent();
+                              var s1 = Data.ObjectData.GetType().GetProperty(a.DetailRequirementId);
+                              if (s1 != null)
+                              {
+                                  var valueData1 = s1.GetValue(Data.ObjectData);
+                                  var propertyType1 = Nullable.GetUnderlyingType(s1.PropertyType) ?? s1.PropertyType;
+                                  var access1 = Expression.Property(Expression.Constant(Data.ObjectData), s1.Name);
+                                  var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(s1.PropertyType), access1);
+                                  itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                                  itemBuilder.AddAttribute(i++, "ColSpanMd", 3);
+                                  var k = 0;
+                                  itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                                  {
+                                      // editor.OpenElement(i + 1, "div");
+                                      // editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                      // editor.AddContent(i + 1, a.DescriptionName);
+                                      // editor.CloseElement();
+                                      editor.OpenComponent<DxMemo>(k + 1);
+                                      editor.AddAttribute(k + 1, "Text", valueData1);
+                                      editor.AddAttribute(k + 1, "TextExpression", lambda1);
+                                      editor.AddAttribute(k + 1, "Enabled", true);
+                                      editor.AddAttribute(k + 1, "Rows", 5);
+                                      editor.AddAttribute(k + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                      editor.AddAttribute(k + 1, "TextChanged", EventCallback.Factory.Create<string?>(this, str => { s1.SetValue(Data.ObjectData, str); }));
+                                      editor.CloseComponent();
 
-                                //     editor.OpenComponent<DxButton>(i + 1);
-                                //     editor.AddAttribute(i + 1, "Text", "Create Email");
-                                //     editor.AddAttribute(i + 1, "RenderStyle", ButtonRenderStyle.Link);
-                                //     editor.AddAttribute(i + 1, "RenderStyleMode", ButtonRenderStyleMode.Contained);
-                                //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
-                                //     editor.AddAttribute(i + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSectionButtionClick(str, a)));
-                                //     editor.CloseComponent();
+                                  })));
+                                  itemBuilder.CloseComponent();
+                              }
+                              // itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                              // itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                              // itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                              // {
 
-                                // })));
-                                // itemBuilder.CloseComponent();
-                            }
-                        });
+                              //     editor.OpenComponent<DxButton>(i + 1);
+                              //     editor.AddAttribute(i + 1, "Text", "Create Email");
+                              //     editor.AddAttribute(i + 1, "RenderStyle", ButtonRenderStyle.Link);
+                              //     editor.AddAttribute(i + 1, "RenderStyleMode", ButtonRenderStyleMode.Contained);
+                              //     editor.AddAttribute(i + 1, "style", "padding-bottom: 60px;");
+                              //     editor.AddAttribute(i + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSectionButtionClick(str, a)));
+                              //     editor.CloseComponent();
+
+                              // })));
+                              // itemBuilder.CloseComponent();
+                          }
+                      });
             }
         }));
         layoutItemBuilder.CloseComponent();

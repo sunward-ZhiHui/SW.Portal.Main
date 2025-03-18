@@ -9,6 +9,7 @@
     <title>@ViewData["Title"] - DocumentViewer</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="~/DocumentViewer.styles.css" asp-append-version="true" />
     <script src="~/node_modules/devextreme-dist/js/dx.all.js"></script>
     <link href="~/node_modules/devextreme-dist/css/dx.light.css" rel="stylesheet" />
@@ -19,6 +20,10 @@
     <link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
     <link href="~/node_modules/devexpress-richedit/dist/dx.richedit.css" rel="stylesheet" />
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
+    
+     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     <style>
 
         /* Style the profile menu container */
@@ -160,9 +165,8 @@
     </div>
     </footer>*@
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+   
     @await RenderSectionAsync("Scripts", required: false)
 
 

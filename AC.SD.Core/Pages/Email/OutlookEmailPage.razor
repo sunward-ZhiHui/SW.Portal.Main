@@ -7,7 +7,6 @@
 
 <h3 class="mb-3">Inbox</h3>
 
-
 @if (emails == null)
 {
     <p class="text-muted">Loading emails...</p>
@@ -27,7 +26,6 @@ else
                 <span class="date">@email.Date.ToString("g")</span>
             </div>
 
-
             @if (email.IsExpanded)
             {
                 <div class="email-detail">
@@ -44,12 +42,40 @@ else
                                 @foreach (var attachment in email.Attachments)
                                 {
                                     <li>
-                                        @* <a href="@attachment.DownloadUrl" target="_blank" download>@attachment.FileName</a> *@
-                                        <span>@attachment.FileName</span>
-                                        @* <a href="@attachment.DownloadUrl" target="_blank">@attachment.FileName</a> *@
+                                        <a href="@attachment.DownloadUrl" target="_blank">@attachment.FileName</a>
                                     </li>
                                 }
                             </ul>
+                        </div>
+                    }
+
+                    <div class="email-actions">
+                        <button @onclick="() => ReplyToEmail(email)" class="btn btn-primary">Reply</button>
+                        <button @onclick="() => ForwardEmail(email)" class="btn btn-secondary">Forward</button>
+                        <button @onclick="() => DeleteEmail(email)" class="btn btn-danger">Delete</button>
+                    </div>
+
+                    @if (email.Replies?.Count > 0)
+                    {
+                        <div class="replies">
+                            <h5>Reply History:</h5>
+                            <ul>
+                                @foreach (var reply in email.Replies)
+                                {
+                                    <li>
+                                        <strong>@reply.Date.ToString("g") from @reply.From:</strong>
+                                        <p>@reply.Body</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (email.IsReplying)
+                    {
+                        <div class="reply-section">
+                            <textarea @bind="email.ReplyText" class="form-control" rows="3" placeholder="Write a reply..."></textarea>
+                            <button @onclick="() => SendReply(email)" class="btn btn-success mt-2">Send</button>
                         </div>
                     }
                 </div>
@@ -57,6 +83,7 @@ else
         }
     </div>
 }
+
 <style>
     .email-list {
         border: 1px solid #ddd;
@@ -118,10 +145,36 @@ else
         .attachments li {
             margin: 5px 0;
         }
+
+    .email-actions {
+        margin-top: 10px;
+    }
+
+    .replies {
+        margin-top: 20px;
+        padding: 10px;
+        background: #eef;
+        border-radius: 5px;
+    }
+
+    .reply-section {
+        margin-top: 15px;
+    }
 </style>
 
 @code {
     private List<EmailViewModel> emails = new List<EmailViewModel>();
+    
+    private void Reply(EmailViewModel email) => email.IsReplying = true;
+    private void ReplyAll(EmailViewModel email) => email.IsReplying = true;
+    private void Forward(EmailViewModel email) => email.IsReplying = true;
+    
+    private async Task DeleteEmail(EmailViewModel email)
+    {
+        await EmailService.DeleteEmailAsync(email.MessageId);
+        emails.Remove(email);
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,25 +189,83 @@ else
         email.IsExpanded = !email.IsExpanded;
     }
 
+    private void ReplyToEmail(EmailViewModel email)
+    {
+        email.IsReplying = !email.IsReplying;
+    }
+
+    private async Task SendReply(EmailViewModel email)
+    {
+        if (!string.IsNullOrWhiteSpace(email.ReplyText))
+        {
+            //await EmailService.SendReplyAsync(email.MessageId, email.ReplyText);
+            email.Replies.Add(new EmailReply
+                {
+                    From = "You",
+                    Date = DateTime.Now,
+                    Body = email.ReplyText
+                });
+            email.ReplyText = "";
+            email.IsReplying = false;
+        }
+    }
+    private async Task ForwardEmail(EmailViewModel email)
+    {
+        //await EmailService.ForwardEmailAsync(email);
+        await JSRuntime.InvokeAsync<string>("alert", "Email forwarded successfully!");
+    }
+
+    // private async Task SendReply(EmailViewModel email)
+    // {
+    //     if (string.IsNullOrWhiteSpace(email.ReplyMessage))
+    //         return;
+
+    //     await EmailService.SendEmailAsync(email.From, "Re: " + email.Subject, email.ReplyMessage);
+
+    //     email.IsReplying = false;
+    //     email.ReplyMessage = "";
+    // }
+
+    // private void DeleteEmail(EmailViewModel email)
+    // {
+    //     emails.Remove(email);
+    // }
+
+    private void MarkAsRead(EmailViewModel email)
+    {
+        email.Subject = "[Read] " + email.Subject;
+    }
+
     public class EmailViewModel : EmailModel
     {
         public bool IsExpanded { get; set; } = false;
+        public bool IsReplying { get; set; } = false;
+        public string ReplyText { get; set; } = "";
+        public string ReplyMessage { get; set; } = "";
         public string Preview { get; set; }
-        public List<EmailAttachmentModel> Attachments { get; set; }
+        public string ReplyBody { get; set; } = "";
+
+
 
         public EmailViewModel(EmailModel email)
         {
             this.Subject = email.Subject;
             this.FromName = email.FromName;
+            this.ToName = email.ToName;
             this.Date = email.Date;
+            this.BodyText = email.BodyText;
             this.BodyHtml = email.BodyHtml;
+            this.From = email.From;
+            this.To = email.To;
+            this.MessageId = email.MessageId;
             this.IsAttachment = email.IsAttachment;
             this.Attachments = email.Attachments ?? new List<EmailAttachmentModel>();
+            this.Replies = email.Replies ?? new List<EmailReply>();
 
             this.Preview = !string.IsNullOrEmpty(email.BodyHtml)
                 ? email.BodyHtml.Length > 50 ? email.BodyHtml.Substring(0, 50) + "..." : email.BodyHtml
-                : "No preview available";
+                : "No preview available";           
         }
     }
-    
+
 }

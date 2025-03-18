@@ -1,4 +1,6 @@
 ﻿using Core.EntityModels;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +29,7 @@ namespace Core.Entities
         public string Sonumber { get; set; }
         public string Body { get; set; }      
         public List<EmailAttachmentModel> Attachments { get; set; }
+        public List<EmailReply> Replies { get; set; }
         public string NotRelatedDescription { get; set; }
         public bool? SameAsSalesOrderCompleteProcess { get; set; }
         public string SameAsSalesOrderCompleteProcessFlag { get; set; }
@@ -38,6 +41,24 @@ namespace Core.Entities
         public string Type { get; set; }
         public long? FileProfileTypeId { get; set; }
         public bool IsExpanded { get; set; } = false;
+        public string InReplyTo { get; set; }
+
+
+        public string ReplyText { get; set; }
+        public string ReplyTo { get; set; } // To Email
+        public string ReplyCc { get; set; } // Cc Email
+        public string ReplyBcc { get; set; } // Bcc Email
+        public List<IBrowserFile> ReplyAttachments { get; set; } = new List<IBrowserFile>();
+        public bool IsReplying { get; set; }
+
+    }
+    public class EmailReply
+    {
+        public string Body { get; set; }
+        public string BodyHtml { get; set; }
+        public DateTime Date { get; set; }
+        public string From { get; set; }
+        public List<EmailAttachmentModel> Attachments { get; set; }
     }
     public class EmailAttachmentModel
     {
@@ -57,4 +78,11 @@ namespace Core.Entities
         public List<EmailModel> SalesOrderComplete { get; set; }
         public List<EmailModel> NotRelated { get; set; }
     }
+    public class AttachmentData
+    {
+        public string FileName { get; set; }
+        public byte[] Content { get; set; }
+        public string ContentType { get; set; }
+    }
+
 }

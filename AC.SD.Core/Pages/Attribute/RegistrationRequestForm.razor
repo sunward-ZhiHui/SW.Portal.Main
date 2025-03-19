@@ -144,7 +144,7 @@
                                             HighlightRowOnHover="true"
                                             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                            SelectionMode="GridSelectionMode.Single"
+                                            SelectionMode="GridSelectionMode.Multiple"
                                             AllowSelectRowByClick="true"
                                             FocusedRowEnabled="true"
                                             TextWrapEnabled="false"
@@ -176,7 +176,7 @@
                                 ShowSearchBox="true"
                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                 TextWrapEnabled="false"
-                                PagerVisible="false" Context="Context">
+                                VirtualScrollingEnabled="true" Context="Context">
                             <Columns>
                                 @if (dataColumnNames != null && dataColumnNames.Count() > 0)
                                 {
@@ -184,7 +184,7 @@
                                     {
                                         if (s.Value == "DynamicFormDataNameId")
                                         {
-                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="100">
                                                 <CellDisplayTemplate>
                                                     @{
                                                         var item = (VariationRequirementInformationModel)context.DataItem;
@@ -195,7 +195,7 @@
                                         }
                                         else if (s.Value == "DetailRequirementId")
                                         {
-                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="100">
                                                 <CellDisplayTemplate>
                                                     @{
                                                         var item = (VariationRequirementInformationModel)context.DataItem;
@@ -206,13 +206,17 @@
                                         }
                                         else
                                         {
-                                            if (s.Value == "No")
+                                            if (s.Value == "Index")
                                             {
-                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="1%"></DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="5%" MinWidth="50"></DxGridDataColumn>
+                                            }
+                                            else if (s.Value == "ByName")
+                                            {
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text"  MinWidth="80"></DxGridDataColumn>
                                             }
                                             else
                                             {
-                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="19%"></DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text"  MinWidth="100"></DxGridDataColumn>
                                             }
                                         }
                                     }

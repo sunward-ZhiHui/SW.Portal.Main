@@ -31,7 +31,8 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = ResponseCode.Success;
-                response.Results = result;
+                response.Results =(List<View_ApplicationMasterDetail>)(result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() });
+               // response.Results = result;
             }
             catch (Exception ex)
             {

@@ -41,6 +41,20 @@ namespace Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class EditTimeSheetHandler : IRequestHandler<UpdateTimesheetQuery, long>
+    {
+        private readonly IQCTimesheetQueryRepository _qcqueryRepository;
+        public EditTimeSheetHandler(IQCTimesheetQueryRepository qcqueryRepository)
+        {
+            _qcqueryRepository = qcqueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateTimesheetQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _qcqueryRepository.UpdateTimeSheetQC(request);
+            return req;
+        }
+    }
     public class GetQCListHandler : IRequestHandler<GetQCTimeSheetQuery, List<TimeSheetForQC>>
     {
 

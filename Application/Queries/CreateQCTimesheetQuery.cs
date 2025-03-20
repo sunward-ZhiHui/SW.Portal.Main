@@ -12,6 +12,9 @@ namespace Application.Queries
     public class CreateQCTimesheetQuery : TimeSheetForQC, IRequest<long>
     {
     }
+    public class UpdateTimesheetQuery : TimeSheetForQC, IRequest<long>
+    {
+    }
     public class UpdateQCTimesheetQuery : TimeSheetForQC, IRequest<long>
     {
 

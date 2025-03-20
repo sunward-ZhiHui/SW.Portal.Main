@@ -23,9 +23,13 @@ namespace Core.Entities
         public string? SpecificTestName { get;set; }
         public long? ActivityStatusId { get; set; }
         public long? MachineAction { get; set; }
+        public string? MachineActionName { get; set; }
         public string? MachineName { get; set; }
          public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? Date { get; set; }
+        public string? Description { get; set; }
+        public string? Company { get; set; }
         public string? Action { get; set; }
         [NotMapped]
         public long DocumentID { get; set; }

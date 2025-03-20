@@ -29,10 +29,11 @@ namespace Infrastructure.Repository.Query
               
                 var query = @"select AU.UserName as AddedBy,DC.DocumentID,DC.FilePath,DC.IsNewPath,DC.SessionID as DocumentSessionId,DC.IsLocked,DC.LockedByUserId,
                             DC.UniqueSessionID,DC.ContentType,DC.FileName,QC.ItemName,QC.RefNo,QC.Stage,QC.AddedDate,QC.SpecificTestName,
-                            QC.QRcode,QC.TestName,QC.SessionID,QC.QCTimesheetID,QC.Comment,AE.EmailTopicSessionId,AE.SessionId as ActivitySessionID,QC.StartDate,QC.EndDate
+                            QC.QRcode,QC.TestName,QC.SessionID,QC.QCTimesheetID,QC.Comment,AE.EmailTopicSessionId,AE.SessionId as ActivitySessionID,QC.StartDate,QC.EndDate,QC.MachineName,AUD.Value as MachineActionName 
                             From TimeSheetForQC QC
                             Left Join Documents DC on DC.SessionID = QC.SessionID
                             Left Join ApplicationUser AU on AU.UserID = QC.AddedByUserID 
+							Left Join ApplicationMasterDetail AUD ON AUD.ApplicationMasterDetailID = QC.MachineAction
                             Left Join ActivityEmailTopics AE On AE.ActivityMasterId = QC.QCTimesheetID And AE.ActivityType ='TimeSheetForQC'
                             and AE.DocumentSessionId IS Not Null
 
@@ -97,10 +98,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("MachineName", timeSheetForQC.MachineName);
                         parameters.Add("StartDate", timeSheetForQC.StartDate);
                         parameters.Add("EndDate", timeSheetForQC.EndDate);
+                        parameters.Add("Date", timeSheetForQC.Date);
+                        parameters.Add("Company", timeSheetForQC.Company);
+                        parameters.Add("Description", timeSheetForQC.Description);
 
-                        var query = @"INSERT INTO TimeSheetForQC(EndDate,StartDate,MachineAction,MachineName,ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
+                        var query = @"INSERT INTO TimeSheetForQC(Description,Company,Date,EndDate,StartDate,MachineAction,MachineName,ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
                          OUTPUT  INSERTED.QCTimesheetID
-                         VALUES (@EndDate,@StartDate,@MachineAction,@MachineName,@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
+                         VALUES (@Description,@Company,@Date,@EndDate,@StartDate,@MachineAction,@MachineName,@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
                         var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                         var id  = insertedId;
 
@@ -268,6 +272,95 @@ namespace Infrastructure.Repository.Query
                     return (await connection.QueryAsync<view_QCAssignmentRM>(query, parameters)).ToList();
                 }
             }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<IReadOnlyList<TimeSheetForQC>> GetAllCompanyAsync(string Date, string Company, string Action)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Date", Date);
+                parameters.Add("Company", Company);
+                parameters.Add("Action", Action);
+
+                var query = @"select * from TimeSheetForQC where Date =@Date and Company =@Company and Action = @Action";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TimeSheetForQC>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<TimeSheetForQC>> GetAllItemAsync(string ItemName, string QCRefNo, string TestName, string Action)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ItemName", ItemName);
+                parameters.Add("QCRefNo", QCRefNo);
+                parameters.Add("TestName", TestName);
+                parameters.Add("Action", Action);
+
+                var query = @"Select * from TimeSheetForQC where Description = @ItemName and RefNo =@QCRefNo and TestName = @TestName and Action = @Action";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TimeSheetForQC>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> UpdateTimeSheetQC(TimeSheetForQC timeSheetForQC)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("MachineAction", timeSheetForQC.MachineAction);
+                        parameters.Add("Action", timeSheetForQC.Action);
+                        parameters.Add("MachineName", timeSheetForQC.MachineName);
+                        parameters.Add("ModifiedByUserID", timeSheetForQC.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", timeSheetForQC.ModifiedDate);
+                        parameters.Add("EndDate", timeSheetForQC.EndDate);
+                        parameters.Add("QCTimesheetID", timeSheetForQC.QCTimesheetID);
+
+                        var query = @"Update  TimeSheetForQC  Set MachineAction = @MachineAction,Action = @Action,MachineName =@MachineName, ModifiedByUserID = @ModifiedByUserID,ModifiedDate  = @ModifiedDate,EndDate = @EndDate
+                                         where QCTimesheetID = @QCTimesheetID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);

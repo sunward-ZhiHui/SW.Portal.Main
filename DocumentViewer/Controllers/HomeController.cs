@@ -33,6 +33,8 @@ using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using System.Buffers.Text;
 using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
 using Azure.Core;
+using DevExpress.Web.Office;
+using DevExpress.Export.Xl;
 
 namespace DocumentViewer.Controllers
 {
@@ -52,8 +54,19 @@ namespace DocumentViewer.Controllers
             _configuration = configuration;
             _hostingEnvironment = hostingEnvironment;
         }
-        public async Task<IActionResult> Index(string url)
+        public async Task<IActionResult> Index(string url, bool? IsHistory)
         {
+            var userId = HttpContext.Session.GetString("user_id");
+            Guid? sesId = null;
+            if (!string.IsNullOrEmpty(url))
+            {
+                bool isValid = Guid.TryParse(url, out _);
+                if (isValid == true)
+                {
+                    sesId = new Guid(url);
+                }
+            }
+            bool isMobile = IsMobileDevice(HttpContext, userId, sesId);
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty; var pathurl = string.Empty;
@@ -63,18 +76,37 @@ namespace DocumentViewer.Controllers
             HttpContext.Session.Remove("isView");
             HttpContext.Session.Remove("fileUrl"); HttpContext.Session.Remove("DocumentId");
             @ViewBag.isDownload = "No";
-            var userId = HttpContext.Session.GetString("user_id");
+            @ViewBag.IsHistory = "Yes";
             @ViewBag.isUrl = "isUrl";
             @ViewBag.isFile = "No";
+            IsHistory = IsHistory == true ? true : false;
+            //DocumentManager.CloseAllDocuments();
             if (userId != null)
             {
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
+
+                viewmodel.IsUserAgent = isMobile;
+                @ViewBag.isMobile = isMobile == true ? "Yes" : "No";
                 if (!string.IsNullOrEmpty(url))
                 {
                     var sessionId = new Guid(url);
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        if (IsHistory == false)
+                        {
+                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                            if (latestcurrentDocuments != null)
+                            {
+                                @ViewBag.IsHistoryDoc = "No";
+                                currentDocuments = latestcurrentDocuments;
+                            }
+                            else
+                            {
+                                viewmodel.Id = 0;
+                                return View(viewmodel);
+                            }
+                        }
                         viewmodel.IsLatest = currentDocuments.IsLatest == true ? true : false;
                         HttpContext.Session.SetString("DocumentId", currentDocuments.DocumentId.ToString());
                         var ipirApp = _context.IpirApp.Where(w => w.SessionID == currentDocuments.SessionId).FirstOrDefault();
@@ -148,12 +180,16 @@ namespace DocumentViewer.Controllers
                                 pathurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 fileurl = fileNewUrl + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
+                                var paths = currentDocuments.FilePath.Replace(@"\", @"/");
+                                @ViewBag.Url = fileNewUrl + paths;
                             }
                             else
                             {
                                 fileurl = fileOldUrl + currentDocuments.FilePath;
                                 pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
+                                var paths = currentDocuments.FilePath.Replace(@"\", @"/");
+                                @ViewBag.Url = fileOldUrl + paths;
                             }
                         }
                         try
@@ -268,14 +304,88 @@ namespace DocumentViewer.Controllers
             }
             else
             {
-                return Redirect("login?url=" + url);
+                var loginurl = "login?url=" + url;
+                if (IsHistory == true)
+                {
+                    loginurl += "IsHistory=" + true;
+                }
+                return Redirect(loginurl);
             }
+        }
+        private bool IsMobileDevice(HttpContext contexts, string? userId, Guid? sessId)
+        {
+            if (contexts.Request.Headers.TryGetValue("User-Agent", out var userAgent))
+            {
+                string userAgentString = userAgent.ToString().ToLower();
+                long? userIds = Convert.ToInt64(userId);
+                var status = userAgentString.Contains("iphone") ||
+                       userAgentString.Contains("ipad") ||
+                       userAgentString.Contains("ipod") ||
+                       userAgentString.Contains("android");
+                if (userIds > 0)
+                {
+                    var DocumentViewer = new DocumentViewers
+                    {
+                        UserId = userIds,
+                        Description = userAgentString,
+                        AddedDate = DateTime.Now,
+                        SessionId = sessId,
+                        IsMobile = status,
+                    };
+                    _context.Add(DocumentViewer);
+                    _context.SaveChanges();
+                }
+
+                return status;
+            }
+            return false;
         }
         string RemoveAfterLastDot(string text)
         {
             int lastIndex = text.LastIndexOf(".");
             return lastIndex > 0 ? text.Substring(0, lastIndex) : text;
         }
+        [HttpPost("GetDocumentsVersionTrace")]
+        public string GetDocumentsVersionTrace(long? documentId)
+        {
+            var html = string.Empty;
+            //var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
+            if (documentId > 0)
+            {
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+                    var query = from oal in _context.DocumentsVersionTrace
+                                join oau in _context.ApplicationUser on oal.UserId equals oau.UserId
+                                where oal.UserId == userId && oal.DocumentId == documentId
+                                select new DocumentsVersionTrace
+                                {
+                                    DocumentsVersionTraceId = oal.DocumentsVersionTraceId,
+                                    UserId = oal.UserId,
+                                    DocumentId = oal.DocumentId,
+                                    SessionId = oal.SessionId,
+                                    UpdateDateTime = oal.UpdateDateTime,
+                                    UserName = oau.UserName,
+                                    Description = oal.Description,
+                                };
+                    var list = query.ToList();
+                    if (list != null && list.Count() > 0)
+                    {
+                        list.OrderByDescending(o => o.DocumentsVersionTraceId).ToList().ForEach(s =>
+                        {
+                            html += "<li>";
+                            html += "<span>" + s.UserName + "</span>";
+                            html += "<span class=\"event-date\">" + s.UpdateDateTime?.ToString("dd-MMM-yyyy hh.mm tt") + "</span>";
+                            html += "<p>" + s.Description + "</p>";
+                            html += "</li>";
+                        });
+                    }
+                }
+            }
+            return html;
+        }
+
         [HttpPost("ExportUrl")]
         public async Task<IActionResult> ExportUrl(IFormFile file, long? id, string? isVersion)
         {
@@ -414,11 +524,37 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpPost]
+        public IActionResult SaveComments(string? name)
+        {
+            var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+            var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
+            if (documentId > 0)
+            {
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    var DocumentsTrace = new DocumentsVersionTrace
+                    {
+                        UserId = userId,
+                        Description = name,
+                        DocumentId = currentDocuments.DocumentId,
+                        SessionId = currentDocuments.SessionId,
+                        UpdateDateTime = DateTime.Now,
+                    };
+                    _context.Add(DocumentsTrace);
+                    _context.SaveChanges();
+                    return Ok("success");
+                }
+            }
+            return Ok();
+        }
+        [HttpPost]
         public void RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
         {
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
             if (currentDocuments != null)
             {
+                var ext = currentDocuments.FileName.Split(".").Last().ToLower();
                 string pathurl = string.Empty;
                 if (currentDocuments.IsNewPath == true)
                 {
@@ -439,7 +575,7 @@ namespace DocumentViewer.Controllers
                             System.IO.Directory.CreateDirectory(serverPaths);
                         }
                         var sesid = Guid.NewGuid();
-                        var ext = currentDocuments.FileName.Split(".").Last();
+
                         var filepaths = serverPaths + sesid + "." + ext;
                         long length = new FileInfo(pathurl).Length;
                         System.IO.File.Copy(pathurl, filepaths);
@@ -447,10 +583,17 @@ namespace DocumentViewer.Controllers
                         VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
+
+                var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
+                string documentId = spreadsheet.DocumentId;
+                byte[] documentContent = spreadsheet.SaveCopy(ext == "xls" ? DocumentFormat.Xls : DocumentFormat.Xlsx);
+                using (var fs = new FileStream(pathurl, FileMode.Create, FileAccess.Write))
+                {
+                    fs.Write(documentContent, 0, documentContent.Length);
+                }
+                //spreadsheet.Save();
+                saveUpdateUserData();
             }
-            var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
-            spreadsheet.Save();
-            saveUpdateUserData();
         }
         void saveUpdateUserData()
         {
@@ -495,7 +638,7 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpGet("DownloadFromUrl")]
-        public async Task<IActionResult> DownloadFromUrlAsync(string? url)
+        public async Task<IActionResult> DownloadFromUrlAsync(string? url, bool? IsHistoryDoc)
         {
             try
             {
@@ -506,28 +649,43 @@ namespace DocumentViewer.Controllers
                     var fileurl = string.Empty;
                     var sessionId = new Guid(url);
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
+                    bool? isLatestDoc = true;
                     if (currentDocuments != null)
                     {
-                        var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
-                        if (currentDocuments.IsNewPath == true)
+                        if (IsHistoryDoc == false)
                         {
-                            fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                            if (latestcurrentDocuments != null)
+                            {
+                                isLatestDoc = true;
+                                currentDocuments = latestcurrentDocuments;
+                            }
+                            else
+                            {
+                                isLatestDoc = false;
+                            }
                         }
-                        else
+                        if (isLatestDoc == true)
                         {
-                            fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
+                            if (currentDocuments.IsNewPath == true)
+                            {
+                                fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            }
+                            else
+                            {
+                                fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            }
+                            if (Extension == "msg")
+                            {
+                                currentDocuments.ContentType = "application/octet-stream";
+                            }
+                            var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                            return new FileStreamResult(stream, currentDocuments.ContentType)
+                            {
+                                FileDownloadName = currentDocuments.FileName
+                            };
                         }
-                        if (Extension == "msg")
-                        {
-                            currentDocuments.ContentType = "application/octet-stream";
-                        }
-                        var stream = await ConvertFileToMemoryStreamAsync(fileurl);
-                        return new FileStreamResult(stream, currentDocuments.ContentType)
-                        {
-                            FileDownloadName = currentDocuments.FileName
-                        };
-
-
                     }
                 }
             }
@@ -548,7 +706,7 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpGet("Maildownloadfromurl")]
-        public async Task<IActionResult> Maildownloadfromurl(string? url)
+        public async Task<IActionResult> Maildownloadfromurl(string? url, bool? IsHistoryDoc)
         {
             try
             {
@@ -559,34 +717,51 @@ namespace DocumentViewer.Controllers
                     var fileurl = string.Empty;
                     var sessionId = new Guid(url);
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
+                    bool? isLatestDoc = true;
                     if (currentDocuments != null)
                     {
-                        var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
-                        var filnames = currentDocuments.FileName != null ? currentDocuments.FileName?.TrimEnd('.') : "ZipFile";
-                        if (currentDocuments.IsNewPath == true)
+                        if (IsHistoryDoc == false)
                         {
-                            fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
-                        }
-                        else
-                        {
-                            fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
-                        }
-                        if (Extension == "msg")
-                        {
-                            currentDocuments.ContentType = "application/octet-stream";
-                        }
-
-                        var stream = await ConvertFileToMemoryStreamAsync(fileurl);
-                        if (stream != null)
-                        {
-                            var streamDatas = GetOutLookMailDocuments(stream, Extension);
-
-                            if (streamDatas != null)
+                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                            if (latestcurrentDocuments != null)
                             {
-                                return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
+                                isLatestDoc = true;
+                                currentDocuments = latestcurrentDocuments;
+                            }
+                            else
+                            {
+                                isLatestDoc = false;
                             }
                         }
+                        if (isLatestDoc == true)
+                        {
+                            var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
+                            var filnames = currentDocuments.FileName != null ? currentDocuments.FileName?.TrimEnd('.') : "ZipFile";
+                            if (currentDocuments.IsNewPath == true)
+                            {
+                                fileurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            }
+                            else
+                            {
+                                fileurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                            }
+                            if (Extension == "msg")
+                            {
+                                currentDocuments.ContentType = "application/octet-stream";
+                            }
 
+                            var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                            if (stream != null)
+                            {
+                                var streamDatas = GetOutLookMailDocuments(stream, Extension);
+
+                                if (streamDatas != null)
+                                {
+                                    return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
+                                }
+                            }
+
+                        }
                     }
                 }
             }

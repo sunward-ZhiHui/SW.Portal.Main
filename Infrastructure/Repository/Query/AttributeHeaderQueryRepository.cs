@@ -1263,7 +1263,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId,List<long?> DynamicFormDataId)
+        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId, List<long?> DynamicFormDataId)
         {
             try
             {
@@ -1700,6 +1700,13 @@ namespace Infrastructure.Repository.Query
                                                     List<long?> listData = itemValue.ToObject<List<long?>>();
                                                     var listName = attributeHeaderListModel.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == b.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                                     dict[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                    if (attrName == "11409_Attr")
+                                                    {
+                                                        if (listData != null && listData.Count() > 0)
+                                                        {
+                                                            dict["DepartmentIds"] = listData?.FirstOrDefault();
+                                                        }
+                                                    }
                                                 }
                                                 else
                                                 {

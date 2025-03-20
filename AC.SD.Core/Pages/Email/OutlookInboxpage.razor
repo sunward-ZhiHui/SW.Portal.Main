@@ -1,0 +1,246 @@
+﻿@using System.Net.Http.Json
+@using global::Core.Entities
+@inject HttpClient Http
+@inject OutlookEmailService EmailService
+@inject IJSRuntime JSRuntime;
+
+<DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true"
+    ApplyBackgroundShading="true"
+    IndicatorAreaVisible="false"
+    Text="Fetching Data...">
+        <DxGrid @ref="TOGrid"
+        Data="emails"
+        VirtualScrollingEnabled="true"
+        AllowSort="false"
+        KeyFieldName="MessageId"
+        CustomizeElement="Grid_CustomizeElement"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" style="height: calc(100vh - 173px);"               
+        AllowSelectRowByClick="true" SelectionMode="GridSelectionMode.Single"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+            <Columns>               
+
+
+                <DxGridDataColumn FieldName="FromName">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (EmailModel)context.DataItem;
+                        }
+                        <div style="width:100%; padding-right: 6px;">
+                            <strong>
+                                @item.FromName
+                                @* @if (item.NotificationCount != 0)
+                                {
+                                    <span class="notificationCount">@item.NotificationCount</span>
+                                } *@                               
+                            </strong>
+                            <div>
+                                <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.Date.DateTime)</span>
+                                <text>@item.Subject</text>
+                            </div>
+                        </div>                       
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>              
+            </Columns>           
+        </DxGrid>
+    </DxLoadingPanel>
+
+<style>
+    .email-list {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    }
+
+    .email-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    transition: background 0.2s;
+    cursor: pointer;
+    }
+
+    .email-item:hover {
+    background: #f5f5f5;
+    }
+
+    .sender {
+    font-weight: bold;
+    flex: 1;
+    }
+
+    .subject {
+    flex: 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+    .date {
+    color: #999;
+    margin-left: auto;
+    }
+
+    .email-detail {
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .attachments {
+    margin-top: 10px;
+    padding: 10px;
+    background: #eef;
+    border-radius: 5px;
+    }
+
+    .attachments ul {
+    list-style-type: none;
+    padding: 0;
+    }
+
+    .attachments li {
+    margin: 5px 0;
+    }
+
+    .email-actions {
+    margin-top: 10px;
+    }
+
+    .replies {
+    margin-top: 20px;
+    padding: 10px;
+    background: #eef;
+    border-radius: 5px;
+    }
+
+    .reply-section {
+    margin-top: 15px;
+    }
+
+    .attachment-item a, .reply-attachments a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .replies .reply-item {
+        padding: 10px;
+        border-left: 4px solid #007bff;
+    }
+
+    .reply-attachments {
+        margin-top: 5px;
+        padding-left: 10px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public EventCallback<EmailModel> ToView { get; set; }
+
+    bool PanelVisible { get; set; }
+    IGrid? TOGrid { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+
+    private List<EmailModel> emails = new List<EmailModel>();
+
+    private void Reply(EmailModel email) => email.IsReplying = true;
+    private void ReplyAll(EmailModel email) => email.IsReplying = true;
+    private void Forward(EmailModel email) => email.IsReplying = true;
+
+    private async Task DeleteEmail(EmailModel email)
+    {
+        await EmailService.DeleteEmailAsync(email.MessageId);
+        emails.Remove(email);
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+
+    }
+    void OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+
+        //var selectedEmail = e.Grid.GetRowValue<EmailViewModel>(e.VisibleIndex, "MessageId");
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MessageId");
+        //SelectedGroup = UniqueId?.ToString() ?? "none";
+        //ToTopicId?.Invoke(SelectedGroup);
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        //SelectedDataItems = SelectedToItems;
+
+
+        if (SelectedToItems.FirstOrDefault() is EmailModel selectedEmail)
+        {
+            ToView.InvokeAsync(selectedEmail); // Use InvokeAsync for EventCallback
+        }
+
+
+        //EnableArchiveAll.Invoke();
+        //DisableOpenClose.Invoke();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        //await JSRuntime.InvokeAsync<string>("showLoading");
+        var receivedEmails = await EmailService.ReceiveEmailsAsync();       
+        emails = receivedEmails;
+        PanelVisible = false;
+        //await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+   
+    private void ReplyToEmail(EmailModel email)
+    {
+        email.IsReplying = !email.IsReplying;
+    }
+
+    private async Task SendReply(EmailModel email)
+    {
+        if (!string.IsNullOrWhiteSpace(email.ReplyText))
+        {
+            //await EmailService.SendReplyAsync(email.MessageId, email.ReplyText);
+            email.Replies.Add(new EmailReply
+                {
+                    From = "You",
+                    Date = DateTime.Now,
+                    Body = email.ReplyText
+                });
+            email.ReplyText = "";
+            email.IsReplying = false;
+        }
+    }
+   
+
+    // private async Task SendReply(EmailViewModel email)
+    // {
+    //     if (string.IsNullOrWhiteSpace(email.ReplyMessage))
+    //         return;
+
+    //     await EmailService.SendEmailAsync(email.From, "Re: " + email.Subject, email.ReplyMessage);
+
+    //     email.IsReplying = false;
+    //     email.ReplyMessage = "";
+    // }
+
+    // private void DeleteEmail(EmailViewModel email)
+    // {
+    //     emails.Remove(email);
+    // }
+
+   
+}

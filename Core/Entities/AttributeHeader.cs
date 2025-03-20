@@ -196,5 +196,9 @@ namespace Core.Entities
         public long? DynamicFormDataGridId { get; set; }
         public string? ByNameId { get; set; }
         public string? ByName { get; set; }
+        public string? DetailRequirementId { get; set; }
+        public string? DetailRequirementName { get; set; }
+        public long? Index { get; set; }
+        public long? DepartmentId { get; set; }
     }
 }

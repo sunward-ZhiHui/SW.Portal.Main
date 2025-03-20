@@ -9,6 +9,7 @@
     <title>@ViewData["Title"] - DocumentViewer</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="~/DocumentViewer.styles.css" asp-append-version="true" />
     <script src="~/node_modules/devextreme-dist/js/dx.all.js"></script>
     <link href="~/node_modules/devextreme-dist/css/dx.light.css" rel="stylesheet" />
@@ -19,6 +20,10 @@
     <link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
     <link href="~/node_modules/devexpress-richedit/dist/dx.richedit.css" rel="stylesheet" />
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     <style>
 
         /* Style the profile menu container */
@@ -93,7 +98,7 @@
             <header>
                 <div class="profile-menu">
                     <div>Sunward Document Viewer</div>
-                    <div class="profile-info" style="text-align: right; dwidth: 67%;">
+                    <div class="profile-info" style="text-align: right; width: 67%;">
                         <span class="username">@Context.Session.GetString("user_name")</span>
                     </div>
                     <div class="dropdown">
@@ -103,12 +108,20 @@
                             {
                                 @if (@ViewBag.isFile == "Yes")
                                 {
+                                    @if (@ViewBag.isMobile == "Yes")
+                                    {
+                                        if (@ViewBag.FileExtension == "pdf")
+                                        {
+                                            <a href="javascript:void(0);" id="viewAllPAges">View All Pages</a>
+                                        }
+                                    }
                                     @if (@ViewBag.FileExtension == "msg" || @ViewBag.FileExtension == "eml")
                                     {
                                         <a href="javascript:void(0);" id="downloadMailClick">Download Mail Attachment</a>
                                     }
                                     @if (@ViewBag.isDownload == "Yes")
                                     {
+                                        <a href="javascript:void(0);" id="progressClick">Progress</a>
                                         <a href="javascript:void(0);" id="downloadClick">Download</a>
                                         <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
                                     }
@@ -153,16 +166,15 @@
     </div>
     </footer>*@
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 
 
     <script type="text/javascript">
         $('#logoutClick').on('click', function () {
             $.ajax({
-                url: '@Url.Action("logout","login")',
+                url: '@Url.Action("logout", "login")',
                 method: 'GET',
                 success: function (data) {
                     location.reload();
@@ -172,24 +184,27 @@
                 }
             });
         });
+        $("#viewAllPAges").on('click', function () {
+            window.open("@ViewBag.Url", '_blank').focus();
+        });
         $('#downloadMailClick').on('click', function () {
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const url = urlParams.get('url');
+            var IsLatestDoc = "@ViewBag.IsHistoryDoc";
             if (url != null) {
                 var fileName = $("#fileName_id").html();
                 if (fileName[fileName.length - 1] === ".")
                     fileName = fileName.slice(0, -1);
                 $.ajax({
                     url: '@Url.Action("Maildownloadfromurl")',
-                    data: { url: url },
+                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false },
                     method: 'GET',
                     xhrFields: {
                         responseType: 'blob'
                     },
                     success: function (data) {
-                        if(data.size>0)
-                        {
+                        if (data.size > 0) {
                             var a = document.createElement('a');
                             var url = window.URL.createObjectURL(data);
                             a.href = url;
@@ -199,8 +214,7 @@
                             a.remove();
                             window.URL.revokeObjectURL(url);
                         }
-                        else
-                        {
+                        else {
                             alert("File is not exist")
                         }
                     },
@@ -219,9 +233,10 @@
             const url = urlParams.get('url');
             if (url != null) {
                 var fileName = $("#fileName_id").html();
+                var IsLatestDoc = "@ViewBag.IsHistoryDoc";
                 $.ajax({
                     url: '@Url.Action("downloadfromurl")',
-                    data: { url: url },
+                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false },
                     method: 'GET',
                     xhrFields: {
                         responseType: 'blob'
@@ -244,6 +259,9 @@
                     }
                 });
             }
+        });
+        $("#progressClick").on('click', function () {
+            showPopup();
         });
     </script>
 </body>

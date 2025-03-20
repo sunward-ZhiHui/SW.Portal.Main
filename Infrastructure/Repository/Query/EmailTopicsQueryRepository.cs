@@ -840,7 +840,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt, int pageNumber, int pageSize)
+        public async Task<List<EmailTopics>> GetTopicToListv(long UserId, string? searchTxt, int pageNumber, int pageSize)
         {
             try
             {
@@ -867,6 +867,25 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt, int pageNumber, int pageSize)
+        {
+            try
+            {
+                using var connection = CreateConnection(); // Using statement without nesting
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                parameters.Add("searchtxt", searchTxt);
+                parameters.Add("PageNumber", pageNumber);
+                parameters.Add("PageSize", pageSize);
+                parameters.Add("Option", "SELECT_ASSIGN_TO");
+
+                return (await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 120)).ToList();
+            }
+            catch (Exception exp)
+            {
+                throw new Exception($"Database timeout: {exp.Message}", exp);
             }
         }
         public async Task<List<EmailTopics>> GetTopicToSearchList(string SearchTxt, long UserId)

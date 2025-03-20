@@ -47,6 +47,7 @@
                                 <DxMenuItem Text="Deviation Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Deviation"))" Visible="IsDeviationForm" />
                                 <DxMenuItem Text="Change Control Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Change Control"))" Visible="IsChangeControlForm" />
                                 <DxMenuItem Text="Work Order Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Work Order"))" Visible="IsWorkOrderForm" />
+                                <DxMenuItem Text="Disciplinary Action" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Disciplinary"))" Visible="IsDisciplinary" />
                             </Items>
                         </DxMenuItem>
                     </Items>
@@ -255,6 +256,7 @@
     public bool CopyLinkEnabled { get; set; } = false;
     private string? DocumentViewUrl; public bool IsDeviationForm { get; set; } = false; public bool IsChangeControlForm { get; set; } = false; public bool IsWorkOrderForm { get; set; } = false;
     private string? ServerUrl; public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public bool IsDisciplinary { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -345,6 +347,11 @@
                     {
                         IsWorkOrderForm = true;
                     }
+                    var IsDisciplinaryEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Disciplinary".ToLower().Contains(f.IssueRelateName.ToLower()));
+                    if (IsDisciplinaryEnable != null)
+                    {
+                        IsDisciplinary = true;
+                    }
                 }
             }
             Grid.ClearSelection();
@@ -414,6 +421,28 @@
                 else
                 {
                     var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("WorkOrderforQC"));
+                    if (result != null && result.ID > 0)
+                    {
+                        var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsWorkOrderFormEnable.ActivityInfoIssueId;
+                        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+            }
+        }
+        if (Type == "Disciplinary")
+        {
+            var IsWorkOrderFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Disciplinary".ToLower().Contains(f.IssueRelateName.ToLower()));
+            if (IsWorkOrderFormEnable != null)
+            {
+                var resultData = await Mediator.Send(new GetIpirAppIssueDepByDynamicForm(IsWorkOrderFormEnable.IpirAppIssueDepId));
+                if (resultData.DynamicFormDataId > 0)
+                {
+                    var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + resultData.DynamicFormSessionId + "/" + resultData.DynamicFormDataSessionId + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsWorkOrderFormEnable.ActivityInfoIssueId;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else
+                {
+                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("Disciplinary"));
                     if (result != null && result.ID > 0)
                     {
                         var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsWorkOrderFormEnable.ActivityInfoIssueId;
@@ -548,6 +577,11 @@
                 if (IsWorkOrderFormEnable != null)
                 {
                     IsWorkOrderForm = true;
+                }
+                var IsDisciplinaryEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Disciplinary".ToLower().Contains(f.IssueRelateName.ToLower()));
+                if (IsDisciplinaryEnable != null)
+                {
+                    IsDisciplinary = true;
                 }
             }
         }

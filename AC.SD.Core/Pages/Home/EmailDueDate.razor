@@ -22,39 +22,39 @@
 
 <style>
     .TxtRed {
-        color: red;
+    color: red;
     }
 </style>
 <style scoped>
     .reply-label {
-        display: inline-flex;
-        align-items: center;
-        font-size: 12px;
-        color: #007bff;
-        border: 1px solid #007bff;
-        border-radius: 6px;
-        padding: 4px 10px;
-        cursor: pointer;
-        transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.3s;
     }
 
-        .reply-label:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
+    .reply-label:hover {
+    background-color: #007bff;
+    color: #fff;
+    }
 
-        .reply-label .count {
-            margin-left: 8px;
-            padding-left: 8px;
-            border-left: 1px solid #007bff;
-        }
+    .reply-label .count {
+    margin-left: 8px;
+    padding-left: 8px;
+    border-left: 1px solid #007bff;
+    }
 </style>
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
+        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+        DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
@@ -66,30 +66,30 @@
     </div>
 </div>
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
-        Data="_emailTopicDueDate"
-        ShowGroupPanel="true"
-        VirtualScrollingEnabled="false"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        KeyFieldName="ID"
-        CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        TextWrapEnabled="false"
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 285px);"        
-        RowClick="OnRowClick"
-        RowDoubleClick="OnEmailDueRowClick"
-        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-        LayoutAutoLoading="Grid_LayoutAutoLoading"
-        LayoutAutoSaving="Grid_LayoutAutoSaving"
-       
-        AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
+Data="_emailTopicDueDate"
+ShowGroupPanel="true"
+VirtualScrollingEnabled="false"
+FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+KeyFieldName="ID"
+CustomizeElement="Grid_CustomizeElement"
+PagerNavigationMode="PagerNavigationMode.InputBox"
+PageSizeSelectorVisible="true"
+PageSizeSelectorAllRowsItemVisible="true"
+PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+PageSize="20"
+TextWrapEnabled="false"
+ValidationEnabled="true"
+AutoExpandAllGroupRows="true"
+CssClass="w-100" style="height: calc(100vh - 285px);"        
+RowClick="OnRowClick"
+RowDoubleClick="OnEmailDueRowClick"
+ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+LayoutAutoLoading="Grid_LayoutAutoLoading"
+LayoutAutoSaving="Grid_LayoutAutoSaving"
+
+AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>   
-       @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
+        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
         <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
         <DxGridDataColumn FieldName="Name" Caption="Subject Name" />
         <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
@@ -122,7 +122,7 @@
                 {
                     <span class="fa fa-commenting" @onclick="@(() => onReplyMsg())"></span>
                 }
-                
+
             </CellDisplayTemplate>
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="ReplyCount" Caption="Reply" Width="100">
@@ -145,7 +145,7 @@
             </CellDisplayTemplate>
         </DxGridDataColumn>
     </Columns>
-  @*   <DetailRowTemplate>
+    @*   <DetailRowTemplate>
         <EmailSubDueDate Items="(EmailTopics)context.DataItem" />
     </DetailRowTemplate> *@
 
@@ -153,15 +153,15 @@
     <EditFormTemplate Context="EditFormContext">
         @{
             var types = (EmailTopics)EditFormContext.EditModel;
-             types.TopicName = "kumar";
-             types.ToIds = new List<long> { -1 };
+            types.TopicName = "kumar";
+            types.ToIds = new List<long> { -1 };
         }
         <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">
             <DxFormLayoutItem Caption="Assignor :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Assignor" ReadOnly="true"></DxTextBox>
-             </DxFormLayoutItem>
+            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
-                <DxDateEdit  Date="@types.DueDate" MinDate="DateTime.Now" DateExpression="@(() => types.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" TimeSectionVisible="false" />
+                <DxDateEdit Date="@types.DueDate" DisplayFormat="dd-MMM-yyyy" Enabled="IsSubjectNoOfDays" MinDate="DateTime.Now" DateExpression="@(() => types.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" TimeSectionVisible="false" />
             </DxFormLayoutItem> 
             @if(IsSubjectNoOfDays == true)
             {
@@ -172,7 +172,7 @@
             else
             {
                 <DxFormLayoutItem Caption="" ColSpanMd="4" >
-                   
+
                 </DxFormLayoutItem>
             }
             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
@@ -189,50 +189,50 @@
                             @bind-Text="@UserTagName">
                 </DxComboBox>*@
                 <DxTagBox Data="_UserTagList"
-                          @bind-Values="DataUserTagIds"
-                          NullText="Select User Tag"
-                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                          ValueFieldName="ID"
-                          TextFieldName="UserTag"
-                          ListRenderMode="ListRenderMode.Virtual"
-                          SearchMode="ListSearchMode.AutoSearch"
-                          SearchFilterCondition="ListSearchFilterCondition.Contains"
-                          CssClass="cw-480">
+                @bind-Values="DataUserTagIds"
+                NullText="Select User Tag"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                ValueFieldName="ID"
+                TextFieldName="UserTag"
+                ListRenderMode="ListRenderMode.Virtual"
+                SearchMode="ListSearchMode.AutoSearch"
+                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                CssClass="cw-480">
                     <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
                 </DxTagBox>
             </DxFormLayoutItem>
-             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
+            <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
                 <DxComboBox Data="@_AllCategory"
-                            NullText="Select Others Tag..."
-                            ListRenderMode="ListRenderMode.Virtual"
-                            AllowUserInput="true"
-                            SearchMode="ListSearchMode.AutoSearch"
-                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            TextFieldName="Name"
-                            ValueFieldName="Name"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@types.OtherTag"
-                            @bind-Text="@OthersTagName">
+                NullText="Select Others Tag..."
+                ListRenderMode="ListRenderMode.Virtual"
+                AllowUserInput="true"
+                SearchMode="ListSearchMode.AutoSearch"
+                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                TextFieldName="Name"
+                ValueFieldName="Name"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                @bind-Value="@types.OtherTag"
+                @bind-Text="@OthersTagName">
                 </DxComboBox>                               
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Lock DueDate:" ColSpanMd="4">
                 <DxCheckBox CssClass="w-100"
-                            @bind-Checked="@types.IsLockDueDate"
-                            Alignment="default"
-                           ReadOnly ="true"
-                            LabelPosition="LabelPosition.Right">
-                   
+                @bind-Checked="@types.IsLockDueDate"
+                Alignment="default"
+                ReadOnly ="true"
+                LabelPosition="LabelPosition.Right">
+
                 </DxCheckBox>
             </DxFormLayoutItem>
-           <DxFormLayoutItem Caption="Assignee  :" ColSpanMd="4">
+            <DxFormLayoutItem Caption="Requested Name  :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Assignee" ReadOnly="true"></DxTextBox>
-           </DxFormLayoutItem>
-             <DxFormLayoutItem Caption="Requested Due Date:" ColSpanMd="4">
-                 <DxDateEdit @bind-Date="@types.RequestedDueDate" ReadOnly="true" />
-             </DxFormLayoutItem>
-             <DxFormLayoutItem Caption="Reason  :" ColSpanMd="4">
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Requested Due Date:" ColSpanMd="4">               
+                <DxDateEdit Date="@types.RequestedDueDate" DisplayFormat="dd-MMM-yyyy" Enabled="!IsSubjectNoOfDays" MinDate="DateTime.Now" DateExpression="@(() => types.RequestedDueDate)" DateChanged="@((DateTime? newValue) => OnRequestedDateChanged(newValue))" TimeSectionVisible="false" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Reason  :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Reason" ReadOnly="true"></DxTextBox>
-             </DxFormLayoutItem>
+            </DxFormLayoutItem>
         </DxFormLayout>
 
     </EditFormTemplate>
@@ -284,7 +284,7 @@
 </DxPopup>
 <DxPopup @bind-Visible="@DueDateMessageVisible" ShowFooter="true" HeaderText="Warning Info">
     <BodyContentTemplate Context="PopupContext">
-         <div class="@((DueDateMessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+        <div class="@((DueDateMessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span class="@((DueDateMessageHeader == "Warning Info" ? "TxtRed" :""))"> @DueDateMessageBody</span>
         </div>
         <DxFormLayout>
@@ -361,13 +361,29 @@
         // await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
     }
+    void OnRequestedDateChanged(DateTime? newValue)
+    {
+        DuedateReason = "";
+        if (newValue != null)
+        {
+            SelectedDueDate = newValue.Value;
+        }
+        if (LockDueDateEnable == false)
+        {
+            DueDateMessageBody = "Warning Info , Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(_selectedItems.ExpiryDueDate) + ") days, contact your supervisor for guidance.";
+
+            DueDateMessageVisible = true;
+        }
+
+
+        StateHasChanged();
+    }
     void OnDateChanged(DateTime? newValue)
     {
         DuedateReason = "";
         if (newValue != null)
         {
             SelectedDueDate = newValue.Value;
-
         }
         if(LockDueDateEnable == false)
         {
@@ -436,8 +452,8 @@
                 TopicID = _selectedItems.EmailTopicID,
                 AssigntoIds = AssigntoIdss,
                 AssignccIds = AssignccIdss,
-                // Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
-                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)}\"<br/><br/>" +
+            // Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(SelectedDueDate)}\"<br/><br/>" +
                     "<strong>Reason:</strong><br/>" +
                     $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
                 PlistIdss = "",
@@ -486,7 +502,7 @@
         DueDateMessageVisible = false;
         await EmailDueDateGrid.CancelEditAsync();
         await onRefresh();
-        
+
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
@@ -642,7 +658,7 @@
             else
             {
                 DataUserTagIds = null;
-               
+
             }
         }
         else
@@ -666,7 +682,7 @@
             IsSubjectNoOfDays = false;
             LockDueDateEnable = false;
         }        
-      
+
         StateHasChanged();
 
     }
@@ -699,12 +715,16 @@
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewAllTopicId?.Invoke(SelectedReplyId);
         await Task.Delay(1000); // Example asynchronous operation
-                                //await LoadReplyData();
+        //await LoadReplyData();
         StateHasChanged();
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (EmailTopics)e.EditModel;
+
+        var _dueDate = SelectedDueDate;
+        //editModel.DueDate = SelectedDueDate;
+        editModel.DueDate = SelectedDueDate == DateTime.MinValue ? editModel.DueDate : SelectedDueDate;
 
         _dataEditEamilTopics = (EmailTopics)e.EditModel;
 

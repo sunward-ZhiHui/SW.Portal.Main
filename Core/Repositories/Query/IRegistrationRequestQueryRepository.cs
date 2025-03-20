@@ -21,5 +21,22 @@ namespace Core.Repositories.Query
         Task<RegistrationRequestDueDateAssignment> InsertorUpdateRegistrationRequestDueDateAssignment(RegistrationRequestDueDateAssignment value);
         Task<RegistrationRequestDueDateAssignment> DeleteRegistrationRequestDueDateAssignment(RegistrationRequestDueDateAssignment value);
         Task<IReadOnlyList<RegistrationRequestVariationForm>> GetRegistrationRequestVariationForm(long? RegistrationRequestId);
+
+        Task<IReadOnlyList<RegistrationRequestAssignmentOfJob>> GetRegistrationRequestAssignmentOfJob(long? RegistrationRequestId,long? DepartmentId);
+        Task<RegistrationRequestAssignmentOfJob> InsertorUpdateRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob value);
+        Task<RegistrationRequestAssignmentOfJob> DeleteRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob value);
+
+
+        Task<IReadOnlyList<RegistrationRequestProgressByRegistrationDepartment>> GetRegistrationRequestProgressByRegistrationDepartment(long? RegistrationRequestId);
+        Task<RegistrationRequestProgressByRegistrationDepartment> DeleteRegistrationRequestProgressByRegistrationDepartment(RegistrationRequestProgressByRegistrationDepartment value);
+        Task<RegistrationRequestProgressByRegistrationDepartment> InsertorUpdateRegistrationRequestProgressByRegistrationDepartment(RegistrationRequestProgressByRegistrationDepartment value);
+
+        Task<RegistrationRequestComittmentLetter> InsertorUpdateRegistrationRequestComittmentLetter(RegistrationRequestComittmentLetter value);
+        Task<IReadOnlyList<RegistrationRequestComittmentLetter>> GetRegistrationRequestComittmentLetter(long? RegistrationRequestProgressByRegistrationDepartmentId);
+        Task<RegistrationRequestComittmentLetter> DeleteRegistrationRequestComittmentLetter(RegistrationRequestComittmentLetter value);
+
+        Task<IReadOnlyList<RegistrationRequestQueries>> GetRegistrationRequestQueries(long? RegistrationRequestProgressByRegistrationDepartmentId);
+        Task<RegistrationRequestQueries> InsertorUpdateRegistrationRequestQueries(RegistrationRequestQueries value);
+        Task<RegistrationRequestQueries> DeleteRegistrationRequestQueries(RegistrationRequestQueries value);
     }
 }

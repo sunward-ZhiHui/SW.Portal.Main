@@ -19,6 +19,7 @@ namespace Core.Entities
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public int? StatusCodeId { get; set; }
+        [Required(ErrorMessage = "Item Information is Required")]
         public long? ProductSpecificationDynamicFormId { get; set; }
         public long? ModifiedUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
@@ -35,10 +36,18 @@ namespace Core.Entities
         [NotMapped]
         public string? StatusCode { get; set; }
         public bool? IsDeleted { get; set; } = false;
+        [Required(ErrorMessage = "Variation No is Required")]
+        public long? VariationNoId {  get; set; }
         public List<long?> VariationNoIds { get; set; } = new List<long?>();
         public string? ProductSpecificationDynamicForm { get; set; }
         public string? VariationNo { get; set; }
         public object? ObjectData { get; set; }
+        [Required(ErrorMessage = "Profile is Required")]
+        public long? ProfileId { get; set; }
+        public string? ProfileName { get; set; }
+        public string? ProfileNo { get; set; }
+        public long? PreProfileId { get; set; }
+        public List<VariationRequirementInformationModel> VariationRequirementInformationModels { get; set; }=new List<VariationRequirementInformationModel>();
     }
     public class RegistrationRequestVariation
     {
@@ -55,6 +64,7 @@ namespace Core.Entities
         public long? RegDynamicFormDataID { get; set; }
         public string? Description { get; set; }
         public string? RegDynamicFormDataNameId { get; set; }
+        public string? DetailType { get; set; }
     }
     public class RegistrationRequestDueDateAssignment
     {

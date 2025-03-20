@@ -289,7 +289,17 @@
         }
         else if (Model.Extensions == "pdf")
         {
-            <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe>
+            @* <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe> *@
+                if (Model.IsUserAgent == true)
+                {
+                    <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=1"></iframe>
+
+                }
+                else
+                {
+                    <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe>
+
+                }
         }
         else if (@Model.Extensions == "webm" || @Model.Extensions == "amv" || @Model.Extensions == "mp4" || @Model.Extensions == "flv" || @Model.Extensions == "vob" || @Model.Extensions == "wmv")
         {

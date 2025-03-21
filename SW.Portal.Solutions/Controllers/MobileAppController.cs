@@ -529,7 +529,7 @@ namespace SW.Portal.Solutions.Controllers
                 else
                 {
                     
-                    fileresponse.Message = "The Scan Material Already Start.";
+                    fileresponse.Message = "The Action Already Started.";
                 }
                
             }

@@ -49,5 +49,6 @@ namespace Core.EntityModels
         public long? ActivityMasterId { get; set; }
         public int? StatusCodeId { get; set; }
         public Guid? EmailActivitySessionId { get; set; }
+        public string? EmailCommentTable { get; set; }  
     }
 }

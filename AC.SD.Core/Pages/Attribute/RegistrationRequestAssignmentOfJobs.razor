@@ -188,7 +188,7 @@
         <p>
             Are you sure create Email?
         </p>
-        <p style="font-weight:bold;">Subject:@SubjectName</p>
+       @*  <p style="font-weight:bold;">Subject:@SubjectName</p> *@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -544,7 +544,10 @@
                     SubjectName = SubjectName,
                     Comment = _registrationRequestData.VariationNoInfo,
                     StatusCodeId = 1,
+                    RegistrationRequestId = _selectedItems.RegistrationRequestId,
                     RegistrationRequestAssignmentOfJobId = _selectedItems.RegistrationRequestAssignmentOfJobId,
+                    DepartmentId = _selectedItems.DepartmentId,
+                    DepartmentUniqueSessionId = _selectedItems.DepartmentUniqueSessionId,
                     BackUrl = backurl
                 };
             var response = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJob(insertData));
@@ -552,7 +555,7 @@
             {
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
                 createEmailpopup = false;
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.DepartmentUniqueSessionId;
                 await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 await UpdateDataAsync();
 

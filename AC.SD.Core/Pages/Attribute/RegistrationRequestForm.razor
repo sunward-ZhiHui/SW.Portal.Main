@@ -571,7 +571,7 @@
             {
                 _registrationRequestData.VariationNoInfo = VariationNoInfo;
             }
-            var excelpt = Data.VariationNoIds.Except(_registrationRequestData.VariationNoIds).ToList();
+            var excelpt = _registrationRequestData.VariationNoIds.Except(Data.VariationNoIds).ToList();
             if (excelpt.Count()>0)
             {
                 UnSaved = true;
@@ -830,7 +830,7 @@
                 }
             }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false; ActiveSubTabIndex = 0;
+            loading = false; ActiveSubTabIndex = 0;UnSaved = false;
             StateHasChanged();
         }
         else
@@ -849,7 +849,7 @@
                 }
             }
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
+            loading = false; UnSaved = false;
             ActiveSubTabIndex = 0;
             NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + Data.SessionId + "");
 

@@ -37,5 +37,14 @@ namespace Core.Entities
         public bool? IsDraft { get; set; }
         public string? SubjectName { get; set; }
         public string? Comment { get; set; }
+        public long? RegistrationRequestDepartmentId { get; set; }
+        public Guid? DepartmentUniqueSessionId { get; set; }
+    }
+    public class RegistrationRequestDepartment
+    {
+        public long RegistrationRequestDepartmentId { get; set; }
+        public long? RegistrationRequestId { get; set; }
+        public long? DepartmentId { get; set; }
+        public Guid? DepartmentUniqueSessionId { get; set; }
     }
 }

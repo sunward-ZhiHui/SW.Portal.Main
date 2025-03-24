@@ -137,27 +137,27 @@ namespace Infrastructure
             services.AddScoped<INavProductionInformationCommandRepository, NavProductionInformationCommandRepository>();
             services.AddScoped<INavCrossReferenceCommandRepository, NavCrossReferenceCommandRepository>();
             services.AddScoped<IReportFileUploadsQueryRepository, ReportFileUploadsQueryRepository>();
-            services.AddScoped<IEmailActivityCatgorysQueryRepository,EmailActivityCatgorysQueryRepository>();
+            services.AddScoped<IEmailActivityCatgorysQueryRepository, EmailActivityCatgorysQueryRepository>();
             services.AddScoped<IToDoNotesQueryRepository, ToDoNotesQueryRepository>();
             services.AddScoped<IToDoNotesHistoryQueryRepository, ToDoNotesHistoryQueryRepository>();
             services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>();
 
             services.AddScoped<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
-            services.AddScoped<IFileprofileQueryRepository,FileprofiletypeQueryRepository>();
+            services.AddScoped<IFileprofileQueryRepository, FileprofiletypeQueryRepository>();
             services.AddScoped<INewEmailUploadQueryRepository, NewEmailUploadQueryRepository>();
             services.AddScoped<ICreateEmailTopicEditQueryRepository, CreateEmailTopicEditQueryRepository>();
-            services.AddScoped<ICCDFImplementationQueryRepository,CCFDImplementationQueryRepository>();
+            services.AddScoped<ICCDFImplementationQueryRepository, CCFDImplementationQueryRepository>();
             services.AddScoped<IChangeControlFormQueryRepository, ChangeControlFormQueryRepository>();
             services.AddScoped<IGenerateDocumentNoSeriesQueryRepository, GenerateDocumentNoSeriesQueryRepository>();
             services.AddScoped<IGenerateDocumentNoSeriesSeviceQueryRepository, GenerateDocumentNoSeriesService>();
-            
+
             services.AddScoped<IAttributeDetailsCommandRepository, AttributeDetailsCommandRepository>();
             services.AddScoped<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();
             services.AddScoped<IDynamicFormQueryRepository, DynamicFormQueryRepository>();
             services.AddScoped<IRoutineQueryRepository, RoutineQueryRepository>();
             services.AddScoped<ITransferPermissionsQueryRepository, TransferPermissionsQueryRepository>();
-            services.AddScoped<IProductionActivityQueryRepository,ProductionActivityAppLineQueryRepository>();
-            services.AddScoped<IProductionActivityAppQueryRepository,ProductionActivityAppQueryRepository>();
+            services.AddScoped<IProductionActivityQueryRepository, ProductionActivityAppLineQueryRepository>();
+            services.AddScoped<IProductionActivityAppQueryRepository, ProductionActivityAppQueryRepository>();
             services.AddScoped<IRoutineLineAppQuery, RoutineAppLineQueryRepository>();
             services.AddScoped<ISettingsQueryRepository, SettingsQueryRepository>();
             services.AddScoped<IDynamicFormDataSourceQueryRepository, DynamicFormDataSourceQueryRepository>();
@@ -167,8 +167,8 @@ namespace Infrastructure
             services.AddScoped<IIpirAppQueryRepostitory, IpirAppQueryRepostitory>();
             services.AddScoped<IFbOutputCartonsQueryRepository, FbOutputCartonsQueryRepository>();
             services.AddScoped<IDistStockBalanceQueryRepository, DistStockBalanceQueryRepository>();
-            services.AddScoped<IProductionSimulationQueryRepository,ProductionSimulationCommandRepository>();
-            services.AddScoped<IDynamicFormItemQueryRepository,DynamicFormItemListQueryRepository>();
+            services.AddScoped<IProductionSimulationQueryRepository, ProductionSimulationCommandRepository>();
+            services.AddScoped<IDynamicFormItemQueryRepository, DynamicFormItemListQueryRepository>();
             services.AddScoped<ISimulationQueryRepository, SimulationQueryRepository>();
             services.AddScoped<IJobScheduleQueryRepository, JobScheduleQueryRepository>();
             services.AddScoped<IApplicationPermissionListQueryRepository, ApplicationPermissionListQueryRepository>();
@@ -181,6 +181,9 @@ namespace Infrastructure
             services.AddScoped<IRegistrationRequestQueryRepository, RegistrationRequestQueryRepository>();
             services.AddScoped<IIncidentAppSettingsQueryRepository, IncidentAppSettingsQueryRepository>();
             services.AddScoped<IDynamicFormOdataQueryRepository, DynamicFormOdataQueryRepository>();
+            services.AddScoped<IACEntrysQueryRepository, ACEntrysQueryRepository>();
+            services.AddScoped<IAuditLogQueryRepository, AuditLogQueryRepository>();
+            services.AddScoped<INavMethodCodeQueryRepository, NavMethodCodeQueryRepository>();
             return services;
         }
     }

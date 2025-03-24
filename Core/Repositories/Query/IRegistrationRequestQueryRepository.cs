@@ -38,5 +38,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<RegistrationRequestQueries>> GetRegistrationRequestQueries(long? RegistrationRequestProgressByRegistrationDepartmentId);
         Task<RegistrationRequestQueries> InsertorUpdateRegistrationRequestQueries(RegistrationRequestQueries value);
         Task<RegistrationRequestQueries> DeleteRegistrationRequestQueries(RegistrationRequestQueries value);
+        Task<RegistrationRequestAssignmentOfJob> GetRegistrationRequestAssignmentOfJobBySessionIdAsync(Guid? SessionId);
+        Task<RegistrationRequestAssignmentOfJob> InsertCreateEmailRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob dynamicFormData);
     }
 }

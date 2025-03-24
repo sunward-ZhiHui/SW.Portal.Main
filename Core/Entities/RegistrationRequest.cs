@@ -47,6 +47,8 @@ namespace Core.Entities
         public string? ProfileName { get; set; }
         public string? ProfileNo { get; set; }
         public long? PreProfileId { get; set; }
+        public string? ProductName { get; set; }
+        public string? VariationNoInfo { get; set; }
         public List<VariationRequirementInformationModel> VariationRequirementInformationModels { get; set; }=new List<VariationRequirementInformationModel>();
     }
     public class RegistrationRequestVariation

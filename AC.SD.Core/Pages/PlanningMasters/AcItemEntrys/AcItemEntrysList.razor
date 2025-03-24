@@ -1,0 +1,519 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@page "/acentry"
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                        <DxMenuItem Text="Ac Line" IconCssClass="fa fa-list" Click="@addLineItem" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Copy" IconCssClass="fa fa-clone" Click="@addEditCopy" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+                        <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle" Click="@viewAuditLog" Enabled="@EditEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="ACEntryId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="FromDate" Caption="Start Date" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ACEntryModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.FromDate != DateTime.MinValue)
+                        {
+                            startDate = item.FromDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ToDate" Caption="End Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ACEntryModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ToDate != DateTime.MinValue)
+                        {
+                            startDate = item.ToDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="CustomerName" Caption="Customer" />
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+            <DxGridDataColumn FieldName="Version" />
+            <DxGridDataColumn FieldName="Remark" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" />
+            <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" />
+
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (ACEntryModel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Select a date..." @bind-Date="@types.FromDate" CssClass="cw-320" />
+                    <ValidationMessage For="@(() => types.FromDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="End Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Select a date..." @bind-Date="@types.ToDate" CssClass="cw-320" />
+                    <ValidationMessage For="@(() => types.ToDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="PlantID"
+                                @bind-Value="@types.CompanyId">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Customer Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Customer" ColSpanMd="6">
+                    <DxComboBox Data="@_navCustomers"
+                                NullText="Select Customer..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="CustomerId"
+                                @bind-Value="@types.CustomerId">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Code)"
+                                                Caption="Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Name)"
+                                                Caption="Customer Name" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Version" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.Version" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.Version)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Remark" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.Remark" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.Remark)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Value="@types.StatusCodeID"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.StatusCodeID)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FromDate" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="false"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@LineItemPopUp"
+         ShowFooter="false"
+         HeaderText="Ac Line"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AcItemEntrysLineList aCEntryModelItem="@_selectedItems" RevokeBack="CloseAttachmentPopup"></AcItemEntrysLineList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Clonepopup"
+         ShowFooter="true"
+         HeaderText="Copy"
+         ShowCloseButton="true"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure Copy this record?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="cloneMemo" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="Acentry" PrimaryKeyValue="_selectedItems?.ACEntryId" DisplayColumns="CompanyId,FromDate,ToDate,CustomerId,Remark,Version" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    bool Clonepopup { get; set; } = false; bool AuditLogPopUp { get; set; } = false;
+    bool LineItemPopUp { get; set; } = false;
+    bool PanelVisible { get; set; } = false;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    private List<ACEntryModel> _quotationHistoryItems;
+    private ACEntryModel _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; bool AttachmentEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; private List<NavCustomerModel> _navCustomers;
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _navCustomers = await Mediator.Send(new GetAllNavCustomerQuery());
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int?> codeIds = new List<int?>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => codeIds.Contains(w.CodeId)).ToList();
+        }
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        _quotationHistoryItems = await Mediator.Send(new GetAllACEntrysQuery());
+        PanelVisible = true;
+        EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
+        if (_quotationHistoryItems.Count > 0)
+        {
+            _selectedItems = _quotationHistoryItems.FirstOrDefault();
+            // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ACEntryId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.ACEntryId == (long?)UniqueId);
+        // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (ACEntryModel)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ACEntryModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true; AttachmentEnabled = false;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true; AttachmentEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ACEntryModel datas)
+                    {
+                        var request = new DeleteACEntry(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ACEntryModel)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateAcentry
+                {
+                    ACEntryId = editModel.ACEntryId,
+                    CompanyId = editModel.CompanyId,
+                    CustomerId = editModel.CustomerId,
+                    SessionId = Guid.NewGuid(),
+                    AddedByUserID = applicationUser?.UserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = DateTime.Now,
+                    Version = editModel.Version,
+                    Remark = editModel.Remark,
+                    FromDate = editModel.FromDate,
+                    ToDate = editModel.ToDate,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateAcentry
+                {
+                    ACEntryId = editModel.ACEntryId,
+                    CompanyId = editModel.CompanyId,
+                    CustomerId = editModel.CustomerId,
+                    SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+                    Version = editModel.Version,
+                    Remark = editModel.Remark,
+                    FromDate = editModel.FromDate,
+                    ToDate = editModel.ToDate,
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void addEditCopy()
+    {
+        Clonepopup = true;
+    }
+    async Task cloneMemo()
+    {
+        var createReq = new CoptyACEntry
+            {
+                ACEntryCopyId = _selectedItems.ACEntryId,
+                CompanyId = _selectedItems.CompanyId,
+                CustomerId = _selectedItems.CustomerId,
+                SessionId = Guid.NewGuid(),
+                AddedByUserID = applicationUser?.UserID,
+                ModifiedByUserID = applicationUser?.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = _selectedItems.StatusCodeID,
+                AddedDate = DateTime.Now,
+                Version = _selectedItems.Version,
+                Remark = _selectedItems.Remark,
+                FromDate = _selectedItems.FromDate,
+                ToDate = _selectedItems.ToDate,
+            };
+        await Mediator.Send(createReq);
+        toastService.ShowToast("Record Copy Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Clonepopup = false;
+        await UpdateDataAsync();
+        StateHasChanged();
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void viewAuditLog()
+    {
+        AuditLogPopUp = true;
+    }
+    void CloseAuditLog()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+        LineItemPopUp = false;
+    }
+    void addLineItem()
+    {
+        LineItemPopUp = true;
+    }
+}

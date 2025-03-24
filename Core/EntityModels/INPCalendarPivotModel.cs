@@ -872,22 +872,22 @@ namespace Core.EntityModels
     public class NavMethodCodeModel : BaseModel
     {
         public long MethodCodeID { get; set; }
-        public string MethodName { get; set; }
-        public string MethodDescription { get; set; }
-        public List<long?> ItemIds { get; set; }
+        public string? MethodName { get; set; }
+        public string? MethodDescription { get; set; }
+        public List<long?> ItemIds { get; set; }=new List<long?>();
         public List<long?> BatchSizeIds { get; set; } = new List<long?>();
         public long? BatchSizeId { get; set; }
         public decimal? BatchSizeNo { get; set; }
         public long? NavinpCategoryID { get; set; }
         public long? CompanyId { get; set; }
-        public string ItemNos { get; set; }
+        public string? ItemNos { get; set; }
         public decimal? ProdFrequency { get; set; }
         public decimal? DistReplenishHs { get; set; }
         public decimal? DistAcmonth { get; set; }
         public decimal? AdhocReplenishHs { get; set; }
         public int? AdhocMonthStandAlone { get; set; }
         public decimal? AdhocPlanQty { get; set; }
-        public string DropDownName { get; set; }
+        public string? DropDownName { get; set; }
     }
     public class NavMethodCodeLines
     {

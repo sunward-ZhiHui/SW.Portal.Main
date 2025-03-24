@@ -302,7 +302,10 @@ else
                             {
 
                                 string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : ActivityType == "DynamicForm" ? DynamicFormName : "Activity";
-
+                                if (ActivityType == "RegistrationRequest")
+                                {
+                                    ActivityTypes = "Registration Request";
+                                }
                                 <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
                                         <div style="font-weight: bold;">@ActivityTypes Comment</div>

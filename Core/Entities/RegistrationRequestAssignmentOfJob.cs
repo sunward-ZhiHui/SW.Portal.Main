@@ -32,5 +32,10 @@ namespace Core.Entities
         [NotMapped]
         public string? ModifiedBy { get; set; }
         public long? DynamicFormDataId { get; set; }
+        public string? BackUrl { get; set; }
+        public Guid? EmailTopicSessionId { get; set; }
+        public bool? IsDraft { get; set; }
+        public string? SubjectName { get; set; }
+        public string? Comment { get; set; }
     }
 }

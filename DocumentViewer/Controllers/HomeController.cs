@@ -93,18 +93,21 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
-                        if (IsHistory == false)
+                        if (currentDocuments.SourceFrom != "Email")
                         {
-                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
-                            if (latestcurrentDocuments != null)
+                            if (IsHistory == false)
                             {
-                                @ViewBag.IsHistoryDoc = "No";
-                                currentDocuments = latestcurrentDocuments;
-                            }
-                            else
-                            {
-                                viewmodel.Id = 0;
-                                return View(viewmodel);
+                                var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                                if (latestcurrentDocuments != null)
+                                {
+                                    @ViewBag.IsHistoryDoc = "No";
+                                    currentDocuments = latestcurrentDocuments;
+                                }
+                                else
+                                {
+                                    viewmodel.Id = 0;
+                                    return View(viewmodel);
+                                }
                             }
                         }
                         viewmodel.IsLatest = currentDocuments.IsLatest == true ? true : false;
@@ -652,17 +655,20 @@ namespace DocumentViewer.Controllers
                     bool? isLatestDoc = true;
                     if (currentDocuments != null)
                     {
-                        if (IsHistoryDoc == false)
+                        if (currentDocuments.SourceFrom != "Email")
                         {
-                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
-                            if (latestcurrentDocuments != null)
+                            if (IsHistoryDoc == false)
                             {
-                                isLatestDoc = true;
-                                currentDocuments = latestcurrentDocuments;
-                            }
-                            else
-                            {
-                                isLatestDoc = false;
+                                var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                                if (latestcurrentDocuments != null)
+                                {
+                                    isLatestDoc = true;
+                                    currentDocuments = latestcurrentDocuments;
+                                }
+                                else
+                                {
+                                    isLatestDoc = false;
+                                }
                             }
                         }
                         if (isLatestDoc == true)
@@ -720,17 +726,20 @@ namespace DocumentViewer.Controllers
                     bool? isLatestDoc = true;
                     if (currentDocuments != null)
                     {
-                        if (IsHistoryDoc == false)
+                        if (currentDocuments.SourceFrom != "Email")
                         {
-                            var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
-                            if (latestcurrentDocuments != null)
+                            if (IsHistoryDoc == false)
                             {
-                                isLatestDoc = true;
-                                currentDocuments = latestcurrentDocuments;
-                            }
-                            else
-                            {
-                                isLatestDoc = false;
+                                var latestcurrentDocuments = _context.Documents.Where(w => w.SessionId == currentDocuments.SessionId && w.IsLatest == true).FirstOrDefault();
+                                if (latestcurrentDocuments != null)
+                                {
+                                    isLatestDoc = true;
+                                    currentDocuments = latestcurrentDocuments;
+                                }
+                                else
+                                {
+                                    isLatestDoc = false;
+                                }
                             }
                         }
                         if (isLatestDoc == true)

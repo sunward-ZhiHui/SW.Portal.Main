@@ -1503,14 +1503,14 @@ else
 
         if (ActiveSessionId != null)
         {
-            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
-            activityEmailTopics = acttopics;
-            //string sessionIdString = ActiveSessionId;
-            Guid activeSessionId = Guid.Parse(ActiveSessionId);
-            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
-
-
-
+            bool isValid = Guid.TryParse(ActiveSessionId, out _);
+            if (isValid == true)
+            {
+                Guid activeSessionId = Guid.Parse(ActiveSessionId);
+                var acttopics = await Mediator.Send(new GetActivityEmailTopicsOne(activeSessionId));
+                activityEmailTopics = acttopics;
+                var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+            }
         }
     }
 

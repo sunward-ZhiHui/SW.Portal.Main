@@ -805,7 +805,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<EmailNotifyPA> Handle(GetByIdNotifyPAList request, CancellationToken cancellationToken)
         {
-            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAAsync(request.sessionId,request.Type);
+            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAAsync(request.sessionId, request.Type);
             return req;
         }
     }
@@ -940,7 +940,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             emailActivityCatgorys.UserTagIds = request.UserTagIds;
             emailActivityCatgorys.AddedByUserID = request.ModifiedByUserID;
             emailActivityCatgorys.AddedDate = request.ModifiedDate.Value;
-             var req1 = await _emailTopicsQueryRepository.InsertUserTagMultiple(emailActivityCatgorys);
+            var req1 = await _emailTopicsQueryRepository.InsertUserTagMultiple(emailActivityCatgorys);
 
             return req1;
         }
@@ -1083,6 +1083,21 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<ActivityEmailTopics>> Handle(GetActivityEmailTopics request, CancellationToken cancellationToken)
         {
             return (List<ActivityEmailTopics>)await _queryRepository.GetListAsync();
+        }
+    }
+    public class GetActivityEmailTopicsOneHandler : IRequestHandler<GetActivityEmailTopicsOne, List<ActivityEmailTopics>>
+    {
+
+        private readonly IQueryRepository<ActivityEmailTopics> _queryRepository;
+        public GetActivityEmailTopicsOneHandler(IQueryRepository<ActivityEmailTopics> queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ActivityEmailTopics>> Handle(GetActivityEmailTopicsOne request, CancellationToken cancellationToken)
+        {
+            string query = string.Empty;
+            query = "select * from ActivityEmailTopics where sessionid='" + request.SessionId + "'";
+            return (List<ActivityEmailTopics>)await _queryRepository.GetListAsync(query);
         }
     }
     public class GetByActivityEmailSessionHandler : IRequestHandler<GetByActivityEmailSession, List<ActivityEmailTopics>>

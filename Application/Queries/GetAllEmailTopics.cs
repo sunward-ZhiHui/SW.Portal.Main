@@ -33,6 +33,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetActivityEmailTopicsOne : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public Guid? SessionId { get; set; }
+        public GetActivityEmailTopicsOne(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    
     public class GetActivityEmailList : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {
         public Guid SessionId { get; private set; }

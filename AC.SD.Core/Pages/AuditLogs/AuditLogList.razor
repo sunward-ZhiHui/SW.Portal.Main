@@ -1,0 +1,158 @@
+﻿@using System.Collections
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" Position="ItemPosition.Start" IconCssClass="fa fa-reply" Click="backUrl" />
+
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid Data="@_auditLogItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            KeyFieldName="AuditLogId"
+            style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360">
+        <Columns>
+            <DxGridDataColumn FieldName="ColumnNames" Caption="Column Name" />
+            <DxGridDataColumn FieldName="OldValueName" Caption="Old Value">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (AuditLog)context.DataItem;
+                        var startDate = item.OldValueName;
+                        if (item.DataType == "datetime" && !string.IsNullOrEmpty(item.OldValueName))
+                        {
+                            DateTime? myDate = DateTime.Parse(item.OldValueName);
+                            if (myDate != null && myDate != DateTime.MinValue)
+                            {
+                                startDate = myDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                            }
+                        }
+                        else if (item.DataType == "date" && !string.IsNullOrEmpty(item.OldValueName))
+                        {
+                            DateTime? myDate = DateTime.Parse(item.OldValueName);
+                            if (myDate != null && myDate != DateTime.MinValue)
+                            {
+                                startDate = myDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="NewValueName" Caption="New Value">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (AuditLog)context.DataItem;
+                        string? cssStyle = string.Empty;
+                        var startDate = item.NewValueName;
+                        if (item.DataType == "datetime" && !string.IsNullOrEmpty(item.NewValueName))
+                        {
+                            DateTime? myDate = DateTime.Parse(item.NewValueName);
+                            if (myDate != null && myDate != DateTime.MinValue)
+                            {
+                                startDate = myDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                            }
+                        }
+                        else if (item.DataType == "date" && !string.IsNullOrEmpty(item.NewValueName))
+                        {
+                            DateTime? myDate = DateTime.Parse(item.NewValueName);
+                            if (myDate != null && myDate != DateTime.MinValue)
+                            {
+                                startDate = myDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        if (item.AuditType == "Modified" && item.IsModified == true)
+                        {
+                            cssStyle = "font-weight:bold;color:red;";
+                        }
+                        <span style="@cssStyle">@startDate</span>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditByUser" Caption="Audit By" />
+            <DxGridDataColumn FieldName="AuditType" Caption="Action" />
+            <DxGridDataColumn FieldName="AuditDate" Caption="Audit Date" SortIndex="0" SortOrder="GridColumnSortOrder.Descending">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (AuditLog)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDate != null && item.AuditDate != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ColumnName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid Grid { get; set; }
+    [Parameter]
+    public string? TableName { get; set; }
+    [Parameter]
+    public long? PrimaryKeyValue { get; set; }
+    [Parameter]
+    public string? DisplayColumns { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    private List<AuditLog> _auditLogItems;
+    bool PanelVisible { get; set; } = true;
+    protected override async Task OnInitializedAsync()
+    {
+        AuditLog auditLog = new AuditLog();
+        auditLog.TableName = TableName; auditLog.PrimaryKeyValue = PrimaryKeyValue; auditLog.ColumnName = DisplayColumns;
+        PanelVisible = true;
+        _auditLogItems = await Mediator.Send(new GetAllAuditLogQuery(auditLog));
+        if (_auditLogItems != null && _auditLogItems.Count() > 0)
+        {
+
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+}

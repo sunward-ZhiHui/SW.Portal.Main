@@ -277,7 +277,7 @@ else
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                              <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -292,17 +292,20 @@ else
                                           CssClass="cw-480">
 
                                     <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
-                                  
-                                   
+
+
 
                                 </DxTagBox>
-                               
-                            </DxFormLayoutItem>   
+
+                            </DxFormLayoutItem>
                             @if (ActiveSessionId != null)
                             {
 
                                 string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : ActivityType == "DynamicForm" ? DynamicFormName : "Activity";
-
+                                if (ActivityType == "RegistrationRequest")
+                                {
+                                    ActivityTypes = "Registration Request";
+                                }
                                 <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
                                         <div style="font-weight: bold;">@ActivityTypes Comment</div>
@@ -1500,14 +1503,14 @@ else
 
         if (ActiveSessionId != null)
         {
-            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
-            activityEmailTopics = acttopics;
-            //string sessionIdString = ActiveSessionId;
-            Guid activeSessionId = Guid.Parse(ActiveSessionId);
-            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
-
-
-
+            bool isValid = Guid.TryParse(ActiveSessionId, out _);
+            if (isValid == true)
+            {
+                Guid activeSessionId = Guid.Parse(ActiveSessionId);
+                var acttopics = await Mediator.Send(new GetActivityEmailTopicsOne(activeSessionId));
+                activityEmailTopics = acttopics;
+                var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+            }
         }
     }
 
@@ -1863,7 +1866,7 @@ else
     {
         //_subscription = ApplicationState.RegisterOnPersisting(Persist);
         _editContext = new EditContext(Data);
-        
+
         //var tasks = new List<Task>();
 
 
@@ -1964,7 +1967,7 @@ else
             var getGroupTagItemsTask = Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
             var getUserTagListTask = Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
             var getAllEmployeeListTask = Mediator.Send(new GetAllEmployeeListQuery());
-          
+
             // Await all tasks concurrently
             //await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
             try
@@ -2054,7 +2057,7 @@ else
                                 _documentslst = await Mediator.Send(new GetDynamicFormDataDynamicFormDataUploadList(actItem[0].SessionId));
                             }
                         }
-                        
+
                     }
 
                     if (actItem[0].ActivityType == "ProductionActivity")
@@ -2066,14 +2069,20 @@ else
 
                     }
 
-                    if (actItem[0].ActivityType == "RoutineActivity")
+                    if (actItem[0].ActivityType == "RegistrationRequest")
                     {
-                        if (actItem[0].ActivityMasterId > 0)
+                        if (!string.IsNullOrEmpty(actItem[0].EmailCommentTable))
                         {
-                            _PARoutineDoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "RoutineActivity"));
+                            DevExpress.XtraRichEdit.RichEditDocumentServer serverEmail = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+                            byte[] fileEmailContent = System.Text.Encoding.UTF8.GetBytes(actItem[0].EmailCommentTable);
+                            serverEmail.LoadDocument(fileEmailContent);
+                            await msgrichEdit.LoadDocumentAsync(serverEmail.OpenXmlBytes, DocumentFormat.OpenXml);
                         }
                     }
+                    if (actItem[0].ActivityType == "RoutineActivity")
+                    {
 
+                    }
                     Data.TopicName = actItem[0].SubjectName;
                     if (_DynamicFormEmailSubConts != null && _DynamicFormEmailSubConts.Count() > 0)
                     {

@@ -81,7 +81,7 @@ namespace Core.Entities
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
         public string? DynamicFormName { get; set; }
-        public Guid? DynamicFormSessionID {  get; set; }
+        public Guid? DynamicFormSessionID { get; set; }
         public long? SortOrderByNo { get; set; }
         public long? SortOrderAnotherBy { get; set; }
         public long? GridSortOrderByNo { get; set; }
@@ -108,7 +108,7 @@ namespace Core.Entities
         public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
         public long? NewDynamicFormDataId { get; set; }
         public long? DynamicFormApprovedId { get; set; }
-        public List<AddTempSectionAttribute> AddTempSectionAttributes { get; set; }=new List<AddTempSectionAttribute>();
+        public List<AddTempSectionAttribute> AddTempSectionAttributes { get; set; } = new List<AddTempSectionAttribute>();
     }
     public class DynamicFormProfile
     {
@@ -140,7 +140,7 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSections = new List<DynamicFormWorkFlowSection>();
         public string? SectionName { get; set; }
-        public List<long?> DynamicFormSectionIds { get; set; }=new List<long?>();
+        public List<long?> DynamicFormSectionIds { get; set; } = new List<long?>();
         public string? UserIds { get; set; }
         public string? UserNames { get; set; }
         public string? StatusName { get; set; }
@@ -160,7 +160,7 @@ namespace Core.Entities
     public class DynamicFormDataResponse
     {
         public int? TotalPage { get; set; } = 0;
-        public string? FormLink { get; set; }   
+        public string? FormLink { get; set; }
         public long DynamicFormDataId { get; set; }
         public long? DynamicFormId { get; set; }
         public string? ProfileNo { get; set; }
@@ -205,5 +205,20 @@ namespace Core.Entities
         public string? DATA_TYPE { get; set; }
         public string? IS_NULLABLE { get; set; }
         public int? CHARACTER_MAXIMUM_LENGTH { get; set; }
+        public bool? IsPrimaryKey { get; set; }
+        public bool? IsUniqueKey { get; set; }
+        public string? IsIndexName { get; set; }
+        public string? IsIndexType { get; set; }
+        public string? IsIndexDisabled { get; set; }
+        public bool? IsNullabled { get; set; }
+    }
+    public class Foreign_Key_Table_Schema
+    {
+        public string? FK_CONSTRAINT_NAME { get; set; }
+        public string? FK_TABLE_NAME { get; set; }
+        public string? FK_COLUMN_NAME { get; set; }
+        public string? REFERENCED_CONSTRAINT_NAME { get; set; }
+        public string? REFERENCED_TABLE_NAME { get; set; }
+        public string? REFERENCED_COLUMN_NAME { get; set; }
     }
 }

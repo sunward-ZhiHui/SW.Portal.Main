@@ -45,5 +45,6 @@ namespace Core.Entities
         public Guid? EmailSessionId { get; set; }
         [NotMapped]
         public Guid? EmailActivitySessionId { get; set; }
+        public string? EmailCommentTable { get; set; }
     }
 }

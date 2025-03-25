@@ -1,0 +1,426 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" Position="ItemPosition.Start" IconCssClass="fa fa-reply" Click="onBack" />
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                        <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle" Click="@viewAuditLog" Enabled="@EditEnabled" />
+                        @* <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" /> *@
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="ACEntryLineId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company" />
+            <DxGridDataColumn FieldName="GenericCode" Caption="Generic Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="ItemName" Caption="Item No" />
+            <DxGridDataColumn FieldName="AcItemNo" Caption="Dist. Item" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" />
+            <DxGridDataColumn FieldName="Description2" Caption="Description2" />
+            <DxGridDataColumn FieldName="BUOM" Caption="BUOM" />
+            <DxGridDataColumn FieldName="PackSize" Caption="Pack Size" />
+            <DxGridDataColumn FieldName="Packuom" Caption="Pack UOM" />
+            <DxGridDataColumn FieldName="Quantity" Caption="Quantity" />
+            <DxGridDataColumn FieldName="VendorNo" Caption="Replenishment" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (ACEntryLinesModel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Item" ColSpanMd="6">
+                    <DxComboBox Data="@_AllNavitems"
+                                NullText="Select Item..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="ItemId"
+                                EditFormat="{0}-{1}-{2}"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true"
+                                Value="@types.ItemId"
+                                ValueExpression="@(() => types.ItemId )"
+                                ValueChanged="@((long? navitems) => SelectedItemChanged(navitems,types))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="90px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description"
+                                                Width="130px">
+                            </DxListEditorColumn>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
+                                                Caption="Uom" Width="40px" />
+                        </Columns>
+
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.ItemId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.Description" ShowValidationIcon="true" Enabled="false" />
+                    <ValidationMessage For="@(() => types.Description)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Quantity" ColSpanMd="6">
+
+                    <DxSpinEdit @bind-Value="@types.Quantity" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.Quantity)" />
+                </DxFormLayoutItem>
+
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="CompanyName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="ACEntryLines" PrimaryKeyValue="_selectedItems?.ACEntryLineId" DisplayColumns="ItemId,Quantity" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    bool AuditLogPopUp { get; set; } = false;
+    private List<View_NavItems>? _AllNavitems;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    private List<ACEntryLinesModel> _quotationHistoryItems;
+    private ACEntryLinesModel? _selectedItems;
+    [Parameter]
+    public ACEntryModel aCEntryModelItem { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; bool AttachmentEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; private List<NavCustomerModel> _navCustomers;
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        //_plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        //_navCustomers = await Mediator.Send(new GetAllNavCustomerQuery());
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int?> codeIds = new List<int?>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => codeIds.Contains(w.CodeId)).ToList();
+        }
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    void SelectedItemChanged(long? navitemsId, ACEntryLinesModel typess)
+    {
+        typess.ItemId = navitemsId;
+        typess.Description = null;
+        var navitems = _AllNavitems != null && navitemsId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitemsId) : null;
+        if (navitems != null)
+        {
+            typess.Description = navitems.Description;
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        _selectedItems = null; _quotationHistoryItems = new List<ACEntryLinesModel>();
+        EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
+        if (aCEntryModelItem != null && aCEntryModelItem.ACEntryId > 0)
+        {
+            _quotationHistoryItems = await Mediator.Send(new GetAllACEntryLinesQuery(aCEntryModelItem?.ACEntryId));
+            PanelVisible = true;
+
+            if (_quotationHistoryItems.Count > 0)
+            {
+                _selectedItems = _quotationHistoryItems.FirstOrDefault();
+                // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+                Grid.ClearSelection();
+                PanelVisible = false;
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ACEntryLineId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.ACEntryLineId == (long?)UniqueId);
+        // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (ACEntryLinesModel)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ACEntryLinesModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true; AttachmentEnabled = false;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true; AttachmentEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ACEntryLinesModel datas)
+                    {
+                        var request = new DeleteACEntryLine(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ACEntryLinesModel)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateAcentryLine
+                {
+                    ACEntryId = aCEntryModelItem.ACEntryId,
+                    ItemId = editModel.ItemId,
+                    Quantity = editModel.Quantity,
+                    SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+                    ACEntryLineId = editModel.ACEntryLineId,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateAcentryLine
+                {
+                    ACEntryId = aCEntryModelItem.ACEntryId,
+                    ACEntryLineId = editModel.ACEntryLineId,
+                    ItemId = editModel.ItemId,
+                    Quantity = editModel.Quantity,
+                    SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                    ModifiedByUserID = editModel.ModifiedByUserID == null ? applicationUser?.UserID : editModel.ModifiedByUserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = DateTime.Now,
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+    }
+    void viewAuditLog()
+    {
+        AuditLogPopUp = true;
+    }
+    void CloseAuditLog()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        RevokeBack.Invoke();
+    }
+}

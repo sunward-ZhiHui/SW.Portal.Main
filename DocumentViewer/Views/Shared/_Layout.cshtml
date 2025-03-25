@@ -121,6 +121,7 @@
                                     }
                                     @if (@ViewBag.isDownload == "Yes")
                                     {
+                                        <a href="javascript:void(0);" id="progressClick">Progress</a>
                                         <a href="javascript:void(0);" id="downloadClick">Download</a>
                                         <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
                                     }
@@ -258,6 +259,9 @@
                     }
                 });
             }
+        });
+        $("#progressClick").on('click', function () {
+            showPopup();
         });
     </script>
 </body>

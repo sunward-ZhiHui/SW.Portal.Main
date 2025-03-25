@@ -415,173 +415,293 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
-        public List<view_QCAssignmentRM> QCList { get; set; }
-        [HttpPost("InsertTimeSheetForQC")]
-        public async Task<ResponseModel> InsertTimeSheetForQC([FromForm] Models.InsertTimeSheetQCModel value)
+        [HttpPost("UpdateTimeSheetForQC")]
+        public async Task<ResponseModel> UpdateTimeSheetForQC([FromForm] Models.InsertTimeSheetQCModel value)
         {
-            DateTime? Startdate = null;
-            DateTime? Enddate = null;
+
+
             var response = new Services.ResponseModel<view_QCAssignmentRM>();
             ResponseModel fileresponse = new ResponseModel();
             string[] splitArray = value.ScanResult.Split('~');
             List<string> stringList = splitArray.ToList();
+
+
             if (stringList.Count == 2)
             {
+                var list = await _qcTimeSheetQueryRepository.GetAllCompanyAsync(stringList[0], stringList[1], "Start");
 
-               QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllListByQRAsync(stringList[0], stringList[1]);
+                if (list.Count == 0)
+                {
+                    fileresponse.Message = "Please Start the Action.";
+
+                }
+                else
+                {
+
+                    foreach (var result in list)
+                    {
+                        var lst = new UpdateTimesheetQuery()
+                        {
+
+
+                            ModifiedDate = DateTime.Now,
+
+                            ModifiedByUserID = value.UserID,
+                            Action = value.Action,
+                            MachineAction = value.MachineAction,
+                            MachineName = value.MachineName,
+
+                            EndDate = DateTime.Now,
+                            QCTimesheetID = result.QCTimesheetID
+                        };
+
+                        var Result = await _mediator.Send(lst);
+                    }
+                    fileresponse.Message = "Action End Successfully!.";
+                }
             }
 
             if (stringList.Count == 5)
             {
-                QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllQCListByQRAsync(stringList[0], stringList[1], stringList[3]);
+                var list = await _qcTimeSheetQueryRepository.GetAllItemAsync(stringList[0], stringList[1], stringList[3], "Start");
+                if (list.Count == 0)
+                {
 
+                    fileresponse.Message = "Please Start the Action.";
+                }
+                else
+                {
+
+                    foreach (var result in list)
+                    {
+                        var lst = new UpdateTimesheetQuery()
+                        {
+
+
+                            ModifiedDate = DateTime.Now,
+
+                            ModifiedByUserID = value.UserID,
+                            Action = value.Action,
+                            MachineAction = value.MachineAction,
+                            MachineName = value.MachineName,
+
+                            EndDate = DateTime.Now,
+                            QCTimesheetID = result.QCTimesheetID
+                        };
+
+                        var Result = await _mediator.Send(lst);
+                    }
+                    fileresponse.Message = "Action End Successfully!.";
+                }
+            }
+
+            
+        
+          
+            return fileresponse;
+        }
+        public List<view_QCAssignmentRM> QCList { get; set; }
+        [HttpPost("InsertTimeSheetForQC")]
+        public async Task<ResponseModel> InsertTimeSheetForQC([FromForm] Models.InsertTimeSheetQCModel value)
+        {
+            DateTime? Date = null;
+            string? Company = null;
+            DateTime? Startdate = null;
+            DateTime? Enddate = null;
+            string? description = null;
+            var response = new Services.ResponseModel<view_QCAssignmentRM>();
+            ResponseModel fileresponse = new ResponseModel();
+            string[] splitArray = value.ScanResult.Split('~');
+            List<string> stringList = splitArray.ToList();
+           
+
+            if (stringList.Count == 2)
+            {
+               var list  = await  _qcTimeSheetQueryRepository.GetAllCompanyAsync(stringList[0], stringList[1], value.Action);
+               
+                if (list.Count == 0)
+                {
+                    QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllListByQRAsync(stringList[0], stringList[1]);
+                    Date = DateTime.Parse(stringList[0]);
+                    Company = stringList[1];
+                }
+               
+                else
+                {
+                    
+                    fileresponse.Message = "The Action Already Started.";
+                }
+               
+            }
+
+            if (stringList.Count == 5)
+            {
+                var list = await _qcTimeSheetQueryRepository.GetAllItemAsync(stringList[0], stringList[1], stringList[3],value.Action);
+                if (list.Count == 0)
+                {
+                    QCList = (List<view_QCAssignmentRM>)await _qcTimeSheetQueryRepository.GetAllQCListByQRAsync(stringList[0], stringList[1], stringList[3]);
+                    description = stringList[0];
+                }
+               
+                else
+                {
+                   
+                    fileresponse.Message = "The Scan Material Already Start.";
+                }
             }
 
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-               
-               
-                var Results = QCList;
-                // Assign the list of results
-                if (Results.Count > 0)
+
+                if (QCList != null)
                 {
-                    if (value.Action == "Start")
-                    {
-                        Startdate = DateTime.Now;
-                    }
-                    else
-                    {
-                        Enddate = DateTime.Now;
-                    }
 
-                    foreach (var result in Results)
+                    var Results = QCList;
+                    // Assign the list of results
+                    if (Results.Count > 0)
                     {
-                        var lst = new CreateQCTimesheetQuery()
+                        if (value.Action == "Start")
                         {
-
-
-                            AddedDate = DateTime.Now,
-                            SessionId = Guid.NewGuid(),
-                            ItemName = result.ItemNo,
-                            RefNo = result.QCReferenceNo,
-                            Stage = result.Person,
-                            TestName = result.Test,
-                            QRcode = true,
-                            DetailEntry = result.Entry_ID,
-                            Comment = value.Comment,
-                            SpecificTestName = result.SpecificTest,
-                            AddedByUserID = value.UserID,
-                            Action =value.Action,
-                            MachineAction = value.MachineAction,
-                            MachineName = value.MachineName,
-                            StartDate = Startdate,
-                            EndDate = Enddate,
-                        };
-
-                        var Result = await _mediator.Send(lst);
-                        var FileName = value.FileName;
-
-                        if (FileName != null)
+                            Startdate = DateTime.Now;
+                        }
+                        else
                         {
-
-                            var QCsessionID = await _qcTimeSheetQueryRepository.GetAllQCTimeSheetAsync(Result);
-
-                            if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
-                            {
-                                fileresponse.IsSuccess = false;
-                                fileresponse.Message = "Invalid content type.";
-                                return fileresponse;
-                            }
-
-                            var file = Request.Form.Files;
-                            if (file == null)
-                            {
-                                fileresponse.IsSuccess = false;
-                                fileresponse.Message = "No file uploaded.";
-                                return fileresponse;
-                            }
-
-
-                            var sessionID = QCsessionID[0].SessionId;
-                            var addedByUserId = value.UserID;
-                            var SourceFrom = "FileProfile";
-                            var ChangeNewFileName = value.FileName;
-                            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
-                            string fileName = QCsessionID[0].SessionId + ".pdf";
-                            var serverFilePath = serverPaths + fileName;
-                            if (!System.IO.Directory.Exists(serverPaths))
-                            {
-                                System.IO.Directory.CreateDirectory(serverPaths);
-                            }
-                            using (var memoryStream = new MemoryStream())
-                            {
-
-                                PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
-                                Document document = new Document(pdfDocument);
-                                int i = 0;
-                                foreach (var f in file)
-                                {
-                                    var files = f;
-                                    var fs = files.OpenReadStream();
-                                    var br = new BinaryReader(fs);
-                                    var filePath = Path.Combine(serverPaths, files.FileName);
-                                    Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
-                                    var image = new Image(ImageDataFactory.Create(documentByte));
-                                    pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
-                                    image.SetFixedPosition(i + 1, 0, 0);
-                                    document.Add(image);
-                                    i++;
-
-                                    //using (var fileStream = new FileStream(filePath, FileMode.Create))
-                                    //{
-                                    //    await file.CopyToAsync(fileStream);
-                                    //}
-                                }
-                                pdfDocument.Close();
-                                byte[] fileData = memoryStream.ToArray();
-                                var fileSize = fileData.Length;
-                                await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
-                                var documentNoSeriesModel = new DocumentNoSeriesModel
-                                {
-                                    AddedByUserID = value.UserID,
-                                    StatusCodeID = 710,
-                                    ProfileID = 0,
-                                    PlantID = 0,
-                                    DepartmentId = 0,
-                                    SectionId = 0,
-                                    SubSectionId = 0,
-                                    DivisionId = 0,
-
-                                };
-                                var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-                                Documents documents = new Documents();
-                                documents.UploadDate = DateTime.Now;
-                                documents.AddedByUserId = addedByUserId;
-                                documents.AddedDate = DateTime.Now;
-                                documents.SessionId = QCsessionID[0].SessionId;
-                                documents.IsLatest = true;
-                                documents.IsTemp = true;
-                                documents.FileName = ChangeNewFileName + ".pdf";
-                                documents.ContentType = "application/pdf";
-                                documents.FileSize = fileSize;
-                                documents.SourceFrom = SourceFrom;
-                                documents.ProfileNo = profileNo;
-                                documents.FilterProfileTypeId = 10078;
-                                documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
-                                var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                                System.GC.Collect();
-                                GC.SuppressFinalize(this);
-                                fileresponse.IsSuccess = true;
-                                //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
-                               
-                            }
+                            Enddate = DateTime.Now;
                         }
 
-                        response.Results = Results;
+                        foreach (var result in Results)
+                        {
+                            var lst = new CreateQCTimesheetQuery()
+                            {
 
+
+                                AddedDate = DateTime.Now,
+                                SessionId = Guid.NewGuid(),
+                                ItemName = result.ItemNo,
+                                RefNo = result.QCReferenceNo,
+                                Stage = result.Person,
+                                TestName = result.Test,
+                                QRcode = true,
+                                DetailEntry = result.Entry_ID,
+                                Comment = value.Comment,
+                                SpecificTestName = result.SpecificTest,
+                                AddedByUserID = value.UserID,
+                                Action = value.Action,
+                                MachineAction = value.MachineAction,
+                                MachineName = value.MachineName,
+                                StartDate = Startdate,
+                                EndDate = Enddate,
+                                Date = Date,
+                                Company = Company,
+                                Description = description,
+                            };
+
+                            var Result = await _mediator.Send(lst);
+                            var FileName = value.FileName;
+
+                            if (FileName != null)
+                            {
+
+                                var QCsessionID = await _qcTimeSheetQueryRepository.GetAllQCTimeSheetAsync(Result);
+
+                                if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    fileresponse.IsSuccess = false;
+                                    fileresponse.Message = "Invalid content type.";
+                                    return fileresponse;
+                                }
+
+                                var file = Request.Form.Files;
+                                if (file == null)
+                                {
+                                    fileresponse.IsSuccess = false;
+                                    fileresponse.Message = "No file uploaded.";
+                                    return fileresponse;
+                                }
+
+
+                                var sessionID = QCsessionID[0].SessionId;
+                                var addedByUserId = value.UserID;
+                                var SourceFrom = "FileProfile";
+                                var ChangeNewFileName = value.FileName;
+                                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
+                                string fileName = QCsessionID[0].SessionId + ".pdf";
+                                var serverFilePath = serverPaths + fileName;
+                                if (!System.IO.Directory.Exists(serverPaths))
+                                {
+                                    System.IO.Directory.CreateDirectory(serverPaths);
+                                }
+                                using (var memoryStream = new MemoryStream())
+                                {
+
+                                    PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
+                                    Document document = new Document(pdfDocument);
+                                    int i = 0;
+                                    foreach (var f in file)
+                                    {
+                                        var files = f;
+                                        var fs = files.OpenReadStream();
+                                        var br = new BinaryReader(fs);
+                                        var filePath = Path.Combine(serverPaths, files.FileName);
+                                        Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
+                                        var image = new Image(ImageDataFactory.Create(documentByte));
+                                        pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
+                                        image.SetFixedPosition(i + 1, 0, 0);
+                                        document.Add(image);
+                                        i++;
+
+                                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                                        //{
+                                        //    await file.CopyToAsync(fileStream);
+                                        //}
+                                    }
+                                    pdfDocument.Close();
+                                    byte[] fileData = memoryStream.ToArray();
+                                    var fileSize = fileData.Length;
+                                    await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
+                                    var documentNoSeriesModel = new DocumentNoSeriesModel
+                                    {
+                                        AddedByUserID = value.UserID,
+                                        StatusCodeID = 710,
+                                        ProfileID = 0,
+                                        PlantID = 0,
+                                        DepartmentId = 0,
+                                        SectionId = 0,
+                                        SubSectionId = 0,
+                                        DivisionId = 0,
+
+                                    };
+                                    var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                                    Documents documents = new Documents();
+                                    documents.UploadDate = DateTime.Now;
+                                    documents.AddedByUserId = addedByUserId;
+                                    documents.AddedDate = DateTime.Now;
+                                    documents.SessionId = QCsessionID[0].SessionId;
+                                    documents.IsLatest = true;
+                                    documents.IsTemp = true;
+                                    documents.FileName = ChangeNewFileName + ".pdf";
+                                    documents.ContentType = "application/pdf";
+                                    documents.FileSize = fileSize;
+                                    documents.SourceFrom = SourceFrom;
+                                    documents.ProfileNo = profileNo;
+                                    documents.FilterProfileTypeId = 10078;
+                                    documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                                    var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                                    System.GC.Collect();
+                                    GC.SuppressFinalize(this);
+                                    fileresponse.IsSuccess = true;
+                                    //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
+
+                                }
+                            }
+
+                            response.Results = Results;
+                            fileresponse.Message = "Action Start Successfully!.";
+                        }
                     }
                 }
+               
             }
             catch (Exception ex)
             {

@@ -13,10 +13,13 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<TimeSheetForQC>> GetAllAsync();
         Task<long> Insert(TimeSheetForQC timeSheetForQC);
         Task<long> Update(TimeSheetForQC timeSheetForQC);
+        Task<long> UpdateTimeSheetQC(TimeSheetForQC timeSheetForQC);
         Task<IReadOnlyList<TimeSheetForQC>> GetAllQCTimeSheetAsync(long QCTimeSheetID);
         Task<long> UpdateStatus(long ID ,long StatusID,long ModifiedByUserID);
         Task<IReadOnlyList<TimeSheetForQC>> GetMultipleQueryAsync(long? QCTimesheetID);
         Task<IReadOnlyList<view_QCAssignmentRM>> GetAllListByQRAsync(string Date,string Company);
         Task<IReadOnlyList<view_QCAssignmentRM>> GetAllQCListByQRAsync(string ItemName, string QCRefNo,string TestName);
+        Task<IReadOnlyList<TimeSheetForQC>> GetAllCompanyAsync(string Date, string Company,string Action);
+        Task<IReadOnlyList<TimeSheetForQC>> GetAllItemAsync(string ItemName, string QCRefNo, string TestName,string Action);
     }
 }

@@ -12,6 +12,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
 @* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @implements IAsyncDisposable
 
@@ -23,6 +24,7 @@
             <Items>
                 @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" /> *@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@EditEnabled" />
                 @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" /> *@
             </Items>
         </DxMenu>
@@ -177,12 +179,33 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         Width="400px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure create Email?
+        </p>
+       @*  <p style="font-weight:bold;">Subject:@SubjectName</p> *@
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    string? SubjectName { get; set; } = string.Empty;
+    bool createEmailpopup { get; set; } = false;
     private List<ViewDepartment> _departmentItems;
     [Parameter]
     public RegistrationRequest _registrationRequestData { get; set; }
     [Parameter]
     public long? DepartmentId { get; set; }
+    [Parameter]
+    public bool? IsUnsaved { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -283,7 +306,7 @@
                     StatusCodeId = 1,
                     AddedDate = DateTime.Now,
                     TargetDate = editModel.TargetDate,
-                    DynamicFormDataId=editModel.DynamicFormDataId,
+                    DynamicFormDataId = editModel.DynamicFormDataId,
                 };
             try
             {
@@ -395,27 +418,33 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems != null)
+        if (IsUnsaved == true)
         {
-
-            if (SelectedDataItems.Count == 1)
+            toastService.ShowToast("Variation No Dropdown Changed.Save after access or Reload", AC.SD.Core.Services.ToastLevel.Warning);
+        }
+        else
+        {
+            if (SelectedDataItems != null)
             {
 
-                foreach (object item in SelectedDataItems)
+                if (SelectedDataItems.Count == 1)
                 {
-                    if (item is RegistrationRequestAssignmentOfJob dataselectItems)
+
+                    foreach (object item in SelectedDataItems)
                     {
-                        _selectlst = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestAssignmentOfJobId == dataselectItems.RegistrationRequestAssignmentOfJobId);
+                        if (item is RegistrationRequestAssignmentOfJob dataselectItems)
+                        {
+                            _selectlst = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestAssignmentOfJobId == dataselectItems.RegistrationRequestAssignmentOfJobId);
+                        }
                     }
+                    SMGrid.StartEditDataItemAsync(_selectlst);
                 }
-                SMGrid.StartEditDataItemAsync(_selectlst);
-            }
-            else
-            {
-                SMGrid.StartEditDataItemAsync(_selectedItems);
+                else
+                {
+                    SMGrid.StartEditDataItemAsync(_selectedItems);
+                }
             }
         }
-
     }
     void addDelete()
     {
@@ -465,7 +494,75 @@
         }
 
     }
+    async Task addDetailEmailCreate()
+    {
+        if (IsUnsaved == true)
+        {
+            toastService.ShowToast("Variation No Dropdown Changed.Save after access or Reload", AC.SD.Core.Services.ToastLevel.Warning);
+        }
+        else
+        {
+            if (_selectedItems != null)
+            {
+                var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
+                if (_selectedItemsDAta != null)
+                {
+                    if (_selectedItemsDAta.IsDraft == null)
+                    {
+                        SubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _selectedItems.DepartmentName + "-" + _selectedItems.JobNo;
+                        createEmailpopup = true;
+                    }
+                    if (_selectedItemsDAta.IsDraft == true)
+                    {
+                        var url = NavigationManager.BaseUri + "EmailDrafts";
+                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                    if (_selectedItemsDAta.IsDraft == false)
+                    {
+                        var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+            }
+        }
+    }
+    async Task createEmailYes()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string backurl = rep1 + "/" + _selectedItems.SessionId;
+        if (_selectedItems != null)
+        {
+            var insertData = new RegistrationRequestAssignmentOfJob
+                {
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = _selectedItems.SessionId,
+                    SubjectName = SubjectName,
+                    Comment = _registrationRequestData.VariationNoInfo,
+                    StatusCodeId = 1,
+                    RegistrationRequestId = _selectedItems.RegistrationRequestId,
+                    RegistrationRequestAssignmentOfJobId = _selectedItems.RegistrationRequestAssignmentOfJobId,
+                    DepartmentId = _selectedItems.DepartmentId,
+                    DepartmentUniqueSessionId = _selectedItems.DepartmentUniqueSessionId,
+                    BackUrl = backurl
+                };
+            var response = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJob(insertData));
+            if (response.RegistrationRequestAssignmentOfJobId > 0)
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                createEmailpopup = false;
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.DepartmentUniqueSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await UpdateDataAsync();
 
+            }
+        }
+        StateHasChanged();
+    }
     public async ValueTask DisposeAsync()
     {
 

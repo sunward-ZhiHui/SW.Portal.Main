@@ -125,7 +125,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn> 
             <DxGridDataColumn Caption="Actual Done By" FieldName="AddedBy" MinWidth="180" />
-            <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180" Visible="false">
+            <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180" Visible="true">
                 <CellDisplayTemplate>
                     @{
                         var item = (TimeSheetForQC)context.DataItem;
@@ -136,7 +136,8 @@
                     <span title="@item.Comment">@comments</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-           
+            <DxGridDataColumn Caption="Machine Name" FieldName="MachineName" MinWidth="200" />
+            <DxGridDataColumn Caption="Machine Action" FieldName="MachineActionName" MinWidth="200" />
 
         </Columns>
         <TotalSummary>

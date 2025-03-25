@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Entities.Views;
 using Core.EntityModels;
+using Core.Repositories.Query;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -156,4 +157,22 @@ namespace Application.Queries
             this.RegistrationRequestQueries = registrationRequestQueries;
         }
     }
+    public class GetRegistrationRequestAssignmentOfJobBySessionId : PagedRequest, IRequest<RegistrationRequestAssignmentOfJob>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SessionId { get; set; }
+        public GetRegistrationRequestAssignmentOfJobBySessionId(Guid? SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
+    public class InsertCreateEmailRegistrationRequestAssignmentOfJob : DynamicFormWorkFlow, IRequest<RegistrationRequestAssignmentOfJob>
+    {
+        public RegistrationRequestAssignmentOfJob RegistrationRequestAssignmentOfJob { get; set; }
+        public InsertCreateEmailRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob)
+        {
+            this.RegistrationRequestAssignmentOfJob = registrationRequestAssignmentOfJob;
+        }
+    }
+    
 }

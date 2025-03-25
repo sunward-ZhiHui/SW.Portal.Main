@@ -144,7 +144,7 @@
                                             HighlightRowOnHover="true"
                                             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                            SelectionMode="GridSelectionMode.Single"
+                                            SelectionMode="GridSelectionMode.Multiple"
                                             AllowSelectRowByClick="true"
                                             FocusedRowEnabled="true"
                                             TextWrapEnabled="false"
@@ -176,7 +176,7 @@
                                 ShowSearchBox="true"
                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                 TextWrapEnabled="false"
-                                PagerVisible="false" Context="Context">
+                                VirtualScrollingEnabled="true" Context="Context">
                             <Columns>
                                 @if (dataColumnNames != null && dataColumnNames.Count() > 0)
                                 {
@@ -184,7 +184,7 @@
                                     {
                                         if (s.Value == "DynamicFormDataNameId")
                                         {
-                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="100">
                                                 <CellDisplayTemplate>
                                                     @{
                                                         var item = (VariationRequirementInformationModel)context.DataItem;
@@ -195,7 +195,7 @@
                                         }
                                         else if (s.Value == "DetailRequirementId")
                                         {
-                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" Width="40%">
+                                            <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="100">
                                                 <CellDisplayTemplate>
                                                     @{
                                                         var item = (VariationRequirementInformationModel)context.DataItem;
@@ -206,13 +206,17 @@
                                         }
                                         else
                                         {
-                                            if (s.Value == "No")
+                                            if (s.Value == "Index")
                                             {
-                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="1%"></DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="4%" MinWidth="50"></DxGridDataColumn>
+                                            }
+                                            else if (s.Value == "ByName")
+                                            {
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="80"></DxGridDataColumn>
                                             }
                                             else
                                             {
-                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" Width="19%"></DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="100"></DxGridDataColumn>
                                             }
                                         }
                                     }
@@ -290,6 +294,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool? UnSaved { get; set; } = false;
     IGrid Grid { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
@@ -430,8 +435,8 @@
         Data.ModifiedBy = applicationUser.UserName;
         Data.ProductSpecificationDynamicFormId = null;
         Data.SessionId = null; Data.CCNo = null;
-        Data.ExpectedSubmissionDate = null;
-        Data.StatusCodeId = 1; Data.VariationNoId = null;
+        Data.ExpectedSubmissionDate = null;UnSaved = false;
+        Data.StatusCodeId = 1; Data.VariationNoId = null; Data.ProductName = string.Empty; Data.VariationNoInfo = string.Empty;
         Data.SubmissionDate = null; Data.VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         Data.SubmissionNo = null; PreProfileEnabled = true; dataColumnNames = new List<DropDownOptionsModel>();
         Data.PurposeOfRegistration = null; Data.ProfileId = null; Data.ProfileNo = null; Data.PreProfileId = null; ActiveSubTabIndex = 0;
@@ -499,7 +504,7 @@
     }
     string? QueryDisplayDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
     {
-        Data.ProductSpecificationDynamicFormId = null;
+        Data.ProductSpecificationDynamicFormId = null; Data.ProductName = string.Empty;
         string? returnData = string.Empty;
         if (arg.Value is ExpandoObject value)
         {
@@ -507,6 +512,16 @@
             {
                 dynamic eod = value;
                 Data.ProductSpecificationDynamicFormId = (long?)eod.DynamicFormDataId;
+                foreach (var items in (dynamic)eod)
+                {
+                    if (items.Key == "83_103_AppMaster")
+                    {
+                        if (_registrationRequestData != null)
+                        {
+                            _registrationRequestData.ProductName = (string?)items.Value;
+                        }
+                    }
+                }
                 returnData = (string)eod.DisplayItemsQuery;
             }
         }
@@ -514,11 +529,12 @@
     }
     string? QueryDisplayVariationDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
     {
-        string? returnData = string.Empty; varitionCode = ""; Data.VariationNoId = null;
+        UnSaved = false;
+        string? returnData = string.Empty; varitionCode = ""; Data.VariationNoId = null; Data.VariationNoInfo = string.Empty; string? VariationNoInfo = string.Empty;
         Data.VariationNoIds = new List<long?>(); _Headergridlistss = new List<DropDownOptionsModel>();
         if (arg.Value == null)
         {
-            Data.ObjectData = null; departments = new List<DropDownOptionsListModel>();VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
+            Data.ObjectData = null; departments = new List<DropDownOptionsListModel>(); VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         }
         if (arg.Value != null)
         {
@@ -534,16 +550,33 @@
                     _Headergridlists.Text = (string)eod.DisplayItemsQuery;
                     _Headergridlists.Id = (long?)eod.DynamicFormDataId;
                     returnData += (string)eod.DisplayItemsQuery + ",";
+
                     foreach (var items in (dynamic)item)
                     {
                         if (items.Key == "11406_Attr")
                         {
+                            var AttributeDetailNames = (string?)eod.AttributeDetailName;
                             varitionCode += (string?)items.Value + ",";
+                            VariationNoInfo += AttributeDetailNames + "|" + (string?)items.Value;
                         }
                     }
                     _Headergridlistss.Add(_Headergridlists);
                 }
             }
+        }
+        if (_registrationRequestData != null)
+        {
+            _registrationRequestData.VariationNoInfo = string.Empty;
+            if (!string.IsNullOrEmpty(VariationNoInfo))
+            {
+                _registrationRequestData.VariationNoInfo = VariationNoInfo;
+            }
+            var excelpt = _registrationRequestData.VariationNoIds.Except(Data.VariationNoIds).ToList();
+            if (excelpt.Count()>0)
+            {
+                UnSaved = true;
+            }
+
         }
         varitionCode = varitionCode.TrimEnd(',');
         ActiveSubTabIndex = 0;
@@ -797,7 +830,7 @@
                 }
             }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false; ActiveSubTabIndex = 0;
+            loading = false; ActiveSubTabIndex = 0;UnSaved = false;
             StateHasChanged();
         }
         else
@@ -816,7 +849,7 @@
                 }
             }
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
+            loading = false; UnSaved = false;
             ActiveSubTabIndex = 0;
             NavigationManager.NavigateTo("RegistrationRequestList/RegistrationRequestForm/" + Data.SessionId + "");
 
@@ -890,6 +923,7 @@
                 tabPageBuilder.AddAttribute(2, "applicationUser", applicationUser);
                 tabPageBuilder.AddAttribute(3, "_registrationRequestData", _registrationRequestData);
                 tabPageBuilder.AddAttribute(4, "DepartmentId", dropDownOptionsList.Id);
+                tabPageBuilder.AddAttribute(5, "IsUnsaved", UnSaved);
                 tabPageBuilder.CloseElement();
             }));
             b.CloseComponent();

@@ -292,5 +292,30 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.InsertorUpdateRegistrationRequestQueries(request);
         }
     }
+    public class GetRegistrationRequestAssignmentOfJobBySessionHandler : IRequestHandler<GetRegistrationRequestAssignmentOfJobBySessionId, RegistrationRequestAssignmentOfJob>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public GetRegistrationRequestAssignmentOfJobBySessionHandler(IRegistrationRequestQueryRepository dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<RegistrationRequestAssignmentOfJob> Handle(GetRegistrationRequestAssignmentOfJobBySessionId request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetRegistrationRequestAssignmentOfJobBySessionIdAsync(request.SessionId);
+        }
 
+
+    }
+    public class InsertCreateEmailRegistrationRequestAssignmentOfJobHandler : IRequestHandler<InsertCreateEmailRegistrationRequestAssignmentOfJob, RegistrationRequestAssignmentOfJob>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public InsertCreateEmailRegistrationRequestAssignmentOfJobHandler(IRegistrationRequestQueryRepository dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<RegistrationRequestAssignmentOfJob> Handle(InsertCreateEmailRegistrationRequestAssignmentOfJob request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertCreateEmailRegistrationRequestAssignmentOfJob(request.RegistrationRequestAssignmentOfJob);
+        }
+    }
 }

@@ -19,6 +19,7 @@ namespace Core.Repositories.Query
         Task<ApplicationUser> Auth(string LoginID, string Password);
         Task<ApplicationUser> GetByIdAsync(Int64 id);
         Task<ApplicationUser> GetByUsers(string LoginID);
+        Task<ApplicationUser> GetByApplicationUsersList(long loginId);
         Task<UserNotification> GetUserNotificationValidatation(long UserId, string DeviceType, string TokenID);
         Task<List<UserNotification>> GetTokenList();
         Task<List<UserNotification>> GetAllTokenList(string DeviceType);

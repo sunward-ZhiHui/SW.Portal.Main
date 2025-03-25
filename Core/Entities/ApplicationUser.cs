@@ -28,8 +28,12 @@ namespace Core.Entities
         public long? DepartmentId { get; set; }
         public bool IsPasswordChanged { get; set; }
         public DateTime? LastAccessDate { get; set; }
+        public string? OutlookEmailID { get; set; }
+        public string? OutlookPassword { get; set; }
         public long? EmployeId { get; set; }
         [NotMapped]
         public string? Status { get; set; }
+        [NotMapped]
+        public List<string>? ColumnsToUpdate { get; set; }
     }
 }

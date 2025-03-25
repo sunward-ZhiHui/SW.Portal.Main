@@ -123,6 +123,7 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddScoped<FirebaseMessagingService>();
                 services.AddScoped<ToastService>();                
                 services.AddScoped<IFirebaseSync, FirebaseSync>();
+                services.Configure<OutlookEmailSettings>(Configuration.GetSection("OutlookEmailSettings"));
                 services.AddScoped<OutlookEmailService>();
                 services.AddSingleton<AttachmentService>();
 

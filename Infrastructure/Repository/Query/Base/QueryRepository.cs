@@ -35,7 +35,46 @@ namespace Infrastructure.Repository.Query.Base
             using var connection = CreateConnection();
             return await connection.QueryAsync<T>(query);
         }
+        private string GetTableName(Type entityType)
+        {
+            return entityType.Name;
+        }
+        public async Task<long> UpdateGenericAsync(T entity, List<string> columnsToUpdate)
+        {
+            using var connection = CreateConnection();
+            try
+            {
+                string tableName = GetTableName(typeof(T));
 
+                var properties = typeof(T).GetProperties();
+
+                var primaryKeyProperty = properties[0];
+
+
+                var updateProperties = properties
+                    .Where(p => columnsToUpdate.Contains(p.Name) && p != primaryKeyProperty)
+                    .ToList();
+
+                if (updateProperties.Count == 0)
+                {
+                    throw new ArgumentException("No valid columns to update.");
+                }
+
+                // Construct the SET clause based on the provided columnsToUpdate
+                string setClause = string.Join(", ", updateProperties.Select(p => $"{p.Name} = @{p.Name}"));
+
+                // Construct the SQL UPDATE statement
+                string sql = $"UPDATE {tableName} SET {setClause} WHERE {primaryKeyProperty.Name} = @{primaryKeyProperty.Name}";
+
+
+                return await connection.ExecuteAsync(sql, entity);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating entity: {ex.Message}");
+                throw;
+            }
+        }
         public async Task<IEnumerable<T>> GetListPaggedAsync(int pageNo, int pageSize, string condition, string orderby)
         {
             using var connection = CreateConnection();

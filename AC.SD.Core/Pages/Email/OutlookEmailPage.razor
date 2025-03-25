@@ -4,6 +4,8 @@
 @inject HttpClient Http
 @inject OutlookEmailService EmailService
 @inject IJSRuntime JSRuntime;
+@using global::Core.Repositories.Query
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <h3 class="mb-3">Inbox</h3>
 
@@ -164,7 +166,7 @@ else
 
 @code {
     private List<EmailViewModel> emails = new List<EmailViewModel>();
-    
+    public ApplicationUser? applicationUser { get; private set; }
     private void Reply(EmailViewModel email) => email.IsReplying = true;
     private void ReplyAll(EmailViewModel email) => email.IsReplying = true;
     private void Forward(EmailViewModel email) => email.IsReplying = true;
@@ -178,8 +180,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await JSRuntime.InvokeAsync<string>("showLoading");
-        var receivedEmails = await EmailService.ReceiveEmailsAsync();
+        var receivedEmails = await EmailService.ReceiveEmailsAsync(applicationUser.UserID);
         emails = receivedEmails.Select(email => new EmailViewModel(email)).ToList();
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }

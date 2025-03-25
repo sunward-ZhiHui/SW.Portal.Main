@@ -17,6 +17,7 @@ using Application.Common;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -235,6 +236,24 @@ namespace Infrastructure.Repository.Query
                 var query = "SELECT * FROM ApplicationUser WHERE LoginID = @LoginID";
                 var parameters = new DynamicParameters();
                 parameters.Add("LoginID", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationUser> GetByApplicationUsersList(long userId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM ApplicationUser WHERE UserID = @userId";
+                var parameters = new DynamicParameters();
+                parameters.Add("userId", userId);
 
                 using (var connection = CreateConnection())
                 {

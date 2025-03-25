@@ -16,6 +16,6 @@ namespace Core.Repositories.Query.Base
         Task<IEnumerable<T>> GetListPaggedAsync(int pageNo, int pageSize, string condition, string orderby);
         void Add(T entity);
         Task<long> InsertQuery(T entity);
-
+        Task<long> UpdateGenericAsync(T entity, List<string> columnsToUpdate);
     }
 }

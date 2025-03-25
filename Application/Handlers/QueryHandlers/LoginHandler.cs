@@ -79,9 +79,24 @@ namespace CMS.Application.Handlers.QueryHandlers
             return newEntity;
         }
 
+    }
+
+    public class UpdateOutlookLoginHandler : IRequestHandler<UpdateOutlookLoginQuery, long>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+
+        public UpdateOutlookLoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateOutlookLoginQuery request, CancellationToken cancellationToken)
+        {
+            return await _applicationUserQueryRepository.UpdateGenericAsync(request, request.ColumnsToUpdate);            
+        }
 
     }
-    
+
     public class UpdateUserHandler : IRequestHandler<UpdateUserPasswordRequest, ApplicationUser>
     {
         private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;

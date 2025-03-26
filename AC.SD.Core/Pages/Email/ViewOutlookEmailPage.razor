@@ -288,6 +288,8 @@ ShowCloseButton="true"
     }
     private void Emaillogout()
     {     
+        selectedEmail = null;
+        StateHasChanged();
         RefAssignAll?.OnLogoutTrigger();
     }
 

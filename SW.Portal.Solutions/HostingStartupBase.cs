@@ -126,6 +126,10 @@ namespace SW.Portal.Solutions.ServerSide
                 services.Configure<OutlookEmailSettings>(Configuration.GetSection("OutlookEmailSettings"));
                 services.AddScoped<OutlookEmailService>();
                 services.AddSingleton<AttachmentService>();
+                services.Configure<IISServerOptions>(options =>
+                {
+                    options.MaxRequestBodySize = 2147483648; // 2GB limit
+                });
 
 
                 services.AddSingleton<IJobFactory, SingletonJobFactory>();
@@ -142,7 +146,13 @@ namespace SW.Portal.Solutions.ServerSide
                 ConfigureFirestore(services);
 
                 services.AddScoped<Helper>();
-                services.AddServerSideBlazor();
+                services.AddServerSideBlazor()
+                .AddHubOptions(options =>
+                {
+                    options.ClientTimeoutInterval = TimeSpan.FromMinutes(10);
+                    options.HandshakeTimeout = TimeSpan.FromMinutes(2);
+                });
+
                 services.AddBlazoredToast();
                 services.AddRazorPages();
                 services.AddResponseCompression(options =>

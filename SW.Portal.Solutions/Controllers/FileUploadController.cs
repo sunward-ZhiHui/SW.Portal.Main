@@ -46,6 +46,160 @@ namespace SW.Portal.Solutions.Controllers
             _mediator = mediator;
             _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
+        [HttpPost("upload-multiple")]
+        public async Task<IActionResult> UploadMultipleRecordings([FromForm] List<IFormFile> files,
+                                                          [FromForm] Guid? SessionId,
+                                                          [FromForm] long? addedByUserId,
+                                                          [FromForm] bool? IsFileSession,
+                                                          [FromForm] string? SourceFrom,
+                                                          [FromForm] long? FileProfileId)
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest("No files received.");
+
+            if (!SessionId.HasValue)
+                return BadRequest("SessionId is required.");
+
+            if (!addedByUserId.HasValue)
+                return BadRequest("addedByUserId is required.");
+
+            List<long> documentIds = new List<long>();
+            var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId.ToString());
+
+            try
+            {
+                if (!Directory.Exists(serverPaths))
+                {
+                    Directory.CreateDirectory(serverPaths);
+                }
+
+                foreach (var file in files)
+                {
+                    var ext = Path.GetExtension(file.FileName);
+                    var finalFileName = $"{Guid.NewGuid()}{ext}";
+                    var finalFilePath = Path.Combine(serverPaths, finalFileName);
+
+                    using (var stream = new FileStream(finalFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    Documents document = new Documents
+                    {
+                        UploadDate = DateTime.Now,
+                        AddedByUserId = addedByUserId,
+                        AddedDate = DateTime.Now,
+                        SessionId = SessionId,
+                        IsLatest = true,
+                        IsTemp = true,
+                        FileName = file.FileName,
+                        ContentType = file.ContentType,
+                        FileSize = file.Length,
+                        SourceFrom = SourceFrom,
+                        SwProfileTypeId = FileProfileId,
+                        FilePath = finalFilePath.Replace(_hostingEnvironment.ContentRootPath + "\\AppUpload\\", "")
+                    };
+
+                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(document);
+                    documentIds.Add(response.DocumentId);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok(new { Message = "All files uploaded successfully", DocumentIds = documentIds });
+        }
+
+        [HttpPost("upload-multiple2")]
+        public async Task<IActionResult> UploadMultipleRecordings2(List<IFormFile> files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom, long? FileProfileId)
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest("No files received.");
+
+            List<long> documentIds = new List<long>();
+            var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId?.ToString() ?? Guid.NewGuid().ToString());
+
+            try
+            {
+                if (!Directory.Exists(serverPaths))
+                {
+                    Directory.CreateDirectory(serverPaths);
+                }
+
+                foreach (var file in files)
+                {
+                    // Generate a unique file name
+                    var ext = Path.GetExtension(file.FileName);
+                    var finalFileName = $"{Guid.NewGuid()}{ext}";
+                    var finalFilePath = Path.Combine(serverPaths, finalFileName);
+
+                    // Save the file to the server
+                    using (var stream = new FileStream(finalFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    // Save file details in the database
+                    Documents document = new Documents
+                    {
+                        UploadDate = DateTime.Now,
+                        AddedByUserId = addedByUserId,
+                        AddedDate = DateTime.Now,
+                        SessionId = SessionId ?? Guid.NewGuid(),
+                        IsLatest = true,
+                        IsTemp = true,
+                        FileName = file.FileName,
+                        ContentType = file.ContentType,
+                        FileSize = file.Length,
+                        SourceFrom = SourceFrom,
+                        SwProfileTypeId = FileProfileId,
+                        FilePath = finalFilePath.Replace(_hostingEnvironment.ContentRootPath + "\\AppUpload\\", "")
+                    };
+
+                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(document);
+                    documentIds.Add(response.DocumentId);
+                }
+
+                GC.Collect();
+                GC.SuppressFinalize(this);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok(new { Message = "All files uploaded successfully", DocumentIds = documentIds });
+        }
+
+        [HttpPost("upload-multiple1")]
+        public async Task<IActionResult> UploadMultipleRecordings1(List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest("No files received.");
+
+            var uploadedFiles = new List<string>();
+            var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            foreach (var file in files)
+            {
+                var filePath = Path.Combine(uploadsFolder, $"{Guid.NewGuid()}.wav");
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                uploadedFiles.Add(filePath);
+            }
+
+            return Ok(new { Message = "All files uploaded successfully", Files = uploadedFiles });
+        }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
         public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom, long? FileProfileId)

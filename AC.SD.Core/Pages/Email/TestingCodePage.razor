@@ -1,0 +1,73 @@
+﻿@page "/adiorecording"
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@inject IMediator Mediator
+@using System.IO
+@using System.Threading
+@using global::Core.Entities;
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime JSRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject HttpClient Http
+
+<DxButton Click="StartRecording">Start Recording</DxButton>
+<DxButton Click="StopRecording">Stop Recording</DxButton>
+<DxButton Click="OnSendUpload">Send</DxButton>
+
+@if (!string.IsNullOrEmpty(recordedFilePath))
+{
+    <audio controls>
+        <source src="@recordedFilePath" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+}
+
+@code {
+    private string? recordedFilePath;
+
+    private async Task StartRecording()
+    {
+        await JSRuntime.InvokeVoidAsync("startRecording");
+    }
+
+    private async Task StopRecording()
+    {
+        var fileData = await JSRuntime.InvokeAsync<FileData>("stopRecording");
+
+        if (!string.IsNullOrEmpty(fileData.Url))
+        {
+            recordedFilePath = fileData.Url;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnSendUpload()
+    {
+        var base64Data = await JSRuntime.InvokeAsync<string>("getRecordedFile");
+
+        if (!string.IsNullOrEmpty(base64Data))
+        {
+            byte[] fileBytes = Convert.FromBase64String(base64Data);
+
+            using var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(fileBytes), "file", "recorded_audio.wav");
+
+            var response = await Http.PostAsync("https://localhost:44300/api/FileUpload/UploadDocumentsBySession", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Upload Successful");
+            }
+        }
+    }
+
+    public class FileData
+    {
+        public string Url { get; set; }
+        public long Size { get; set; }
+    }
+}

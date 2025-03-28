@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Entities.CustomValidations;
 
 namespace Core.Entities
 {
@@ -39,6 +40,8 @@ namespace Core.Entities
         public string? Comment { get; set; }
         public long? RegistrationRequestDepartmentId { get; set; }
         public Guid? DepartmentUniqueSessionId { get; set; }
+        public bool? IsEmailCreateDone { get; set; } = false;
+        public Guid? EmailCreateSessionId { get; set; }
     }
     public class RegistrationRequestDepartment
     {
@@ -46,5 +49,21 @@ namespace Core.Entities
         public long? RegistrationRequestId { get; set; }
         public long? DepartmentId { get; set; }
         public Guid? DepartmentUniqueSessionId { get; set; }
+    }
+    public class RegistrationRequestDepartmentEmailCreate
+    {
+        public string? From { get; set; }
+        public long? FromId { get; set; }
+        [Required(ErrorMessage = "Subject is Required")]
+        public string? MainSubjectName { get; set; }
+        [Required(ErrorMessage = "To is Required")]
+        [RegistrationRequestCustomValidation]
+        public IEnumerable<long>? ToIds { get; set; } = new List<long>();
+        public IEnumerable<long>? CCIds { get; set; } = new List<long>();
+        public List<RegistrationRequestAssignmentOfJob> RegistrationRequestAssignmentOfJobs { get; set; } = new List<RegistrationRequestAssignmentOfJob>();
+        public IEnumerable<long>? ToUserGroupIds { get; set; } = null;
+        public IEnumerable<long>? CCUserGroupIds { get; set; }
+        public Guid? EmailCreateSessionId { get; set; }
+        public string? BackUrl { get; set; }
     }
 }

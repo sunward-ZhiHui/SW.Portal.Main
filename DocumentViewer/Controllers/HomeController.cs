@@ -35,6 +35,9 @@ using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
 using Azure.Core;
 using DevExpress.Web.Office;
 using DevExpress.Export.Xl;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using iTextSharp.text.pdf.qrcode;
 
 namespace DocumentViewer.Controllers
 {
@@ -240,7 +243,7 @@ namespace DocumentViewer.Controllers
                                         if (System.IO.File.Exists(pathurl))
                                         {
                                             viewmodel.PathUrl = pathurl;
-                                            var streamData = await ConvertFileToMemoryStreamAsync(pathurl);
+                                            var streamData = await ConvertFileToMemoryStreamAsync(pathurl, null);
 
                                             if (Extension == "msg" || Extension == "eml")
                                             {
@@ -641,7 +644,7 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpGet("DownloadFromUrl")]
-        public async Task<IActionResult> DownloadFromUrlAsync(string? url, bool? IsHistoryDoc)
+        public async Task<IActionResult> DownloadFromUrlAsync(string? url, bool? IsHistoryDoc, string? isDownload)
         {
             try
             {
@@ -686,7 +689,13 @@ namespace DocumentViewer.Controllers
                             {
                                 currentDocuments.ContentType = "application/octet-stream";
                             }
-                            var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                            string? isPdf = null;
+                            if (isDownload != "Yes" && Extension == "pdf")
+                            {
+                                isPdf = Extension;
+                            }
+                            var stream = await ConvertFileToMemoryStreamAsync(fileurl, isPdf);
+
                             return new FileStreamResult(stream, currentDocuments.ContentType)
                             {
                                 FileDownloadName = currentDocuments.FileName
@@ -701,14 +710,59 @@ namespace DocumentViewer.Controllers
             }
             return Ok("file is not exist");
         }
-        async Task<Stream> ConvertFileToMemoryStreamAsync(string filePath)
+        private byte[] AddWatermark(Stream stream, BaseFont bf)
         {
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            // Ensure the stream is seekable
+            if (!stream.CanSeek)
             {
-                MemoryStream memoryStream = new MemoryStream();
-                await fileStream.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-                return memoryStream; // Caller is responsible for disposing
+                MemoryStream tempStream = new MemoryStream();
+                stream.CopyTo(tempStream);
+                stream = tempStream;
+                stream.Position = 0;
+            }
+
+            using (var ms = new MemoryStream()) // Let MemoryStream handle resizing
+            {
+                using (var reader = new PdfReader(stream))
+                using (var stamper = new PdfStamper(reader, ms))
+                {
+                    int pageCount = reader.NumberOfPages;
+                    for (int i = 1; i <= pageCount; i++)
+                    {
+                        var content = stamper.GetOverContent(i);
+                        // AddWaterMarks(content, "uncontrolled", bf, 70, 35,
+                        //new BaseColor(255, 0, 0), reader.GetPageSizeWithRotation(i));
+                        AddWaterMarks(content, "uncontrolled", bf, 70, 45, BaseColor.RED, reader.GetPageSizeWithRotation(i));
+                    }
+                } // PdfStamper & PdfReader disposed automatically
+
+                return ms.ToArray();
+            }
+        }
+        async Task<Stream> ConvertFileToMemoryStreamAsync(string filePath, string? Extension)
+        {
+            if (Extension == "pdf")
+            {
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    MemoryStream memoryStream = new MemoryStream();
+                    await fileStream.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
+                    BaseFont bfTimes = BaseFont.CreateFont(BaseFont.TIMES_BOLD, BaseFont.CP1252, false);
+                    var byteArray = AddWatermark(memoryStream, bfTimes);
+                    Stream stream = new MemoryStream(byteArray);
+                    return stream;
+                }
+            }
+            else
+            {
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    MemoryStream memoryStream = new MemoryStream();
+                    await fileStream.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
+                    return memoryStream; // Caller is responsible for disposing
+                }
             }
         }
         [HttpGet("Maildownloadfromurl")]
@@ -759,7 +813,7 @@ namespace DocumentViewer.Controllers
                                 currentDocuments.ContentType = "application/octet-stream";
                             }
 
-                            var stream = await ConvertFileToMemoryStreamAsync(fileurl);
+                            var stream = await ConvertFileToMemoryStreamAsync(fileurl, null);
                             if (stream != null)
                             {
                                 var streamDatas = GetOutLookMailDocuments(stream, Extension);
@@ -1201,6 +1255,23 @@ namespace DocumentViewer.Controllers
                 System.IO.Directory.Delete(serverPaths);
             }
             return stream1;
+        }
+
+
+        public static void AddWaterMarks(PdfContentByte dc, string text, BaseFont font, float fontSize, float angle, BaseColor color, Rectangle realPageSize, Rectangle rect = null)
+        {
+            var gstate = new PdfGState { FillOpacity = 0.35f, StrokeOpacity = 0.3f };
+            dc.SaveState();
+            dc.SetGState(gstate);
+            dc.SetColorFill(color);
+            dc.BeginText();
+            dc.SetFontAndSize(font, fontSize);
+            var ps = rect ?? realPageSize; /*dc.PdfDocument.PageSize is not always correct*/
+            var x = (ps.Right + ps.Left) / 2;
+            var y = (ps.Bottom + ps.Top) / 2;
+            dc.ShowTextAligned(Element.ALIGN_CENTER, text, x, y, angle);
+            dc.EndText();
+            dc.RestoreState();
         }
     }
 

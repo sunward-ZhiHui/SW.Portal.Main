@@ -168,6 +168,11 @@
 
                             <ValidationMessage For="@(() => Data.CCNo)" />
                         </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="IsAllow NA" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsAllowNA"></DxCheckBox>
+
+                            <ValidationMessage For="@(() => Data.IsAllowNA)" />
+                        </DxFormLayoutItem>
                     </DxFormLayoutGroup>
                     <DxFormLayoutGroup ColSpanMd="12" Caption="Summary of requirement" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="true" AnimationType="LayoutAnimationType.Slide">
                         <DxGrid @ref="Grid"
@@ -176,6 +181,9 @@
                                 ShowSearchBox="true"
                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                 TextWrapEnabled="false"
+                                ShowGroupPanel="true"
+                                AutoExpandAllGroupRows="true"
+                                style="height: calc(100vh - 400px);"
                                 VirtualScrollingEnabled="true" Context="Context">
                             <Columns>
                                 @if (dataColumnNames != null && dataColumnNames.Count() > 0)
@@ -212,7 +220,7 @@
                                             }
                                             else if (s.Value == "ByName")
                                             {
-                                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="80"></DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@s.Value" GroupIndex="0" Caption="@s.Text" MinWidth="80"></DxGridDataColumn>
                                             }
                                             else
                                             {
@@ -434,8 +442,8 @@
         Data.ModifiedDate = DateTime.Now;
         Data.ModifiedBy = applicationUser.UserName;
         Data.ProductSpecificationDynamicFormId = null;
-        Data.SessionId = null; Data.CCNo = null;
-        Data.ExpectedSubmissionDate = null;UnSaved = false;
+        Data.SessionId = null; Data.CCNo = null; Data.IsAllowNA = false;
+        Data.ExpectedSubmissionDate = null; UnSaved = false;
         Data.StatusCodeId = 1; Data.VariationNoId = null; Data.ProductName = string.Empty; Data.VariationNoInfo = string.Empty;
         Data.SubmissionDate = null; Data.VariationRequirementInformationModels = new List<VariationRequirementInformationModel>();
         Data.SubmissionNo = null; PreProfileEnabled = true; dataColumnNames = new List<DropDownOptionsModel>();
@@ -460,6 +468,7 @@
                 {
                     PreProfileEnabled = false;
                 }
+                Data.IsAllowNA = dynamicFormData.IsAllowNA == true ? true : false;
                 Data.AddedBy = dynamicFormData.AddedBy;
                 Data.ModifiedUserId = dynamicFormData.ModifiedUserId;
                 Data.AddedByUserId = dynamicFormData.AddedByUserId;
@@ -572,7 +581,7 @@
                 _registrationRequestData.VariationNoInfo = VariationNoInfo;
             }
             var excelpt = _registrationRequestData.VariationNoIds.Except(Data.VariationNoIds).ToList();
-            if (excelpt.Count()>0)
+            if (excelpt.Count() > 0)
             {
                 UnSaved = true;
             }
@@ -616,6 +625,13 @@
                 if (s != null)
                 {
                     var valueData1 = s.GetValue(Data.ObjectData);
+                    if (string.IsNullOrEmpty((string?)valueData1))
+                    {
+                        if (Data.IsAllowNA == true)
+                        {
+                            Data.ObjectData.GetType().GetProperty(typeData == "DynamicFormDataNameId" ? items.DynamicFormDataNameId : items.DetailRequirementId).SetValue(Data.ObjectData, "NA");
+                        }
+                    }
                     var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
                     var access = Expression.Property(Expression.Constant(Data.ObjectData), s.Name);
                     var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
@@ -830,7 +846,7 @@
                 }
             }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false; ActiveSubTabIndex = 0;UnSaved = false;
+            loading = false; ActiveSubTabIndex = 0; UnSaved = false;
             StateHasChanged();
         }
         else

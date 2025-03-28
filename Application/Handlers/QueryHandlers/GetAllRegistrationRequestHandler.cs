@@ -318,4 +318,17 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.InsertCreateEmailRegistrationRequestAssignmentOfJob(request.RegistrationRequestAssignmentOfJob);
         }
     }
+    public class RegistrationRequestDepartmentEmailCreateHandler : IRequestHandler<InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise, RegistrationRequestDepartmentEmailCreate>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public RegistrationRequestDepartmentEmailCreateHandler(IRegistrationRequestQueryRepository dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<RegistrationRequestDepartmentEmailCreate> Handle(InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(request.RegistrationRequestDepartmentEmailCreate);
+        }
+    }
+    
 }

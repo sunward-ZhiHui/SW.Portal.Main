@@ -1,0 +1,543 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using System.Collections
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@inject IJSRuntime JSRuntime;
+@inject ClipboardService ClipboardService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<div class="" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 210px);">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;margin-bottom:10px;">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="From" ColSpanMd="8">
+                        <DxTextBox @bind-Text="@Data.From" Enabled="false" />
+                        <ValidationMessage For="@(() => Data.From)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Subject" ColSpanMd="12">
+                        <DxMemo @bind-Text="@Data.MainSubjectName" Enabled="false" Rows="5" />
+                        <ValidationMessage For="@(() => Data.MainSubjectName)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="To" ColSpanMd="10">
+                        <DxTagBox Data="_Toparticipant"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  NullText="Select To..."
+                                  Values="@Data.ToIds"
+                                  ValuesExpression="@(() => Data.ToIds )"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="Name"
+                                  ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  CssClass="cw-480">
+
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                        </DxTagBox>
+                        <ValidationMessage For="@(() => Data.ToIds)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption=" " ColSpanMd="2" CssClass="zero-width-label gbtn">
+                        <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
+                                  Click="@(_ => OnButtonUserGroupToClick())">
+                        </DxButton>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="CC" ColSpanMd="10">
+                        <DxTagBox NullText="Select Cc..."
+                                  Data="_CCparticipant"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="Name"
+                                  Values="@Data.CCIds"
+                                  ValuesExpression="@(() =>  Data.CCIds )"
+                                  ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  CssClass="cw-480">
+
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                                Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                                Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                                Caption="Company"
+                                                Width="100px" />
+
+
+                        </DxTagBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption=" " ColSpanMd="2" CssClass="zero-width-label gbtn">
+                        <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
+                                  Click="@(_ => OnButtonUserGroupCCClick())">
+                        </DxButton>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+                        <DxGrid Data="@registrationRequestAssignmentOfJobs"
+                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                KeyFieldName="RegistrationRequestAssignmentOfJobId"
+                                PageSizeSelectorVisible="true"
+                                PageSizeSelectorAllRowsItemVisible="true"
+                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                PageSize="20"
+                                CssClass="ch-360"
+                                style="height: calc(100vh - 500px);"
+                                AllowSelectRowByClick="true"
+                                CustomizeElement="Grid_CustomizeElement"
+                                AutoExpandAllGroupRows="true"
+                                VirtualScrollingEnabled="true"
+                                SelectionMode="GridSelectionMode.Single"
+                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+                            <Columns>
+                                <DxGridDataColumn FieldName="RegistrationRequestAssignmentOfJobId" Visible="false" />
+                                <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+                                <DxGridDataColumn FieldName="JobNo" Caption="No" MinWidth="40" />
+                                <DxGridDataColumn FieldName="DetailInforamtionByGuideline" Caption="Detail Inforamtion By Guideline" MinWidth="40" />
+                                <DxGridDataColumn FieldName="DetailRequirement" Caption="Detail Requirement" MinWidth="40" />
+                                <DxGridDataColumn FieldName="TargetDate" Caption="Target Date" MinWidth="40">
+                                    <CellDisplayTemplate Context="_editContext1">
+                                        @{
+                                            var item = (RegistrationRequestAssignmentOfJob)_editContext1.DataItem;
+                                            var startDate = string.Empty;
+                                            if (item.TargetDate != DateTime.MinValue)
+                                            {
+                                                if (item.TargetDate != null)
+                                                {
+                                                    startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
+                                                }
+                                            }
+                                        }
+                                        @startDate
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                                <DxGridCommandColumn Width="160px" Visible="false" />
+                            </Columns>
+
+                            <TotalSummary>
+                                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="JobNo" />
+                            </TotalSummary>
+                        </DxGrid>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<DxFlyout @bind-IsOpen=IsUserGroupToOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-To"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
+                    <DxTagBox Data="_ToUserGroup"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              Values="@TogroupValue"
+                              ValuesExpression="@(() => TogroupValue )"
+                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupToOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsUserGroupCCOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-CC"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
+                    <DxTagBox Data="_CCUserGroup"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              Values="@UserGroupValues"
+                              ValuesExpression="@(() => UserGroupValues )"
+                              TextFieldName="Name"
+                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupCCOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+@code {
+    IEnumerable<UserGroup> UserGroupValues { get; set; }
+    IEnumerable<UserGroup> TogroupValue { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public RegistrationRequest _registrationRequestData { get; set; }
+    [Parameter]
+    public IEnumerable _RegistrationRequestDepartmentData { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    public List<RegistrationRequestAssignmentOfJob> registrationRequestAssignmentOfJobs { get; set; }
+    public RegistrationRequestDepartmentEmailCreate Data = new RegistrationRequestDepartmentEmailCreate();
+    EditContext _editContext;
+    internal List<ViewEmployee>? _participant;
+    internal List<ViewEmployee>? _Allparticipant;
+    internal List<ViewEmployee>? _Toparticipant;
+    internal List<ViewEmployee>? _CCparticipant;
+    internal List<UserGroup>? _participantUserGroup;
+    internal List<UserGroup>? _ToUserGroup;
+    internal List<UserGroup>? _CCUserGroup;
+    bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        var getAllEmployeeListTask = Mediator.Send(new GetAllEmployeeListQuery());
+        try
+        {
+            await Task.WhenAll(getAllEmployeeListTask);
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+        var plist = await getAllEmployeeListTask;
+        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        Data.From = applicationUser?.UserName;
+        Data.FromId = applicationUser?.UserID;
+        Data.EmailCreateSessionId = Guid.NewGuid();
+        Data.MainSubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _registrationRequestData.VariationNoInfo;
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        Data.BackUrl = rep1 + "/" + _registrationRequestData.SessionId;
+        if (_RegistrationRequestDepartmentData != null)
+        {
+            var registrationRequestAssignmentOfJobs1 = _RegistrationRequestDepartmentData.Cast<RegistrationRequestAssignmentOfJob>().ToList();
+            var selectedData = registrationRequestAssignmentOfJobs1.Where(s => s.EmailCreateSessionId == null && s.IsEmailCreateDone == true).ToList();
+            registrationRequestAssignmentOfJobs = selectedData;
+            Data.RegistrationRequestAssignmentOfJobs = registrationRequestAssignmentOfJobs;
+        }
+        StateHasChanged();
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    void onSelectedToItemsChanged(IEnumerable<long>? values)
+    {
+
+        if (values != null)
+        {
+            Data.ToIds = values;
+            if (Data.CCIds != null)
+            {
+                var list = Data.CCIds.Where(p => !values.Contains(p)).ToList();
+                Data.CCIds = list;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+            _CCparticipant = _participant.ToList();
+            Data.ToIds = null;
+        }
+    }
+    void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        if (values != null)
+        {
+            Data.CCIds = values;
+            if (Data.ToIds != null)
+            {
+                var list = Data.ToIds.Where(p => !values.Contains(p)).ToList();
+                Data.ToIds = list;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
+            _Toparticipant = _participant.ToList();
+            Data.CCIds = null;
+        }
+    }
+    async Task OnButtonUserGroupCCClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
+        _CCUserGroup = _participantUserGroup;
+        Data.ToUserGroupIds = null;
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        IsUserGroupCCOpen = true;
+    }
+    async Task OnButtonUserGroupToClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
+        _ToUserGroup = _participantUserGroup;
+
+        Data.ToUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupToOpen = true;
+    }
+    void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+
+        if (values != null)
+        {
+            Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+            onToChange_Change(values);
+        }
+        else
+        {
+        }
+
+        IsUserGroupToOpen = false;
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            Data.CCUserGroupIds = values.Select(S => S.UserGroupId).ToList();
+            onCCChange_Change(values);
+
+        }
+        else
+        {
+        }
+
+        IsUserGroupCCOpen = false;
+
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task onToChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+        // var userIdsList = userIds.Select(s=>s.UserID.Value).ToList();
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+        if (Data.ToIds == null & Data.CCIds == null)
+        {
+            Data.ToIds = userIdsList;
+
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst.Select(s => s.UserID.Value));
+            }
+            // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                v1 = Data.ToIds.Concat(userIdsList).Distinct();
+            }
+            else if (Data.ToIds == null)
+            {
+                var T1 = Data.CCIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.CCIds);
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.CCIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.ToIds = combinedIds;
+
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst1.Select(s => s.UserID.Value));
+            }
+        }
+
+
+        StateHasChanged();
+    }
+    async Task onCCChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+
+        if (Data.CCIds == null && Data.ToIds == null)
+        {
+            Data.CCIds = userIdsList;
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst.Select(s => s.UserID.Value));
+            }
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                var T1 = Data.ToIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.ToIds);
+            }
+            else if (Data.ToIds == null)
+            {
+                v1 = Data.CCIds.Concat(userIdsList).Distinct();
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.ToIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.CCIds = combinedIds;
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst1.Select(s => s.UserID.Value));
+            }
+        }
+
+        StateHasChanged();
+    }
+    async Task HandleValidSubmit()
+    {
+        var result = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(Data));
+        if (result.FromId > 0)
+        {
+            toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            var url = NavigationManager.BaseUri + "ViewEmail/" + Data.EmailCreateSessionId;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+
+    }
+}

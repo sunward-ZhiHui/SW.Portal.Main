@@ -224,6 +224,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("SubmissionNo", value.SubmissionNo, DbType.String);
                     parameters.Add("PurposeOfRegistration", value.PurposeOfRegistration, DbType.String);
                     parameters.Add("StatusCodeId", value.StatusCodeId);
+                    parameters.Add("IsAllowNA", value.IsAllowNA);
                     parameters.Add("RegistrationRequestId", value.RegistrationRequestId);
                     parameters.Add("ProfileId", value.ProfileId);
                     if (value.RegistrationRequestId > 0)
@@ -238,7 +239,7 @@ namespace Infrastructure.Repository.Query
                             value.ProfileNo = ProfileNo;
                         }
                         parameters.Add("ProfileNo", ProfileNo, DbType.String);
-                        var query = "UPDATE RegistrationRequest SET ProfileNo=@ProfileNo,ProfileId=@ProfileId,PurposeOfRegistration=@PurposeOfRegistration,SubmissionNo=@SubmissionNo,RegistrationCountryId=@RegistrationCountryId,CCNo = @CCNo,ProductSpecificationDynamicFormId =@ProductSpecificationDynamicFormId,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
+                        var query = "UPDATE RegistrationRequest SET IsAllowNA=@IsAllowNA,ProfileNo=@ProfileNo,ProfileId=@ProfileId,PurposeOfRegistration=@PurposeOfRegistration,SubmissionNo=@SubmissionNo,RegistrationCountryId=@RegistrationCountryId,CCNo = @CCNo,ProductSpecificationDynamicFormId =@ProductSpecificationDynamicFormId,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
                             "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,ExpectedSubmissionDate=@ExpectedSubmissionDate WHERE RegistrationRequestId = @RegistrationRequestId";
 
                         await connection.ExecuteAsync(query, parameters);
@@ -248,8 +249,8 @@ namespace Infrastructure.Repository.Query
                         var ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = value.ProfileId, Title = "Registration Request", StatusCodeID = 710 });
                         value.ProfileNo = ProfileNo;
                         parameters.Add("ProfileNo", ProfileNo, DbType.String);
-                        var query = "INSERT INTO RegistrationRequest(ProfileId,ProfileNo,PurposeOfRegistration,SubmissionNo,RegistrationCountryId,CCNo,ProductSpecificationDynamicFormId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,SubmissionDate,StatusCodeId,ExpectedSubmissionDate) OUTPUT INSERTED.RegistrationRequestId VALUES " +
-                            "(@ProfileId,@ProfileNo,@PurposeOfRegistration,@SubmissionNo,@RegistrationCountryId,@CCNo,@ProductSpecificationDynamicFormId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@SubmissionDate,@StatusCodeId,@ExpectedSubmissionDate)";
+                        var query = "INSERT INTO RegistrationRequest(IsAllowNA,ProfileId,ProfileNo,PurposeOfRegistration,SubmissionNo,RegistrationCountryId,CCNo,ProductSpecificationDynamicFormId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,SubmissionDate,StatusCodeId,ExpectedSubmissionDate) OUTPUT INSERTED.RegistrationRequestId VALUES " +
+                            "(@IsAllowNA,@ProfileId,@ProfileNo,@PurposeOfRegistration,@SubmissionNo,@RegistrationCountryId,@CCNo,@ProductSpecificationDynamicFormId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@SubmissionDate,@StatusCodeId,@ExpectedSubmissionDate)";
 
                         var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         value.RegistrationRequestId = rowsAffected;
@@ -396,8 +397,9 @@ namespace Infrastructure.Repository.Query
                                     var exitsData = RegistrationResult.FirstOrDefault(q => q.DynamicFormDataId == d && q.RegistrationRequestId == registrationRequest.RegistrationRequestId);
                                     if (exitsData != null)
                                     {
+                                        parameters.Add("IsEmailCreateDone", exitsData.IsEmailCreateDone == true ? true : null);
                                         parameters.Add("RegistrationRequestAssignmentOfJobId", exitsData.RegistrationRequestAssignmentOfJobId);
-                                        var query1 = "UPDATE RegistrationRequestAssignmentOfJob SET RegistrationRequestDepartmentId=@RegistrationRequestDepartmentId,DynamicFormDataId=@DynamicFormDataId,RegistrationRequestId=@RegistrationRequestId,JobNo=@JobNo,DetailRequirement=@DetailRequirement,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId," +
+                                        var query1 = "UPDATE RegistrationRequestAssignmentOfJob SET IsEmailCreateDone=@IsEmailCreateDone,RegistrationRequestDepartmentId=@RegistrationRequestDepartmentId,DynamicFormDataId=@DynamicFormDataId,RegistrationRequestId=@RegistrationRequestId,JobNo=@JobNo,DetailRequirement=@DetailRequirement,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId," +
                                             "ModifiedUserId=@ModifiedUserId,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
 
                                         await connection.ExecuteAsync(query1, parameters);
@@ -1185,6 +1187,66 @@ namespace Infrastructure.Repository.Query
                         }
 
                         return dynamicFormData;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public async Task<RegistrationRequestDepartmentEmailCreate> InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(RegistrationRequestDepartmentEmailCreate valueData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (valueData.RegistrationRequestAssignmentOfJobs != null && valueData.RegistrationRequestAssignmentOfJobs.Count() > 0)
+                        {
+                            foreach (var item in valueData.RegistrationRequestAssignmentOfJobs)
+                            {
+                                string SubSubjectName = item.DepartmentName + "-" + item.JobNo;
+                                string SubemailContents = string.Empty;
+                                SubemailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}tr:nth-child(even) {background-color: #dddddd;}</style></head><body><table>";
+                                SubemailContents += "<tr><th>Department</th><th>No</th><th>Detail Inforamtion By Guideline</th><th>Detail Requirement</th><th>Target Date</th></tr>";
+                                SubemailContents += "<tr><td>" + item.DepartmentName + "</td><td>" + item.JobNo + "</td><td>" + item.DetailInforamtionByGuideline + "</td><td>" + item.DetailRequirement + "</td>";
+                                string startDate = string.Empty;
+                                if (item.TargetDate != DateTime.MinValue)
+                                {
+                                    if (item.TargetDate != null)
+                                    {
+                                        startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
+                                    }
+                                }
+                                SubemailContents += "<td>" + startDate + "</td></tr>";
+
+                                SubemailContents += "</table></body></html>";
+
+
+                                var parameters = new DynamicParameters();
+                                parameters.Add("EmailCreateSessionId", valueData.EmailCreateSessionId, DbType.Guid);
+                                parameters.Add("IsEmailCreateDone", 1);
+                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("ModifiedUserId", valueData.FromId);
+                                parameters.Add("RegistrationRequestAssignmentOfJobId", item.RegistrationRequestAssignmentOfJobId);
+                                var querya = "UPDATE RegistrationRequestAssignmentOfJob SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreateDone=@IsEmailCreateDone,EmailCreateSessionId=@EmailCreateSessionId WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
+                                await connection.ExecuteAsync(querya, parameters);
+                            }
+                        }
+
+                        return valueData;
                     }
 
 

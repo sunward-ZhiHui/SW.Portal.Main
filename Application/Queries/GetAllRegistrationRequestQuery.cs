@@ -174,5 +174,13 @@ namespace Application.Queries
             this.RegistrationRequestAssignmentOfJob = registrationRequestAssignmentOfJob;
         }
     }
+    public class InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise : DynamicFormWorkFlow, IRequest<RegistrationRequestDepartmentEmailCreate>
+    {
+        public RegistrationRequestDepartmentEmailCreate RegistrationRequestDepartmentEmailCreate { get; set; }
+        public InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(RegistrationRequestDepartmentEmailCreate registrationRequestDepartmentEmailCreate)
+        {
+            this.RegistrationRequestDepartmentEmailCreate = registrationRequestDepartmentEmailCreate;
+        }
+    }
     
 }

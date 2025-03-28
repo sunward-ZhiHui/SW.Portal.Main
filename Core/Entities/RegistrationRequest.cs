@@ -50,6 +50,7 @@ namespace Core.Entities
         public string? ProductName { get; set; }
         public string? VariationNoInfo { get; set; }
         public List<VariationRequirementInformationModel> VariationRequirementInformationModels { get; set; }=new List<VariationRequirementInformationModel>();
+        public bool? IsAllowNA { get; set; }=false;
     }
     public class RegistrationRequestVariation
     {

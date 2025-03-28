@@ -69,12 +69,14 @@
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
             CssClass="ch-360"
+            style="height: calc(100vh - 500px);"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
             AllowSelectRowByClick="true"
             CustomizeElement="Grid_CustomizeElement"
             CustomizeEditModel="Grid_CustomizeEditModel"
             AutoExpandAllGroupRows="true"
+            VirtualScrollingEnabled="true"
             SelectionMode="GridSelectionMode.Single"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
@@ -84,6 +86,18 @@
             <DxGridDataColumn FieldName="RegistrationRequestAssignmentOfJobId" Visible="false" />
 
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+            <DxGridCommandColumn MinWidth="100">
+                <HeaderTemplate>
+                    <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))">Is Email Create</DxCheckBox>
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var item = (RegistrationRequestAssignmentOfJob)context.DataItem;
+                        bool isEnabled = item.EmailCreateSessionId == null ? true : false;
+                        <DxCheckBox @bind-Checked="item.IsEmailCreateDone" Enabled="@isEnabled"></DxCheckBox>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
             <DxGridDataColumn FieldName="JobNo" Caption="No" MinWidth="40" />
             <DxGridDataColumn FieldName="DetailInforamtionByGuideline" Caption="Detail Inforamtion By Guideline" MinWidth="40" />
             <DxGridDataColumn FieldName="DetailRequirement" Caption="Detail Requirement" MinWidth="40" />
@@ -158,7 +172,7 @@
         </EditFormTemplate>
 
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DueDate" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="JobNo" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
@@ -188,7 +202,7 @@
         <p>
             Are you sure create Email?
         </p>
-       @*  <p style="font-weight:bold;">Subject:@SubjectName</p> *@
+        @*  <p style="font-weight:bold;">Subject:@SubjectName</p> *@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -196,7 +210,20 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@EmailAddpopupForm"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <RegistrationRequestCreateEmailForm applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData" _RegistrationRequestDepartmentData="@_dynamicFormSectionData" RevokeBack="AddpopupFormClose"></RegistrationRequestCreateEmailForm>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool EmailAddpopupForm { get; set; } = false;
+    bool CheckedAll { get; set; } = false;
     string? SubjectName { get; set; } = string.Empty;
     bool createEmailpopup { get; set; } = false;
     private List<ViewDepartment> _departmentItems;
@@ -233,6 +260,30 @@
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
 
         await UpdateDataAsync();
+    }
+    void AddpopupFormClose()
+    {
+        InvokeAsync(UpdateDataAsync);
+        EmailAddpopupForm = false;
+        StateHasChanged();
+    }
+    void OnCheckedAllValueChanged(bool radioValue)
+    {
+        CheckedAll = radioValue;
+        if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0)
+        {
+            _dynamicFormSectionData.ForEach(s =>
+            {
+                if (s.EmailCreateSessionId != null)
+                {
+
+                }
+                else
+                {
+                    s.IsEmailCreateDone = radioValue;
+                }
+            });
+        }
     }
     public async Task loadChildData(RegistrationRequest dynamicFormIds)
     {
@@ -502,28 +553,38 @@
         }
         else
         {
-            if (_selectedItems != null)
+            var exitsData = _dynamicFormSectionData.Where(s => s.EmailCreateSessionId == null && s.IsEmailCreateDone == true).Count();
+            if (exitsData > 0)
             {
-                var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
-                if (_selectedItemsDAta != null)
-                {
-                    if (_selectedItemsDAta.IsDraft == null)
-                    {
-                        SubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _selectedItems.DepartmentName + "-" + _selectedItems.JobNo;
-                        createEmailpopup = true;
-                    }
-                    if (_selectedItemsDAta.IsDraft == true)
-                    {
-                        var url = NavigationManager.BaseUri + "EmailDrafts";
-                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                    }
-                    if (_selectedItemsDAta.IsDraft == false)
-                    {
-                        var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
-                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                    }
-                }
+                EmailAddpopupForm = true;
             }
+            else
+            {
+                toastService.ShowToast("Select Checkbox Must", AC.SD.Core.Services.ToastLevel.Error);
+            }
+
+            // if (_selectedItems != null)
+            // {
+            //     var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
+            //     if (_selectedItemsDAta != null)
+            //     {
+            //         if (_selectedItemsDAta.IsDraft == null)
+            //         {
+            //             SubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _selectedItems.DepartmentName + "-" + _selectedItems.JobNo;
+            //             createEmailpopup = true;
+            //         }
+            //         if (_selectedItemsDAta.IsDraft == true)
+            //         {
+            //             var url = NavigationManager.BaseUri + "EmailDrafts";
+            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            //         }
+            //         if (_selectedItemsDAta.IsDraft == false)
+            //         {
+            //             var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            //         }
+            //     }
+            // }
         }
     }
     async Task createEmailYes()

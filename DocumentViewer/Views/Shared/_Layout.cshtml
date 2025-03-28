@@ -127,6 +127,10 @@
                                     }
                                     else
                                     {
+                                        @if (@ViewBag.FileExtension == "pdf")
+                                        {
+                                            <a href="javascript:void(0);" id="downloadClick">Download</a>
+                                        }
                                         <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
                                     }
                                 }
@@ -233,10 +237,11 @@
             const url = urlParams.get('url');
             if (url != null) {
                 var fileName = $("#fileName_id").html();
+                var isDownLoad = "@ViewBag.isDownload";
                 var IsLatestDoc = "@ViewBag.IsHistoryDoc";
                 $.ajax({
                     url: '@Url.Action("downloadfromurl")',
-                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false },
+                    data: { url: url, IsLatest: IsLatestDoc == "Yes" ? true : false, isDownload: isDownLoad },
                     method: 'GET',
                     xhrFields: {
                         responseType: 'blob'

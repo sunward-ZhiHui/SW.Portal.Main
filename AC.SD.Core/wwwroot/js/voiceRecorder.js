@@ -2,24 +2,33 @@
 let audioChunks = [];
 
 window.startVoiceRecording = async () => {
+    audioChunks = [];
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
 
-    audioChunks = []; // Reset chunks for a new recording
-    mediaRecorder.ondataavailable = event => {
-        audioChunks.push(event.data);
+    mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+            audioChunks.push(event.data);
+        }
     };
 
     mediaRecorder.start();
 };
 
-window.stopVoiceRecording = () => {
-    return new Promise((resolve) => {
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: "audio/wav" });
-            const audioUrl = URL.createObjectURL(blob);
+window.stopVoiceRecording = async () => {
+    return new Promise((resolve, reject) => {
+        if (!mediaRecorder) {
+            reject("No recording found.");
+            return;
+        }
 
-            resolve(audioUrl); // Return the blob URL for playback
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+
+            // Convert Blob to Object URL and resolve
+            const audioUrl = URL.createObjectURL(audioBlob);
+            resolve(audioUrl);
         };
 
         mediaRecorder.stop();

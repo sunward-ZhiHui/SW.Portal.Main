@@ -12,12 +12,17 @@ namespace Core.Entities
     public class EmailModel
     {
         public string MessageId { get; set; }
+        // public List<string> SubjectPrefixes { get; set; }
+        public bool IsSentByMe { get; set; }
+        public List<string> SubjectPrefixes { get; set; } = new List<string>();
         public string Subject { get; set; }
         public string From { get; set; }
         public string To { get; set; }
         public string FromName { get; set; }
         public string ToName { get; set; }
         public string CC { get; set; }
+        public string Cc {  get; set; }
+        public string Bcc { get; set; }
         public string CCName { get; set; }
         public string BodyText { get; set; }
         public string BodyHtml { get; set; }
@@ -50,7 +55,8 @@ namespace Core.Entities
         public string ReplyBcc { get; set; } // Bcc Email
         public List<IBrowserFile> ReplyAttachments { get; set; } = new List<IBrowserFile>();
         public bool IsReplying { get; set; }
-
+        public bool IsToMe { get; set; }
+        public List<string> References { get; set; }
     }
     public class EmailReply
     {
@@ -59,6 +65,8 @@ namespace Core.Entities
         public DateTime Date { get; set; }
         public string From { get; set; }
         public List<EmailAttachmentModel> Attachments { get; set; }
+        public bool IsToMe { get; set; }
+        public bool IsSentByMe { get; set; }
     }
     public class EmailAttachmentModel
     {

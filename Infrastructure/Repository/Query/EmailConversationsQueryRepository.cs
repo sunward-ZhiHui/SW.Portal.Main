@@ -1131,6 +1131,7 @@ namespace Infrastructure.Repository.Query
                                 FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
                             FROM
                                 EmailConversations FC
+                            INNER JOIN EmailConversationParticipant ECPP ON ECPP.ConversationId = FC.ID AND ECPP.UserId = @UserId
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                             INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId

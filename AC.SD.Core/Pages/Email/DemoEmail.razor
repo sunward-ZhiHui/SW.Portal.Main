@@ -4,6 +4,7 @@
 @using Application.Response;
 @using MediatR
 @inject IMediator Mediator
+@using System.IO
 @using global::Core.Entities;
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
@@ -13,7 +14,6 @@
 
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
-
 <DxButton Text="@ButtonText" Click="@ToggleRecording" CssClass="record-button"></DxButton>
 
 @if (IsRecording)
@@ -29,34 +29,30 @@
         {
             <li>
                 <audio controls>
-                    <source src="@recording.Url" type="audio/wav">
+                    <source src="@GetAudioUrl(recording)" type="audio/wav">
                     Your browser does not support the audio element.
                 </audio>
-                <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" />
+                <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" CssClass="delete-button" />
             </li>
         }
     </ul>
+
+    <DxButton Text="Send All" Click="@SendAllRecordings" CssClass="send-all-button" />
 }
 
-
-
-
-<DxHtmlEditor @bind-Value="@Markup" Height="200px">
-    <DxHtmlEditorMentions>
-        <DxHtmlEditorMention Data="@_participantData"
-                             DisplayFieldName="@nameof(ViewEmployee.Name)"
-                             SearchFieldNames="@SearchFieldNames" />
-    </DxHtmlEditorMentions>
-</DxHtmlEditor>
-
 @code {
-
-
     private bool IsRecording { get; set; }
     private string ButtonText => IsRecording ? "Stop Recording" : "Start Recording";
-
     private List<Recording> Recordings { get; set; } = new();
+    private HttpClient _httpClient = new HttpClient();
+    private string GetAudioUrl(Recording recording)
+    {
+        if (recording.FileData == null || recording.FileData.Length == 0)
+            return "";
 
+        var base64 = Convert.ToBase64String(recording.FileData);
+        return $"data:audio/wav;base64,{base64}";
+    }
     private async Task ToggleRecording()
     {
         if (IsRecording)
@@ -78,14 +74,136 @@
     private async Task StopRecording()
     {
         IsRecording = false;
+
         var recordingUrl = await JSRuntime.InvokeAsync<string>("stopVoiceRecording");
 
-        // Add the new recording to the list
-        Recordings.Add(new Recording
+        if (string.IsNullOrEmpty(recordingUrl))
+        {
+            //toastService.ShowError("Failed to fetch recording.");
+            return;
+        }
+
+        try
+        {
+            var fileStreamRef = await JSRuntime.InvokeAsync<IJSStreamReference>("fetchFile", recordingUrl);
+            var fileName = $"recording_{Guid.NewGuid()}.wav";
+
+            using var stream = await fileStreamRef.OpenReadStreamAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+
+            var recording = new Recording
+                {
+                    Id = Guid.NewGuid(),
+                    FileName = fileName,
+                    FileData = memoryStream.ToArray() // Store as byte array
+                };
+
+            Recordings.Add(recording);
+        }
+        catch (Exception ex)
+        {
+            //toastService.ShowError($"Error fetching recording: {ex.Message}");
+        }
+    }
+
+
+
+
+    private async Task SendAllRecordingsold()
+    {
+        if (!Recordings.Any())
+        {
+            //toastService.ShowWarning("No recordings to send.");
+            return;
+        }
+
+        try
+        {
+            var fileContent = new MultipartFormDataContent();
+
+            foreach (var recording in Recordings)
             {
-                Id = Guid.NewGuid(),
-                Url = recordingUrl
-            });
+                if (recording.FileData == null || recording.FileData.Length == 0)
+                    continue;
+
+                var byteArrayContent = new ByteArrayContent(recording.FileData);
+                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+
+                fileContent.Add(byteArrayContent, "files", recording.FileName);
+            }
+
+            var response = await _httpClient.PostAsync("https://localhost:44300/api/FileUpload/upload-multiple", fileContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                //toastService.ShowSuccess("All recordings sent successfully.");
+                Recordings.Clear(); // Clear after successful upload
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                //toastService.ShowError($"Failed to send recordings. Server response: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            //toastService.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    private async Task SendAllRecordings()
+    {
+        if (!Recordings.Any())
+        {
+            //toastService.ShowWarning("No recordings to send.");
+            return;
+        }
+
+        try
+        {
+            var fileContent = new MultipartFormDataContent();
+            var sessionId = Guid.Parse("D39A69E7-2909-4408-B316-D065F027748A");
+            var addedByUserId = 1; // Assign actual user ID
+            var isFileSession = true;
+            var sourceFrom = "Email";
+            var fileProfileId = 0; // Assign actual profile ID
+
+            foreach (var recording in Recordings)
+            {
+                if (recording.FileData == null || recording.FileData.Length == 0)
+                    continue;
+
+                var byteArrayContent = new ByteArrayContent(recording.FileData);
+                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+
+                fileContent.Add(byteArrayContent, "files", recording.FileName);
+            }
+
+            // Add additional parameters
+            fileContent.Add(new StringContent(sessionId.ToString()), "SessionId");
+            fileContent.Add(new StringContent(addedByUserId.ToString()), "addedByUserId");
+            fileContent.Add(new StringContent(isFileSession.ToString()), "IsFileSession");
+            fileContent.Add(new StringContent(sourceFrom), "SourceFrom");
+            fileContent.Add(new StringContent(fileProfileId.ToString()), "FileProfileId");
+
+            var response = await _httpClient.PostAsync("https://localhost:44300/api/FileUpload/upload-multiple", fileContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                //toastService.ShowSuccess("All recordings sent successfully.");
+                Recordings.Clear(); // Clear after successful upload
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                //toastService.ShowError($"Failed to send recordings. Server response: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            //toastService.ShowError($"Error: {ex.Message}");
+        }
     }
 
     private void DeleteRecording(Guid id)
@@ -100,70 +218,8 @@
     private class Recording
     {
         public Guid Id { get; set; }
-        public string Url { get; set; }
+        public string FileName { get; set; }
+        public byte[] FileData { get; set; }
     }
 
-
-
-    private List<ViewEmployee>? _participant;
-    public ApplicationUser? applicationUser { get; private set; }
-    private ViewEmployee[] _participantData { get; set; }
-    string Markup = "";
-    string[] SearchFieldNames = { nameof(ViewEmployee.Name) };
-
-   
-     protected override async Task OnInitializedAsync()
-    {
-
-        Markup = GetData();
-
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        var plist = await Mediator.Send(new GetAllEmployeeListQuery());
-        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-
-        _participantData = _participant.Select(p => new ViewEmployee
-            {
-                EmployeeID = p.EmployeeID,
-                UserID = p.UserID,
-                SageID = p.SageID,
-                PlantID = p.PlantID,
-                LevelID = p.LevelID,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                NickName = p.NickName,
-                UserCode = p.UserCode,
-                Name = $"{p.FirstName} {p.LastName}",
-                
-            }).ToArray();
-    }
-    public string GetData()
-    {
-        return $@"<p>Supported browsers:
-                <table>
-                    <tbody>
-                        <tr>
-                            <td><strong>Google Chrome (including Android)</strong></td>
-                            <td>Latest</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Apple Safari (including iOS)</strong></td>
-                            <td>Latest</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Mozilla Firefox</strong></td>
-                            <td>Latest</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Microsoft Edge</strong></td>
-                            <td>Latest</td>
-                        </tr>
-                        <tr>
-                            <td><strong><a href='https://support.microsoft.com/en-us/microsoft-edge/what-is-microsoft-edge-legacy-3e779e55-4c55-08e6-ecc8-2333768c0fb0' rel='noopener noreferrer' target='_blank'>Microsoft Edge Legacy</a></strong></td>
-                            <td>Not supported</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>";
-    }
 }

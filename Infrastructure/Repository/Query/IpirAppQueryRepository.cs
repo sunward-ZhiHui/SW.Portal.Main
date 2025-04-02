@@ -72,7 +72,7 @@ namespace Infrastructure.Repository.Query
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
                             if (counts != null)
                             {
-                                
+
                                 s.DocumentId = counts.DocumentId;
                                 s.FileProfileTypeId = counts.FilterProfileTypeId;
                                 s.DocumentID = counts.DocumentId;
@@ -583,7 +583,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("FixedAssetNo", value.FixedAssetNo, DbType.String);
                         parameters.Add("Comment", value.Comment, DbType.String);
                         parameters.Add("LocationID", value.LocationID);
-                       
+
                         parameters.Add("MachineName", value.MachineName);
 
                         parameters.Add("ActivityStatusId", value.ActivityStatusId);
@@ -595,7 +595,7 @@ namespace Infrastructure.Repository.Query
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                         }
-                       
+
                         if (value.IpirAppId > 0)
                         {
                             var Deletequery = "DELETE  FROM IpirAppIssueDep WHERE IpirAppId = " + value.IpirAppId + ";";
@@ -660,7 +660,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("CompanyID", value.CompanyID);
                         parameters.Add("ProfileId", value.ProfileId);
                         parameters.Add("LocationID", value.LocationID);
-                       
+
                         parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
                         parameters.Add("ModifiedDate", value.ModifiedDate);
                         parameters.Add("SubjectName", value.SubjectName);
@@ -675,18 +675,18 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
                         parameters.Add("ProdOrderNo", value.ProdOrderNo, DbType.String);
                         parameters.Add("StatusCodeID", value.StatusCodeID);
-                       
-                        parameters.Add("MachineName", value.MachineName, DbType.String);
-                      
-                       
 
-                            var query = @"Update IpirApp Set StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD ,
+                        parameters.Add("MachineName", value.MachineName, DbType.String);
+
+
+
+                        var query = @"Update IpirApp Set StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD ,
            RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD ,FixedAsset = @FixedAsset ,Type =@Type,SubjectName = @SubjectName,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID,
                             ProdOrderNo=@ProdOrderNo  Where IpirAppId=@IpirAppId;";
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                        
-                       
+
+
                         return value;
                     }
                     catch (Exception exp)
@@ -992,7 +992,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async  Task<IReadOnlyList<DocumentProfileNoSeries>> GetProfileType()
+        public async Task<IReadOnlyList<DocumentProfileNoSeries>> GetProfileType()
         {
             try
             {
@@ -1001,13 +1001,149 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentProfileNoSeries>(query)).ToList();
-                  
+
                 }
-               
+
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ActivityEmailTopicsModel>> GetActivityEmailTopicList(string SessionIds)
+        {
+
+            try
+            {
+                var query = "select  * from ActivityEmailTopics where ActivityType='IncidentReport' AND SessionId in(" + SessionIds + ");";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopicsModel>(query, null)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IpirApp> GetEmailIpirAppBySessionId(Guid? SessionId)
+        {
+            try
+            {
+                IpirApp dynamicFormData = new IpirApp();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.* from IpirApp t1 Where t1.SessionId=@SessionId";
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormData = await connection.QueryFirstOrDefaultAsync<IpirApp>(query, parameters);
+                    if (dynamicFormData != null)
+                    {
+                        if (dynamicFormData.SessionID != null)
+                        {
+                            var _activityEmailTopics = await GetActivityEmailTopicList("'" + dynamicFormData.SessionID.ToString() + "'");
+                            var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == dynamicFormData.SessionID);
+                            if (_activityEmailTopicsOne != null)
+                            {
+                                dynamicFormData.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
+                                if (_activityEmailTopicsOne.EmailTopicSessionId != null)
+                                {
+                                    if (_activityEmailTopicsOne.IsDraft == false)
+                                    {
+                                        dynamicFormData.IsDraft = false;
+                                    }
+                                    if (_activityEmailTopicsOne.IsDraft == true)
+                                    {
+                                        dynamicFormData.IsDraft = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                return dynamicFormData;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ActivityEmailTopics> GetActivityEmailTopicsExits(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.ActivityEmailTopicID,\r\nt1.ActivityMasterId,\r\nt1.ManufacturingProcessId,\r\nt1.CategoryActionId,\r\nt1.ActionId,\r\nt1.Comment,\r\nt1.DocumentSessionId,\r\nt1.SubjectName,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.SessionId,\r\nt1.EmailTopicSessionId,\r\nt1.ActivityType,\r\nt1.FromId,\r\nt1.ToIds,\r\nt1.CcIds,\r\nt1.Tags,\r\nt1.BackURL,\r\nt1.IsDraft from ActivityEmailTopics t1 WHERE  t1.activityType='RegistrationRequest' AND t1.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<ActivityEmailTopics>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IpirApp> InsertCreateEmailIpirApp(IpirApp dynamicFormData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        string emailContents = string.Empty;
+                        var exitsData = await GetActivityEmailTopicsExits(dynamicFormData.SessionID);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("activityType", "IncidentReport", DbType.String);
+                        parameters.Add("BackUrl", dynamicFormData.BackUrl, DbType.String);
+                        parameters.Add("subjectName", dynamicFormData.SubjectName, DbType.String);
+                        parameters.Add("Comment", dynamicFormData.Comment, DbType.String);
+                        parameters.Add("SessionId", dynamicFormData.SessionID, DbType.Guid);
+                        parameters.Add("AddedByUserID", dynamicFormData.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicFormData.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicFormData.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
+                        parameters.Add("EmailCommentTable", emailContents, DbType.String);
+                        parameters.Add("StatusCodeID", 1);
+                        if (exitsData == null)
+                        {
+                            var query = "INSERT INTO ActivityEmailTopics(EmailCommentTable,Comment,subjectName,SessionId,AddedByUserID," +
+                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl) VALUES " +
+                         "(@EmailCommentTable,@Comment,@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl)";
+
+                            await connection.ExecuteAsync(query, parameters);
+
+                        }
+                        else
+                        {
+                            if (exitsData.EmailActivitySessionId == null)
+                            {
+                                parameters.Add("ActivityEmailTopicID", exitsData.ActivityEmailTopicID);
+                                var querya = "UPDATE ActivityEmailTopics SET Comment=@Comment,activityType=@activityType,subjectName=@subjectName,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,EmailCommentTable=@EmailCommentTable WHERE ActivityEmailTopicID = @ActivityEmailTopicID";
+                                await connection.ExecuteAsync(querya, parameters);
+                            }
+                        }
+
+                        return dynamicFormData;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -20,6 +20,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@addExport" />
             </Items>
         </DxMenu>
 
@@ -340,5 +341,11 @@
        // System.GC.Collect();
         clearData();
         //GC.SuppressFinalize(this);
+    }
+    async Task addExport()
+    {
+        await Grid.ExportToXlsxAsync("Attribute Master", new GridXlExportOptions()
+        {
+        });
     }
 }

@@ -15,5 +15,12 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<NavMethodCodeModel>> GetNavMethodCodeAsync();
         Task<NavMethodCodeModel> DeleteNavMethodCode(NavMethodCodeModel value);
         Task<NavMethodCodeModel> InsertOrUpdateNavMethodCode(NavMethodCodeModel value);
+        Task<IReadOnlyList<NAVINPCategoryModel>> GetNAVINPCategorysync();
+        Task<IReadOnlyList<NavMethodCodeLines>> GetNavMethodCodeLinesById(long? MethodCodeId);
+        Task<NavMethodCodeLines> DeleteNavMethodCodeLines(NavMethodCodeLines value);
+        Task<NavMethodCodeLines> InsertOrUpdateNavMethodCodeLines(NavMethodCodeLines value);
+        Task<IReadOnlyList<ProductionForecastModel>> GetProductionForecastById(long? MethodCodeId);
+        Task<ProductionForecastModel> InsertOrUpdateProductionForecast(ProductionForecastModel value);
+        Task<ProductionForecastModel> DeleteProductionForecast(ProductionForecastModel value);
     }
 }

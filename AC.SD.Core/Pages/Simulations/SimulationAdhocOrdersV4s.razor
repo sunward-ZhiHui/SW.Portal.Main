@@ -1,0 +1,754 @@
+﻿@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/simulationAdhocOrdersV4"
+@implements IAsyncDisposable
+
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+
+
+
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    @*  <DxMenuItem Position="ItemPosition.End" title="Export to XLS" IconCssClass="fa fa-filter" Click="ExportXls_Click" /> *@
+                    <DxMenuItem Position="ItemPosition.End" title="Export to CSV" IconCssClass="fas fa-file-csv" Click="ExportCsv_Click" />
+                    <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter())" id=@($"flyout-overview-target-container-FilterDocuments") />
+                </Items>
+            </DxMenu>
+
+        </div>
+
+
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_simulationItems" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 250px);">
+        <Columns>
+
+
+            <DxGridDataColumn FieldName="SalesCategory" Caption="Sales Category" GroupIndex="0" Width="150" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="IsSteroids" Caption="Non/Steroid" GroupIndex="0" Width="150" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="MethodCode" Caption="Generic Code" GroupIndex="0" Width="300" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="ItemNo" Width="300" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="PackSize" Width="100" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridBandColumn Caption="@Acheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="ApexQty" DisplayFormat="n2" Caption="Apex" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="AntahQty" DisplayFormat="n2" Caption="Antah" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="MissQty" DisplayFormat="n2" Caption="MSS" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PxQty" DisplayFormat="n2" Caption="PX" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="AcSum_" DisplayFormat="n2" Caption="AC Total" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridDataColumn FieldName="SymlQty" DisplayFormat="n2" Caption="AC in Units" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ThreeMonthACQty_" DisplayFormat="n2" Caption="AC Unit X 3" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProdRecipe" Caption="Register Batch Size" Width="100">
+            </DxGridDataColumn>
+            <DxGridBandColumn Caption="@CurrentBatchSize" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="BatchSize90" Caption="@BatchSize90" Width="100">
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="Roundup1_" Caption="Count" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Roundup2_" Caption="Round Up" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            @* <DxGridBandColumn Caption="@StbPreheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
+            <Columns>
+            <DxGridDataColumn FieldName="PreApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreAntahStockBalance_" Caption="Antah" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreMsbStockBalance_" Caption="MSS" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PrePsbStockBalance_" Caption="PX" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreSgTenderStockBalance_" Caption="SWSIN" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="WipQty_" Caption="WIP" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreMyStockBalance_" Caption="SWMY" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreOtherStoreQty_" Caption="Other Store" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PrewipQty_" Caption="WIP Stock" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreStockBalance_" Caption="Total Stock Balance" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PreStockHoldingBalance_" Caption="No. of mth" DisplayFormat="n2" Width="100">
+
+            </DxGridDataColumn>
+            </Columns>
+            </DxGridBandColumn> *@
+            <DxGridBandColumn Caption="@Stbheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="ApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="AntahStockBalance_" Caption="Antah" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="MsbStockBalance_" Caption="MSS" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PsbStockBalance_" Caption="PX" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="SgTenderStockBalance_" Caption="SWSIN" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="WipQty_" Caption="WIP" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NotStartInvQty_" Caption="Not Start Inv Qty" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="MyStockBalance_" Caption="SWMY" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="OtherStoreQty_" Caption="Other Store" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="DeliverynotReceived" Caption="In Transit" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="InterCompanyTransitQty_" Caption="In T/intercompany" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="StockBalance_" Caption="Stock Balance" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="StockHoldingBalance_" Caption="No. of mth" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Rework" Caption="Rework" DisplayFormat="n2" Width="100"></DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month1" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc1_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month1_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock1_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket1" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket1_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected1_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month2" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc2_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month2_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock2_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket2" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket2_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected2_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month3" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc3_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month3_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock3_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket3" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket3_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected3_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month4" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc4_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month4_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock4_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket4" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket4_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected4_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month5" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc5_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month5_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock5_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket5" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket5_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected5_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month6" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc6_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month6_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock6_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket6" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket6_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected6_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month7" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc7_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month7_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock7_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket7" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket7_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected7_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month8" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc8_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month8_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock8_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket8" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket8_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected8_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month9" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc9_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month9_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock9_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket9" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket9_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected9_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month10" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc10_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month10_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock10_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket10" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket10_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected10_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month11" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc11_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month11_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock11_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket11" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket11_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected11_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridBandColumn Caption="@Month12" CaptionAlignment="GridTextAlignment.Center" Width="200">
+                <Columns>
+                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="BlanketAddhoc12_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Month12_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock12_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Ticket12" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NoOfTicket12_" Caption="No Of Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ProductionProjected12_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
+                    </DxGridDataColumn>
+                </Columns>
+            </DxGridBandColumn>
+            <DxGridDataColumn FieldName="Remarks" Caption="Remarks" Width="300" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxFlyout @bind-IsOpen=IsFilterOpen
+          PositionTarget=@($"#flyout-overview-target-container-FilterDocuments")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Search Document"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Opening Balance Month" ColSpanMd="12">
+                <DxDateEdit NullText="Select a Opening Balance Month..." @bind-Date="@dateRangeModel.StockMonth" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="12">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="NavCompany"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@dateRangeModel.CompanyId" ShowValidationIcon="true">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                            Caption="Company Code"
+                                            Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                            Caption="Description" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                            Caption="Nav Company" />
+                    </Columns>
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox Checked="@dateRangeModel.IsSteroids" CheckedExpression="@(() => dateRangeModel.IsSteroids)" CheckedChanged="@((bool value) => CheckedVisibleChanged(value))">Steroid</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox Checked="@dateRangeModel.IsNonSteroids" CheckedExpression="@(() => dateRangeModel.IsNonSteroids)" CheckedChanged="@((bool value) => CheckedReadWriteChanged(value))">Non Steroid</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Version" ColSpanMd="12">
+                <DxComboBox Data="@_versionItems"
+                            NullText="Select Version..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="Id"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.VersionId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sales Category" ColSpanMd="12">
+                <DxComboBox Data="@_salesCategoryItems"
+                            NullText="Select Sales Category..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Text"
+                            ValueFieldName="Id"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.SalesCategoryId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Method Code" ColSpanMd="12">
+                <DxComboBox Data="@_navMethodCodeModeltems"
+                            NullText="Select Method Code..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="MethodName"
+                            ValueFieldName="MethodCodeID"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.MethodCodeId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(()=> OnFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(()=> OnClearFilterDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(()=> OnCloseFilterDocuments()) />
+
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    private List<ViewPlants>? _plantItems;
+    private List<NavMethodCodeModel>? _navMethodCodeModeltems;
+    bool IsFilterOpen { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    private List<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
+    private List<DropDownOptionsModel> _versionItems = new List<DropDownOptionsModel>();
+    private List<DropDownOptionsModel> _salesCategoryItems = new List<DropDownOptionsModel>();
+    IGrid Grid { get; set; }
+    DateRangeModel dateRangeModel = new DateRangeModel();
+    bool ExportSelectedRowsOnly { get; set; }
+    public string? Acheader { get; set; } = "AC as at end Aug 19";
+    public string? CurrentBatchSize { get; set; } = "Current Batch Size"; public string? BatchSize90 { get; set; } = "Batch Size";
+    public string? StbPreheader { get; set; } = ""; public string? Stbheader { get; set; } = "Stock balance as at end Aug 2019";
+    public string? Month1 { get; set; } = ""; public string? Month2 { get; set; } = ""; public string? Month3 { get; set; } = ""; public string? Month4 { get; set; } = "";
+    public string? Month5 { get; set; } = ""; public string? Month6 { get; set; } = ""; public string? Month7 { get; set; } = ""; public string? Month8 { get; set; } = "";
+    public string? Month9 { get; set; } = ""; public string? Month10 { get; set; } = ""; public string? Month11 { get; set; } = ""; public string? Month12 { get; set; } = "";
+    public ApplicationUser applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        dateRangeModel.StockMonth = DateTime.Now;
+        dateRangeModel.CompanyId = 1; dateRangeModel.VersionId = null;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _navMethodCodeModeltems = await Mediator.Send(new GetAllNavMethodCode());
+        for (long i = 1; i <= 10; i++)
+        {
+            DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+            dropDownOptionsModel.Id = i;
+            dropDownOptionsModel.Value = i.ToString();
+            _versionItems.Add(dropDownOptionsModel);
+        }
+        salesCatList();
+
+        await onLoadData();
+    }
+    void salesCatList()
+    {
+        DropDownOptionsModel dropDownOptionsModel1 = new DropDownOptionsModel();
+        dropDownOptionsModel1.Text = "CAP";
+        dropDownOptionsModel1.Id = 1;
+        _salesCategoryItems.Add(dropDownOptionsModel1);
+        DropDownOptionsModel dropDownOptionsModel2 = new DropDownOptionsModel();
+        dropDownOptionsModel2.Text = "CREAM";
+        dropDownOptionsModel2.Id = 2;
+        _salesCategoryItems.Add(dropDownOptionsModel2);
+
+        DropDownOptionsModel dropDownOptionsModel3 = new DropDownOptionsModel();
+        dropDownOptionsModel3.Text = "DD";
+        dropDownOptionsModel3.Id = 3;
+        _salesCategoryItems.Add(dropDownOptionsModel3);
+        DropDownOptionsModel dropDownOptionsModel4 = new DropDownOptionsModel();
+        dropDownOptionsModel4.Text = "SYRUP";
+        dropDownOptionsModel4.Id = 4;
+        _salesCategoryItems.Add(dropDownOptionsModel4);
+        DropDownOptionsModel dropDownOptionsModel5 = new DropDownOptionsModel();
+        dropDownOptionsModel5.Text = "TABLET";
+        dropDownOptionsModel5.Id = 5;
+        _salesCategoryItems.Add(dropDownOptionsModel5);
+        DropDownOptionsModel dropDownOptionsModel6 = new DropDownOptionsModel();
+        dropDownOptionsModel6.Text = "VET";
+        dropDownOptionsModel6.Id = 6;
+        _salesCategoryItems.Add(dropDownOptionsModel6);
+        DropDownOptionsModel dropDownOptionsModel7 = new DropDownOptionsModel();
+        dropDownOptionsModel7.Text = "POWDER";
+        dropDownOptionsModel7.Id = 7;
+        _salesCategoryItems.Add(dropDownOptionsModel7);
+        DropDownOptionsModel dropDownOptionsModel8 = new DropDownOptionsModel();
+        dropDownOptionsModel8.Text = "INJ";
+        dropDownOptionsModel8.Id = 8;
+        _salesCategoryItems.Add(dropDownOptionsModel8);
+    }
+    async Task onLoadData()
+    {
+        PanelVisible = true;
+
+
+        var startDate = dateRangeModel.StockMonth;
+        var makeDate = dateRangeModel.StockMonth.AddDays(-1);
+        Stbheader = "Stock balance as at " + makeDate.ToString("dd-MMM-yyyy");
+        makeDate = makeDate.AddMonths(-1);
+        var lastDay = new DateTime(makeDate.Year, makeDate.Month, 1).AddMonths(1).AddDays(-1);
+        StbPreheader = "Stock balance as at " + lastDay.ToString("dd-MMM-yyyy");
+        Acheader = "AC as at " + lastDay.ToString("dd-MMM-yyyy");
+        var endDate = startDate.AddMonths(12);
+        int countmonth = 1;
+        while (startDate < endDate)
+        {
+
+            var lastDayOfMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
+
+            var daysInMonth = lastDayOfMonth - startDate.Day;
+
+            var monthEndDate = startDate.AddDays(daysInMonth);
+
+            if (endDate <= monthEndDate)
+            {
+                startDate = startDate.AddDays(daysInMonth);
+            }
+            else
+            {
+                var month = startDate.ToString("MMM");
+                if (countmonth == 1) Month1 = month;
+                if (countmonth == 2) Month2 = month;
+                if (countmonth == 3) Month3 = month;
+                if (countmonth == 4) Month4 = month;
+                if (countmonth == 5) Month5 = month;
+                if (countmonth == 6) Month6 = month;
+                if (countmonth == 7) Month7 = month;
+                if (countmonth == 8) Month8 = month;
+                if (countmonth == 9) Month9 = month;
+                if (countmonth == 10) Month10 = month;
+                if (countmonth == 11) Month11 = month;
+                if (countmonth == 12) Month12 = month;
+                startDate = monthEndDate.AddDays(1);
+            }
+            countmonth++;
+        }
+
+        _simulationItems = await Mediator.Send(new GetSimulationAddhocV4Query(dateRangeModel));
+        if (_simulationItems != null && _simulationItems.Count() > 0)
+        {
+            PanelVisible = false;
+        }
+        else
+        {
+            PanelVisible = false;
+        }
+        StateHasChanged();
+        //Grid.AutoFitColumnWidths();
+    }
+    void OnFileProfiltefilter()
+    {
+        IsFilterOpen = true;
+        StateHasChanged();
+    }
+    async Task OnFilterDocuments()
+    {
+        await onLoadData();
+    }
+    async Task OnClearFilterDocuments()
+    {
+        dateRangeModel = new DateRangeModel();
+        dateRangeModel.StockMonth = DateTime.Now;
+        dateRangeModel.CompanyId = 1;
+        dateRangeModel.VersionId = null;
+        dateRangeModel.IsSteroid = null;
+        dateRangeModel.SalesCategoryId = null;
+        dateRangeModel.MethodCodeId = null;
+        await onLoadData();
+        StateHasChanged();
+    }
+    void CheckedVisibleChanged(bool value)
+    {
+        dateRangeModel.IsSteroid = true;
+        dateRangeModel.IsSteroids = value;
+        dateRangeModel.IsNonSteroids = false;
+        if (dateRangeModel.IsSteroids == false)
+        {
+            dateRangeModel.IsSteroid = null;
+        }
+        StateHasChanged();
+    }
+    void CheckedReadWriteChanged(bool value)
+    {
+        dateRangeModel.IsSteroid = false;
+        dateRangeModel.IsSteroids = false;
+        dateRangeModel.IsNonSteroids = value;
+        if (dateRangeModel.IsNonSteroids == false)
+        {
+            dateRangeModel.IsSteroid = null;
+        }
+        StateHasChanged();
+    }
+    void OnCloseFilterDocuments()
+    {
+        IsFilterOpen = false;
+        StateHasChanged();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task ExportCsv_Click()
+    {
+        await Grid.ExportToCsvAsync("ExportResult", new GridCsvExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+
+        }
+        if (_navMethodCodeModeltems != null)
+        {
+            _navMethodCodeModeltems.Clear();
+
+        }
+
+        _simulationItems = null;
+        _versionItems = null;
+        _salesCategoryItems = null;
+        dateRangeModel = null;
+
+
+
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
+    }
+}

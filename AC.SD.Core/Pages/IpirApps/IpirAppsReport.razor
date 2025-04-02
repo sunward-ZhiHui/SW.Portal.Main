@@ -15,7 +15,6 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
-@inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
 
@@ -29,7 +28,7 @@
                     <Items>
                         @* <DxMenuItem Text="Add New" IconCssClass="fas fa-add" Click="@addNewForm" Enabled="@addEnabled" /> *@
 
-                     
+
 
                         <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                             <Items>
@@ -39,10 +38,11 @@
                                 <DxMenuItem Text="CheckOut" Click="onCheckOut" IconCssClass="fa fa-check-square" Visible="CheckOutEnabled" />
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
                                 <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
-                               <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
-                               @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" /> *@
-                               <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" /> 
+                                <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
+                                @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" /> *@
+                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" />
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
+                                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                                 <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
                                 <DxMenuItem Text="Deviation Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Deviation"))" Visible="IsDeviationForm" />
                                 <DxMenuItem Text="Change Control Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Change Control"))" Visible="IsChangeControlForm" />
@@ -108,11 +108,12 @@
             <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="180" />
             <DxGridDataColumn FieldName="LocationName" Caption="Location" MinWidth="180" />
             <DxGridDataColumn FieldName="MachineName" Caption="Machine" MinWidth="180" />
-            <DxGridDataColumn FieldName="ReportingPersonalName" Caption="Reporting Personal" MinWidth="180" Visible="false"/>
+            <DxGridDataColumn FieldName="ReportingPersonalName" Caption="Reporting Personal" MinWidth="180" Visible="false" />
             <DxGridDataColumn FieldName="DetectedByName" Caption="Detected By" MinWidth="180" />
             <DxGridDataColumn FieldName="Subject" Caption="Subject Name" MinWidth="180" />
+            <DxGridDataColumn FieldName="IRNoatQALevel" Caption="IR No at QA Level" MinWidth="180" />
             <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="180" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" >
+            <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
                         var item = (IpirApp)context.DataItem;
@@ -221,6 +222,22 @@
         <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="BackUploadUpload"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         Width="400px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure create Email?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     bool UpdateProfilePopup { get; set; } = false;
     bool AddSuperEnabled { get; set; } = false;
@@ -321,7 +338,7 @@
                 CheckOutEnabled = false;
                 CheckInEnabled = true; CopyLinkEnabled = false;
                 EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
-                viewEnabled = false; SupportDocEnabled = false; IsChecker = false;DMSUpdateEnabled = false;
+                viewEnabled = false; SupportDocEnabled = false; IsChecker = false; DMSUpdateEnabled = false;
             }
             else
             {
@@ -528,7 +545,7 @@
 
         uploadEnabled = true; isVisibleMore = ""; IsChecker = true;
         DeleteEnabled = true; emailEnabled = true; SupportDocEnabled = true; viewEnabled = false; CopyLinkEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false; DMSUpdateEnabled = false;
-        if(_selectedItems.ActivityStatusId > 0 )
+        if (_selectedItems.ActivityStatusId > 0)
         {
             AddSuperEnabled = false;
             EditEnabled = true;
@@ -548,7 +565,7 @@
         }
         if (_selectedItems.IsLocked == true)
         {
-            CheckOutEnabled = false;
+            CheckOutEnabled = false; emailEnabled = false;
             CheckInEnabled = true; CopyLinkEnabled = false;
             EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
             viewEnabled = false; SupportDocEnabled = false; IsChecker = false; DMSUpdateEnabled = false;
@@ -610,7 +627,7 @@
     }
     private async Task OpenDocumentPreview(string url)
     {
-        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
     async Task Download()
     {
@@ -623,7 +640,7 @@
             }
             else
             {
-                await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
             }
         }
     }
@@ -718,6 +735,60 @@
         _selectedItems = null;
         _selectedEditItems = null;
         RefToDoLeftNotes?.DisposeAsync();
+    }
+    async Task addDetailEmailCreate()
+    {
+        var _selectedItemsDAta = await Mediator.Send(new GetEmailIpirAppBySessionId(_selectedItems.SessionID));
+        if (_selectedItemsDAta != null)
+        {
+            if (_selectedItemsDAta.IsDraft == null)
+            {
+                createEmailpopup = true;
+            }
+            if (_selectedItemsDAta.IsDraft == true)
+            {
+                var url = NavigationManager.BaseUri + "EmailDrafts";
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            if (_selectedItemsDAta.IsDraft == false)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
+    }
+    async Task createEmailYes()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string backurl = "/" + rep1 + "/" + _selectedItems.SessionID;
+        if (_selectedItems != null)
+        {
+            var insertData = new IpirApp
+                {
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionID = _selectedItems.SessionID,
+                    SubjectName = _selectedItems.ProfileNo,
+                    StatusCodeID = 1,
+                    IpirAppId = _selectedItems.IpirAppId,
+                    BackUrl = backurl
+                };
+            var response = await Mediator.Send(new InsertCreateEmailIpirApp(insertData));
+            if (response.IpirAppId > 0)
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                createEmailpopup = false;
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionID;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await UpdateDataAsync();
+
+            }
+        }
+        StateHasChanged();
     }
     // public void Dispose()
     // {

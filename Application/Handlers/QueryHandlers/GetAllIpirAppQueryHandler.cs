@@ -191,5 +191,31 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetEmailIpirAppBySessionIdHandler : IRequestHandler<GetEmailIpirAppBySessionId, IpirApp>
+    {
+        private readonly IIpirAppQueryRepostitory _dynamicFormQueryRepository;
+        public GetEmailIpirAppBySessionIdHandler(IIpirAppQueryRepostitory dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<IpirApp> Handle(GetEmailIpirAppBySessionId request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetEmailIpirAppBySessionId(request.SessionId);
+        }
+
+
+    }
+    public class InsertCreateEmailIpirAppHandler : IRequestHandler<InsertCreateEmailIpirApp, IpirApp>
+    {
+        private readonly IIpirAppQueryRepostitory _queryRepository;
+        public InsertCreateEmailIpirAppHandler(IIpirAppQueryRepostitory dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<IpirApp> Handle(InsertCreateEmailIpirApp request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertCreateEmailIpirApp(request.IpirApp);
+        }
+    }
 }
 

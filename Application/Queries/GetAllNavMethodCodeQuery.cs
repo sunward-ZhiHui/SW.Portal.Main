@@ -28,4 +28,53 @@ namespace Application.Queries
             this.NavMethodCodeModel = navMethodCodeModel;
         }
     }
+    public class GetAllNAVINPCategory : PagedRequest, IRequest<List<NAVINPCategoryModel>>
+    {
+        public string? SearchString { get; set; }
+    }
+    public class GetAllNavMethodCodeLineQuery : PagedRequest, IRequest<List<NavMethodCodeLines>>
+    {
+        public string? SearchString { get; set; }
+        public long? MethodCodeId { get; set; }
+        public GetAllNavMethodCodeLineQuery(long? methodCodeId)
+        {
+            this.MethodCodeId = methodCodeId;
+        }
+    }
+
+    public class InsertOrUpdateNavMethodCodeLine : NavMethodCodeLines, IRequest<NavMethodCodeLines>
+    {
+
+    }
+    public class DeleteNavMethodCodeLines : NavMethodCodeModel, IRequest<NavMethodCodeLines>
+    {
+        public NavMethodCodeLines NavMethodCodeLines { get; private set; }
+        public DeleteNavMethodCodeLines(NavMethodCodeLines navMethodCodeModel)
+        {
+            this.NavMethodCodeLines = navMethodCodeModel;
+        }
+    }
+
+    public class GetAllProductionForecastQuery : PagedRequest, IRequest<List<ProductionForecastModel>>
+    {
+        public string? SearchString { get; set; }
+        public long? MethodCodeId { get; set; }
+        public GetAllProductionForecastQuery(long? methodCodeId)
+        {
+            this.MethodCodeId = methodCodeId;
+        }
+    }
+
+    public class InsertOrUpdateProductionForecast : ProductionForecastModel, IRequest<ProductionForecastModel>
+    {
+
+    }
+    public class DeleteProductionForecast : NavMethodCodeModel, IRequest<ProductionForecastModel>
+    {
+        public ProductionForecastModel ProductionForecastModel { get; private set; }
+        public DeleteProductionForecast(ProductionForecastModel navMethodCodeModel)
+        {
+            this.ProductionForecastModel = navMethodCodeModel;
+        }
+    }
 }

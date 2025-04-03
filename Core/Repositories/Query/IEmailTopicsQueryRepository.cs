@@ -93,6 +93,7 @@ namespace Core.Repositories.Query
         Task<List<Documents>> GetPATypeDocLstAsync(long Id,string Type);        
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
+        Task<EmailTopics?> CheckEmailSubjectAsync(string subjectName);
         Task<long> Delete(long id);
         Task<long> DeleteNotify(long id);   
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);

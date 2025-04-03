@@ -20,16 +20,27 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Dynamic;
 using Newtonsoft.Json;
 using static iTextSharp.text.pdf.AcroFields;
+using Newtonsoft.Json.Linq;
+using System.Net.Http.Json;
+using Org.BouncyCastle.Ocsp;
 
 namespace Infrastructure.Repository.Query
 {
     public class RegistrationRequestQueryRepository : DbConnector, IRegistrationRequestQueryRepository
     {
         private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
-        public RegistrationRequestQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        private readonly HttpClient _httpClient;
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+        private readonly IProductionActivityAppQueryRepository _productionActivityAppQueryRepository;
+        public RegistrationRequestQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository, IEmailTopicsQueryRepository emailTopicsQueryRepository, HttpClient httpClient, IEmailConversationsQueryRepository emailConversationsQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository)
             : base(configuration)
         {
             _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+            _httpClient = httpClient;
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+            _productionActivityAppQueryRepository = productionActivityAppQueryRepository;
         }
         public async Task<IReadOnlyList<RegistrationRequest>> GetRegistrationRequest()
         {
@@ -1137,7 +1148,7 @@ namespace Infrastructure.Repository.Query
                         var aData = await GetRegistrationRequestAssignmentOfJob(dynamicFormData.RegistrationRequestId, dynamicFormData.DepartmentId);
                         if (aData != null)
                         {
-                            emailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}tr:nth-child(even) {background-color: #dddddd;}</style></head><body><table>";
+                            emailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}</style></head><body><table>";
                             emailContents += "<tr><th>Department</th><th>No</th><th>Detail Inforamtion By Guideline</th><th>Detail Requirement</th><th>Target Date</th></tr>";
                             aData.ToList().ForEach(e =>
                             {
@@ -1207,62 +1218,293 @@ namespace Infrastructure.Repository.Query
 
         public async Task<RegistrationRequestDepartmentEmailCreate> InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(RegistrationRequestDepartmentEmailCreate valueData)
         {
-            try
+           
+
+            //string strJson = JsonConvert.SerializeObject(valueData);
+            //string strJson = JToken.Parse("{\"From\":\"CRTDEV\",\"FromId\":1,\"MainSubjectName\":\"Reg PA12\",\"ToIds\":[4,2,15],\"CCIds\":[81,3,17,84],\"RegistrationRequestAssignmentOfJobs\":[{\"RegistrationRequestAssignmentOfJobId\":99,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":\"2025-04-01T00:00:00\",\"JobNo\":\"A10. Contraindications\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"A1\",\"DetailRequirement\":\"NA\",\"SessionId\":\"f422fce9-e62d-4829-8e10-8588537096a3\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45181,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":100,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":\"2025-03-31T00:00:00\",\"JobNo\":\"A11. Warnings and Precautions\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"A2\",\"DetailRequirement\":\"Na\",\"SessionId\":\"a875c705-8c06-42bd-aaef-3833c7535835\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45182,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":101,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A12. Interactions with Other Medicaments\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"A3\",\"DetailRequirement\":\"Na\",\"SessionId\":\"5bbe3b31-1102-4f9f-b1c9-4669e3b7b97d\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45183,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":102,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A13. Pregnancy and Lactation\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"A43dd\",\"DetailRequirement\":\"NA\",\"SessionId\":\"cba2f07d-1c27-4bf2-acb1-30d3d05ae46d\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45184,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":105,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A14. Side Effects\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"A67\",\"DetailRequirement\":\"NA\",\"SessionId\":\"397cb808-81e4-46a8-b80a-0c79dd6a7b2b\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45185,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":116,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A15. Symptoms and Treatment of Overdose\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"3a277530-7f4a-4776-ad2b-c4a816a2f2fe\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45186,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":117,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A16. Effects on Ability to Drive and Use Machine\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"ab71eab8-7356-42f3-b843-b53e2373361a\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45187,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":118,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A17. Preclinical Safety Data\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"44369b0e-35a9-4472-ad2d-c0c0860bc52b\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45188,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":119,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A18. Instructions for Use\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"988e90e5-7e4a-4247-bcb4-c168f39becf6\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45189,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":120,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A19. Storage Conditions\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"0c3e39af-5f5c-4e43-9976-173feda48ffc\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45190,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":121,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A20. Shelf Life\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"c5353d10-d422-42e2-b9eb-0c6ce25e37a3\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45191,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":122,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A21. ATC Code\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"b3284d89-7d4d-40ab-bbfd-be058aa89c42\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45192,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":123,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A4. Product Description\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"03dc7437-1d7c-44db-b156-f5381fc510d5\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45194,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":124,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A5. Pharmacodynamics\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"aca7e247-e419-41dc-89ec-9f10a4912470\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45195,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":125,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A6. Pharmacokinetics\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"def33027-d07d-4199-af31-27fa6faad8af\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45196,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":126,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A7. Indication\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"d9b92ee9-f819-40a4-8522-b083ef7c8978\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45197,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":127,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A8. Recommended Dose\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"4d10f201-aff4-4025-a161-ab8960cae035\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45198,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":128,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"A9. Route of Administration\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"32cc060d-e0c4-439d-a36b-0dc3301f671a\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45199,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":129,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"D1. Label (mock-up) for Immediate Container\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"c946146b-b4f8-4f5d-b2bb-57f13878a7b9\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45201,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":130,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"D2. Label (mock-up) for Outer Carton\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"ec55a442-f0c2-4bfa-8d54-0083cb3f51cf\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45202,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":131,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"D3. Proposed Package Insert\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"40446bca-ad7a-4e02-953c-c7059f03c49b\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45203,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":132,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"D4. Patient Information Leaflet (PIL) / Risalah Maklumat Ubat Pesakit (RiMUP)\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"baed93f7-1193-4bcb-90b1-2567eb1b1471\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45204,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":133,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"D5. Label (Mock-up) for Diluent\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"35a624e9-2a88-4031-a269-1d8d5f533df6\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45206,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":134,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"E10. Summary of Product Characteristics / Product Data Sheet (if applicable)\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"e5a04ada-3741-48ff-ac9f-68c8addfe5ec\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45207,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":135,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"E11. Company Core Data Sheet (CCDS) (if applicable)\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"519f3da9-9a5d-42b2-87b3-3f092e2a143a\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45208,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":136,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"E14. Other Supporting Documents\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"34dd4406-4f64-46d2-8494-4cea0cb77bba\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45209,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":137,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"E15. Worldwide Registration Status\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"ec6ea065-7888-4732-81e9-6520df715d07\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45210,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":139,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"1.1 Brand Name\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"b0a37e13-34eb-4fa8-ab22-40de7f6a58dd\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45255,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":140,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"1.2 Generic Name\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"2543d0da-e34c-4653-bfd4-67b5be8a9e67\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45256,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null},{\"RegistrationRequestAssignmentOfJobId\":141,\"RegistrationRequestId\":8,\"DepartmentId\":14,\"TargetDate\":null,\"JobNo\":\"1.3 Full Product Name\",\"DepartmentName\":\"Regulatory Affairs\",\"DetailInforamtionByGuideline\":\"NA\",\"DetailRequirement\":\"NA\",\"SessionId\":\"78962be3-cc42-4406-8603-d29a07dbcd05\",\"AddedByUserId\":1,\"AddedDate\":\"2025-03-19T13:48:17.6\",\"StatusCodeId\":1,\"ModifiedUserId\":1,\"ModifiedDate\":\"2025-03-19T13:48:17.6\",\"AddedBy\":\"CRTDEV\",\"ModifiedBy\":\"CRTDEV\",\"DynamicFormDataId\":45257,\"BackUrl\":null,\"EmailTopicSessionId\":null,\"IsDraft\":null,\"SubjectName\":null,\"Comment\":null,\"RegistrationRequestDepartmentId\":1,\"DepartmentUniqueSessionId\":\"6a85290f-b2e9-4ee8-b4b2-7859b252b491\",\"IsEmailCreateDone\":true,\"EmailCreateSessionId\":null}],\"ToUserGroupIds\":null,\"CCUserGroupIds\":null,\"EmailCreateSessionId\":\"7d37e7bc-936c-4126-9b1b-e3d85b11df3c\",\"BackUrl\":\"registrationrequestlist/registrationrequestform/0c06ee90-05f7-458f-8451-e92eb4f4c2f8/0c06ee90-05f7-458f-8451-e92eb4f4c2f8\"}").ToString();
+            //var strJsonData = JsonConvert.DeserializeObject<RegistrationRequestDepartmentEmailCreate>(strJson);
+            //valueData = strJsonData;
+          
+            //var replyId = await _emailConversationsQueryRepository.GetConversationTopicIdList(validation.Value);
+
+            var validation = await _emailTopicsQueryRepository.CheckEmailSubjectAsync(valueData.MainSubjectName);
+    
+            if (validation?.ID > 0)
             {
-                using (var connection = CreateConnection())
+                await InsertEmailReplyRegistrationRequest(valueData, validation.ID);
+            }
+            else
+            {
+                await InsertActivityEmailTopics(valueData);
+                await InsertFromRegistrationRequest(valueData);
+                var tid = await _emailTopicsQueryRepository.CheckEmailSubjectAsync(valueData.MainSubjectName);
+                await InsertEmailReplyRegistrationRequest(valueData, tid.ID);
+                
+            }
+
+
+            var _emailTopics = await _emailTopicsQueryRepository.CheckEmailSubjectAsync(valueData.MainSubjectName);
+            valueData.EmailCreateSessionId = _emailTopics.SessionId;
+
+            //try
+            //{
+            //    using (var connection = CreateConnection())
+            //    {
+            //        try
+            //        {
+            //            if (valueData.RegistrationRequestAssignmentOfJobs != null && valueData.RegistrationRequestAssignmentOfJobs.Count() > 0)
+            //            {
+            //                foreach (var item in valueData.RegistrationRequestAssignmentOfJobs)
+            //                {
+            //                    string SubSubjectName = item.DepartmentName + "-" + item.JobNo;
+            //                    string SubemailContents = string.Empty;
+            //                    SubemailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}</style></head><body><table>";
+            //                    SubemailContents += "<tr><th>Department</th><th>No</th><th>Detail Inforamtion By Guideline</th><th>Detail Requirement</th><th>Target Date</th></tr>";
+            //                    SubemailContents += "<tr><td>" + item.DepartmentName + "</td><td>" + item.JobNo + "</td><td>" + item.DetailInforamtionByGuideline + "</td><td>" + item.DetailRequirement + "</td>";
+            //                    string startDate = string.Empty;
+            //                    if (item.TargetDate != DateTime.MinValue)
+            //                    {
+            //                        if (item.TargetDate != null)
+            //                        {
+            //                            startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
+            //                        }
+            //                    }
+            //                    SubemailContents += "<td>" + startDate + "</td></tr>";
+
+            //                    SubemailContents += "</table></body></html>";
+
+
+            //                    var parameters = new DynamicParameters();
+            //                    parameters.Add("EmailCreateSessionId", valueData.EmailCreateSessionId, DbType.Guid);
+            //                    parameters.Add("IsEmailCreateDone", 1);
+            //                    parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+            //                    parameters.Add("ModifiedUserId", valueData.FromId);
+            //                    parameters.Add("RegistrationRequestAssignmentOfJobId", item.RegistrationRequestAssignmentOfJobId);
+            //                    //var querya = "UPDATE RegistrationRequestAssignmentOfJob SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreateDone=@IsEmailCreateDone,EmailCreateSessionId=@EmailCreateSessionId WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
+            //                    //await connection.ExecuteAsync(querya, parameters);
+            //                }
+            //            }
+
+            //            return valueData;
+            //        }
+
+
+            //        catch (Exception exp)
+            //        {
+            //            throw new Exception(exp.Message, exp);
+            //        }
+
+            //    }
+
+
+            //}
+            //catch (Exception exp)
+            //{
+            //    throw new NotImplementedException();
+            //}
+
+
+            return valueData;
+        }
+        public async Task<long> InsertEmailReplyRegistrationRequest(RegistrationRequestDepartmentEmailCreate request, long topicId)
+        {
+            if (request != null)
+            {
+                try
                 {
-                    try
+                    var toIds = request.ToIds != null && request.ToIds.Any() ? string.Join(",", request.ToIds) : "";
+                    var ccIds = request.CCIds != null && request.CCIds.Any() ? string.Join(",", request.CCIds) : "";
+                    var fromId = request.FromId?.ToString() ?? "";
+                    var participantsList = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(toIds)) participantsList.Add(toIds);
+                    if (!string.IsNullOrWhiteSpace(ccIds)) participantsList.Add(ccIds);
+                    if (!string.IsNullOrWhiteSpace(fromId)) participantsList.Add(fromId);
+                    var participants = participantsList.Any() ? string.Join(",", participantsList) : "";
+
+                    foreach (var job in request.RegistrationRequestAssignmentOfJobs)
                     {
-                        if (valueData.RegistrationRequestAssignmentOfJobs != null && valueData.RegistrationRequestAssignmentOfJobs.Count() > 0)
+
+                        string SubemailContents = string.Empty;
+                        SubemailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}</style></head><body><table>";
+                        SubemailContents += "<tr><th>Department</th><th>No</th><th>Detail Inforamtion By Guideline</th><th>Detail Requirement</th><th>Target Date</th></tr>";
+                        SubemailContents += "<tr><td>" + job.DepartmentName + "</td><td>" + job.JobNo + "</td><td>" + job.DetailInforamtionByGuideline + "</td><td>" + job.DetailRequirement + "</td>";
+                        string startDate = string.Empty;
+                        if (job.TargetDate != DateTime.MinValue)
                         {
-                            foreach (var item in valueData.RegistrationRequestAssignmentOfJobs)
+                            if (job.TargetDate != null)
                             {
-                                string SubSubjectName = item.DepartmentName + "-" + item.JobNo;
-                                string SubemailContents = string.Empty;
-                                SubemailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}tr:nth-child(even) {background-color: #dddddd;}</style></head><body><table>";
-                                SubemailContents += "<tr><th>Department</th><th>No</th><th>Detail Inforamtion By Guideline</th><th>Detail Requirement</th><th>Target Date</th></tr>";
-                                SubemailContents += "<tr><td>" + item.DepartmentName + "</td><td>" + item.JobNo + "</td><td>" + item.DetailInforamtionByGuideline + "</td><td>" + item.DetailRequirement + "</td>";
-                                string startDate = string.Empty;
-                                if (item.TargetDate != DateTime.MinValue)
-                                {
-                                    if (item.TargetDate != null)
-                                    {
-                                        startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
-                                    }
-                                }
-                                SubemailContents += "<td>" + startDate + "</td></tr>";
-
-                                SubemailContents += "</table></body></html>";
-
-
-                                var parameters = new DynamicParameters();
-                                parameters.Add("EmailCreateSessionId", valueData.EmailCreateSessionId, DbType.Guid);
-                                parameters.Add("IsEmailCreateDone", 1);
-                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                                parameters.Add("ModifiedUserId", valueData.FromId);
-                                parameters.Add("RegistrationRequestAssignmentOfJobId", item.RegistrationRequestAssignmentOfJobId);
-                                var querya = "UPDATE RegistrationRequestAssignmentOfJob SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreateDone=@IsEmailCreateDone,EmailCreateSessionId=@EmailCreateSessionId WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
-                                await connection.ExecuteAsync(querya, parameters);
+                                startDate = job.TargetDate.Value.ToString("dd-MMM-yyyy");
                             }
                         }
+                        SubemailContents += "<td>" + startDate + "</td></tr>";
 
-                        return valueData;
+                        SubemailContents += "</table></body></html>";
+
+
+                        var emailConversation = new EmailConversations
+                        {
+                            TopicID = topicId,
+                            AssigntoIds = toIds.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToList(),
+                            AssignccIds = ccIds.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToList(),
+                            Name = job.DepartmentName + "-" + job.JobNo,
+                            FileData = Encoding.UTF8.GetBytes(SubemailContents),
+                            IsAllowParticipants = true,
+                            Urgent = false,
+                            Follow = "No Follow Up",
+                            ReplyId = 0,
+                            ParticipantId = request.FromId.Value,
+                            Message = SubemailContents,
+                            UserType = "Users",
+                            DueDate = null,
+                            AllParticipantIds = participants.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(id => long.Parse(id.Trim())).ToList(),
+                            StatusCodeID = 1,
+                            AddedByUserID = request.FromId,
+                            IsMobile = 0,
+                            AddedDate = DateTime.Now,
+                            SessionId = Guid.NewGuid()
+                        };
+
+                        var response = await _emailConversationsQueryRepository.Insert(emailConversation);
+
+                        var updatereq = await _emailConversationsQueryRepository.LastUserIDUpdate(response, request.FromId.Value);
+
+                        var ETUpdateDate = await _emailConversationsQueryRepository.LastUpdateDateEmailTopic(topicId);
+
+
+                        var conversationAssignTo = new EmailConversationAssignTo();
+                        conversationAssignTo.ConversationId = response;
+                        conversationAssignTo.ReplyId = 0;
+                        conversationAssignTo.PlistIdss = participants;
+                        conversationAssignTo.AllowPlistids = participants;
+                        conversationAssignTo.TopicId = topicId;
+                        conversationAssignTo.StatusCodeID = 1;
+                        conversationAssignTo.AddedByUserID = request.FromId;
+                        conversationAssignTo.SessionId = emailConversation.SessionId;
+                        conversationAssignTo.AddedDate = emailConversation.AddedDate;
+                        conversationAssignTo.AssigntoIds = toIds;
+                        conversationAssignTo.AssignccIds = ccIds;
+
+                        //conversationAssignTo.ConIds = request.ConIds;
+                        var reqq = await _emailConversationsQueryRepository.InsertAssignTo_sp(conversationAssignTo);
+
+                        var plistData = participants.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(id => long.Parse(id.Trim())).ToList();
+                        if (plistData.Count > 0)
+                        {
+                            plistData.ToList().ForEach(async a =>
+                            {
+                                var forumNotifications = new EmailNotifications();
+                                forumNotifications.ConversationId = response;
+                                forumNotifications.TopicId = topicId;
+                                forumNotifications.UserId = a;
+                                forumNotifications.AddedByUserID = request.FromId;
+                                forumNotifications.AddedDate = DateTime.Now;
+                                forumNotifications.IsRead = request.FromId == a ? true : false;
+                                await _emailConversationsQueryRepository.InsertEmailNotifications(forumNotifications);
+                            });
+                        }
+
+
+                        using (var connection = CreateConnection())
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("EmailCreateSessionId", request.EmailCreateSessionId, DbType.Guid);
+                            parameters.Add("IsEmailCreateDone", 1);
+                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("ModifiedUserId", request.FromId);
+                            parameters.Add("RegistrationRequestAssignmentOfJobId", job.RegistrationRequestAssignmentOfJobId);
+                            var querya = "UPDATE RegistrationRequestAssignmentOfJob SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreateDone=@IsEmailCreateDone,EmailCreateSessionId=@EmailCreateSessionId WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
+                            await connection.ExecuteAsync(querya, parameters);
+                        }
                     }
 
-
-                    catch (Exception exp)
-                    {
-                        throw new Exception(exp.Message, exp);
-                    }
-
+                    return 1;
                 }
-
-
+                catch (Exception ex)
+                {
+                    return -1;
+                }
             }
-            catch (Exception exp)
+
+            return -1;
+
+
+        }
+
+
+        public async Task<long> InsertFromRegistrationRequest(RegistrationRequestDepartmentEmailCreate request)
+        {
+            string text = "This is a sample text!";
+            byte[] fileContents = Encoding.UTF8.GetBytes(text);
+
+            var toIds = request.ToIds != null && request.ToIds.Any() ? string.Join(",", request.ToIds) : "";
+            var ccIds = request.CCIds != null && request.CCIds.Any() ? string.Join(",", request.CCIds) : "";
+            var fromId = request.FromId != null ? request.FromId.ToString() : "";
+
+            var participantsList = new List<string>();
+            if (!string.IsNullOrWhiteSpace(toIds)) participantsList.Add(toIds);
+            if (!string.IsNullOrWhiteSpace(ccIds)) participantsList.Add(ccIds);
+            if (!string.IsNullOrWhiteSpace(fromId)) participantsList.Add(fromId);
+
+            var participants = participantsList.Any() ? string.Join(",", participantsList) : "";
+
+
+            var emailTopics = new EmailTopics
             {
-                throw new NotImplementedException();
-            }
+                TypeId = 0,
+                TicketNo = "",
+                TopicName = request.MainSubjectName ?? "Default Topic",
+                StartDate = DateTime.Now,
+                Description = "Default Description",
+                AddedByUserID = request.FromId ?? 0,
+                AddedDate = DateTime.Now,
+                StatusCodeID = 1,
+                SessionId = request.EmailCreateSessionId,
+                OnDraft = 0,
+                IsAllowParticipants = true,
+                NotifyUser = false,
+                TagLock = false,
+                Follow = "No Follow Up",
+                FileData = Encoding.UTF8.GetBytes(request.MainSubjectName),
+                OnBehalf = null,
+                Urgent = false,
+                OverDue = false,
+                DueDate = null,
+                UserType = "Users",
+                Participants = !string.IsNullOrEmpty(participants) ? participants : null,
+                isValidateSession = false,
+                ActivityType = "Email",
+                To = !string.IsNullOrEmpty(toIds) ? toIds : null,
+                CC = !string.IsNullOrEmpty(ccIds) ? ccIds : null,
+                ActionTagIds = new List<long?>(),
+                UserTagIds = new List<long?>(),
+                ActivityEmailTopicId = 0,
+                ToUserGroup = "-1",
+                CCUserGroup = request.CCUserGroupIds != null && request.CCUserGroupIds.Any()
+                  ? string.Join(",", request.CCUserGroupIds)
+                  : "",
+            };
+
+            var result = _emailTopicsQueryRepository.Insert(emailTopics);
+            return result;
+
+
+
+        }
+        public async Task<long> InsertActivityEmailTopics(RegistrationRequestDepartmentEmailCreate request)
+        {
+            var activityEmailTopics = new ActivityEmailTopicsModel();
+            activityEmailTopics.BackURL = request.BackUrl;
+            activityEmailTopics.ActivityType = "RegistrationRequest";
+            activityEmailTopics.EmailTopicSessionId = request.EmailCreateSessionId;
+            activityEmailTopics.SubjectName = request.MainSubjectName.Length > 20 ? request.MainSubjectName.Substring(0, 20) : request.MainSubjectName;
+            activityEmailTopics.AddedByUserID = request.FromId;
+            activityEmailTopics.AddedDate = DateTime.Now;
+            activityEmailTopics.IsDraft = true;
+            activityEmailTopics.SessionId = Guid.NewGuid();
+
+            var result = await _productionActivityAppQueryRepository.InserProductionActivityEmail(activityEmailTopics);
+
+            return result.ActivityEmailTopicID;
         }
     }
 }

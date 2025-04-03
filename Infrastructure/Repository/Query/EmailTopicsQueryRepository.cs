@@ -1978,7 +1978,9 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
                         parameterss.Add("ExpiryDueDate", EmailTopics.ExpiryDueDate);
                         parameterss.Add("IsLockDueDate", EmailTopics.IsLockDueDate);
-                        parameterss.Add("CopyEmailIds", string.Join(",", EmailTopics.CopyEmailIds));
+                        //parameterss.Add("CopyEmailIds", string.Join(",", EmailTopics.CopyEmailIds));
+                        parameterss.Add("CopyEmailIds", EmailTopics.CopyEmailIds != null ? string.Join(",", EmailTopics.CopyEmailIds) : "");
+
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         if (EmailTopics.ActivityType == "DynamicForm")
@@ -2219,6 +2221,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<EmailTopics?> CheckEmailSubjectAsync(string subjectName)
+        {
+            using (var connection = CreateConnection())
+            {
+                var query = "SELECT * FROM EmailTopics WHERE TopicName = @SubjectName";
+                return await connection.QueryFirstOrDefaultAsync<EmailTopics>(query, new { SubjectName = subjectName });
+            }
+        }
+
+
 
         private async Task<bool> CheckNotifyPAList(Guid? Sessionid)
         {

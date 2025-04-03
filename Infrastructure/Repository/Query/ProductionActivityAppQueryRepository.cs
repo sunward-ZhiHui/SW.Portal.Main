@@ -609,9 +609,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsDraft", value.IsDraft);
                         parameters.Add("ModifiedByUserId", value.ModifiedByUserId);
                         parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
-                        var query = @"INSERT INTO ActivityEmailTopics(ActivityMasterId,CategoryActionId,ActionId,ActivityType,SubjectName,FromId,ToIds,CcIds,ManufacturingProcessId,AddedByUserID,AddedDate,StatusCodeId,SessionId,DocumentSessionId,Comment,IsDraft,BackURL,ModifiedByUserId,ModifiedDate) 
+                        parameters.Add("EmailTopicSessionId", value.EmailTopicSessionId);
+                        var query = @"INSERT INTO ActivityEmailTopics(ActivityMasterId,CategoryActionId,ActionId,ActivityType,SubjectName,FromId,ToIds,CcIds,ManufacturingProcessId,AddedByUserID,AddedDate,StatusCodeId,SessionId,DocumentSessionId,Comment,IsDraft,BackURL,ModifiedByUserId,ModifiedDate,EmailTopicSessionId) 
 				                       OUTPUT INSERTED.ActivityEmailTopicID 
-				                       VALUES (@ActivityMasterId,@CategoryActionId,@ActionId,@ActivityType,@SubjectName,@FromId,@ToIds,@CcIds,@ManufacturingProcessId,@AddedByUserID,@AddedDate,@StatusCodeId,@SessionId,@DocumentSessionId,@Comment,@IsDraft,@BackURL,@ModifiedByUserId,@ModifiedDate)";
+				                       VALUES (@ActivityMasterId,@CategoryActionId,@ActionId,@ActivityType,@SubjectName,@FromId,@ToIds,@CcIds,@ManufacturingProcessId,@AddedByUserID,@AddedDate,@StatusCodeId,@SessionId,@DocumentSessionId,@Comment,@IsDraft,@BackURL,@ModifiedByUserId,@ModifiedDate,@EmailTopicSessionId)";
                         value.ActivityEmailTopicID = await connection.ExecuteScalarAsync<long>(query, parameters);
 
 

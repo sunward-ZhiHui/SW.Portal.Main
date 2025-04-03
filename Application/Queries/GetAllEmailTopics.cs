@@ -18,7 +18,7 @@ namespace Application.Queries
         {
             this.UserId = userId;
         }
-    }
+    }   
     public class UpdateTopicArchive : EmailTopics, IRequest<long>
     {
     }

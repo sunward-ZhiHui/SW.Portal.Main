@@ -17,6 +17,7 @@
 <DxButton Click="StartRecording">Start Recording</DxButton>
 <DxButton Click="StopRecording">Stop Recording</DxButton>
 <DxButton Click="OnSendUpload">Send</DxButton>
+<DxButton Click="OnSendEmail">Sendemail</DxButton>
 
 @if (!string.IsNullOrEmpty(recordedFilePath))
 {
@@ -70,4 +71,24 @@
         public string Url { get; set; }
         public long Size { get; set; }
     }
+
+    private async Task OnSendEmail()
+    {
+        var Data = new RegistrationRequestDepartmentEmailCreate
+            {
+                From = null,
+                FromId = null,
+                MainSubjectName = "", // Required field; set an empty string
+                ToIds = new List<long>(), // Required field; keep empty list
+                CCIds = new List<long>(),
+                RegistrationRequestAssignmentOfJobs = new List<RegistrationRequestAssignmentOfJob>(),
+                ToUserGroupIds = new List<long>(),
+                CCUserGroupIds = new List<long>(),
+                EmailCreateSessionId = Guid.NewGuid(), // Optional; set new GUID or null
+                BackUrl = null
+            };
+
+        var result = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(Data));
+    }
+
 }

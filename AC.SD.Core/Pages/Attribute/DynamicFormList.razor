@@ -50,23 +50,29 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
-                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
-                <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
-                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="More" IconCssClass="fa fa-list">
+                    <Items>
+                        <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
+                        <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
+                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
+                        <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
+                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
+                        <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@addExport" />
+                    </Items>
+                </DxMenuItem>
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                     <Items>
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
                         @* <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@AddEnabled" /> *@
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
-                       @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" /> *@
+                        @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@AddEnabled" /> *@
                         <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@AddEnabled" />
                     </Items>
                 </DxMenuItem>
-                <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+
             </Items>
         </DxMenu>
     </div>
@@ -1648,6 +1654,12 @@
 
         }
 
+    }
+    async Task addExport()
+    {
+        await Grid.ExportToXlsxAsync(_dynamicForm?.Name, new GridXlExportOptions()
+        {
+        });
     }
     void backUrl()
     {

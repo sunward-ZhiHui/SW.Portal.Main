@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace Core.EntityModels
         public long? CompanyId { get; set; }
         public long ItemId { get; set; }
         public bool IsSteroid { get; set; }
+        public string? IsSteroids { get; set; }
+        public string? IsNonSteroids { get; set; }
         public string GrouoItemNo { get; set; }
         public string ItemNo { get; set; }
         public string DistNo { get; set; }
@@ -430,50 +433,62 @@ namespace Core.EntityModels
         public decimal? Month1_ { get; set; }
         public decimal? ProjectedHoldingStock1_ { get; set; }
         public decimal? ProductionProjected1_ { get; set; }
+        public string? NoOfTicket1_ { get; set; }
         public decimal? BlanketAddhoc2_ { get; set; }
         public decimal? Month2_ { get; set; }
         public decimal? ProjectedHoldingStock2_ { get; set; }
         public decimal? ProductionProjected2_ { get; set; }
+        public string? NoOfTicket2_ { get; set; }
         public decimal? BlanketAddhoc3_ { get; set; }
         public decimal? Month3_ { get; set; }
         public decimal? ProjectedHoldingStock3_ { get; set; }
         public decimal? ProductionProjected3_ { get; set; }
+        public string? NoOfTicket3_ { get; set; }
         public decimal? BlanketAddhoc4_ { get; set; }
         public decimal? Month4_ { get; set; }
         public decimal? ProjectedHoldingStock4_ { get; set; }
         public decimal? ProductionProjected4_ { get; set; }
+        public string? NoOfTicket4_ { get; set; }
         public decimal? BlanketAddhoc5_ { get; set; }
         public decimal? Month5_ { get; set; }
         public decimal? ProjectedHoldingStock5_ { get; set; }
         public decimal? ProductionProjected5_ { get; set; }
+        public string? NoOfTicket5_ { get; set; }
         public decimal? BlanketAddhoc6_ { get; set; }
         public decimal? Month6_ { get; set; }
         public decimal? ProjectedHoldingStock6_ { get; set; }
         public decimal? ProductionProjected6_ { get; set; }
+        public string? NoOfTicket6_ { get; set; }
         public decimal? BlanketAddhoc7_ { get; set; }
         public decimal? Month7_ { get; set; }
         public decimal? ProjectedHoldingStock7_ { get; set; }
         public decimal? ProductionProjected7_ { get; set; }
+        public string? NoOfTicket7_ { get; set; }
         public decimal? BlanketAddhoc8_ { get; set; }
         public decimal? Month8_ { get; set; }
         public decimal? ProjectedHoldingStock8_ { get; set; }
         public decimal? ProductionProjected8_ { get; set; }
+        public string? NoOfTicket8_ { get; set; }
         public decimal? BlanketAddhoc9_ { get; set; }
         public decimal? Month9_ { get; set; }
         public decimal? ProjectedHoldingStock9_ { get; set; }
         public decimal? ProductionProjected9_ { get; set; }
+        public string? NoOfTicket9_ { get; set; }
         public decimal? BlanketAddhoc10_ { get; set; }
         public decimal? Month10_ { get; set; }
         public decimal? ProjectedHoldingStock10_ { get; set; }
         public decimal? ProductionProjected10_ { get; set; }
+        public string? NoOfTicket10_ { get; set; }
         public decimal? BlanketAddhoc11_ { get; set; }
         public decimal? Month11_ { get; set; }
         public decimal? ProjectedHoldingStock11_ { get; set; }
         public decimal? ProductionProjected11_ { get; set; }
+        public string? NoOfTicket11_ { get; set; }
         public decimal? BlanketAddhoc12_ { get; set; }
         public decimal? Month12_ { get; set; }
         public decimal? ProjectedHoldingStock12_ { get; set; }
         public decimal? ProductionProjected12_ { get; set; }
+        public string? NoOfTicket12_ { get; set; }
         public decimal? Rework_ { get; set; }
 
         public string GroupTicket1 { get; set; }
@@ -872,13 +887,16 @@ namespace Core.EntityModels
     public class NavMethodCodeModel : BaseModel
     {
         public long MethodCodeID { get; set; }
+        [Required(ErrorMessage = "Method Name is Required")]
         public string? MethodName { get; set; }
+        [Required(ErrorMessage = "Method Description is Required")]
         public string? MethodDescription { get; set; }
-        public List<long?> ItemIds { get; set; }=new List<long?>();
-        public List<long?> BatchSizeIds { get; set; } = new List<long?>();
+        public List<long?> ItemIds { get; set; } = new List<long?>();
+        public IEnumerable<long?> BatchSizeIds { get; set; } = new List<long?>();
         public long? BatchSizeId { get; set; }
         public decimal? BatchSizeNo { get; set; }
         public long? NavinpCategoryID { get; set; }
+        [Required(ErrorMessage = "Company Name is Required")]
         public long? CompanyId { get; set; }
         public string? ItemNos { get; set; }
         public decimal? ProdFrequency { get; set; }
@@ -893,6 +911,7 @@ namespace Core.EntityModels
     {
         public long MethodCodeLineId { get; set; }
         public long? MethodCodeId { get; set; }
+        [Required(ErrorMessage = "Item Name is Required")]
         public long? ItemId { get; set; }
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
@@ -900,7 +919,7 @@ namespace Core.EntityModels
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public string MethodName { get; set; }
-        public string MethodDescription { get; set; }
+        public string? MethodDescription { get; set; }
         public long? NavinpcategoryId { get; set; }
         public long? CompanyId { get; set; }
         public decimal? ProdFrequency { get; set; }
@@ -909,6 +928,18 @@ namespace Core.EntityModels
         public decimal? AdhocReplenishHs { get; set; }
         public int? AdhocMonthStandAlone { get; set; }
         public decimal? AdhocPlanQty { get; set; }
+        public string? ModifiedByUser { get; set; }
+        public string? AddedByUser { get; set; }
+        public string? StatusCode { get; set; }
+
+        public string? ItemName { get; set; }
+        public string? Description { get; set; }
+        public string? Description2 { get; set; }
+        public string? CategoryCode { get; set; }
+        public string? CompanyName { get; set; }
+        public string? BaseUnitofMeasure { get; set; }
+        public int? PackSize { get; set; }
+        public string? PackUom { get; set; }
     }
     public class StockBalanceSearch
     {
@@ -924,5 +955,29 @@ namespace Core.EntityModels
         public List<NavitemStockBalance> NavitemStockBalance { get; set; } = new List<NavitemStockBalance>();
         public List<Navcustomer> Navcustomer { get; set; } = new List<Navcustomer>();
         public List<DistStockBalanceKiv> DistStockBalanceKiv { get; set; } = new List<DistStockBalanceKiv>();
+    }
+    public class NAVINPCategoryModel
+    {
+        [Key]
+        public long NAVINPCategoryID { get; set; }
+        public string? Code { get; set; }
+        public string? Description { get; set; }
+    }
+    public class ProductionForecastModel : BaseModel
+    {
+        [Key]
+        public long ProductionForecastID { get; set; }
+        public long? MethodCodeID { get; set; }
+        public long? MethodCodeLineID { get; set; }
+        [Required(ErrorMessage = "Item Name is Required")]
+        public long? ItemId { get; set; }
+        public DateTime? ProductionMonth { get; set; }
+        public string? BatchSize { get; set; }
+        public decimal? PackQuantity { get; set; }
+        public string? Description1 { get; set; }
+        public string? Description2 { get; set; }
+        public string? ItemNo { get; set; }
+        public string? MethodCodeName { get; set; }
+
     }
 }

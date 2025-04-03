@@ -1,0 +1,305 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="ProductGroupingNavId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 630px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="VarianceNo" Caption="Variance No" />
+            <DxGridDataColumn FieldName="NavNo" Caption="Nav No" MinWidth="80" />
+            <DxGridDataColumn FieldName="ManufactureBy" Caption="Manufacture By" MinWidth="80" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="ManufactureFor" Caption="Manufacture For" MinWidth="80" />
+            <DxGridDataColumn FieldName="ReplenishmentMethod" Caption="Replenishment Method" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" />
+            <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" />
+            <DxGridDataColumn FieldName="StatusCode" Caption="Status Code" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ProductGroupingNavModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ProductGroupingNavModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ManufactureBy" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AddpopupForm"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="NAV Information Form"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="auto">
+    <BodyContentTemplate>
+        <NAVInformationForm ProductGroupingManufactureId="@ProductGroupingManufactureId" _ProductGroupingNavFormData="@_ProductGroupingNavData" RevokeBack="AddpopupFormClose"></NAVInformationForm>
+    </BodyContentTemplate>
+</DxPopup>
+@code {
+    bool AddpopupForm { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    private List<ProductGroupingNavModel> _quotationHistoryItems;
+    private ProductGroupingNavModel? _selectedItems;
+    [Parameter]
+    public ProductGroupingManufactureModel _ProductGroupingManufactureFormData { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public long? ProductGroupingManufactureId { get; set; }
+    public ProductGroupingNavModel? _ProductGroupingNavData { get; set; }
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        _ProductGroupingManufactureFormData = _ProductGroupingManufactureFormData;
+        await UpdateDataAsync();
+    }
+    void AddpopupFormClose()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AddpopupForm = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        _selectedItems = null; _quotationHistoryItems = new List<ProductGroupingNavModel>();
+        EditEnabled = false; DeleteEnabled = false; AddEnabled = false;
+        if (ProductGroupingManufactureId > 0)
+        {
+            AddEnabled = true;
+            _quotationHistoryItems = await Mediator.Send(new GetProductGroupingNavList(ProductGroupingManufactureId));
+            PanelVisible = true;
+
+            if (_quotationHistoryItems.Count > 0)
+            {
+                _selectedItems = _quotationHistoryItems.FirstOrDefault();
+                Grid.ClearSelection();
+                PanelVisible = false;
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductGroupingNavId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.ProductGroupingNavId == (long?)UniqueId);
+        // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        _ProductGroupingNavData = null;
+        AddpopupForm = true;
+        StateHasChanged();
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (ProductGroupingNavModel)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ProductGroupingNavModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        _ProductGroupingNavData = _selectedItems;
+                        AddpopupForm = true;
+                    }
+                }
+            }
+            else
+            {
+                _ProductGroupingNavData = _selectedItems;
+                AddpopupForm = true;
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ProductGroupingNavModel datas)
+                    {
+                        var request = new DeleteProductGroupingNav(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+    }
+}

@@ -12,6 +12,12 @@
 @inject NavigationManager NavigationManager
 @inject AC.SD.Core.Services.ToastService toastService
 @implements IAsyncDisposable
+<style>
+    .dxuc-file-list-view {
+        padding: 20px;
+    }
+
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -19,6 +25,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" />
                 <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
             </Items>
         </DxMenu>
@@ -147,6 +154,23 @@
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
+            <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@AttachmentUploadVisible"
+                          AcceptedFileTypes=@AcceptedFileTypes
+                          ChunkSize="200000"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          FileUploadStart="OnFileUploadStart"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                          FileUploaded="@isUploadSuccess"
+                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                          FileUploadStarted="@OnFileUploadStarted"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+
+            </div>
         </div>
     </div>
 </div>
@@ -239,8 +263,37 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
-
+<DxPopup @bind-Visible="@withoutUploadPopup"
+         ShowFooter="true"
+         HeaderText="Eail"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Email Create Without Document?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="SaveData" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool withoutUploadPopup { get; set; } = false;
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
+    string? MyError { get; set; }
+    bool ErrorVisible { get; set; } = false;
+    int SelectedFilesCount { get; set; }
+    int isUploadSuccessCount { get; set; } = 0;
+    int CurrentUplodCount { get; set; }
+    string? MyMessage { get; set; }
+    string Message = "Upload";
+    public Guid? uploadEmailSessionId { get; set; }
+    internal List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    private DxUpload uploadComponent;
+    bool AttachmentUploadVisible { get; set; } = false;
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     [Parameter]
@@ -521,12 +574,33 @@
     }
     async Task HandleValidSubmit()
     {
+        if (SelectedFilesCount > 0)
+        {
+            await SaveData();
+        }
+        else
+        {
+            withoutUploadPopup = true;
+        }
+
+    }
+    async Task SaveData()
+    {
         var result = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(Data));
         if (result.FromId > 0)
         {
-            toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-            var url = NavigationManager.BaseUri + "ViewEmail/" + Data.EmailCreateSessionId;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            uploadEmailSessionId = result.EmailCreateSessionId;
+            if (SelectedFilesCount > 0)
+            {
+                uploadComponent.UploadAllFiles();
+            }
+            else
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                var url = NavigationManager.BaseUri + "ViewEmail/" + result.EmailCreateSessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                backUrl();
+            }
         }
     }
     private async Task SubmitFormExternally()
@@ -534,6 +608,50 @@
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit();
+        }
+    }
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        var SessionId = uploadEmailSessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + SessionId + "&addedByUserId=" + applicationUser?.UserID + "&IsNewSession=false&SourceFrom=Email";
+        e.UploadUrl = url;
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    protected void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
+    }
+    async Task isUploadSuccess(FileUploadEventArgs e)
+    {
+        isUploadSuccessCount++;
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        if (SelectedFilesCount == isUploadSuccessCount)
+        {
+            toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            var url = NavigationManager.BaseUri + "ViewEmail/" + uploadEmailSessionId;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            backUrl();
         }
     }
     public async ValueTask DisposeAsync()

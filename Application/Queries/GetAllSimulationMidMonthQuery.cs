@@ -26,4 +26,20 @@ namespace Application.Queries
             this.DateRangeModel = dateRangeModel;
         }
     }
+    public class GetSimulationAddhocV4Query : PagedRequest, IRequest<List<INPCalendarPivotModel>>
+    {
+        public DateRangeModel DateRangeModel { get; set; }
+        public GetSimulationAddhocV4Query(DateRangeModel dateRangeModel)
+        {
+            this.DateRangeModel = dateRangeModel;
+        }
+    }
+    public class GetSimulationAddhocV5Query : PagedRequest, IRequest<List<INPCalendarPivotModel>>
+    {
+        public DateRangeModel DateRangeModel { get; set; }
+        public GetSimulationAddhocV5Query(DateRangeModel dateRangeModel)
+        {
+            this.DateRangeModel = dateRangeModel;
+        }
+    }
 }

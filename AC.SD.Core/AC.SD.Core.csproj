@@ -118,6 +118,9 @@
     <Content Update="Pages\DMS\UploadDynamicFormSetupPrintForm.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\Simulations\SimulationAdhocOrdersV4s.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\TransferPermissions\DynamicFormDataTransfer\TransferDynamicFormWorkFlowApproved.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

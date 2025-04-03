@@ -41,5 +41,7 @@ namespace Core.Entities
         public string? OldValueName { get; set; }
         [NotMapped]
         public string? NewValueName { get; set; }
+        [NotMapped]
+        public string? ParentPrimaryKeyValue { get; set; }
     }
 }

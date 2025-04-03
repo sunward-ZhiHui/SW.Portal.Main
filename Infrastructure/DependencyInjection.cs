@@ -184,6 +184,8 @@ namespace Infrastructure
             services.AddScoped<IACEntrysQueryRepository, ACEntrysQueryRepository>();
             services.AddScoped<IAuditLogQueryRepository, AuditLogQueryRepository>();
             services.AddScoped<INavMethodCodeQueryRepository, NavMethodCodeQueryRepository>();
+            services.AddScoped<INavMethodCodeQueryRepository, NavMethodCodeQueryRepository>();
+            services.AddScoped<IProductGroupingListQueryRepository, ProductGroupingListQueryRepository>();
             return services;
         }
     }

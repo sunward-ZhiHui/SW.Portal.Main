@@ -95,6 +95,10 @@ namespace Core.Entities
         public string? StatusName { get; set; }
         [NotMapped]
         public string? Subject { get; set; }
+        public string? IRNoatQALevel { get; set; }
+        public string? BackUrl { get; set; }
+        public Guid? EmailTopicSessionId { get; set; }
+        public bool? IsDraft { get; set; }
     }
     public class IpirAppIssueDep
     {

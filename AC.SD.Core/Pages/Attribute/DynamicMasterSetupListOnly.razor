@@ -28,18 +28,23 @@
                 @*<DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" /> *@
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
-                 @* <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                @* <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                     <Items>
                         <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
-                       @*  <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@EditEnabled" /> *@
+                        @*  <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@EditEnabled" /> *@
                         <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                         @* <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" /> *@
                         <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenuItem>
-                <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
+                <DxMenuItem Text="More" IconCssClass="fa fa-list">
+                    <Items>
+                        <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@addExport" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -310,10 +315,16 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         _dynamicForm?.Clear();
-        _selectedItems=null;
+        _selectedItems = null;
         // Suppress finalization
         //GC.SuppressFinalize(this);
+    }
+    async Task addExport()
+    {
+        await Grid.ExportToXlsxAsync("Dynamic Form Master", new GridXlExportOptions()
+        {
+        });
     }
 }

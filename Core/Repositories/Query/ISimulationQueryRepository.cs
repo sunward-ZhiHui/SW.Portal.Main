@@ -16,5 +16,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<NavMethodCodeModel>> GetAllNavMethodCodeAsync();
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationMidMonth(DateRangeModel dateRangeModel);
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV3(DateRangeModel dateRangeModel);
+        Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV4(DateRangeModel dateRangeModel);
+        Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV5(DateRangeModel dateRangeModel);
     }
 }

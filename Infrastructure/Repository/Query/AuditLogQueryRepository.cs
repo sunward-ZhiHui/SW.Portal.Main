@@ -225,6 +225,73 @@ namespace Infrastructure.Repository.Query
 
             return result;
         }
+        public async Task<AuditLog> InsertAuditParentLog(AuditLog auditLog)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var result = await GetAuditLogTableData(auditLog.TableName, true);
+                        var res = result.Table_Schema;
+                        var res1 = result.Foreign_Key_Table_Schema;
+                        if (res != null && res.Count > 0)
+                        {
+
+                            foreach (var s in res)
+                            {
+                                bool? IsModified = false;
+                                if (auditLog.NewValue != auditLog.OldValue)
+                                {
+                                    IsModified = true;
+                                }
+                                var parameters = new DynamicParameters();
+                                parameters.Add("AuditType", auditLog.AuditType, DbType.String);
+                                parameters.Add("TableName", auditLog.TableName, DbType.String);
+                                parameters.Add("IsPrimaryKey", s.IsPrimaryKey);
+                                parameters.Add("PrimaryKeyName", s.IsPrimaryKey == true ? s.COLUMN_NAME : string.Empty);
+                                parameters.Add("PrimaryKeyValue", auditLog.PrimaryKeyValue);
+                                parameters.Add("IsModified", IsModified);
+                                parameters.Add("ColumnName", s.COLUMN_NAME, DbType.String);
+                                parameters.Add("AuditDate", DateTime.Now);
+                                parameters.Add("AuditByUserId", auditLog.AuditByUserId);
+                                parameters.Add("NewValue", auditLog.NewValue, DbType.String);
+                                parameters.Add("OldValue", auditLog.NewValue, DbType.String);
+                                bool? IsForeignKey = false; string? ForeignKeyName = string.Empty;
+                                if (!string.IsNullOrEmpty(s.COLUMN_NAME))
+                                {
+                                    var Foreign_Keys = res1.Where(w => w.FK_COLUMN_NAME != null && w.FK_COLUMN_NAME.ToLower() == s.COLUMN_NAME.ToLower()).FirstOrDefault();
+                                    if (Foreign_Keys != null)
+                                    {
+                                        IsForeignKey = true;
+                                        ForeignKeyName = Foreign_Keys?.REFERENCED_TABLE_NAME;
+                                    }
+                                }
+                                parameters.Add("IsForeignKey", IsForeignKey);
+                                parameters.Add("ForeignKeyName", ForeignKeyName, DbType.String);
+                                var Aquery = "INSERT INTO AuditLog(PrimaryKeyValue,OldValue,NewValue,AuditType,TableName,IsPrimaryKey,PrimaryKeyName,IsModified," +
+                         "ColumnName,AuditDate,AuditByUserId,IsForeignKey,ForeignKeyName) OUTPUT INSERTED.AuditLogId VALUES " +
+                            "(@PrimaryKeyValue,@OldValue,@NewValue,@AuditType,@TableName,@IsPrimaryKey,@PrimaryKeyName,@IsModified,@ColumnName,@AuditDate,@AuditByUserId,@IsForeignKey,@ForeignKeyName)";
+                                var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(Aquery, parameters);
+
+                            }
+                        }
+                        return auditLog;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<AuditLog> InsertAuditLog(AuditLog auditLog)
         {
             try
@@ -240,14 +307,18 @@ namespace Infrastructure.Repository.Query
                         {
                             foreach (var s in res)
                             {
-                                var Names = auditLog.NewData.ContainsKey(s.COLUMN_NAME.ToLower());
                                 string? newValue = string.Empty;
-                                if (Names == true)
+                                if (auditLog.NewData != null)
                                 {
-                                    var value = auditLog.NewData[s.COLUMN_NAME.ToLower()];
-                                    if (value != null)
+                                    var Names = auditLog.NewData.ContainsKey(s.COLUMN_NAME.ToLower());
+                                    
+                                    if (Names == true)
                                     {
-                                        newValue = (string?)value;
+                                        var value = auditLog.NewData[s.COLUMN_NAME.ToLower()];
+                                        if (value != null)
+                                        {
+                                            newValue = (string?)value;
+                                        }
                                     }
                                 }
                                 bool? IsModified = false;
@@ -281,6 +352,7 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("AuditByUserId", auditLog.AuditByUserId);
                                 parameters.Add("NewValue", newValue, DbType.String);
                                 parameters.Add("OldValue", OldValue, DbType.String);
+                                parameters.Add("ParentPrimaryKeyValue", auditLog.ParentPrimaryKeyValue, DbType.String);
                                 bool? IsForeignKey = false; string? ForeignKeyName = string.Empty;
                                 if (!string.IsNullOrEmpty(s.COLUMN_NAME))
                                 {
@@ -293,9 +365,9 @@ namespace Infrastructure.Repository.Query
                                 }
                                 parameters.Add("IsForeignKey", IsForeignKey);
                                 parameters.Add("ForeignKeyName", ForeignKeyName, DbType.String);
-                                var Aquery = "INSERT INTO AuditLog(PrimaryKeyValue,OldValue,NewValue,AuditType,TableName,IsPrimaryKey,PrimaryKeyName,IsModified," +
+                                var Aquery = "INSERT INTO AuditLog(ParentPrimaryKeyValue,PrimaryKeyValue,OldValue,NewValue,AuditType,TableName,IsPrimaryKey,PrimaryKeyName,IsModified," +
                          "ColumnName,AuditDate,AuditByUserId,IsForeignKey,ForeignKeyName) OUTPUT INSERTED.AuditLogId VALUES " +
-                            "(@PrimaryKeyValue,@OldValue,@NewValue,@AuditType,@TableName,@IsPrimaryKey,@PrimaryKeyName,@IsModified,@ColumnName,@AuditDate,@AuditByUserId,@IsForeignKey,@ForeignKeyName)";
+                            "(@ParentPrimaryKeyValue,@PrimaryKeyValue,@OldValue,@NewValue,@AuditType,@TableName,@IsPrimaryKey,@PrimaryKeyName,@IsModified,@ColumnName,@AuditDate,@AuditByUserId,@IsForeignKey,@ForeignKeyName)";
                                 var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(Aquery, parameters);
                             }
                         }

@@ -71,79 +71,77 @@
             <DxGridDataColumn FieldName="MethodDescription" Caption="Method Description" MinWidth="80" />
 
         </Columns>
-        @* <EditFormTemplate Context="EditFormContext">
-        @{
-        var types = (ACEntryModel)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
-        <DxDateEdit NullText="Select a date..." @bind-Date="@types.FromDate" CssClass="cw-320" />
-        <ValidationMessage For="@(() => types.FromDate)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="End Date" ColSpanMd="6">
-        <DxDateEdit NullText="Select a date..." @bind-Date="@types.ToDate" CssClass="cw-320" />
-        <ValidationMessage For="@(() => types.ToDate)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-        <DxComboBox Data="@_plantItems"
-        NullText="Select Company..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="Description"
-        ValueFieldName="PlantID"
-        @bind-Value="@types.CompanyId">
-        <Columns>
-        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-        Caption="Customer Name"
-        Width="180px" />
-        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-        Caption="Description" />
-        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-        Caption="Nav Company" />
-        </Columns>
-        </DxComboBox>
-        <ValidationMessage For="@(() => types.CompanyId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Customer" ColSpanMd="6">
-        <DxComboBox Data="@_navCustomers"
-        NullText="Select Customer..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="Name"
-        ValueFieldName="CustomerId"
-        @bind-Value="@types.CustomerId">
-        <Columns>
-        <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Code)"
-        Caption="Code"
-        Width="180px" />
-        <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Name)"
-        Caption="Customer Name" />
-        </Columns>
-        </DxComboBox>
-        <ValidationMessage For="@(() => types.CompanyId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Version" ColSpanMd="6">
-        <DxTextBox @bind-Text="@types.Version" ShowValidationIcon="true" />
-        <ValidationMessage For="@(() => types.Version)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Remark" ColSpanMd="6">
-        <DxTextBox @bind-Text="@types.Remark" ShowValidationIcon="true" />
-        <ValidationMessage For="@(() => types.Remark)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-        <DxComboBox Data="@_stausItems"
-        NullText="Select Status..."
-        SearchMode="ListSearchMode.AutoSearch"
-        SearchFilterCondition="ListSearchFilterCondition.Contains"
-        TextFieldName="CodeValue"
-        ValueFieldName="CodeId"
-        @bind-Value="@types.StatusCodeID"
-        ShowValidationIcon="true">
-        </DxComboBox>
-        <ValidationMessage For="@(() => types.StatusCodeID)" />
-        </DxFormLayoutItem>
-        </DxFormLayout>
-        </EditFormTemplate> *@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (NavMethodCodeModel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Method Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.MethodName" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.MethodName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Method Description" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.MethodDescription" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.MethodDescription)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="PlantID"
+                                @bind-Value="@types.CompanyId">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Category" ColSpanMd="6">
+                    <DxComboBox Data="@_NAVINPCategorys"
+                                NullText="Select Category..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="NAVINPCategoryID"
+                                @bind-Value="@types.NavinpCategoryID">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.BatchSizeId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Available Batch Size" ColSpanMd="6">
+                    <DxTagBox Data="@_view_ApplicationMasterDetails"
+                              NullText="Select Available Batch Size..."
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              TextFieldName="Value"
+                              ValueFieldName="ApplicationMasterDetailID"
+                              @bind-Values="@types.BatchSizeIds">
+                    </DxTagBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Default Batch Size" ColSpanMd="6">
+                    <DxComboBox Data="@_view_ApplicationMasterDetails"
+                                NullText="Select Default Batch Size..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.BatchSizeId">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.BatchSizeId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Batch Size Unit" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.BatchSizeNo" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.BatchSizeNo)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MethodName" />
         </TotalSummary>
@@ -185,11 +183,23 @@
          ShowCloseButton="true"
          MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="NavMethodCode" PrimaryKeyValue="_selectedItems?.MethodCodeID" DisplayColumns="CompanyId,FromDate,ToDate,CustomerId,Remark,Version" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
+        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="NavMethodCode" PrimaryKeyValue="_selectedItems?.MethodCodeID" DisplayColumns="CompanyId,MethodName,MethodDescription,NAVINPCategoryID,BatchSizeId,BatchSizeNo,AdhocMonthStandAlone,ProdFrequency,DistReplenishHs,DistAcmonth,AdhocReplenishHs,AdhocPlanQty" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
     </BodyContentTemplate>
 
 </DxPopup>
+<DxPopup @bind-Visible="@AddpopupForm"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="Method Form"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="auto">
+    <BodyContentTemplate>
+        <NavMethodCodeForm _dynamicFormData="@_methodCodeFormData" RevokeBack="AddpopupFormClose"></NavMethodCodeForm>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool AddpopupForm { get; set; } = false;
     bool AuditLogPopUp { get; set; } = false;
     bool LineItemPopUp { get; set; } = false;
     bool PanelVisible { get; set; } = false;
@@ -202,17 +212,20 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool AddPopup { get; set; } = false;
+    public NavMethodCodeModel? _methodCodeFormData { get; set; }
 
     bool Blukdeletepopup { get; set; } = false; bool AttachmentEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; private List<NavCustomerModel> _navCustomers;
+    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+    private List<NAVINPCategoryModel> _NAVINPCategorys;
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-        _navCustomers = await Mediator.Send(new GetAllNavCustomerQuery());
+        _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(175));
+        _NAVINPCategorys = await Mediator.Send(new GetAllNAVINPCategory());
         if (_stausItems != null && _stausItems.Count() > 0)
         {
             List<int?> codeIds = new List<int?>() { 1, 2 };
@@ -258,8 +271,9 @@
     }
     void addNew()
     {
-        Grid.StartEditNewRowAsync();
-
+        _methodCodeFormData = null;
+        // Grid.StartEditNewRowAsync();
+        AddpopupForm = true;
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -284,19 +298,29 @@
                     if (item is NavMethodCodeModel dataselectItems)
                     {
                         _selectedItems = dataselectItems;
-                        Grid.StartEditDataItemAsync(_selectedItems);
+                        _methodCodeFormData = _selectedItems;
+                        AddpopupForm = true;
+                        // Grid.StartEditDataItemAsync(_selectedItems);
                     }
                 }
             }
             else
             {
-                Grid.StartEditDataItemAsync(_selectedItems);
+                _methodCodeFormData = _selectedItems;
+                AddpopupForm = true;
+                // Grid.StartEditDataItemAsync(_selectedItems);
             }
         }
     }
     void addDelete()
     {
         Blukdeletepopup = true;
+    }
+    void AddpopupFormClose()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AddpopupForm = false;
+        StateHasChanged();
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {

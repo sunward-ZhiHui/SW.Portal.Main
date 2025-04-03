@@ -122,4 +122,21 @@ namespace Application.Queries
             this.IpirAppIssueDepId = ipirAppIssueDepId;
         }
     }
+    public class GetEmailIpirAppBySessionId : PagedRequest, IRequest<IpirApp>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SessionId { get; set; }
+        public GetEmailIpirAppBySessionId(Guid? SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
+    public class InsertCreateEmailIpirApp : IpirApp, IRequest<IpirApp>
+    {
+        public IpirApp IpirApp { get; set; }
+        public InsertCreateEmailIpirApp(IpirApp registrationRequestAssignmentOfJob)
+        {
+            this.IpirApp = registrationRequestAssignmentOfJob;
+        }
+    }
 }

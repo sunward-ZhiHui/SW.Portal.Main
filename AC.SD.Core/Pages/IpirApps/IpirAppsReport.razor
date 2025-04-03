@@ -762,7 +762,7 @@
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
         string[] UrlList = rep1.Split("/");
-        string backurl = "/" + rep1 + "/" + _selectedItems.SessionID;
+        string backurl = rep1 + "/" + _selectedItems.SessionID;
         if (_selectedItems != null)
         {
             var insertData = new IpirApp

@@ -290,6 +290,7 @@
     int CurrentUplodCount { get; set; }
     string? MyMessage { get; set; }
     string Message = "Upload";
+    public Guid? uploadEmailSessionId { get; set; }
     internal List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     private DxUpload uploadComponent;
     bool AttachmentUploadVisible { get; set; } = false;
@@ -588,6 +589,7 @@
         var result = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(Data));
         if (result.FromId > 0)
         {
+            uploadEmailSessionId = result.EmailCreateSessionId;
             if (SelectedFilesCount > 0)
             {
                 uploadComponent.UploadAllFiles();
@@ -595,7 +597,7 @@
             else
             {
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                var url = NavigationManager.BaseUri + "ViewEmail/" + Data.EmailCreateSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + result.EmailCreateSessionId;
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 backUrl();
             }
@@ -610,7 +612,7 @@
     }
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
-        var SessionId = Data.EmailCreateSessionId;
+        var SessionId = uploadEmailSessionId;
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
         string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + SessionId + "&addedByUserId=" + applicationUser?.UserID + "&IsNewSession=false&SourceFrom=Email";
         e.UploadUrl = url;
@@ -647,7 +649,7 @@
         if (SelectedFilesCount == isUploadSuccessCount)
         {
             toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-            var url = NavigationManager.BaseUri + "ViewEmail/" + Data.EmailCreateSessionId;
+            var url = NavigationManager.BaseUri + "ViewEmail/" + uploadEmailSessionId;
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             backUrl();
         }

@@ -216,7 +216,7 @@ namespace Application.Queries
         public long? UserId { get; set; }
         public long? DynamicFormDataGridId { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
-        public Guid? DynamicFormDataSessionId {  get; set; }
+        public Guid? DynamicFormDataSessionId { get; set; }
         public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId, Guid? dynamicFormDataSessionId)
         {
             this.Id = id;
@@ -932,7 +932,7 @@ namespace Application.Queries
             this.DynamicFormSectionId = dynamicFormSectionId;
         }
     }
-    
+
     public class InsertDynamicFormDataAttrUpload : PagedRequest, IRequest<DynamicFormDataAttrUpload>
     {
         public List<DynamicFormDataAttrUpload> DynamicFormDataAttrUpload { get; set; }
@@ -967,6 +967,14 @@ namespace Application.Queries
             this.DynamicFormDataAttrUpload = dynamicFormDataAttrUpload;
         }
     }
-    
+    public class GetDynamicFormDataOneBySessionId : PagedRequest, IRequest<DynamicFormData>
+    {
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public GetDynamicFormDataOneBySessionId(Guid? dynamicFormDataId)
+        {
+            this.DynamicFormDataSessionId = dynamicFormDataId;
+        }
+    }
+
 }
 

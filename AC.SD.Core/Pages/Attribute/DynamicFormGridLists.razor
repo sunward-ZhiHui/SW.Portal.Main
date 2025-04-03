@@ -399,7 +399,7 @@
         string names = "DynamicMasterSetupList";
         if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
         {
-            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
+            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId + "/IsSubForm";
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
         else
@@ -407,12 +407,12 @@
             string names1 = "dynamicFormMenuList";
             if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
             {
-                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId + "/IsSubForm";
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
             else
             {
-                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId;
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicPrintForm/" + SessionId + "/" + _selectedItems?.SessionId + "/IsSubForm";
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
 
@@ -437,7 +437,7 @@
                 if (_dynamicForm != null && applicationUser != null)
                 {
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false,true));
+                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -539,7 +539,7 @@
                     }
                     if (DynamicFormDataGridId > 0)
                     {
-                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId,null));
+                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId, null));
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {

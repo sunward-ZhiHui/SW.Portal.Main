@@ -718,7 +718,8 @@ namespace SW.Portal.Solutions.Controllers
                 FixedAsset =topic.FixedAsset,
                 Type = topic.Type,
                 SubjectName = topic.SubjectName,
-                ProdOrderNoDescription = topic.ProdOrderNoDescription
+                ProdOrderNoDescription = topic.ProdOrderNoDescription,
+                IRNoatQALevel=topic.IRNoatQALevel
 
 
             }).ToList();
@@ -971,6 +972,7 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.SessionID = IpirAppModel.SessionID;
                     FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
                     FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
+                    FilterData.IRNoatQALevel = IpirAppModel.IRNoatQALevel;
                     var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
 
                     try
@@ -1008,7 +1010,8 @@ namespace SW.Portal.Solutions.Controllers
 
                 IpirApp FilterData = new IpirApp();
                 {
-                    FilterData.CompanyID = IpirAppModel.CompanyID;
+                FilterData.IRNoatQALevel = IpirAppModel.IRNoatQALevel;
+                FilterData.CompanyID = IpirAppModel.CompanyID;
                     // FilterData.CompanyID = IpirAppModel.CompanyID;
                     FilterData.IpirAppId = IpirAppModel.IpirAppId;
                     FilterData.LocationID = IpirAppModel.LocationID > 0 ? IpirAppModel.LocationID : null;
@@ -1077,7 +1080,7 @@ namespace SW.Portal.Solutions.Controllers
                 FilterData.FixedAsset = IpirAppModel.FixedAsset;
                 FilterData.Comment = IpirAppModel.Comment;
                 FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
-              
+                FilterData.IRNoatQALevel = IpirAppModel.IRNoatQALevel;
                 FilterData.MachineName = IpirAppModel.MachineName;
                 FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                 FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
@@ -1152,6 +1155,7 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.PackingMaterialDD = IpirAppModel.PackingMaterialDD;
                     FilterData.RawMaterialDD = IpirAppModel.RawMaterialDD;
                     FilterData.FixedAsset = IpirAppModel.FixedAsset;
+                    FilterData.IRNoatQALevel = IpirAppModel.IRNoatQALevel;
                     var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
 
                     try

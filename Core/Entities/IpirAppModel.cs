@@ -52,6 +52,6 @@ namespace Core.Entities
         public string? RawMaterialDD { get; set; }
         public string? PackingMaterialDD { get; set; }
         public string? FixedAsset { get; set; }
-
+        public string? IRNoatQALevel { get; set; }
     }
 }

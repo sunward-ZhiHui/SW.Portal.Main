@@ -240,7 +240,9 @@
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.FixedAssetNo" ShowValidationIcon="true" />
                             </DxFormLayoutItem>
-
+                        <DxFormLayoutItem Caption="IRNoat QALevel" ColSpanMd="6">
+                            <DxTextBox @bind-Text="Data.IRNoatQALevel" />
+                        </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
                                 <DxComboBox Data="@_ActivityStatusItem"
                                             NullText="Select Activity Status..."
@@ -282,9 +284,11 @@
                                     <DxListEditorColumn FieldName="@nameof(ViewDepartment.Division)" Caption="Division" />
                                 </DxTagBox>
                             </DxFormLayoutItem>
+                       
                             <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
                                 <DxMemo @bind-Text="Data.Comment" Rows="5" />
                             </DxFormLayoutItem>
+                      
                         </DxFormLayout>
 
                     </EditForm>

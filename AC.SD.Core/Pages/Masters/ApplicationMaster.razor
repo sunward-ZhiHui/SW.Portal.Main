@@ -63,6 +63,7 @@
                                                 CustomizeEditModel="Grid_CustomizeMasterEditModel"
                                                 EditModelSaving="Grid_EditModelMasterSaving"
                                                 RowDoubleClick="OnRowMasterDoubleClick"
+                                                VirtualScrollingEnabled="true"
                                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                             <Columns>
                                                 <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
@@ -155,6 +156,7 @@
                                                 FocusedRowEnabled="true"
                                                 RowDoubleClick="OnRowDoubleClick"
                                                 RowClick="OnRowClick"
+                                                VirtualScrollingEnabled="true"
                                                 SelectionMode="GridSelectionMode.Multiple"
                                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                             <Columns>
@@ -528,7 +530,6 @@
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
             {
-                ExportSelectedRowsOnly = true,
                 CustomizeCell = OnCustomizeCell
             });
     }

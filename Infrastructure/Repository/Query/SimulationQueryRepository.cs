@@ -3592,6 +3592,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket1 != null)
                     {
                         var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null;;
                         var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
                         if (tick1_ != null && tick1_.Count > 0)
                         {
@@ -3613,6 +3614,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket2 != null)
                     {
                         var tic2 = GroupTicket2.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount2_ = tic2.Count() > 0 ? tic2.Count() : null;
                         var tick2_ = tic2.Distinct().ToList(); s.Ticket2 = "";
                         if (tick2_ != null && tick2_.Count > 0)
                         {
@@ -3634,6 +3636,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket3 != null)
                     {
                         var tic3 = GroupTicket3.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount3_ = tic3.Count() > 0 ? tic3.Count() : null;
                         var tick3_ = tic3.Distinct().ToList(); s.Ticket3 = "";
                         if (tick3_ != null && tick3_.Count > 0)
                         {
@@ -3655,6 +3658,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket4 != null)
                     {
                         var tic4 = GroupTicket4.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount4_ = tic4.Count() > 0 ? tic4.Count() : null;
                         var tick4_ = tic4.Distinct().ToList(); s.Ticket4 = "";
                         if (tick4_ != null && tick4_.Count > 0)
                         {
@@ -3676,6 +3680,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket5 != null)
                     {
                         var tic5 = GroupTicket5.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount5_ = tic5.Count() > 0 ? tic5.Count() : null;
                         var tick5_ = tic5.Distinct().ToList(); s.Ticket5 = "";
                         if (tick5_ != null && tick5_.Count > 0)
                         {
@@ -3697,6 +3702,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket6 != null)
                     {
                         var tic6 = GroupTicket6.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount6_ = tic6.Count() > 0 ? tic6.Count() : null;
                         var tick6_ = tic6.Distinct().ToList(); s.Ticket6 = "";
                         if (tick6_ != null && tick6_.Count > 0)
                         {
@@ -3718,6 +3724,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket7 != null)
                     {
                         var tic7 = GroupTicket7.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount7_ = tic7.Count() > 0 ? tic7.Count() : null;
                         var tick7_ = tic7.Distinct().ToList(); s.Ticket7 = "";
                         if (tick7_ != null && tick7_.Count > 0)
                         {
@@ -3739,6 +3746,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket8 != null)
                     {
                         var tic8 = GroupTicket8.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount8_ = tic8.Count() > 0 ? tic8.Count() : null;
                         var tick8_ = tic8.Distinct().ToList(); s.Ticket8 = "";
                         if (tick8_ != null && tick8_.Count > 0)
                         {
@@ -3760,6 +3768,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket9 != null)
                     {
                         var tic9 = GroupTicket9.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount9_ = tic9.Count() > 0 ? tic9.Count() : null;
                         var tick9_ = tic9.Distinct().ToList(); s.Ticket9 = "";
                         if (tick9_ != null && tick9_.Count > 0)
                         {
@@ -3781,6 +3790,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket10 != null)
                     {
                         var tic10 = GroupTicket10.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount10_ = tic10.Count() > 0 ? tic10.Count() : null;
                         var tick10_ = tic10.Distinct().ToList(); s.Ticket10 = "";
                         if (tick10_ != null && tick10_.Count > 0)
                         {
@@ -3802,6 +3812,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket11 != null)
                     {
                         var tic11 = GroupTicket11.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount11_ = tic11.Count() > 0 ? tic11.Count() : null;
                         var tick11_ = tic11.Distinct().ToList(); s.Ticket11 = "";
                         if (tick11_ != null && tick11_.Count > 0)
                         {
@@ -3823,6 +3834,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket12 != null)
                     {
                         var tic12 = GroupTicket12.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount12_ = tic12.Count() > 0 ? tic12.Count() : null;
                         var tick12_ = tic12.Distinct().ToList(); s.Ticket12 = "";
                         if (tick12_ != null && tick12_.Count > 0)
                         {
@@ -5282,6 +5294,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket1 != null)
                     {
                         var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null;;
                         var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
                         if (tick1_ != null && tick1_.Count > 0)
                         {
@@ -5303,6 +5316,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket2 != null)
                     {
                         var tic2 = GroupTicket2.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount2_ = tic2.Count() > 0 ? tic2.Count() : null;;
                         var tick2_ = tic2.Distinct().ToList(); s.Ticket2 = "";
                         if (tick2_ != null && tick2_.Count > 0)
                         {
@@ -5324,6 +5338,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket3 != null)
                     {
                         var tic3 = GroupTicket3.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount3_ = tic3.Count() > 0 ? tic3.Count() : null;
                         var tick3_ = tic3.Distinct().ToList(); s.Ticket3 = "";
                         if (tick3_ != null && tick3_.Count > 0)
                         {
@@ -5345,6 +5360,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket4 != null)
                     {
                         var tic4 = GroupTicket4.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount4_ = tic4.Count() > 0 ? tic4.Count() : null;
                         var tick4_ = tic4.Distinct().ToList(); s.Ticket4 = "";
                         if (tick4_ != null && tick4_.Count > 0)
                         {
@@ -5366,6 +5382,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket5 != null)
                     {
                         var tic5 = GroupTicket5.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount5_ = tic5.Count() > 0 ? tic5.Count() : null;
                         var tick5_ = tic5.Distinct().ToList(); s.Ticket5 = "";
                         if (tick5_ != null && tick5_.Count > 0)
                         {
@@ -5387,6 +5404,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket6 != null)
                     {
                         var tic6 = GroupTicket6.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount6_ = tic6.Count() > 0 ? tic6.Count() : null;
                         var tick6_ = tic6.Distinct().ToList(); s.Ticket6 = "";
                         if (tick6_ != null && tick6_.Count > 0)
                         {
@@ -5408,6 +5426,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket7 != null)
                     {
                         var tic7 = GroupTicket7.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount7_ = tic7.Count() > 0 ? tic7.Count() : null;
                         var tick7_ = tic7.Distinct().ToList(); s.Ticket7 = "";
                         if (tick7_ != null && tick7_.Count > 0)
                         {
@@ -5429,6 +5448,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket8 != null)
                     {
                         var tic8 = GroupTicket8.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount8_ = tic8.Count() > 0 ? tic8.Count() : null;
                         var tick8_ = tic8.Distinct().ToList(); s.Ticket8 = "";
                         if (tick8_ != null && tick8_.Count > 0)
                         {
@@ -5450,6 +5470,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket9 != null)
                     {
                         var tic9 = GroupTicket9.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount9_ = tic9.Count() > 0 ? tic9.Count() : null;
                         var tick9_ = tic9.Distinct().ToList(); s.Ticket9 = "";
                         if (tick9_ != null && tick9_.Count > 0)
                         {
@@ -5471,6 +5492,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket10 != null)
                     {
                         var tic10 = GroupTicket10.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount10_ = tic10.Count() > 0 ? tic10.Count() : null;
                         var tick10_ = tic10.Distinct().ToList(); s.Ticket10 = "";
                         if (tick10_ != null && tick10_.Count > 0)
                         {
@@ -5492,6 +5514,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket11 != null)
                     {
                         var tic11 = GroupTicket11.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount11_ = tic11.Count() > 0 ? tic11.Count() : null;
                         var tick11_ = tic11.Distinct().ToList(); s.Ticket11 = "";
                         if (tick11_ != null && tick11_.Count > 0)
                         {
@@ -5513,6 +5536,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket12 != null)
                     {
                         var tic12 = GroupTicket12.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        s.NoOfTicketCount12_ = tic12.Count() > 0 ? tic12.Count() : null;
                         var tick12_ = tic12.Distinct().ToList(); s.Ticket12 = "";
                         if (tick12_ != null && tick12_.Count > 0)
                         {

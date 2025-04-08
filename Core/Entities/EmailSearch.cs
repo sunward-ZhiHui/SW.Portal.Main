@@ -40,8 +40,17 @@ namespace Core.Entities
         public string? CategoryCondition { get; set; }
         public string? ActionCondition { get; set; }
         public string? OtherTagCondition { get; set; }
-      
+        public List<SubjectFilterModel> SubjectFilters { get; set; } = new();
+        public string SubjectFilterSQL { get; set; }
+
     }
+    public class SubjectFilterModel
+    {
+        public string BySubject { get; set; }
+        public string SubjectLike { get; set; } = "=";
+        public string SubjectCondition { get; set; } = "AND";
+    }
+
     public class DropDownModel
     {
         public string? Value { get; set; }

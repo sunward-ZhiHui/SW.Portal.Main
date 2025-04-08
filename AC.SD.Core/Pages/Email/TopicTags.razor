@@ -2,6 +2,7 @@
 @using Application.Queries;
 @using Application.Response;
 @using MediatR
+@using System.Dynamic
 @using global::Core.Entities;
 @using global::Core.EntityModels;
 @inject IMediator Mediator
@@ -18,8 +19,8 @@
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
+        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+        DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
@@ -39,31 +40,31 @@
 
 
 <DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
+IsContentBlocked="true"
+ApplyBackgroundShading="true"
+IndicatorAreaVisible="false"
+Text="Fetching Data...">
 
     <DxGrid @ref="Grid" Data="@_topicCategorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="ID"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"           
-            CssClass="ch-360"
-            style="height:calc(100vh - 350px);min-height:350px !important"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            AllowSelectRowByClick="true"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            CustomizeElement="Grid_CustomizeElement"
-            AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+    PagerNavigationMode="PagerNavigationMode.InputBox"
+    KeyFieldName="ID"
+    PageSizeSelectorVisible="true"
+    PageSizeSelectorAllRowsItemVisible="true"
+    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+    PageSize="20"           
+    CssClass="ch-360"
+    style="height:calc(100vh - 350px);min-height:350px !important"
+    FocusedRowEnabled="true"
+    RowClick="OnRowClick"
+    AllowSelectRowByClick="true"
+    CustomizeEditModel="Grid_CustomizeEditModel"
+    CustomizeElement="Grid_CustomizeElement"
+    AutoExpandAllGroupRows="true"
+    SelectionMode="GridSelectionMode.Multiple"
+    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+    RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="GroupName" Caption="Group" />
@@ -87,10 +88,10 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="Name" Caption="Others" />
-          
+
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-        
+
         <EditFormTemplate Context="EditFormContext">
             @{
                 //var types = (EmailActivityCatgorys)EditFormContext.EditModel;
@@ -101,39 +102,39 @@
 
                 <DxFormLayoutItem Caption="Group" ColSpanMd="6">
                     <DxComboBox Data="@_groupTagItems"
-                                NullText="Select Group..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterChildId"
-                                Enabled="@isEnabled"
-                                Value="@selectGroupItems"
-                                ValueExpression="@(() => selectGroupItems )"                             
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
-                                ShowValidationIcon="true">
+                    NullText="Select Group..."
+                    ListRenderMode="ListRenderMode.Virtual"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    TextFieldName="Value"
+                    ValueFieldName="ApplicationMasterChildId"
+                    Enabled="@isEnabled"
+                    Value="@selectGroupItems"
+                    ValueExpression="@(() => selectGroupItems )"                             
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                    ShowValidationIcon="true">
                     </DxComboBox>
-                     <DxSpinEdit   @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
+                    <DxSpinEdit   @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.GroupTag)" />
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Category" ColSpanMd="6">
                     <DxComboBox Data="@_categoryTagItems"
-                                NullText="Select Category..."
-                                Enabled="@isEnabled"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                AllowUserInput = "true"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterChildId"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"                              
-                                Value="@selectcategory"
-                                ValueExpression="@(() => selectcategory )"
-                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                    NullText="Select Category..."
+                    Enabled="@isEnabled"
+                    ListRenderMode="ListRenderMode.Virtual"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    AllowUserInput = "true"
+                    TextFieldName="Value"
+                    ValueFieldName="ApplicationMasterChildId"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"                              
+                    Value="@selectcategory"
+                    ValueExpression="@(() => selectcategory )"
+                    ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
                     </DxComboBox>
-                     <DxSpinEdit   @bind-Value="@types.CategoryTag" ShowValidationIcon="true" style="display:none;" />
+                    <DxSpinEdit   @bind-Value="@types.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.CategoryTag)" />
                 </DxFormLayoutItem>
 
@@ -149,8 +150,36 @@
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />                      
-                    </DxTagBox>                    
-                   
+                    </DxTagBox>    
+
+
+                   @*  <DxDropDownBox @bind-Value="ActionValue"
+                    QueryDisplayText="QueryActionText"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select Action"                                  
+                    ShowValidationIcon="true">
+                        <DropDownBodyTemplate Context="ddbBodyContext">
+                            <DxGrid Data="@_actionTagItems"
+                            KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                            HighlightRowOnHover="true"
+                            SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                            SelectionMode="GridSelectionMode.Multiple"
+                            AllowSelectRowByClick="true"
+                            FocusedRowEnabled="true"
+                            TextWrapEnabled="false"
+                            CssClass="templateGrid"
+                            style="height: calc(100vh - 500px);"
+                            SelectedDataItems="@(ddbBodyContext.DropDownBox.Value as List<ApplicationMasterChildModel> )"
+                            SelectedDataItemsChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                <Columns>
+                                    <DxGridSelectionColumn AllowSelectAll="true" Width="30"></DxGridSelectionColumn>
+                                    <DxGridDataColumn FieldName="Value" />                                   
+                                </Columns>
+                            </DxGrid>
+                        </DropDownBodyTemplate>
+                    </DxDropDownBox>
+ *@
+
                     @*  <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                
                                 SearchMode="ListSearchMode.AutoSearch"
@@ -166,21 +195,21 @@
 
                 <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="6">
                     <DxComboBox Data="@_AllCategory"
-                                AllowUserInput="true"
-                                NullText="Select Others Tag..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="Name"
-                                ValueFieldName="Name"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@Name"
-                                @bind-Text="@othersTagName" ShowValidationIcon="true">
+                    AllowUserInput="true"
+                    NullText="Select Others Tag..."
+                    ListRenderMode="ListRenderMode.Virtual"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    TextFieldName="Name"
+                    ValueFieldName="Name"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    @bind-Value="@Name"
+                    @bind-Text="@othersTagName" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.Name)" />
                 </DxFormLayoutItem>
 
-               @* <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                @* <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
                     <DxTextBox @bind-Text="@types.Description" />
                 </DxFormLayoutItem>*@
                 <ValidationSummary />
@@ -190,10 +219,10 @@
 </DxLoadingPanel>
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="CRT"
-         Closed="EulaPopupClosed"
-         Width="300px">
+ShowFooter="true"
+HeaderText="CRT"
+Closed="EulaPopupClosed"
+Width="300px">
     <BodyContentTemplate>
         <p>
             Do you want to delete
@@ -241,7 +270,51 @@
     bool isTagLock { get; set; }
     private EmailActivityCatgorys _currentEditModel;
     string Name;
+    object ActionValue { get; set; }
 
+
+    string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
+    {        
+        string? returnData = string.Empty;
+        if (arg.Value != null)
+        {
+            List<ApplicationMasterChildModel> collection = (List<ApplicationMasterChildModel>)arg.Value;
+
+            if (collection != null && collection.Count() > 0)
+            {
+                foreach (var item in collection)
+                {
+                    dynamic eod = item;
+                    returnData += (string)eod.Value + ",";
+                }
+            }
+        }
+
+        return returnData;
+    }
+
+    async Task GridSelectedDataItemChanged(IReadOnlyList<object> selectedItems, IDropDownBox dropDownBox)
+    {
+
+        List<ApplicationMasterChildModel> selectedAllItems = new List<ApplicationMasterChildModel>();
+        if (selectedItems != null)
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is ApplicationMasterChildModel dataselectItems)
+                {
+                    selectedAllItems.Add(dataselectItems);
+                }
+            }
+        }
+        var vids = selectedAllItems.Cast<dynamic>().Select(s => (long?)s.ApplicationMasterChildId).ToList();
+        _currentEditModel.ActionTagIds = vids;
+        ActionValue = selectedAllItems;
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedAllItems;
+        dropDownBox.EndUpdate();
+       
+    }
     async Task selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
 
@@ -325,7 +398,11 @@
                 }
             }
 
-            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));            
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));      
+            
+            ActionValue = _actionTagItems
+              .Where(x => _currentEditModel.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
+              .ToList();
         }
         else
         {
@@ -634,6 +711,7 @@
             {
                 isEnabled = false;
             }
+            
 
             await GroupTagChanged(editModel.GroupTag);            
             await CategoryTagChange(editModel.CategoryTag);

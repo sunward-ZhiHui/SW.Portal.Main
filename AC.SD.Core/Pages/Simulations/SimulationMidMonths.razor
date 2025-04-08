@@ -681,21 +681,21 @@
     }
     async Task ExportXlsx_Click()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+        await Grid.ExportToXlsxAsync("Simulation Mid Month", new GridXlExportOptions()
             {
                 ExportSelectedRowsOnly = ExportSelectedRowsOnly
             });
     }
     async Task ExportCsv_Click()
     {
-        await Grid.ExportToCsvAsync("ExportResult", new GridCsvExportOptions()
+        await Grid.ExportToCsvAsync("Simulation Mid Month", new GridCsvExportOptions()
             {
                 ExportSelectedRowsOnly = ExportSelectedRowsOnly
             });
     }
     async Task ExportXls_Click()
     {
-        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+        await Grid.ExportToXlsAsync("Simulation Mid Month", new GridXlExportOptions()
             {
                 ExportSelectedRowsOnly = ExportSelectedRowsOnly
             });

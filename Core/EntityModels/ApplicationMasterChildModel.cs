@@ -10,7 +10,7 @@ namespace Core.EntityModels
 {
     public class ApplicationMasterChildModel
     {
-        
+
         public long ID { get; set; }
         public long Index { get; set; }
         public long ApplicationMasterChildId { get; set; }
@@ -32,5 +32,15 @@ namespace Core.EntityModels
         public string? ParentName { get; set; }
         public string? StatusCode { get; set; }
         public List<ApplicationMasterChildModel> Children { get; set; } = new List<ApplicationMasterChildModel>();
+        public long? ParentMainID1 { get; set; }
+        public long? ParentId1 { get; set; }
+        public string? ParentName1 { get; set; }
+        public long? ParentMainID2 { get; set; }
+        public long? ParentId2 { get; set; }
+        public string? ParentName2 { get; set; }
+        public long? ParentMainID3 { get; set; }
+        public long? ParentId3 { get; set; }
+        public string? ParentName3 { get; set; }
+
     }
 }

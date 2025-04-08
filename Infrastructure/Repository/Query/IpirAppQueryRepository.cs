@@ -482,10 +482,11 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("RawMaterialDD", value.RawMaterialDD);
                         parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
                         parameters.Add("FixedAsset", value.FixedAsset);
+                        parameters.Add("IRNoatQALevel", value.IRNoatQALevel, DbType.String);
                         if (value.IpirAppId > 0)
                         {
 
-                            var query = "Update IpirApp Set SubjectName = @SubjectName,Type = @Type,ActivityStatusId=@ActivityStatusId,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID,NavprodOrderLineID=@NavprodOrderLineID,ReportingPersonal=@ReportingPersonal,RefNo=@RefNo," +
+                            var query = "Update IpirApp Set IRNoatQALevel=@IRNoatQALevel,SubjectName = @SubjectName,Type = @Type,ActivityStatusId=@ActivityStatusId,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID,NavprodOrderLineID=@NavprodOrderLineID,ReportingPersonal=@ReportingPersonal,RefNo=@RefNo," +
                             "ProdOrderNo=@ProdOrderNo,FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -501,9 +502,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ProfileNo", ProfileNo, DbType.String);
                             value.SessionID = Guid.NewGuid();
                             parameters.Add("SessionID", value.SessionID, DbType.Guid);
-                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileID,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
+                            var query = @"INSERT INTO IpirApp(IRNoatQALevel,FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileID,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
 				                       OUTPUT INSERTED.IpirAppId ,INSERTED.SessionID
-				                       VALUES (@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
+				                       VALUES (@IRNoatQALevel,@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.IpirAppId = insertedId;
                         }
@@ -585,12 +586,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("LocationID", value.LocationID);
 
                         parameters.Add("MachineName", value.MachineName);
-
+                        parameters.Add("IRNoatQALevel", value.IRNoatQALevel,DbType.String);
                         parameters.Add("ActivityStatusId", value.ActivityStatusId);
                         if (value.IpirAppId > 0)
                         {
 
-                            var query = "Update IpirApp Set MachineName = @MachineName, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
+                            var query = "Update IpirApp Set IRNoatQALevel=@IRNoatQALevel,MachineName = @MachineName, StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
                             "FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -675,12 +676,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
                         parameters.Add("ProdOrderNo", value.ProdOrderNo, DbType.String);
                         parameters.Add("StatusCodeID", value.StatusCodeID);
-
+                        parameters.Add("IRNoatQALevel", value.IRNoatQALevel, DbType.String);
                         parameters.Add("MachineName", value.MachineName, DbType.String);
 
 
 
-                        var query = @"Update IpirApp Set StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD ,
+                        var query = @"Update IpirApp Set IRNoatQALevel=@IRNoatQALevel,StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD ,
            RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD ,FixedAsset = @FixedAsset ,Type =@Type,SubjectName = @SubjectName,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID,
                             ProdOrderNo=@ProdOrderNo  Where IpirAppId=@IpirAppId;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);

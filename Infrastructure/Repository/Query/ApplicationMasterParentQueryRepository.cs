@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Entities.Views;
 using Core.EntityModels;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -65,20 +66,48 @@ namespace Infrastructure.Repository.Query
                 }
             }
             var res = ids.Distinct().ToList();
+            var res1 = await GetApplicationMasterChildExportAsync(res);
             string Ids = res != null && res.Count() > 0 ? (string.Join(',', res)) : "-1";
-            var res1 = await GetAllByAsync(Ids, ApplicationMasterParentCodeId);
+            //var res1 = await GetAllByAsync(Ids, ApplicationMasterParentCodeId);
             return res1;
         }
-        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids,long? ApplicationMasterParentCodeId)
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetApplicationMasterChildExportAsync(List<long> ids)
         {
             try
             {
-                var result=new List<ApplicationMasterChildModel>();
+                long? ApplicationMasterParentCodeId = -1;
+                var parameters = new DynamicParameters();
+                string? contCats = "t1";
+                if (ids != null && ids.Count() > 0)
+                {
+                    contCats = "t" + ids.Count();
+                    ApplicationMasterParentCodeId = ids.First();
+                }
+                parameters.Add("ApplicationMasterParentCodeId", ApplicationMasterParentCodeId);
+                var result = new List<ApplicationMasterChildModel>();
+                List<ApplicationMasterChildModel> applicationMasterChildModels = new List<ApplicationMasterChildModel>();
+                var query = "select t1.ApplicationMasterParentID as ParentMainID1,\r\nt1.ParentID as ParentId1,\r\nt2.ApplicationMasterParentID as ParentMainID2,\r\nt2.ParentID as ParentId2 ,\r\nt3.ApplicationMasterParentID as ParentMainID3,\r\nt3.ParentID as ParentId3,\r\nt1.Value as ParentName1,\r\nt2.Value as ParentName2,\r\nt3.Value as ParentName3\r\nfrom ApplicationMasterChild t1\r\nLEFT JOIN ApplicationMasterChild t2 ON t2.ParentID=t1.ApplicationMasterChildID\r\nLEFT JOIN ApplicationMasterChild t3 ON t3.ParentID=t2.ApplicationMasterChildID\r\nwhere t1.ApplicationMasterParentID=@ApplicationMasterParentCodeId order by t1.ApplicationMasterChildID asc\r\n\r\n;"; 
+                using (var connection = CreateConnection())
+                {
+                    result = (await connection.QueryAsync<ApplicationMasterChildModel>(query, parameters)).ToList();
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids, long? ApplicationMasterParentCodeId)
+        {
+            try
+            {
+                var result = new List<ApplicationMasterChildModel>();
                 List<ApplicationMasterChildModel> applicationMasterChildModels = new List<ApplicationMasterChildModel>();
                 var query = "select t1.*,t2.ApplicationMasterName,t3.Value as ParentName from ApplicationMasterChild t1 \r\nJOIN ApplicationMasterParent t2 ON t2.ApplicationMasterParentCodeID=t1.ApplicationMasterParentID\r\nLEFT JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t1.ParentID where t1.StatusCodeID=1 AND t1.ApplicationMasterParentID in(" + Ids + ")";
                 using (var connection = CreateConnection())
                 {
-                    result= (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
+                    result = (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
                 }
                 if (result != null && result.Count() > 0)
                 {

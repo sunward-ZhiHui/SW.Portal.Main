@@ -1,9 +1,12 @@
 ﻿@page "/DynamicMasterSetupList/dynamicPrintForm/{SessionId:guid}"
 @page "/DynamicMasterSetupList/dynamicPrintForm/{SessionId:guid}/{FormSessionId:guid}"
-<DynamicFormDataPrint SessionId="@SessionId" FormSessionId="@FormSessionId"></DynamicFormDataPrint>
+@page "/DynamicMasterSetupList/dynamicPrintForm/{SessionId:guid}/{FormSessionId:guid}/{IsSubForm}"
+<DynamicFormDataPrint SessionId="@SessionId" FormSessionId="@FormSessionId" IsSubForm="@IsSubForm"></DynamicFormDataPrint>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
     public Guid? FormSessionId { get; set; }
+    [Parameter]
+    public string? IsSubForm { get; set; }
 }

@@ -434,61 +434,73 @@ namespace Core.EntityModels
         public decimal? ProjectedHoldingStock1_ { get; set; }
         public decimal? ProductionProjected1_ { get; set; }
         public string? NoOfTicket1_ { get; set; }
+        public long? NoOfTicketCount1_ { get; set; }
         public decimal? BlanketAddhoc2_ { get; set; }
         public decimal? Month2_ { get; set; }
         public decimal? ProjectedHoldingStock2_ { get; set; }
         public decimal? ProductionProjected2_ { get; set; }
         public string? NoOfTicket2_ { get; set; }
+        public long? NoOfTicketCount2_ { get; set; }
         public decimal? BlanketAddhoc3_ { get; set; }
         public decimal? Month3_ { get; set; }
         public decimal? ProjectedHoldingStock3_ { get; set; }
         public decimal? ProductionProjected3_ { get; set; }
         public string? NoOfTicket3_ { get; set; }
+        public long? NoOfTicketCount3_ { get; set; }
         public decimal? BlanketAddhoc4_ { get; set; }
         public decimal? Month4_ { get; set; }
         public decimal? ProjectedHoldingStock4_ { get; set; }
         public decimal? ProductionProjected4_ { get; set; }
         public string? NoOfTicket4_ { get; set; }
+        public long? NoOfTicketCount4_ { get; set; }
         public decimal? BlanketAddhoc5_ { get; set; }
         public decimal? Month5_ { get; set; }
         public decimal? ProjectedHoldingStock5_ { get; set; }
         public decimal? ProductionProjected5_ { get; set; }
         public string? NoOfTicket5_ { get; set; }
+        public long? NoOfTicketCount5_ { get; set; }
         public decimal? BlanketAddhoc6_ { get; set; }
         public decimal? Month6_ { get; set; }
         public decimal? ProjectedHoldingStock6_ { get; set; }
         public decimal? ProductionProjected6_ { get; set; }
         public string? NoOfTicket6_ { get; set; }
+        public long? NoOfTicketCount6_ { get; set; }
         public decimal? BlanketAddhoc7_ { get; set; }
         public decimal? Month7_ { get; set; }
         public decimal? ProjectedHoldingStock7_ { get; set; }
         public decimal? ProductionProjected7_ { get; set; }
         public string? NoOfTicket7_ { get; set; }
+        public long? NoOfTicketCount7_ { get; set; }
         public decimal? BlanketAddhoc8_ { get; set; }
         public decimal? Month8_ { get; set; }
         public decimal? ProjectedHoldingStock8_ { get; set; }
         public decimal? ProductionProjected8_ { get; set; }
         public string? NoOfTicket8_ { get; set; }
+        public long? NoOfTicketCount8_ { get; set; }
         public decimal? BlanketAddhoc9_ { get; set; }
         public decimal? Month9_ { get; set; }
         public decimal? ProjectedHoldingStock9_ { get; set; }
         public decimal? ProductionProjected9_ { get; set; }
         public string? NoOfTicket9_ { get; set; }
+        public long? NoOfTicketCount9_ { get; set; }
         public decimal? BlanketAddhoc10_ { get; set; }
         public decimal? Month10_ { get; set; }
         public decimal? ProjectedHoldingStock10_ { get; set; }
         public decimal? ProductionProjected10_ { get; set; }
         public string? NoOfTicket10_ { get; set; }
+        public long? NoOfTicketCount10_ { get; set; }
         public decimal? BlanketAddhoc11_ { get; set; }
         public decimal? Month11_ { get; set; }
         public decimal? ProjectedHoldingStock11_ { get; set; }
         public decimal? ProductionProjected11_ { get; set; }
         public string? NoOfTicket11_ { get; set; }
+        public long? NoOfTicketCount11_ { get; set; }
         public decimal? BlanketAddhoc12_ { get; set; }
         public decimal? Month12_ { get; set; }
         public decimal? ProjectedHoldingStock12_ { get; set; }
         public decimal? ProductionProjected12_ { get; set; }
         public string? NoOfTicket12_ { get; set; }
+        public long? NoOfTicketCount12_ { get; set; }
         public decimal? Rework_ { get; set; }
 
         public string GroupTicket1 { get; set; }

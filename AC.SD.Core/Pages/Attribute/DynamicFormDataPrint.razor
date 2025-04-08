@@ -22,7 +22,7 @@
             margin: 0.5,
             filename: 'myfile.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { useCORS: true, letterRendering: true, }, pagebreak: { avoid: "tr" },
+            html2canvas: { useCORS: true, letterRendering: true, }, pagebreak: { avoid: "tr", after: '.subFormTable' },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compressPDF: true }
         };
         // New Promise-based usage:
@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                        font-family: arial, sans-serif;
-                                                        border-collapse: collapse;
-                                                        width: 100%;
-                                                    }
+                                                                                                                            font-family: arial, sans-serif;
+                                                                                                                            border-collapse: collapse;
+                                                                                                                            width: 100%;
+                                                                                                                        }
 
-                                                    th {
-                                                        border: 1px solid;
-                                                        padding: 8px;
-                                                        font-weight: bold;
+                                                                                                                        th {
+                                                                                                                            border: 1px solid;
+                                                                                                                            padding: 8px;
+                                                                                                                            font-weight: bold;
 
 
-                                                    }
+                                                                                                                        }
 
-                                                    td {
-                                                        border: 1px solid;
-                                                        padding: 8px;
+                                                                                                                        td {
+                                                                                                                            border: 1px solid;
+                                                                                                                            padding: 8px;
 
-                                                    } */
+                                                                                                                        } */
 
     /* tr:nth-child(even) {
-                                                            background-color: #dddddd;
-                                                        } */
+                                                                                                                                background-color: #dddddd;
+                                                                                                                            } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -72,60 +72,117 @@
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
 
-               @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
+                @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
                 <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@printForm" />
             </Items>
         </DxMenu>
     </div>
 </div>
+@if (IsSubForm == "IsSubForm")
+{
+    <DxFormLayout CssClass="w-100" style="padding:10px;">
+        <DxFormLayoutItem Caption="Dynamic Form Data" ColSpanMd="12">
+            <DxDropDownBox @bind-Value="VariationNoValue"
+                           QueryDisplayText="QueryDisplayVariationDynamicComboBoxText"
+                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                           NullText="Select a Dynamic Form Data..."
+                           ShowValidationIcon="true">
+                <DropDownBodyTemplate Context="ddbBodyContext1">
+                    <DxGrid Data="@_dynamicformObjectDataVariationList"
+                            KeyFieldName="DynamicFormDataId" ShowSearchBox="true"
+                            HighlightRowOnHover="true"
+                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                            SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                            SelectionMode="GridSelectionMode.Multiple"
+                            AllowSelectRowByClick="true"
+                            FocusedRowEnabled="true"
+                            TextWrapEnabled="false"
+                            VirtualScrollingEnabled="true"
+                            style="height: calc(100vh - 500px);"
+                            CssClass="w-100"
+                            SelectedDataItems="@(ddbBodyContext1.DropDownBox.Value as List<ExpandoObject> )"
+                            SelectedDataItemsChanged="item => GridVariationSelectedDataItemChanged(item, ddbBodyContext1.DropDownBox)">
+                        <Columns>
+                            <DxGridSelectionColumn AllowSelectAll="true"></DxGridSelectionColumn>
+                            @BuildDataVariationsColumns()
+                        </Columns>
+                    </DxGrid>
+                </DropDownBodyTemplate>
+            </DxDropDownBox>
+
+        </DxFormLayoutItem>
+    </DxFormLayout>
+}
 <div id="htmlPdfPrintForm">
-    @if (_dynamicForm != null)
+    @if (IsSubForm == "IsSubForm")
     {
         query = string.Empty;
-        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
-        query += "<tr>";
-        query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
-        query += "</tr>";
-        query += "</table>";
-        query += "<tr>";
-        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
-        query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
-        query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.ProfileNo : "") + "</td>";
-        query += "</tr>";
-        query += "<tr>";
-        query += "<th width=\"30%\" style=\"text-align:left;border:1px solid;padding: 8px;font-weight:bold;\">Added By</th>";
-        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.AddedBy : "") + "</td>";
-        query += "</tr>";
-        query += "<tr>";
-        query += "<th width=\"30%\" style=\"text-align:left; border: 1px solid;padding: 8px;font-weight: bold;\">Added Date</th>";
-        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? (Application.Common.Helper.Helper.FormatDateTime(_dynamicformDataList[0]?.AddedDate == null ? DateTime.Now : _dynamicformDataList[0]?.AddedDate)) : "") + "</td>";
-        query += "</tr>";
-        query += "</table>";
-        @if (_AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSection.Count() > 0)
-        {
-            _AttributeHeader.DynamicFormSection.ForEach(s =>
-            {
-                query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
-                query += "<tr>";
-                query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
-                query += "</tr>";
-                query += "</table>";
 
-                if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
-                {
-                    var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                    query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
-                    dynamicFormSectionAttribute.ForEach(a =>
-    {
-        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
-        if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+        if (_dynamicForm != null)
         {
-            dataColumnNamesList.ForEach(b =>
+            if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
             {
-                        object? valueData = null;
-                        var byName = (IDictionary<string, object>)_dynamicformObjectData;
-                        if (byName != null)
+                _dynamicformObjectDataList.ForEach(d =>
+                {
+                    if (_dynamicForm != null)
+                    {
+                        var byNames = (IDictionary<string, object>)d;
+                        string? dates = (string?)byNames["AddedDate"].ToString();
+                        string? DatesList = string.Empty;
+                        if (!string.IsNullOrEmpty(dates))
                         {
+                            DateTime? myDate = DateTime.Parse(dates);
+                            if (myDate != null && myDate != DateTime.MinValue)
+                            {
+                                DatesList = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
+                            }
+                        }
+                        query += "<div class=\"subFormTable\" style=\"display: block; page-break-after:always;\">";
+                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        query += "<tr>";
+                        query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + byNames["Name"] + "</th>";
+                        query += "</tr>";
+                        query += "</table>";
+                        query += "<tr>";
+                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
+                        query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + byNames["ProfileNo"] + "</td>";
+                        query += "</tr>";
+                        query += "<tr>";
+                        query += "<th width=\"30%\" style=\"text-align:left;border:1px solid;padding: 8px;font-weight:bold;\">Added By</th>";
+                        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + byNames["AddedBy"] + "</td>";
+                        query += "</tr>";
+                        query += "<tr>";
+                        query += "<th width=\"30%\" style=\"text-align:left; border: 1px solid;padding: 8px;font-weight: bold;\">Added Date</th>";
+                        query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + DatesList + "</td>";
+                        query += "</tr>";
+                        query += "</table>";
+                        if (_AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSection.Count() > 0)
+
+                        {
+                            _AttributeHeader.DynamicFormSection.ForEach(s =>
+        {
+            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<tr>";
+            query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
+            query += "</tr>";
+            query += "</table>";
+
+            if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
+            {
+                var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
+                query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                dynamicFormSectionAttribute.ForEach(a =>
+            {
+                            var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+                            if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+                            {
+    dataColumnNamesList.ForEach(b =>
+            {
+                            object? valueData = null;
+                            var byName = (IDictionary<string, object>)d;
+                            if (byName != null)
+                            {
     if (!string.IsNullOrEmpty(b.Value))
     {
         if (byName.ContainsKey(b.Value))
@@ -135,7 +192,18 @@
     }
     if (a.ControlType == "DateEdit")
     {
-        valueData = valueData != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)valueData) : null;
+        if (valueData != null)
+        {
+            string? dates = (string?)valueData.ToString();
+            if (!string.IsNullOrEmpty(dates))
+            {
+                DateTime? myDate = DateTime.Parse(dates);
+                if (myDate != null && myDate != DateTime.MinValue)
+                {
+                    valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
+                }
+            }
+        }
     }
     if (a.ControlType == "TimeEdit")
     {
@@ -156,35 +224,164 @@
         bool? values = valueData == null ? false : (bool)valueData;
         if (values == true)
         {
-            //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+        //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
         }
         else
         {
-            // valueData = "";
+        // valueData = "";
         }
     }
     if (a.ControlTypeId == 2712)
     {
         valueData = "";
     }
+                            }
+                            query += "<tr>";
+                            query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                            query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                            query += "</tr>";
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
+                        });
+                            }
+                        });
+                query += "</table>";
+            }
+        });
+
+
                         }
-                        query += "<tr>";
-                        query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
-                        query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
-                        query += "</tr>";
-                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
-                    });
+                        query += "</div>";
+                    }
+                });
+            }
+        }
+
+        @((MarkupString)query)
+    }
+    else
+    {
+        if (_dynamicForm != null)
+        {
+            query = string.Empty;
+            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<tr>";
+            query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
+            query += "</tr>";
+            query += "</table>";
+            query += "<tr>";
+            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
+            query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.ProfileNo : "") + "</td>";
+            query += "</tr>";
+            query += "<tr>";
+            query += "<th width=\"30%\" style=\"text-align:left;border:1px solid;padding: 8px;font-weight:bold;\">Added By</th>";
+            query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.AddedBy : "") + "</td>";
+            query += "</tr>";
+            query += "<tr>";
+            query += "<th width=\"30%\" style=\"text-align:left; border: 1px solid;padding: 8px;font-weight: bold;\">Added Date</th>";
+            query += "<td width=\"70%\" style=\"border: 1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? (Application.Common.Helper.Helper.FormatDateTime(_dynamicformDataList[0]?.AddedDate == null ? DateTime.Now : _dynamicformDataList[0]?.AddedDate)) : "") + "</td>";
+            query += "</tr>";
+            query += "</table>";
+            @if (_AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSection.Count() > 0)
+            {
+                _AttributeHeader.DynamicFormSection.ForEach(s =>
+                {
+                    query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                    query += "<tr>";
+                    query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
+                    query += "</tr>";
+                    query += "</table>";
+
+                    if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
+                    {
+                        var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
+                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        dynamicFormSectionAttribute.ForEach(a =>
+    {
+        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+        if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+        {
+            dataColumnNamesList.ForEach(b =>
+            {
+                            object? valueData = null;
+                            var byName = (IDictionary<string, object>)_dynamicformObjectData;
+                            if (byName != null)
+                            {
+                                if (!string.IsNullOrEmpty(b.Value))
+                                {
+    if (byName.ContainsKey(b.Value))
+    {
+        valueData = byName[b.Value];
+    }
+                                }
+                                if (a.ControlType == "DateEdit")
+                                {
+    if (valueData != null)
+    {
+        string? dates = (string?)valueData.ToString();
+        if (!string.IsNullOrEmpty(dates))
+        {
+            DateTime? myDate = DateTime.Parse(dates);
+            if (myDate != null && myDate != DateTime.MinValue)
+            {
+                valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
+            }
+        }
+    }
+                                }
+                                if (a.ControlType == "TimeEdit")
+                                {
+    if (valueData != "")
+    {
+        TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
+        if (values != null)
+        {
+            int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
+            DateTime dateTimes = new DateTime();
+            var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
+            valueData = dd1.ToString("hh:mm tt");
+        }
+    }
+                                }
+                                if (a.ControlType == "CheckBox")
+                                {
+    bool? values = valueData == null ? false : (bool)valueData;
+    if (values == true)
+    {
+    //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+    }
+    else
+    {
+    // valueData = "";
+    }
+                                }
+                                if (a.ControlTypeId == 2712)
+                                {
+    valueData = "";
+                                }
+                            }
+                            query += "<tr>";
+                            query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                            query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                            query += "</tr>";
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
+                        });
         }
     });
-                    query += "</table>";
-                }
-            });
+                        query += "</table>";
+                    }
+                });
+                @((MarkupString)query
+                    )
+            }
 
-            @((MarkupString)query)
         }
     }
 </div>
 @code {
+    private List<DropDownOptionsModel> _variationgridlistss { get; set; }
+    private List<ExpandoObject?> _dynamicformObjectDataVariationList { get; set; }
+    object VariationNoValue { get; set; }
     private string? mainStyle { get; set; } = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);";
     public dynamic _dynamicformObjectData { get; set; }
     public string? query { get; set; } = string.Empty;
@@ -193,12 +390,14 @@
     public Guid? SessionId { get; set; }
     [Parameter]
     public Guid? FormSessionId { get; set; }
+    [Parameter]
+    public string? IsSubForm { get; set; }
     private AttributeHeaderListModel _AttributeHeader;
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
     public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
-    private List<object>? _dynamicformObjectDataList = new List<object>();
+    private List<object>? _dynamicformObjectDataList = new List<object>(); private List<object>? _dynamicformObjectDataAllList = new List<object>();
     private List<DynamicFormData> _dynamicformDataList;
     protected override async Task OnInitializedAsync()
     {
@@ -211,6 +410,78 @@
             await UpdateDataAsync();
         }
         base.OnParametersSet();
+    }
+    string? QueryDisplayVariationDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value == null)
+        {
+            _dynamicformObjectDataList = _dynamicformObjectDataAllList;
+        }
+        if (arg.Value != null)
+        {
+            _dynamicformObjectDataList = new List<object>();
+            List<ExpandoObject> collection = (List<ExpandoObject>)arg.Value;
+            if (collection != null && collection.Count() > 0)
+            {
+                foreach (var item in collection)
+                {
+                    dynamic eod = item;
+                    Guid? sessionid = (Guid?)eod.SessionId;
+                    var datats = _dynamicformObjectDataAllList.Cast<dynamic>().Where(x => x.SessionId == sessionid).FirstOrDefault();
+                    if (datats != null)
+                    {
+                        _dynamicformObjectDataList.Add(datats);
+                    }
+                    returnData += (string)eod.DisplayItemsQuery + ",";
+                }
+            }
+            else
+            {
+                _dynamicformObjectDataList = _dynamicformObjectDataAllList;
+            }
+        }
+        return returnData.TrimEnd(',');
+    }
+    async Task GridVariationSelectedDataItemChanged(IReadOnlyList<object> selectedItems, IDropDownBox dropDownBox)
+    {
+        List<ExpandoObject> selectedAllItems = new List<ExpandoObject>();
+        if (selectedItems != null)
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is ExpandoObject dataselectItems)
+                {
+                    selectedAllItems.Add(dataselectItems);
+                }
+            }
+        }
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedAllItems;
+        dropDownBox.EndUpdate();
+    }
+    private RenderFragment BuildDataVariationsColumns()
+    {
+        RenderFragment columns = b =>
+        {
+            int counter = 0;
+            if (_variationgridlistss != null && _variationgridlistss.Count() > 0)
+            {
+                _variationgridlistss.ForEach(s =>
+                {
+                    int count = 0;
+                    b.OpenComponent(counter, typeof(DxGridDataColumn));
+                    b.AddAttribute(count + 1, "FieldName", s.Value);
+                    b.AddAttribute(count + 1, "AllowSort", true);
+                    b.AddAttribute(count + 1, "SortMode", DevExpress.Blazor.GridColumnSortMode.Custom);
+                    b.AddAttribute(count + 1, "Caption", s.Text);
+                    b.AddAttribute(count + 1, "Visible", s.IsVisible);
+                    b.CloseComponent();
+                });
+            }
+        };
+
+        return columns;
     }
     string loadSubFormHtml(long dynamicFormSectionAttributeId)
     {
@@ -333,25 +604,26 @@
     {
         try
         {
-            dataColumnNames = new List<DropDownOptionsModel>(); _dynamicformObjectDataList = new List<object>();
+            dataColumnNames = new List<DropDownOptionsModel>(); _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>();
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
-            dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
+            dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form", IsVisible = false });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
             // dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
-
+            _dynamicformObjectDataVariationList = new List<ExpandoObject?>(); List<long?> dynamicFormIds = new List<long?>();
             // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
             if (SessionId != null)
             {
-                _dynamicformObjectDataList = new List<object>();
+                _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>();
                 var dynamicForms = Task.Factory.StartNew(() => Mediator.Send(new GetAllDynamicFormList(SessionId, -1)));
                 await Task.WhenAll(dynamicForms);
                 _dynamicForm = await dynamicForms.Result;
                 if (_dynamicForm != null)
                 {
+
                     if (_dynamicForm != null)
                     {
-                        _dynamicformObjectDataList = new List<object>();
+                        _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>();
                         var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
@@ -488,16 +760,46 @@
                                 }
                             }
                         }
+                        List<long?> ids = new List<long?>();
                         if (_dynamicForm != null)
                         {
                             if (FormSessionId != null)
                             {
-                                var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, FormSessionId)));
-                                await Task.WhenAll(_dynamicformDataLists);
-                                _dynamicformDataList = await _dynamicformDataLists.Result;
+                                var dataSession = await Mediator.Send(new GetDynamicFormDataOneBySessionId(FormSessionId));
+                                if (dataSession != null)
+                                {
+                                    Guid? FormSessionIds = null;
+                                    long? DynamicFormDataGridId = -1; long? dynamicFormSectionGridAttributeId = -1;
+                                    if (IsSubForm == "IsSubForm")
+                                    {
+                                        if (dataSession.DynamicFormDataGridId > 0)
+                                        {
+                                            dynamicFormSectionGridAttributeId = dataSession.DynamicFormSectionGridAttributeId;
+                                            DynamicFormDataGridId = dataSession.DynamicFormDataGridId;
+                                            dynamicFormIds.Add(_dynamicForm.ID);
+                                            ids.Add(dataSession.DynamicFormDataGridId);
+                                            await loadDropdownList(dynamicFormIds, ids, null);
+                                        }
+                                        else
+                                        {
+                                            // dynamicFormIds.Add(_dynamicForm.ID);
+                                            // await loadDropdownList(dynamicFormIds, ids, FormSessionId);
+                                            FormSessionIds = FormSessionId;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //dynamicFormIds.Add(_dynamicForm.ID);
+                                        //await loadDropdownList(dynamicFormIds, ids, FormSessionId);
+                                        FormSessionIds = FormSessionId;
+                                    }
+                                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds)));
+                                    await Task.WhenAll(_dynamicformDataLists);
+                                    _dynamicformDataList = await _dynamicformDataLists.Result;
+                                }
                             }
                         }
-                        _dynamicformObjectDataList = new List<object>();
+                        _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {
                             _dynamicformDataList.ForEach(s =>
@@ -516,6 +818,8 @@
                                 objectData["DynamicFormId"] = s.DynamicFormId;
                                 objectData["Name"] = s.Name;
                                 objectData["ModifiedBy"] = s.ModifiedBy;
+                                objectData["AddedBy"] = s.AddedBy;
+                                objectData["AddedDate"] = s.AddedDate;
                                 objectData["ModifiedDate"] = s.ModifiedDate;
                                 objectData["CurrentUserName"] = s.CurrentUserName;
                                 objectData["StatusName"] = s.StatusName;
@@ -1029,7 +1333,8 @@
 
                                     });
                                 }
-                                //_dynamicformObjectDataList.Add(objectData);
+                                _dynamicformObjectDataAllList.Add(objectData);
+                                _dynamicformObjectDataList.Add(objectData);
                                 _dynamicformObjectData = objectData;
                             });
 
@@ -1055,6 +1360,39 @@
         catch (Exception ex)
         {
 
+        }
+    }
+    async Task loadDropdownList(List<long?> dynamicFormIds, List<long?> ids, Guid? IsFormSessionId)
+    {
+        var lists = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID, ids));
+        _variationgridlistss = new List<DropDownOptionsModel>();
+        _variationgridlistss = lists.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels;
+        _dynamicformObjectDataVariationList = new List<ExpandoObject>();
+        if (lists.ObjectData != null)
+        {
+            foreach (var v in (lists.ObjectData as IEnumerable<ExpandoObject>))
+            {
+                dynamic eod = v;
+                var SessionIds = (Guid?)eod.SessionId;
+                if (IsFormSessionId == SessionIds || ids.Count() > 0)
+                {
+                    var vv = eod.DynamicFormId;
+                    var AttributeDetailIds = eod.AttributeDetailID;
+                    string listone = string.Empty;
+                    if (_variationgridlistss != null && _variationgridlistss.Count() > 0)
+                    {
+                        var g1 = _variationgridlistss.OrderBy(o => o.OrderBy).ToList();
+                        g1.ForEach(q =>
+                        {
+                            var byName = (IDictionary<string, object>)v;
+                            var names = (string)byName[q.Value]?.ToString();
+                            listone += names + "|";
+                        });
+                    }
+                    eod.DisplayItemsQuery = listone;
+                    _dynamicformObjectDataVariationList.Add(eod);
+                }
+            }
         }
     }
     void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)

@@ -1959,6 +1959,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormData> GetDynamicFormDataOneBySessionIdAsync(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+                var query = "select t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeId,t1.SessionID,t1.DynamicFormDataGridID,t2.SessionID as DynamicFormSessionID,t3.SessionID as DynamicFormSectionGridAttributeSessionId from DynamicFormData t1\r\nLEFT JOIN DynamicFormData t2  ON t2.DynamicFormDataID=t1.DynamicFormDataGridID\r\nLEFT JOIN DynamicFormSectionAttribute t3  ON t3.DynamicFormSectionAttributeID=t1.DynamicFormSectionGridAttributeID\r\nwhere t1.SessionID=@SessionId;";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData)
         {
             try

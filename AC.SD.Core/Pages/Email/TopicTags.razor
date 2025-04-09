@@ -139,7 +139,7 @@ Text="Fetching Data...">
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Action" ColSpanMd="12">
-                    <DxTagBox Data="_actionTagItems"
+                    @* <DxTagBox Data="_actionTagItems"
                               @bind-Values="types.ActionTagIds"
                               NullText="Select Action"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -150,10 +150,10 @@ Text="Fetching Data...">
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />                      
-                    </DxTagBox>    
+                    </DxTagBox> *@    
 
 
-                   @*  <DxDropDownBox @bind-Value="ActionValue"
+                    <DxDropDownBox @bind-Value="ActionValue"
                     QueryDisplayText="QueryActionText"
                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                     NullText="Select Action"                                  
@@ -178,7 +178,7 @@ Text="Fetching Data...">
                             </DxGrid>
                         </DropDownBodyTemplate>
                     </DxDropDownBox>
- *@
+
 
                     @*  <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                

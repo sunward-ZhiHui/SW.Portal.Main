@@ -245,15 +245,20 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     </TotalSummary>
 </DxGrid>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  CloseOnEscape="false" CloseOnOutsideClick="false"  Width="max(25vw, 550px)" @bind-Visible="@Previewmsg">
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  CloseOnEscape="false" CloseOnOutsideClick="false"  Width="100%" @bind-Visible="@Previewmsg">
     <BodyContentTemplate>
-        <div style="height: calc(100vh - 250px);overflow:auto;">
+        <div style="height: calc(100vh - 250px);overflow:auto; display:none;">
             @{
                 byte[] htmlBinaryData = _selectedItems.Replymsg; // Your HTML binary data
                 string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
                 @((MarkupString)htmlContent)
             }
         </div>
+        <div style="height: calc(100vh - 150px);overflow:auto;overflow-x:auto">
+                <AC.SD.Core.Pages.Email.EmailPrint ConSessionId="@_selectedItems.SessionId.Value"></AC.SD.Core.Pages.Email.EmailPrint>
+        </div>
+
+        
     </BodyContentTemplate>
 </DxPopup>
 
@@ -572,7 +577,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     }
     async Task onReplyMsg()
     {
-        var rlmsg = _selectedItems;
+        var rlmsg = _selectedItems;        
         Previewmsg = true;
     }  
     async Task onDueDateHistory(long id)

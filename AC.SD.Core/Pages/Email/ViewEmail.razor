@@ -228,7 +228,7 @@
                             else if(isLeftMenuvisible == "Library")
                             {
 
-                                <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailUnArchiveClick" EnableUnArchiveAll="EnableUnArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen"></MasterSearch>
+                                <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" Filtersessionid="@FilterSessionId" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailUnArchiveClick" EnableUnArchiveAll="EnableUnArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen"></MasterSearch>
                             }
                             else if(isLeftMenuvisible == "Transfer")
                             {
@@ -1520,13 +1520,13 @@
                                                                                                                 <source src="@GetAudioUrl(recording)" type="audio/wav">
                                                                                                                 Your browser does not support the audio element.
                                                                                                             </audio>
-                                                                                                                                                                                                                        
+
                                                                                                             <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" CssClass="delete-button" /> 
                                                                                                         </li>
                                                                                                     }
                                                                                                 </ul>
 
-                                                                                               @*  <DxButton Text="Send All" Click="@SendAllRecordings" CssClass="send-all-button" /> *@
+                                                                                                @*  <DxButton Text="Send All" Click="@SendAllRecordings" CssClass="send-all-button" /> *@
                                                                                             }
 
 
@@ -3689,6 +3689,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? MyDayFilterText  = null;
+    Guid? FilterSessionId = null;
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
@@ -4476,9 +4477,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 TopicID = (long.Parse(@SelectedGroup)),
                 Message = Data.Message != null ? Data.Message : "Attachments",
                 FileData = fileContent.Length == 480 ? myBytes : fileContent,
-                //AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
+            //AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
                 AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
-                //FileData = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false),
+            //FileData = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
@@ -4658,7 +4659,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         var UpdateReq = new UpdateEmailTopicDueDate
             {
-                //ID = long.Parse(@SelectedGroup),
+            //ID = long.Parse(@SelectedGroup),
                 ID = _headTopic[0].ID,
                 DueDate = _dataDuDate.DueDate,
                 ModifiedByUserID = applicationUser.UserID,
@@ -4683,7 +4684,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         var UpdateReq = new CreateUserTagMultipleQuery
             {                
                 UserTagIds = dataUserTag.UserTagIds,
-                //UserTag = dataUserTag.UserTag,
+            //UserTag = dataUserTag.UserTag,
                 TopicId =_headTopic[0].ID,
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now
@@ -4797,7 +4798,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         var UpdateReq = new UpdateEmailTopicSubjectDueDate
                 {
-                    //ID = long.Parse(@SelectedGroup),
+            //ID = long.Parse(@SelectedGroup),
                     ID = CurrentEmailConversations.ID,
                     TopicID = CurrentEmailConversations.TopicID,
                     NoOfDays = _dataSubjectDuDate.NoOfDays,
@@ -4884,7 +4885,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             TopicID = CurrentEmailConversations.TopicID,
             AssigntoIds = AssigntoIdss,
             AssignccIds = AssignccIdss,
-              //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+            //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
                 Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
                 "<strong>Reason:</strong><br/>" +
                 $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
@@ -4998,7 +4999,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         var UpdateReq = new UpdateEmailSubjectName
             {
-                //ID = long.Parse(@SelectedGroup),
+            //ID = long.Parse(@SelectedGroup),
                 ID = CurrentEmailConversations.ID,
                 TopicID = CurrentEmailConversations.TopicID,
                 Name = _dataSubjectName.SubjectName,
@@ -6255,7 +6256,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         // await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
-        if(Page == "Todo")
+        if(Page == "Todo") 
         {
             var page = Page;
             isPage = true;
@@ -6264,11 +6265,18 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             {
                 string ridds = todolist[0].TopicId.ToString();
 
-                ActiveTabIndex = 4;
+                ActiveTabIndex = 3;
                 MyDayFilterText = todolist[0].SubjectName;
+                FilterSessionId = todolist[0].TopicSessionId; 
+                // var lsts = await Mediator.Send(new GetListByConversationSession(TopicSessionId.ToString()));
+                //   if (lsts.Count > 0)
+                //   {
+                //     FilterSessionId = lsts[0].SessionId;
+                //   }
+              
                 OnLeftMenuItemClick("Library");
                 isLeftMenuvisible = "Library";                
-                await Task.Delay(2000); // Delay for 2 seconds                
+                //await Task.Delay(2000); // Delay for 2 seconds                
                 onSubViewEmailClick(ridds);
             }
         }
@@ -6281,12 +6289,33 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             if (lsts.Count > 0)
             {
                 string ridds = lsts[0].ID.ToString();
-                ActiveTabIndex = 4;
+                ActiveTabIndex = 3;
                 MyDayFilterText = lsts[0].Name;
+                FilterSessionId = lsts[0].SessionId;
                 OnLeftMenuItemClick("Library");
                 isLeftMenuvisible = "Library";                
                 await Task.Delay(2000); // Delay for 2 seconds
                 onSubViewEmailClick(ridds);
+            }
+        }
+        else if(Page == "MyDayEmail")
+        {
+            var page = Page;
+            isPage = true;
+            string sessionidString = TodoSessionId.ToString();            
+            var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
+            if (lsts.Count > 0)
+            {
+                string ridds = lsts[0].ID.ToString();
+                ActiveTabIndex = 3;
+                MyDayFilterText = lsts[0].Name;
+                FilterSessionId = lsts[0].SessionId;
+                OnLeftMenuItemClick("Library");
+                isLeftMenuvisible = "Library";                
+                //await Task.Delay(2000); // Delay for 2 seconds
+                //onSubViewEmailClick(ridds);
+
+                onViewEmailAllClick(lsts[0].TopicID.ToString()); 
             }
         }
         else
@@ -6300,7 +6329,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     RTopicId = 0;
                     filterrowname = ActiveSessionId;
 
-                    ActiveTabIndex = 4;
+                    ActiveTabIndex = 3;
                     //OnLeftMenuItemClick("Library");
                     isLeftMenuvisible = "Library";
                     MyDayFilterText = lsts[0].TopicName;

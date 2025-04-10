@@ -37,6 +37,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateMarkasAllReadList(Int64 Id,long userId);
         Task<long> UpdateMarkasunReadList(Int64 Id);
         Task<List<EmailTopics>> GetTopicAllList(Int64 UserId,string SearchTxt, int pageNumber, int pageSize);
+        Task<List<EmailTopics>> GetTopicFilterList(Int64 UserId,Guid sessionId);
         Task<List<EmailTopics>> GetTopicHomeList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicMasterSearchList(EmailSearch emailSearch);
         Task<List<EmailTopics>> GetTopicAdminSearchList(EmailSearch emailSearch);        

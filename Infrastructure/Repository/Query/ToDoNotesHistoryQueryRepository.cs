@@ -286,7 +286,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,TNH.* FROM ToDoNotesHistory TNH
+                var query = @"SELECT EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,ET.SessionId as TopicSessionId,TNH.* FROM ToDoNotesHistory TNH
                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  

@@ -268,6 +268,21 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetTopicFilterListHandler : IRequestHandler<GetTopicFilterList, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetTopicFilterListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetTopicFilterList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicFilterList(request.UserId, request.sessionId);
+
+        }
+    }
+    
 
     public class GetEmailTopicHomeHandler : IRequestHandler<GetEmailTopicHome, List<EmailTopics>>
     {

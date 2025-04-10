@@ -698,7 +698,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
 
         var lst = _emailTopicDueDate.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();   
 
-        NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");
+        NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/MyDayEmail");
         //ATopicId?.Invoke(SelectedGroup);
         ////await LoadData();
         StateHasChanged();

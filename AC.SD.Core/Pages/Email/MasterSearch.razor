@@ -617,6 +617,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     public long RTopicId = 0;
     public ApplicationUser? applicationUser { get; internal set; }
     [Parameter]
+    public Guid? Filtersessionid { get; set; }
+    [Parameter]
     public Action<string> ATopicId { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
@@ -744,7 +746,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 CategoryCondition = Data.CategoryCondition,
                 ActionCondition = Data.ActionCondition,
                 OtherTagCondition = Data.OtherTagCondition,
-               
+
                 SubjectLike = Data.SubjectLike,
                 GroupLike = Data.GroupLike,
                 CategoryLike = Data.CategoryLike,
@@ -755,8 +757,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         };
 
         _emailTopicAll = await Mediator.Send(request);
-       IsSearchOpen = false;
-      // IsSearchInfoOpen = false;
+        IsSearchOpen = false;
+        // IsSearchInfoOpen = false;
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     private string BuildSubjectFilterSQL(List<SubjectFilterModel> filters)
@@ -803,13 +805,13 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         Data.CategoryCondition = "AND";
         Data.ActionCondition = "AND";
         Data.OtherTagCondition = "AND";
-     
+
         Data.SubjectLike = "=";
         Data.GroupLike = "=";
         Data.CategoryLike = "=";
         Data.ActionLike = "=";
         Data.OtherLike = "=";
-            
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");       
 
         _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
@@ -822,11 +824,19 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         DateRange = new DateTime(now.Year, now.Month, 1);
         Data.FilterFrom = DateRange;
         MinDateFrom = DateRange;    
-        
+
         @if(MyDayFilterText != null)
         {
-           await loadLibaryList(MyDayFilterText);
+            await loadLibaryList(MyDayFilterText);
+        } 
+
+        @if(Filtersessionid != null)
+        {
+            _emailTopicAll = await Mediator.Send(new GetTopicFilterList(applicationUser.UserID, Filtersessionid.Value));
         }
+
+
+
         //NavigationManager.LocationChanged += OnLocationChanged;
         LikeList.Add(new DropDownModel(){ Value = "=" ,Text ="Equal(=)"});
         LikeList.Add(new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" });
@@ -901,7 +911,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     public async Task loadLibaryList(string txt)
     {
         MSearchText = txt;
-       await ApplySearch();
+       //await ApplySearch();
         await InvokeAsync(StateHasChanged);
     }
     public async Task ApplySearch()

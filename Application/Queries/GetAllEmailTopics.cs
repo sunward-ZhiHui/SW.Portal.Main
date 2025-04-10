@@ -197,6 +197,17 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
+    
+     public class GetTopicFilterList : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public Guid sessionId { get; private set; }
+        public GetTopicFilterList(long UserId, Guid sessionId)
+        {
+            this.UserId = UserId;
+            this.sessionId = sessionId;
+        }
+    }
     public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

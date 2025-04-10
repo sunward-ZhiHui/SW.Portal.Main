@@ -21,6 +21,7 @@ namespace Core.Entities
         public bool Completed { get; set; }
         public string Url { get; set; }
         public long? TopicId { get; set; }
+        public Guid? TopicSessionId { get; set; }
         [NotMapped]
         public List<ViewEmployee>? participant { get; set; }
         [NotMapped]

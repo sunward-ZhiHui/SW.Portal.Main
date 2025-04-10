@@ -572,6 +572,34 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetTopicFilterList(long UserId, Guid sessionId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("sessionId", sessionId);
+                        //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
+                        //var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure,commandTimeout: 600);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Filter_EmailTopicList", parameters, commandType: CommandType.StoredProcedure); // Increase timeout to 10 minutes
+                        connection.Close();
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicAllList(long UserId, string searchTxt, int pageNumber, int pageSize)
         {
             try

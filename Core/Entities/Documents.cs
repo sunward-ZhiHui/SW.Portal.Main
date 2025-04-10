@@ -79,5 +79,7 @@ namespace Core.Entities
         [NotMapped]
         public long ReplaceDocumentId { get; set; }
         public long? SwProfileTypeId { get; set; }
+        [NotMapped]
+        public string? NewProfileNo { get; set; }
     }
 }

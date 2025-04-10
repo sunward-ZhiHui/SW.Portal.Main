@@ -251,7 +251,7 @@
     bool createEmailpopup { get; set; } = false;
     bool emailEnabled { get; set; } = false;
     IGrid Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     private List<IpirApp> _dynamicForm;
     public Guid? FileProfileSessionId { get; set; }
     DocumentsModel _documentsItems = new DocumentsModel();

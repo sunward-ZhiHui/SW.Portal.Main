@@ -769,17 +769,17 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                      
-                            var LinkDocparameters = new DynamicParameters();
-                            LinkDocparameters.Add("IpirAppID", value.IpirAppId);
-                            LinkDocparameters.Add("SessionId", value.SessionId, DbType.Guid);
-                            LinkDocparameters.Add("Type", value.Type, DbType.String);
-                            LinkDocparameters.Add("DocumentId", value.DocumentId);
-                            var linkquery = "INSERT INTO [IpirAppSupportDoc](IpirAppID,Type,DocumentId,SessionId) " +
-                           "OUTPUT INSERTED.IpirAppSupportDocId VALUES " +
-                          "(@IpirAppID,@Type,@DocumentId,@SessionId)";
-                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
-                     
+
+                        var LinkDocparameters = new DynamicParameters();
+                        LinkDocparameters.Add("IpirAppID", value.IpirAppId);
+                        LinkDocparameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        LinkDocparameters.Add("Type", value.Type, DbType.String);
+                        LinkDocparameters.Add("DocumentId", value.DocumentId);
+                        var linkquery = "INSERT INTO [IpirAppSupportDoc](IpirAppID,Type,DocumentId,SessionId) " +
+                       "OUTPUT INSERTED.IpirAppSupportDocId VALUES " +
+                      "(@IpirAppID,@Type,@DocumentId,@SessionId)";
+                        await connection.ExecuteAsync(linkquery, LinkDocparameters);
+
                         connection.Close();
                         return value;
                     }
@@ -1346,7 +1346,7 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<long> UpdateDocument(Guid SessionID, string ProfileNo, long FileProfileID,long UserID)
+        public async Task<long> UpdateDocument(Guid SessionID, string ProfileNo, long FileProfileID, long UserID)
         {
 
             try
@@ -1363,6 +1363,78 @@ namespace Infrastructure.Repository.Query
                     var query = "Update Documents set FilterProfileTypeID = @FileProfileID ,ProfileNo = @ProfileNo,ModifiedDate = @date,ModifiedByUserID = @UserID  Where SessionID =@SessionID";
                     var result = (await connection.QueryAsync<long>(query, parameters)).ToList();
                     return FileProfileID;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentChangeProfileNo>> GetDocumentChangeProfileNoBySessionId(Guid? SessionId)
+        {
+            try
+            {
+                var query = "SELECT t1.*,t2.UserName as AddedUser FROM DocumentChangeProfileNo t1 JOIN ApplicationUser  t2 ON t1.AddedUserID=t2.UserID WHERE t1.SessionId = @SessionId order by DocumentChangeProfileNoId desc;";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentChangeProfileNo>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentChangeProfileNo>> GetDocumentAllChangeProfileNoBySessionId(List<Guid?> SessionIds)
+        {
+            try
+            {
+                SessionIds = SessionIds != null && SessionIds.Count > 0 ? SessionIds : new List<Guid?>() { Guid.NewGuid() };
+                var query = "SELECT t1.*,t2.UserName as AddedUser FROM DocumentChangeProfileNo t1 " +
+                    "JOIN ApplicationUser  t2 ON t1.AddedUserID=t2.UserID " +
+                    "WHERE t1.SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") order by DocumentChangeProfileNoId desc;";
+                var parameters = new DynamicParameters();
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentChangeProfileNo>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentChangeProfileNo> InsertDocumentChangeProfileNo(DocumentChangeProfileNo value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var LinkDocparameters = new DynamicParameters();
+                        LinkDocparameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        LinkDocparameters.Add("AddedUserId", value.AddedUserId);
+                        LinkDocparameters.Add("AddedDate", DateTime.Now);
+                        LinkDocparameters.Add("NewProfileNo", value.NewProfileNo, DbType.String);
+                        LinkDocparameters.Add("TypeName", value.TypeName, DbType.String);
+                        var linkquery = "INSERT INTO [DocumentChangeProfileNo](SessionId,AddedUserId,AddedDate,NewProfileNo,TypeName) " +
+                       "OUTPUT INSERTED.DocumentChangeProfileNoId VALUES " +
+                      "(@SessionId,@AddedUserId,@AddedDate,@NewProfileNo,@TypeName)";
+                        await connection.ExecuteAsync(linkquery, LinkDocparameters);
+
+
+                        connection.Close();
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
             }
             catch (Exception exp)

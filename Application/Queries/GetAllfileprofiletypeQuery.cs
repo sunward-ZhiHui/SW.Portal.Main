@@ -166,7 +166,7 @@ namespace Application.Queries
     }
     public class GetUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
-       
+
     }
 
     public class GetGroupByUserids : PagedRequest, IRequest<List<ViewEmployee>>
@@ -175,10 +175,10 @@ namespace Application.Queries
 
         public GetGroupByUserids(long Id)
         {
-            this.Id = Id;            
+            this.Id = Id;
         }
     }
-    
+
     public class GetAllUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
 
@@ -192,7 +192,7 @@ namespace Application.Queries
             this.userids = userIds;
         }
     }
-    
+
     public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
     {
 
@@ -245,7 +245,7 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-    
+
 
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {
@@ -335,7 +335,7 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
-    
+
     public class InsertOrUpdateReserveProfileNumberSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
     {
         public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
@@ -526,10 +526,21 @@ namespace Application.Queries
     }
     public class UpdateDocument : PagedRequest, IRequest<DocumentsUploadModel>
     {
-       public DocumentsUploadModel documentsUploadModel1 { get; private set; }
+        public DocumentsUploadModel documentsUploadModel1 { get; private set; }
         public UpdateDocument(DocumentsUploadModel model)
         {
             this.documentsUploadModel1 = model;
+        }
+    }
+    public class InsertDocumentChangeProfileNo : DocumentChangeProfileNo, IRequest<DocumentChangeProfileNo>
+    {
+    }
+    public class GetDocumentChangeProfileNoBySessionId : PagedRequest, IRequest<List<DocumentChangeProfileNo>>
+    {
+        public Guid? SessionId { get; set; }
+        public GetDocumentChangeProfileNoBySessionId(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
         }
     }
 }

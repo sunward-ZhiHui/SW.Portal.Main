@@ -279,7 +279,7 @@
     private List<ViewDepartment> _departmentItems; private List<ViewPlants>? _plantItems;
     public DocumentNoSeries _selectedItems { get; set; }
     private int pageNumber = 1; // Initial page number
-    private int pageSize = 50; // Number of records per page
+    private int pageSize = 100; // Number of records per page
     protected override async Task OnInitializedAsync()
     {
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllWithouDeletefileprofiletypeListQuery());

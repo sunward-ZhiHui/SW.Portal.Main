@@ -575,41 +575,41 @@ namespace Infrastructure.Repository.Query
         private string DocumentQueryString()
         {
             var query = "select  " +
-                    "SessionId," +
-                    "DocumentId," +
-                    "FileName," +
-                    "ContentType," +
-                    "FileSize," +
-                    "UploadDate," +
-                    "FilterProfileTypeId," +
-                    "CloseDocumentId," +
-                    "DocumentParentId," +
-                    "IsMobileUpload," +
-                    "TableName," +
-                    "ExpiryDate," +
-                    "AddedByUserId," +
-                    "ModifiedByUserId," +
-                    "ModifiedDate," +
-                    "IsLocked," +
-                    "LockedByUserId," +
-                    "LockedDate," +
-                    "AddedDate," +
-                    "IsCompressed," +
-                    "FileIndex," +
-                    "ProfileNo," +
-                    "IsLatest," +
-                    "ArchiveStatusId," +
-                    "Description," +
-                    "IsWikiDraft," +
-                    "IsWiki," +
-                    "FilePath, " +
-                    "IsNewPath, " +
-                    "IsDelete, " +
-                    "DeleteByUserID, " +
-                    "DeleteByDate, " +
-                    "SourceFrom, " +
-                    "UniqueSessionId " +
-                    "from Documents ";
+                    "t1.SessionId," +
+                    "t1.DocumentId," +
+                    "t1.FileName," +
+                    "t1.ContentType," +
+                    "t1.FileSize," +
+                    "t1.UploadDate," +
+                    "t1.FilterProfileTypeId," +
+                    "t1.CloseDocumentId," +
+                    "t1.DocumentParentId," +
+                    "t1.IsMobileUpload," +
+                    "t1.TableName," +
+                    "t1.ExpiryDate," +
+                    "t1.AddedByUserId," +
+                    "t1.ModifiedByUserId," +
+                    "t1.ModifiedDate," +
+                    "t1.IsLocked," +
+                    "t1.LockedByUserId," +
+                    "t1.LockedDate," +
+                    "t1.AddedDate," +
+                    "t1.IsCompressed," +
+                    "t1.FileIndex," +
+                    "t1.ProfileNo," +
+                    "t1.IsLatest," +
+                    "t1.ArchiveStatusId," +
+                    "t1.Description," +
+                    "t1.IsWikiDraft," +
+                    "t1.IsWiki," +
+                    "t1.FilePath, " +
+                    "t1.IsNewPath, " +
+                    "t1.IsDelete, " +
+                    "t1.DeleteByUserID, " +
+                    "t1.DeleteByDate, " +
+                    "t1.SourceFrom, " +
+                    "t1.UniqueSessionId, (select Top(1) tt1.NewProfileNo from DocumentChangeProfileNo tt1 where tt1.SessionID=t1.SessionID order by tt1.DocumentChangeProfileNoID desc) as NewProfileNo " +
+                    "from Documents t1";
             return query;
         }
         private async Task<DocumentsModel> GetParentDocuments(SearchModel searchModel, IReadOnlyList<ApplicationUser> appUsers, IReadOnlyList<Fileprofiletype> fileProfileType)
@@ -621,7 +621,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
                 parameters.Add("DocumentId", searchModel.ParentID);
                 parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
-                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentId=@DocumentId AND IsLatest=0 AND IsDelete is null or IsDelete=0";
+                var query = DocumentQueryString() + " where t1.FilterProfileTypeId=@FilterProfileTypeId AND t1.SessionID=@SessionID AND t1.DocumentId=@DocumentId AND t1.IsLatest=0 AND t1.IsDelete is null or t1.IsDelete=0";
 
                 using (var connection = CreateConnection())
                 {
@@ -653,7 +653,8 @@ namespace Infrastructure.Repository.Query
                         documentsModel.ProfileNo = documetsparent.ProfileNo;
                         documentsModel.Description = documetsparent.Description;
                         documentsModel.FilePath = documetsparent.FilePath;
-
+                        documentsModel.NewProfileNoDisplay = string.IsNullOrEmpty(documetsparent.NewProfileNo) ? documetsparent.ProfileNo : documetsparent.NewProfileNo;
+                        documentsModel.NewProfileNo = documetsparent.NewProfileNo;
                     }
                     return documentsModel;
                 }
@@ -672,7 +673,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
                 parameters.Add("DocumentParentId", searchModel.ParentID);
                 parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
-                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentParentId=@DocumentParentId AND IsLatest=0 AND IsDelete is null or IsDelete=0";
+                var query = DocumentQueryString() + " where t1.FilterProfileTypeId=@FilterProfileTypeId AND t1.SessionID=@SessionID AND t1.DocumentParentId=@DocumentParentId AND t1.IsLatest=0 AND t1.IsDelete is null or t1.IsDelete=0";
 
                 using (var connection = CreateConnection())
                 {
@@ -704,7 +705,9 @@ namespace Infrastructure.Repository.Query
                                     IsCompressed = s.IsCompressed,
                                     ProfileNo = s.ProfileNo,
                                     Description = s.Description,
-                                    FilePath = s.FilePath
+                                    FilePath = s.FilePath,
+                                    NewProfileNoDisplay = string.IsNullOrEmpty(s.NewProfileNo) ? s.ProfileNo : s.NewProfileNo,
+                                    NewProfileNo = s.NewProfileNo
                                 };
                                 documentsModel.Add(documentsModels);
                             });
@@ -837,42 +840,42 @@ namespace Infrastructure.Repository.Query
                         var filterQuery = string.Empty;
                         if (!string.IsNullOrEmpty(documentSearchModel.FileName))
                         {
-                            filterQuery += "AND FileName like '%" + documentSearchModel.FileName + "%'\r\n";
+                            filterQuery += "AND t1.FileName like '%" + documentSearchModel.FileName + "%'\r\n";
                         }
                         if (!string.IsNullOrEmpty(documentSearchModel.Extension))
                         {
-                            filterQuery += "AND FileName like '%" + documentSearchModel.Extension + "%'\r\n";
+                            filterQuery += "AND t1.FileName like '%" + documentSearchModel.Extension + "%'\r\n";
                         }
                         if (!string.IsNullOrEmpty(documentSearchModel.ProfileNo))
                         {
-                            filterQuery += "AND ProfileNo like '%" + documentSearchModel.ProfileNo + "%'\r\n";
+                            filterQuery += "AND t1.ProfileNo like '%" + documentSearchModel.ProfileNo + "%'\r\n";
                         }
                         if (documentSearchModel.FromDate != null)
                         {
                             var from = documentSearchModel.FromDate.Value.ToString("yyyy-MM-dd");
-                            filterQuery += "AND CAST(uploadDate AS Date) >='" + from + "'\r\n";
+                            filterQuery += "AND CAST(t1.uploadDate AS Date) >='" + from + "'\r\n";
                         }
                         if (documentSearchModel.ToDate != null)
                         {
                             var to = documentSearchModel.ToDate.Value.ToString("yyyy-MM-dd");
-                            filterQuery += "AND CAST(uploadDate AS Date)<='" + to + "'\r\n";
+                            filterQuery += "AND CAST(t1.uploadDate AS Date)<='" + to + "'\r\n";
                         }
 
                         query = DocumentQueryString() + " where" +
-                            " FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
-                            "AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
-                            "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
-                            "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
-                            "order by DocumentId desc";
+                            " t1.FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
+                            "AND t1.IsLatest=1 AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null\r\n" +
+                            "AND (t1.ArchiveStatusId != 2562 OR t1.ArchiveStatusId  IS NULL) " +
+                            "OR (t1.DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND t1.IsLatest=1) " +
+                            "order by t1.DocumentId desc";
                     }
                     else
                     {
                         parameters.Add("SessionID", documentSearchModel.AttachSessionId, DbType.Guid);
                         query = DocumentQueryString() + " where\r\n" +
-                            " IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
-                            "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL)\r\n" +
-                            "AND SessionID=@SessionID" +
-                            "\r\norder by DocumentId desc";
+                            " t1.IsLatest=1 AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null\r\n" +
+                            "AND (t1.ArchiveStatusId != 2562 OR t1.ArchiveStatusId  IS NULL)\r\n" +
+                            "AND t1.SessionID=@SessionID" +
+                            "\r\norder by t1.DocumentId desc";
                     }
                     var documents = new List<Documents>();
                     using (var connection = CreateConnection())
@@ -946,7 +949,8 @@ namespace Infrastructure.Repository.Query
                             documentsModels.FileProfileTypeName = fileprfiles?.Name;
                             documentsModels.FileProfileTypeSessionId = fileprfiles?.SessionId;
                             documentsModels.ProfileID = fileprfiles?.ProfileId;
-
+                            documentsModels.NewProfileNoDisplay = string.IsNullOrEmpty(s.NewProfileNo) ? s.ProfileNo : s.NewProfileNo;
+                            documentsModels.NewProfileNo = s.NewProfileNo;
                             documentsModels.DocumentParentId = s.DocumentParentId;
                             documentsModels.TableName = s.TableName;
                             documentsModels.IsMobileUpload = s.IsMobileUpload;
@@ -1025,33 +1029,33 @@ namespace Infrastructure.Repository.Query
                 var filterQuery = string.Empty;
                 if (!string.IsNullOrEmpty(documentSearchModel.FileName))
                 {
-                    filterQuery += "AND FileName like '%" + documentSearchModel.FileName + "%'\r\n";
+                    filterQuery += "AND t1.FileName like '%" + documentSearchModel.FileName + "%'\r\n";
                 }
                 if (!string.IsNullOrEmpty(documentSearchModel.Extension))
                 {
-                    filterQuery += "AND FileName like '%" + documentSearchModel.Extension + "%'\r\n";
+                    filterQuery += "AND t1.FileName like '%" + documentSearchModel.Extension + "%'\r\n";
                 }
                 if (!string.IsNullOrEmpty(documentSearchModel.ProfileNo))
                 {
-                    filterQuery += "AND ProfileNo like '%" + documentSearchModel.ProfileNo + "%'\r\n";
+                    filterQuery += "AND t1.ProfileNo like '%" + documentSearchModel.ProfileNo + "%'\r\n";
                 }
                 if (documentSearchModel.FromDate != null)
                 {
                     var from = documentSearchModel.FromDate.Value.ToString("yyyy-MM-dd");
-                    filterQuery += "AND CAST(uploadDate AS Date) >='" + from + "'\r\n";
+                    filterQuery += "AND CAST(t1.uploadDate AS Date) >='" + from + "'\r\n";
                 }
                 if (documentSearchModel.ToDate != null)
                 {
                     var to = documentSearchModel.ToDate.Value.ToString("yyyy-MM-dd");
-                    filterQuery += "AND CAST(uploadDate AS Date)<='" + to + "'\r\n";
+                    filterQuery += "AND CAST(t1.uploadDate AS Date)<='" + to + "'\r\n";
                 }
 
                 query = DocumentQueryString() + " where" +
-                    " FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
-                    "AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
-                    "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
-                    "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
-                    "order by DocumentId desc";
+                    " t1.FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
+                    "AND t1.IsLatest=1 AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null\r\n" +
+                    "AND (t1.ArchiveStatusId != 2562 OR t1.ArchiveStatusId  IS NULL) " +
+                    "OR (t1.DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND t1.IsLatest=1) " +
+                    "order by t1.DocumentId desc";
 
                 using (var connection = CreateConnection())
                 {
@@ -1343,7 +1347,7 @@ namespace Infrastructure.Repository.Query
                 var query = DocumentQueryString();
                 var listss = documentsUploadModel.FailedDocumentsUploadModels.Select(s => s.FilePath).ToList();
                 var lists = string.Join(',', listss.Select(i => $"'{i}'"));
-                query += "\n\rwhere FilePath in(" + lists + ") AND FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsLatest=1 AND AddedByUserID=" + documentsUploadModel.UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
+                query += "\n\rwhere t1.FilePath in(" + lists + ") AND t1.FilterProfileTypeID IS NULL AND t1.SourceFrom='FileProfile' AND t1.IsLatest=1 AND t1.AddedByUserID=" + documentsUploadModel.UserId + " AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null order by t1.DocumentId desc";
 
 
                 var data = new List<DocumentsModel>();
@@ -1362,6 +1366,8 @@ namespace Infrastructure.Repository.Query
                         s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                         s.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                         s.FilePath = s.FilePath;
+                        s.NewProfileNoDisplay = string.IsNullOrEmpty(s.NewProfileNo) ? s.ProfileNo : s.NewProfileNo;
+                        s.NewProfileNo = s.NewProfileNo;
                         result.Add(s);
                     });
                 }
@@ -1382,11 +1388,11 @@ namespace Infrastructure.Repository.Query
                 if (StartDate != null)
                 {
                     var to = StartDate.Value.ToString("yyyy-MM-dd");
-                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND CAST(uploadDate AS Date)='" + to + "' AND SourceFrom='FileProfile' AND IsNewPath=1 AND IsLatest=1 AND AddedByUserID=" + UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
+                    query += "\n\rwhere  t1.FilterProfileTypeID IS NULL AND CAST(t1.uploadDate AS Date)='" + to + "' AND t1.SourceFrom='FileProfile' AND t1.IsNewPath=1 AND t1.IsLatest=1 AND t1.AddedByUserID=" + UserId + " AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null order by t1.DocumentId desc";
                 }
                 else
                 {
-                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsNewPath=1 AND IsLatest=1 AND AddedByUserID=" + UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
+                    query += "\n\rwhere  t1.FilterProfileTypeID IS NULL AND t1.SourceFrom='FileProfile' AND t1.IsNewPath=1 AND t1.IsLatest=1 AND t1.AddedByUserID=" + UserId + " AND (t1.IsDelete is null or t1.IsDelete=0) And t1.SessionID is Not null order by t1.DocumentId desc";
                 }
 
                 var data = new List<DocumentsModel>();
@@ -1404,6 +1410,8 @@ namespace Infrastructure.Repository.Query
                         s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
                         s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                         s.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                        s.NewProfileNoDisplay = string.IsNullOrEmpty(s.NewProfileNo) ? s.ProfileNo : s.NewProfileNo;
+                        s.NewProfileNo = s.NewProfileNo;
                         result.Add(s);
                     });
                 }
@@ -1626,7 +1634,7 @@ namespace Infrastructure.Repository.Query
                 //  var appUsers = await GetApplicationUserAsync();
                 //var fileProfileType = await GetFileprofiletypeAsync(); GetFileprofiletypeByIDAsync
                 var parameters = new DynamicParameters();
-                var query = DocumentQueryString() + " where IsDelete=1  order by DocumentId desc";
+                var query = DocumentQueryString() + " where t1.IsDelete=1  order by t1.DocumentId desc";
 
                 using (var connection = CreateConnection())
                 {
@@ -1705,6 +1713,8 @@ namespace Infrastructure.Repository.Query
                                 // documentsModels.LockedDate = s.LockedDate;
                                 // documentsModels.IsNewPath = s.IsNewPath;
                                 documentsModels.AddedByUserID = s.AddedByUserId;
+                                documentsModels.NewProfileNoDisplay = string.IsNullOrEmpty(s.NewProfileNo) ? s.ProfileNo : s.NewProfileNo;
+                                documentsModels.NewProfileNo = s.NewProfileNo;
                                 //  documentsModels.IsCompressed = s.IsCompressed;
                                 // documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
                                 //  documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;

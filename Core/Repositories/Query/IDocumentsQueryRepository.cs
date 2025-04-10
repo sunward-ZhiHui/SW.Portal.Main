@@ -36,5 +36,7 @@ namespace Core.Repositories.Query
         Task<DocumentsUploadModel> InsertIpirAppSupportDocLink(DocumentsUploadModel value);
         Task<long> UpdateDocument(Guid SessionID, string ProfileNo,long FileProfileID,long UserID);
         Task<DocumentsUploadModel> InsertIPIRSupportingDocumentLink(DocumentsUploadModel value);
+        Task<DocumentChangeProfileNo> InsertDocumentChangeProfileNo(DocumentChangeProfileNo value);
+        Task<IReadOnlyList<DocumentChangeProfileNo>> GetDocumentChangeProfileNoBySessionId(Guid? SessionId);
     }
 }

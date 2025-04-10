@@ -1511,7 +1511,7 @@
                 var countryRows = data.Where(d => d.ParentName1 == country).ToList();
                 int firstRow = startRow;
                 int lastRow = firstRow + countryRows.Count - 1;
-                worksheet.Rows(firstRow + 1, lastRow).Group(); // Group all states under country
+              //  worksheet.Rows(firstRow + 1, lastRow).Group(); // Group all states under country
                 startRow = lastRow + 1;
             }
             worksheet.Range("A1:C1").SetAutoFilter();

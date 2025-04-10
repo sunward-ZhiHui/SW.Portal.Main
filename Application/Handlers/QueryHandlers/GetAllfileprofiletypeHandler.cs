@@ -338,7 +338,7 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+
 
     public class GetDocumentRolesHandler : IRequestHandler<GetDocumentRoles, List<DocumentRole>>
     {
@@ -454,7 +454,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DocumentUserRoleModel>> Handle(GetDocumentUserRoleList request, CancellationToken cancellationToken)
         {
-            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleList(request.Id,request.DocumentId);
+            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleList(request.Id, request.DocumentId);
         }
 
     }
@@ -674,7 +674,7 @@ namespace Application.Handlers.QueryHandlers
             }
             public async Task<DocumentPermissionModel> Handle(GetDocumentUserRoleByUserID request, CancellationToken cancellationToken)
             {
-                return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId,request.DocumentId);
+                return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId, request.DocumentId);
             }
         }
         public class UpdateDocumentUserRoleHandler : IRequestHandler<UpdateDocumentUserRole, DocumentUserRoleModel>
@@ -912,7 +912,7 @@ namespace Application.Handlers.QueryHandlers
                 var list = request.documentsUploadModel1;
                 var documentNoSeriesModel = new DocumentNoSeriesModel
                 {
-                   
+
                     AddedByUserID = list.UserId,
                     StatusCodeID = 710,
                     ProfileID = list.ProfileId,
@@ -923,11 +923,36 @@ namespace Application.Handlers.QueryHandlers
                     DivisionId = list.DivisionId,
 
 
-                }; 
+                };
                 var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-                var result = await _documentsqueryrepository.UpdateDocument(list.UserSession.Value, profileNo, list.FileProfileTypeId.Value,list.UserId.Value);
+                var result = await _documentsqueryrepository.UpdateDocument(list.UserSession.Value, profileNo, list.FileProfileTypeId.Value, list.UserId.Value);
 
                 return list;
+            }
+
+        }
+        public class InsertDocumentChangeProfileNoHandler : IRequestHandler<InsertDocumentChangeProfileNo, DocumentChangeProfileNo>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public InsertDocumentChangeProfileNoHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentChangeProfileNo> Handle(InsertDocumentChangeProfileNo request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.InsertDocumentChangeProfileNo(request);
+            }
+        }
+        public class GetDocumentChangeProfileNoBySessionIdHandler : IRequestHandler<GetDocumentChangeProfileNoBySessionId, List<DocumentChangeProfileNo>>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public GetDocumentChangeProfileNoBySessionIdHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<List<DocumentChangeProfileNo>> Handle(GetDocumentChangeProfileNoBySessionId request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentChangeProfileNo>)await _documentsqueryrepository.GetDocumentChangeProfileNoBySessionId(request.SessionId);
             }
 
         }

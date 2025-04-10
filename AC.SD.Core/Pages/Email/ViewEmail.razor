@@ -1504,6 +1504,32 @@
                                                                                         </button>
                                                                                         <div style="display:flex;" class="attmode">
                                                                                             <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+                                                                                            @* <div @onclick="() => ToggleRecording()" class="fa fa-microphone handline" CssClass="record-button"></div> *@
+                                                                                            @if (IsRecording)
+                                                                                            {
+                                                                                                <p>Recording... Press the button again to stop.</p>
+                                                                                            }
+
+                                                                                            @if (Recordings.Any())
+                                                                                            {                                                                                               
+                                                                                                <ul>
+                                                                                                    @foreach (var recording in Recordings)
+                                                                                                    {
+                                                                                                        <li style="list-style: none;">
+                                                                                                            <audio controls>
+                                                                                                                <source src="@GetAudioUrl(recording)" type="audio/wav">
+                                                                                                                Your browser does not support the audio element.
+                                                                                                            </audio>
+                                                                                                                                                                                                                        
+                                                                                                            <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" CssClass="delete-button" /> 
+                                                                                                        </li>
+                                                                                                    }
+                                                                                                </ul>
+
+                                                                                               @*  <DxButton Text="Send All" Click="@SendAllRecordings" CssClass="send-all-button" /> *@
+                                                                                            }
+
+
 
                                                                                             <div class="">
                                                                                                 <DxUpload @ref="uploadComponent" Name="files"
@@ -2377,6 +2403,148 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+    private bool IsRecording { get; set; }
+    private string ButtonText => IsRecording ? "Stop Recording" : "Start Recording";
+    private List<Recording> Recordings { get; set; } = new();
+    private HttpClient _httpClient = new HttpClient();
+
+    private string GetAudioUrl(Recording recording)
+    {
+        if (recording.FileData == null || recording.FileData.Length == 0)
+            return "";
+
+        var base64 = Convert.ToBase64String(recording.FileData);
+        return $"data:audio/wav;base64,{base64}";
+    }
+    private async Task ToggleRecording()
+    {
+        if (IsRecording)
+        {
+            await StopRecording();
+        }
+        else
+        {
+            await StartRecording();
+        }
+    }
+
+    private async Task StartRecording()
+    {
+        IsRecording = true;
+        await JSRuntime.InvokeVoidAsync("startVoiceRecording");
+    }
+
+    private async Task StopRecording()
+    {
+        IsRecording = false;
+
+        var recordingUrl = await JSRuntime.InvokeAsync<string>("stopVoiceRecording");
+
+        if (string.IsNullOrEmpty(recordingUrl))
+        {
+            //toastService.ShowError("Failed to fetch recording.");
+            return;
+        }
+
+        try
+        {
+            var fileStreamRef = await JSRuntime.InvokeAsync<IJSStreamReference>("fetchFile", recordingUrl);
+            var fileName = $"recording_{Guid.NewGuid()}.wav";
+
+            using var stream = await fileStreamRef.OpenReadStreamAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+
+            var recording = new Recording
+                {
+                    Id = Guid.NewGuid(),
+                    FileName = fileName,
+                    FileData = memoryStream.ToArray() // Store as byte array
+                };
+
+            Recordings.Add(recording);
+        }
+        catch (Exception ex)
+        {
+            //toastService.ShowError($"Error fetching recording: {ex.Message}");
+        }
+    }
+
+    private async Task SendAllRecordings(Guid? sessionId)
+    {
+        if (!Recordings.Any())
+        {
+            //toastService.ShowWarning("No recordings to send.");
+            return;
+        }
+
+        try
+        {
+            var fileContent = new MultipartFormDataContent();
+            //var sessionId = Guid.Parse("D39A69E7-2909-4408-B316-D065F027748A");
+            var addedByUserId = 1; // Assign actual user ID
+            var isFileSession = true;
+            var sourceFrom = "Email";
+            var fileProfileId = 0; // Assign actual profile ID
+
+            foreach (var recording in Recordings)
+            {
+                if (recording.FileData == null || recording.FileData.Length == 0)
+                    continue;
+
+                var byteArrayContent = new ByteArrayContent(recording.FileData);
+                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+
+                fileContent.Add(byteArrayContent, "files", recording.FileName);
+            }
+
+            // Add additional parameters
+            fileContent.Add(new StringContent(sessionId.ToString()), "SessionId");
+            fileContent.Add(new StringContent(addedByUserId.ToString()), "addedByUserId");
+            fileContent.Add(new StringContent(isFileSession.ToString()), "IsFileSession");
+            fileContent.Add(new StringContent(sourceFrom), "SourceFrom");
+            fileContent.Add(new StringContent(fileProfileId.ToString()), "FileProfileId");
+
+            var response = await _httpClient.PostAsync("https://localhost:44300/api/FileUpload/upload-multiple", fileContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                //toastService.ShowSuccess("All recordings sent successfully.");
+                Recordings.Clear(); // Clear after successful upload
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                //toastService.ShowError($"Failed to send recordings. Server response: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            //toastService.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    private void DeleteRecording(Guid id)
+    {
+        var recording = Recordings.FirstOrDefault(r => r.Id == id);
+        if (recording != null)
+        {
+            Recordings.Remove(recording);
+        }
+    }
+
+    private class Recording
+    {
+        public Guid Id { get; set; }
+        public string FileName { get; set; }
+        public byte[] FileData { get; set; }
+    }
+
+
+
+
+
+
     internal List<EmailTopics>? _CopyLinkList;
     bool IsInfoOpen { get; set; } = false;
     void ToggleInfo()
@@ -7301,6 +7469,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
                 //uploadUrl = GetUploadUrl();           
                 //uploadComponent.UploadAllFiles();
+
+                await SendAllRecordings(_sessionId);
+
                 if(SelectedFilesCount > 0)
                 {
                     if(uploadComponent != null)

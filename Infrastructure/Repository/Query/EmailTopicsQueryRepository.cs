@@ -21,6 +21,7 @@ using Microsoft.VisualBasic;
 using System.Data.SqlTypes;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using System.Data.Services.Client;
+using Newtonsoft.Json;
 
 namespace Infrastructure.Repository.Query
 {
@@ -480,6 +481,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("UnArchive", emailSearch.UnArchive);
                         parameters.Add("IsClose", emailSearch.IsClose);
+                        parameters.Add("SubjectFiltersJson", JsonConvert.SerializeObject(emailSearch.SubjectFilters));
+                        parameters.Add("SubjectFilterSQL", emailSearch.SubjectFilterSQL);
                         parameters.Add("Option", "SELECT");
 
                         var result = await connection.QueryAsync<EmailTopics>("sp_Select_MasterSearchList", parameters, commandType: CommandType.StoredProcedure);

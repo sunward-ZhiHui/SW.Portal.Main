@@ -31,43 +31,43 @@
 @using global::Core.EntityModels;
 <style>
     .zero-width-label label {
-        width: 0px !important
+    width: 0px !important
     }
 
     .supportDoc {
-        text-align: center;
-        font-size: 14px;
-        background: #3333;
-        color: black;
-        padding: 3px;
-        margin-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+    background: #3333;
+    color: black;
+    padding: 3px;
+    margin-bottom: 10px;
     }
 
     .txtEditorMsg {
-        height: calc(100vh - 530px);
-        background-color: white;
+    height: calc(100vh - 530px);
+    background-color: white;
     }
 
     .dxuc-file-list-view {
-        padding: 20px;
+    padding: 20px;
     }
 
     .dxuc-upload-icon {
-        display: none; /* or any other style to disable or hide the icon */
+    display: none; /* or any other style to disable or hide the icon */
     }
 
     .replybox {
-        color: black;
-        border: 1px solid #dedede;
-        padding: 10px;
-        border-radius: 4px;
-        background: #eef2f0;
-        margin-bottom: 10px;
-        min-height: 60px;
+    color: black;
+    border: 1px solid #dedede;
+    padding: 10px;
+    border-radius: 4px;
+    background: #eef2f0;
+    margin-bottom: 10px;
+    min-height: 60px;
     }
 
     .gbtn label {
-        display: none;
+    display: none;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -75,8 +75,8 @@
         <div class="row">
             <div class="">
                 <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Desktop">
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled="@BackEnabled" />
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onClearAll" />
@@ -112,9 +112,9 @@ else
 {
     <div class="card cw-480 toolnext">
         <EditForm id="@MyID" @ref="myForm" EditContext="this._editContext"
-                  OnValidSubmit="@HandleValidSubmit"
-                  OnInvalidSubmit="@HandleInvalidSubmit"
-                  Context="EditFormContext">
+        OnValidSubmit="@HandleValidSubmit"
+        OnInvalidSubmit="@HandleInvalidSubmit"
+        Context="EditFormContext">
             <DataAnnotationsValidator />
             <div class="card-body">
                 <div class="row">
@@ -125,17 +125,17 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="To" ColSpanMd="11">
                                 <DxTagBox Data="_Toparticipant"
-                                          SearchMode="ListSearchMode.AutoSearch"
-                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          NullText="Select To..."
-                                          Values="@Data.ToIds"
-                                          ValuesExpression="@(() => Data.ToIds )"
-                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ValueFieldName="UserID"
-                                          TextFieldName="Name"
-                                          ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
-                                          ListRenderMode="ListRenderMode.Virtual"
-                                          CssClass="cw-480">
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                NullText="Select To..."
+                                Values="@Data.ToIds"
+                                ValuesExpression="@(() => Data.ToIds )"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueFieldName="UserID"
+                                TextFieldName="Name"
+                                ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                CssClass="cw-480">
 
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -147,65 +147,65 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
                                 <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
-                                          Click="@(_ => OnButtonUserGroupToClick())">
+                                Click="@(_ => OnButtonUserGroupToClick())">
                                 </DxButton>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="CC" ColSpanMd="11">
                                 <DxTagBox NullText="Select Cc..."
-                                          Data="_CCparticipant"
-                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ListRenderMode="ListRenderMode.Virtual"
-                                          ValueFieldName="UserID"
-                                          TextFieldName="Name"
-                                          Values="@Data.CCIds"
-                                          ValuesExpression="@(() =>  Data.CCIds )"
-                                          ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
-                                          SearchMode="ListSearchMode.AutoSearch"
-                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          CssClass="cw-480">
+                                Data="_CCparticipant"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                ValueFieldName="UserID"
+                                TextFieldName="Name"
+                                Values="@Data.CCIds"
+                                ValuesExpression="@(() =>  Data.CCIds )"
+                                ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                CssClass="cw-480">
 
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
-                                                        Caption="Name" />
+                                    Caption="Name" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
-                                                        Caption="Nick Name" />
+                                    Caption="Nick Name" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                                        Caption="Designation" />
+                                    Caption="Designation" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                                        Caption="Company"
-                                                        Width="100px" />
+                                    Caption="Company"
+                                    Width="100px" />
 
 
                                 </DxTagBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
                                 <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
-                                          Click="@(_ => OnButtonUserGroupCCClick())">
+                                Click="@(_ => OnButtonUserGroupCCClick())">
                                 </DxButton>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
                                 <DxComboBox Data="@_OnBehalfparticipant"
-                                            NullText="Select OnBehalf..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            Value="@selectBehalf"
-                                            ValueExpression="@(() => selectBehalf )"
-                                            TextFieldName="Name"
-                                            ValueFieldName="UserID"
-                                            ValueChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            ShowValidationIcon="true">
+                                NullText="Select OnBehalf..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Value="@selectBehalf"
+                                ValueExpression="@(() => selectBehalf )"
+                                TextFieldName="Name"
+                                ValueFieldName="UserID"
+                                ValueChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
                                     <Columns>
 
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
-                                                            Caption="Name" />
+                                        Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
-                                                            Caption="Nick Name" />
+                                        Caption="Nick Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                                            Caption="Designation" />
+                                        Caption="Designation" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                                            Caption="Company"
-                                                            Width="100px" />
+                                        Caption="Company"
+                                        Width="100px" />
 
 
                                     </Columns>
@@ -214,9 +214,9 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.IsAllowParticipants"
-                                            Alignment="default"
-                                            LabelPosition="LabelPosition.Right">
+                                @bind-Checked="@Data.IsAllowParticipants"
+                                Alignment="default"
+                                LabelPosition="LabelPosition.Right">
                                     Allow Add Participants
                                 </DxCheckBox>
                             </DxFormLayoutItem>
@@ -229,10 +229,10 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="" ColSpanMd="4">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.IsLockDueDate"
-                                            Alignment="default"
-                                            Enabled="@LockDueDateEnable"
-                                            LabelPosition="LabelPosition.Right">
+                                @bind-Checked="@Data.IsLockDueDate"
+                                Alignment="default"
+                                Enabled="@LockDueDateEnable"
+                                LabelPosition="LabelPosition.Right">
                                     Lock DueDate
                                 </DxCheckBox>
                             </DxFormLayoutItem>
@@ -241,34 +241,34 @@ else
 
                             <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
                                 <DxComboBox Data="@Follow"
-                                            NullText="Select Follow..."
-                                            @bind-Value="@Data.Follow"
-                                            CssClass="cw-480">
+                                NullText="Select Follow..."
+                                @bind-Value="@Data.Follow"
+                                CssClass="cw-480">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.Urgent"
-                                            Alignment="default"
-                                            LabelPosition="LabelPosition.Right">
+                                @bind-Checked="@Data.Urgent"
+                                Alignment="default"
+                                LabelPosition="LabelPosition.Right">
                                     Urgent
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.NotifyUser"
-                                            Alignment="default"
-                                            LabelPosition="LabelPosition.Right">
+                                @bind-Checked="@Data.NotifyUser"
+                                Alignment="default"
+                                LabelPosition="LabelPosition.Right">
                                     Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.TagLock"
-                                            Alignment="default"
-                                            LabelPosition="LabelPosition.Right">
+                                @bind-Checked="@Data.TagLock"
+                                Alignment="default"
+                                LabelPosition="LabelPosition.Right">
                                     Tag Lock
                                 </DxCheckBox>
                             </DxFormLayoutItem>
@@ -279,17 +279,17 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Attach Email" ColSpanMd="12">
                                 <DxTagBox Data="_CopyLinkList"
-                                          SearchMode="ListSearchMode.AutoSearch"
-                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          NullText="Select Attach Email"
-                                          Values="@Data?.CopyEmailIds"
-                                          ValuesExpression="@(() => Data.CopyEmailIds )"
-                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ValueFieldName="ConversationSessionID"
-                                          TextFieldName="CopyEmailName"
-                                          ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
-                                          ListRenderMode="ListRenderMode.Virtual"
-                                          CssClass="cw-480">
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                NullText="Select Attach Email"
+                                Values="@Data?.CopyEmailIds"
+                                ValuesExpression="@(() => Data.CopyEmailIds )"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueFieldName="ConversationSessionID"
+                                TextFieldName="CopyEmailName"
+                                ValuesChanged="@((IEnumerable<Guid>? values) => onEmailCopyChanged(values))"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                CssClass="cw-480">
 
                                     <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
 
@@ -324,43 +324,43 @@ else
                         <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
                             <DxFormLayoutItem Caption="Group" ColSpanMd="12">
                                 <DxComboBox Data="@_groupTagItems"
-                                            NullText="Select Group..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            AllowUserInput="true"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            TextFieldName="Value"
-                                            ValueFieldName="ApplicationMasterChildId"
-                                            Enabled="@isEnabled"
-                                            Value="@selectgrouptagItems"
-                                            ValueExpression="@(() => selectgrouptagItems )"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
-                                            ShowValidationIcon="true">
+                                NullText="Select Group..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                AllowUserInput="true"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Enabled="@isEnabled"
+                                Value="@selectgrouptagItems"
+                                ValueExpression="@(() => selectgrouptagItems )"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                ShowValidationIcon="true">
                                 </DxComboBox>
                                 <DxSpinEdit @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Category" ColSpanMd="12">
                                 <DxComboBox Data="@_categoryTagItems"
-                                            NullText="Select Category..."
-                                            Enabled="@isEnabled"
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            AllowUserInput="true"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            Value="@selectCategory"
-                                            ValueExpression="@(() => selectCategory )"
-                                            TextFieldName="Value"
-                                            ValueFieldName="ApplicationMasterChildId"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                NullText="Select Category..."
+                                Enabled="@isEnabled"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                AllowUserInput="true"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Value="@selectCategory"
+                                ValueExpression="@(() => selectCategory )"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
                                 </DxComboBox>
                                 <DxSpinEdit @bind-Value="@CategoryData.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Action" ColSpanMd="12">
-                                <DxTagBox Data="_actionTagItems"
+                                @*  <DxTagBox Data="_actionTagItems"
                                           @bind-Values="CategoryData.ActionTagIds"
                                           NullText="Select Action"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -371,7 +371,35 @@ else
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
                                           CssClass="cw-480">
                                     <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
-                                </DxTagBox>
+                                </DxTagBox> *@ 
+
+                                <DxDropDownBox @bind-Value="ActionValue"
+                                QueryDisplayText="QueryActionText"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                NullText="Select Action"
+                                ShowValidationIcon="true">
+                                    <DropDownBodyTemplate Context="ddbBodyContext">
+                                        <DxGrid Data="@_actionTagItems"
+                                        KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        style="height: calc(100vh - 500px);"
+                                        SelectedDataItems="@(ddbBodyContext.DropDownBox.Value as List<ApplicationMasterChildModel> )"
+                                        SelectedDataItemsChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                            <Columns>
+                                                <DxGridSelectionColumn AllowSelectAll="true" Width="30"></DxGridSelectionColumn>
+                                                <DxGridDataColumn FieldName="Value" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </DropDownBodyTemplate>
+                                </DxDropDownBox>
+
+
                                 @*  <DxComboBox Data="@_actionTagItems"
                             NullText="Select Action..."
                             Enabled="@isEnabled"
@@ -388,16 +416,16 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
                                 <DxComboBox Data="@_AllCategory"
-                                            NullText="Select Others Tag..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            AllowUserInput="true"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            TextFieldName="Name"
-                                            ValueFieldName="Name"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            @bind-Value="@CategoryData.Name"
-                                            @bind-Text="@OthersTagName">
+                                NullText="Select Others Tag..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                AllowUserInput="true"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="Name"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@CategoryData.Name"
+                                @bind-Text="@OthersTagName">
                                 </DxComboBox>
                                 @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
                             </DxFormLayoutItem>
@@ -415,15 +443,15 @@ else
                             @bind-Text="@UserTagName">
                             </DxComboBox> *@
                                 <DxTagBox Data="_UserTagList"
-                                          @bind-Values="CategoryData.UserTagIds"
-                                          NullText="Select User Tag"
-                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ValueFieldName="ID"
-                                          TextFieldName="UserTag"
-                                          ListRenderMode="ListRenderMode.Virtual"
-                                          SearchMode="ListSearchMode.AutoSearch"
-                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                          CssClass="cw-480">
+                                @bind-Values="CategoryData.UserTagIds"
+                                NullText="Select User Tag"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueFieldName="ID"
+                                TextFieldName="UserTag"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                CssClass="cw-480">
                                     <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
                                 </DxTagBox>
                                 @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
@@ -435,18 +463,18 @@ else
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
                                         <div class="" style="overflow:auto; height: calc(100vh - 455px);">
                                             <DxUpload @ref="uploadComponent" Name="files"
-                                                      Visible="@AttachmentUploadVisible"
-                                                      AcceptedFileTypes=@AcceptedFileTypes
-                                                      UploadMode="@UploadMode.OnButtonClick"
-                                                      FileUploadStart="OnFileUploadStart"
-                                                      ChunkSize="200000"
-                                                      AllowMultiFileUpload="true"
-                                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                                      FileUploaded="@isUploadSuccess"
-                                                      FileUploadProgressChanged="@OnUploadProgressChanged"
-                                                      FileUploadStarted="@OnFileUploadStarted"
-                                                      FileUploadError="@OnUploadError">
+                                            Visible="@AttachmentUploadVisible"
+                                            AcceptedFileTypes=@AcceptedFileTypes
+                                            UploadMode="@UploadMode.OnButtonClick"
+                                            FileUploadStart="OnFileUploadStart"
+                                            ChunkSize="200000"
+                                            AllowMultiFileUpload="true"
+                                            ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                            SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                            FileUploaded="@isUploadSuccess"
+                                            FileUploadProgressChanged="@OnUploadProgressChanged"
+                                            FileUploadStarted="@OnFileUploadStarted"
+                                            FileUploadError="@OnUploadError">
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
@@ -555,31 +583,31 @@ else
 </DxPopup>
 
 <DxFlyout @bind-IsOpen=IsUserGroupToOpen
-          PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
-          RestrictionTarget="#Navigation-Flyout-Customization-To"
-          AnimationType="FlyoutAnimationType.Fade"
-          PreventCloseOnPositionTargetClick="true"
-          FooterVisible="true"
-          FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
-          CloseOnOutsideClick=false
-          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
+RestrictionTarget="#Navigation-Flyout-Customization-To"
+AnimationType="FlyoutAnimationType.Fade"
+PreventCloseOnPositionTargetClick="true"
+FooterVisible="true"
+FooterCssClass="custom-flyout-footer"
+Width="max(25vw, 550px)"
+CloseOnOutsideClick=false
+Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
             <DxFormLayout>
                 <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
                     <DxTagBox Data="_ToUserGroup"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              NullText="Select To Group..."
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="UserGroupId"
-                              TextFieldName="Name"
-                              Values="@TogroupValue"
-                              ValuesExpression="@(() => TogroupValue )"
-                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
-                              ListRenderMode="ListRenderMode.Virtual"
-                              CssClass="cw-480">
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    NullText="Select To Group..."
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    ValueFieldName="UserGroupId"
+                    TextFieldName="Name"
+                    Values="@TogroupValue"
+                    ValuesExpression="@(() => TogroupValue )"
+                    ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
+                    ListRenderMode="ListRenderMode.Virtual"
+                    CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
 
@@ -600,31 +628,31 @@ else
 </DxFlyout>
 
 <DxFlyout @bind-IsOpen=IsUserGroupCCOpen
-          PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
-          RestrictionTarget="#Navigation-Flyout-Customization-CC"
-          AnimationType="FlyoutAnimationType.Fade"
-          PreventCloseOnPositionTargetClick="true"
-          FooterVisible="true"
-          FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
-          CloseOnOutsideClick=false
-          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
+RestrictionTarget="#Navigation-Flyout-Customization-CC"
+AnimationType="FlyoutAnimationType.Fade"
+PreventCloseOnPositionTargetClick="true"
+FooterVisible="true"
+FooterCssClass="custom-flyout-footer"
+Width="max(25vw, 550px)"
+CloseOnOutsideClick=false
+Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
             <DxFormLayout>
                 <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
                     <DxTagBox Data="_CCUserGroup"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              NullText="Select To Group..."
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="UserGroupId"
-                              Values="@UserGroupValues"
-                              ValuesExpression="@(() => UserGroupValues )"
-                              TextFieldName="Name"
-                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
-                              ListRenderMode="ListRenderMode.Virtual"
-                              CssClass="cw-480">
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    NullText="Select To Group..."
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    ValueFieldName="UserGroupId"
+                    Values="@UserGroupValues"
+                    ValuesExpression="@(() => UserGroupValues )"
+                    TextFieldName="Name"
+                    ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
+                    ListRenderMode="ListRenderMode.Virtual"
+                    CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
 
@@ -791,6 +819,53 @@ else
     string? MyMessage { get; set; }
     string Message = "Upload";
     long applicationAddedByUserID { get; set; }
+
+    object ActionValue { get; set; }
+    string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value != null)
+        {
+            List<ApplicationMasterChildModel> collection = (List<ApplicationMasterChildModel>)arg.Value;
+
+            if (collection != null && collection.Count() > 0)
+            {
+                foreach (var item in collection)
+                {
+                    dynamic eod = item;
+                    returnData += (string)eod.Value + ",";
+                }
+            }
+        }
+
+        return returnData;
+    }
+
+    async Task GridSelectedDataItemChanged(IReadOnlyList<object> selectedItems, IDropDownBox dropDownBox)
+    {
+
+        List<ApplicationMasterChildModel> selectedAllItems = new List<ApplicationMasterChildModel>();
+        if (selectedItems != null)
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is ApplicationMasterChildModel dataselectItems)
+                {
+                    selectedAllItems.Add(dataselectItems);
+                }
+            }
+        }
+        var vids = selectedAllItems.Cast<dynamic>().Select(s => (long?)s.ApplicationMasterChildId).ToList();
+        CategoryData.ActionTagIds = vids;
+        ActionValue = selectedAllItems;
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedAllItems;
+        dropDownBox.EndUpdate();
+
+    }
+
+
+
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
@@ -1645,6 +1720,7 @@ else
             CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
+            ActionValue = null;
 
         }
 
@@ -1731,6 +1807,7 @@ else
             CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
+            ActionValue = null;
         }
 
 
@@ -1814,6 +1891,7 @@ else
             CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
+            ActionValue = null;
         }
 
 

@@ -422,7 +422,7 @@ else
 
 
                             <DxFormLayoutItem Caption="Action" ColSpanMd="12">
-                                <DxTagBox Data="@_actionTagItems"
+                               @*  <DxTagBox Data="@_actionTagItems"
                                           @bind-Values="CategoryData.ActionTagIds"
                                           NullText="Select Action"
                                           Enabled="@isEnabled"
@@ -434,7 +434,34 @@ else
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
                                           CssClass="cw-480">
                                     <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
-                                </DxTagBox>
+                                </DxTagBox> *@
+
+                                <DxDropDownBox @bind-Value="ActionValue"
+                                               QueryDisplayText="QueryActionText"
+                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                               NullText="Select Action"
+                                               Enabled="@isEnabled"
+                                               ShowValidationIcon="true">
+                                    <DropDownBodyTemplate Context="ddbBodyContext">
+                                        <DxGrid Data="@_actionTagItems"
+                                                KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                                                HighlightRowOnHover="true"
+                                                SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                SelectionMode="GridSelectionMode.Multiple"
+                                                AllowSelectRowByClick="true"
+                                                FocusedRowEnabled="true"
+                                                TextWrapEnabled="false"
+                                                CssClass="templateGrid"
+                                                style="height: calc(100vh - 500px);"
+                                                SelectedDataItems="@(ddbBodyContext.DropDownBox.Value as List<ApplicationMasterChildModel> )"
+                                                SelectedDataItemsChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                            <Columns>
+                                                <DxGridSelectionColumn AllowSelectAll="true" Width="30"></DxGridSelectionColumn>
+                                                <DxGridDataColumn FieldName="Value" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </DropDownBodyTemplate>
+                                </DxDropDownBox>
 
                                @*  <DxComboBox Data="@_actionTagItems"
                                             NullText="Select Action..."
@@ -851,6 +878,57 @@ else
     IEnumerable<ForumTypes>? _OnBehalf;
     Documents _documents { get; set; }
     private string? DocumentViewUrl;
+
+
+
+    object ActionValue { get; set; }
+    string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value != null)
+        {
+            List<ApplicationMasterChildModel> collection = (List<ApplicationMasterChildModel>)arg.Value;
+
+            if (collection != null && collection.Count() > 0)
+            {
+                foreach (var item in collection)
+                {
+                    dynamic eod = item;
+                    returnData += (string)eod.Value + ",";
+                }
+            }
+        }
+
+        return returnData;
+    }
+
+    async Task GridSelectedDataItemChanged(IReadOnlyList<object> selectedItems, IDropDownBox dropDownBox)
+    {
+
+        List<ApplicationMasterChildModel> selectedAllItems = new List<ApplicationMasterChildModel>();
+        if (selectedItems != null)
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is ApplicationMasterChildModel dataselectItems)
+                {
+                    selectedAllItems.Add(dataselectItems);
+                }
+            }
+        }
+        var vids = selectedAllItems.Cast<dynamic>().Select(s => (long?)s.ApplicationMasterChildId).ToList();
+        CategoryData.ActionTagIds = vids;
+        ActionValue = selectedAllItems;
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedAllItems;
+        dropDownBox.EndUpdate();
+
+    }
+
+
+
+
+
 
     public static string FormatFileSize(long bytes)
     {
@@ -1579,12 +1657,16 @@ else
 
                         var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TId));
                         if (actionTagMultiple.Count > 0)
-                        {
+                        { 
                             await CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
 
                             if(CategoryData != null)
                             {
                                 CategoryData.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+
+                                ActionValue = _actionTagItems
+                                 .Where(x => CategoryData.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
+                                 .ToList();
                             }
 
                         }
@@ -2131,12 +2213,13 @@ else
             if(_actionTagItems.Count >0)
             {
                 CategoryData.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
-                Text = _actionTagItems[0].Value;
+                Text = _actionTagItems[0].Value;               
+
             }
 
 
         }
-
+         
         StateHasChanged();
     }
     async void CategoryTagChange(long? ApplicationMasterChildID, int ck = 0)
@@ -2154,6 +2237,9 @@ else
             }
 
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            ActionValue = _actionTagItems
+             .Where(x => CategoryData.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
+             .ToList();
         }
         else
         {

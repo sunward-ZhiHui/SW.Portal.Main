@@ -81,6 +81,7 @@
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
+                            @* <DxMenuItem Text="Change Profile No" IconCssClass="fa fa-edit" Click="onChangeProfileNo" Visible="@DownloadEnabled" /> *@
                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Visible="@deleteEnabled" />
                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
@@ -248,7 +249,9 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type" MinWidth="170" />
-                <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
+                 <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
+               @*  <DxGridDataColumn FieldName="NewProfileNo" Caption="New Profile" MinWidth="170" >
+                 </DxGridDataColumn> *@
                 <DxGridDataColumn FieldName="ActivityProfileNo" Caption="Activity Profile" MinWidth="170" />
                 <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="170">
                     <CellDisplayTemplate>
@@ -315,7 +318,7 @@
                 </DxGridDataColumn>
             </Columns>
             <TotalSummary>
-                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="NewProfileNoDisplay" />
             </TotalSummary>
         </DxGrid>
     </DxLoadingPanel>
@@ -756,10 +759,22 @@
         <MissingUploadFileProfileType @ref="refMissingUploadFileProfileType" FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" RevokeBack="BackUpload"></MissingUploadFileProfileType>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupChangeProfileNo"
+         HeaderText="Change ProfileNo"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ChangeProfileNos @ref="refChangeProfileNos" TypeName="FileProfileType" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ChangeProfileNos>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool PopupChangeProfileNo { get; set; } = false;
     private string? PermissionName { get; set; }
     private string? ProfileTypeInfoName { get; set; }
     private HistoryPopup refHistoryPopup;
+    private ChangeProfileNos refChangeProfileNos;
     private MissingUploadFileProfileType refMissingUploadFileProfileType;
     private AddFileProfileTypeInfo refAddFileProfileTypeInfo;
     private FileProfileTypeSecurity refFileProfileTypeSecurity;
@@ -1090,6 +1105,7 @@
                         }
                         StateHasChanged();
                     }
+
 
                 }
 
@@ -1704,6 +1720,10 @@
     {
         PopupUpload = true;
     }
+    void onChangeProfileNo()
+    {
+        PopupChangeProfileNo = true;
+    }
     async void onView()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
@@ -2093,7 +2113,7 @@
     {
         InvokeAsync(loadFileProfileData);
         IsAddFileProfileTypeInfo = false;
-        PopupShareDocuments = false;
+        PopupShareDocuments = false;PopupChangeProfileNo = false;
         StateHasChanged();
     }
     async void BackUpload()
@@ -2598,6 +2618,7 @@
         headers.Add("Name");
         headers.Add("Profile Type");
         headers.Add("Profile");
+        headers.Add("New Profile");
         headers.Add("Activity Profile");
         headers.Add("File Size");
         headers.Add("Description");
@@ -2623,6 +2644,7 @@
                     row.AppendChild(addCellValues("String", i.FileName));
                     row.AppendChild(addCellValues("String", i.FileProfileTypeName));
                     row.AppendChild(addCellValues("String", i.ProfileNo));
+                    row.AppendChild(addCellValues("String", i.NewProfileNo));
                     row.AppendChild(addCellValues("String", i.ActivityProfileNo));
                     row.AppendChild(addCellValues("String", fileSizes));
                     row.AppendChild(addCellValues("String", i.Description));
@@ -2703,6 +2725,7 @@
     {
         //System.GC.Collect();
         refHistoryPopup?.DisposeAsync();
+        refChangeProfileNos?.DisposeAsync();
         refMissingUploadFileProfileType?.DisposeAsync();
         refAddFileProfileTypeInfo?.DisposeAsync();
         refFileProfileTypeSecurity?.DisposeAsync();

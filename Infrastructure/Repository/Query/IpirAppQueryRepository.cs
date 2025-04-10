@@ -66,7 +66,8 @@ namespace Infrastructure.Repository.Query
                         s.ActivityIssueRelates = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").ToList() : new List<IpirAppIssueDep>();
                         s.ActivityIssueRelateIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").Select(z => z.ActivityInfoIssueId).ToList() : new List<long?>();
                         s.DepartmentIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Department").Select(z => z.DepartmentID).ToList() : new List<long?>();
-
+                        s.LocationName = s.LocationName == "|" ? string.Empty : s.LocationName;
+                        s.MachineName = s.MachineName == "null" ? string.Empty : s.MachineName;
                         if (documents != null && s.SessionID != null)
                         {
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
@@ -586,7 +587,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("LocationID", value.LocationID);
 
                         parameters.Add("MachineName", value.MachineName);
-                        parameters.Add("IRNoatQALevel", value.IRNoatQALevel,DbType.String);
+                        parameters.Add("IRNoatQALevel", value.IRNoatQALevel, DbType.String);
                         parameters.Add("ActivityStatusId", value.ActivityStatusId);
                         if (value.IpirAppId > 0)
                         {

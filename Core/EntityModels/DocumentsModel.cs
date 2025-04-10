@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class DocumentsModel 
+    public class DocumentsModel
     {
         public long? DeleteByUserID { get; set; }
         public string? DeleteByUser { get; set; }
         public DateTime? DeleteByDate { get; set; }
-        public long? AddedByUserID { get; set; }        
-        public string AddedByUser { get; set; }       
-        public DateTime? AddedDate { get; set; }       
+        public long? AddedByUserID { get; set; }
+        public string AddedByUser { get; set; }
+        public DateTime? AddedDate { get; set; }
         public string ModifiedByUser { get; set; }
-        public long? ModifiedByUserID { get; set; }       
+        public long? ModifiedByUserID { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeID { get; set; }
         public long? DocumentID { get; set; }
@@ -84,7 +84,9 @@ namespace Core.EntityModels
         public bool? IsDuplicateUpload { get; set; } = false;
         public Guid? DynamicFormDataSessionId { get; set; }
         public Guid? DynamicFormSessionId { get; set; }
-        public bool? IsDelete { get; set; }=false;
+        public bool? IsDelete { get; set; } = false;
+        public string? NewProfileNo { get; set; }
+        public string? NewProfileNoDisplay { get;set; }
     }
     public class FormDropDownModel
     {
@@ -122,5 +124,15 @@ namespace Core.EntityModels
         public List<Fileprofiletype> Fileprofiletype { get; set; } = new List<Fileprofiletype>();
         public List<ProductActivityAppModel> ProductActivityAppModel { get; set; } = new List<ProductActivityAppModel>();
         public List<DynamicFormDataUpload> DynamicFormDataUpload { get; set; } = new List<DynamicFormDataUpload>();
+    }
+    public class DocumentChangeProfileNo
+    {
+        public long DocumentChangeProfileNoId { get; set; }
+        public string? NewProfileNo { get; set; }
+        public Guid? SessionId { get; set; }
+        public long? AddedUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public string? TypeName { get; set; }
+        public string? AddedUser { get; set; }
     }
 }

@@ -43,5 +43,7 @@ namespace Core.Entities
         public long? FileProfileTypeId { get; set; }
         public string? UploadType { get; set; }
         public long? LinkFileProfileTypeDocumentId { get; set; }
+        [NotMapped]
+        public string? NewProfileNo { get; set; }
     }
 }

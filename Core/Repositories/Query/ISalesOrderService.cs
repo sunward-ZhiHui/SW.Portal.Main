@@ -27,5 +27,9 @@ namespace Core.Repositories.Query
 
         Task<List<RawMatPurch>> GetRawMatPurchAsync(string company, long companyid, List<RawMatPurch> rawMatPurches, List<Navitems> navitems);
         Task<List<ReleaseProdOrderLine>> ReleaseProdOrderLineAsync(string company, long companyid, List<ReleaseProdOrderLine> releaseProdOrderLines, List<Navitems> navitems);
+        Task<ProdPlanningLineNav> GetProdPlanningLine(string company, long? companyId, List<Navitems> itemMaster);
+        Task<ProdPlanningLineNav> GetProdOrderOutputLine(string company, long? companyId, List<Navitems> itemMaster);
+        Task<List<GroupPlaningTicket>> GetProdGroupLine(string company, long? companyId);
+        Task<List<ProdOrderNotStart>> GetProdNotStart(string company, long? companyId);
     }
 }

@@ -20,7 +20,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ProductionSimulation>> Handle(GetProductionSimulationQuery request, CancellationToken cancellationToken)
         {
-            return (List<ProductionSimulation>)await _queryRepository.GetProductionSimulationListAsync();
+            return (List<ProductionSimulation>)await _queryRepository.GetProductionSimulationListAsync(request.CompanyId,request.IsReresh,request.UserId);
         }
     }
     public class EditProductionSimulationHandler : IRequestHandler<EditProductionSimulation, long>

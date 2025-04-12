@@ -2195,14 +2195,15 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SessionId", value.SessionId, DbType.Guid);
                         parameters.Add("DynamicFormId", value.DynamicFormId);
                         parameters.Add("IsDuplicateUpload", value.IsDuplicateUpload);
+                        parameters.Add("IsAllowWaterMark", value.IsAllowWaterMark == true ? true : null);
                         if (value.FileProfileTypeId <= 0)
                         {
 
-                            var query = "INSERT INTO [FileProfileType](Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
+                            var query = "INSERT INTO [FileProfileType](IsAllowWaterMark,Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
                                 "IsAllowMobileUpload,IsDocumentAccess,ShelfLifeDuration,ShelfLifeDurationId,Hints,IsEnableCreateTask,IsCreateByYear,IsCreateByMonth," +
                                 "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId,IsDuplicateUpload) " +
                                 "OUTPUT INSERTED.FileProfileTypeId VALUES " +
-                               "(@Name,@ProfileId,@ParentId,@StatusCodeID,@AddedDate,@AddedByUserID,@ModifiedDate,@ModifiedByUserId,@Description,@IsExpiryDate," +
+                               "(@IsAllowWaterMark,@Name,@ProfileId,@ParentId,@StatusCodeID,@AddedDate,@AddedByUserID,@ModifiedDate,@ModifiedByUserId,@Description,@IsExpiryDate," +
                                "@IsAllowMobileUpload,@IsDocumentAccess,@ShelfLifeDuration,@ShelfLifeDurationId,@Hints,@IsEnableCreateTask,@IsCreateByYear,@IsCreateByMonth," +
                                "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId,@IsDuplicateUpload)";
                             value.FileProfileTypeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
@@ -2211,7 +2212,7 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                            var query = "Update Fileprofiletype SET Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate,IsDuplicateUpload=@IsDuplicateUpload," +
+                            var query = "Update Fileprofiletype SET IsAllowWaterMark=@IsAllowWaterMark,Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate,IsDuplicateUpload=@IsDuplicateUpload," +
                                 "AddedByUserID=@AddedByUserID,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,Description=@Description,IsExpiryDate=@IsExpiryDate,IsAllowMobileUpload=@IsAllowMobileUpload,IsDocumentAccess=@IsDocumentAccess," +
                                 "ShelfLifeDuration=@ShelfLifeDuration,ShelfLifeDurationId=@ShelfLifeDurationId,Hints=@Hints,IsEnableCreateTask=@IsEnableCreateTask,IsCreateByYear=@IsCreateByYear," +
                                 "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId,DynamicFormId=@DynamicFormId " +

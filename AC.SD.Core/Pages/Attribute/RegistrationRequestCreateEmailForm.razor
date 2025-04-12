@@ -299,6 +299,8 @@
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     [Parameter]
+    public Guid? DepartmentUniqueSessionId { get; set; }
+    [Parameter]
     public RegistrationRequest _registrationRequestData { get; set; }
     [Parameter]
     public IEnumerable _RegistrationRequestDepartmentData { get; set; }
@@ -336,7 +338,7 @@
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         Data.From = applicationUser?.UserName;
         Data.FromId = applicationUser?.UserID;
-        Data.EmailCreateSessionId = Guid.NewGuid();
+        Data.EmailCreateSessionId = DepartmentUniqueSessionId;
         Data.MainSubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _registrationRequestData.VariationNoInfo;
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();

@@ -34,5 +34,6 @@
         public DateTime? RestoreByDate { get; set; }
         public long? DynamicFormId { get; set; }
         public bool? IsDuplicateUpload { get; set; }
+        public bool? IsAllowWaterMark { get; set; }
     }
 }

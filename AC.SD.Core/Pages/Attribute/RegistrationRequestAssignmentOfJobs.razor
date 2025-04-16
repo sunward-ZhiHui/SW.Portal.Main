@@ -25,6 +25,7 @@
                 @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" /> *@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@EditEnabled" />
+                <DxMenuItem Text="View Email" IconCssClass="fa fa-eye" Click="@addDetailEmailView" Enabled="@EditEnabled" />
                 @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" /> *@
             </Items>
         </DxMenu>
@@ -218,7 +219,7 @@
          CloseOnEscape="false"
          Width="1000px">
     <BodyContentTemplate>
-        <RegistrationRequestCreateEmailForm applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData" _RegistrationRequestDepartmentData="@_dynamicFormSectionData" RevokeBack="AddpopupFormClose"></RegistrationRequestCreateEmailForm>
+        <RegistrationRequestCreateEmailForm applicationUser="@applicationUser" DepartmentUniqueSessionId="@_selectedItems?.DepartmentUniqueSessionId" _registrationRequestData="@_registrationRequestData" _RegistrationRequestDepartmentData="@_dynamicFormSectionData" RevokeBack="AddpopupFormClose"></RegistrationRequestCreateEmailForm>
     </BodyContentTemplate>
 </DxPopup>
 @code {
@@ -545,6 +546,36 @@
         }
 
     }
+    async Task addDetailEmailView()
+    {
+        if (_selectedItems != null)
+        {
+            var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
+            if (_selectedItemsDAta != null)
+            {
+                if (_selectedItemsDAta.IsEmailCreateDone == true)
+                {
+                    if (_selectedItemsDAta.IsDraft == true)
+                    {
+                        var url = NavigationManager.BaseUri + "EmailDrafts";
+                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                    if (_selectedItemsDAta.IsDraft == false)
+                    {
+                        var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+                else
+                {
+                    if (_selectedItemsDAta.IsDraft == null)
+                    {
+                        await addDetailEmailCreate();
+                    }
+                }
+            }
+        }
+    }
     async Task addDetailEmailCreate()
     {
         if (IsUnsaved == true)
@@ -560,31 +591,8 @@
             }
             else
             {
-                toastService.ShowToast("Select Checkbox Must", AC.SD.Core.Services.ToastLevel.Error);
+                toastService.ShowToast("Select Checkbox For Variation No And After Click Create Email", AC.SD.Core.Services.ToastLevel.Error);
             }
-
-            // if (_selectedItems != null)
-            // {
-            //     var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
-            //     if (_selectedItemsDAta != null)
-            //     {
-            //         if (_selectedItemsDAta.IsDraft == null)
-            //         {
-            //             SubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _selectedItems.DepartmentName + "-" + _selectedItems.JobNo;
-            //             createEmailpopup = true;
-            //         }
-            //         if (_selectedItemsDAta.IsDraft == true)
-            //         {
-            //             var url = NavigationManager.BaseUri + "EmailDrafts";
-            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-            //         }
-            //         if (_selectedItemsDAta.IsDraft == false)
-            //         {
-            //             var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
-            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-            //         }
-            //     }
-            // }
         }
     }
     async Task createEmailYes()

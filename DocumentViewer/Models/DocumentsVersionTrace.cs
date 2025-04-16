@@ -10,6 +10,7 @@ namespace DocumentViewer.Models
         public Guid? SessionId { get; set; }
         public long? UserId { get; set; }
         public DateTime? UpdateDateTime { get; set; }
+        public string? VersionNo { get; set; }
         [NotMapped]
         public string? UserName { get; set; }
     }

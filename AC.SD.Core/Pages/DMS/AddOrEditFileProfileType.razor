@@ -25,7 +25,7 @@
                                     TextFieldName="Name"
                                     ValueFieldName="ProfileID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                                    @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
                                                     Caption="Name"
@@ -50,10 +50,10 @@
                     <DxFormLayoutItem Caption="Upload Duplicate Document" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsDuplicateUpload" />
                     </DxFormLayoutItem>
-                    @*  <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@Data.IsEnableCreateTask" />
+                    <DxFormLayoutItem Caption="Allow Water Mark(Pdf Only)" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsAllowWaterMark" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Create By Year" ColSpanMd="6">
+                    @* <DxFormLayoutItem Caption="Create By Year" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsCreateByYear" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Create By Month" ColSpanMd="6">
@@ -83,7 +83,7 @@
                                     TextFieldName="CodeValue"
                                     ValueFieldName="CodeId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.ShelfLifeDurationId" ShowValidationIcon="true">
+                                    @bind-Value="@Data.ShelfLifeDurationId" ShowValidationIcon="true">
                         </DxComboBox>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Archive Duration" ColSpanMd="6">
@@ -99,7 +99,7 @@
                                     ValueFieldName="ID"
                                     Enabled="isDynamicForm"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
+                                    @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                     Caption="Name"
@@ -190,6 +190,7 @@
                 Data.SessionId = _fileProfileTypeData.SessionId;
                 Data.DynamicFormId = _fileProfileTypeData.DynamicFormId;
                 Data.IsDuplicateUpload = _fileProfileTypeData.IsDuplicateUpload;
+                Data.IsAllowWaterMark = _fileProfileTypeData.IsAllowWaterMark;
                 if (_fileProfileTypeData.DynamicFormId > 0 && _fileProfileTypeData.IsdynamicFormExits > 0)
                 {
                     isDynamicForm = false;
@@ -244,7 +245,7 @@
     public async ValueTask DisposeAsync()
     {
         //System.GC.Collect();
-        _dynamicForm=null;
+        _dynamicForm = null;
         _fileProfileTypeData = null;
         Data = new FileProfileTypeModel();
         _shelfLifeDurationItems?.Clear();

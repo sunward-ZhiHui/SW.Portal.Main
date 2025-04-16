@@ -798,7 +798,7 @@ namespace Infrastructure.Service
                                 }
                                 else
                                 {
-                                    exist.BatchNo= f.Batch_No;
+                                    exist.BatchNo = f.Batch_No;
                                     prodNotStartList.Add(exist);
                                 }
                             }
@@ -997,6 +997,301 @@ namespace Infrastructure.Service
             {
                 throw ex;
             }
+        }
+        public async Task<ProdPlanningLineNav> GetProdPlanningLine(string company, long? companyId, List<Navitems> itemMaster)
+        {
+            ProdPlanningLineNav prodPlanningLineNav = new ProdPlanningLineNav();
+            List<ProductionSimulation> productionSimulation = new List<ProductionSimulation>();
+            List<ProductionSimulationHistory> productionSimulationHistories = new List<ProductionSimulationHistory>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company);
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+                var nquery = context.Context.ProdPlanningLine.Where(f => f.g_intYr >= year).Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<ProdPlanningLine> query = (DataServiceQuery<ProdPlanningLine>)nquery;
+
+                TaskFactory<IEnumerable<ProdPlanningLine>> taskFactory = new TaskFactory<IEnumerable<ProdPlanningLine>>();
+                IEnumerable<ProdPlanningLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                prodCodes.ForEach(f =>
+                {
+                    var item = itemMaster.FirstOrDefault(i => i.No == f.Item_No && i.CompanyId == companyId);
+                    if (item != null)
+                    {
+                        var appMaster = new ProductionSimulation
+                        {
+                            StatusCodeId = 1,
+                            CompanyId = companyId,
+                            AddedDate = DateTime.Now,
+                            BatchNo = f.Batch_No,
+                            Description = f.Description,
+                            ItemNo = f.Item_No,
+                            PackSize = f.g_cdePackSize,
+                            PerQtyUom = f.g_cdeSmallQtyUOM,
+                            PerQuantity = f.g_decSmallQty.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            ProdOrderNo = f.Prod_Order_No,
+                            Quantity = f.Quantity.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            PlannedQty = f.Quantity.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            StartingDate = f.Starting_Date.GetValueOrDefault(DateTime.Today),
+                            Uom = f.Unit_of_Measure_Code,
+                            IsOutput = false,
+                            ItemId = item.ItemId,
+                            ProcessDate = f.g_dte1stProcessDate == DateTime.MinValue ? null : f.g_dte1stProcessDate,
+                            // SW Reference BatchSize = f.Batch_Size,
+                            RePlanRefNo = f.Prod_Order_No,
+                            IsBmrticket = false,
+                        };
+
+                        var history = new ProductionSimulationHistory
+                        {
+                            StatusCodeId = 1,
+                            CompanyId = companyId,
+                            AddedDate = DateTime.Now,
+                            BatchNo = f.Batch_No,
+                            Description = f.Description,
+                            ItemNo = f.Item_No,
+                            PackSize = f.g_cdePackSize,
+                            PerQtyUom = f.g_cdeSmallQtyUOM,
+                            PerQuantity = f.g_decSmallQty.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            ProdOrderNo = f.Prod_Order_No,
+                            Quantity = f.Quantity.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            StartingDate = f.Starting_Date.GetValueOrDefault(DateTime.Today),
+                            Uom = f.Unit_of_Measure_Code,
+                            IsOutput = false,
+                            ItemId = item.ItemId,
+                        };
+                        productionSimulation.Add(appMaster);
+                        productionSimulationHistories.Add(history);
+                    }
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+            prodPlanningLineNav.ProductionSimulations = productionSimulation;
+            prodPlanningLineNav.productionSimulationHistories = productionSimulationHistories;
+            return prodPlanningLineNav;
+        }
+        public async Task<ProdPlanningLineNav> GetProdOrderOutputLine(string company, long? companyId, List<Navitems> itemMaster)
+        {
+            ProdPlanningLineNav prodPlanningLineNav = new ProdPlanningLineNav();
+            List<ProductionSimulation> productionSimulation = new List<ProductionSimulation>();
+            List<ProductionSimulationHistory> productionSimulationHistories = new List<ProductionSimulationHistory>();
+            var todayDate = DateTime.Today;
+            var year = todayDate.Year - 1;
+            var context = new NAVService(_configuration, company);
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+                var nquery = context.Context.ProdOrderOutputLine.Where(f => f.g_intYr >= year).Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<ProdOrderOutputLine> query = (DataServiceQuery<ProdOrderOutputLine>)nquery;
+
+                TaskFactory<IEnumerable<ProdOrderOutputLine>> taskFactory = new TaskFactory<IEnumerable<ProdOrderOutputLine>>();
+                IEnumerable<ProdOrderOutputLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                // var prodOrder = _context.ProductionSimulation.ToList();
+                prodCodes.ForEach(f =>
+                {
+                    var item = itemMaster.FirstOrDefault(i => i.No == f.Item_No && i.CompanyId == companyId);
+                    if (item != null)
+                    {
+                        var appMaster = new ProductionSimulation
+                        {
+                            StatusCodeId = 1,
+                            CompanyId = companyId,
+                            AddedDate = DateTime.Now,
+                            BatchNo = f.Batch_No,
+                            Description = f.Description,
+                            ItemNo = f.Item_No,
+                            PackSize = f.g_cdePackSize,
+                            PerQtyUom = f.g_cdeSmallQtyUOM,
+                            PerQuantity = f.g_decSmallQty.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            ProdOrderNo = f.Prod_Order_No,
+                            Quantity = f.Finished_Quantity.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            StartingDate = f.g_dteOutputDate.GetValueOrDefault(DateTime.Today),
+                            Uom = f.Unit_of_Measure_Code,
+                            IsOutput = true,
+                            OutputQty = f.Finished_Quantity * item.PackQty.GetValueOrDefault(1),
+                            PlannedQty = f.Quantity * item.PackQty.GetValueOrDefault(1),
+                            ItemId = item.ItemId,
+                            //// SW Reference BatchSize = f.Batch_Size,
+                            RePlanRefNo = f.Prod_Order_No,
+                            IsBmrticket = false,
+                        };
+                        //_context.ProductionSimulation.Add(appMaster);
+                        var history = new ProductionSimulationHistory
+                        {
+                            AddedByUserId = 1,
+                            StatusCodeId = 1,
+                            CompanyId = companyId,
+                            AddedDate = DateTime.Now,
+                            BatchNo = f.Batch_No,
+                            Description = f.Description,
+                            ItemNo = f.Item_No,
+                            PackSize = f.g_cdePackSize,
+                            PerQtyUom = f.g_cdeSmallQtyUOM,
+                            PerQuantity = f.g_decSmallQty.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            ProdOrderNo = f.Prod_Order_No,
+                            Quantity = f.Finished_Quantity.GetValueOrDefault(0) * item.PackQty.GetValueOrDefault(1),
+                            StartingDate = f.g_dteOutputDate.GetValueOrDefault(DateTime.Today),
+                            Uom = f.Unit_of_Measure_Code,
+                            IsOutput = true,
+                            OutputQty = f.Finished_Quantity * item.PackQty.GetValueOrDefault(1),
+                            PlannedQty = f.Quantity * item.PackQty.GetValueOrDefault(1),
+                            ItemId = item.ItemId,
+                        };
+                        productionSimulation.Add(appMaster);
+                        productionSimulationHistories.Add(history);
+                    }
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+            prodPlanningLineNav.ProductionSimulations = productionSimulation;
+            prodPlanningLineNav.productionSimulationHistories = productionSimulationHistories;
+            return prodPlanningLineNav;
+        }
+        public async Task<List<GroupPlaningTicket>> GetProdGroupLine(string company, long? companyId)
+        {
+            List<GroupPlaningTicket> GroupPlaningTicket = new List<GroupPlaningTicket>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company);
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+
+                var nquery = context.Context.GroupPlanning.Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.GroupPlanning> query = (DataServiceQuery<NAV.GroupPlanning>)nquery;
+
+                TaskFactory<IEnumerable<NAV.GroupPlanning>> taskFactory = new TaskFactory<IEnumerable<NAV.GroupPlanning>>();
+                IEnumerable<NAV.GroupPlanning> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                prodCodes.ForEach(f =>
+                {
+                    if (f.Item_No == "FP-NP-TAB-100" || f.Item_No == "FP-NP-TAB-105")
+                    {
+
+                    }
+                    var appMaster = new GroupPlaningTicket
+                    {
+                        BatchName = f.Batch_Name,
+                        BatchSize = f.Batch_Size,
+                        CompanyId = Convert.ToInt32(companyId),
+                        Description = f.Description,
+                        Description1 = f.Description_2,
+                        ItemNo = f.Item_No,
+                        NoOfTicket = f.No_of_Ticket,
+                        ProductGroupCode = f.Product_Group_Code,
+                        Quantity = f.Quantity,
+                        StartDate = f.Start_Date == DateTime.MinValue ? DateTime.Now : f.Start_Date,
+                        TotalQuantity = f.Total_Quantity,
+                        Uom = f.Unit_Of_Measure_Code,
+
+                    };
+                    GroupPlaningTicket.Add(appMaster);
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+
+            page = 0;
+            while (true)
+            {
+                var nquery = context.Context.GroupPlanningSplit.Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.GroupPlanningSplit> query = (DataServiceQuery<NAV.GroupPlanningSplit>)nquery;
+
+                TaskFactory<IEnumerable<NAV.GroupPlanningSplit>> taskFactory = new TaskFactory<IEnumerable<NAV.GroupPlanningSplit>>();
+                IEnumerable<NAV.GroupPlanningSplit> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                prodCodes.ForEach(fg =>
+                {
+                    if (fg.Item_No == "FP-NP-TAB-100" || fg.Item_No == "FP-NP-TAB-105")
+                    {
+
+                    }
+                    var appMaster = new GroupPlaningTicket
+                    {
+                        BatchName = fg.Batch_Name,
+                        BatchSize = fg.Batch_Name,
+                        CompanyId = Convert.ToInt32(companyId),
+                        Description = fg.Description,
+                        Description1 = fg.Description_2,
+                        ItemNo = fg.Item_No,
+                        NoOfTicket = fg.No_of_Prod_Order,
+                        ProductGroupCode = fg.Product_Group_Code,
+                        Quantity = fg.Quantity,
+                        StartDate = fg.Start_Date == DateTime.MinValue ? DateTime.Now : fg.Start_Date,
+                        TotalQuantity = fg.Quantity * fg.No_of_Prod_Order,
+                        Uom = fg.Unit_Of_Measure_Code
+                    };
+                    GroupPlaningTicket.Add(appMaster);
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+            return GroupPlaningTicket;
+        }
+        public async Task<List<ProdOrderNotStart>> GetProdNotStart(string company, long? companyId)
+        {
+            List<ProdOrderNotStart> prodNotStartList = new List<ProdOrderNotStart>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company);
+            var dates = DateTime.Today.Date.Year + "-" + DateTime.Today.Date.Month + "-" + DateTime.Today.Date.Month;
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+                var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null).Skip(page * pageSize).Take(pageSize);
+                //var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null && f.Starting_Date >= DateTime.Today).Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.ProdOrderLineList> query = (DataServiceQuery<NAV.ProdOrderLineList>)nquery;
+
+                TaskFactory<IEnumerable<NAV.ProdOrderLineList>> taskFactory = new TaskFactory<IEnumerable<NAV.ProdOrderLineList>>();
+                IEnumerable<NAV.ProdOrderLineList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+                prodCodes.ForEach(f =>
+                {
+                    if (f.Starting_Date == DateTime.Today)
+                    {
+                        var prodNotStart = new ProdOrderNotStart
+                        {
+                            CompanyId = companyId,
+                            ItemNo = f.Item_No,
+                            PackSize = f.Batch_No,
+                            ProdOrderNo = f.Prod_Order_No,
+                            Quantity = f.Quantity,
+                            StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
+                        };
+                        prodNotStartList.Add(prodNotStart);
+                    }
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+
+            return prodNotStartList;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Core.Repositories.Query
 {
     public interface IProductionSimulationQueryRepository 
     {
-        Task<IReadOnlyList<ProductionSimulation>> GetProductionSimulationListAsync();
+        Task<IReadOnlyList<ProductionSimulation>> GetProductionSimulationListAsync(long? CompanyId,bool? IsReresh,long? UserId);
         Task<long> Update(ProductionSimulation company);
         Task<long> Delete(long id);
     }

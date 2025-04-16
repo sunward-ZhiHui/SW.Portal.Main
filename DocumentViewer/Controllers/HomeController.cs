@@ -232,6 +232,7 @@ namespace DocumentViewer.Controllers
                                             {
                                                 viewmodel.Type = contentType.Split("/")[0].ToLower();
                                             }
+                                            @ViewBag.isFile = "Yes";
                                         }
                                         else
                                         {
@@ -374,6 +375,7 @@ namespace DocumentViewer.Controllers
                                     UpdateDateTime = oal.UpdateDateTime,
                                     UserName = oau.UserName,
                                     Description = oal.Description,
+                                    VersionNo = oal.VersionNo,
                                 };
                     var list = query.ToList();
                     if (list != null && list.Count() > 0)
@@ -381,7 +383,8 @@ namespace DocumentViewer.Controllers
                         list.OrderByDescending(o => o.DocumentsVersionTraceId).ToList().ForEach(s =>
                         {
                             html += "<li>";
-                            html += "<span>" + s.UserName + "</span>";
+                            html += "<span style=\"font-Weight:bold;\">" + s.UserName + "</span><br>";
+                            html += "<span style=\"font-Weight:bold;\">Version:</span><span>" + s.VersionNo + "</span>";
                             html += "<span class=\"event-date\">" + s.UpdateDateTime?.ToString("dd-MMM-yyyy hh.mm tt") + "</span>";
                             html += "<p>" + s.Description + "</p>";
                             html += "</li>";
@@ -530,7 +533,7 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpPost]
-        public IActionResult SaveComments(string? name)
+        public IActionResult SaveComments(string? name, string? VersionNo)
         {
             var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
             var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
@@ -546,6 +549,7 @@ namespace DocumentViewer.Controllers
                         DocumentId = currentDocuments.DocumentId,
                         SessionId = currentDocuments.SessionId,
                         UpdateDateTime = DateTime.Now,
+                        VersionNo = VersionNo,
                     };
                     _context.Add(DocumentsTrace);
                     _context.SaveChanges();
@@ -689,8 +693,9 @@ namespace DocumentViewer.Controllers
                             {
                                 currentDocuments.ContentType = "application/octet-stream";
                             }
+                            var IsAllowWaterMarks = _context.FileProfileType.FirstOrDefault(f => f.FileProfileTypeId == currentDocuments.FilterProfileTypeId)?.IsAllowWaterMark;
                             string? isPdf = null;
-                            if (isDownload != "Yes" && Extension == "pdf")
+                            if (IsAllowWaterMarks == true && Extension == "pdf")
                             {
                                 isPdf = Extension;
                             }

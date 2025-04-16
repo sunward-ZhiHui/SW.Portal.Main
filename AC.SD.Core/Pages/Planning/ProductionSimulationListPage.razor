@@ -14,32 +14,33 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
-    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4; padding-bottom:10px;height:calc(100vh - 150px)">
-        <div class="cw-480" style="margin-top:10px;">
-       
-<div style="padding:10px;">  
-<div class="card w-100" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-               
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit"/>
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete"/>
-                <DxMenuItem Text="Upload" IconCssClass="fa fa-upload" Click="Onupload"/>
-              
-            </Items>
-        </DxMenu>
-    </div>
-</div>
-</div>
-       
-<EditForm EditContext="this._editContext" Context="EditFormContext">
-    <DataAnnotationsValidator />
-    <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Company" ColSpanMd="4">
+<div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4; padding-bottom:10px;height:calc(100vh - 150px)">
+    <div class="cw-480" style="margin-top:10px;">
 
+        <div style="padding:10px;">
+            <div class="card w-100" style="margin-bottom:10px;">
+                <div class="card-body p-0">
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Desktop">
+                        <Items>
+
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                            <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="OnSyncData" />
+                            <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                            @* <DxMenuItem Text="Upload" IconCssClass="fa fa-upload" Click="Onupload" /> *@
+
+                        </Items>
+                    </DxMenu>
+                </div>
+            </div>
+        </div>
+
+        <EditForm EditContext="this._editContext" Context="EditFormContext">
+            <DataAnnotationsValidator />
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Company" ColSpanMd="4">
                     <DxComboBox Data="@_plantItems"
                                 NullText="Select Company..."
                                 ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
@@ -47,144 +48,149 @@
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 ListRenderMode="ListRenderMode.Virtual"
                                 TextFieldName="Description"
-                                ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                 ValueFieldName="PlantID"
                                 Value="@CurrentPlant"
                                 ValueExpression="@(() => CurrentPlant )"
                                 ShowValidationIcon="true">
-
                     </DxComboBox>
 
-        </DxFormLayoutItem>
-       
-
-    </DxFormLayout>
-
-</EditForm>
-
-
-<div style="padding:10px;">
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-
-    <DxGrid @ref="Grid" Data="@_productionsimulationgridLst" EditModelSaving="@OnEditModelSaving"  EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="ProductionSimulationId"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20" VirtualScrollingEnabled="true"
-            style="height: calc(100vh - 300px);"
-            CssClass="ch-360"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            AllowSelectRowByClick="true"
-            CustomizeElement="Grid_CustomizeElement"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowDoubleClick="OnRowDoubleClick"
-            >
-
-
-        <Columns>
-           @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-            <DxGridDataColumn FieldName="IsOutput" Visible="false" />
-            <DxGridDataColumn FieldName="ProdOrderNo" />
-            <DxGridDataColumn FieldName="ItemNo" />
-            <DxGridDataColumn FieldName="ItemId" Caption="Item Name" />
-            <DxGridDataColumn FieldName="Description" />
-            <DxGridDataColumn FieldName="PackSize" />
-            <DxGridDataColumn FieldName="PlannedQty" />
-            <DxGridDataColumn FieldName="Quantity" />
-            <DxGridDataColumn FieldName="Uom" />
-            <DxGridDataColumn FieldName="PerQuantity" />
-            <DxGridDataColumn FieldName="PerQtyUom" />
-            <DxGridDataColumn FieldName="BatchNo" />
-               
-            <DxGridDataColumn FieldName="StartingDate" />
-
-           @* <DxGridCommandColumn Width="160px" Visible="false" />*@
-        </Columns>
-      
-        <EditFormTemplate Context="EditFormContext">
-
-          @{
-               var types = (ProductionSimulation)EditFormContext.EditModel;
-           
-            }
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="ProductOderNo:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.ProdOrderNo" ReadOnly="true"  />
                 </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="Description:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.Description" ReadOnly="true" />
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="ItemNo:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.ItemNo" ReadOnly="true" />
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="ItemName:" ColSpanMd="4">
-                    <DxSpinEdit @bind-Value="@types.ItemId" ReadOnly="true" />
-                </DxFormLayoutItem>
-                
-                <DxFormLayoutItem Caption="PackSize:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.PackSize" ReadOnly="true" />
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="UOM:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.Uom" ReadOnly="true" />
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="PerQuantityUom:" ColSpanMd="4">
-                    <DxTextBox @bind-Text="@types.PerQtyUom" ReadOnly="true" />
-                </DxFormLayoutItem>
-
-                 <DxFormLayoutItem Caption="Quantity:" ColSpanMd="4">
-                    <DxSpinEdit @bind-Value="@types.Quantity"   />
-                </DxFormLayoutItem>
-
-        <DxFormLayoutItem Caption="EstimateSubmissionDate:" ColSpanMd="4">
-                    <DxDateEdit @bind-Date="@types.StartingDate"  />
-                </DxFormLayoutItem>
-        
-                <DxFormLayoutItem Caption="PerQuantity:" ColSpanMd="4">
-                    <DxSpinEdit @bind-Value="@types.PerQuantity"   />
-                </DxFormLayoutItem>
-
-                <ValidationSummary />
             </DxFormLayout>
-        </EditFormTemplate>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProdOrderNo" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
-<DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="CRT"
-         Closed="EulaPopupClosed"
-         Width="300px">
-    <BodyContentTemplate>
-        <p>
-            Do you want to delete
-        </p>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
-    </FooterContentTemplate>
-</DxPopup>
-</div>
-</div>
+
+        </EditForm>
+        <div style="padding:10px;">
+            <DxLoadingPanel @bind-Visible="PanelVisible"
+                            IsContentBlocked="true"
+                            ApplyBackgroundShading="true"
+                            IndicatorAreaVisible="false"
+                            Text="Fetching Data...">
+
+                <DxGrid @ref="Grid" Data="@_productionsimulationgridLst" EditModelSaving="@OnEditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                        KeyFieldName="ProductionSimulationId"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorAllRowsItemVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                        PageSize="20" VirtualScrollingEnabled="true"
+                        style="height: calc(100vh - 300px);"
+                        CssClass="ch-360"
+                        FocusedRowEnabled="true"
+                        RowClick="OnRowClick"
+                        AllowSelectRowByClick="true"
+                        CustomizeElement="Grid_CustomizeElement"
+                        CustomizeEditModel="Grid_CustomizeEditModel"
+                        AutoExpandAllGroupRows="true"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                        RowDoubleClick="OnRowDoubleClick">
+
+
+                    <Columns>
+                        @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
+                        <DxGridDataColumn FieldName="IsOutput">
+
+                        </DxGridDataColumn>
+                        <DxGridDataColumn FieldName="ProdOrderNo" />
+                        <DxGridDataColumn FieldName="ItemNo" />
+                        <DxGridDataColumn FieldName="ItemName" Caption="Item Name" />
+                        <DxGridDataColumn FieldName="Description" />
+                        <DxGridDataColumn FieldName="PackSize" />
+                        <DxGridDataColumn FieldName="PlannedQty" />
+                        <DxGridDataColumn FieldName="Quantity" />
+                        <DxGridDataColumn FieldName="Uom" />
+                        <DxGridDataColumn FieldName="PerQuantity" />
+                        <DxGridDataColumn FieldName="PerQtyUom" />
+                        <DxGridDataColumn FieldName="BatchNo" />
+                        <DxGridDataColumn FieldName="StartingDate" Caption="Starting Date">
+                            <CellDisplayTemplate>
+                                @{
+                                    var item = (ProductionSimulation)context.DataItem;
+                                    var startDate = string.Empty;
+                                    if (item.StartingDate != DateTime.MinValue)
+                                    {
+                                        startDate = item.StartingDate.ToString("dd-MMM-yyyy");
+                                    }
+                                }
+                                @startDate
+                            </CellDisplayTemplate>
+                        </DxGridDataColumn>
+                        @* <DxGridCommandColumn Width="160px" Visible="false" />*@
+                    </Columns>
+
+                    <EditFormTemplate Context="EditFormContext">
+
+                        @{
+                            var types = (ProductionSimulation)EditFormContext.EditModel;
+
+                        }
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="ProductOderNo:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.ProdOrderNo" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Description:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.Description" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="ItemNo:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.ItemNo" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="ItemName:" ColSpanMd="4">
+                                <DxSpinEdit @bind-Value="@types.ItemId" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="PackSize:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.PackSize" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="UOM:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.Uom" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="PerQuantityUom:" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@types.PerQtyUom" ReadOnly="true" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Quantity:" ColSpanMd="4">
+                                <DxSpinEdit @bind-Value="@types.Quantity" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="EstimateSubmissionDate:" ColSpanMd="4">
+                                <DxDateEdit @bind-Date="@types.StartingDate" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="PerQuantity:" ColSpanMd="4">
+                                <DxSpinEdit @bind-Value="@types.PerQuantity" />
+                            </DxFormLayoutItem>
+
+                            <ValidationSummary />
+                        </DxFormLayout>
+                    </EditFormTemplate>
+                    <TotalSummary>
+                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProdOrderNo" />
+                    </TotalSummary>
+                </DxGrid>
+            </DxLoadingPanel>
+            <DxPopup @bind-Visible="@Blukdeletepopup"
+                     ShowFooter="true"
+                     HeaderText="CRT"
+                     Closed="EulaPopupClosed"
+                     Width="300px">
+                <BodyContentTemplate>
+                    <p>
+                        Do you want to delete
+                    </p>
+                </BodyContentTemplate>
+                <FooterContentTemplate Context="Context">
+                    <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+                    <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+                </FooterContentTemplate>
+            </DxPopup>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -205,15 +211,10 @@
     private List<ViewPlants> _plantItems;
     public ApplicationUser? applicationUser { get; private set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-
     void addEdit()
     {
-
         Grid.StartEditDataItemAsync(_selectedItems);
-
     }
-
-
     void addDelete()
     {
         Blukdeletepopup = true;
@@ -226,11 +227,9 @@
     {
         if (_selectedItems != null)
         {
-
-
             var request = new DeleteProductionSimulation(_selectedItems.ProductionSimulationId);
             await Mediator.Send(request);
-            await UpdateDataAsync();
+            await UpdateDataAsync(false);
             Grid.SetFocusedRowIndex(0);
             Blukdeletepopup = false;
         }
@@ -239,17 +238,22 @@
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(data);
-        PanelVisible = true;
-        _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        PanelVisible = false;
+        if (_plantItems != null && _plantItems.Count() > 0)
+        {
+            CurrentPlant = _plantItems.FirstOrDefault();
+            data.CompanyId = CurrentPlant?.PlantID;
+        }
+        await UpdateDataAsync(false);
         StateHasChanged();
     }
-    async Task UpdateDataAsync()
+    async Task UpdateDataAsync(bool? IsReresh)
     {
         PanelVisible = true;
-        _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery());
+        EditEnabled = false; DeleteEnabled = false;
+        _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery(data.CompanyId, IsReresh, applicationUser.UserID));
+
         PanelVisible = false;
         StateHasChanged();
     }
@@ -257,7 +261,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionSimulationId");
         _selectedItems = _productionsimulationgridLst.FirstOrDefault(f => f.ProductionSimulationId == (long?)UniqueId);
-
+        EditEnabled = true; DeleteEnabled = true;
         StateHasChanged();
 
     }
@@ -284,21 +288,29 @@
         if (PlantsData != null)
         {
             CurrentPlant = PlantsData;
-            data.CompanyId = PlantsData.CompanyID;
+            data.CompanyId = PlantsData.PlantID;
         }
-       
+        await UpdateDataAsync(false);
     }
-
+    async Task ExportToExcel()
+    {
+        if (Grid != null)
+        {
+            await Grid.ExportToXlsxAsync("ProductionSimulation", new GridXlExportOptions()
+            {
+            });
+        }
+    }
     async void ClosePopup()
     {
         //SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        await UpdateDataAsync();
+        await UpdateDataAsync(false);
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
-       // SelectedDataItems = null;
+        // SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
     }
@@ -306,12 +318,9 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (ProductionSimulation)e.EditModel;
-
         if (_selectedItems != null)
         {
-            
-        
-                var createReq = new EditProductionSimulation
+            var createReq = new EditProductionSimulation
                 {
                     ProductionSimulationId = _selectedItems.ProductionSimulationId,
                     Quantity = editModel.Quantity,
@@ -322,7 +331,6 @@
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-
                 };
 
             try
@@ -337,12 +345,15 @@
                 PopupVisible = true;
 
             }
-
-            await UpdateDataAsync();
-
-
+            await UpdateDataAsync(false);
         }
-
+    }
+    async void OnSyncData()
+    {
+        if (data.CompanyId > 0)
+        {
+            await UpdateDataAsync(true);
+        }
     }
     async void Onupload()
     {

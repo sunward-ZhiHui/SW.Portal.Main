@@ -461,6 +461,8 @@ else
                                 <DxFormLayout CssClass="w-100 ">
                                     <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                                        
+                                        @* <VoiceRecordingPage @ref=RefVoiceRec></VoiceRecordingPage> *@
                                         <div class="" style="overflow:auto; height: calc(100vh - 455px);">
                                             <DxUpload @ref="uploadComponent" Name="files"
                                             Visible="@AttachmentUploadVisible"
@@ -673,6 +675,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 </DxFlyout>
 
 @code {
+    private VoiceRecordingPage? RefVoiceRec { get; set; }    
     private async Task OnContentChanged()
     {
         await SetImagesWidthTo100();
@@ -2522,12 +2525,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                     GroupTag = CategoryData.GroupTag,
-                    //UserTag = CategoryData.UserTag,
+                //UserTag = CategoryData.UserTag,
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
                     ActionTagIds = CategoryData.ActionTagIds,
 
-                    //actName = CategoryData.Name,
+                //actName = CategoryData.Name,
                     actName = OthersTagName,
                     UserTag = UserTagName,
                     UserTagIds = CategoryData.UserTagIds,
@@ -2603,6 +2606,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         //onRestText();
                         await JSRuntime.InvokeAsync<string>("hideLoading");
                         isSending = false;
+                    }
+
+                    if (RefVoiceRec != null)
+                    {
+                        await RefVoiceRec.SendAllRecordings(createReq.SessionId,"Email",0);
                     }
 
 

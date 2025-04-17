@@ -848,7 +848,7 @@
 </DxPopup>
 <DxPopup @bind-Visible="@lockpopup"
          ShowFooter="true"
-         HeaderText="Lock"
+         HeaderText="@LockedName"
          ShowCloseButton="true"
          Closed="EulaPopupLockClosed"
          Width="300px">
@@ -2301,12 +2301,12 @@
 
                 if (dynamicFormData.IsLocked == true)
                 {
-                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
                     await loadDynamicForm();
                 }
                 else
                 {
-                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
                     await loadDynamicForm();
                 }
 

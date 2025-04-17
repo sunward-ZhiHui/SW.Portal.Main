@@ -82,7 +82,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="RegistrationRequestProgressByRegistrationDepartmentId" Visible="false" />
-            <DxGridDataColumn FieldName="ExpectedSubmissionDate" Caption="Expected Submission Date" MinWidth="40">
+            <DxGridDataColumn FieldName="ExpectedSubmissionDate" Caption="Actual Submission Date" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
                         var item = (RegistrationRequestProgressByRegistrationDepartment)context.DataItem;
@@ -204,7 +204,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <RegistrationRequestComittmentLetters applicationUser="@applicationUser" _registrationRequestData="@_selectedItems"></RegistrationRequestComittmentLetters>
+        <RegistrationRequestComittmentLetters  _registrationRequestDatas="@_registrationRequestData" applicationUser="@applicationUser" _registrationRequestData="@_selectedItems"></RegistrationRequestComittmentLetters>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
 
@@ -219,7 +219,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <RegistrationRequestQueriess applicationUser="@applicationUser" _registrationRequestData="@_selectedItems"></RegistrationRequestQueriess>
+        <RegistrationRequestQueriess  _registrationRequestDatas="@_registrationRequestData" applicationUser="@applicationUser" _registrationRequestData="@_selectedItems"></RegistrationRequestQueriess>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
 

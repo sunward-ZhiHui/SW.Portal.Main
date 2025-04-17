@@ -182,5 +182,13 @@ namespace Application.Queries
             this.RegistrationRequestDepartmentEmailCreate = registrationRequestDepartmentEmailCreate;
         }
     }
+    public class GetActivityEmailTopicsExits : PagedRequest, IRequest<ActivityEmailTopics>
+    {
+        public Guid? SessionId { get; set; }
+        public GetActivityEmailTopicsExits(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
     
 }

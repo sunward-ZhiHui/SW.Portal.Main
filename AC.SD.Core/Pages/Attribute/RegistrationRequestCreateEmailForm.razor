@@ -124,26 +124,123 @@
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                             <Columns>
                                 <DxGridDataColumn FieldName="RegistrationRequestAssignmentOfJobId" Visible="false" />
-                                <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
-                                <DxGridDataColumn FieldName="JobNo" Caption="No" MinWidth="40" />
-                                <DxGridDataColumn FieldName="DetailInforamtionByGuideline" Caption="Detail Inforamtion By Guideline" MinWidth="40" />
-                                <DxGridDataColumn FieldName="DetailRequirement" Caption="Detail Requirement" MinWidth="40" />
-                                <DxGridDataColumn FieldName="TargetDate" Caption="Target Date" MinWidth="40">
-                                    <CellDisplayTemplate Context="_editContext1">
-                                        @{
-                                            var item = (RegistrationRequestAssignmentOfJob)_editContext1.DataItem;
-                                            var startDate = string.Empty;
-                                            if (item.TargetDate != DateTime.MinValue)
-                                            {
-                                                if (item.TargetDate != null)
+                                
+                                @if (Type == "ComittmentLetter")
+                                {
+                                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="CommittmentDate" Caption="Committment Date" MinWidth="40">
+                                        <CellDisplayTemplate Context="context1">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)context1.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.CommittmentDate != DateTime.MinValue)
                                                 {
-                                                    startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
+                                                    if (item.CommittmentDate != null)
+                                                    {
+                                                        startDate = item.CommittmentDate.Value.ToString("dd-MMM-yyyy");
+                                                    }
                                                 }
                                             }
-                                        }
-                                        @startDate
-                                    </CellDisplayTemplate>
-                                </DxGridDataColumn>
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="CommitmentInformation" Caption="Commitment Information" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="CommitmentTime" Caption="Commitment Time" MinWidth="40">
+                                        <CellDisplayTemplate Context="context2">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)context2.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.CommitmentTime != DateTime.MinValue)
+                                                {
+                                                    if (item.CommitmentTime != null)
+                                                    {
+                                                        startDate = item.CommitmentTime.Value.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                            }
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="CommitmentStatus" Caption="Status" MinWidth="40" />
+                                }
+                                else if (Type == "AuthorityStatusForQuery")
+                                {
+                                    <DxGridDataColumn FieldName="DateOfQueries" Caption="Date Of Queries" MinWidth="40">
+                                        <CellDisplayTemplate Context="context1">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)context1.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.DateOfQueries != DateTime.MinValue)
+                                                {
+                                                    if (item.DateOfQueries != null)
+                                                    {
+                                                        startDate = item.DateOfQueries.Value.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                            }
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="Requirement" Caption="Requirement" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="Assignment" Caption="Assignment" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="DueDate" Caption="Authority Due Date" MinWidth="40">
+                                        <CellDisplayTemplate Context="context2">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)context2.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.DueDate != DateTime.MinValue)
+                                                {
+                                                    if (item.DueDate != null)
+                                                    {
+                                                        startDate = item.DueDate.Value.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                            }
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="DepartmentDueDate" Caption="Department Due Date" MinWidth="40">
+                                        <CellDisplayTemplate Context="context3">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)context3.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.DepartmentDueDate != DateTime.MinValue)
+                                                {
+                                                    if (item.DepartmentDueDate != null)
+                                                    {
+                                                        startDate = item.DepartmentDueDate.Value.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                            }
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="CommitmentStatus" Caption="Status" MinWidth="40" />
+                                }
+                                else
+                                {
+                                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="JobNo" Caption="No" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="DetailInforamtionByGuideline" Caption="Detail Inforamtion By Guideline" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="DetailRequirement" Caption="Detail Requirement" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="TargetDate" Caption="Target Date" MinWidth="40">
+                                        <CellDisplayTemplate Context="_editContext1">
+                                            @{
+                                                var item = (RegistrationRequestAssignmentOfJob)_editContext1.DataItem;
+                                                var startDate = string.Empty;
+                                                if (item.TargetDate != DateTime.MinValue)
+                                                {
+                                                    if (item.TargetDate != null)
+                                                    {
+                                                        startDate = item.TargetDate.Value.ToString("dd-MMM-yyyy");
+                                                    }
+                                                }
+                                            }
+                                            @startDate
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                }
                                 <DxGridCommandColumn Width="160px" Visible="false" />
                             </Columns>
 
@@ -299,6 +396,8 @@
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     [Parameter]
+    public string? Type { get; set; }
+    [Parameter]
     public Guid? DepartmentUniqueSessionId { get; set; }
     [Parameter]
     public RegistrationRequest _registrationRequestData { get; set; }
@@ -338,7 +437,7 @@
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         Data.From = applicationUser?.UserName;
         Data.FromId = applicationUser?.UserID;
-        Data.EmailCreateSessionId = DepartmentUniqueSessionId;
+        Data.EmailCreateSessionId = _registrationRequestData.SessionId;
         Data.MainSubjectName = "Reg - " + _registrationRequestData.RegistrationCountry + "-" + _registrationRequestData.ProductName + "-" + _registrationRequestData.VariationNoInfo;
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();

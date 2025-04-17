@@ -26,6 +26,8 @@ namespace Core.Entities
         [NotMapped]
         public string? AddedBy { get; set; }
         [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
         public string? ModifiedBy { get; set; }
     }
     public class RegistrationRequestComittmentLetter
@@ -48,6 +50,9 @@ namespace Core.Entities
         public string? AddedBy { get; set; }
         [NotMapped]
         public string? ModifiedBy { get; set; }
+        public bool IsCommitmentDate { get; set; } = false;
+        [NotMapped]
+        public string? StatusCode { get; set; }
     }
     public class RegistrationRequestQueries
     {
@@ -67,5 +72,17 @@ namespace Core.Entities
         public string? AddedBy { get; set; }
         [NotMapped]
         public string? ModifiedBy { get; set; }
+        public DateTime? DepartmentDueDate { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
+        public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
+    }
+    public class RegistrationRequestQueriesAuthority
+    {
+        [Key]
+        public long RegistrationRequestQueriesAuthorityId { get; set; }
+        public long? RegistrationRequestQueriesId { get; set; }
+        public long? UserId { get; set; }
     }
 }

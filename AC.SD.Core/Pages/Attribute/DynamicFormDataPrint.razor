@@ -138,13 +138,13 @@
                             }
                         }
                         query += "<div class=\"subFormTable\" style=\"display: block; page-break-after:always;\">";
-                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
                         query += "<tr>";
                         query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + byNames["Name"] + "</th>";
                         query += "</tr>";
                         query += "</table>";
                         query += "<tr>";
-                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
                         query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
                         query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + byNames["ProfileNo"] + "</td>";
                         query += "</tr>";
@@ -162,7 +162,7 @@
                         {
                             _AttributeHeader.DynamicFormSection.ForEach(s =>
         {
-            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
             query += "<tr>";
             query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
             query += "</tr>";
@@ -171,7 +171,7 @@
             if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
             {
                 var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
                 dynamicFormSectionAttribute.ForEach(a =>
             {
                             var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
@@ -263,13 +263,13 @@
         if (_dynamicForm != null)
         {
             query = string.Empty;
-            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
             query += "<tr>";
             query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
             query += "</tr>";
             query += "</table>";
             query += "<tr>";
-            query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
             query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
             query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.ProfileNo : "") + "</td>";
             query += "</tr>";
@@ -286,7 +286,7 @@
             {
                 _AttributeHeader.DynamicFormSection.ForEach(s =>
                 {
-                    query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                    query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
                     query += "<tr>";
                     query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
                     query += "</tr>";
@@ -295,7 +295,7 @@
                     if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
                     {
                         var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                        query += "<table style=\"font-family:arial,sans-serif;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
                         dynamicFormSectionAttribute.ForEach(a =>
     {
         var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();

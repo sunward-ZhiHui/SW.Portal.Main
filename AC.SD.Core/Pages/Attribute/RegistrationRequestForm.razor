@@ -753,6 +753,11 @@
                         {
                             variationRequirementInformationModel.DepartmentId = (long?)item.Value;
                         }
+                        if (item.Key == "12051_Attr")
+                        {
+                            variationRequirementInformationModel.DetailInformationByGuideline = (string?)item.Value;
+                            //variationRequirementInformationModel.DetailInformationByGuideline = "Test";
+                        }
                     }
                     if (!string.IsNullOrEmpty(variationRequirementInformationModel.DescriptionName))
                     {
@@ -790,6 +795,20 @@
             objectNameList.AddRange(VariationRequirementInformationModels.Where(w => w.DescriptionName != null).Select(s => s.DetailRequirementId).ToList());
             MyClassBuilder MCB = new MyClassBuilder("VariationForm");
             Data.ObjectData = MCB.CreateObject(objectNameList.ToArray(), typesList.ToArray());
+        }
+        if (VariationRequirementInformationModels != null && VariationRequirementInformationModels.Count() > 0)
+        {
+
+            VariationRequirementInformationModels.ForEach(a =>
+            {
+                if (Data.ObjectData != null && !string.IsNullOrEmpty(a.DynamicFormDataNameId))
+                {
+                    if (Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId) != null)
+                    {
+                        Data.ObjectData.GetType().GetProperty(a.DynamicFormDataNameId).SetValue(Data.ObjectData, a.DetailInformationByGuideline);
+                    }
+                }
+            });
         }
         if (RegistrationRequestVariationForm != null && RegistrationRequestVariationForm.Count() > 0)
         {

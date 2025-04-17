@@ -117,6 +117,61 @@ Text="Fetching Data...">
                     </DxComboBox>
                     <DxSpinEdit   @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.GroupTag)" />
+
+
+                    @* <DxComboBox Data="@_groupTagItems"
+                                NullText="Select Group..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Value="@selectGroupItems"
+                                ValueExpression="@(() => selectGroupItems )"
+                                ValueChanged="@((ApplicationMasterChildModel model) => selectedGroupTagChanged(model))"
+                                ShowValidationIcon="true">
+
+                        <ItemTemplate Context="data">
+                            <div style="display: flex; justify-content: space-between; width: 100%;">
+                                <span>@data.Value</span>
+                                <span style="color: gray;">@data.Description</span>
+                            </div>
+                        </ItemTemplate>
+                    </DxComboBox> *@
+
+
+
+                
+
+@* 
+                    <DxDropDownBox @bind-Value="GroupValue"
+                    QueryDisplayText="QueryGroupText"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select Group"
+                    Enabled="@isEnabled"
+                    ShowValidationIcon="true">
+                        <DropDownBodyTemplate Context="ddbBodyContext">
+                            <DxGrid Data="@_groupTagItems"
+                            KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                            HighlightRowOnHover="true"
+                            SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                            SelectionMode="GridSelectionMode.Single"
+                            AllowSelectRowByClick="true"
+                            FocusedRowEnabled="true"
+                            TextWrapEnabled="false"
+                            CssClass="templateGrid"
+                            style="height: calc(100vh - 500px);"                          
+                            SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ApplicationMasterChildModel)"                           
+                            SelectedDataItemChanged="item => GridSelectedDataGroupTagItemChanged(item, ddbBodyContext.DropDownBox)">
+                                <Columns>                                    
+                                    <DxGridDataColumn FieldName="Value" />
+                                </Columns>
+                            </DxGrid>
+                        </DropDownBodyTemplate>
+                    </DxDropDownBox>
+                    <DxSpinEdit @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
+                    <ValidationMessage For="@(() => types.GroupTag)" /> *@
+
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Category" ColSpanMd="6">
@@ -271,7 +326,7 @@ Width="300px">
     private EmailActivityCatgorys _currentEditModel;
     string Name;
     object ActionValue { get; set; }
-
+    object GroupValue { get; set; }
 
     string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
     {        
@@ -313,8 +368,64 @@ Width="300px">
         dropDownBox.BeginUpdate();
         dropDownBox.Value = selectedAllItems;
         dropDownBox.EndUpdate();
-       
+
     }
+
+    string? QueryGroupText(DropDownBoxQueryDisplayTextContext arg)
+    {      
+        string? returnData = string.Empty;
+        if (arg.Value is ApplicationMasterChildModel value)
+        {
+            if (value != null)
+            {
+                _currentEditModel.GroupTag = value.ApplicationMasterChildId;
+                returnData = value?.Value;
+            }
+        }
+        InvokeAsync(SelectedItemGroupTagChanged);
+        return returnData;
+
+
+
+    }
+    async Task SelectedItemGroupTagChanged()
+    {
+        await SelectedItemChanged(_currentEditModel.GroupTag);
+    }
+    async Task SelectedItemChanged(long? GroupTag)
+    {
+        //_divisionItems = new List<ViewDivision>();
+        //_departmentItems = new List<ViewDepartment>();
+        //_sectionItems = new List<ViewSection>();
+        //_subSectionItems = new List<ViewSubSection>();
+        if (GroupTag > 0)
+        {
+            await CategoryTagChange(GroupTag);
+        }
+    }
+
+    async Task GridSelectedDataGroupTagItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            GroupValue = item as ApplicationMasterChildModel;
+            selectGroupItems = GroupValue as ApplicationMasterChildModel;
+
+            if (selectGroupItems != null)
+            {
+                await GroupTagChanged(selectGroupItems.ApplicationMasterChildId, 1);
+            }
+
+        }
+        else
+        {
+            await GroupTagChanged(-1);
+            await CategoryTagChange(-1);
+        }
+        dropDownBox.HideDropDown();
+
+    }
+
     async Task selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
 
@@ -399,7 +510,7 @@ Width="300px">
             }
 
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));      
-            
+
             ActionValue = _actionTagItems
               .Where(x => _currentEditModel.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
               .ToList();
@@ -594,7 +705,7 @@ Width="300px">
                         CategoryTag = editModel.CategoryTag,
                         ActionTag = editModel.ActionTag,
                         ActionTagIds = editModel.ActionTagIds,
-                        //Name = editModel.Name,
+                    //Name = editModel.Name,
                         Name = othersTagName,
                         TopicId = TopicId,
                         Description = editModel.Description,
@@ -632,7 +743,7 @@ Width="300px">
                     {
                         ID = editModel.ID,
                         TopicId = TopicId,
-                        //Name = editModel.Name,
+                    //Name = editModel.Name,
                         Name = othersTagName,
                         GroupTag = editModel.GroupTag,
                         CategoryTag = editModel.CategoryTag,
@@ -687,7 +798,7 @@ Width="300px">
 
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
+    { 
         _currentEditModel = (EmailActivityCatgorys)e.EditModel;
 
         if (e.IsNew)
@@ -711,7 +822,14 @@ Width="300px">
             {
                 isEnabled = false;
             }
-            
+
+
+            if(editModel.GroupTag != null || editModel.GroupTag > 0)
+            {
+                GroupValue = _groupTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == editModel.GroupTag);
+                 selectGroupItems = GroupValue as ApplicationMasterChildModel;
+
+            }
 
             await GroupTagChanged(editModel.GroupTag);            
             await CategoryTagChange(editModel.CategoryTag);

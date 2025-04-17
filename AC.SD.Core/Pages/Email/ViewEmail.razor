@@ -1039,7 +1039,7 @@
                                                                     <div class="uk-card-footer">
                                                                         <div>
                                                                             <div class="">
-                                                                                @foreach (var attachment in item.documents)
+                                                                           @*   @foreach (var attachment in item.documents)
                                                                                 {
                                                                                     <div class="tag handline">
                                                                                         <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
@@ -1051,13 +1051,54 @@
                                                                                             </div>
                                                                                         }
                                                                                     </div>
+                                                                                } *@
+
+                                                                                @foreach (var attachment in item.documents)
+                                                                                {
+                                                                                    <div class="tag handline">
+                                                                                        <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                                                        @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                                                        {
+                                                                                            <div class="options">
+                                                                                                <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                                                                    <i class="fa fa-play" aria-hidden="true"></i>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        }
+                                                                                        else if (attachment.IsView)
+                                                                                        {
+                                                                                            <div class="options">
+                                                                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                </div>
+                                                                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        }
+                                                                                    </div>
                                                                                 }
+
+
+
+
+
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 }
 
                                                             </div>
+
+                                                            <AudioPlayerModal AudioSource="@audioBase64Source"
+                                                                              DocumentId="@currentAudioId"
+                                                                              IsVisible="@isAudioPopupVisible"
+                                                                              IsVisibleChanged="@(v => isAudioPopupVisible = v)"
+                                                                              OnClosed="ResetAudioPlayer" />
+
+
+
 
                                                             @*  @if (item.ReplyConversationCount.Count() > 0) *@ 
 
@@ -1167,7 +1208,7 @@
                                                                                         }
                                                                                         @if (items.documents != null && items.documents.Any())
                                                                                         {
-                                                                                            @foreach (var attachment in items.documents)
+                                                                                          @*   @foreach (var attachment in items.documents)
                                                                                             {
                                                                                                 <div class="tag handline">
                                                                                                     <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
@@ -1176,7 +1217,38 @@
                                                                                                         <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
                                                                                                     </div>
                                                                                                 </div>
+                                                                                            } *@
+
+
+                                                                                            @foreach (var attachment in items.documents)
+                                                                                            {
+                                                                                                <div class="tag handline">
+                                                                                                    <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                                                                    @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                                                                    {
+                                                                                                        <div class="options">
+                                                                                                            <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    }
+                                                                                                    else if (attachment.IsView)
+                                                                                                    {
+                                                                                                        <div class="options">
+                                                                                                            <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                                <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                            </div>
+                                                                                                            <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    }
+                                                                                                </div>
                                                                                             }
+
+
+
                                                                                         }
                                                                                     </div>
 
@@ -1505,30 +1577,7 @@
                                                                                         <div style="display:flex;" class="attmode">
                                                                                             <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
                                                                                             @* <div @onclick="() => ToggleRecording()" class="fa fa-microphone handline" CssClass="record-button"></div> *@
-                                                                                            @if (IsRecording)
-                                                                                            {
-                                                                                                <p>Recording... Press the button again to stop.</p>
-                                                                                            }
-
-                                                                                            @if (Recordings.Any())
-                                                                                            {                                                                                               
-                                                                                                <ul>
-                                                                                                    @foreach (var recording in Recordings)
-                                                                                                    {
-                                                                                                        <li style="list-style: none;">
-                                                                                                            <audio controls>
-                                                                                                                <source src="@GetAudioUrl(recording)" type="audio/wav">
-                                                                                                                Your browser does not support the audio element.
-                                                                                                            </audio>
-
-                                                                                                            <DxButton Text="Delete" Click="() => DeleteRecording(recording.Id)" CssClass="delete-button" /> 
-                                                                                                        </li>
-                                                                                                    }
-                                                                                                </ul>
-
-                                                                                                @*  <DxButton Text="Send All" Click="@SendAllRecordings" CssClass="send-all-button" /> *@
-                                                                                            }
-
+                                                                                            <VoiceRecordingPage @ref=RefVoiceRec ></VoiceRecordingPage>
 
 
                                                                                             <div class="">
@@ -2402,149 +2451,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 </DxFlyout>
 
 
-@code {
-    private bool IsRecording { get; set; }
-    private string ButtonText => IsRecording ? "Stop Recording" : "Start Recording";
-    private List<Recording> Recordings { get; set; } = new();
-    private HttpClient _httpClient = new HttpClient();
-
-    private string GetAudioUrl(Recording recording)
-    {
-        if (recording.FileData == null || recording.FileData.Length == 0)
-            return "";
-
-        var base64 = Convert.ToBase64String(recording.FileData);
-        return $"data:audio/wav;base64,{base64}";
-    }
-    private async Task ToggleRecording()
-    {
-        if (IsRecording)
-        {
-            await StopRecording();
-        }
-        else
-        {
-            await StartRecording();
-        }
-    }
-
-    private async Task StartRecording()
-    {
-        IsRecording = true;
-        await JSRuntime.InvokeVoidAsync("startVoiceRecording");
-    }
-
-    private async Task StopRecording()
-    {
-        IsRecording = false;
-
-        var recordingUrl = await JSRuntime.InvokeAsync<string>("stopVoiceRecording");
-
-        if (string.IsNullOrEmpty(recordingUrl))
-        {
-            //toastService.ShowError("Failed to fetch recording.");
-            return;
-        }
-
-        try
-        {
-            var fileStreamRef = await JSRuntime.InvokeAsync<IJSStreamReference>("fetchFile", recordingUrl);
-            var fileName = $"recording_{Guid.NewGuid()}.wav";
-
-            using var stream = await fileStreamRef.OpenReadStreamAsync();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-
-            var recording = new Recording
-                {
-                    Id = Guid.NewGuid(),
-                    FileName = fileName,
-                    FileData = memoryStream.ToArray() // Store as byte array
-                };
-
-            Recordings.Add(recording);
-        }
-        catch (Exception ex)
-        {
-            //toastService.ShowError($"Error fetching recording: {ex.Message}");
-        }
-    }
-
-    private async Task SendAllRecordings(Guid? sessionId)
-    {
-        if (!Recordings.Any())
-        {
-            //toastService.ShowWarning("No recordings to send.");
-            return;
-        }
-
-        try
-        {
-            var fileContent = new MultipartFormDataContent();
-            //var sessionId = Guid.Parse("D39A69E7-2909-4408-B316-D065F027748A");
-            var addedByUserId = 1; // Assign actual user ID
-            var isFileSession = true;
-            var sourceFrom = "Email";
-            var fileProfileId = 0; // Assign actual profile ID
-
-            foreach (var recording in Recordings)
-            {
-                if (recording.FileData == null || recording.FileData.Length == 0)
-                    continue;
-
-                var byteArrayContent = new ByteArrayContent(recording.FileData);
-                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
-
-                fileContent.Add(byteArrayContent, "files", recording.FileName);
-            }
-
-            // Add additional parameters
-            fileContent.Add(new StringContent(sessionId.ToString()), "SessionId");
-            fileContent.Add(new StringContent(addedByUserId.ToString()), "addedByUserId");
-            fileContent.Add(new StringContent(isFileSession.ToString()), "IsFileSession");
-            fileContent.Add(new StringContent(sourceFrom), "SourceFrom");
-            fileContent.Add(new StringContent(fileProfileId.ToString()), "FileProfileId");
-
-            var response = await _httpClient.PostAsync("https://localhost:44300/api/FileUpload/upload-multiple", fileContent);
-
-            if (response.IsSuccessStatusCode)
-            {
-                //toastService.ShowSuccess("All recordings sent successfully.");
-                Recordings.Clear(); // Clear after successful upload
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                //toastService.ShowError($"Failed to send recordings. Server response: {errorMessage}");
-            }
-        }
-        catch (Exception ex)
-        {
-            //toastService.ShowError($"Error: {ex.Message}");
-        }
-    }
-
-    private void DeleteRecording(Guid id)
-    {
-        var recording = Recordings.FirstOrDefault(r => r.Id == id);
-        if (recording != null)
-        {
-            Recordings.Remove(recording);
-        }
-    }
-
-    private class Recording
-    {
-        public Guid Id { get; set; }
-        public string FileName { get; set; }
-        public byte[] FileData { get; set; }
-    }
-
-
-
-
-
-
+@code {  
+    private VoiceRecordingPage? RefVoiceRec { get; set; }
     internal List<EmailTopics>? _CopyLinkList;
     bool IsInfoOpen { get; set; } = false;
     void ToggleInfo()
@@ -5433,6 +5341,41 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         }
 
     }
+    private string? audioBase64Source;
+    private bool isAudioPopupVisible = false;
+    private long? currentAudioId = null;
+
+    public async Task onPlayAudio(long documentId)
+    {
+        // Close and reset if same audio clicked again
+        if (currentAudioId == documentId && isAudioPopupVisible)
+        {
+            await ResetAudioPlayer();
+            return;
+        }
+
+        // Close any other popups here if needed
+        // e.g. isAnotherPopupOpen = false;
+
+        var response = await Mediator.Send(new GetFileDownload(documentId));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("Audio not found", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        audioBase64Source = $"data:audio/wav;base64,{Convert.ToBase64String(response.ImageData)}";
+        currentAudioId = documentId;
+        isAudioPopupVisible = true;
+    }
+
+    private Task ResetAudioPlayer()
+    {
+        isAudioPopupVisible = false;
+        audioBase64Source = null;
+        currentAudioId = null;
+        return Task.CompletedTask;
+    }
     public async Task onDocDownload_old(long Id)
     {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
@@ -7499,7 +7442,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 //uploadUrl = GetUploadUrl();           
                 //uploadComponent.UploadAllFiles();
 
-                await SendAllRecordings(_sessionId);
+                //await SendAllRecordings(_sessionId);
+                 if (RefVoiceRec != null)
+                    {
+                        await RefVoiceRec.SendAllRecordings(_sessionId,"Email",0);
+                    }
 
                 if(SelectedFilesCount > 0)
                 {

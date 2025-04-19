@@ -26,12 +26,14 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Core.EntityModels;
 using Infrastructure.Data;
 using Google.Cloud.Firestore;
+using System.Data.SqlClient;
 
 namespace Infrastructure.Repository.Query
 {
     public class EmailConversationsQueryRepository : DbConnector, IEmailConversationsQueryRepository
     {
         private readonly IFileprofileQueryRepository _fileprofiletypeQueryRepository;
+
 
         public EmailConversationsQueryRepository(IConfiguration configuration, IFileprofileQueryRepository fileprofiletypeQueryRepository)
             : base(configuration)
@@ -1365,8 +1367,117 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }       
+      
+        public async Task<List<EmailConversations>> GetReplyListPaged(long replyId, long userId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = @"
+            SELECT 
+                FC.Name, FC.ID, FC.AddedDate, 
+                CONCAT(AU.FirstName, '-', AU.NickName) AS UserName, 
+                AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData, 
+                EN.IsRead, EN.ID AS EmailNotificationId, 
+                ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType,
+                ECL.EmailConversationsId AS CopyLinkEmailIds
+            FROM EmailConversations FC
+            INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
+            LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+            LEFT JOIN (
+                SELECT DISTINCT EmailConversationsId FROM EmailCopyLink
+            ) ECL ON ECL.EmailConversationsId = FC.ID
+            WHERE FC.ReplyId = @ReplyId
+            ORDER BY FC.AddedDate DESC
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                using (var connection = CreateConnection())
+                {
+                    int offset = (pageNumber - 1) * pageSize;
+
+                    var result = (await connection.QueryAsync<EmailConversations>(
+                        query,
+                        new { UserId = userId, ReplyId = replyId, PageSize = pageSize, Offset = offset },
+                        commandTimeout: 180 
+                    )).ToList();
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching replies: {ex.Message}", ex);
+            }
         }
 
+        public async Task<List<EmailConversations>> GetReplyListPaged1(long replyId, long userId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = @"SELECT FC.Name, FC.ID, FC.AddedDate, CONCAT(AU.FirstName, '-', AU.NickName) AS UserName, 
+                                AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData, EN.IsRead, 
+                                EN.ID AS EmailNotificationId, ISNULL(FC.IsMobile, 0) AS IsMobile, 
+                                FC.UserType, ECL.EmailConversationsId AS CopyLinkEmailIds
+                                FROM EmailConversations FC
+                                INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
+                                LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                OUTER APPLY(SELECT DISTINCT EmailConversationsId FROM EmailCopyLink WHERE EmailConversationsId = FC.ID) ECL
+                                WHERE FC.ReplyId = @ReplyId
+                                ORDER BY FC.AddedDate DESC
+                                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                using (var connection = CreateConnection())
+                {
+                    int offset = (pageNumber - 1) * pageSize;
+
+                    var result = (await connection.QueryAsync<EmailConversations>(query,
+                        new { UserId = userId, ReplyId = replyId, PageSize = pageSize, Offset = offset })).ToList();
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<List<EmailConversations>> GetReplyListPagedAsync(long ReplyId, long UserId,int currentPage,int pageSize)
+        {
+
+            try
+            {
+                var res = new List<EmailConversations>();
+                res = await GetReplyListPaged(ReplyId, UserId,currentPage,pageSize);
+
+
+                if (res != null && res.Count > 0)
+                {
+
+                    await Task.WhenAll(res.Select(async topic =>
+                    {
+                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {
+
+                        }
+
+                    }));
+
+                }
+                return res;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversations>> GetOnDiscussionListAsync(long ReplyId, long UserId)
         {
 
@@ -1792,7 +1903,104 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<List<EmailConversations>> GetonReplyList(long replyId, long UserId)
+        public async Task<byte[]> GetFileDataAsync(long conversationId)
+        {
+            // Using streaming for large file data
+            using (var connection = new SqlConnection(GetConnectionString()))
+            using (var command = new SqlCommand("SELECT FileData FROM EmailConversations WHERE ID = @Id", connection))
+            {
+                command.Parameters.AddWithValue("@Id", conversationId);
+                command.CommandTimeout = 120;
+
+                await connection.OpenAsync();
+
+                using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess))
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        const int bufferSize = 8192;
+                        byte[] buffer = new byte[bufferSize];
+                        long fieldOffset = 0;
+                        long bytesRead;
+
+                        using (var ms = new MemoryStream())
+                        {
+                            while ((bytesRead = reader.GetBytes(0, fieldOffset, buffer, 0, buffer.Length)) > 0)
+                            {
+                                ms.Write(buffer, 0, (int)bytesRead);
+                                fieldOffset += bytesRead;
+                            }
+
+                            return ms.ToArray();
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<byte[]> GetFileDataAsync1(long conversationId)
+        {
+            const string query = "SELECT FileData FROM EmailConversations WHERE ID = @Id";
+
+            using (var connection = CreateConnection()) // IDbConnection is fine
+            {
+                var command = new CommandDefinition(
+                    commandText: query,
+                    parameters: new { Id = conversationId },
+                    commandTimeout: 120 // timeout in seconds
+                );
+
+                return await connection.QueryFirstOrDefaultAsync<byte[]>(command);
+            }
+        }
+
+        public async Task<byte[]> GetFileDataAsyncold(long conversationId)
+        {
+            const string query = "SELECT FileData FROM EmailConversations WHERE ID = @Id";
+
+            using (var connection = CreateConnection())
+            {
+                return await connection.QueryFirstOrDefaultAsync<byte[]>(query, new { Id = conversationId });
+            }
+        }
+
+        private async Task<List<EmailConversations>> GetonReplyList(long replyId, long userId)
+        {
+            try
+            {
+                var query = @"
+        SELECT 
+            FC.Name, FC.ID, FC.AddedDate, CONCAT(AU.FirstName, '-', AU.NickName) as UserName, 
+            AU.UserID, FC.ReplyId, FC.SessionId,
+            EN.IsRead, EN.ID as EmailNotificationId, 
+            ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType,
+            ECL.EmailConversationsId AS CopyLinkEmailIds
+        FROM EmailConversations FC
+        INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
+        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+        OUTER APPLY (
+            SELECT DISTINCT EmailConversationsId 
+            FROM EmailCopyLink 
+            WHERE EmailConversationsId = FC.ID
+        ) ECL
+        WHERE FC.ReplyId = @ReplyId
+        ORDER BY FC.AddedDate DESC";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<EmailConversations>(query, new { UserId = userId, ReplyId = replyId })).ToList();
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        private async Task<List<EmailConversations>> GetonReplyListold(long replyId, long UserId)
         {
             try
             {

@@ -480,7 +480,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("filterFrom", emailSearch.FilterFrom);
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("UnArchive", emailSearch.UnArchive);
+                        parameters.Add("IsStatus", emailSearch.IsStatus);
                         parameters.Add("IsClose", emailSearch.IsClose);
+                        parameters.Add("IsOpenandClose", emailSearch.IsOpenandClose);
                         parameters.Add("SubjectFiltersJson", JsonConvert.SerializeObject(emailSearch.SubjectFilters));
                         parameters.Add("SubjectFilterSQL", emailSearch.SubjectFilterSQL);
                         parameters.Add("Option", "SELECT");

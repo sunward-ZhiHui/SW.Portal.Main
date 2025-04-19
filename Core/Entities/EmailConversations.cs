@@ -60,7 +60,7 @@ namespace Core.Entities
         [NotMapped]
         public List<EmailAssignToList>? AssignCCList { get; set; }
         [NotMapped]
-        public long? UserId { get; set; }
+        public long? UserId { get; set; }       
         [NotMapped]
         public string From { get; set; }
         [NotMapped]

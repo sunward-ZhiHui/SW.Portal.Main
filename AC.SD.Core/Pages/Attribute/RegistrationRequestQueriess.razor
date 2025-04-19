@@ -26,6 +26,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@EditEnabled" />
+                <DxMenuItem Text="View Email" IconCssClass="fa fa-eye" Click="@addDetailEmailView" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -82,6 +83,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="RegistrationRequestQueriesId" Visible="false" />
+            <DxGridDataColumn FieldName="IsEmailCreate" Caption="Is Email Create" MinWidth="40" />
             <DxGridDataColumn FieldName="DateOfQueries" Caption="Date Of Queries" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
@@ -549,11 +551,11 @@
         EmailAddpopupForm = false;
         StateHasChanged();
     }
-    async Task addDetailEmailCreate()
+    async Task addDetailEmailView()
     {
         if (_selectedItems != null)
         {
-            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_selectedItems.SessionId));
+            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_registrationRequestData.SessionId));
             if (_selectedItemsDAta != null)
             {
                 if (_selectedItemsDAta.IsDraft == true)
@@ -568,25 +570,24 @@
                 }
                 if (_selectedItemsDAta.IsDraft == null)
                 {
-                    _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
-                    RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
-                    registrationRequestAssignmentOfJob.DateOfQueries = _selectedItems.DateOfQueries;
-                    registrationRequestAssignmentOfJob.Requirement = _selectedItems.Requirement;
-                    registrationRequestAssignmentOfJob.IsEmailCreateDone = true;
-                    registrationRequestAssignmentOfJob.Assignment = _selectedItems.Assignment;
-                    registrationRequestAssignmentOfJob.CommitmentStatus = _selectedItems.StatusCode;
-                    registrationRequestAssignmentOfJob.Type = "AuthorityStatusForQuery";
-                    registrationRequestAssignmentOfJob.DueDate = _selectedItems.DueDate;
-                    registrationRequestAssignmentOfJob.DepartmentDueDate = _selectedItems.DepartmentDueDate;
-                    registrationRequestAssignmentOfJob.DepartmentUniqueSessionId = _selectedItems.SessionId;
-                    _dynamicFormSectionDatas.Add(registrationRequestAssignmentOfJob);
-                    EmailAddpopupForm = true;
+                    await addDetailEmailCreate();
                 }
             }
             else
             {
+                await addDetailEmailCreate();
+            }
+        }
+    }
+    async Task addDetailEmailCreate()
+    {
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsEmailCreate == false)
+            {
                 _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
                 RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
+                registrationRequestAssignmentOfJob.RegistrationRequestAssignmentOfJobId = _selectedItems.RegistrationRequestQueriesId;
                 registrationRequestAssignmentOfJob.DateOfQueries = _selectedItems.DateOfQueries;
                 registrationRequestAssignmentOfJob.Requirement = _selectedItems.Requirement;
                 registrationRequestAssignmentOfJob.IsEmailCreateDone = true;
@@ -598,6 +599,7 @@
                 registrationRequestAssignmentOfJob.DepartmentUniqueSessionId = _selectedItems.SessionId;
                 _dynamicFormSectionDatas.Add(registrationRequestAssignmentOfJob);
                 EmailAddpopupForm = true;
+
             }
         }
     }

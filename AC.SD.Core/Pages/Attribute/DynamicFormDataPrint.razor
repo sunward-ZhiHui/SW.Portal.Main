@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                            font-family: arial, sans-serif;
-                                                                                                                            border-collapse: collapse;
-                                                                                                                            width: 100%;
-                                                                                                                        }
+                                                                                                                                                    font-family: arial, sans-serif;
+                                                                                                                                                    border-collapse: collapse;
+                                                                                                                                                    width: 100%;
+                                                                                                                                                }
 
-                                                                                                                        th {
-                                                                                                                            border: 1px solid;
-                                                                                                                            padding: 8px;
-                                                                                                                            font-weight: bold;
+                                                                                                                                                th {
+                                                                                                                                                    border: 1px solid;
+                                                                                                                                                    padding: 8px;
+                                                                                                                                                    font-weight: bold;
 
 
-                                                                                                                        }
+                                                                                                                                                }
 
-                                                                                                                        td {
-                                                                                                                            border: 1px solid;
-                                                                                                                            padding: 8px;
+                                                                                                                                                td {
+                                                                                                                                                    border: 1px solid;
+                                                                                                                                                    padding: 8px;
 
-                                                                                                                        } */
+                                                                                                                                                } */
 
     /* tr:nth-child(even) {
-                                                                                                                                background-color: #dddddd;
-                                                                                                                            } */
+                                                                                                                                                        background-color: #dddddd;
+                                                                                                                                                    } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -138,13 +138,13 @@
                             }
                         }
                         query += "<div class=\"subFormTable\" style=\"display: block; page-break-after:always;\">";
-                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                         query += "<tr>";
-                        query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + byNames["Name"] + "</th>";
+                        query += "<th width=\"100%\" style=\"text-align:center;font-size:12px; border:1px solid;padding:8px;font-weight:bold;\">" + byNames["Name"] + "</th>";
                         query += "</tr>";
                         query += "</table>";
                         query += "<tr>";
-                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                         query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
                         query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + byNames["ProfileNo"] + "</td>";
                         query += "</tr>";
@@ -162,7 +162,7 @@
                         {
                             _AttributeHeader.DynamicFormSection.ForEach(s =>
         {
-            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
             query += "<tr>";
             query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
             query += "</tr>";
@@ -171,7 +171,7 @@
             if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
             {
                 var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+                query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                 dynamicFormSectionAttribute.ForEach(a =>
             {
                             var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
@@ -240,9 +240,29 @@
                             query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
                             query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
                             query += "</tr>";
-                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
-                        });
+                            if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                            {
+    long? idData = null;
+    if (byName.ContainsKey(b.Value + "_Id"))
+    {
+        idData = (long?)byName[b.Value + "_Id"];
+        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+    }
+
                             }
+                            if (a.ControlType == "CheckBox")
+                            {
+    bool? values = valueData == null ? false : (bool)valueData;
+    if (values == true)
+    {
+        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+    }
+
+
+                            }
+                                });
+                            }
+                            
                         });
                 query += "</table>";
             }
@@ -263,13 +283,13 @@
         if (_dynamicForm != null)
         {
             query = string.Empty;
-            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
             query += "<tr>";
-            query += "<th width=\"100%\" style=\"text-align:center;font-size:25px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
+            query += "<th width=\"100%\" style=\"text-align:center;font-size:12px; border:1px solid;padding:8px;font-weight:bold;\">" + _dynamicForm?.Name + "</th>";
             query += "</tr>";
             query += "</table>";
             query += "<tr>";
-            query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+            query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
             query += "<th width=\"30%\" style=\"text-align:left;border: 1px solid;padding:8px;font-weight:bold;\">Profile No</th>";
             query += "<td width=\"70%\" style=\"border:1px solid;padding: 8px;\">" + (_dynamicformDataList != null ? _dynamicformDataList[0]?.ProfileNo : "") + "</td>";
             query += "</tr>";
@@ -286,7 +306,7 @@
             {
                 _AttributeHeader.DynamicFormSection.ForEach(s =>
                 {
-                    query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+                    query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                     query += "<tr>";
                     query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
                     query += "</tr>";
@@ -295,10 +315,10 @@
                     if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
                     {
                         var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                        query += "<table style=\"font-family:Times New Roman;font-size:25px;border-collapse:collapse;width:100%;\">";
+                        query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                         dynamicFormSectionAttribute.ForEach(a =>
     {
-        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm==false).ToList();
         if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
         {
             dataColumnNamesList.ForEach(b =>
@@ -364,8 +384,27 @@
                             query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
                             query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
                             query += "</tr>";
-                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId);
-                        });
+                if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                {
+                    long? idData = null;
+                    if (byName.ContainsKey(b.Value + "_Id"))
+                    {
+                        idData = (long?)byName[b.Value + "_Id"];
+                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+                    }
+                    
+                }
+                            if (a.ControlType == "CheckBox")
+                            {
+                                bool? values = valueData == null ? false : (bool)valueData;
+    if (values == true)
+    {
+                                query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+    }
+                                
+
+                            }
+            });
         }
     });
                         query += "</table>";
@@ -483,10 +522,14 @@
 
         return columns;
     }
-    string loadSubFormHtml(long dynamicFormSectionAttributeId)
+    string loadSubFormHtml(long dynamicFormSectionAttributeId, long? idData)
     {
         string subQuery = string.Empty;
-        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == dynamicFormSectionAttributeId && w.IsSubForm == true).ToList();
+        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == dynamicFormSectionAttributeId && w.IsSubForm == true && w.AttributeDetailID == idData).ToList();
+        if(idData==0)
+        {
+            dataColumnNamesList = dataColumnNames.Where(w => w.Id == dynamicFormSectionAttributeId && w.IsSubForm == true).ToList();
+        }
         if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
         {
             dataColumnNamesList.ForEach(b =>
@@ -648,21 +691,22 @@
                             _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
                             _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                             {
+
                                 if (a.DataSourceTable == "ApplicationMaster")
                                 {
                                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                     if (a.ApplicationMaster.Count() > 0)
                                     {
                                         a.ApplicationMaster.ForEach(ab =>
+                                    {
+                                        var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
+                                        if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                         {
-                                            var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
-                                            if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
-                                            {
-                                                var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId });
-                                            }
-                                        });
+                                            var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId });
+                                        }
+                                    });
                                     }
                                 }
                                 else if (a.DataSourceTable == "ApplicationMasterParent")
@@ -671,16 +715,16 @@
                                     if (a.ApplicationMasterParents.Count() > 0)
                                     {
                                         a.ApplicationMasterParents.ForEach(ab =>
+                                    {
+                                        var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
+                                        RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
+                                        if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                         {
-                                            var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
-                                            RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
-                                            if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
-                                            {
-                                                var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
-                                            }
-                                        });
+                                            var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader == true ? true : false });
+                                        }
+                                    });
                                     }
                                 }
                                 else
@@ -688,6 +732,7 @@
                                     dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
 
                                 }
+
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0 && a.IsDisplayTableHeader == true)
                                 {
                                     a.AttributeHeaderDataSource.ForEach(dd =>
@@ -698,7 +743,8 @@
                                 }
                                 if (a.ControlType == "CheckBox")
                                 {
-                                    loadSubHeaders(a.SubAttributeHeaders, a, dataColumnNames);
+                                    AttributeDetails attributeDetails = new AttributeDetails();
+                                    loadSubHeaders(a.SubAttributeHeaders, a, dataColumnNames, attributeDetails);
                                 }
                                 else
                                 {
@@ -712,7 +758,7 @@
                                             {
                                                 if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
                                                 {
-                                                    loadSubHeaders(u.SubAttributeHeaders, a, dataColumnNames);
+                                                    loadSubHeaders(u.SubAttributeHeaders, a, dataColumnNames, u);
                                                 }
                                             });
                                         }
@@ -1145,17 +1191,25 @@
                                                             }
                                                             if (s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                                             {
+                                                                objectData[attrName + "_Id"] = (long?)itemValue;
                                                                 var attrDetails = _AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == s.AttributeId && mm.DropDownTypeId == null).ToList();
                                                                 if (attrDetails != null && attrDetails.Count > 0)
                                                                 {
-
-                                                                    attrDetails.ForEach(u =>
+                                                                    var itemDepExitss = jsonObj.ContainsKey(s.DynamicAttributeName);
+                                                                    if (itemDepExitss == true)
                                                                     {
-                                                                        if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                                        var valuess = (long?)jsonObj[s.DynamicAttributeName];
+                                                                        attrDetails.ForEach(u =>
                                                                         {
-                                                                            loadSubHeadersData(u.SubAttributeHeaders, s, jsonObj, objectData);
-                                                                        }
-                                                                    });
+                                                                            if (u.SubAttributeHeaders != null && u.SubAttributeHeaders.Count() > 0)
+                                                                            {
+                                                                                if (valuess == u.AttributeDetailID)
+                                                                                {
+                                                                                    loadSubHeadersData(u.SubAttributeHeaders, s, jsonObj, objectData);
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
                                                                 }
                                                             }
 
@@ -1395,21 +1449,24 @@
             }
         }
     }
-    void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)
+    void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames, AttributeDetails attributeDetails)
     {
         if (SubAttrsHeader != null && SubAttrsHeader.Count > 0)
         {
             SubAttrsHeader.ForEach(d =>
             {
                 var subAttrName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
-                dataColumnNames.Add(new DropDownOptionsModel() { IsSubForm = true, ControlType = d.ControlType, Value = subAttrName, Text = d.Description, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
                 if (d.DataSourceTable == "ApplicationMaster" && d.SubApplicationMaster != null && d.SubApplicationMaster.Count() > 0)
                 {
                     d.SubApplicationMaster.ForEach(ab =>
                     {
                         var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
-                        dataColumnNames.Add(new DropDownOptionsModel() { IsSubForm = true, ControlType = d.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
+                        dataColumnNames.Add(new DropDownOptionsModel() { AttributeDetailID = attributeDetails.AttributeDetailID, IsSubForm = true, ControlType = d.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
                     });
+                }
+                else
+                {
+                    dataColumnNames.Add(new DropDownOptionsModel() { AttributeDetailID = attributeDetails.AttributeDetailID, IsSubForm = true, ControlType = d.ControlType, Value = subAttrName, Text = d.Description, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo, Id = dynamicFormSectionAttribute.DynamicFormSectionAttributeId, IsVisible = dynamicFormSectionAttribute.IsDisplayTableHeader == true ? true : false });
                 }
             });
         }

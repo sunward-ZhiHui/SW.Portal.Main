@@ -74,6 +74,8 @@ namespace Core.Entities
         public DynamicFormDataSectionLock DynamicFormDataSectionLock { get; set; } = new DynamicFormDataSectionLock();
         public long? DynamicFormCloneSectionId { get; set; }
         public bool? IsAutoNumberEnabled {  get; set; } = false;
+        [NotMapped]
+        public Guid? UniqueSessionId { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

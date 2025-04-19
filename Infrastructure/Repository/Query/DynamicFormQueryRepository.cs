@@ -347,6 +347,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ID", Id);
                 var query = "select t1.DynamicFormDataUploadID,\r\nt1.DynamicFormDataID,\r\nt1.DynamicFormSectionID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsDmsLink,\r\nt1.LinkFileProfileTypeDocumentID,\r\n(Select tt2.FileName from Documents tt2 where tt2.SessionID=t1.SessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=t1.SessionID ANd t22.IsLatest=1) as ProfileNo,\r\n" +
+                    "(Select t32.UniqueSessionId from Documents t32 where t32.SessionID=t1.SessionID ANd t32.IsLatest=1) as UniqueSessionId,\r\n" +
                     "(Select t2.DocumentID from Documents t2 where t2.SessionID=t1.SessionID ANd t2.IsLatest=1) as DocumentID,\r\n" +
                     "(case when t1.LinkFileProfileTypeDocumentID>0 then  (SELECT f2.SessionID from LinkFileProfileTypeDocument f1 JOIN FileProfileType f2 ON  f1.FileProfileTypeID=f2.FileProfileTypeID where f1.LinkFileProfileTypeDocumentID=t1.LinkFileProfileTypeDocumentID) ELSE (Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) END) as FileProfileSessionID,\r\n" +
                     "(case when t1.LinkFileProfileTypeDocumentID>0 then  (SELECT f2.Name from LinkFileProfileTypeDocument f1 JOIN FileProfileType f2 ON  f1.FileProfileTypeID=f2.FileProfileTypeID where f1.LinkFileProfileTypeDocumentID=t1.LinkFileProfileTypeDocumentID) ELSE (Select t4.Name from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) END) as FileProfileName\r\n" +
@@ -362,6 +363,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<IReadOnlyList<DynamicFormSection>> GetDynamicFormSectionByIdAsync(long? id, long? UserId, long? dynamicFormDataId)
         {
             List<DynamicFormSection> DynamicFormSections = new List<DynamicFormSection>();
@@ -380,6 +382,7 @@ namespace Infrastructure.Repository.Query
                 dynamicFormSection.ProfileNo = resultData.ProfileNo;
                 dynamicFormSection.DocumentId = resultData.DocumentId;
                 dynamicFormSection.FileName = resultData.FileName;
+                dynamicFormSection.UniqueSessionId = resultData.UniqueSessionId;
                 dynamicFormSection.FileProfileName = resultData.FileProfileName;
                 dynamicFormSection.FileProfileSessionID = resultData.FileProfileSessionID;
                 dynamicFormSection.UserCount = 1; dynamicFormSection.UserIsVisible = true; dynamicFormSection.UserIsReadWrite = true; dynamicFormSection.UserIsReadOnly = true;
@@ -394,6 +397,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
                 query = "SELECT tt1.*,(case when tt1.DynamicFormDataUploadID is NULL then  'No' ELSE 'Yes' END) as IsFileExits,\r\n" +
                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=tt1.UploadSessionID ANd t22.IsLatest=1) as ProfileNo,\r\n " +
+                    "(Select ttt2.UniqueSessionId from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as UniqueSessionId,\r\n" +
                     "(Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
                     "(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n" +
                     "(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n (Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName from " +

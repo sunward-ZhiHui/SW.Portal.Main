@@ -53,6 +53,7 @@ namespace Core.Entities
         public bool IsCommitmentDate { get; set; } = false;
         [NotMapped]
         public string? StatusCode { get; set; }
+        public bool? IsEmailCreate { get; set; } = false;
     }
     public class RegistrationRequestQueries
     {
@@ -77,6 +78,7 @@ namespace Core.Entities
         public string? StatusCode { get; set; }
         [NotMapped]
         public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
+        public bool? IsEmailCreate { get; set; } = false;
     }
     public class RegistrationRequestQueriesAuthority
     {

@@ -1,4 +1,5 @@
 ﻿@using System.Dynamic;
+@using System.IO
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -17,8 +18,13 @@
 @inject ClipboardService ClipboardService
 @using System.Collections.ObjectModel
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-
-
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using DocumentFormat.OpenXml
+@using DocumentFormat.OpenXml.Packaging
+@using DocumentFormat.OpenXml.Spreadsheet
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment _hostingEnvironment
 <style scoped>
     .ui-state-highlight {
         background-color: rgba(var(--bs-primary-rgb), .3);
@@ -59,7 +65,7 @@
                         <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
                         <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
-                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@addExport" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@getExcel" />
                     </Items>
                 </DxMenuItem>
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
@@ -381,8 +387,10 @@
     public Guid? MainSessionId { get; set; }
     public long? DynamicFormDataGridId { get; set; }
     public long? DynamicFormSectionGridAttributeIds { get; set; }
+    private List<DynamicFormSection>? _dynamicFormSectionData; private string? DocumentViewUrl;
     protected override async Task OnInitializedAsync()
     {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
 
@@ -515,6 +523,7 @@
                 _dynamicForm = await dynamicForms.Result;
                 if (_dynamicForm != null)
                 {
+                    _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSection(_dynamicForm?.ID));
                     if (_dynamicForm != null)
                     {
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
@@ -1803,5 +1812,280 @@
         };
 
         return columns;
+    }
+    public async Task getExcel()
+    {
+        string guid = Guid.NewGuid().ToString();
+        var fileName = _dynamicForm?.Name;
+        string folderName = _hostingEnvironment.ContentRootPath + @"\AppUpload";
+        string newFolderName = "ConvertExcel";
+        string serverPath = System.IO.Path.Combine(folderName, newFolderName);
+        if (!System.IO.Directory.Exists(serverPath))
+        {
+            System.IO.Directory.CreateDirectory(serverPath);
+        }
+        string FromLocation = folderName + @"\" + newFolderName + @"\" + guid + ".xlsx";
+        using (SpreadsheetDocument spreadsheetDoc = SpreadsheetDocument.Create(FromLocation, SpreadsheetDocumentType.Workbook))
+        {
+            // Add a WorkbookPart to the document.
+            WorkbookPart workbookpart = spreadsheetDoc.AddWorkbookPart();
+            workbookpart.Workbook = new Workbook();
+            Sheets sheets = spreadsheetDoc.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
+            await addSectionEntry(spreadsheetDoc, workbookpart, sheets, 1, fileName);
+        }
+        FileStream stream = System.IO.File.OpenRead(FromLocation);
+        var br = new BinaryReader(stream);
+        Byte[] documentStream = br.ReadBytes((Int32)stream.Length);
+        Stream streams = new MemoryStream(documentStream);
+        stream.Close();
+        await JS.InvokeVoidAsync("downloadFile", fileName + ".xlsx", documentStream, "");
+        System.IO.File.Delete((string)FromLocation);
+    }
+    void headersAdd(Row headerRow, List<string> headersBy)
+    {
+        foreach (string column in headersBy)
+        {
+            Cell cellHeader = new Cell();
+            cellHeader.DataType = CellValues.InlineString;
+            Run run1 = new Run();
+            run1.Append(new Text(column));
+
+            RunProperties run1Properties = new RunProperties();
+            run1Properties.Append(new Bold());
+            run1.RunProperties = run1Properties;
+            InlineString inlineString = new InlineString();
+            inlineString.Append(run1);
+            cellHeader.Append(inlineString);
+            headerRow.AppendChild(cellHeader);
+        }
+    }
+    private Cell addCellValues(string dataType, string? value)
+    {
+        Cell fileNamecell = new Cell();
+        if (dataType == "Boolean")
+        {
+            fileNamecell.DataType = CellValues.Boolean;
+            fileNamecell.CellValue = new CellValue(Convert.ToBoolean(value));
+        }
+        else if (dataType == "int")
+        {
+            fileNamecell.DataType = CellValues.Number;
+            fileNamecell.CellValue = new CellValue(Convert.ToInt16(value));
+        }
+        else if (dataType == "long")
+        {
+            fileNamecell.DataType = CellValues.String;
+            fileNamecell.CellValue = new CellValue(value);
+        }
+        else if (dataType == "Date")
+        {
+            fileNamecell.DataType = CellValues.String;
+            if (value != null)
+            {
+                DateTime DateData = DateTime.Parse(value);
+                fileNamecell.CellValue = new CellValue(DateData.ToString("dd-MMM-yyyy"));
+            }
+            else
+            {
+                fileNamecell.CellValue = new CellValue(string.Empty);
+            }
+        }
+        else if (dataType == "DateTime")
+        {
+            fileNamecell.DataType = CellValues.String;
+            if (value != null)
+            {
+                DateTime DateData = DateTime.Parse(value);
+                fileNamecell.CellValue = new CellValue(DateData.ToString("dd-MMM-yyyy hh:mm tt"));
+            }
+            else
+            {
+                fileNamecell.CellValue = new CellValue(string.Empty);
+            }
+        }
+        else
+        {
+            fileNamecell.DataType = CellValues.String;
+            fileNamecell.CellValue = new CellValue(value);
+        }
+        return fileNamecell;
+    }
+    async Task addSectionEntry(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
+    {
+        SheetData sheetData = new SheetData();
+
+        Row titleRow = new Row { RowIndex = (UInt32)1 };
+        List<string> headers = new List<string>();
+        if (dataColumnNames != null && dataColumnNames.Count() > 0)
+        {
+            foreach (var s in dataColumnNames)
+            {
+                if (s.IsVisible == true)
+                {
+                    if (s.Value == "IsFileprofileTypeDocument")
+                    {
+
+                    }
+                    else
+                    {
+                        headers.Add(s.Text);
+                    }
+                }
+            }
+            if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0)
+            {
+                headers.Add("No Section. Default Upload");
+                _dynamicFormSectionData.ForEach(q =>
+                {
+                    headers.Add(q.SectionName);
+                });
+            }
+        }
+        headersAdd(titleRow, headers);
+
+        // Append Row to SheetData
+        sheetData.AppendChild(titleRow);
+
+        if (Items != null && Items.Count() > 0)
+        {
+            foreach (var a in Items)
+            {
+                dynamic item = (ExpandoObject)a;
+                var byName = (IDictionary<string, object>)a;
+                var _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(item.DynamicFormId, applicationUser.UserID, item.DynamicFormDataId));
+                Row row = new Row();
+                if (dataColumnNames != null && dataColumnNames.Count() > 0)
+                {
+                    foreach (var s in dataColumnNames)
+                    {
+                        if (s.IsVisible == true)
+                        {
+
+                            if (s.IsDynamicGrid == true)
+                            {
+
+                            }
+                            else
+                            {
+                                if (s.Value == "IsFileprofileTypeDocument")
+                                {
+                                }
+                                else
+                                {
+                                    if (s.Value == "ModifiedDate")
+                                    {
+                                        row.AppendChild(addCellValues("DateTime", (string?)byName[s.Value].ToString()));
+
+                                    }
+                                    else
+                                    {
+                                        if (s.ControlType == "DateEdit")
+                                        {
+                                            if (byName[s.Value] != null)
+                                            {
+                                                row.AppendChild(addCellValues("Date", (string?)byName[s.Value].ToString()));
+                                            }
+                                            else
+                                            {
+                                                row.AppendChild(addCellValues("Date", null));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (s.Value == "ProfileNo")
+                                            {
+                                                if (byName[s.Value] != null)
+                                                {
+                                                    row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                }
+                                                else
+                                                {
+                                                    row.AppendChild(addCellValues("String", null));
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                if (byName[s.Value] != null)
+                                                {
+                                                    row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                }
+                                                else
+                                                {
+                                                    row.AppendChild(addCellValues("String", null));
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+
+                        }
+                    }
+                    if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+                    {
+                        _dynamicFormSectionList.ForEach(d =>
+                        {
+                            if (d.IsFileExits == "Yes")
+                            {
+                                var url = DocumentViewUrl + "?url=" + d.UniqueSessionId;
+                                Cell cellHeader = new Cell();
+                                cellHeader.DataType = CellValues.InlineString;
+                                CellFormula cellFormula1 = new CellFormula() { Space = SpaceProcessingModeValues.Preserve };
+                                cellFormula1.Text = @"HYPERLINK(""" + url + @""", """ + d.FileName + @""")";
+
+                                cellHeader.CellFormula = cellFormula1;
+                                Run run1 = new Run();
+                                run1.Append(new Text(d.FileName));
+
+                                RunProperties run1Properties = new RunProperties();
+                                run1Properties.Append(new Bold());
+                                run1.RunProperties = run1Properties;
+                                InlineString inlineString = new InlineString();
+                                inlineString.Append(run1);
+                                cellHeader.Append(inlineString);
+                                row.AppendChild(cellHeader);
+                            }
+                            else
+                            {
+                                row.AppendChild(addCellValues("String", null));
+                            }
+                        });
+                    }
+                }
+                sheetData.AppendChild(row);
+            }
+        }
+        // Set the AutoFilter property to a range that is the size of the data
+        // within the worksheet
+        char c = (char)((int)'A' + headers.Count - 1);
+        AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:" + c + headers.Count + 1 };
+
+        Worksheet sheet1 = new Worksheet();
+        sheet1.Append(sheetData);
+        sheet1.Append(autoFilter1);
+
+
+        // Add a WorksheetPart to the WorkbookPart.
+        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = sheet1;
+        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+        Columns columns = new Columns();
+        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+        // Add Sheets to the Workbook.
+
+
+        // Append a new worksheet and associate it with the workbook.
+        Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+        sheets.Append(sheet);
     }
 }

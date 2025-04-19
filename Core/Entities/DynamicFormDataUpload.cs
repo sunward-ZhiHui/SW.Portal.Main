@@ -45,5 +45,6 @@ namespace Core.Entities
         public long? LinkFileProfileTypeDocumentId { get; set; }
         [NotMapped]
         public string? NewProfileNo { get; set; }
+        public Guid? UniqueSessionId { get; set; }
     }
 }

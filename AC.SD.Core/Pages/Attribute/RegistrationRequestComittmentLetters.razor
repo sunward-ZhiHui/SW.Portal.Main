@@ -27,6 +27,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@EditEnabled" />
+                <DxMenuItem Text="View Email" IconCssClass="fa fa-eye" Click="@addDetailEmailView" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -83,6 +84,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="RegistrationRequestComittmentLetterId" Visible="false" />
+            <DxGridDataColumn FieldName="IsEmailCreate" Caption="Is Email Create" MinWidth="40" />
             <DxGridDataColumn FieldName="CommittmentDate" Caption="Committment Date" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
@@ -164,7 +166,7 @@
                 <DxFormLayoutItem Caption="Commitment Information" ColSpanMd="12">
                     <DxMemo @bind-Text="@types.CommitmentInformation" Rows="5" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Commitment Date" ColSpanMd="6" >
+                <DxFormLayoutItem Caption="Commitment Date" ColSpanMd="6">
                     <DxDateEdit NullText="Commitment Date" @bind-Date="@types.CommitmentTime" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Status" ColSpanMd="6">
@@ -533,11 +535,11 @@
         EmailAddpopupForm = false;
         StateHasChanged();
     }
-    async Task addDetailEmailCreate()
+    async Task addDetailEmailView()
     {
         if (_selectedItems != null)
         {
-            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_selectedItems.SessionId));
+            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_registrationRequestData.SessionId));
             if (_selectedItemsDAta != null)
             {
                 if (_selectedItemsDAta.IsDraft == true)
@@ -552,25 +554,24 @@
                 }
                 if (_selectedItemsDAta.IsDraft == null)
                 {
-                    _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
-                    RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
-                    registrationRequestAssignmentOfJob.CommittmentDate = _selectedItems.CommittmentDate;
-                    registrationRequestAssignmentOfJob.CommitmentInformation = _selectedItems.CommitmentInformation;
-                    registrationRequestAssignmentOfJob.IsEmailCreateDone = true;
-                    registrationRequestAssignmentOfJob.CommitmentTime = _selectedItems.CommitmentTime;
-                    registrationRequestAssignmentOfJob.CommitmentStatus = _selectedItems.StatusCode;
-                    registrationRequestAssignmentOfJob.Type = "ComittmentLetter";
-                    registrationRequestAssignmentOfJob.DepartmentId = _selectedItems.ActionByDeptId;
-                    registrationRequestAssignmentOfJob.DepartmentName = _selectedItems.DepartmentName;
-                    registrationRequestAssignmentOfJob.DepartmentUniqueSessionId = _selectedItems.SessionId;
-                    _dynamicFormSectionDatas.Add(registrationRequestAssignmentOfJob);
-                    EmailAddpopupForm = true;
+                    await addDetailEmailCreate();
                 }
             }
             else
             {
+                await addDetailEmailCreate();
+            }
+        }
+    }
+    async Task addDetailEmailCreate()
+    {
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsEmailCreate == false)
+            {
                 _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
                 RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
+                registrationRequestAssignmentOfJob.RegistrationRequestAssignmentOfJobId = _selectedItems.RegistrationRequestComittmentLetterId;
                 registrationRequestAssignmentOfJob.CommittmentDate = _selectedItems.CommittmentDate;
                 registrationRequestAssignmentOfJob.CommitmentInformation = _selectedItems.CommitmentInformation;
                 registrationRequestAssignmentOfJob.IsEmailCreateDone = true;

@@ -1524,6 +1524,15 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedUserId", request.FromId);
                             parameters.Add("RegistrationRequestAssignmentOfJobId", job.RegistrationRequestAssignmentOfJobId);
                             var querya = "UPDATE RegistrationRequestAssignmentOfJob SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreateDone=@IsEmailCreateDone,EmailCreateSessionId=@EmailCreateSessionId WHERE RegistrationRequestAssignmentOfJobId = @RegistrationRequestAssignmentOfJobId";
+                            if (job.Type == "ComittmentLetter")
+                            {
+                                querya = "UPDATE RegistrationRequestComittmentLetter SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreate=@IsEmailCreateDone WHERE RegistrationRequestComittmentLetterId = @RegistrationRequestAssignmentOfJobId";
+                            }
+                            if (job.Type == "AuthorityStatusForQuery")
+                            {
+                                querya = "UPDATE RegistrationRequestQueries SET ModifiedDate=@ModifiedDate,ModifiedUserId=@ModifiedUserId,IsEmailCreate=@IsEmailCreateDone WHERE RegistrationRequestQueriesId = @RegistrationRequestAssignmentOfJobId";
+
+                            }
                             await connection.ExecuteAsync(querya, parameters);
                         }
                     }

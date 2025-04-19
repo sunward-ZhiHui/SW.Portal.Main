@@ -26,6 +26,8 @@ namespace Core.Entities
         public string? UserTag { get; set; }
         public bool UnArchive { get; set; }
         public bool IsClose { get; set; }
+        public string? IsStatus { get; set; } = "All";
+        public bool IsOpenandClose { get; set; } = true;
         [NotMapped]
         public IEnumerable<long?> ActionTagIds { get; set; } = new List<long?>();
         [NotMapped]

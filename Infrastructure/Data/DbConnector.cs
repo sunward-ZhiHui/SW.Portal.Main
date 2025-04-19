@@ -21,7 +21,10 @@ namespace Infrastructure.Data
         public IDbConnection CreateConnection()
             => new SqlConnection(_connectionString);
 
-
+        protected string GetConnectionString()
+        {
+            return _connectionString!;
+        }
         //public IDbConnection CreatePGConnection()
         //    => new NpgsqlConnection(_connectionPGString);
     }

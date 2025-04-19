@@ -89,8 +89,38 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetOnDiscussionListAsync(request.ReplyId, request.UserId);
         }
     }
+    public class GetReplyListPagedHandler : IRequestHandler<GetReplyListPaged, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
 
+        public GetReplyListPagedHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetReplyListPaged request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetReplyListPagedAsync(request.ReplyId, request.UserId,request.currentPage,request.pageSize);
+        }
+    }
     
+
+    public class GetFileDataHandler : IRequestHandler<GetFileData, byte[]>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetFileDataHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<byte[]> Handle(GetFileData request, CancellationToken cancellationToken)
+        {
+            return (byte[])await _emailConversationsQueryRepository.GetFileDataAsync(request.ID);
+        }
+    }
+
+
     public class GetReplyDiscussionListHandler : IRequestHandler<GetReplyDiscussionList, List<EmailConversations>>
     {
         private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;

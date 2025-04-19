@@ -96,6 +96,30 @@ namespace Application.Queries
             this.Option = option;
         }
     }
+    public class GetFileData : IRequest<byte[]>
+    {
+        public long ID { get; private set; }
+        public GetFileData(long id)
+        {
+            ID = id;
+        }
+    }
+    
+    public class GetReplyListPaged : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long ReplyId { get; private set; }
+        public long UserId { get; private set; }
+        public int currentPage { get; private set; }    
+        public int pageSize { get; private set; }
+
+        public GetReplyListPaged(long ReplyId, long UserId,int currentPage, int pageSize)
+        {
+            this.ReplyId = ReplyId;
+            this.UserId = UserId;
+            this.currentPage = currentPage;
+            this.pageSize = pageSize;
+        }
+    }
     public class GetOnReplyDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long ReplyId { get; private set; }

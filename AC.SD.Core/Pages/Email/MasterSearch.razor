@@ -559,8 +559,17 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Close" ColSpanMd="12">
+                  @*   <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Close" ColSpanMd="12">
                         <DxCheckBox @bind-Checked="@Data.IsClose"></DxCheckBox>
+                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Status" ColSpanMd="12">
+                        <DxRadioGroup Items="@StatusOptions"                                    
+                                      Value="@Data.IsStatus"
+                                      EnabledFieldName="@nameof(Data.IsStatus)"
+                                      ValueExpression="@(() => Data.IsStatus )"
+                                      ValueChanged="@((string value) => OnStatusTypeChanged(value))"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="dx-demo-radio-group" />
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
@@ -581,6 +590,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    
+    IEnumerable<string> StatusOptions = new[] { "All", "Open","Close" };
     ApplicationMasterChildModel selectGroupItem {get;set;}
     ApplicationMasterChildModel selectCategory { get; set; }
     internal EmailSearch Data = new EmailSearch();
@@ -637,6 +648,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     List<string> ConditionList = new List<string>() { "AND", "OR" };
     List<DropDownModel> LikeList = new List<DropDownModel>();
     List<DropDownModelSubject> LikeListSubject = new List<DropDownModelSubject>();
+
+    
+    async void OnStatusTypeChanged(string? radioValue)
+    {
+        Data.IsStatus = radioValue;
+    }
 
     void AddSubjectFilter()
     {
@@ -740,6 +757,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 FilterTo = Data.FilterTo,
                 UnArchive = Data.UnArchive,
                 IsClose = Data.IsClose,
+                IsOpenandClose = Data.IsOpenandClose,
+                IsStatus = Data.IsStatus,
                 AllParticipantCondition = Data.AllParticipantCondition,
                 SubjectCondition = Data.SubjectCondition,
                 GroupCondition = Data.GroupCondition,
@@ -928,6 +947,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 FilterTo = null,
                 UnArchive = false,
                 IsClose = false,
+                IsOpenandClose = true,
+                IsStatus = "All",
                 AllParticipantCondition = "OR",
                 SubjectCondition = "OR",
                 GroupCondition = "OR",

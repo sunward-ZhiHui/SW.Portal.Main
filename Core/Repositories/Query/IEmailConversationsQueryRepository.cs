@@ -40,6 +40,7 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(Int64 TopicId, Int64 UserId, string Option);
         Task<long> GetTotalNotificationCountAsync(long UserId);
         Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId);
+        Task<List<EmailConversations>> GetReplyListPagedAsync(long replyId, long UserId,int currentPage,int pageSize);
         Task<List<EmailConversations>> GetOnDiscussionListAsync(long replyId,long UserId);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
         Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
@@ -59,6 +60,7 @@ namespace Core.Repositories.Query
         Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long TopicId);
         Task<List<UserNotification>> GetUserTokenListAsync(long UserId);        
         Task<List<EmailTopicTo>> GetTopicToListAsync(long TopicId);
+        Task<byte[]> GetFileDataAsync(long conversationId);
         Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId);
         Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        
         Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId);

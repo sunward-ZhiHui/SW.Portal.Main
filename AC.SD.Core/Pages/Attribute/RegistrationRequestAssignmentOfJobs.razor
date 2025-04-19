@@ -550,29 +550,51 @@
     {
         if (_selectedItems != null)
         {
-            var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
+            // var _selectedItemsDAta = await Mediator.Send(new GetRegistrationRequestAssignmentOfJobBySessionId(_selectedItems.SessionId));
+            // if (_selectedItemsDAta != null)
+            // {
+            //     if (_selectedItemsDAta.IsEmailCreateDone == true)
+            //     {
+            //         if (_selectedItemsDAta.IsDraft == true)
+            //         {
+            //             var url = NavigationManager.BaseUri + "EmailDrafts";
+            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            //         }
+            //         if (_selectedItemsDAta.IsDraft == false)
+            //         {
+            //             var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+            //             await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            //         }
+            //     }
+            //     else
+            //     {
+            //         if (_selectedItemsDAta.IsDraft == null)
+            //         {
+            //             await addDetailEmailCreate();
+            //         }
+            //     }
+            // }
+            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_registrationRequestData.SessionId));
             if (_selectedItemsDAta != null)
             {
-                if (_selectedItemsDAta.IsEmailCreateDone == true)
+                if (_selectedItemsDAta.IsDraft == true)
                 {
-                    if (_selectedItemsDAta.IsDraft == true)
-                    {
-                        var url = NavigationManager.BaseUri + "EmailDrafts";
-                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                    }
-                    if (_selectedItemsDAta.IsDraft == false)
-                    {
-                        var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
-                        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                    }
+                    var url = NavigationManager.BaseUri + "EmailDrafts";
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 }
-                else
+                if (_selectedItemsDAta.IsDraft == false)
                 {
-                    if (_selectedItemsDAta.IsDraft == null)
-                    {
-                        await addDetailEmailCreate();
-                    }
+                    var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 }
+                if (_selectedItemsDAta.IsDraft == null)
+                {
+                    await addDetailEmailCreate();
+                }
+            }
+            else
+            {
+                await addDetailEmailCreate();
             }
         }
     }

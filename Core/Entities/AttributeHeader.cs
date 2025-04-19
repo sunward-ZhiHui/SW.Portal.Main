@@ -1,6 +1,7 @@
 ﻿using Core.Entities.Base;
 using Core.Entities.CustomValidations;
 using Core.Entities.Views;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -200,5 +201,6 @@ namespace Core.Entities
         public string? DetailRequirementName { get; set; }
         public long? Index { get; set; }
         public long? DepartmentId { get; set; }
+        public string? DetailInformationByGuideline { get; set; }
     }
 }

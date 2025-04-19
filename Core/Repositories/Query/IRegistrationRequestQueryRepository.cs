@@ -41,5 +41,6 @@ namespace Core.Repositories.Query
         Task<RegistrationRequestAssignmentOfJob> GetRegistrationRequestAssignmentOfJobBySessionIdAsync(Guid? SessionId);
         Task<RegistrationRequestAssignmentOfJob> InsertCreateEmailRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob dynamicFormData);
         Task<RegistrationRequestDepartmentEmailCreate> InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(RegistrationRequestDepartmentEmailCreate valueData);
+        Task<ActivityEmailTopics> GetActivityEmailTopicsExits(Guid? SessionId);
     }
 }

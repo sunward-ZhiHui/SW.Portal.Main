@@ -330,5 +330,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(request.RegistrationRequestDepartmentEmailCreate);
         }
     }
-    
+    public class GetActivityEmailTopicsExitsHandler : IRequestHandler<GetActivityEmailTopicsExits, ActivityEmailTopics>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public GetActivityEmailTopicsExitsHandler(IRegistrationRequestQueryRepository dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<ActivityEmailTopics> Handle(GetActivityEmailTopicsExits request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetActivityEmailTopicsExits(request.SessionId);
+        }
+    }
 }

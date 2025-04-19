@@ -22,6 +22,7 @@ namespace Core.Entities
         public string? DepartmentName { get; set; }
         public string? DetailInforamtionByGuideline { get; set; }
         public string? DetailRequirement { get; set; }
+        public string? Type { get; set; }
         public Guid? SessionId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
@@ -42,6 +43,17 @@ namespace Core.Entities
         public Guid? DepartmentUniqueSessionId { get; set; }
         public bool? IsEmailCreateDone { get; set; } = false;
         public Guid? EmailCreateSessionId { get; set; }
+        public DateTime? CommittmentDate { get; set; }
+        public string? CommitmentInformation { get; set; }
+        public long? ActionByDeptId { get; set; }
+        public DateTime? CommitmentTime { get; set; }
+        public string? CommitmentStatus { get; set; }
+
+        public DateTime? DateOfQueries { get; set; }
+        public string? Requirement { get; set; }
+        public string? Assignment { get; set; }
+        public DateTime? DueDate { get; set; }
+        public DateTime? DepartmentDueDate { get; set; }
     }
     public class RegistrationRequestDepartment
     {

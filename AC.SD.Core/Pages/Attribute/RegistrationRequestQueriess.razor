@@ -14,7 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @implements IAsyncDisposable
-
+@inject NavigationManager NavigationManager
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -24,6 +24,8 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -98,7 +100,7 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="Requirement" Caption="Requirement" MinWidth="40" />
             <DxGridDataColumn FieldName="Assignment" Caption="Assignment" MinWidth="40" />
-            <DxGridDataColumn FieldName="DueDate" Caption="Due Date" MinWidth="40">
+            <DxGridDataColumn FieldName="DueDate" Caption="Authority Due Date" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
                         var item = (RegistrationRequestQueries)context.DataItem;
@@ -114,7 +116,23 @@
                     @startDate
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-
+            <DxGridDataColumn FieldName="DepartmentDueDate" Caption="Department Due Date" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (RegistrationRequestQueries)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.DepartmentDueDate != DateTime.MinValue)
+                        {
+                            if (item.DepartmentDueDate != null)
+                            {
+                                startDate = item.DepartmentDueDate.Value.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="StatusCode" Caption="Status" MinWidth="40" />
             @* <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" /> *@
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -124,6 +142,25 @@
                 var types = (RegistrationRequestQueries)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Authority Users" ColSpanMd="10">
+                    <DxTagBox Data="_usersList"
+                              @bind-Values="types.SelectUserIDs"
+                              NullText="Select Users..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="FirstName"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              EditFormat="{0}-{1}"
+                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Date Of Queries" ColSpanMd="6">
                     <DxDateEdit NullText="Date Of Queries" @bind-Date="@types.DateOfQueries" />
                 </DxFormLayoutItem>
@@ -134,8 +171,23 @@
                 <DxFormLayoutItem Caption="Assignment" ColSpanMd="12">
                     <DxMemo @bind-Text="@types.Assignment" Rows="5" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Due Date" ColSpanMd="6">
-                    <DxDateEdit NullText="Due Date" @bind-Date="@types.DueDate" />
+                <DxFormLayoutItem Caption="Authority Due Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Authority Due Date" @bind-Date="@types.DueDate" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Department Due Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Department Due Date" @bind-Date="@types.DepartmentDueDate" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Value="@types.StatusCodeId"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.StatusCodeId)" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -162,10 +214,39 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="false"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@EmailAddpopupForm"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <RegistrationRequestCreateEmailForm Type="AuthorityStatusForQuery" applicationUser="@applicationUser" DepartmentUniqueSessionId="@_selectedItems?.SessionId" _registrationRequestData="@_registrationRequestDatas" _RegistrationRequestDepartmentData="@_dynamicFormSectionDatas" RevokeBack="AddpopupFormClose"></RegistrationRequestCreateEmailForm>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool EmailAddpopupForm { get; set; } = false;
+    private List<ViewEmployee>? _usersList;
     [Parameter]
     public RegistrationRequestProgressByRegistrationDepartment _registrationRequestData { get; set; }
-
+    [Parameter]
+    public RegistrationRequest _registrationRequestDatas { get; set; }
+    private List<RegistrationRequestAssignmentOfJob>? _dynamicFormSectionDatas;
+    bool AttachmentPopUp { get; set; } = false; bool AttachmentEnabled { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -188,15 +269,21 @@
     private RegistrationRequestQueries _selectlst;
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
+    private List<CodeMaster> _stausItems;
     protected override async Task OnInitializedAsync()
     {
-
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("AuthorityStatusForQuery"));
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         await UpdateDataAsync();
     }
     public async Task loadChildData(RegistrationRequestProgressByRegistrationDepartment dynamicFormIds)
     {
         _registrationRequestData = dynamicFormIds;
         await UpdateDataAsync();
+    }
+    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -213,7 +300,7 @@
         try
         {
             PanelVisible = true; AddEnabled = false;
-            EditEnabled = false; DeleteEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
             if (_registrationRequestData != null && _registrationRequestData.RegistrationRequestProgressByRegistrationDepartmentId > 0)
             {
                 AddEnabled = true;
@@ -221,7 +308,7 @@
                 if (_dynamicFormSectionData.Count > 0)
                 {
                     _selectedItems = _dynamicFormSectionData.FirstOrDefault();
-                    EditEnabled = true;
+                    EditEnabled = true; AttachmentEnabled = true;
                     DeleteEnabled = true;
                 }
             }
@@ -262,8 +349,10 @@
                     AddedByUserId = applicationUser.UserID,
                     ModifiedUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editModel.StatusCodeId,
                     AddedDate = DateTime.Now,
+                    DepartmentDueDate = editModel.DepartmentDueDate,
+                    SelectUserIDs = editModel.SelectUserIDs,
                 };
             try
             {
@@ -295,8 +384,10 @@
                     AddedByUserId = editModel.AddedByUserId,
                     ModifiedUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editModel.StatusCodeId,
                     AddedDate = editModel.AddedDate,
+                    DepartmentDueDate = editModel.DepartmentDueDate,
+                    SelectUserIDs = editModel.SelectUserIDs,
                 };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -357,7 +448,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RegistrationRequestQueriesId");
         _selectedItems = _dynamicFormSectionData.FirstOrDefault(f => f.RegistrationRequestQueriesId == (long?)UniqueId);
-        DeleteEnabled = true;
+        DeleteEnabled = true; AttachmentEnabled = true;
         StateHasChanged();
 
     }
@@ -443,7 +534,73 @@
         }
 
     }
-
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+    }
+    void AddpopupFormClose()
+    {
+        InvokeAsync(UpdateDataAsync);
+        EmailAddpopupForm = false;
+        StateHasChanged();
+    }
+    async Task addDetailEmailCreate()
+    {
+        if (_selectedItems != null)
+        {
+            var _selectedItemsDAta = await Mediator.Send(new GetActivityEmailTopicsExits(_selectedItems.SessionId));
+            if (_selectedItemsDAta != null)
+            {
+                if (_selectedItemsDAta.IsDraft == true)
+                {
+                    var url = NavigationManager.BaseUri + "EmailDrafts";
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                if (_selectedItemsDAta.IsDraft == false)
+                {
+                    var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                if (_selectedItemsDAta.IsDraft == null)
+                {
+                    _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
+                    RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
+                    registrationRequestAssignmentOfJob.DateOfQueries = _selectedItems.DateOfQueries;
+                    registrationRequestAssignmentOfJob.Requirement = _selectedItems.Requirement;
+                    registrationRequestAssignmentOfJob.IsEmailCreateDone = true;
+                    registrationRequestAssignmentOfJob.Assignment = _selectedItems.Assignment;
+                    registrationRequestAssignmentOfJob.CommitmentStatus = _selectedItems.StatusCode;
+                    registrationRequestAssignmentOfJob.Type = "AuthorityStatusForQuery";
+                    registrationRequestAssignmentOfJob.DueDate = _selectedItems.DueDate;
+                    registrationRequestAssignmentOfJob.DepartmentDueDate = _selectedItems.DepartmentDueDate;
+                    registrationRequestAssignmentOfJob.DepartmentUniqueSessionId = _selectedItems.SessionId;
+                    _dynamicFormSectionDatas.Add(registrationRequestAssignmentOfJob);
+                    EmailAddpopupForm = true;
+                }
+            }
+            else
+            {
+                _dynamicFormSectionDatas = new List<RegistrationRequestAssignmentOfJob>();
+                RegistrationRequestAssignmentOfJob registrationRequestAssignmentOfJob = new RegistrationRequestAssignmentOfJob();
+                registrationRequestAssignmentOfJob.DateOfQueries = _selectedItems.DateOfQueries;
+                registrationRequestAssignmentOfJob.Requirement = _selectedItems.Requirement;
+                registrationRequestAssignmentOfJob.IsEmailCreateDone = true;
+                registrationRequestAssignmentOfJob.Assignment = _selectedItems.Assignment;
+                registrationRequestAssignmentOfJob.CommitmentStatus = _selectedItems.StatusCode;
+                registrationRequestAssignmentOfJob.Type = "AuthorityStatusForQuery";
+                registrationRequestAssignmentOfJob.DueDate = _selectedItems.DueDate;
+                registrationRequestAssignmentOfJob.DepartmentDueDate = _selectedItems.DepartmentDueDate;
+                registrationRequestAssignmentOfJob.DepartmentUniqueSessionId = _selectedItems.SessionId;
+                _dynamicFormSectionDatas.Add(registrationRequestAssignmentOfJob);
+                EmailAddpopupForm = true;
+            }
+        }
+    }
     public async ValueTask DisposeAsync()
     {
 

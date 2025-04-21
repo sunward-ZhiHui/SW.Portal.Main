@@ -1273,7 +1273,7 @@
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     }
-                                                                                                    else if (attachment.IsView)
+                                                                                                    else
                                                                                                     {
                                                                                                         <div class="options">
                                                                                                             <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
@@ -6399,9 +6399,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 OnLeftMenuItemClick("Library");
                 isLeftMenuvisible = "Library";                
                 //await Task.Delay(2000); // Delay for 2 seconds
-                //onSubViewEmailClick(ridds);
+                onSubViewEmailClick(ridds); 
 
-                onViewEmailAllClick(lsts[0].TopicID.ToString()); 
+                //onViewEmailAllClick(lsts[0].TopicID.ToString()); 
             }
         }
         else

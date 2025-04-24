@@ -360,7 +360,7 @@ else
                        <div class="col-md-4">
                         <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
                             <DxFormLayoutItem Caption="Group" ColSpanMd="12">
-                                <DxComboBox Data="@_groupTagItems"
+                                @* <DxComboBox Data="@_groupTagItems"
                                             NullText="Select Group..."
                                             AllowUserInput ="true"
                                             ListRenderMode="ListRenderMode.Virtual"
@@ -374,7 +374,31 @@ else
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
                                             ShowValidationIcon="true">
-                                </DxComboBox>
+                                </DxComboBox> *@
+                                <DxDropDownBox @bind-Value="GroupValue"
+                                               QueryDisplayText="QueryGroupText"
+                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                               NullText="Select Group"
+                                               Enabled="@isEnabled"
+                                               ShowValidationIcon="true">
+                                    <DropDownBodyTemplate Context="ddbBodyContext">
+                                        <DxGrid Data="@_groupTagItems"
+                                                KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                                                HighlightRowOnHover="true"
+                                                SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                SelectionMode="GridSelectionMode.Single"
+                                                AllowSelectRowByClick="true"
+                                                TextWrapEnabled="false"
+                                                CssClass="templateGrid"
+                                                style="height: calc(100vh - 500px);"
+                                                SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ApplicationMasterChildModel)"
+                                                SelectedDataItemChanged="item => GridSelectedDataGroupTagItemChanged(item, ddbBodyContext.DropDownBox)">
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="Value" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </DropDownBodyTemplate>
+                                </DxDropDownBox>
                                @*  <DxSpinEdit  @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" /> *@
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
@@ -400,7 +424,7 @@ else
                            
 
                             <DxFormLayoutItem Caption="Category" ColSpanMd="12">
-                                <DxComboBox Data="@_categoryTagItems"
+                                @* <DxComboBox Data="@_categoryTagItems"
                                             NullText="Select Category..."
                                             Enabled="@isEnabled"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -413,7 +437,32 @@ else
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             AllowUserInput ="true"
                                             ValueChanged ="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
-                                </DxComboBox>
+                                </DxComboBox> *@
+                                 <DxDropDownBox @bind-Value="CategoryValue"
+                                QueryDisplayText="QueryCategoryText"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                NullText="Select Category"
+                                Enabled="@isEnabled"
+                                ShowValidationIcon="true">
+                                    <DropDownBodyTemplate Context="ddbBodyContext">
+                                        <DxGrid Data="@_categoryTagItems"
+                                        KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        style="height: calc(100vh - 500px);"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ApplicationMasterChildModel)"
+                                        SelectedDataItemChanged="item => GridSelectedDataCategoryTagItemChanged(item, ddbBodyContext.DropDownBox)">
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="Value" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </DropDownBodyTemplate>
+                                </DxDropDownBox>
+
                                  <DxSpinEdit  @bind-Value="@CategoryData.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
                             </DxFormLayoutItem>
@@ -879,9 +928,87 @@ else
     Documents _documents { get; set; }
     private string? DocumentViewUrl;
 
-
-
+     object GroupValue { get; set; }
+    object CategoryValue { get; set; }
     object ActionValue { get; set; }
+    string? QueryGroupText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ApplicationMasterChildModel value)
+        {
+            if (value != null)
+            {
+                CategoryData.GroupTag = value.ApplicationMasterChildId;
+                returnData = value?.Value;
+            }
+        }
+        InvokeAsync(SelectedItemGroupTagChanged);
+        return returnData;
+    }
+    async Task GridSelectedDataGroupTagItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            GroupValue = item as ApplicationMasterChildModel;
+            selectgrouptagItems = GroupValue as ApplicationMasterChildModel;
+
+            if (selectgrouptagItems != null)
+            {
+                GroupTagChanged(selectgrouptagItems.ApplicationMasterChildId);
+            }
+
+        }
+        else
+        {
+            GroupTagChanged(-1);
+            CategoryTagChange(-1);
+        }
+        dropDownBox.HideDropDown();
+
+    }
+
+    async Task SelectedItemGroupTagChanged()
+    {
+        // await SelectedItemChanged(_currentEditModel.GroupTag);
+    }
+
+
+    string? QueryCategoryText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ApplicationMasterChildModel value)
+        {
+            if (value != null)
+            {
+                CategoryData.CategoryTag = value.ApplicationMasterChildId;
+                returnData = value?.Value;
+            }
+        }
+        //InvokeAsync(SelectedItemCategoryTagChanged);
+        return returnData;
+    }
+    async Task GridSelectedDataCategoryTagItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            CategoryValue = item as ApplicationMasterChildModel;
+            selectCategory = CategoryValue as ApplicationMasterChildModel;
+
+            if (selectCategory != null)
+            {
+                CategoryTagChange(selectCategory.ApplicationMasterChildId);
+            }
+
+        }
+        else
+        {
+            CategoryTagChange(-1);
+            //await CategoryTagChange(-1);
+        }
+        dropDownBox.HideDropDown();
+
+    }
+
     string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
     {
         string? returnData = string.Empty;
@@ -1637,6 +1764,11 @@ else
                         var lists = new ApplicationMasterChildModel();
                         lists.ApplicationMasterChildId =_TagEmailList[0].GroupTag.Value;
                         selectgrouptagItems = lists;
+
+                        
+                        GroupValue = _groupTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == _TagEmailList[0].GroupTag.Value);
+                        selectgrouptagItems = GroupValue as ApplicationMasterChildModel;
+
                         if(CategoryData != null)
                         {
                             CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
@@ -1660,6 +1792,9 @@ else
                         { 
                             await CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
 
+                            CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == CategoryData.CategoryTag);
+                            selectCategory = CategoryValue as ApplicationMasterChildModel;
+
                             if(CategoryData != null)
                             {
                                 CategoryData.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
@@ -1673,6 +1808,9 @@ else
                         else
                         {
                             CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+
+                            CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == CategoryData.CategoryTag);
+                            selectCategory = CategoryValue as ApplicationMasterChildModel;
 
                             if (CategoryData != null)
                             {
@@ -2176,6 +2314,8 @@ else
                 
             }
 
+             CategoryValue = null;
+            ActionValue = null;
             _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
 
@@ -2185,6 +2325,8 @@ else
             selectCategory = null;
             CategoryData.GroupTag = null;
             _categoryTagItems = null;
+            CategoryValue = null;
+            ActionValue = null;
             _actionTagItems = null;            
             CategoryData.ActionTagIds = new List<long?>();
             
@@ -2217,6 +2359,10 @@ else
 
             }
 
+            ActionValue = _actionTagItems
+            .Where(x => CategoryData.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
+            .ToList();
+
 
         }
          
@@ -2235,7 +2381,7 @@ else
                 _actionTagItems = null;
                 
             }
-
+             ActionValue = null;
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
             ActionValue = _actionTagItems
              .Where(x => CategoryData.ActionTagIds?.Contains(x.ApplicationMasterChildId) == true)
@@ -2245,6 +2391,7 @@ else
         {
             CategoryData.ActionTag = null;
             Text = null;
+            ActionValue = null;
             CategoryData.CategoryTag = null;
             _actionTagItems = null;
             CategoryData.ActionTagIds = new List<long?>();

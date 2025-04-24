@@ -98,7 +98,16 @@ namespace Application.Queries
         {
             this.ConId = conId;
         }
-    }    
+    }
+    public class GetEmailToOnlyList : PagedRequest, IRequest<List<RequestEmail>>
+    {
+        public long ConId { get; private set; }
+        public GetEmailToOnlyList(long conId)
+        {
+            this.ConId = conId;
+        }
+    }
+    
     public class GetListBySession : PagedRequest, IRequest<List<EmailTopics>>
     {
         public string SessionId { get; private set; }

@@ -101,7 +101,7 @@ Text="Fetching Data...">
 
 
                 <DxFormLayoutItem Caption="Group" ColSpanMd="6">
-                    <DxComboBox Data="@_groupTagItems"
+                    @*   <DxComboBox Data="@_groupTagItems"
                     NullText="Select Group..."
                     ListRenderMode="ListRenderMode.Virtual"
                     SearchMode="ListSearchMode.AutoSearch"
@@ -116,7 +116,7 @@ Text="Fetching Data...">
                     ShowValidationIcon="true">
                     </DxComboBox>
                     <DxSpinEdit   @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
-                    <ValidationMessage For="@(() => types.GroupTag)" />
+                    <ValidationMessage For="@(() => types.GroupTag)" /> *@
 
 
                     @* <DxComboBox Data="@_groupTagItems"
@@ -141,9 +141,9 @@ Text="Fetching Data...">
 
 
 
-                
 
-@* 
+
+
                     <DxDropDownBox @bind-Value="GroupValue"
                     QueryDisplayText="QueryGroupText"
                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -156,8 +156,7 @@ Text="Fetching Data...">
                             HighlightRowOnHover="true"
                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
                             SelectionMode="GridSelectionMode.Single"
-                            AllowSelectRowByClick="true"
-                            FocusedRowEnabled="true"
+                            AllowSelectRowByClick="true"                            
                             TextWrapEnabled="false"
                             CssClass="templateGrid"
                             style="height: calc(100vh - 500px);"                          
@@ -170,12 +169,12 @@ Text="Fetching Data...">
                         </DropDownBodyTemplate>
                     </DxDropDownBox>
                     <DxSpinEdit @bind-Value="@types.GroupTag" ShowValidationIcon="true" style="display:none;" />
-                    <ValidationMessage For="@(() => types.GroupTag)" /> *@
+                    <ValidationMessage For="@(() => types.GroupTag)" />
 
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Category" ColSpanMd="6">
-                    <DxComboBox Data="@_categoryTagItems"
+                    @*  <DxComboBox Data="@_categoryTagItems"
                     NullText="Select Category..."
                     Enabled="@isEnabled"
                     ListRenderMode="ListRenderMode.Virtual"
@@ -190,7 +189,38 @@ Text="Fetching Data...">
                     ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
                     </DxComboBox>
                     <DxSpinEdit   @bind-Value="@types.CategoryTag" ShowValidationIcon="true" style="display:none;" />
+                    <ValidationMessage For="@(() => types.CategoryTag)" /> *@
+
+                    <DxDropDownBox @bind-Value="CategoryValue"
+                    QueryDisplayText="QueryCategoryText"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select Category"
+                    Enabled="@isEnabled"
+                    ShowValidationIcon="true">
+                        <DropDownBodyTemplate Context="ddbBodyContext">
+                            <DxGrid Data="@_categoryTagItems"
+                            KeyFieldName="@nameof(ApplicationMasterChildModel.ApplicationMasterChildId)" ShowSearchBox="true"
+                            HighlightRowOnHover="true"
+                            SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                            SelectionMode="GridSelectionMode.Single"
+                            AllowSelectRowByClick="true"                           
+                            TextWrapEnabled="false"
+                            CssClass="templateGrid"
+                            style="height: calc(100vh - 500px);"
+                            SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ApplicationMasterChildModel)"
+                            SelectedDataItemChanged="item => GridSelectedDataCategoryTagItemChanged(item, ddbBodyContext.DropDownBox)">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="Value" />
+                                </Columns>
+                            </DxGrid>
+                        </DropDownBodyTemplate>
+                    </DxDropDownBox>
+                    <DxSpinEdit @bind-Value="@types.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.CategoryTag)" />
+
+
+
+
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Action" ColSpanMd="12">
@@ -219,8 +249,7 @@ Text="Fetching Data...">
                             HighlightRowOnHover="true"
                             SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
                             SelectionMode="GridSelectionMode.Multiple"
-                            AllowSelectRowByClick="true"
-                            FocusedRowEnabled="true"
+                            AllowSelectRowByClick="true"                           
                             TextWrapEnabled="false"
                             CssClass="templateGrid"
                             style="height: calc(100vh - 500px);"
@@ -327,6 +356,27 @@ Width="300px">
     string Name;
     object ActionValue { get; set; }
     object GroupValue { get; set; }
+    object CategoryValue { get; set; }
+
+    string? QueryCategoryText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ApplicationMasterChildModel value)
+        {
+            if (value != null)
+            {
+                _currentEditModel.CategoryTag = value.ApplicationMasterChildId;
+                returnData = value?.Value;
+            }
+        }
+        InvokeAsync(SelectedItemCategoryTagChanged);
+        return returnData;
+    }
+
+    async Task SelectedItemCategoryTagChanged()
+    {
+        // await selectedCategoryChanged(_currentEditModel.CategoryTag);
+    }
 
     string? QueryActionText(DropDownBoxQueryDisplayTextContext arg)
     {        
@@ -400,7 +450,7 @@ Width="300px">
         //_subSectionItems = new List<ViewSubSection>();
         if (GroupTag > 0)
         {
-            await CategoryTagChange(GroupTag);
+           // await CategoryTagChangenew(GroupTag);
         }
     }
 
@@ -425,6 +475,30 @@ Width="300px">
         dropDownBox.HideDropDown();
 
     }
+
+    async Task GridSelectedDataCategoryTagItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            CategoryValue = item as ApplicationMasterChildModel;
+            selectcategory = CategoryValue as ApplicationMasterChildModel;
+
+            if (selectcategory != null)
+            {
+                await CategoryTagChange(selectcategory.ApplicationMasterChildId, 1);
+            }
+
+        }
+        else
+        {
+            await CategoryTagChange(-1);
+            //await CategoryTagChange(-1);
+        }
+        dropDownBox.HideDropDown();
+
+    }
+
+
 
     async Task selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
@@ -458,6 +532,9 @@ Width="300px">
                     _actionTagItems = null;
                 }
             }
+
+            selectcategory = null;
+            CategoryValue = null;
 
             _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
@@ -827,12 +904,21 @@ Width="300px">
             if(editModel.GroupTag != null || editModel.GroupTag > 0)
             {
                 GroupValue = _groupTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == editModel.GroupTag);
-                 selectGroupItems = GroupValue as ApplicationMasterChildModel;
+                selectGroupItems = GroupValue as ApplicationMasterChildModel;
 
             }
 
-            await GroupTagChanged(editModel.GroupTag);            
+           // await GroupTagChanged(editModel.GroupTag);            
+           
+
+            if(editModel.CategoryTag != null || editModel.CategoryTag > 0)
+            {
+                CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == editModel.CategoryTag);
+                selectcategory = CategoryValue as ApplicationMasterChildModel;
+            }
+            
             await CategoryTagChange(editModel.CategoryTag);
+
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

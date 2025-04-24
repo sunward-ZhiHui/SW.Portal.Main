@@ -2366,7 +2366,41 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-        
+
+        public async Task<long> UpdateDueDateReqested(long ReplyId, long UserId,int value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ReplyId", ReplyId, DbType.Int64);
+                        parameters.Add("UserId", UserId, DbType.Int64);
+                        parameters.Add("value", value, DbType.Int32);
+
+
+                        var query = " UPDATE EmailConversations SET IsDueDate = @value WHERE ID = @ReplyId";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+
         public async Task<long> DocInsertDynamicFormDateUpload(Guid id, Guid DynamicFormSectionID, Guid sessionid,long userid)
         {
             try
@@ -2504,10 +2538,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
                             parameters.Add("UserType", forumConversations.UserType);
-                            parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
+                        parameters.Add("IsDueDate", forumConversations.IsDueDate);
+                        parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 
-                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
+                            var query = "INSERT INTO EmailConversations(IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

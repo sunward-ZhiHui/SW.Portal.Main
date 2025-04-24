@@ -69,6 +69,21 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class EmailToOnlyListHandler : IRequestHandler<GetEmailToOnlyList, List<RequestEmail>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public EmailToOnlyListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<RequestEmail>> Handle(GetEmailToOnlyList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.EmailToOnlyList(request.ConId);
+
+        }
+    }
+    
     public class UpdateTopicArchiveHandler : IRequestHandler<UpdateTopicArchive, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
@@ -940,16 +955,24 @@ namespace CMS.Application.Handlers.QueryHandlers
     public class UpdateEmailTopicSubjectDueDateHandler : IRequestHandler<UpdateEmailTopicSubjectDueDate, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
 
-        public UpdateEmailTopicSubjectDueDateHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        public UpdateEmailTopicSubjectDueDateHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository, IEmailConversationsQueryRepository conversationQueryRepository)
         {
             _emailTopicsQueryRepository = emailTopicsQueryRepository;
-
+            _conversationQueryRepository = conversationQueryRepository;
         }
 
         public async Task<long> Handle(UpdateEmailTopicSubjectDueDate request, CancellationToken cancellationToken)
         {
             var req = await _emailTopicsQueryRepository.UpdateSubjectDueDate(request);
+
+            if (request.IsDueDate == 1)
+            {
+                var updateDueDatereq = await _conversationQueryRepository.UpdateDueDateReqested(request.ID,request.ModifiedByUserID.Value, 2);
+            }
+
+
             EmailActivityCatgorys emailActivityCatgorys = new EmailActivityCatgorys();
             emailActivityCatgorys.TopicId = request.TopicID;
             emailActivityCatgorys.UserTagIds = request.UserTagIds;

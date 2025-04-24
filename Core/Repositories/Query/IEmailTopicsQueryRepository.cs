@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<List<RequestEmail>> RequestEmailToCCList(Int64 ConId);
         Task<List<RequestEmail>> RequestEmailParticipantList(Int64 conversationID);
         Task<List<RequestEmail>> RequestEmailToOnlyList(Int64 ConId);
+        Task<List<RequestEmail>> EmailToOnlyList(Int64 ConId);
         Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);
         Task<List<EmailTopics>> GetByIdTopicListAsync(Int64 id);
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);

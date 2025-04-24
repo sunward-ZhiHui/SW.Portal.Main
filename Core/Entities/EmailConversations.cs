@@ -134,6 +134,7 @@ namespace Core.Entities
         public string? PreviosUser { get; private set; }
         [NotMapped]
         public string? Reason { get; set; }
+        public int IsDueDate { get; set; } = 0;
     }
     public class EmailDocumentModel
     {        

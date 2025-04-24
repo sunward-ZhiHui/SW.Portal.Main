@@ -638,6 +638,11 @@ namespace Application.Handlers.QueryHandlers
                 var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId, request.AddedByUserID.Value);
             }
 
+            if(request.IsDueDate == 1)
+            {
+                var updateDueDatereq = await _conversationQueryRepository.UpdateDueDateReqested(request.ReplyId, request.AddedByUserID.Value,1);
+            }
+
 
             var ETUpdateDate = await _conversationQueryRepository.LastUpdateDateEmailTopic(request.TopicID);
 

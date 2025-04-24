@@ -20,6 +20,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteCopyEmail(long ConversationID);
         Task<String> SendPushNotification(long Id);
         Task<long> LastUserIDUpdate(long ReplyId,long UserId);
+        Task<long> UpdateDueDateReqested(long ReplyId, long UserId,int value);
         Task<long> LastUpdateDateEmailTopic(long TopicId);
         Task<long> InsertEmailDynamicFormDateUploadSession(long DynamicFormID, Guid FormDataSessionID, Guid FormSectionSessionID, Guid EmailSessionID);
         Task<long> DocInsertDynamicFormDateUpload(Guid id, Guid DynamicFormSectionID, Guid sessionId,long userid);        

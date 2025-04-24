@@ -4822,10 +4822,14 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     UserId = CurrentEmailConversations.UserId,
                     ModifiedByUserID = applicationUser.UserID,
                     openAccessUserLink = _openAccessUserLink != null ? true :false,
+                    IsDueDate = 1,
                     ModifiedDate = DateTime.Now
                 };
 
         var result = await Mediator.Send(UpdateReq);
+
+
+        await sendreplymsg();
 
         isSubjectDueDate = false;
         //onShowPopupMessage("success", "Updated DueDate Successfully");
@@ -4839,6 +4843,107 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         }
         isOpenSubjectPop = false;
         StateHasChanged();
+    }
+
+
+    private async Task sendreplymsg()
+    {
+        var cList = await Mediator.Send(new GetRequestEmailToCCList(CurrentEmailConversations.ID));        
+        var duedate = _dataSubjectDuDate.DueDate;
+
+
+        var participantIds = new List<long>();
+        var AssigntoIdss = new List<long>();
+        var AssignccIdss = new List<long>();
+
+        if (cList.Count > 0)
+        {
+            var ToOnlyList = await Mediator.Send(new GetEmailToOnlyList(CurrentEmailConversations.ID));
+
+            // if (cList[0].ToIds.HasValue)
+            //     participantIds.Add(cList[0].ToIds.Value);
+
+             if (long.TryParse(ToOnlyList[0].CcIds, out long toId))
+            {
+                participantIds.Add(toId);
+            }
+
+            if (long.TryParse(cList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+            AssignccIdss = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+            // foreach(var id in AssignccIdss)
+            // {
+            //     AssigntoIdss.Add(id);
+            // }
+
+            // AssignccIdss = new List<long>();
+        }
+        else
+        {
+            var ToOnlyList = await Mediator.Send(new GetRequestEmailToOnlyList(CurrentEmailConversations.ID));
+
+
+            if (ToOnlyList[0].ToIds.HasValue)
+                participantIds.Add(ToOnlyList[0].ToIds.Value);
+
+            if (long.TryParse(ToOnlyList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].ToIds.HasValue ? new List<long> { ToOnlyList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+
+        }
+
+
+        var emailconlist = new EmailConversations
+        {
+            TopicID = CurrentEmailConversations.TopicID,
+            AssigntoIds = AssigntoIdss,
+            AssignccIds = AssignccIdss,
+                Message = " Your request due date of (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ") has been successfully approved.",
+               // Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
+               // "<strong>Reason:</strong><br/>" +
+               // $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
+            PlistIdss="",
+            AllowPlistids = "",
+            IsAllowParticipants= false,
+            Urgent = false,
+            ConIds = 0,
+            ReplyId = CurrentEmailConversations.ID,
+            AllParticipantIds = participantIds.Distinct().ToList(),
+            ParticipantId = applicationUser.UserID,
+            Name = CurrentEmailConversations.Name,
+            AddedByUserID = applicationUser.UserID,
+            From = "",
+            LastName = "",
+            UserCode = "",
+            UserName = "",
+            FirstName = "",
+            UserEmail = "",
+            IsDueDate = 2,
+            FileData = new byte[0],
+            FirebaseDocKey = "",
+
+        };
+
+        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+        string url = BaseUrl + "OnSubmitReply";        
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);        
+        var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        // Send the POST request with the content
+        var response = await httpClient.PostAsync(url, content);
+        var msg = response.StatusCode;
+
     }
 
     async void onSentDueDateRequest()
@@ -4921,6 +5026,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             UserName = "",
             FirstName = "",
             UserEmail = "",
+            IsDueDate = 1,
             FileData = new byte[0],
             FirebaseDocKey = "",
 
@@ -5743,14 +5849,22 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             currentPage = 1;
             hasMore = true;
 
-            if (!replyDiscussions.ContainsKey(id))
-            {
-                replyDiscussions[id] = new List<EmailConversations>();
-                currentPages[id] = 1;
-                await JSRuntime.InvokeAsync<string>("showLoading");
-                    await LoadMoreReplies(id, replycount); // first page
-                await JSRuntime.InvokeAsync<string>("hideLoading");
-            }
+            replyDiscussions[id] = new List<EmailConversations>();
+            currentPages[id] = 1;
+
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            await LoadMoreReplies(id, replycount); // first page
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
+            // if (!replyDiscussions.ContainsKey(id))
+            // {
+            //     replyDiscussions[id] = new List<EmailConversations>();
+            //     currentPages[id] = 1;
+            //     await JSRuntime.InvokeAsync<string>("showLoading");
+            //         await LoadMoreReplies(id, replycount); // first page
+            //     await JSRuntime.InvokeAsync<string>("hideLoading");
+            // }
 
             itemVisibility[id] = true;
         }

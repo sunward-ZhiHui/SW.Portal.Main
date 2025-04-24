@@ -115,7 +115,7 @@
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
                                 CssClass="ch-360"
-                                style="height: calc(100vh - 500px);"
+                                style="height: calc(100vh - 600px);"
                                 AllowSelectRowByClick="true"
                                 CustomizeElement="Grid_CustomizeElement"
                                 AutoExpandAllGroupRows="true"
@@ -249,6 +249,11 @@
                             </TotalSummary>
                         </DxGrid>
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Content" ColSpanMd="12"></DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+                        <DxRichEdit DocumentLoaded=OnDocumentLoaded DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+
+                    </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
             <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
@@ -378,6 +383,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    DxRichEdit msgrichEdit { get; set; }
     bool withoutUploadPopup { get; set; } = false;
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     string? MyError { get; set; }
@@ -455,6 +461,26 @@
     void backUrl()
     {
         RevokeBack?.Invoke();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await msgrichEdit.NewDocumentAsync();
+            }
+            catch (TaskCanceledException) { }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    async Task OnDocumentLoaded(Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            // properties.FontName = "Times New Roman";
+            properties.FontSize = 14;
+        });
     }
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
@@ -687,6 +713,14 @@
     }
     async Task SaveData()
     {
+         await msgrichEdit.SaveDocumentAsync();
+        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        server.LoadDocument(fileContent1);
+        server.Options.Export.Html.EmbedImages = true;
+        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+        string htmlContent = System.Text.Encoding.UTF8.GetString(fileContents);
+        Data.MessageContent = htmlContent;
         var result = await Mediator.Send(new InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(Data));
         if (result.FromId > 0)
         {
@@ -754,6 +788,54 @@
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             backUrl();
         }
+    }
+    async void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        BarGroupCollection groups = toolbar.Groups;
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+
+        //AddFormattingGroup(groups);
+
+
+        IBarGroup fontGroup = toolbar.Groups[RichEditToolbarGroupNames.Font];
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+
+        //// Assuming fontSizeItem has a property to set the font size
+        //fontSizeItem  = 18; // Assuming 18 is the desired font size
+
+
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+        //if (fontSizeItem.Type == BarItemTypes.ComboBox)
+        //{
+        //    IBarComboBox fontSizeComboBox = (IBarComboBox)fontSizeItem;
+        //    fontSizeComboBox.Items.Clear();
+        //    fontSizeComboBox.Items.Add("12", "12");
+        //    fontSizeComboBox.Items.Add("14", "14");
+        //    fontSizeComboBox.Items.Add("18", "18");
+        //    fontSizeComboBox.Items.Add("24", "24");
+        //    fontSizeComboBox.AllowUserInput = false;
+        //    //fontSizeComboBox = 2; // Set the default font size
+        //    //int defaultFontSizeIndex = fontSizeComboBox.Items.IndexOf(2);
+        //}
+        //fontSizeItem.Text = "Font Size:";
+        //fontSizeItem.Tooltip = "Changes the selected text's font size.";
+
+
+
+
+        //AddFormattingGroup(toolbar.Groups);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
     }
     public async ValueTask DisposeAsync()
     {

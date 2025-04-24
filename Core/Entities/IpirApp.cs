@@ -99,6 +99,7 @@ namespace Core.Entities
         public string? BackUrl { get; set; }
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
+        public Guid? FileProfileTypeSessionId { get; set; }
     }
     public class IpirAppIssueDep
     {

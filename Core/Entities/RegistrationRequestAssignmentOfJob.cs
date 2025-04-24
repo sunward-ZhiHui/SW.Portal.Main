@@ -54,6 +54,7 @@ namespace Core.Entities
         public string? Assignment { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? DepartmentDueDate { get; set; }
+        public long RegistrationRequestSupportingDocId { get; set; }
     }
     public class RegistrationRequestDepartment
     {
@@ -77,5 +78,26 @@ namespace Core.Entities
         public IEnumerable<long>? CCUserGroupIds { get; set; }
         public Guid? EmailCreateSessionId { get; set; }
         public string? BackUrl { get; set; }
+        public string? MessageContent { get; set; }
+    }
+    public class RegistrationRequestSupportingDoc
+    {
+        public long RegistrationRequestSupportingDocId { get; set; }
+        public long? RegistrationRequestId { get; set; }
+        [Required(ErrorMessage = "Department is Required")]
+        public long? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DetailInforamtionByGuideline { get; set; }
+        public string? DetailRequirement { get; set; }
+        public Guid? SessionId { get; set; }
+        public long? AddedByUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public int? StatusCodeId { get; set; }
+        public long? ModifiedUserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
     }
 }

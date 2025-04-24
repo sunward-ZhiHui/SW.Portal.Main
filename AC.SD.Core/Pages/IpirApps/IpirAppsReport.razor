@@ -34,6 +34,7 @@
                             <Items>
                                 <DxMenuItem Text="Add Supervisor" IconCssClass="fas fa-add" Click="@editForm" Visible="@AddSuperEnabled" />
                                 <DxMenuItem Text="Update to DMS Folder" IconCssClass="fas fa-pencil" Click="@OnUpdateDMS" Visible="@DMSUpdateEnabled" />
+                                <DxMenuItem Text="DMS Link" IconCssClass="fas fa-link" Click="@OnLinkDMS" Visible="@DMSUpdateEnabled" />
                                 <DxMenuItem Text="Copy Link" Click="onCopy" IconCssClass="fa fa-link" Visible="CopyLinkEnabled" />
                                 <DxMenuItem Text="CheckOut" Click="onCheckOut" IconCssClass="fa fa-check-square" Visible="CheckOutEnabled" />
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
@@ -472,6 +473,7 @@
     void CloseUpdatePopup()
     {
         UpdateProfilePopup = false;
+        InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
     async void ClosePopup()
@@ -664,6 +666,14 @@
     {
         _selectedEditItems = _selectedItems;
         UpdateProfilePopup = true;
+    }
+    async Task OnLinkDMS()
+    {
+        if (_selectedItems != null)
+        {
+            var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + _selectedItems.FileProfileTypeSessionId + "/" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
     }
     private async Task onCopy()
     {

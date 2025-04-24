@@ -59,7 +59,7 @@ namespace Infrastructure.Repository.Query
                     var documents = resultData.Documents.ToList();
                     var appUser = resultData.ApplicationUser.ToList();
                     var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
-
+                    var Fileprofiletypes = resultData.Fileprofiletype.ToList();
 
                     result.ForEach(s =>
                     {
@@ -89,7 +89,10 @@ namespace Infrastructure.Repository.Query
                                 s.ModifiedDate = counts.UploadDate;
                                 s.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
                                 s.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
-
+                                if (counts.FilterProfileTypeId > 0)
+                                {
+                                    s.FileProfileTypeSessionId = Fileprofiletypes.Where(w => w.FileProfileTypeId == counts.FilterProfileTypeId)?.FirstOrDefault()?.SessionId;
+                                }
                             }
                         }
                         IpirApps.Add(s);
@@ -132,7 +135,7 @@ namespace Infrastructure.Repository.Query
                     var documents = resultData.Documents.ToList();
                     var appUser = resultData.ApplicationUser.ToList();
                     var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
-
+                    var Fileprofiletypes = resultData.Fileprofiletype.ToList();
 
                     result.ForEach(s =>
                     {
@@ -161,7 +164,10 @@ namespace Infrastructure.Repository.Query
                                 s.ModifiedDate = counts.UploadDate;
                                 s.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
                                 s.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
-
+                                if (counts.FilterProfileTypeId > 0)
+                                {
+                                    s.FileProfileTypeSessionId = Fileprofiletypes.Where(w => w.FileProfileTypeId == counts.FilterProfileTypeId)?.FirstOrDefault()?.SessionId;
+                                }
                             }
                         }
                         IpirApps.Add(s);
@@ -276,7 +282,7 @@ namespace Infrastructure.Repository.Query
                 query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
                 query += "select UserName,UserId,SessionId from ApplicationUser;";
                 query += "select t1.*,t2.Value as issueRelateName,t3.SessionID as DynamicFormDataSessionID,t4.SessionID as DynamicFormSessionID  from IpirAppIssueDep t1 \r\nLEFT JOIN ApplicationMasterDetail t2 ON t1.ActivityInfoIssueID=t2.ApplicationMasterDetailID\r\nLEFT JOIN DynamicFormData t3 ON t3.DynamicFormDataID=t1.DynamicFormDataID\r\nLEFT JOIN DynamicForm t4 ON t4.ID=t3.DynamicFormID where t1.IpirAppId in(" + string.Join(',', IpirAppIds) + ");";
-
+                query += "select FileProfileTypeID,SessionID from FileProfileType;";
                 using (var connection = CreateConnection())
                 {
 
@@ -284,7 +290,7 @@ namespace Infrastructure.Repository.Query
                     MultipleIpirAppItemLists.Documents = result.Read<Documents>().ToList();
                     MultipleIpirAppItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     MultipleIpirAppItemLists.IpirAppIssueDep = result.Read<IpirAppIssueDep>().ToList();
-
+                    MultipleIpirAppItemLists.Fileprofiletype = result.Read<Fileprofiletype>().ToList();
                 }
                 return MultipleIpirAppItemLists;
             }

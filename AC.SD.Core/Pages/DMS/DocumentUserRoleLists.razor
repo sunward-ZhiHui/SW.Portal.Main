@@ -97,7 +97,7 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="User Role" ColSpanMd="6">
+            <DxFormLayoutItem Caption="User Role" ColSpanMd="12">
                 <DxComboBox Data="@_documentRoleList"
                             NullText="Select User Role..."
                             ListRenderMode="ListRenderMode.Virtual"
@@ -110,6 +110,9 @@
                 </DxComboBox>
             </DxFormLayoutItem>
         </DxFormLayout>
+        <DxFormLayoutItem Caption="Is Security Add Existing Documents" ColSpanMd="12">
+            <DxCheckBox @bind-Checked="documentUserRoleModel.IsUpdateAllDocument"></DxCheckBox>
+        </DxFormLayoutItem>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateRoleDocuments()) />
@@ -212,6 +215,8 @@
         documentUserRoleModel = new DocumentUserRoleModel();
         documentUserRoleModel.RoleID = _selectedItems.RoleID;
         documentUserRoleModel.DocumentUserRoleID = _selectedItems.DocumentUserRoleID;
+        documentUserRoleModel.FileProfileTypeId = FileProfileTypeId;
+        documentUserRoleModel.UserID = _selectedItems.UserID;
     }
     async Task OnUpdateRoleDocuments()
     {

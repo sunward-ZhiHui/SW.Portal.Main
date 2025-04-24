@@ -2565,8 +2565,14 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("DocumentUserRoleID", documentUserRoleModel.DocumentUserRoleID);
+                        parameters.Add("FileProfileTypeId", documentUserRoleModel.FileProfileTypeId);
                         parameters.Add("RoleID", documentUserRoleModel.RoleID);
-                        var Addquerys = "UPDATE DocumentUserRole SET RoleID = @RoleID WHERE  DocumentUserRoleID = @DocumentUserRoleID";
+                        parameters.Add("UserID", documentUserRoleModel.UserID);
+                        var Addquerys = "UPDATE DocumentUserRole SET RoleID = @RoleID WHERE  DocumentUserRoleID = @DocumentUserRoleID;";
+                        if (documentUserRoleModel.IsUpdateAllDocument == true && documentUserRoleModel.UserID > 0 && documentUserRoleModel.FileProfileTypeId > 0)
+                        {
+                            Addquerys += "UPDATE DocumentUserRole SET RoleID = @RoleID WHERE  UserID=@UserID AND FileProfileTypeId = @FileProfileTypeId;";
+                        }
                         await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters);
 
                         return documentUserRoleModel;

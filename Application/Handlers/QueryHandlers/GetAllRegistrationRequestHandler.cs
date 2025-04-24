@@ -132,7 +132,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<RegistrationRequestAssignmentOfJob>> Handle(GetRegistrationRequestAssignmentOfJob request, CancellationToken cancellationToken)
         {
-            return (List<RegistrationRequestAssignmentOfJob>)await _queryRepository.GetRegistrationRequestAssignmentOfJob(request.RegistrationRequestId,request.DepartmentId);
+            return (List<RegistrationRequestAssignmentOfJob>)await _queryRepository.GetRegistrationRequestAssignmentOfJob(request.RegistrationRequestId, request.DepartmentId);
         }
     }
     public class DeleteRegistrationRequestAssignmentOfJobHandler : IRequestHandler<DeleteRegistrationRequestAssignmentOfJob, RegistrationRequestAssignmentOfJob>
@@ -340,6 +340,46 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<ActivityEmailTopics> Handle(GetActivityEmailTopicsExits request, CancellationToken cancellationToken)
         {
             return await _queryRepository.GetActivityEmailTopicsExits(request.SessionId);
+        }
+    }
+
+
+    public class GetRegistrationRequestSupportingDocHandler : IRequestHandler<GetRegistrationRequestSupportingDoc, List<RegistrationRequestSupportingDoc>>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public GetRegistrationRequestSupportingDocHandler(IRegistrationRequestQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<RegistrationRequestSupportingDoc>> Handle(GetRegistrationRequestSupportingDoc request, CancellationToken cancellationToken)
+        {
+            return (List<RegistrationRequestSupportingDoc>)await _queryRepository.GetRegistrationRequestSupportingDoc(request.RegistrationRequestId);
+        }
+    }
+    public class DeleteRegistrationRequestSupportingDocHandler : IRequestHandler<DeleteRegistrationRequestSupportingDoc, RegistrationRequestSupportingDoc>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public DeleteRegistrationRequestSupportingDocHandler(IRegistrationRequestQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<RegistrationRequestSupportingDoc> Handle(DeleteRegistrationRequestSupportingDoc request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteRegistrationRequestSupportingDoc(request.RegistrationRequestSupportingDoc);
+        }
+    }
+
+    public class InsertorUpdateRegistrationRequestSupportingDocHandler : IRequestHandler<InsertorUpdateRegistrationRequestSupportingDoc, RegistrationRequestSupportingDoc>
+    {
+        private readonly IRegistrationRequestQueryRepository _queryRepository;
+        public InsertorUpdateRegistrationRequestSupportingDocHandler(IRegistrationRequestQueryRepository dynamicFormQueryRepository)
+        {
+            _queryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<RegistrationRequestSupportingDoc> Handle(InsertorUpdateRegistrationRequestSupportingDoc request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertorUpdateRegistrationRequestSupportingDoc(request);
         }
     }
 }

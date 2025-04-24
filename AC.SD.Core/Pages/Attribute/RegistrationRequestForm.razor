@@ -252,6 +252,9 @@
                             <ValidationMessage For="@(() => Data.PurposeOfRegistration)" />
                         </DxFormLayoutItem>
                     </DxFormLayoutGroup>
+                    <DxFormLayoutGroup ColSpanMd="12" Caption="Supporting Documents" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+                        <RegistrationRequestSupportingDocs @ref="refRegistrationRequestSupportingDocs" departments="@departments" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestSupportingDocs>
+                    </DxFormLayoutGroup>
                 </DxFormLayout>
             </EditForm>
             <div class="row align-items-end" style="border-top: 1px solid #d5d4d4; margin-top:10px;">
@@ -261,9 +264,13 @@
                             @* <DxFormLayoutTabPage Caption="Section Entry">
                             <RegistrationRequestFormLine @ref="refRegistrationRequestFormLine" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestFormLine>
                             </DxFormLayoutTabPage> *@
+
                             <DxFormLayoutTabPage Caption="Progress by registration department">
                                 <RegistrationRequestProgressByRegistrationDepartments @ref="refRegistrationRequestProgressByRegistrationDepartments" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestProgressByRegistrationDepartments>
                             </DxFormLayoutTabPage>
+                           @*  <DxFormLayoutTabPage Caption="Supporting Documents">
+                                <RegistrationRequestSupportingDocs @ref="refRegistrationRequestSupportingDocs" departments="@departments" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestSupportingDocs>
+                            </DxFormLayoutTabPage> *@
                             @* <DxFormLayoutTabPage Caption="Assignment of Job for QC department">
                             <RegistrationRequestAssignmentOfJobs @ref="refRegistrationRequestAssignmentOfJobs" applicationUser="@applicationUser" _registrationRequestData="@_registrationRequestData"></RegistrationRequestAssignmentOfJobs>
                             </DxFormLayoutTabPage> *@
@@ -306,7 +313,7 @@
     IGrid Grid { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
-    private RegistrationRequestFormLine refRegistrationRequestFormLine;
+    private RegistrationRequestFormLine refRegistrationRequestFormLine; private RegistrationRequestSupportingDocs refRegistrationRequestSupportingDocs;
     private RegistrationRequestProgressByRegistrationDepartments refRegistrationRequestProgressByRegistrationDepartments;
     private RegistrationRequestAssignmentOfJobs refRegistrationRequestAssignmentOfJobs;
     int ActiveSubTabIndex { get; set; } = 0;
@@ -502,11 +509,13 @@
                 RegistrationRequestVariationForm = await Mediator.Send(new GetRegistrationRequestVariationForm(dynamicFormData.RegistrationRequestId));
                 await loadFormData(Data.VariationNoIds);
                 await refRegistrationRequestProgressByRegistrationDepartments.loadChildData(_registrationRequestData);
+                await refRegistrationRequestSupportingDocs.loadChildData(_registrationRequestData, departments);
             }
         }
         else
         {
             await refRegistrationRequestProgressByRegistrationDepartments.loadChildData(_registrationRequestData);
+            await refRegistrationRequestSupportingDocs.loadChildData(_registrationRequestData, departments);
         }
         StateHasChanged();
 
@@ -866,6 +875,7 @@
             }
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false; ActiveSubTabIndex = 0; UnSaved = false;
+            await refRegistrationRequestSupportingDocs.loadChildData(_registrationRequestData, departments);
             StateHasChanged();
         }
         else

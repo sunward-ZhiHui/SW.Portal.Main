@@ -190,5 +190,26 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
-    
+
+
+    public class GetRegistrationRequestSupportingDoc : PagedRequest, IRequest<List<RegistrationRequestSupportingDoc>>
+    {
+        public long? RegistrationRequestId { get; set; }
+        public GetRegistrationRequestSupportingDoc(long? registrationRequestId)
+        {
+            this.RegistrationRequestId = registrationRequestId;
+        }
+    }
+    public class InsertorUpdateRegistrationRequestSupportingDoc : RegistrationRequestSupportingDoc, IRequest<RegistrationRequestSupportingDoc>
+    {
+    }
+    public class DeleteRegistrationRequestSupportingDoc : RegistrationRequestQueries, IRequest<RegistrationRequestSupportingDoc>
+    {
+        public RegistrationRequestSupportingDoc RegistrationRequestSupportingDoc { get; set; }
+        public DeleteRegistrationRequestSupportingDoc(RegistrationRequestSupportingDoc registrationRequestQueries)
+        {
+            this.RegistrationRequestSupportingDoc = registrationRequestQueries;
+        }
+    }
+
 }

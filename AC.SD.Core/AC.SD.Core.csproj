@@ -108,6 +108,9 @@
     <Content Update="Pages\Attribute\DynamicFormSettingForm\DynamicFormWorkFlowApprovals.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\Attribute\RegistrationRequestSupportingDocs.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\Attribute\RegistrationRequestProgressByRegistrationDepartments.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

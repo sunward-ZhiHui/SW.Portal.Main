@@ -42,5 +42,8 @@ namespace Core.Repositories.Query
         Task<RegistrationRequestAssignmentOfJob> InsertCreateEmailRegistrationRequestAssignmentOfJob(RegistrationRequestAssignmentOfJob dynamicFormData);
         Task<RegistrationRequestDepartmentEmailCreate> InsertCreateEmailRegistrationRequestAssignmentOfJobSubjectWise(RegistrationRequestDepartmentEmailCreate valueData);
         Task<ActivityEmailTopics> GetActivityEmailTopicsExits(Guid? SessionId);
+        Task<IReadOnlyList<RegistrationRequestSupportingDoc>> GetRegistrationRequestSupportingDoc(long? RegistrationRequestId);
+        Task<RegistrationRequestSupportingDoc> DeleteRegistrationRequestSupportingDoc(RegistrationRequestSupportingDoc value);
+        Task<RegistrationRequestSupportingDoc> InsertorUpdateRegistrationRequestSupportingDoc(RegistrationRequestSupportingDoc registrationRequestSupportingDoc);
     }
 }

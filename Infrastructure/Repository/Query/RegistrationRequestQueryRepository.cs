@@ -675,7 +675,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("RegistrationRequestId", RegistrationRequestId);
                 parameters.Add("DepartmentId", DepartmentId);
                 var query = "select tt3.RegistrationRequestDepartmentId,tt3.DepartmentUniqueSessionId,t1.*,t3.UserName as AddedBy,t4.UserName as ModifiedBy,tt2.Name as DepartmentName from RegistrationRequestAssignmentOfJob t1\r\n" +
-                    "JOIN RegistrationRequestDepartment tt3 ON t1.RegistrationRequestDepartmentId=tt3.RegistrationRequestDepartmentId JOIN RegistrationRequest t2 ON t1.RegistrationRequestID=t2.RegistrationRequestID\r\n" +
+                    "LEFT JOIN RegistrationRequestDepartment tt3 ON t1.RegistrationRequestDepartmentId=tt3.RegistrationRequestDepartmentId JOIN RegistrationRequest t2 ON t1.RegistrationRequestID=t2.RegistrationRequestID\r\n" +
                     "LEFT JOIN Department tt2 ON t1.DepartmentID=tt2.DepartmentID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID Where   t1.DepartmentId=@DepartmentId AND t1.RegistrationRequestId=@RegistrationRequestId;";
                 using (var connection = CreateConnection())
                 {
@@ -1464,7 +1464,7 @@ namespace Infrastructure.Repository.Query
                             Follow = "No Follow Up",
                             ReplyId = 0,
                             ParticipantId = request.FromId.Value,
-                            Message = SubemailContents,
+                            Message = SubemailContents + "</br>" + request.MessageContent,
                             UserType = "Users",
                             DueDate = null,
                             AllParticipantIds = participants.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(id => long.Parse(id.Trim())).ToList(),
@@ -1625,6 +1625,114 @@ namespace Infrastructure.Repository.Query
             var result = await _productionActivityAppQueryRepository.InserProductionActivityEmail(activityEmailTopics);
 
             return result.ActivityEmailTopicID;
+        }
+
+
+        public async Task<IReadOnlyList<RegistrationRequestSupportingDoc>> GetRegistrationRequestSupportingDoc(long? RegistrationRequestId)
+        {
+            try
+            {
+                var result = new List<RegistrationRequestSupportingDoc>();
+                var parameters = new DynamicParameters();
+                parameters.Add("RegistrationRequestId", RegistrationRequestId);
+                var query = "select t6.Name as DepartmentName,t5.CodeValue As StatusCode,t1.*,t3.UserName as AddedBy,t4.UserName as ModifiedBy from RegistrationRequestSupportingDoc t1\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\n" +
+                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedUserID " +
+                     "LEFT JOIN CodeMaster t5 ON t5.CodeID=t1.StatusCodeID " +
+                      "LEFT JOIN Department t6 ON t6.DepartmentId=t1.DepartmentId " +
+                    "Where t1.RegistrationRequestId=@RegistrationRequestId;";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    result = results.ReadAsync<RegistrationRequestSupportingDoc>().Result.ToList();
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<RegistrationRequestSupportingDoc> InsertorUpdateRegistrationRequestSupportingDoc(RegistrationRequestSupportingDoc value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("RegistrationRequestSupportingDocId", value.RegistrationRequestSupportingDocId);
+                    parameters.Add("DetailInforamtionByGuideline", value.DetailInforamtionByGuideline, DbType.String);
+                    parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                    parameters.Add("DetailRequirement", value.DetailRequirement, DbType.String);
+                    parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                    parameters.Add("AddedByUserId", value.AddedByUserId);
+                    parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
+                    parameters.Add("ModifiedUserId", value.ModifiedUserId);
+                    parameters.Add("DepartmentId", value.DepartmentId);
+                    parameters.Add("StatusCodeId", value.StatusCodeId);
+                    parameters.Add("RegistrationRequestId", value.RegistrationRequestId);
+                    if (value.RegistrationRequestSupportingDocId > 0)
+                    {
+                        var query = "UPDATE RegistrationRequestSupportingDoc SET RegistrationRequestId=@RegistrationRequestId,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId,DetailRequirement=@DetailRequirement,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
+                            "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID WHERE RegistrationRequestSupportingDocId = @RegistrationRequestSupportingDocId;";
+
+                        query += "UPDATE RegistrationRequestAssignmentOfJob SET DetailRequirement=@DetailRequirement,RegistrationRequestId=@RegistrationRequestId,DetailInforamtionByGuideline=@DetailInforamtionByGuideline,DepartmentId=@DepartmentId,SessionId =@SessionId,ModifiedUserId=@ModifiedUserId," +
+                            "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID WHERE RegistrationRequestSupportingDocId = @RegistrationRequestSupportingDocId";
+
+                        await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO RegistrationRequestSupportingDoc(RegistrationRequestId,DetailInforamtionByGuideline,DepartmentId,DetailRequirement,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,StatusCodeId) OUTPUT INSERTED.RegistrationRequestSupportingDocId VALUES " +
+                            "(@RegistrationRequestId,@DetailInforamtionByGuideline,@DepartmentId,@DetailRequirement,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@StatusCodeId);";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        value.RegistrationRequestSupportingDocId = rowsAffected;
+                        parameters.Add("RegistrationRequestSupportingDocId", value.RegistrationRequestSupportingDocId);
+                        var query1 = "INSERT INTO RegistrationRequestAssignmentOfJob(RegistrationRequestSupportingDocId,DetailRequirement,RegistrationRequestId,DetailInforamtionByGuideline,DepartmentId,SessionId,AddedByUserId,AddedDate,ModifiedUserId,ModifiedDate,StatusCodeId) OUTPUT INSERTED.RegistrationRequestAssignmentOfJobId VALUES " +
+                           "(@RegistrationRequestSupportingDocId,@DetailRequirement,@RegistrationRequestId,@DetailInforamtionByGuideline,@DepartmentId,@SessionId,@AddedByUserId,@AddedDate,@ModifiedUserId,@ModifiedDate,@StatusCodeId)";
+                        var rowsAffected1 = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters);
+                    }
+                    return value;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<RegistrationRequestSupportingDoc> DeleteRegistrationRequestSupportingDoc(RegistrationRequestSupportingDoc value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("RegistrationRequestSupportingDocId", value.RegistrationRequestSupportingDocId);
+                        var query = "Delete from RegistrationRequestAssignmentOfJob  WHERE RegistrationRequestSupportingDocId = @RegistrationRequestSupportingDocId;";
+                        query += "Delete from RegistrationRequestSupportingDoc  WHERE RegistrationRequestSupportingDocId = @RegistrationRequestSupportingDocId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
         }
     }
 }

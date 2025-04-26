@@ -390,7 +390,7 @@ namespace Infrastructure.Service
                         InternalRef = item.Internal_Ref,
                         ItemRegistration = item.Item_Registration,
                         ExpirationCalculation = item.Expiration_Calculation,
-                        BatchNos = item.Batch_Nos,
+                        //BatchNos = item.Batch_Nos,
                         ProductionRecipeNo = item.Production_Recipe_No,
                         Qcenabled = item.QC_Enabled,
                         //SafetyLeadTime = item.Safety_Lead_Time,
@@ -940,11 +940,11 @@ namespace Infrastructure.Service
                 while (true)
                 {
                     var context = new NAVService(_configuration, company);
-                    var nquery = context.Context.ReleaseProdOrderLine.Skip(page * pageSize).Take(pageSize);
-                    DataServiceQuery<NAV.ReleaseProdOrderLine> query = (DataServiceQuery<NAV.ReleaseProdOrderLine>)nquery;
+                    var nquery = context.Context.AllProdOrderLine.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.AllProdOrderLine> query = (DataServiceQuery<NAV.AllProdOrderLine>)nquery;
 
-                    TaskFactory<IEnumerable<NAV.ReleaseProdOrderLine>> taskFactory = new TaskFactory<IEnumerable<NAV.ReleaseProdOrderLine>>();
-                    IEnumerable<NAV.ReleaseProdOrderLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+                    TaskFactory<IEnumerable<NAV.AllProdOrderLine>> taskFactory = new TaskFactory<IEnumerable<NAV.AllProdOrderLine>>();
+                    IEnumerable<NAV.AllProdOrderLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
 
                     var prodCodes = result.ToList();
                     prodCodes.ForEach(b =>

@@ -671,8 +671,11 @@
     {
         if (_selectedItems != null)
         {
-            var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + _selectedItems.FileProfileTypeSessionId + "/" + _selectedItems.SessionID;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            if (_selectedItems.FileProfileTypeSessionId != null)
+            {
+                var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + _selectedItems.FileProfileTypeSessionId + "/" + _selectedItems.SessionID;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
         }
     }
     private async Task onCopy()

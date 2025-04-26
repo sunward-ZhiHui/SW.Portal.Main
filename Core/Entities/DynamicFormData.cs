@@ -109,6 +109,7 @@ namespace Core.Entities
         public long? NewDynamicFormDataId { get; set; }
         public long? DynamicFormApprovedId { get; set; }
         public List<AddTempSectionAttribute> AddTempSectionAttributes { get; set; } = new List<AddTempSectionAttribute>();
+        public bool? IsNotDelete { get; set; } = false;
     }
     public class DynamicFormProfile
     {
@@ -125,6 +126,7 @@ namespace Core.Entities
         public long? ProfileId { get; set; } = 0;
         public long? UserId { get; set; }
         public string? ProfileNo { get; set; }
+       
     }
     public class DynamicFormDataWrokFlow
     {

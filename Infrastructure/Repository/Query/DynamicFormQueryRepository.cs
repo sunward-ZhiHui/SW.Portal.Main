@@ -3275,6 +3275,52 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DynamicFormData>> GetForeign_Key_Table_Schema_Data(DynamicFormData dynamicFormData)
+        {
+            List<DynamicFormData> dynamicFormDataList = new List<DynamicFormData>();
+            List<Foreign_Key_Table_Schema> Foreign_Key_Table_Schema = new List<Foreign_Key_Table_Schema>();
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                query = "SELECT\r\nKCU1.CONSTRAINT_NAME AS FK_CONSTRAINT_NAME     ,KCU1.TABLE_NAME AS FK_TABLE_NAME     ,KCU1.COLUMN_NAME AS FK_COLUMN_NAME     ,KCU2.CONSTRAINT_NAME AS REFERENCED_CONSTRAINT_NAME     ,KCU2.TABLE_NAME AS REFERENCED_TABLE_NAME     ,KCU2.COLUMN_NAME AS REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1     ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG      AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA     AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2     ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG      AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA     AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION where KCU2.TABLE_NAME='DynamicformData';\r\n";
+                using (var connection = CreateConnection())
+                {
+                    Foreign_Key_Table_Schema = (await connection.QueryAsync<Foreign_Key_Table_Schema>(query, parameters)).ToList();
+                    var query1 = string.Empty;
+                    if (Foreign_Key_Table_Schema != null && Foreign_Key_Table_Schema.Count() > 0)
+                    {
+                        Foreign_Key_Table_Schema.ForEach(s =>
+                        {
+                            if (s.FK_TABLE_NAME != "DynamicFormDataAudit")
+                            {
+                                query1 += " select " + s.FK_COLUMN_NAME + " as DynamicFormDataID from " + s.FK_TABLE_NAME + " where " + s.FK_COLUMN_NAME + "=" + dynamicFormData.DynamicFormDataId;
+                                if (s.FK_COLUMN_NAME == "DynamicFormDataGridID" && s.FK_TABLE_NAME == "DynamicFormData")
+                                {
+                                    query1 += " AND (IsDeleted=0 or IsDeleted is null) ";
+                                }
+                                query1 += " UNION ALL";
+                            }
+                        });
+                        if (query1.EndsWith("UNION ALL"))
+                        {
+                            query1 = query1.Remove(query1.Length - 9);
+                        }
+                        if (!string.IsNullOrEmpty(query1))
+                        {
+                            dynamicFormDataList = (await connection.QueryAsync<DynamicFormData>(query1, parameters)).ToList();
+                        }
+                    }
+
+                }
+
+                return dynamicFormDataList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -3285,41 +3331,49 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var result = await UpdateDynamicFormDataSort(dynamicFormData.DynamicFormId, dynamicFormData.SortOrderByNo);
-                        var parameters = new DynamicParameters();
-                        parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
-
-                        var query = "UPDATE DynamicFormData SET IsDeleted=1 WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-
-                        if (dynamicFormData.SortOrderByNo > 0)
+                        var res = await GetForeign_Key_Table_Schema_Data(dynamicFormData);
+                        if (res != null && res.Count() > 0)
                         {
-                            var sortby = dynamicFormData.SortOrderByNo;
-                            if (result != null)
-                            {
-                                result.ForEach(s =>
-                                {
-                                    query += "Update  DynamicFormData SET SortOrderByNo=" + sortby + "  WHERE DynamicFormDataId =" + s.DynamicFormDataId + ";";
-                                    sortby++;
-                                });
-                            }
+                            dynamicFormData.IsNotDelete = true;
                         }
-                        if (dynamicFormData.DynamicFormDataGridId > 0)
+                        else
                         {
-                            var results = await UpdateDynamicFormDataGridSortOrderByNoSort(dynamicFormData.DynamicFormId, dynamicFormData.GridSortOrderByNo, dynamicFormData.DynamicFormDataGridId);
-                            if (dynamicFormData.GridSortOrderByNo > 0)
+                            var result = await UpdateDynamicFormDataSort(dynamicFormData.DynamicFormId, dynamicFormData.SortOrderByNo);
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+
+                            var query = "UPDATE DynamicFormData SET IsDeleted=1 WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+
+                            if (dynamicFormData.SortOrderByNo > 0)
                             {
-                                var sortsby = dynamicFormData.GridSortOrderByNo;
-                                if (results != null)
+                                var sortby = dynamicFormData.SortOrderByNo;
+                                if (result != null)
                                 {
-                                    results.ForEach(s =>
+                                    result.ForEach(s =>
                                     {
-                                        query += "Update  DynamicFormData SET GridSortOrderByNo=" + sortsby + "  WHERE DynamicFormDataId =" + s.DynamicFormDataId + ";";
-                                        sortsby++;
+                                        query += "Update  DynamicFormData SET SortOrderByNo=" + sortby + "  WHERE DynamicFormDataId =" + s.DynamicFormDataId + ";";
+                                        sortby++;
                                     });
                                 }
                             }
+                            if (dynamicFormData.DynamicFormDataGridId > 0)
+                            {
+                                var results = await UpdateDynamicFormDataGridSortOrderByNoSort(dynamicFormData.DynamicFormId, dynamicFormData.GridSortOrderByNo, dynamicFormData.DynamicFormDataGridId);
+                                if (dynamicFormData.GridSortOrderByNo > 0)
+                                {
+                                    var sortsby = dynamicFormData.GridSortOrderByNo;
+                                    if (results != null)
+                                    {
+                                        results.ForEach(s =>
+                                        {
+                                            query += "Update  DynamicFormData SET GridSortOrderByNo=" + sortsby + "  WHERE DynamicFormDataId =" + s.DynamicFormDataId + ";";
+                                            sortsby++;
+                                        });
+                                    }
+                                }
+                            }
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         }
-                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return dynamicFormData;
                     }
                     catch (Exception exp)

@@ -1393,10 +1393,24 @@
     }
     async Task bulkDelete()
     {
-        var request = new DeleteDynamicFormData(_selectedItems);
-        await Mediator.Send(request);
-        Blukdeletepopup = false;
-        await UpdateDataAsync();
+        try
+        {
+            var request = new DeleteDynamicFormData(_selectedItems);
+            var result = await Mediator.Send(request);
+            if (result.IsNotDelete == true)
+            {
+                toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+        }
+        catch (Exception eq)
+        {
+        }
     }
     public void clearData()
     {

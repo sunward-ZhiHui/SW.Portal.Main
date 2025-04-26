@@ -118,8 +118,23 @@
                     @startDate
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            @* <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" /> *@
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (RegistrationRequestAssignmentOfJob)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate != DateTime.MinValue)
+                        {
+                            if (item.ModifiedDate != null)
+                            {
+                                startDate = item.ModifiedDate.Value.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -613,7 +628,7 @@
             }
             else
             {
-                toastService.ShowToast("Select Checkbox For Variation No And After Click Create Email", AC.SD.Core.Services.ToastLevel.Error);
+                toastService.ShowToast("Select Checkbox For Variation No And After Click Create Email", AC.SD.Core.Services.ToastLevel.Info);
             }
         }
     }

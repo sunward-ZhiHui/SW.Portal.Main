@@ -222,31 +222,34 @@
                 dynamicFormIds.Add(result1.ID);
             }
             List<long?> ids = new List<long?>();
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID, ids));
-            dropDownOptionsGridListModel = list;
-            _dynamicformObjectDataList = new List<ExpandoObject>();
-            if (list.ObjectData != null)
+            if (dynamicFormIds.Count() > 0)
             {
-                foreach (var v in (list.ObjectData as IEnumerable<ExpandoObject>))
+                var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID, ids));
+                dropDownOptionsGridListModel = list;
+                _dynamicformObjectDataList = new List<ExpandoObject>();
+                if (list.ObjectData != null)
                 {
-                    dynamic eod = v;
-                    var vv = eod.DynamicFormId;
-                    var AttributeDetailIds = eod.AttributeDetailID;
-                    string listone = string.Empty;
-                    //11406_Attr
-                    var gridlistss = list.DropDownGridOptionsModel.FirstOrDefault(f => f.DynamicFormId == vv)?.DropDownOptionsModels;
-                    if (gridlistss != null && gridlistss.Count() > 0)
+                    foreach (var v in (list.ObjectData as IEnumerable<ExpandoObject>))
                     {
-                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
-                        g1.ForEach(q =>
+                        dynamic eod = v;
+                        var vv = eod.DynamicFormId;
+                        var AttributeDetailIds = eod.AttributeDetailID;
+                        string listone = string.Empty;
+                        //11406_Attr
+                        var gridlistss = list.DropDownGridOptionsModel.FirstOrDefault(f => f.DynamicFormId == vv)?.DropDownOptionsModels;
+                        if (gridlistss != null && gridlistss.Count() > 0)
                         {
-                            var byName = (IDictionary<string, object>)v;
-                            var names = (string)byName[q.Value]?.ToString();
-                            listone += names + "|";
-                        });
+                            var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                            g1.ForEach(q =>
+                            {
+                                var byName = (IDictionary<string, object>)v;
+                                var names = (string)byName[q.Value]?.ToString();
+                                listone += names + "|";
+                            });
+                        }
+                        eod.DisplayItemsQuery = listone;
+                        _dynamicformObjectDataList.Add(eod);
                     }
-                    eod.DisplayItemsQuery = listone;
-                    _dynamicformObjectDataList.Add(eod);
                 }
             }
             _attributes = await Mediator.Send(new GetAllRegistrationRequestQuery());

@@ -2493,17 +2493,17 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
                             parameters.Add("StatusCodeID", forumConversations.StatusCodeID);
                             parameters.Add("AddedByUserID", forumConversations.AddedByUserID);
-                            parameters.Add("SessionId", forumConversations.SessionId);
-                            parameters.Add("AddedDate", forumConversations.AddedDate);
+                            parameters.Add("SessionId", forumConversations.SessionId,DbType.Guid);
+                            parameters.Add("AddedDate", forumConversations.AddedDate,DbType.DateTime);
                             parameters.Add("FileData", forumConversations.FileData);
-                            parameters.Add("Name", forumConversations.Name);
-                            parameters.Add("DueDate", forumConversations.DueDate);
+                            parameters.Add("Name", forumConversations.Name,DbType.String);
+                            parameters.Add("DueDate", forumConversations.DueDate, DbType.DateTime);
                             parameters.Add("IsLockDueDate", forumConversations.IsLockDueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
                             parameters.Add("Urgent", forumConversations.Urgent);
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
-                            parameters.Add("UserType", forumConversations.UserType);
+                            parameters.Add("UserType", forumConversations.UserType, DbType.String);
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 

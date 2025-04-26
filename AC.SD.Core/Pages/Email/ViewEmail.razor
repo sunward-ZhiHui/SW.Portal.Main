@@ -4909,11 +4909,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         {
             TopicID = CurrentEmailConversations.TopicID,
             AssigntoIds = AssigntoIdss,
-            AssignccIds = AssignccIdss,
-                Message = " Your request due date of (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ") has been successfully approved.",
-               // Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
-               // "<strong>Reason:</strong><br/>" +
-               // $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
+            AssignccIds = AssignccIdss, 
+            //Message = " Your request due date of (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ") has been successfully approved.",
+                Message = "The due date has been changed to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
+            // Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
+            // "<strong>Reason:</strong><br/>" +
+            // $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
             PlistIdss="",
             AllowPlistids = "",
             IsAllowParticipants= false,

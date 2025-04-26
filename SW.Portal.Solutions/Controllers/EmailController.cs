@@ -425,7 +425,8 @@ namespace SW.Portal.Solutions.Controllers
                         AddedDate = DateTime.Now,
                         Name = emailConversations.Name,
                         SessionId = Guid.NewGuid(),
-                        UserType = emailConversations.UserType
+                        UserType = emailConversations.UserType,
+                        IsDueDate = emailConversations.IsDueDate
                     };
 
                     var res = await _mediator.Send(createReq);

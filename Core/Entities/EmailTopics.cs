@@ -165,5 +165,7 @@ namespace Core.Entities
         public string? Reason { get; set; }
         [NotMapped]
         public DateTime? RequestedDueDate { get; set; }
+        [NotMapped]
+        public int? IsDueDate { get; set; } = 0;
     }
 }

@@ -125,6 +125,24 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
 
             </CellDisplayTemplate>
         </DxGridDataColumn>
+        <DxGridDataColumn FieldName="IsDueDate" Caption="-" Width="30">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+
+                @if (item.IsDueDate == 1)
+                {     
+                    <span class="fa fa-calendar" style="font-size:18px; color:red;"></span>
+                }
+
+                @if (item.IsDueDate == 2)
+                {
+                    <span class="fas fa-calendar-check" style="font-size:18px; color:green;"></span>
+                }
+
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
         <DxGridDataColumn FieldName="ReplyCount" Caption="Reply" Width="100">
             <CellDisplayTemplate>
                 @{
@@ -255,10 +273,10 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
             }
         </div>
         <div style="height: calc(100vh - 150px);overflow:auto;overflow-x:auto">
-                <AC.SD.Core.Pages.Email.EmailPrint ConSessionId="@_selectedItems.SessionId.Value"></AC.SD.Core.Pages.Email.EmailPrint>
+            <AC.SD.Core.Pages.Email.EmailPrint ConSessionId="@_selectedItems.SessionId.Value"></AC.SD.Core.Pages.Email.EmailPrint>
         </div>
 
-        
+
     </BodyContentTemplate>
 </DxPopup>
 
@@ -389,6 +407,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
         if (newValue != null)
         {
             SelectedDueDate = newValue.Value;
+            isduedate = 1;
         }
         if(LockDueDateEnable == false)
         {
@@ -472,6 +491,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
                 Name = _selectedItems.TopicName,
                 AddedByUserID = applicationUser.UserID,
                 From = "",
+                IsDueDate = 1,
                 LastName = "",
                 UserCode = "",
                 UserName = "",
@@ -562,6 +582,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     public Action<string> SubViewAllTopicId { get; set; }
     private string? BaseUrl;
     string DuedateReason { get; set; } = "";
+    int isduedate = 0;
     public IEnumerable<long?> DataUserTagIds { get; set; } = new List<long?>();
     async Task onRefresh()
     {
@@ -573,6 +594,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     }
     void addEdit()
     {
+        isduedate = 0;
         EmailDueDateGrid.StartEditDataItemAsync(_selectedItems);
     }
     async Task onReplyMsg()
@@ -614,6 +636,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
+
         if (e.ElementType == GridElementType.DataRow)
         {
             //var item = (EmailTopics)e.Grid;
@@ -778,7 +801,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
     {
         var UpdateReq = new UpdateEmailTopicSubjectDueDate
             {
-                //ID = long.Parse(@SelectedGroup),
+            //ID = long.Parse(@SelectedGroup),
                 ID = (int)emailTopics.ID,
                 TopicID = emailTopics.EmailTopicID,
                 NoOfDays = emailTopics.NoOfDays,
@@ -787,14 +810,122 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
                 UserTag = UserTagName,
                 UserTagIds = DataUserTagIds,
                 OtherTag = OthersTagName,
+                IsDueDate = isduedate == 1 ? 1 : 0,
                 openAccessUserLink = _openAccessUserLink != null ? true : false,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now
             };
 
         var result = await Mediator.Send(UpdateReq);
+
+        if(isduedate == 1)
+        {
+            //await sendreplymsg(emailTopics);
+        }
+
+
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await onRefresh();
+    }
+    private async Task sendreplymsg(EmailTopics emailTopics)
+    {
+        var cList = await Mediator.Send(new GetRequestEmailToCCList(emailTopics.ID));
+        var duedate = emailTopics.DueDate;
+
+
+        var participantIds = new List<long>();
+        var AssigntoIdss = new List<long>();
+        var AssignccIdss = new List<long>();
+
+        if (cList.Count > 0)
+        {
+            var ToOnlyList = await Mediator.Send(new GetEmailToOnlyList(emailTopics.ID));
+
+            // if (cList[0].ToIds.HasValue)
+            //     participantIds.Add(cList[0].ToIds.Value);
+
+            if (long.TryParse(ToOnlyList[0].CcIds, out long toId))
+            {
+                participantIds.Add(toId);
+            }
+
+            if (long.TryParse(cList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+            AssignccIdss = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+            // foreach(var id in AssignccIdss)
+            // {
+            //     AssigntoIdss.Add(id);
+            // }
+
+            // AssignccIdss = new List<long>();
+        }
+        else
+        {
+            var ToOnlyList = await Mediator.Send(new GetRequestEmailToOnlyList(emailTopics.ID));
+
+
+            if (ToOnlyList[0].ToIds.HasValue)
+                participantIds.Add(ToOnlyList[0].ToIds.Value);
+
+            if (long.TryParse(ToOnlyList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].ToIds.HasValue ? new List<long> { ToOnlyList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+
+        }
+
+
+        var emailconlist = new EmailConversations
+            {
+                TopicID = emailTopics.EmailTopicID,
+                AssigntoIds = AssigntoIdss,
+                AssignccIds = AssignccIdss,
+               // Message = " Your request due date of (" + @Application.Common.Helper.Helper.FormatDate(emailTopics.DueDate) + ") has been successfully approved.",
+                Message = "The due date has been changed to (" + @Application.Common.Helper.Helper.FormatDate(emailTopics.DueDate) + ").",
+            // Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
+            // "<strong>Reason:</strong><br/>" +
+            // $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
+                PlistIdss = "",
+                AllowPlistids = "",
+                IsAllowParticipants = false,
+                Urgent = false,
+                ConIds = 0,
+                ReplyId = emailTopics.ID,
+                AllParticipantIds = participantIds.Distinct().ToList(),
+                ParticipantId = applicationUser.UserID,
+                Name = emailTopics.Name,
+                AddedByUserID = applicationUser.UserID,
+                From = "",
+                LastName = "",
+                UserCode = "",
+                UserName = "",
+                FirstName = "",
+                UserEmail = "",
+                IsDueDate = 2,
+                FileData = new byte[0],
+                FirebaseDocKey = "",
+
+            };
+
+        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+        string url = BaseUrl + "OnSubmitReply";
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
+        var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        // Send the POST request with the content
+        var response = await httpClient.PostAsync(url, content);
+        var msg = response.StatusCode;
+
     }
     public async ValueTask DisposeAsync()
     {

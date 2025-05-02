@@ -715,32 +715,33 @@ namespace Core.EntityModels
     public class ACItemsModel : BaseModel
     {
         public long DistACID { get; set; }
-        public string DistName { get; set; }
+        public string? DistName { get; set; }
         public long DistId { get; set; }
-        public string ItemGroup { get; set; }
-        public string ItemNo { get; set; }
+        public string? ItemGroup { get; set; }
+        public string? ItemNo { get; set; }
         public long? SWItemId { get; set; }
-        public List<long?> ItemIds { get; set; }
-        public string SWItemNo { get; set; }
-        public string SWItemDesc { get; set; }
-        public string SWItemDesc2 { get; set; }
-        public string GenericCode { get; set; }
-        public string Packuom { get; set; }
-        public string Steriod { get; set; }
-        public string ShelfLife { get; set; }
-        public string Quota { get; set; }
-        public string Status { get; set; }
-        public string ItemDesc { get; set; }
-        public string PackSize { get; set; }
+        public IEnumerable<long?> ItemIds { get; set; } = new List<long?>();
+        public string? SWItemNo { get; set; }
+        public string? SWItemDesc { get; set; }
+        public string? SWItemDesc2 { get; set; }
+        public string? GenericCode { get; set; }
+        public string? Packuom { get; set; }
+        public string? Steriod { get; set; }
+        public string? ShelfLife { get; set; }
+        public string? Quota { get; set; }
+        public string? Status { get; set; }
+        public string? ItemDesc { get; set; }
+        public string? PackSize { get; set; }
         public decimal ACQty { get; set; }
-        public DateTime ACMonth { get; set; }
+        public DateTime? ACMonth { get; set; }
         public long? CustomerId { get; set; }
         public long? CompanyId { get; set; }
-        public string InternalRefNo { get; set; }
-
-        public string CategoryCode { get; set; }
+        public string? InternalRefNo { get; set; }
+        public long? CategoryId { get; set; }
+        public string? CategoryCode { get; set; }
         public long? NavItemCustomerItemId { get; set; }
         public long? NavItemId { get; set; }
+        public string? CustomerNmae { get; set; }
     }
     public class OrderRequirementLineModel : BaseModel
     {

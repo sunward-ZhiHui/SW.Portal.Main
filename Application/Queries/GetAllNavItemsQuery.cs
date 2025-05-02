@@ -210,4 +210,12 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class GetAllProdOrderLineList : PagedRequest, IRequest<AllProdOrderLine>
+    {
+        public long? CompanyId { get; set; }
+        public GetAllProdOrderLineList(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 }

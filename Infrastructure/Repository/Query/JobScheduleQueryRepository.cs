@@ -349,28 +349,28 @@ namespace Infrastructure.Repository.Query
                             await _queryRepository.GetNavItemServicesList(item.PlantID, 1);
                         }
                     }
-                    else if (JobType == "FinishedProdOrder")
+                    if (JobType == "FinishedProdOrder")
                     {
                         foreach (var item in plantDatas)
                         {
                             await _queryRepository.GetFinishedProdOrderLineList(item.PlantID);
                         }
                     }
-                    else if (JobType == "ItemBatchInfo")
+                    if (JobType == "ItemBatchInfo")
                     {
                         foreach (var item in plantDatas)
                         {
                             await _queryRepository.GetNavItemBatchInfo(item.PlantID);
                         }
                     }
-                    else if (JobType == "NavprodOrder")
+                    if (JobType == "NavprodOrder")
                     {
                         foreach (var item in plantDatas)
                         {
                             await _queryRepository.GetNavprodOrderLineList(item.PlantID);
                         }
                     }
-                    else if (JobType == "NavVendor")
+                    if (JobType == "NavVendor")
                     {
                         foreach (var item in plantDatas)
                         {
@@ -384,14 +384,21 @@ namespace Infrastructure.Repository.Query
                             await _queryRepository.GetRawMatPurchList(item.PlantID);
                         }
                     }
-                    else if (JobType == "ReleaseProdOrderLine")
+                    if (JobType == "ReleaseProdOrderLine")
                     {
                         foreach (var item in plantDatas)
                         {
                             await _queryRepository.GetReleaseProdOrderLineList(item.PlantID);
                         }
                     }
-                    else if (JobType == "RawMatItem")
+                    if (JobType == "AllProdOrderLine")
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _queryRepository.GetAllProdOrderLineList(item.PlantID);
+                        }
+                    }
+                    if (JobType == "RawMatItem")
                     {
                         List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
                         if (plantDatas != null && plantDatas.Count() > 0)
@@ -403,10 +410,6 @@ namespace Infrastructure.Repository.Query
                                 await _salesOrderService.ProcessItemAsync(item.NavCompanyName, item.PlantID, "ProcessItem");
                             }
                         }
-                    }
-                    else
-                    {
-
                     }
                 }
             }

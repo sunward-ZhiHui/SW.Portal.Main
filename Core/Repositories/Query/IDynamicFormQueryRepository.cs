@@ -143,6 +143,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormDataUpload> GetDynamicFormDataUploadCheckValidation(long? dynamicFormDataId, long? dynamicFormSectionId);
         Task<DynamicFormDataAttrUpload> DeleteDynamicFormDataAttrUpload(DynamicFormDataAttrUpload dynamicFormDataAttrUpload);
         Task<DynamicFormData> GetDynamicFormDataOneBySessionIdAsync(Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit);
     }
 
 }

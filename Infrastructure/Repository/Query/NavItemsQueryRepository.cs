@@ -50,7 +50,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from NAVItems";
+                var query = "select t1.*,t2.PlantCode,t2.Description as PlantDescription from NAVItems t1 LEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId";
 
                 using (var connection = CreateConnection())
                 {
@@ -1363,6 +1363,109 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = "INSERT INTO [ReleaseProdOrderLine](ProduceExactQuantity,PrePrintedStartDate,SubStatus,Status,Promised,ReplanRefNo,Remarks,ProdOrderNo,MachineCenterCode,LocationCode,BatchSize,BatchNo,ItemNo,Description,Description2,Quantity,CompletionDate,StartingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
                             "OUTPUT INSERTED.ReleaseProdOrderLineId VALUES " +
+                            "(@ProduceExactQuantity,@PrePrintedStartDate,@SubStatus,@Status,@Promised,@ReplanRefNo,@Remarks,@ProdOrderNo,@MachineCenterCode,@LocationCode,@BatchSize,@BatchNo,@ItemNo,@Description,@Description2,@Quantity,@CompletionDate,@StartingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return lastInsertedRecordId;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+        public async Task<IReadOnlyList<AllProdOrderLine>> GeAllProdOrderLineAsync(long? CompanyId)
+        {
+            List<AllProdOrderLine> ReleaseProdOrderLineList = new List<AllProdOrderLine>();
+            try
+            {
+                var query = "select  * from AllProdOrderLine where CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AllProdOrderLine>(query)).ToList();
+                    ReleaseProdOrderLineList = result != null ? result : new List<AllProdOrderLine>();
+                }
+                return ReleaseProdOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<AllProdOrderLine> GetAllProdOrderLineList(long? CompanyId)
+        {
+            try
+            {
+                AllProdOrderLine _releaseProdOrderLine = new AllProdOrderLine();
+                var _releaseProdOrderLineData = await GeAllProdOrderLineAsync(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    var navItemsData = await GetNavItemItemNosAsync(CompanyId);
+                    List<Navitems> navItemsDatas = navItemsData != null && navItemsData.Count() > 0 ? navItemsData.ToList() : new List<Navitems>();
+                    List<AllProdOrderLine> _releaseProdOrderLineDatas = _releaseProdOrderLineData != null ? _releaseProdOrderLineData.ToList() : new List<AllProdOrderLine>();
+                    var lst = await _salesOrderService.AllProdOrderLineAsync(plantData.NavCompanyName, plantData.PlantID, _releaseProdOrderLineDatas, navItemsDatas);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            await InsertOrUpdateAllProdOrderLine(s);
+                        }
+                    }
+                }
+                _releaseProdOrderLine.AllProdOrderLineId = 1;
+                return _releaseProdOrderLine;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertOrUpdateAllProdOrderLine(AllProdOrderLine finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("AllProdOrderLineId", finishedProdOrderLine.AllProdOrderLineId);
+                    parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
+                    parameters.Add("Description2", finishedProdOrderLine.Description2, DbType.String);
+                    parameters.Add("BatchNo", finishedProdOrderLine.BatchNo, DbType.String);
+                    parameters.Add("BatchSize", finishedProdOrderLine.BatchSize, DbType.String);
+                    parameters.Add("Quantity", finishedProdOrderLine.Quantity);
+                    parameters.Add("LocationCode", finishedProdOrderLine.LocationCode, DbType.String);
+                    parameters.Add("CompletionDate", finishedProdOrderLine.CompletionDate, DbType.DateTime);
+                    parameters.Add("MachineCenterCode", finishedProdOrderLine.MachineCenterCode, DbType.String);
+                    parameters.Add("ProdOrderNo", finishedProdOrderLine.ProdOrderNo, DbType.String);
+                    parameters.Add("Remarks", finishedProdOrderLine.Remarks, DbType.String);
+                    parameters.Add("ReplanRefNo", finishedProdOrderLine.ReplanRefNo, DbType.String);
+                    parameters.Add("Promised", finishedProdOrderLine.Promised);
+                    parameters.Add("Status", finishedProdOrderLine.Status, DbType.String);
+                    parameters.Add("SubStatus", finishedProdOrderLine.SubStatus, DbType.String);
+                    parameters.Add("StartingDate", finishedProdOrderLine.StartingDate, DbType.DateTime);
+                    parameters.Add("UnitOfMeasureCode", finishedProdOrderLine.UnitOfMeasureCode, DbType.String);
+                    parameters.Add("ItemId", finishedProdOrderLine.ItemId);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    parameters.Add("PrePrintedStartDate", finishedProdOrderLine.PrePrintedStartDate, DbType.DateTime);
+                    parameters.Add("ProduceExactQuantity", finishedProdOrderLine.ProduceExactQuantity);
+                    var lastInsertedRecordId = finishedProdOrderLine.AllProdOrderLineId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  AllProdOrderLine SET ProduceExactQuantity=@ProduceExactQuantity, PrePrintedStartDate=@PrePrintedStartDate,SubStatus=@SubStatus,Status=@Status,Promised=@Promised,ReplanRefNo=@ReplanRefNo,Remarks=@Remarks,ProdOrderNo=@ProdOrderNo,MachineCenterCode=@MachineCenterCode, LocationCode=@LocationCode, BatchSize=@BatchSize,BatchNo=@BatchNo,ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,CompletionDate=@CompletionDate,StartingDate=@StartingDate," +
+                            "UnitOfMeasureCode=@UnitOfMeasureCode,ItemId=@ItemId,CompanyId=@CompanyId  WHERE AllProdOrderLineId =@AllProdOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [AllProdOrderLine](ProduceExactQuantity,PrePrintedStartDate,SubStatus,Status,Promised,ReplanRefNo,Remarks,ProdOrderNo,MachineCenterCode,LocationCode,BatchSize,BatchNo,ItemNo,Description,Description2,Quantity,CompletionDate,StartingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
+                            "OUTPUT INSERTED.AllProdOrderLineId VALUES " +
                             "(@ProduceExactQuantity,@PrePrintedStartDate,@SubStatus,@Status,@Promised,@ReplanRefNo,@Remarks,@ProdOrderNo,@MachineCenterCode,@LocationCode,@BatchSize,@BatchNo,@ItemNo,@Description,@Description2,@Quantity,@CompletionDate,@StartingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }

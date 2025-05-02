@@ -44,5 +44,6 @@ namespace Core.Repositories.Query
         Task<SoCustomer> GetNavVendorList(long? CompanyId);
         Task<RawMatPurch> GetRawMatPurchList(long? CompanyId);
         Task<ReleaseProdOrderLine> GetReleaseProdOrderLineList(long? CompanyId);
+        Task<AllProdOrderLine> GetAllProdOrderLineList(long? CompanyId);
     }
 }

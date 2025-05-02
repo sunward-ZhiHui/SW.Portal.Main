@@ -975,6 +975,14 @@ namespace Application.Queries
             this.DynamicFormDataSessionId = dynamicFormDataId;
         }
     }
-
+    public class GetDynamicFormDataAuditMasterList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
+    {
+        public DynamicFormDataAudit DynamicFormDataAudit { get; set; }
+        public GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit)
+        {
+            this.DynamicFormDataAudit = dynamicFormDataAudit;
+        }
+    }
+    
 }
 

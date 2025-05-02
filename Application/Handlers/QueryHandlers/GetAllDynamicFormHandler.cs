@@ -1619,7 +1619,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataAttrUpload>> Handle(GetDynamicFormDataAttrUpload request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataAttrUpload>)await _dynamicFormQueryRepository.GetDynamicFormDataAttrUpload(request.Id,request.DynamicFormDataId);
+            return (List<DynamicFormDataAttrUpload>)await _dynamicFormQueryRepository.GetDynamicFormDataAttrUpload(request.Id, request.DynamicFormDataId);
         }
     }
 
@@ -1647,7 +1647,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicFormDataUpload> Handle(GetDynamicFormDataUploadCheckValidation request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetDynamicFormDataUploadCheckValidation(request.DynamicFormDataId,request.DynamicFormSectionId);
+            return await _queryRepository.GetDynamicFormDataUploadCheckValidation(request.DynamicFormDataId, request.DynamicFormSectionId);
 
         }
     }
@@ -1688,6 +1688,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DynamicFormData> Handle(GetDynamicFormDataOneBySessionId request, CancellationToken cancellationToken)
         {
             return await _dynamicFormQueryRepository.GetDynamicFormDataOneBySessionIdAsync(request.DynamicFormDataSessionId);
+        }
+
+
+    }
+    public class GetDynamicFormDataAuditMasterListHandler : IRequestHandler<GetDynamicFormDataAuditMasterList, List<DynamicFormDataAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAuditMasterListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditMasterList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditMasterList(request.DynamicFormDataAudit);
         }
 
 

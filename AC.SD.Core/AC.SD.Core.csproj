@@ -105,6 +105,9 @@
     <Content Update="Pages\Attribute\DynamicFormOdataAttrLists.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\Attribute\DynamicFormAuditMasterList.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\Attribute\DynamicFormSettingForm\DynamicFormWorkFlowApprovals.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

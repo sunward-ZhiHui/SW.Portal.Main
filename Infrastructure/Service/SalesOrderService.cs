@@ -940,6 +940,77 @@ namespace Infrastructure.Service
                 while (true)
                 {
                     var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.ReleaseProdOrderLine.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.ReleaseProdOrderLine> query = (DataServiceQuery<NAV.ReleaseProdOrderLine>)nquery;
+
+                    TaskFactory<IEnumerable<NAV.ReleaseProdOrderLine>> taskFactory = new TaskFactory<IEnumerable<NAV.ReleaseProdOrderLine>>();
+                    IEnumerable<NAV.ReleaseProdOrderLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        var exitsData = releaseProdOrderLinesList.Where(f => f.ItemNo == b.Item_No && f.ReplanRefNo == b.Replan_Ref_No && f.ProdOrderNo == b.Prod_Order_No && f.BatchNo == b.Batch_No && f.CompanyId == companyid).Count();
+                        if (exitsData == 0)
+                        {
+                            var itemsExits = navitems.FirstOrDefault(f => f.CompanyId == companyid && f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
+                            var exits = releaseProdOrderLines.Where(f => f.ItemNo == b.Item_No && f.ReplanRefNo == b.Replan_Ref_No && f.ProdOrderNo == b.Prod_Order_No && f.BatchNo == b.Batch_No && f.CompanyId == companyid).FirstOrDefault();
+                            if (exits == null)
+                            {
+                                releaseProdOrderLinesList.Add(new Core.Entities.ReleaseProdOrderLine
+                                {
+                                    ItemNo = b.Item_No,
+                                    Description = b.Description,
+                                    Description2 = b.Description_2,
+                                    BatchNo = b.Batch_No,
+                                    BatchSize = b.Batch_Size,
+                                    Quantity = b.Quantity,
+                                    LocationCode = b.Location_Code,
+                                    CompletionDate = b.Completion_Date == DateTime.MinValue ? null : b.Completion_Date,
+                                    MachineCenterCode = b.Machine_Center_Code,
+                                    ProdOrderNo = b.Prod_Order_No,
+                                    Remarks = b.Remarks,
+                                    ReplanRefNo = b.Replan_Ref_No,
+                                    Promised = b.Promised,
+                                    StartingDate = b.Starting_Date == DateTime.MinValue ? null : b.Starting_Date,
+                                    Status = b.Status,
+                                    SubStatus = b.Sub_status,
+                                    UnitOfMeasureCode = b.Unit_of_Measure_Code,
+                                    PrePrintedStartDate = b.Pre_Printed_Start_Date == DateTime.MinValue ? null : b.Pre_Printed_Start_Date,
+                                    ProduceExactQuantity = b.Produce_Exact_Quantity,
+                                    CompanyId = companyid,
+                                    ItemId = itemsExits?.ItemId,
+                                });
+                            }
+                            else
+                            {
+                                releaseProdOrderLinesList.Add(exits);
+                            }
+                        }
+                    });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
+                return releaseProdOrderLinesList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public async Task<List<Core.Entities.AllProdOrderLine>> AllProdOrderLineAsync(string company, long companyid, List<Core.Entities.AllProdOrderLine> releaseProdOrderLines, List<Navitems> navitems)
+        {
+            try
+            {
+                List<Core.Entities.AllProdOrderLine> releaseProdOrderLinesList = new List<Core.Entities.AllProdOrderLine>();
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
                     var nquery = context.Context.AllProdOrderLine.Skip(page * pageSize).Take(pageSize);
                     DataServiceQuery<NAV.AllProdOrderLine> query = (DataServiceQuery<NAV.AllProdOrderLine>)nquery;
 
@@ -956,7 +1027,7 @@ namespace Infrastructure.Service
                             var exits = releaseProdOrderLines.Where(f => f.ItemNo == b.Item_No && f.ReplanRefNo == b.Replan_Ref_No && f.ProdOrderNo == b.Prod_Order_No && f.BatchNo == b.Batch_No && f.CompanyId == companyid).FirstOrDefault();
                             if (exits == null)
                             {
-                                releaseProdOrderLinesList.Add(new Core.Entities.ReleaseProdOrderLine
+                                releaseProdOrderLinesList.Add(new Core.Entities.AllProdOrderLine
                                 {
                                     ItemNo = b.Item_No,
                                     Description = b.Description,

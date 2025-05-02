@@ -51,6 +51,11 @@ namespace SW.Portal.Solutions.Services
                 await _IHandFireJobQueryRepository.InsertHandFireJob("StartNavprodOrder");
                 await _mediator.Send(new GetJobScheduleNavFuctionQuery("NavprodOrder"));
                 await _IHandFireJobQueryRepository.InsertHandFireJob("EndFinishedProdOrder");
+
+
+                await _IHandFireJobQueryRepository.InsertHandFireJob("StartAllProdOrderLine");
+                await _mediator.Send(new GetJobScheduleNavFuctionQuery("AllProdOrderLine"));
+                await _IHandFireJobQueryRepository.InsertHandFireJob("EndAllProdOrderLine");
             }
             catch (Exception ex)
             {

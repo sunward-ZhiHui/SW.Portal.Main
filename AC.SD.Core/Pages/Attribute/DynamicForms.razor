@@ -6019,7 +6019,7 @@
                                  {
                                      editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
                                  }
-                                 else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                 else if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
                                  {
                                      editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                                  }
@@ -6074,7 +6074,7 @@
                                          layoutItemBuilders.CloseComponent();
                                          if (s.DropDownTypeId == "Data Source")
                                          {
-                                             if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                             if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                              {
                                              }
                                              else
@@ -6139,7 +6139,7 @@
                                              layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                                              layoutItemBuilders.CloseComponent();
                                          }
-                                         if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                         if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
                                          {
                                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                              layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -6380,7 +6380,7 @@
                                  {
                                      editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
                                  }
-                                 else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                 else if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
                                  {
                                      editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                                  }
@@ -6422,7 +6422,7 @@
                                             layoutItemBuilders.CloseComponent();
                                             if (s.DropDownTypeId == "Data Source")
                                             {
-                                                if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                 {
                                                 }
                                                 else
@@ -6487,7 +6487,7 @@
                                                 layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                                                 layoutItemBuilders.CloseComponent();
                                             }
-                                            if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                            if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
                                             {
                                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                                 layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -6672,7 +6672,7 @@
                                 layoutItemBuilders.CloseComponent();
                                 if (s.DropDownTypeId == "Data Source")
                                 {
-                                    if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                    if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                     {
                                     }
                                     else
@@ -6737,7 +6737,7 @@
                                     layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                                     layoutItemBuilders.CloseComponent();
                                 }
-                                if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
                                 {
                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                     layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -6902,7 +6902,7 @@
                                            {
                                                editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
                                            }
-                                           else if (ff.DataSourceTable == "ReleaseProdOrderLine")
+                                           else if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "AllProdOrderLine")
                                            {
                                                editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                                            }
@@ -6953,7 +6953,7 @@
                                            layoutItemBuilders1.CloseComponent();
                                            if (s.DropDownTypeId == "Data Source")
                                            {
-                                               if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                               if (ff.DataSourceTable == "AllProdOrderLine" || ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                {
                                                }
                                                else
@@ -7018,7 +7018,7 @@
                                                layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
                                                layoutItemBuilders1.CloseComponent();
                                            }
-                                           if (ff.DataSourceTable == "ReleaseProdOrderLine")
+                                           if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "AllProdOrderLine")
                                            {
                                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                                layoutItemBuilders1.AddAttribute(8, "FieldName", "Description2");
@@ -7644,7 +7644,7 @@
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
                             }
-                            else if (q.DataSourceTable == "ReleaseProdOrderLine")
+                            else if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                             }
@@ -7682,7 +7682,7 @@
                     layoutItemBuilders.CloseComponent();
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -7747,7 +7747,7 @@
                         layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
                         layoutItemBuilders.CloseComponent();
                     }
-                    if (q.DataSourceTable == "ReleaseProdOrderLine")
+                    if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
                     {
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -7821,7 +7821,7 @@
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
                             }
-                            else if (q.DataSourceTable == "ReleaseProdOrderLine")
+                            else if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                             }
@@ -7859,7 +7859,7 @@
                     layoutItemBuilders.CloseComponent();
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -7924,7 +7924,7 @@
                         layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                         layoutItemBuilders.CloseComponent();
                     }
-                    if (q.DataSourceTable == "ReleaseProdOrderLine")
+                    if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
                     {
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -8059,7 +8059,7 @@
                         layoutItemBuilders.CloseComponent();
                         if (q.DropDownTypeId == "Data Source")
                         {
-                            if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else
@@ -8124,7 +8124,7 @@
                             layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                             layoutItemBuilders.CloseComponent();
                         }
-                        if (q.DataSourceTable == "ReleaseProdOrderLine")
+                        if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
                         {
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -10723,7 +10723,7 @@
                         layoutItemBuilders1.CloseComponent();
                         if (q.DropDownTypeId == "Data Source")
                         {
-                            if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else
@@ -10889,7 +10889,7 @@
                         layoutItemBuilders.CloseComponent();
                         if (q.DropDownTypeId == "Data Source")
                         {
-                            if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else

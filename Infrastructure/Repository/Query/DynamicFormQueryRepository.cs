@@ -7815,6 +7815,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit)
+        {
+            try
+            {
+                List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
+                var parameters = new DynamicParameters();
+                parameters.Add("AuditUserId", dynamicFormDataAudit.AuditUserId);
+                parameters.Add("DynamicFormId", dynamicFormDataAudit.DynamicFormId);
+                var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,tt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  from DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId AND (tt2.IsDeleted is null OR tt2.IsDeleted=0)\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)tt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=tt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                }
+                return dynamicFormDataAudits;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId)
         {
             try

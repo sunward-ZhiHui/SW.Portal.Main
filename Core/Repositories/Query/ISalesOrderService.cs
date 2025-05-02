@@ -31,5 +31,6 @@ namespace Core.Repositories.Query
         Task<ProdPlanningLineNav> GetProdOrderOutputLine(string company, long? companyId, List<Navitems> itemMaster);
         Task<List<GroupPlaningTicket>> GetProdGroupLine(string company, long? companyId);
         Task<List<ProdOrderNotStart>> GetProdNotStart(string company, long? companyId);
+        Task<List<AllProdOrderLine>> AllProdOrderLineAsync(string company, long companyid, List<AllProdOrderLine> releaseProdOrderLines, List<Navitems> navitems);
     }
 }

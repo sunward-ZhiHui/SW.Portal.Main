@@ -26,9 +26,13 @@ namespace Core.Entities
         public long? DynamicFormId { get; set; }
         public string? AuditUser { get; set; }
         public string? PreUser { get; set; }
-        public int? RowNum { get; set; }
+        public long? RowNum { get; set; }
         public string? DisplayName {  get; set; }  
         public Guid? DynamicFormSessionId {  get; set; }
         public bool? IsDeleted { get; set; }=false;
+        public string? DynamicFormName { get; set; }
+        public string? ProfileNo { get; set; }
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public long? CountData { get; set; }
     }
 }

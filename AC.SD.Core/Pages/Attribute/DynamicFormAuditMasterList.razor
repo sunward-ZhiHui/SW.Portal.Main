@@ -1,0 +1,236 @@
+﻿@page "/DynamicFormAudit"
+@using System.Dynamic;
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JS;
+@inject NavigationManager NavigationManager
+@using Newtonsoft.Json.Linq;
+@using Newtonsoft.Json;
+@implements IAsyncDisposable
+@inject ClipboardService ClipboardService
+@using System.Collections.ObjectModel
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<div style="margin-bottom:10px;">
+    <EditForm EditContext="this._editContext" Context="EditFormContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6">
+                <DxComboBox Data="@_dynamicForm"
+                            NullText="Select Dynamic Form..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="ID"
+                            Value="@DataAudit.DynamicFormId"
+                            ValueExpression="@(() => DataAudit.DynamicFormId )"
+                            ValueChanged="@((long? plantData) => SelectedFormChanged(plantData))"
+                            ShowValidationIcon="true">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
+                                            Caption="Name"
+                                            Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(DynamicForm.CompanyName)"
+                                            Caption="Company Name" />
+                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ProfileName)"
+                                            Caption="Profile" />
+                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
+                                            Caption="Screen Name" />
+                    </Columns>
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="User List" ColSpanMd="6">
+                <DxComboBox Data="@_usersList"
+                            NullText="Select User..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            ValueFieldName="UserID"
+                            TextFieldName="FirstName"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            EditFormat="{0}-{1}"
+                            Value="@DataAudit.AuditUserId"
+                            ValueExpression="@(() => DataAudit.AuditUserId )"
+                            ValueChanged="@((long? plantData) => SelectedUserChanged(plantData))">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                    </Columns>
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+
+    </EditForm>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_DynamicFormDataAuditList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="RowNum"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="w-100"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowClick="OnRowclick"
+            VirtualScrollingEnabled="true">
+
+        <Columns>
+            <DxGridDataColumn FieldName="RowNum" Caption="Row Num" MinWidth="10" Visible="false" />
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="10" GroupIndex="0" />
+            <DxGridDataColumn FieldName="PreUser" MinWidth="50" Caption="Prev User" />
+            <DxGridDataColumn FieldName="PreUpdateDate" Caption="Prev Update Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormDataAudit)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.PreUpdateDate != DateTime.MinValue)
+                        {
+                            startDate = item.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditUser" MinWidth="50" Caption="Audit User"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditDateTime" Caption="Audit Date" MinWidth="50" SortIndex="0" SortOrder="GridColumnSortOrder.Descending">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormDataAudit)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDateTime.HasValue && item.AuditDateTime != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
+        <DetailRowTemplate>
+            <DynamicFormsAuditTrailFormView Items="(DynamicFormDataAudit)context.DataItem" />
+        </DetailRowTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; } = false; bool EditEnabled { get; set; } = false;
+    private DynamicFormDataAudit _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<DynamicFormDataAudit> _DynamicFormDataAuditList { get; set; }
+    DynamicFormDataAudit DataAudit = new DynamicFormDataAudit();
+    EditContext _editContext;
+    private List<DynamicForm> _dynamicForm; private List<ViewEmployee>? _usersList;
+    public List<PortalMenuModel> portalMenuModel { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(DataAudit);
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+    }
+    async Task loadData()
+    {
+        EditEnabled = false;
+        _DynamicFormDataAuditList = new List<DynamicFormDataAudit>();
+        PanelVisible = true;
+        if (DataAudit.DynamicFormId > 0 && DataAudit.AuditUserId > 0)
+        {
+            _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditMasterList(DataAudit));
+            if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+            {
+                _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+                EditEnabled = true;
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task SelectedFormChanged(long? dynamicFormId)
+    {
+        DataAudit.DynamicFormId = dynamicFormId;
+        await loadData();
+    }
+    async Task SelectedUserChanged(long? userId)
+    {
+        DataAudit.AuditUserId = userId;
+        await loadData();
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RowNum");
+        _selectedItems = _DynamicFormDataAuditList.FirstOrDefault(f => f.RowNum == (long?)UniqueId);
+        EditEnabled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    async Task OpenNewForm()
+    {
+        if (portalMenuModel != null && portalMenuModel.Count() > 0)
+        {
+            if (_selectedItems != null)
+            {
+                var exits = portalMenuModel.FirstOrDefault(f => f.ParentID == 60240 && f.PermissionID == 60243);
+                if (exits != null)
+                {
+                    var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicForms/" + _selectedItems.DynamicFormSessionId + "/" + _selectedItems.DynamicFormDataSessionId;
+                    await JS.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else
+                {
+                    var exits1 = portalMenuModel.FirstOrDefault(f => f.ParentID == 60240 && f.PermissionID == 60244);
+                    if (exits1 != null)
+                    {
+                        var url1 = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + _selectedItems.DynamicFormSessionId + "/" + _selectedItems.DynamicFormDataSessionId;
+                        await JS.InvokeVoidAsync("window.open", url1, "_blank");
+                    }
+                }
+            }
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

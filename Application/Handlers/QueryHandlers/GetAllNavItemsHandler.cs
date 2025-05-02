@@ -391,4 +391,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetAllProdOrderLineListHandler : IRequestHandler<GetAllProdOrderLineList, AllProdOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllProdOrderLineListHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<AllProdOrderLine> Handle(GetAllProdOrderLineList request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetAllProdOrderLineList(request.CompanyId);
+
+        }
+    }
 }

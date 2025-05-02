@@ -1,0 +1,608 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using Markdig;
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using MediatR
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/devEmail"
+@page "/devEmail/{ActiveSessionId}"
+@page "/devEmail/{TodoSessionId:guid}/{Page}"
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime;
+@inject HttpClient httpClient;
+@using System.IO;
+@using Microsoft.JSInterop;
+@using DevExpress.DocumentView;
+@inject NavigationManager NavigationManager
+@using System.Web;
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.Text;
+@using RtfPipe;
+@inject Application.Common.Helper.Helper dateformathelper
+@using System.Net.Http;
+@using System.Threading.Tasks
+@using System.Threading
+@using System.Timers;
+@using Application.Command.ApplicationMasterChilds;
+@using Application.Command.ApplicationMasterDetails;
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@implements IAsyncDisposable;
+@inherits BasePage
+@inject PersistentComponentState ComponentState
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@inject DataRefreshService RefreshService
+@inject ClipboardService ClipboardService
+<style scoped>
+    .btn-load {
+    background-color: #aeaeae;
+    color: white;
+    padding: 3px 9px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    width: 107px;
+    transition: background-color 0.3s ease;
+    margin: 10px;
+    }
+
+    .btn-load:hover {
+    background-color: #0056b3;
+    }
+
+
+    .dheight {
+    height: calc(100vh - 200px);
+    }
+
+    .drawer {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Initially hidden (off-screen to the right) */
+    width: 300px;
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+    z-index: 1000;
+    }
+
+    .drawer.open {
+    right: 0; /* Slide in from the right */
+    }
+
+    .drawer-header {
+    padding: 20px;
+    background-color: #444;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+
+    .drawer-content {
+    padding: 20px;
+    }
+
+    .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+    }
+
+    .overlay.active {
+    display: block; /* Show overlay when drawer is open */
+    }
+
+    .toggle-btn {
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    }
+
+    .close-btn {
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    }
+
+</style>
+
+<style>
+    .txtEditorMsg {
+    height: calc(100vh - 530px);
+    background-color: white;
+    }
+
+    .lstcoversationrply.markasread img {
+    width: 90% !important;
+    height: auto !important;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    }
+
+    #tableData img {
+    width: 90% !important;
+    height: auto !important;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    }
+</style>
+<style>
+    .center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 310px);
+    margin: 0;
+    }
+
+    .warning-message {
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #f5c6cb;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #721c24;
+    }
+
+    .warning-message h1 {
+    font-size: 2rem;
+    margin: 0;
+    }
+
+    .warning-message p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    }
+</style>
+<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
+
+
+<div class="main-container">
+    <div class="content-container row">
+        <div class="mini-menu-bar col-md-3 @toggleButtonVisible"  style="overflow-x: hidden;">
+            <div class="mini-menu-bar-top">                    
+                <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
+                    <div class="card-body p-0">
+                        <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
+                            <DxTabPage Text="All" CssClass="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("All"))"></DxTabPage> 
+                            <DxTabPage Text="Assign To" CssClass="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" Click="@(() => OnLeftMenuItemClick("AssignTo"))"></DxTabPage>                                
+                            <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))"></DxTabPage>
+                            <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))"></DxTabPage> 
+                            <DxTabPage Text="Transfer" CssClass="@((isLeftMenuvisible == "Transfer" ? "tActive": "transfer"))" Click="@(() => OnLeftMenuItemClick("Transfer"))"></DxTabPage> 
+                            @if(_openAccessUserLink != null)
+                            {
+                                <DxTabPage Text="Administrator" CssClass="@((isLeftMenuvisible == "Administrator" ? "tActive": "administrator"))" Click="@(() => OnLeftMenuItemClick("Administrator"))"></DxTabPage>   
+                            } 
+
+                        </DxTabs>                          
+                    </div>
+                </div>
+                <div class="views-accordion">
+                    @if(isLeftMenuvisible == "All")
+                    {
+                        <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailClick" SubViewAllTopicId="onSubViewEmailClick"></AllEmail>
+                    }
+                    else if (isLeftMenuvisible == "AssignTo")
+                    {
+                        <AssignToEmail @ref=RefAssignTo Page="@Page" GridSearchText="@GridSearchText" ToTopicId="onViewEmailClick" SubViewToTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailToClickMultiple " EnableArchiveAll="EnableArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen" DisableOpenClose="DisableOpenClose"></AssignToEmail>
+                    }                           
+                    else if(isLeftMenuvisible == "Sent")
+                    {
+                        <SentEmail sentTopicId="onViewEmailClick" SubViewSentTopicId="onSubViewEmailClick"></SentEmail>
+                    }  
+                    else if(isLeftMenuvisible == "Library")
+                    {
+                        <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" Filtersessionid="@FilterSessionId" ATopicId="onViewEmailClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailUnArchiveClick" EnableUnArchiveAll="EnableUnArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen"></MasterSearch>
+                    }
+                    else if(isLeftMenuvisible == "Transfer")
+                    {
+                        <TransferEmail @ref=RefTransferEamil GridSearchText="@GridSearchText" ATopicId="onViewEmailClick" SubViewAllTopicId="onSubViewEmailClick"></TransferEmail>
+                    }
+                    else if (isLeftMenuvisible == "Administrator")
+                    {
+                        <AdminEmail @ref=RefAdminSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailClick" SubViewAllTopicId="onSubViewEmailClick"></AdminEmail>
+                    }
+                </div>
+            </div>
+        </div>
+
+
+        <div class="menu-bar-content-container @hiddenButtonCssClass">
+            <div class="content-padding-20">
+                <div class="menu-bar-content-container-heading">
+                    <div>
+
+                        @if (_discussionList != null && _discussionList.Any())
+                        {
+                            @foreach (var item in _discussionList)
+                            {
+                                <ViewEmailDetailPage Id="@SelectedReplyId"></ViewEmailDetailPage>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+@code
+{
+    [Parameter]
+    public string? Page { get; set; }
+    [Parameter]
+    public string? ActiveSessionId { get; set; }
+    [Parameter]
+    public Guid TodoSessionId { get; set; }
+
+    string? GridSearchText { get; set; }
+    private AllEmail? RefAssignAll{ get; set; }
+    private AssignToEmail? RefAssignTo { get; set; }
+    private MasterSearch? RefMasterSearch { get; set; }
+    private TransferEmail? RefTransferEamil { get; set; }
+    private AdminEmail? RefAdminSearch { get; set; }
+
+    public List<EmailConversations>? _replyDiscussionList = new();
+    public ApplicationUser? applicationUser { get; private set; }
+    Guid? _sessionId;
+    private string toggleButtonVisible = "ActiveToggle";
+    private string hiddenButtonCssClass = "col-md-9";
+    public int ActiveTabIndex { get; set; } = 1;
+    string isMenuvisible = "Posts";
+    string isLeftMenuvisible = "AssignTo";
+    private OpenAccessUserLink? _openAccessUserLink { get; set; }
+    List<string>? SelectedGroups = new List<string>();
+    bool ArchiveEnabled { get; set; } = false;
+    bool UnArchiveEnabled { get; set; } = false;
+    //private List<ViewEmployee> plist;
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;
+    long? AppUserId;
+    public string? filterrowname { get; set; }
+    string SelectedGroup = "none";
+    //string SelectedReplyId = "none";
+    public long SelectedReplyId { get; set; } = -1;
+
+    [Parameter]
+    public long Tid { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
+    public long RTopicId = 0;
+
+    private List<EmailTopics>? _headTopic;
+    private List<EmailActivityCatgorys>? _headTopic_Tag;
+    private List<EmailActivityCatgorys>? _headTopic_UserTag;
+
+    public List<EmailConversations>? _discussionList;
+    public List<EmailConversations>? _replyComment;
+    EmailConversations? Data { get; set; } = new EmailConversations();
+    bool WindowVisible { get; set; } = false;
+    private bool IsReadOnly = true;
+    bool isArchiveClosed = false;
+    bool IsOpenFlyout { get; set; } = false;
+    bool isComponentVisible = true;
+    bool AddPopupArchive { get; set; } = false;
+    bool isOpenEnabled { get; set; } = false;
+    bool isCloseEnabled { get; set; } = false;
+    string? MyDayFilterText = null;
+    Guid? FilterSessionId = null;
+
+
+    private async void onViewEmailClick(string ATopicId)
+    {
+        SelectedGroup = ATopicId;
+        ClearDiscussionList();
+        await LoadData();
+        StateHasChanged();
+    }
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = long.Parse(RId);
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString(); 
+        onloadTagsList();
+        await LoadReplyData();
+        StateHasChanged();
+    }
+    private void ClearDiscussionList()
+    {
+        if (_discussionList != null)
+        {
+            _discussionList.Clear();
+            _discussionList = null;
+        }
+    }
+    private async Task LoadData()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
+
+        RTopicId = 0;
+        Tid = long.Parse(@SelectedGroup);
+        var getconid = await Mediator.Send(new GetTopConversationList(Tid));       
+        Cid = 0;
+        SelectedReplyId = getconid[0].ID;  
+
+        await OnMenuItemClick(isMenuvisible);
+    }
+    async Task OnMenuItemClick(string text)
+    {
+        isMenuvisible = text;
+
+        if (text == "Posts")
+        {
+            isComponentVisible = true;
+            // isAddParticipant = false;
+            // isEllipsis = true;
+            // isCommand = true;
+            // isTags = false;
+
+            if (RTopicId == 0)
+            {
+                await LoadDataPosts();
+            }
+            else
+            {
+                await LoadReplyDataPosts();
+            }
+        }
+    }
+    private async Task LoadReplyData()
+    {
+
+        //IsFileValidUser = true;
+        //Cid = long.Parse(@SelectedReplyId);
+        Cid = SelectedReplyId;
+        Tid = RTopicId;
+
+
+        await OnMenuItemClick(isMenuvisible);
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task LoadDataPosts()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
+        if (@SelectedGroup != "none")
+        {
+            if (long.Parse(@SelectedGroup) > 0)
+            {
+                Tid = long.Parse(@SelectedGroup);
+                var getconid = await Mediator.Send(new GetTopConversationList(Tid));                
+
+                Cid = 0;
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+                //_discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+            }
+
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        await InvokeAsync(StateHasChanged);
+
+    }
+    private async Task LoadReplyDataPosts()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
+
+        Cid = @SelectedReplyId;
+        Tid = RTopicId;        
+        _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(@SelectedReplyId, applicationUser.UserID));              
+       
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        await InvokeAsync(StateHasChanged);
+    }   
+    public async void onloadTagsList()
+    {
+        // await JSRuntime.InvokeAsync<string>("showLoading");
+        // _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
+        // _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+        // _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
+        // await JSRuntime.InvokeAsync<string>("hideLoading");
+        // StateHasChanged();
+    }
+    void closeReply()
+    {
+        _replyComment = null;
+        Data.Name = null;
+        IsReadOnly = true;
+        WindowVisible = false;        
+    }
+    protected override async void OnInitialized()
+    {
+        //plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        await InvokeAsync(StateHasChanged);   
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        Page = Page == null ? "AssignTo" : Page;
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+
+        onloadSession();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
+        AppUserId = applicationUser.UserID;
+        filterrowname = "";
+    }
+    void onloadSession()
+    {
+        _sessionId = Guid.NewGuid();
+    }
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
+    private void ToggleButtonClick()
+    {
+        toggleButtonVisible = toggleButtonVisible == "HiddenToggle" ? "ActiveToggle" : "HiddenToggle";
+        hiddenButtonCssClass = toggleButtonVisible == "HiddenToggle" ? "col-md-12" : "col-md-9";
+    }
+    void OnLeftMenuItemClick(string text)
+    {
+        isLeftMenuvisible = text;
+        Page = text;
+        if (text == "AssignTo" && SelectedGroups.Count > 0)
+        {
+            ArchiveEnabled = true;
+        }
+        else
+        {
+            ArchiveEnabled = false;
+        }
+        if (text == "Library" && SelectedGroups.Count > 0)
+        {
+            UnArchiveEnabled = true;
+        }
+        else
+        {
+            UnArchiveEnabled = false;
+        }
+        StateHasChanged();
+    }
+    private async void onViewEmailToClickMultiple(List<string> ToTopicId)
+    {
+        SelectedGroups = ToTopicId;
+        await SubmitIsArchivedAll();
+        StateHasChanged();
+    }
+    private async void onViewEmailUnArchiveClick(List<string> ToTopicId)
+    {
+        SelectedGroups = ToTopicId;
+        await UnArchiveAll();
+        StateHasChanged();
+    }
+    public async Task UnArchiveAll()
+    {
+        foreach (var item in SelectedGroups)
+        {
+            var UpdateReq = new UpdateTopicUnArchive
+                {
+                    ID = long.Parse(item),
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+                };
+            var result = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("UnArchive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            await RefMasterSearch.HandleValidSubmit();
+            UnArchiveEnabled = false;
+        }
+    }
+    private async Task SubmitIsArchivedAll()
+    {
+        foreach (var item in SelectedGroups)
+        {
+            var UpdateReq = new UpdateTopicArchive
+                {
+                    ID = long.Parse(item),
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+                };
+            var result = await Mediator.Send(UpdateReq);
+
+            isArchiveClosed = false;
+           
+            toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+           
+
+            if (isLeftMenuvisible == "AssignTo")
+            {
+                await RefAssignTo.onAssignToGridRefresh(long.Parse(item));
+            }
+
+            if (isLeftMenuvisible == "All")
+            {
+                await RefAssignAll.onAssignAllGridRefresh(long.Parse(item));
+            }
+
+            IsOpenFlyout = false;
+            _discussionList = new List<EmailConversations>();
+            _headTopic = new List<EmailTopics>();
+            isComponentVisible = false;
+            AddPopupArchive = false;
+            ArchiveEnabled = false;
+        }
+
+        await RefreshService.RequestRefreshAsync();
+
+        StateHasChanged();
+    }
+    private async void EnableArchiveAll()
+    {
+        ArchiveEnabled = true;
+        StateHasChanged();
+    }
+    private async void EnableUnArchiveAll()
+    {
+        UnArchiveEnabled = true;
+        StateHasChanged();
+    }
+    private async void EnableClose()
+    {
+        isCloseEnabled = true;
+        isOpenEnabled = false;
+        StateHasChanged();
+    }
+    private async void EnableOpen()
+    {
+        isOpenEnabled = true;
+        isCloseEnabled = false;
+        StateHasChanged();
+    }
+    private async void DisableOpenClose()
+    {
+        isOpenEnabled = false;
+        isCloseEnabled = false;
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        
+    }
+}

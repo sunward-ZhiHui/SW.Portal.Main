@@ -295,6 +295,7 @@
                                                             <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                             <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                             <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
+                                                            @* <DxMenuItem Text="New Email" IconCssClass="fa fa-envelope" Click="@(() => OnMenuItemClick("NewEmail"))" /> *@
                                                         </Items>
                                                     </DxMenu>
                                                 }
@@ -319,7 +320,8 @@
                                                             <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                             <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                             <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
-                                                            @*  <DxMenuItem>
+                                                            @* <DxMenuItem Text="New Email" IconCssClass="fa fa-envelope" Click="@(() => OnMenuItemClick("NewEmail"))" /> *@
+                                                                @*  <DxMenuItem>
                                                                 <Template>
                                                                     <div>@elapsedTime </div>
                                                             </Template>
@@ -354,6 +356,7 @@
                                                         <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                         <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                         <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
+                                                        @* <DxMenuItem Text="New Email" IconCssClass="fa fa-envelope" Click="@(() => OnMenuItemClick("NewEmail"))" /> *@
                                                     </Items>
                                                 </DxMenu>
                                             }
@@ -378,7 +381,8 @@
                                                         <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                         <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                         <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
-                                                        @*  <DxMenuItem>
+                                                        @* <DxMenuItem Text="New Email" IconCssClass="fa fa-envelope" Click="@(() => OnMenuItemClick("NewEmail"))" /> *@
+                                                            @*  <DxMenuItem>
                                                          <Template>
                                                              <div>@elapsedTime </div>
                                                         </Template>
@@ -1699,6 +1703,10 @@
                                 {
                                     <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></ParticipantList>
                                 }
+                                else if(isMenuvisible == "NewEmail")
+                                {
+                                    <NewEmailPage></NewEmailPage>
+                                }
                                 else if (isMenuvisible == "AddGroupParticipants")
                                 {
                                     <GroupParticipantList @ref=RefTopicAddGroupPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></GroupParticipantList>
@@ -1794,6 +1802,11 @@ FooterVisible="false">
                 <DxMenuItem IconCssClass="fa fa-font" @onclick="onRenameSubjectPop" Text="Rename Subject" />
                 <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintSubjectPop" Text="Print" />
                 <DxMenuItem IconCssClass="fa fa-link" @onclick="onCopylink" Text="Copy Link" />
+                @if (!string.IsNullOrEmpty(CurrentEmailConversations.BackURL))
+                {
+                    <DxMenuItem IconCssClass="fa fa-arrow-left" @onclick="onBacklink" Text="Back" /> 
+                }
+
             </Items>
         </DxMenu>
     </BodyTextTemplate>
@@ -3885,7 +3898,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     private async Task LoadMoreReplies(long replyId, int totalReplyCount)
     {
         isLoading = true;
-         await JSRuntime.InvokeAsync<string>("showLoading");
+        await JSRuntime.InvokeAsync<string>("showLoading");
         if (!currentPages.ContainsKey((int)replyId))
             currentPages[(int)replyId] = 1;
 
@@ -3904,7 +3917,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         hasMore = replyDiscussions[(int)replyId].Count < totalReplyCount;
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
- 
+
         isLoading = false;
 
         StateHasChanged();
@@ -4671,6 +4684,30 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         await ClipboardService.WriteTextAsync(url);
         toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
     }
+    private async Task onBacklink()
+    {
+        var item = CurrentEmailConversations; 
+
+        if (item.ActivityType == "FileProfileType")
+        {
+            onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId);
+        }
+        else if (item.ActivityType == "EmailFileProfileType")
+        {
+            onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId);
+        }
+        else if (item.ActivityType == "DynamicForm") 
+        {
+            onBackDynamicType(item.BackURL);
+        }
+        else
+        {
+            onBackActivity(item.BackURL);
+        }
+
+        StateHasChanged();
+
+    }
     async void SubmitDueDate()
     {
         var UpdateReq = new UpdateEmailTopicDueDate
@@ -4863,7 +4900,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             // if (cList[0].ToIds.HasValue)
             //     participantIds.Add(cList[0].ToIds.Value);
 
-             if (long.TryParse(ToOnlyList[0].CcIds, out long toId))
+            if (long.TryParse(ToOnlyList[0].CcIds, out long toId))
             {
                 participantIds.Add(toId);
             }
@@ -5830,7 +5867,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             copyitemVisibility[id] = true;
         }
     }
-   private async Task ToggleItemVisibility(int id, int replycount)
+    private async Task ToggleItemVisibility(int id, int replycount)
     {
         reply_id = id;
         reply_tcount = replycount;
@@ -6474,7 +6511,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 //   {
                 //     FilterSessionId = lsts[0].SessionId;
                 //   }
-              
+
                 OnLeftMenuItemClick("Library");
                 isLeftMenuvisible = "Library";                
                 //await Task.Delay(2000); // Delay for 2 seconds                
@@ -6987,9 +7024,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
-                           //await Task.Delay(1000);
+        //await Task.Delay(1000);
         await onRichTxtChangeFontsize(); // Call your other function here
-                                         //await JSRuntime.InvokeAsync<string>("hideLoading");
+        //await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void OnDateChanged(DateTime? newValue)
     {       
@@ -7338,6 +7375,13 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         {
             isTags = true;
             isComponentVisible = false;
+            isEllipsis = false;
+            isCommand = false;  
+        }
+        else if(text == "NewEmail")
+        {
+            isTags = false;
+            isComponentVisible = true;
             isEllipsis = false;
             isCommand = false;  
         }
@@ -7819,6 +7863,10 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         {
             RefMasterSearch?.ParticipantCloseList();
         }
+
+    }
+    public  void onNewEmail()
+    {
 
     }
     private void ClearDiscussionList()

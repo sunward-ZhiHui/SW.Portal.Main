@@ -1,0 +1,293 @@
+﻿@using Application.Queries
+@using MediatR
+@using global::Core.Entities
+@using global::Core.Repositories.Query
+@inject IMediator Mediator
+@inject IJSRuntime JSRuntime;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<style>   
+
+    /* Main container */
+    .email-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    }
+
+    .email-header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    }
+
+    /* Email thread container */
+    .email-thread {
+    list-style: none;
+    padding: 20px;
+    }
+
+    /* Original email */
+    .email-item {
+    background: #f9f9f9;
+    padding: 20px;
+    border-left: 5px solid #4CAF50;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-item .subject {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    }
+
+    .email-item .details {
+    font-size: 14px;
+    color: #777;
+    margin-top: 5px;
+    }
+
+    .email-item .info {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+    }
+
+    /* Reply styling */
+    .reply {
+    background-color: #e9f5f2;
+    padding: 15px;
+    border-left: 4px solid #4CAF50;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    }
+
+    .reply .subject {
+    font-weight: bold;
+    color: #4CAF50;
+    }
+
+    .reply .details {
+    font-size: 13px;
+    color: #666;
+    }
+
+    .reply .info {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+    }
+
+    .reply div {
+    font-size: 14px;
+    margin-top: 10px;
+    }
+
+</style>
+
+
+@if (isLoading)
+{
+    <p>Loading replies...</p>
+}
+else if (ReplyList != null && ReplyList.Any())
+{
+   @*  <DxAccordion>
+        <Items>
+            @foreach (var (items, i) in ReplyList.Select((item, index) => (item, index)))
+            {
+                <DxAccordionItem Expanded="@(i == 0)">
+                    <HeaderTextTemplate>
+                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                            <span>@items.UserName</span>
+                            <span style="color: gray; font-size: 0.8rem;">
+                                @Application.Common.Helper.Helper.FormatDateTime(items.AddedDate)
+                            </span>
+                        </div>
+                    </HeaderTextTemplate>
+
+                    <ContentTemplate>
+                        <div>
+                            @if (items.FileData == null)
+                            {
+
+                                <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
+                                    Load Content
+                                </div>
+
+
+                            }
+                            else
+                            {
+
+                                byte[] htmlBinaryData1 = items.FileData;
+                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                                <div style="padding: 10px;">
+                                    @((MarkupString)htmlContent1)
+                                </div>
+                            }
+                        </div>
+                    </ContentTemplate>
+                </DxAccordionItem>
+            }
+        </Items>
+    </DxAccordion> *@
+
+
+
+
+  @*   <DxAccordion ExpandMode="AccordionExpandMode.SingleOrNone" style="width:100%"
+    ExpandCollapseAction="AccordionExpandCollapseAction.HeaderClick"
+    AnimationType="LayoutAnimationType.Slide" SelectionMode="NavigationSelectionMode.Single"
+    SelectionChanged="SelectionChanged">
+        <Items>
+            @foreach (var (items, i) in ReplyList.Select((item, index) => (item, index)))
+            {
+                <DxAccordionItem Text="@items.UserName" Expanded="@(i == 0)">
+                    <ContentTemplate>
+                        <div>
+                            @if (items.FileData == null)
+                            {
+
+                                <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
+                                    Load Content
+                                </div>
+
+
+                            }
+                            else
+                            {
+
+                                byte[] htmlBinaryData1 = items.FileData;
+                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                                <div style="padding: 10px;">
+                                    @((MarkupString)htmlContent1)
+                                </div>
+                            }
+                        </div>
+                    </ContentTemplate>
+                </DxAccordionItem>
+            }
+        </Items>
+    </DxAccordion>
+ *@
+
+    <ul class="email-thread">
+        @foreach (var items in ReplyList)
+        {
+            <li class="reply">
+                <div class="subject">Reply: @items.Name</div>
+            <div class="details">From: @items.UserName</div>
+            <div class="info">
+                    <span> @Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
+            </div>
+            <div>
+                    @if (items.FileData == null)
+                    {
+
+                        <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
+                            Load Content
+                        </div>
+
+
+                    }
+                    else
+                    {
+
+                        byte[] htmlBinaryData1 = items.FileData;
+                        string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                        <div style="padding: 10px;">
+                            @((MarkupString)htmlContent1)
+                        </div>
+                    }
+            </div>
+        </li> 
+        }
+    </ul>
+
+}
+else
+{
+    <p>No replies found.</p>
+}
+
+@if (ReplyList != null && ReplyList.Count < totalReplyCount)
+{
+    <div class="d-flex justify-content-center mt-2">
+        <DxButton Text="Load More" Click="LoadMoreReplies" Enabled="!isLoading" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public long Id { get; set; }    
+
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<EmailConversations> ReplyList { get; set; } = new();
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalReplyCount = 0;
+    private bool isLoading = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await LoadInitialReplies();
+    }
+    void SelectionChanged(AccordionSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItems.Any())
+        {
+
+        }
+    }
+
+    private async Task LoadInitialReplies()
+    {
+        isLoading = true;
+
+        var discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(Id, applicationUser.UserID));
+        totalReplyCount = discussionList[0].ReplyConversationCount;
+
+        ReplyList = new List<EmailConversations>();
+        currentPage = 1;
+
+        await LoadMoreReplies();
+
+        isLoading = false;
+    }
+
+    private async Task LoadMoreReplies()
+    {
+        isLoading = true;
+
+        var moreReplies = await Mediator.Send(new GetReplyListPaged(Id, applicationUser.UserID, currentPage, pageSize));
+        if (moreReplies != null)
+        {
+            ReplyList.AddRange(moreReplies);
+            currentPage++;
+        }
+
+        isLoading = false;
+    }
+    private async Task LoadFileDataAsync(EmailConversations item)
+    {
+        if (item.FileData == null)
+        {
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            item.FileData = await Mediator.Send(new GetFileData(item.ID));
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            StateHasChanged();
+        }
+    }
+}

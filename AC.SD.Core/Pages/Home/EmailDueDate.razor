@@ -175,6 +175,12 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
             types.ToIds = new List<long> { -1 };
         }
         <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">
+            <DxFormLayoutItem Caption="Main Subject" ColSpanMd="6">
+                <DxTextBox @bind-Text="@types.TopicName" ReadOnly="true"></DxTextBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Subject Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@types.Name" ReadOnly="true"></DxTextBox>
+            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Assignor :" ColSpanMd="4">
                 <DxTextBox @bind-Text="@types.Assignor" ReadOnly="true"></DxTextBox>
             </DxFormLayoutItem>

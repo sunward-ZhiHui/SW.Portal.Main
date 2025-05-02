@@ -1,5 +1,59 @@
 ﻿
 <style scoped>
+    .email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid #ccc;
+        margin-bottom: 10px;
+}
+
+.email-subject {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.menu-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    position: relative;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background-color: #fff;
+    min-width: 160px;
+    border: 1px solid #ccc;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.menu-content div {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.menu-content div:hover {
+    background-color: #f1f1f1;
+}
+
     .email-details {
         font-size: 13px;
         color: #666;
@@ -26,13 +80,15 @@
     }
 
     .accordion-item {
-        border: 1px solid #ccc;
+        border: 0px solid #ccc;
         border-radius: 8px;
         overflow: hidden;
-        background-color: #e9f5f2;
-        border-left: 4px solid #4CAF50;
-        border-radius: 8px;
-        margin-bottom: 10px;
+       /*  background-color: #e9f5f2;
+        border-left: 4px solid #4CAF50; */
+        border-radius: 8px;       
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .accordion-header {
@@ -42,7 +98,8 @@
         justify-content: space-between;
         font-size: 14px;
         color: #333;
-        border-bottom: 2px solid #4CAF50;
+        /* border-bottom: 2px solid #4CAF50; */
+        background: #dddbdb;
     }
 
     .accordion-body {
@@ -50,6 +107,7 @@
         padding: 15px;
         font-size: 14px;
         color: #555;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);t
     }
 
         .accordion-body.active1 {
@@ -83,8 +141,8 @@
         margin: 15px 0;
         border-radius: 5px;
         padding: 16px;
-        max-height: 300px;
-        overflow-y: auto;
+        /* max-height: 300px;
+        overflow-y: auto; */
     }
 
     .attachments ul {
@@ -106,8 +164,9 @@
         }
 
     .time {
-        font-size: 12px;
-        color: #777;
+       /*  font-size: 12px;
+        color: #777; */
+        font-weight: bold;
 
     }
     .fromtxt
@@ -136,8 +195,20 @@
     }
 </style>
 
-<div class="">
-    <h2> Project Update Meeting</h2>
+<div class="" style="border: 1px solid #d2d2d2;    margin-right: 10px;">
+    <div class="email-header">
+        <div id="emailSubject" class="email-subject">Project Update Meeting</div>
+        <div class="dropdown">
+            <button class="menu-button" onclick="toggleMenu(event)">⋮</button>
+            <div class="menu-content">
+                <div onclick="handleMenuClick('dueDate')">Due Date</div>
+                <div onclick="handleMenuClick('cancelDueDate')">Cancel Due Date</div>
+                <div onclick="handleMenuClick('renameSubject')">Rename Subject</div>
+                <div onclick="handleMenuClick('print')">Print</div>
+                <div onclick="handleMenuClick('copyLink')">Copy Link</div>
+            </div>
+        </div>
+    </div>
     <div class="accordion1">
 
         <!-- Reply 1 -->
@@ -147,7 +218,7 @@
                     <div class="avatar-circle bg-a">A</div>
                     <span class="fromtxt"><strong>From:</strong> alice@example.com</span>
                 </div>                
-                <span class="time">26-Apr-2025 09.19 AM</span>
+                <span class="time">26-May-2025 09.19 AM</span>
             </div>
             <div class="accordion-body active1">
 
@@ -165,10 +236,30 @@
                 </div>
                 <div class="attachments">
                     <strong>Attachments:</strong>
-                    <ul>
-                        <li><a href="#">MeetingAgenda.pdf</a></li>
-                        <li><a href="#">Budget2025.xlsx</a></li>
-                    </ul>
+                    <div>
+                        <div class="tag handline"><!--!--><i class="fas fa-file" aria-hidden="true"></i> recording_bb969e08-5996-4eb3-b3ae-8653214d2b6d.wav<div class="options"><div class="play"><!--!--><i class="fa fa-play" aria-hidden="true"></i></div></div></div>
+
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> cbimage.png<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -229,10 +320,20 @@
                 </div>
                 <div class="attachments">
                     <strong>Attachments:</strong>
-                    <ul>
-                        <li><a href="#">UpdatedAgenda.docx</a></li>
-                        <li><a href="#">Notes.txt</a></li>
-                    </ul>
+                    <div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,7 +346,7 @@
                     <span class="fromtxt"><strong>From:</strong> charlie@example.com</span>
                 </div>
                 
-                <span class="time">26-May-2025 09.19 AM</span>
+                <span class="time">26-Mar-2025 09.19 AM</span>
             </div>
             <div class="accordion-body">
                 <div class="email-details" onclick="toggleDetails(this)">
@@ -261,15 +362,35 @@
                 </div>
                 <div class="attachments">
                     <strong>Attachments:</strong>
-                    <ul>
-                        <li><a href="#">ProjectTimeline.xlsx</a></li>
-                        <li><a href="#">Q1Summary.pdf</a></li>
-                    </ul>
+                    <div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div style="text-align:center">
             <button class="loadmorebg">Load More</button>
+        </div>
+
+        <!-- Main Body Section moved to bottom -->
+        <div class="center">
+            <span class="show-main-body-btn" onclick="toggleMainBody(this)">Show Main Content</span>
+        </div>
+        <div class="main-body" id="mainBody">
+            <p>This is the main content related to the subject...</p>
+            <img src="https://via.placeholder.com/600x200.png?text=Project+Timeline+Chart" alt="Chart Example">
+            <img src="https://via.placeholder.com/500x300.png?text=Budget+Overview" alt="Budget Example">
         </div>
     </div>
 </div>
@@ -301,6 +422,44 @@
         button.innerText = "Show less";
         }
     }
+
+
+    function toggleMenu(event) {
+    event.stopPropagation();
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none'); // close others
+    const menu = event.currentTarget.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+// Close menu when clicking outside
+window.addEventListener('click', function () {
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+});
+
+function handleMenuClick(action) {
+    switch (action) {
+        case 'dueDate':
+            alert("Set Due Date clicked");
+            break;
+        case 'cancelDueDate':
+            alert("Cancel Due Date clicked");
+            break;
+        case 'renameSubject':
+            alert("Rename Subject clicked");
+            break;
+        case 'print':
+            window.print();
+            break;
+        case 'copyLink':
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copied to clipboard");
+            break;
+    }
+
+    // Close menu
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+}
+
 </script>
 
 

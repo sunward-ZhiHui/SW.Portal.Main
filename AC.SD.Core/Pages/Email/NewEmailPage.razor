@@ -1,0 +1,684 @@
+﻿
+<style scoped>
+    .email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid #ccc;
+        margin-bottom: 10px;
+}
+
+.email-subject {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.menu-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    position: relative;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background-color: #fff;
+    min-width: 160px;
+    border: 1px solid #ccc;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.menu-content div {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.menu-content div:hover {
+    background-color: #f1f1f1;
+}
+
+    .email-details {
+        font-size: 13px;
+        color: #666;
+        margin-top: 6px;
+        cursor: pointer;
+    }
+
+    .email-details-content {
+        display: none;
+        font-size: 13px;
+        color: #555;
+        margin-top: 5px;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .accordion1 {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .accordion-item {
+        border: 0px solid #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+       /*  background-color: #e9f5f2;
+        border-left: 4px solid #4CAF50; */
+        border-radius: 8px;       
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .accordion-header {
+        padding: 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #333;
+        /* border-bottom: 2px solid #4CAF50; */
+        background: #dddbdb;
+    }
+
+    .accordion-body {
+        display: none;
+        padding: 15px;
+        font-size: 14px;
+        color: #555;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);t
+    }
+
+        .accordion-body.active1 {
+            display: block;
+        }
+
+    .email-info div {
+        margin-bottom: 5px;
+        word-break: break-word;
+    }
+
+    .email-info.limited {
+        max-height: 60px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .email-info.expanded {
+        max-height: none;
+    }
+
+    .show-more {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #007BFF;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .email-body {
+        margin: 15px 0;
+        border-radius: 5px;
+        padding: 16px;
+        /* max-height: 300px;
+        overflow-y: auto; */
+    }
+
+    .attachments ul {
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+
+    .attachments li {
+        margin: 4px 0;
+    }
+
+    .attachments a {
+        color: #007BFF;
+        text-decoration: none;
+    }
+
+        .attachments a:hover {
+            text-decoration: underline;
+        }
+
+    .time {
+       /*  font-size: 12px;
+        color: #777; */
+        font-weight: bold;
+
+    }
+    .fromtxt
+    {
+        font-weight: bold;
+    }
+
+    .sender-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .avatar-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #2196F3; /* You can make this dynamic */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .email-body-wrapper {
+    position: relative;
+}
+
+.limited-body {
+    max-height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.email-body.expanded-body {
+    max-height: none;
+}
+
+.show-more-btn {
+    font-size: 13px;
+    color: #007BFF;
+    cursor: pointer;
+    margin-top: 5px;
+    text-align: left;
+}
+.center {
+    text-align:left;
+    margin: 15px 15px;
+}
+
+.show-main-body-btn {
+    cursor: pointer;
+    color: #007BFF;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.main-body {
+    display: none; /* Initially hidden */
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+ 
+</style>
+<style>
+    .email-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .email-header-left {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .email-subject {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .email-date {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .menu-button {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .menu-content {
+        display: none;
+        position: absolute;
+        right: 12px;
+        margin-top: 8px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        z-index: 100;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+        .menu-content div {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+            .menu-content div:hover {
+                background-color: #f2f2f2;
+            }
+
+    .dropdown.show .menu-content {
+        display: block;
+    }
+</style>
+
+<div class="" style="border: 1px solid #d2d2d2;    margin-right: 10px;">
+    <div class="email-header">
+        <!-- Left: Subject + Date -->
+        <div class="email-header-left">
+            <div class="email-subject">Project Update Meeting</div>
+            <div class="email-date">Due Date: 10-May-2025 10:30 AM</div>
+        </div>
+
+        <!-- Right: Dropdown Menu -->
+        <div class="dropdown">
+            <button class="menu-button" onclick="toggleMenu(event)">⋮</button>
+            <div class="menu-content">
+                <div onclick="handleMenuClick('dueDate')">Due Date</div>
+                <div onclick="handleMenuClick('cancelDueDate')">Cancel Due Date</div>
+                <div onclick="handleMenuClick('renameSubject')">Rename Subject</div>
+                <div onclick="handleMenuClick('print')">Print</div>
+                <div onclick="handleMenuClick('copyLink')">Copy Link</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion1">
+
+        <!-- Reply 1 -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="sender-info">
+                    <div class="avatar-circle bg-a">A</div>
+                    <span class="fromtxt"><strong>From:</strong> alice@example.com</span>
+                </div>                
+                <span class="time">26-May-2025 09.19 AM</span>
+            </div>
+            <div class="accordion-body active1">
+
+                <div class="email-details" onclick="toggleDetails(this)">
+                    Show To/CC
+                </div>
+                <div class="email-details-content">
+                    <div><strong>To:</strong> bob@example.com, charlie@example.com, david@example.com</div>
+                    <div><strong>Cc:</strong> manager@example.com, ceo@example.com</div>
+                </div>
+
+                <div class="email-body">
+                    Please find attached the agenda for today's meeting.<br><br>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis.
+                </div>
+                <div class="attachments">
+                    <strong>Attachments:</strong>
+                    <div>
+                        <div class="tag handline"><!--!--><i class="fas fa-file" aria-hidden="true"></i> recording_bb969e08-5996-4eb3-b3ae-8653214d2b6d.wav<div class="options"><div class="play"><!--!--><i class="fa fa-play" aria-hidden="true"></i></div></div></div>
+
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> cbimage.png<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply 2 -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="sender-info">
+                    <div class="avatar-circle bg-b">b</div>
+                    <span class="fromtxt"><strong>From:</strong> bob@example.com</span>
+                </div>
+          
+                <span class="time">20-Apr-2025 09.19 AM</span>
+            </div>
+            <div class="accordion-body">
+                <div class="email-details" onclick="toggleDetails(this)">
+                    Show To/CC
+                </div>
+                <div class="email-details-content">
+                    <div><strong>To:</strong> alice@example.com</div>
+                    <div><strong>Cc:</strong> hr@example.com, finance@example.com</div>
+                </div>
+
+                <div class="email-body">
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                </div>
+                <div class="attachments">
+                    <strong>Attachments:</strong>
+                    <div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply 3 -->
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="sender-info">
+                    <div class="avatar-circle bg-c">c</div>
+                    <span class="fromtxt"><strong>From:</strong> charlie@example.com</span>
+                </div>
+                
+                <span class="time">26-Mar-2025 09.19 AM</span>
+            </div>
+            <div class="accordion-body">
+                <div class="email-details" onclick="toggleDetails(this)">
+                    Show To/CC
+                </div>
+                <div class="email-details-content">
+                    <div><strong>To:</strong> bob@example.com</div>
+                    <div><strong>Cc:</strong> legal@example.com, admin@example.com</div>
+                </div>
+
+                <div class="email-body">
+                    Attached is the timeline chart and a summary of the last quarter.
+                </div>
+                <div class="attachments">
+                    <strong>Attachments:</strong>
+                    <div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center">
+            <button class="loadmorebg">Load More</button>
+        </div>
+
+        <!-- Main Body Section moved to bottom -->
+        <div class="center">
+            <span class="show-main-body-btn" onclick="toggleMainBody(this)">Show Main Subject</span>
+        </div>
+        <div class="main-body" id="mainBody">
+             <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="sender-info">
+                    <div class="avatar-circle bg-b">b</div>
+                    <span class="fromtxt"><strong>From:</strong> bob@example.com</span>
+                </div>
+
+                <span class="time">20-Apr-2025 09.19 AM</span>
+            </div>
+            <div class="accordion-body active1">
+                <div class="email-details" onclick="toggleDetails(this)">
+                    Show To/CC
+                </div>
+                <div class="email-details-content">
+                    <div><strong>To:</strong> alice@example.com</div>
+                    <div><strong>Cc:</strong> hr@example.com, finance@example.com</div>
+                </div>
+
+                <div class="email-body">
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+
+                    <p>Yes, the meeting is scheduled for 3 PM on April 28th. Looking forward to it! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis orci quis bibendum sagittis. Sed dignissim, odio nec placerat tincidunt, sapien nisi dapibus.</p>
+                    <p>
+                        Thanks, Alice. I've reviewed the agenda and it looks good.<br><br>
+                        Here's the updated doc attached.
+                    </p>
+                </div>
+                <div class="attachments">
+                    <strong>Attachments:</strong>
+                    <div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> Business monthly budget - Copy.xlsx<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                        <div class="tag handline">
+                            <!--!--><i class="fas fa-file" aria-hidden="true"></i> CC24081 Product process improvement for Crotamixone Cream.pdf<div class="options">
+                                <div class="download"><!--!--><i class="fa fa-cloud-download" aria-hidden="true"></i></div><!--!-->
+                                <div class="preview"><!--!--><i class="fa fa-eye" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function toggleDetails(element) {
+        const content = element.nextElementSibling;
+        content.style.display = content.style.display === "block" ? "none" : "block";
+        element.textContent = content.style.display === "block" ? "Hide To/CC" : "Show To/CC";
+        }
+
+    // Show only first 2 replies initially
+    document.querySelectorAll('.accordion-body').forEach((el, index) => {
+        if (index < 1) el.classList.add('active1');
+    });
+
+    function toggleAccordion(header) {
+        const body = header.nextElementSibling;
+        body.classList.toggle('active1');
+    }
+
+    function toggleShowMore(button) {
+        const info = button.parentElement;
+        if (info.classList.contains('expanded')) {
+        info.classList.remove('expanded');
+        button.innerText = "Show more";
+        } else {
+        info.classList.add('expanded');
+        button.innerText = "Show less";
+        }
+    }
+
+    function toggleMenu(event) {
+    event.stopPropagation();
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none'); // close others
+    const menu = event.currentTarget.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+// Close menu when clicking outside
+window.addEventListener('click', function () {
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+});
+
+    document.addEventListener('DOMContentLoaded', function () {
+           document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+    });
+
+
+function handleMenuClick(action) {
+    switch (action) {
+        case 'dueDate':
+            alert("Set Due Date clicked");
+            break;
+        case 'cancelDueDate':
+            alert("Cancel Due Date clicked");
+            break;
+        case 'renameSubject':
+            alert("Rename Subject clicked");
+            break;
+        case 'print':
+            window.print();
+            break;
+        case 'copyLink':
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copied to clipboard");
+            break;
+    }
+
+    // Close menu
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+}
+
+</script>
+
+<script>
+    function toggleMainBody(btn) {
+    const mainBody = document.getElementById("mainBody");
+    const isVisible = mainBody.style.display === "block";
+    mainBody.style.display = isVisible ? "none" : "block";
+    btn.innerText = isVisible ? "Show Main Subject" : "Hide Main Subject";
+}
+
+    function toggleBodyVisibility(button) {
+        const body = button.previousElementSibling;
+        if (body.classList.contains('expanded-body')) {
+            body.classList.remove('expanded-body');
+            button.innerText = "Show more";
+        } else {
+            body.classList.add('expanded-body');
+            button.innerText = "Show less";
+        }
+    }
+
+    // Load More Functionality
+    const repliesPerPage = 1;
+    let visibleReplies = repliesPerPage;
+
+    document.querySelector('.loadmorebg').addEventListener('click', () => {
+        const items = document.querySelectorAll('.accordion-item');
+        for (let i = visibleReplies; i < visibleReplies + repliesPerPage; i++) {
+            if (items[i]) {
+                items[i].querySelector('.accordion-body').classList.add('active1');
+            }
+        }
+        visibleReplies += repliesPerPage;
+
+        if (visibleReplies >= items.length) {
+            document.querySelector('.loadmorebg').style.display = 'none';
+        }
+    });
+</script>
+
+@code
+{
+  
+
+}

@@ -12,19 +12,7 @@
 }
 else
 {
-    <div class="cw-480">
-        @*   <DxAccordion Data="@DataSource"
-                     ShowFilterPanel="true"
-                     RootItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End"
-                     SubItemExpandButtonIconCssClass="icon-square-plus"
-                     SubItemCollapseButtonIconCssClass="icon-square-minus"
-                     SubItemExpandButtonDisplayMode="AccordionExpandButtonDisplayMode.End">
-            <DataMappings>
-                <DxAccordionDataMapping Text="Name"
-                                        Key="EmailCopyLinkID"
-                                        ParentKey="EmailConversationsId" />
-            </DataMappings>
-        </DxAccordion> *@
+    <div class="cw-480">  
         <DxAccordion ExpandMode="ExpandMode" style="width:100%"
         ExpandCollapseAction="ExpandCollapseAction"
         AnimationType="LayoutAnimationType.Slide" SelectionMode="NavigationSelectionMode.Single"
@@ -33,11 +21,7 @@ else
                 @foreach (var (employee, i) in Items)
                 {
                     <DxAccordionItem Text=@($"{employee.Name}") Expanded=@(i == 0)>
-                        <ContentTemplate>
-                            @* <div class="py-3 px-3" tabindex="0">
-                                <div>@employee.EmailConversationsSessionid</div>
-                                <div>@employee.SessionID</div>
-                            </div> *@
+                        <ContentTemplate>                          
                             <div>
                                 <CopyEmailLinkPage ConversationID="@ItemId" ConSessionId="@employee.SessionID.Value" onCloseRequest="onClosed"></CopyEmailLinkPage>
                             </div>

@@ -34,7 +34,7 @@
 <div style="margin-bottom:10px;">
     <EditForm EditContext="this._editContext" Context="EditFormContext">
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6">
+            <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="4">
                 <DxComboBox Data="@_dynamicForm"
                             NullText="Select Dynamic Form..."
                             ListRenderMode="ListRenderMode.Virtual"
@@ -59,7 +59,7 @@
                     </Columns>
                 </DxComboBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="User List" ColSpanMd="6">
+            <DxFormLayoutItem Caption="User List" ColSpanMd="4">
                 <DxComboBox Data="@_usersList"
                             NullText="Select User..."
                             ListRenderMode="ListRenderMode.Virtual"
@@ -80,6 +80,9 @@
 
                     </Columns>
                 </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Audit Date" ColSpanMd="4">
+                <DxDateEdit NullText="Select a Audit Date..." Date="@DataAudit.AuditDateTime" DateExpression="@(() => DataAudit.AuditDateTime)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
             </DxFormLayoutItem>
         </DxFormLayout>
 
@@ -186,6 +189,11 @@
     async Task SelectedFormChanged(long? dynamicFormId)
     {
         DataAudit.DynamicFormId = dynamicFormId;
+        await loadData();
+    }
+    async Task OnDateChanged(DateTime? auditDateTime)
+    {
+        DataAudit.AuditDateTime = auditDateTime;
         await loadData();
     }
     async Task SelectedUserChanged(long? userId)

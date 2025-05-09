@@ -135,6 +135,11 @@ namespace Core.Entities
         [NotMapped]
         public string? Reason { get; set; }
         public int IsDueDate { get; set; } = 0;
+        [NotMapped]
+        public int CurrentPage { get; set; } = 1;
+
+        [NotMapped]
+        public bool IsRepliesLoading { get; set; } = false;
     }
     public class EmailDocumentModel
     {        

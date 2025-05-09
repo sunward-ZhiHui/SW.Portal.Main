@@ -1,236 +1,698 @@
 ﻿@using Application.Queries
 @using MediatR
+@using Microsoft.Extensions.Configuration
 @using global::Core.Entities
 @using global::Core.Repositories.Query
 @inject IMediator Mediator
 @inject IJSRuntime JSRuntime;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
 
-
-<style>   
-
-    /* Main container */
-    .email-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    }
-
+<style scoped>
     .email-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px;
-    text-align: center;
-    }
-
-    /* Email thread container */
-    .email-thread {
-    list-style: none;
-    padding: 20px;
-    }
-
-    /* Original email */
-    .email-item {
-    background: #f9f9f9;
-    padding: 20px;
-    border-left: 5px solid #4CAF50;
-    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid #ccc;
     margin-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    z-index: 10;
+    top: 0;
+    background: white;
     }
 
-    .email-item .subject {
-    font-size: 18px;
+    .email-subject {
+    font-size: 20px;
     font-weight: bold;
     color: #333;
     }
 
-    .email-item .details {
+    .menu-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    position: relative;
+    }
+
+    .dropdown {
+    position: relative;
+    display: inline-block;
+    }
+
+    .menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background-color: #fff;
+    min-width: 160px;
+    border: 1px solid #ccc;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    }
+
+    .menu-content div {
+    padding: 10px 16px;
+    cursor: pointer;
     font-size: 14px;
-    color: #777;
-    margin-top: 5px;
+    color: #333;
     }
 
-    .email-item .info {
-    font-size: 12px;
-    color: #999;
-    margin-top: 5px;
+    .menu-content div:hover {
+    background-color: #f1f1f1;
     }
 
-    /* Reply styling */
-    .reply {
-    background-color: #e9f5f2;
-    padding: 15px;
-    border-left: 4px solid #4CAF50;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    }
-
-    .reply .subject {
-    font-weight: bold;
-    color: #4CAF50;
-    }
-
-    .reply .details {
+    .email-details {
     font-size: 13px;
     color: #666;
+    margin-top: 6px;
+    cursor: pointer;
     }
 
-    .reply .info {
-    font-size: 12px;
-    color: #999;
+    .email-details-content {
+    display: none;
+    font-size: 13px;
+    color: #555;
     margin-top: 5px;
     }
 
-    .reply div {
+    h2 {
+    margin-bottom: 20px;
+    color: #333;
+    }
+
+    .accordion1 {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    margin-bottom: 15px;
+    }
+
+    .accordion-item {
+    border: 0px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    /*  background-color: #e9f5f2;
+    border-left: 4px solid #4CAF50; */
+    border-radius: 0px;
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
+    margin-left: 15px;
+    margin-right: 15px;
+    border: 1px solid #d9d8d8;
+    }
+
+    .accordion-header {
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
     font-size: 14px;
-    margin-top: 10px;
+    color: #333;
+    /* border-bottom: 2px solid #4CAF50; */
+    /*  background: #dddbdb; */
+    border-bottom: 1px solid #e4e4e4;
+    }
+
+    .accordion-body {
+    display: none;
+    padding: 15px;
+    font-size: 14px;
+    color: #555;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    t
+    }
+
+    .accordion-body.active1 {
+    display: block;
+    }
+
+    .email-info div {
+    margin-bottom: 5px;
+    word-break: break-word;
+    }
+
+    .email-info.limited {
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+    }
+
+    .email-info.expanded {
+    max-height: none;
+    }
+
+    .show-more {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #007BFF;
+    cursor: pointer;
+    text-decoration: underline;
+    }
+
+    .email-body {
+    margin: 15px 0;
+    border-radius: 5px;
+    padding: 0px;
+    /* max-height: 300px;
+    overflow-y: auto; */
+    }
+
+    .attachments ul {
+    padding-left: 20px;
+    margin-top: 5px;
+    }
+
+    .attachments li {
+    margin: 4px 0;
+    }
+
+    .attachments a {
+    color: #007BFF;
+    text-decoration: none;
+    }
+
+    .attachments a:hover {
+    text-decoration: underline;
+    }
+
+    .time {
+    /*  font-size: 12px;
+    color: #777; */
+    font-weight: bold;
+    }
+
+    .fromtxt {
+    font-weight: bold;
+    }
+
+    .sender-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    }
+
+    .avatar-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #2196F3; /* You can make this dynamic */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    }
+
+    .email-body-wrapper {
+    position: relative;
+    }
+
+    .limited-body {
+    max-height: 180px;
+    overflow: hidden;
+    position: relative;
+    }
+
+    .email-body.expanded-body {
+    max-height: none;
+    }
+
+    .show-more-btn {
+    font-size: 13px;
+    color: #007BFF;
+    cursor: pointer;
+    margin-top: 5px;
+    text-align: left;
+    }
+
+    .center {
+    text-align: left;
+    margin: 15px 15px;
+    }
+
+    .show-main-body-btn {
+    cursor: pointer;
+    color: #007BFF;
+    text-decoration: underline;
+    font-size: 14px;
+    }
+
+    .main-body {
+    display: none; /* Initially hidden */
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    background-color: #f9f9f9;
     }
 
 </style>
+<style>    
 
+    .email-header-left {
+    display: flex;
+    flex-direction: column;
+    }
 
-@if (isLoading)
-{
-    <p>Loading replies...</p>
+    .email-subject {
+    font-size: 1.1rem;
+    font-weight: 600;
+    }
+
+    .email-date {
+    font-size: 0.85rem;
+    color: #666;
+    }
+
+    .menu-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    }
+
+    .menu-content {
+    display: none;
+    position: absolute;
+    right: 12px;
+    margin-top: 8px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-content div {
+    padding: 8px 12px;
+    cursor: pointer;
+    }
+
+    .menu-content div:hover {
+    background-color: #f2f2f2;
+    }
+
+    .dropdown.show .menu-content {
+    display: block;
+    }
+</style>
+
+@{
+    var replyIndex = 0;
 }
-else if (ReplyList != null && ReplyList.Any())
+
+@if (_discussionList != null && _discussionList.Any())
 {
-   @*  <DxAccordion>
-        <Items>
-            @foreach (var (items, i) in ReplyList.Select((item, index) => (item, index)))
-            {
-                <DxAccordionItem Expanded="@(i == 0)">
-                    <HeaderTextTemplate>
-                        <div style="display: flex; justify-content: space-between; width: 100%;">
-                            <span>@items.UserName</span>
-                            <span style="color: gray; font-size: 0.8rem;">
-                                @Application.Common.Helper.Helper.FormatDateTime(items.AddedDate)
-                            </span>
-                        </div>
-                    </HeaderTextTemplate>
-
-                    <ContentTemplate>
-                        <div>
-                            @if (items.FileData == null)
-                            {
-
-                                <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
-                                    Load Content
-                                </div>
-
-
-                            }
-                            else
-                            {
-
-                                byte[] htmlBinaryData1 = items.FileData;
-                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
-
-                                <div style="padding: 10px;">
-                                    @((MarkupString)htmlContent1)
-                                </div>
-                            }
-                        </div>
-                    </ContentTemplate>
-                </DxAccordionItem>
-            }
-        </Items>
-    </DxAccordion> *@
-
-
-
-
-  @*   <DxAccordion ExpandMode="AccordionExpandMode.SingleOrNone" style="width:100%"
-    ExpandCollapseAction="AccordionExpandCollapseAction.HeaderClick"
-    AnimationType="LayoutAnimationType.Slide" SelectionMode="NavigationSelectionMode.Single"
-    SelectionChanged="SelectionChanged">
-        <Items>
-            @foreach (var (items, i) in ReplyList.Select((item, index) => (item, index)))
-            {
-                <DxAccordionItem Text="@items.UserName" Expanded="@(i == 0)">
-                    <ContentTemplate>
-                        <div>
-                            @if (items.FileData == null)
-                            {
-
-                                <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
-                                    Load Content
-                                </div>
-
-
-                            }
-                            else
-                            {
-
-                                byte[] htmlBinaryData1 = items.FileData;
-                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
-
-                                <div style="padding: 10px;">
-                                    @((MarkupString)htmlContent1)
-                                </div>
-                            }
-                        </div>
-                    </ContentTemplate>
-                </DxAccordionItem>
-            }
-        </Items>
-    </DxAccordion>
- *@
-
-    <ul class="email-thread">
-        @foreach (var items in ReplyList)
+    @foreach (var item in _discussionList)
+    {
+        @if (isLoading)
         {
-            <li class="reply">
-                <div class="subject">Reply: @items.Name</div>
-            <div class="details">From: @items.UserName</div>
-            <div class="info">
-                    <span> @Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
-            </div>
-            <div>
-                    @if (items.FileData == null)
-                    {
-
-                        <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
-                            Load Content
-                        </div>
-
-
-                    }
-                    else
-                    {
-
-                        byte[] htmlBinaryData1 = items.FileData;
-                        string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
-
-                        <div style="padding: 10px;">
-                            @((MarkupString)htmlContent1)
-                        </div>
-                    }
-            </div>
-        </li> 
+            <p>Loading replies...</p>
         }
-    </ul>
+        else if (ReplyList != null && ReplyList.Any())
+        {
+            <div class="" style="border: 1px solid #d2d2d2;    margin-right: 10px;">
+                <div class="email-header">
+                    <!-- Left: Subject + Date -->
+                    <div class="email-header-left">
+                        <div class="email-subject">@item.Name</div>
+                        <div class="email-date">
+                            @if (item.DueDate != null)
+                            { 
+                                <span> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)
+                            }
+                        </div>
+                    </div>
 
+                    <!-- Right: Dropdown Menu -->
+                    <div class="dropdown">
+                        <button class="menu-button" onclick="toggleMenu(event)">⋮</button>
+                        <div class="menu-content">
+                            <div onclick="handleMenuClick('dueDate')">Due Date</div>
+                            <div onclick="handleMenuClick('cancelDueDate')">Cancel Due Date</div>
+                            <div onclick="handleMenuClick('renameSubject')">Rename Subject</div>
+                            <div onclick="handleMenuClick('print')">Print</div>
+                            <div onclick="handleMenuClick('copyLink')">Copy Link</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion1">
+                    @foreach (var items in ReplyList)
+                    {
+                        bool isFirst = replyIndex == 0;
+                        replyIndex++;
+                        <!-- Replys-->
+                        <div class="accordion-item">
+                            <div class="accordion-header" onclick="toggleAccordion(this)">
+                                <div class="sender-info">
+                                    <div class="avatar-circle bg-a">A</div>
+                                    <span class="fromtxt"><strong>From:</strong> @items.UserName</span>
+                                </div>
+                                <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
+                            </div>
+                            <div class="accordion-body @(isFirst ? "active1" : "")">
+
+                                <div class="email-details" onclick="toggleDetails(this)">
+                                    Show To/CC
+                                </div>
+                                <div class="email-details-content">
+                                    <div>
+                                        <strong>To:</strong>
+                                        @if (items.AssignToList != null && items.AssignToList.Any())
+                                        {
+                                            @foreach (var itms in items.AssignToList)
+                                            {
+                                                <span>@itms.FirstName ,</span>
+                                            }
+                                        }
+                                        <br>
+                                    </div>
+                                    @if (items.AssignCCList != null && items.AssignCCList.Any())
+                                    {
+                                        <div>
+                                            <strong>Cc:</strong>
+                                            @foreach (var itm in items.AssignCCList)
+                                            {
+                                                <span>@itm.FirstName ,</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="email-body">
+                                    @if (items.FileData == null)
+                                    {
+
+                                        <div class="btn-load" @onclick="() => LoadFileDataAsync(items)">
+                                            Load Content
+                                        </div>
+
+
+                                    }
+                                    else
+                                    {
+
+                                        byte[] htmlBinaryData1 = items.FileData;
+                                        string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                                        <div>
+                                            @((MarkupString)htmlContent1)
+                                        </div>
+                                    }
+                                </div>
+                                <div class="attachments">
+                                    <div>
+                                        @foreach (var attachment in items.documents)
+                                        {
+                                            <strong>Attachments:</strong>
+                                            <div class="tag handline">
+                                                <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <div class="options">
+                                                        <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (attachment.IsView)
+                                                {
+                                                    <div class="options">
+                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                        </div>
+                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No replies found.</p>
+        }
+
+        @if (ReplyList != null && ReplyList.Count < totalReplyCount)
+        {
+            @* <div style="text-align:center">
+        <button class="loadmorebg">Load More</button>
+    </div> *@
+
+            <div class="d-flex justify-content-center mt-2">
+                <DxButton Text="Load More" Click="LoadMoreReplies" Enabled="!isLoading" />
+            </div>
+        }
+
+
+    }
 }
-else
+
+
+
+
+@if (_discussionList != null && _discussionList.Any())
 {
-    <p>No replies found.</p>
-}
+<div class="center">
+    <span class="show-main-body-btn" onclick="toggleMainBody(this)">Show Main Subject</span>
+</div>
 
-@if (ReplyList != null && ReplyList.Count < totalReplyCount)
+    @foreach (var item in _discussionList)
+    {
+        <div class="main-body" id="mainBody">
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="sender-info">
+                        <div class="avatar-circle bg-a">A</div>
+                        <span class="fromtxt"><strong>From:</strong> @item.UserName</span>
+                    </div>
+                    <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
+                </div>
+                <div class="accordion-body">
+
+                    <div class="email-details" onclick="toggleDetails(this)">
+                        Show To/CC
+                    </div>
+                    <div class="email-details-content">
+                        <div>
+                            <strong>To:</strong>
+                            @if (item.AssignToList != null && item.AssignToList.Any())
+                            {
+                                @foreach (var itms in item.AssignToList)
+                                {
+                                    <span>@itms.FirstName ,</span>
+                                }
+                            }
+                            <br>
+                        </div>
+                        @if (item.AssignCCList != null && item.AssignCCList.Any())
+                        {
+                            <div>
+                                <strong>Cc:</strong>
+                                @foreach (var itm in item.AssignCCList)
+                                {
+                                    <span>@itm.FirstName ,</span>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="email-body">
+                        @if (item.FileData == null)
+                        {
+
+                            <div class="btn-load" @onclick="() => LoadFileDataAsync(item)">
+                                Load Content
+                            </div>
+
+
+                        }
+                        else
+                        {
+
+                            byte[] htmlBinaryData1 = item.FileData;
+                            string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                            <div>
+                                @((MarkupString)htmlContent1)
+                            </div>
+                        }
+                    </div>
+                    <div class="attachments">
+                        <div>
+                            @foreach (var attachment in item.documents)
+                            {
+                                <strong>Attachments:</strong>
+                                <div class="tag handline">
+                                    <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                    @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div class="options">
+                                            <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (attachment.IsView)
+                                    {
+                                        <div class="options">
+                                            <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+<script>
+    function toggleDetails(element) {
+    const content = element.nextElementSibling;
+    content.style.display = content.style.display === "block" ? "none" : "block";
+    element.textContent = content.style.display === "block" ? "Hide To/CC" : "Show To/CC";
+    }
+
+    // Show only first 2 replies initially
+    document.querySelectorAll('.accordion-body').forEach((el, index) => {
+    if (index < 1) el.classList.add('active1');
+    });
+
+    function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    body.classList.toggle('active1');
+    }
+
+    function toggleShowMore(button) {
+    const info = button.parentElement;
+    if (info.classList.contains('expanded')) {
+    info.classList.remove('expanded');
+    button.innerText = "Show more";
+    } else {
+    info.classList.add('expanded');
+    button.innerText = "Show less";
+    }
+    }
+
+    function toggleMenu(event) {
+    event.stopPropagation();
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none'); // close others
+    const menu = event.currentTarget.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Close menu when clicking outside
+    window.addEventListener('click', function () {
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+    });
+
+
+    function handleMenuClick(action) {
+    switch (action) {
+    case 'dueDate':
+    alert("Set Due Date clicked");
+    break;
+    case 'cancelDueDate':
+    alert("Cancel Due Date clicked");
+    break;
+    case 'renameSubject':
+    alert("Rename Subject clicked");
+    break;
+    case 'print':
+    window.print();
+    break;
+    case 'copyLink':
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard");
+    break;
+    }
+
+    // Close menu
+    document.querySelectorAll('.menu-content').forEach(menu => menu.style.display = 'none');
+    }
+
+</script>
+
+<script>
+    function toggleMainBody(btn) {
+    const mainBody = document.getElementById("mainBody");
+    const isVisible = mainBody.style.display === "block";
+    mainBody.style.display = isVisible ? "none" : "block";
+    btn.innerText = isVisible ? "Show Main Subject" : "Hide Main Subject";
+    }
+
+    function toggleBodyVisibility(button) {
+    const body = button.previousElementSibling;
+    if (body.classList.contains('expanded-body')) {
+    body.classList.remove('expanded-body');
+    button.innerText = "Show more";
+    } else {
+    body.classList.add('expanded-body');
+    button.innerText = "Show less";
+    }
+    }
+
+    // Load More Functionality
+    const repliesPerPage = 1;
+    let visibleReplies = repliesPerPage;
+
+    document.querySelector('.loadmorebg').addEventListener('click', () => {
+    const items = document.querySelectorAll('.accordion-item');
+    for (let i = visibleReplies; i < visibleReplies + repliesPerPage; i++) {
+    if (items[i]) {
+    items[i].querySelector('.accordion-body').classList.add('active1');
+    }
+    }
+    visibleReplies += repliesPerPage;
+
+    if (visibleReplies >= items.length) {
+    document.querySelector('.loadmorebg').style.display = 'none';
+    }
+    });
+</script>
+
+@code
 {
-    <div class="d-flex justify-content-center mt-2">
-        <DxButton Text="Load More" Click="LoadMoreReplies" Enabled="!isLoading" />
-    </div>
-}
-
-@code {
     [Parameter]
-    public long Id { get; set; }    
+    public long Id { get; set; }
+    [Parameter]
+    public long RId { get; set; }
+    string isLeftMenuvisible = "AssignTo";
+    private string? ProductActivityBaseUrl;
+    private List<EmailTopics>? _headTopic;
+    private List<EmailActivityCatgorys>? _headTopic_Tag;
+    private List<EmailActivityCatgorys>? _headTopic_UserTag;
 
     public ApplicationUser? applicationUser { get; private set; }
     public List<EmailConversations> ReplyList { get; set; } = new();
@@ -238,11 +700,47 @@ else
     private int pageSize = 5;
     private int totalReplyCount = 0;
     private bool isLoading = false;
+    private List<Documents>? _topicDocList;
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;    
+
+    private string? audioBase64Source;
+    private bool isAudioPopupVisible = false;
+    private long? currentAudioId = null;
+    public List<EmailConversations>? _discussionList;
+    private bool isAuthorization { get; set; } = true;
+
+
+
+    private MasterSearch? RefMasterSearch { get; set; }
+    private AssignToEmail? RefAssignTo { get; set; }
+
+
+    string dynamicShowSubject = "showOpenSubject_";
+    string dynamicShowDrawer = "ShowOpenDrawer_";
+
+    private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
+    private Dictionary<int, List<EmailConversations>> replyDiscussions = new();    
+    private bool hasMore = true;
+    Dictionary<int, int> currentPages = new();
+    long reply_id = 0;
+    int reply_tcount = 0;
 
     protected override async Task OnParametersSetAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await LoadInitialReplies();
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+
+        if(Id > 0)
+        {
+            await LoadInitialReplies();
+        }
+
+        
     }
     void SelectionChanged(AccordionSelectionChangedEventArgs args)
     {
@@ -255,9 +753,10 @@ else
     private async Task LoadInitialReplies()
     {
         isLoading = true;
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(RId, applicationUser.UserID, isLeftMenuvisible));
 
-        var discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(Id, applicationUser.UserID));
-        totalReplyCount = discussionList[0].ReplyConversationCount;
+        _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(Id, applicationUser.UserID));
+        totalReplyCount = _discussionList[0].ReplyConversationCount;
 
         ReplyList = new List<EmailConversations>();
         currentPage = 1;
@@ -290,4 +789,144 @@ else
             StateHasChanged();
         }
     }
+    public async Task onDocDownload_old(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(Id, applicationUser.UserID, isLeftMenuvisible));
+        var lst = _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        var response = await Mediator.Send(new GetFileDownload(Id));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", lst.FileName, response.ImageData, "");
+        }
+    }
+    public async Task onDocDownload(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(Id, applicationUser.UserID, isLeftMenuvisible));
+        var lst = _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        if (lst != null)
+        {
+
+            var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+
+    }
+    public async Task onPlayAudio(long documentId)
+    {
+        // Close and reset if same audio clicked again
+        if (currentAudioId == documentId && isAudioPopupVisible)
+        {
+            await ResetAudioPlayer();
+            return;
+        }
+
+        var response = await Mediator.Send(new GetFileDownload(documentId));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("Audio not found", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        audioBase64Source = $"data:audio/wav;base64,{Convert.ToBase64String(response.ImageData)}";
+        currentAudioId = documentId;
+        isAudioPopupVisible = true;
+    }
+    private Task ResetAudioPlayer()
+    {
+        isAudioPopupVisible = false;
+        audioBase64Source = null;
+        currentAudioId = null;
+        return Task.CompletedTask;
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    private async Task onreply(long id)
+    {  
+    
+    }
+    private void ShowSubjectFlyout(EmailConversations emailConversations)    
+    {
+        // CurrentEmailConversations = emailConversations;
+
+        // if ((applicationUser.UserID == CurrentEmailConversations.UserId) || _openAccessUserLink != null)
+        // {
+        //     if (CurrentEmailConversations != null)
+        //     {
+        //         CurrentEmailConversations.IsLockDueDate = false;
+        //     }
+        // }
+
+        // isOpenSubjectPop = true;
+    }
+    async void onBackFileProfileType(string url)
+    {
+        var urls = BaseUrl + "fileprofiletype/" + url;
+        NavigationManager.NavigateTo(urls);
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+    private async void onBackActivity(string Url)
+    {
+        var url = ProductActivityBaseUrl + Url;
+        string script = $"window.open('{url}', '_blank');";
+        await JSRuntime.InvokeVoidAsync("eval", script);
+        //NavigationManager.NavigateTo(url,true);
+    }
+    async void onBackDynamicType(string url)
+    {
+        var urls = BaseUrl + url;
+        NavigationManager.NavigateTo(urls);
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+
+    private async Task LoadMoreReplies(long replyId, int totalReplyCount)
+    {
+    }
+    async Task onMarkasRead(long Id)
+    {
+    }
+    async Task onMarkasunRead(long Id)
+    {
+    }
+
+    private async Task ToggleItemVisibility(int id, int replycount)
+    {
+        reply_id = id;
+        reply_tcount = replycount;
+        if (itemVisibility.ContainsKey(id) && itemVisibility[id])
+        {
+            // Hide the clicked item
+            itemVisibility[id] = false;
+        }
+        else
+        {
+            // Close all
+            foreach (var key in itemVisibility.Keys.ToList())
+            {
+                itemVisibility[key] = false;
+            }
+
+            currentPage = 1;
+            hasMore = true;
+
+            replyDiscussions[id] = new List<EmailConversations>();
+            currentPages[id] = 1;
+
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            await LoadMoreReplies(id, replycount); // first page
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+
+            itemVisibility[id] = true;
+        }
+    }
+
+
 }

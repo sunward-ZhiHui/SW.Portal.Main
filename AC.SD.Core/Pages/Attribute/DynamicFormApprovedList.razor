@@ -317,7 +317,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                 if (_dynamicForm != null)
                 {
                     _dynamicformObjectDataList = new List<object>();
-                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false,true));
+                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false,true,true));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };

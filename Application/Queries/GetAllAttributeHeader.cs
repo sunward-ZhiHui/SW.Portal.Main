@@ -80,12 +80,14 @@ namespace Application.Queries
         public long? UserId { get; set; }
         public bool? IsSubFormLoad { get; set; }
         public bool? IsNoDelete { get; set; } = true;
-        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId, bool? isSubFormLoad, bool? IsNoDelete)
+        public bool? IsTableHeader { get; set; } = false;
+        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId, bool? isSubFormLoad, bool? IsNoDelete, bool? isTableHeader)
         {
             this.DynamicForm = dynamicForm;
             this.UserId = userId;
             this.IsSubFormLoad = isSubFormLoad;
             this.IsNoDelete = IsNoDelete;
+            this.IsTableHeader = isTableHeader;
         }
     }
     public class GetAllBySessionAttributeName : PagedRequest, IRequest<AttributeHeader>

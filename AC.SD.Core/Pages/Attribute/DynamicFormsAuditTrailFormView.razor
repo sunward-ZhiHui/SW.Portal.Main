@@ -123,7 +123,7 @@
         _dynamicForm = await dynamicForms.Result;
         if (_dynamicForm != null)
         {
-            var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false)));
+            var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false,true)));
             await Task.WhenAll(_AttributeHeaders);
             _AttributeHeader = await _AttributeHeaders.Result;
         }

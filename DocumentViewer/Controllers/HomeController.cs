@@ -38,6 +38,7 @@ using DevExpress.Export.Xl;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
 using iTextSharp.text.pdf.qrcode;
+using DevExpress.XtraSpreadsheet.Utils;
 
 namespace DocumentViewer.Controllers
 {
@@ -865,10 +866,68 @@ namespace DocumentViewer.Controllers
         {
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
-
+            var documentPermission = GetDocumentPermissionByRoll();
+            DocumentsModel documentsModels = new DocumentsModel();
             var sessionId = currentDocuments?.SessionId;
             var fileProfileId = currentDocuments?.FilterProfileTypeId;
-            var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId && w.SourceFrom == "FileProfile").ToList();
+            if (currentDocuments.DocumentId > 0)
+            {
+                var DocumentUserRoles = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId && w.DocumentId == currentDocuments.DocumentId).ToList();
+                var counts = DocumentUserRoles.Count();
+                if (counts > 0)
+                {
+                    var userExits = DocumentUserRoles.Where(w => w.UserId == userId).FirstOrDefault();
+                    if (userExits != null)
+                    {
+                        var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)userExits.RoleId).FirstOrDefault();
+                        documentsModels.DocumentPermissionData = permissionData;
+                    }
+                    else
+                    {
+                        var DocumentUserRolesFile = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId && w.DocumentId == null).ToList();
+                        if (DocumentUserRolesFile.Count > 0)
+                        {
+                            var userExitsf = DocumentUserRolesFile.Where(w => w.UserId == userId).FirstOrDefault();
+                            if (userExitsf != null)
+                            {
+                                var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)userExitsf.RoleId).FirstOrDefault();
+                                documentsModels.DocumentPermissionData = permissionData;
+                            }
+                            else
+                            {
+                                documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+
+                            }
+                        }
+                        else
+                        {
+                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+                        }
+                    }
+                }
+                else
+                {
+                    var DocumentUserRolesFile = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId && w.DocumentId == null).ToList();
+                    if (DocumentUserRolesFile.Count > 0)
+                    {
+                        var userExitsf = DocumentUserRolesFile.Where(w => w.UserId == userId).FirstOrDefault();
+                        if (userExitsf != null)
+                        {
+                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)userExitsf.RoleId).FirstOrDefault();
+                            documentsModels.DocumentPermissionData = permissionData;
+                        }
+                        else
+                        {
+                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+                        }
+                    }
+                    else
+                    {
+                        documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
+                    }
+                }
+            }
+            /*var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId && w.SourceFrom == "FileProfile").ToList();
             if (documents != null)
             {
                 var roleItemsList = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId).ToList();
@@ -894,7 +953,7 @@ namespace DocumentViewer.Controllers
                             }
                             else
                             {
-                                documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+                                documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
                             }
                         }
                         else
@@ -913,7 +972,7 @@ namespace DocumentViewer.Controllers
                     }
                     else
                     {
-                        documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
+                        documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false,IsEdit=false };
                     }
 
                     if (documentsModels.DocumentPermissionData != null)
@@ -932,7 +991,7 @@ namespace DocumentViewer.Controllers
                         documentsModel.Add(documentsModels);
                     }
                 });
-                var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == fileProfileId).ToList();
+                *//*var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == fileProfileId).ToList();
                 if (roleItems.Count > 0)
                 {
                     var roleItem = roleItems.FirstOrDefault(u => u.UserId == userId);
@@ -950,7 +1009,8 @@ namespace DocumentViewer.Controllers
                             });
                         }
                     }
-                }
+                }*/
+                documentsModel.Add(documentsModels);
                 var IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? "Yes" : "No";
                 var isDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? "Yes" : "No";
                 if (userId == documentsModel.FirstOrDefault()?.UploadedByUserId)
@@ -961,7 +1021,7 @@ namespace DocumentViewer.Controllers
                 HttpContext.Session.SetString("isDownload", isDownload);
                 HttpContext.Session.SetString("isView", IsRead);
 
-            }
+            //}
             return documentsModel;
         }
         private List<DocumentPermissionModel> GetDocumentPermissionByRoll()

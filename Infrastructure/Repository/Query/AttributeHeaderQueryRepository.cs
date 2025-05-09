@@ -942,7 +942,7 @@ namespace Infrastructure.Repository.Query
                 }
             }
         }
-        public async Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId, bool? IsSubFormLoad, bool? isNoDelete)
+        public async Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId, bool? IsSubFormLoad, bool? isNoDelete, bool? IsTableHeader)
         {
             try
             {
@@ -967,6 +967,7 @@ namespace Infrastructure.Repository.Query
                     {
                         query += "\r(t1.IsDeleted = 0 or t1.IsDeleted is null) AND(t10.IsDeleted = 0 or t10.IsDeleted is null) AND\r";
                     }
+                    
                     query += "\rt1.DynamicFormID = " + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";
                     query += "select t1.GridDisplaySeqNo,(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
                         ",(case when t1.IsDependencyMultiple is NULL then  0 ELSE t1.IsDependencyMultiple END) as IsDependencyMultiple,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t11.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t9.sessionId as DynamicFormSessionId,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId," +
@@ -987,6 +988,10 @@ namespace Infrastructure.Repository.Query
                     if (isNoDelete == true)
                     {
                         query += "\r(t9.IsDeleted=0 OR t9.IsDeleted IS NULL) AND (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null) AND \r";
+                    }
+                    if (IsTableHeader == true)
+                    {
+                        query += "\rt1.IsDisplayTableHeader=1 AND\r";
                     }
                     query += "\rt5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
                     query += "Select plantId,PlantCode,Description from Plant;";
@@ -5798,11 +5803,11 @@ namespace Infrastructure.Repository.Query
             AttributeHeaderListModel _AttributeHeader = new AttributeHeaderListModel();
             if (_dynamicFormGrids != null && _dynamicFormGrids.ID > 0 && dynamicFormDatas != null && dynamicFormDatas.DynamicFormDataId > 0)
             {
-                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicFormGrids, 1, false, true);
+                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicFormGrids, 1, false, true,true);
             }
             else
             {
-                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicForm, 1, false, true);
+                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicForm, 1, false, true,true);
             }
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {

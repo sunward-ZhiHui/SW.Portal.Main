@@ -661,7 +661,7 @@
                                                         <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                         <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                         <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
-                                                        <DxMenuItem Text="New Subject" Visible="@isNewSubject"  IconCssClass="fa fa-envelope" />
+                                                        <DxMenuItem Text="New Subject" Visible="@isNewSubject" Click="@(() => onWindowVisible())" IconCssClass="fa fa-envelope" />
                                                     </Items>
                                                 </DxMenu>
                                             }
@@ -1267,7 +1267,7 @@
                                                                                     <div>
                                                                                         @foreach (var attachment in items.documents)
                                                                                         {
-                                                                                            <strong>Attachments:</strong>
+                                                                                            @* <strong>Attachments:</strong> *@
                                                                                             <div class="tag handline">
                                                                                                 <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
 
@@ -1279,17 +1279,16 @@
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 }
-                                                                                                else if (attachment.IsView)
-                                                                                                {
-                                                                                                    <div class="options">
-                                                                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
-                                                                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
-                                                                                                        </div>
-                                                                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
-                                                                                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                                                                                        </div>
+                                                                                                
+                                                                                                <div class="options">
+                                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
                                                                                                     </div>
-                                                                                                }
+                                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                
                                                                                             </div>
                                                                                         }
                                                                                     </div>
@@ -1772,16 +1771,16 @@
 
 
 
-                                      @*   @if (isComponentVisible)
+                                        @if (isComponentVisible)
                                         {
-                                            @if(isAuthorization)
+                                          @*   @if(isAuthorization)
                                             {
                                                 @if(IsConHistory)
                                                 {
                                                     <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
                                                     Click="onWindowVisible" style="width:200px;">New Subject</DxButton>
                                                 }
-                                            }
+                                            } *@
 
 
                                             <DxWindow @bind-Visible=WindowVisible 
@@ -2107,7 +2106,7 @@
                                                     <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@context.CloseCallback" />
                                                 </FooterTextTemplate>
                                             </DxWindow>
-                                        }    *@                                    
+                                        }                                        
                                     </div>
                                 }
                                 else if (isMenuvisible == "Files")

@@ -527,7 +527,7 @@
                     if (_dynamicForm != null)
                     {
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true)));
+                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true,true)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)

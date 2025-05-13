@@ -123,7 +123,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId, request.IsSubFormLoad, request.IsNoDelete);
+            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId, request.IsSubFormLoad, request.IsNoDelete, request.IsTableHeader);
         }
     }
     public class GetAttributeHeaderDataSourceHandler : IRequestHandler<GetAttributeHeaderDataSource, List<AttributeHeaderDataSource>>
@@ -317,7 +317,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataResponse>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll, request.PageNo, request.PageSizes,request.DynamicFormFilterOdatas);
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll, request.PageNo, request.PageSizes, request.DynamicFormFilterOdatas);
         }
     }
     public class GetDynamicFormAttributeApiHandler : IRequestHandler<GetDynamicFormAttributeApi, List<DynamicFormDataResponse>>
@@ -343,7 +343,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DropDownOptionsGridListModel> Handle(GetDynamicGridDropDownById request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId,request.DynamicFormDataId);
+            return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId, request.DynamicFormDataId);
         }
     }
     public class GetAttributeDetailsDataSourceHandler : IRequestHandler<GetAttributeDetailsDataSource, List<AttributeDetails>>

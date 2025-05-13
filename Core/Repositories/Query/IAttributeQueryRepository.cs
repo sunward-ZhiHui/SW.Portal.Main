@@ -14,7 +14,7 @@ namespace Core.Repositories.Query
 {
     public interface IAttributeQueryRepository : IQueryRepository<AttributeHeader>
     {
-        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId,bool? IsSubFormLoad,bool? isNoDelete);
+        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId,bool? IsSubFormLoad,bool? isNoDelete,bool? IsTableHeader);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName(bool? IsSubForm, string? type, long? subId);
         Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource();
         Task<IReadOnlyList<DynamicFormFilter>> GetFilterDataSource();

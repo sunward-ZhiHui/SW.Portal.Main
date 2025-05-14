@@ -2264,20 +2264,28 @@ namespace Infrastructure.Repository.Query
                                         {
                                             if (value.DocumentID > 0)
                                             {
-                                                var counts = userExitsByRoles.Where(w => w.UserId == item && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).Count();
-                                                if (counts == 0)
+                                                var counts = userExitsByRoles.Where(w => w.UserId == item && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).FirstOrDefault();
+                                                if (counts == null)
                                                 {
                                                     query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,DocumentID) OUTPUT INSERTED.DocumentUserRoleId " +
                                                         "VALUES (" + f + "," + item + "," + value.RoleID + "," + value.DocumentID + ");";
                                                 }
+                                                else
+                                                {
+                                                    query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
+                                                }
                                             }
                                             else
                                             {
-                                                var counts = userExitsRoles.Where(w => w.UserId == item && w.FileProfileTypeId == f).Count();
-                                                if (counts == 0)
+                                                var counts = userExitsRoles.Where(w => w.UserId == item && w.FileProfileTypeId == f).FirstOrDefault();
+                                                if (counts == null)
                                                 {
                                                     query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId) OUTPUT INSERTED.DocumentUserRoleId " +
                                                         "VALUES (" + f + "," + item + "," + value.RoleID + ");";
+                                                }
+                                                else
+                                                {
+                                                    query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
                                                 }
                                             }
                                         }
@@ -2294,20 +2302,28 @@ namespace Infrastructure.Repository.Query
                                             {
                                                 if (value.DocumentID > 0)
                                                 {
-                                                    var counts = userExitsByRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).Count();
-                                                    if (counts == 0)
+                                                    var counts = userExitsByRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).FirstOrDefault();
+                                                    if (counts == null)
                                                     {
                                                         query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId,DocumentID) OUTPUT INSERTED.DocumentUserRoleId " +
                                                         "VALUES (" + f + "," + s.UserId + "," + value.UserGroupRoleID + "," + s.UserGroupId + "," + value.DocumentID + ");";
                                                     }
+                                                    else
+                                                    {
+                                                        query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
-                                                    if (counts == 0)
+                                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).FirstOrDefault();
+                                                    if (counts == null)
                                                     {
                                                         query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId) OUTPUT INSERTED.DocumentUserRoleId " +
                                                         "VALUES (" + f + "," + s.UserId + "," + value.UserGroupRoleID + "," + s.UserGroupId + ");";
+                                                    }
+                                                    else
+                                                    {
+                                                        query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
                                                     }
                                                 }
                                             });
@@ -2323,20 +2339,28 @@ namespace Infrastructure.Repository.Query
 
                                             if (value.DocumentID > 0)
                                             {
-                                                var counts = userExitsByRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).Count();
-                                                if (counts == 0)
+                                                var counts = userExitsByRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f && w.DocumentId == value.DocumentID).FirstOrDefault();
+                                                if (counts == null)
                                                 {
                                                     query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId,DocumentID) OUTPUT INSERTED.DocumentUserRoleId " +
                                                    "VALUES (" + f + "," + s.UserId + "," + value.LevelRoleID + "," + s.LevelId + "," + value.DocumentID + ");";
                                                 }
+                                                else
+                                                {
+                                                    query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
+                                                }
                                             }
                                             else
                                             {
-                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
-                                                if (counts == 0)
+                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).FirstOrDefault();
+                                                if (counts == null)
                                                 {
                                                     query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
                                                     "VALUES (" + f + "," + s.UserId + "," + value.LevelRoleID + "," + s.LevelId + ");";
+                                                }
+                                                else
+                                                {
+                                                    query += "update DocumentUserRole set RoleId=" + value.RoleID + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
                                                 }
                                             }
                                         });
@@ -2432,8 +2456,8 @@ namespace Infrastructure.Repository.Query
                                     query = string.Empty;
                                     foreach (var user in userExitsRoless)
                                     {
-                                        var counts = userExitsByRoles.Where(w => w.FileProfileTypeId == f && w.UserId == user.UserId && w.DocumentId == docId.DocumentID).Count();
-                                        if (counts == 0)
+                                        var counts = userExitsByRoles.Where(w => w.FileProfileTypeId == f && w.UserId == user.UserId && w.DocumentId == docId.DocumentID).FirstOrDefault();
+                                        if (counts == null)
                                         {
                                             query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,DocumentID\r";
                                             if (user.LevelId > 0)
@@ -2455,6 +2479,10 @@ namespace Infrastructure.Repository.Query
                                                 query += "," + user.UserGroupId + "";
                                             }
                                             query += ");";
+                                        }
+                                        else
+                                        {
+                                            query += "update DocumentUserRole set RoleId=" + user.RoleId + " where DocumentUserRoleId=" + counts.DocumentUserRoleId + ";";
                                         }
                                     }
                                     if (!string.IsNullOrEmpty(query))

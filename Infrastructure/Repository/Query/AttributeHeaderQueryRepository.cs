@@ -949,6 +949,7 @@ namespace Infrastructure.Repository.Query
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
                 var dynamicFormSectionAttributeSecurity = new List<DynamicFormSectionAttributeSecurity>();
                 var DynamicFormSectionAttrFormulaFunctionList = new List<DynamicFormSectionAttrFormulaFunction>();
+                var AttributeDetailsList = new List<AttributeDetails>();
                 var applicationMasters = new List<ApplicationMaster>(); var applicationMasterParent = new List<ApplicationMasterParent>(); var dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 using (var connection = CreateConnection())
                 {
@@ -967,8 +968,9 @@ namespace Infrastructure.Repository.Query
                     {
                         query += "\r(t1.IsDeleted = 0 or t1.IsDeleted is null) AND(t10.IsDeleted = 0 or t10.IsDeleted is null) AND\r";
                     }
-                    
+
                     query += "\rt1.DynamicFormID = " + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";
+                    
                     query += "select t1.GridDisplaySeqNo,(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
                         ",(case when t1.IsDependencyMultiple is NULL then  0 ELSE t1.IsDependencyMultiple END) as IsDependencyMultiple,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t11.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t9.sessionId as DynamicFormSessionId,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId," +
                         "t8.DisplayName as DataSourceDisplayName,\r\n" +
@@ -1001,6 +1003,12 @@ namespace Infrastructure.Repository.Query
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
                     query += "select t1.*,t2.SequenceNo,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
                     query += "SELECT t1.*,t2.Type,t2.FormulaFunctionName FROM DynamicFormSectionAttrFormulaFunction t1 JOIN DynamicFormSectionAttrFormulaMasterFunction t2 ON t1.DynamicFormSectionAttrFormulaMasterFuntionId=t2.MasterID;";
+                    query += "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
+                    if (isNoDelete == true)
+                    {
+                        query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
+                    }
+                    query += "\r1=1;\n\r";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -1012,6 +1020,7 @@ namespace Infrastructure.Repository.Query
                     dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
                     DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
+                    AttributeDetailsList = results.Read<AttributeDetails>().ToList();
                 }
                 if (attributeHeaderListModel.ApplicationMasterParent != null && attributeHeaderListModel.ApplicationMasterParent.Count() > 0)
                 {
@@ -1068,19 +1077,22 @@ namespace Infrastructure.Repository.Query
                     // {
                     List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).Distinct().ToList();
                     List<long> attributeSubFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710).Select(a => a.AttributeId.Value).Distinct().ToList();
-                    attributeResultDetails = await GetAttributeDetails(attributeIds, attributeSubFormIds, "Main", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
+                    attributeResultDetails = await GetAttributeDetails(AttributeDetailsList, attributeIds, attributeSubFormIds, "Main", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
                     var attributeDetails = attributeResultDetails.AttributeDetails;
                     attributeHeaderListModel.AttributeDetails = attributeDetails != null && attributeDetails.Count > 0 ? attributeDetails.Where(w => attributeIds.Contains(w.AttributeID)).ToList() : new List<AttributeDetails>();
                     var AttributeDetailsIds = attributeHeaderListModel.AttributeDetails.Select(s => s.AttributeDetailID).ToList();
                     List<long?> applicationMasterSubIds = new List<long?>();
-                    var attributeSubResultDetails = await GetAttributeDetails(new List<long?>(), AttributeDetailsIds, "Sub", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
-
-                    if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
+                    if (AttributeDetailsIds.Count() > 0)
                     {
-                        attributeHeaderListModel.AttributeDetails.ForEach(z =>
+                        var attributeSubResultDetails = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), AttributeDetailsIds, "Sub", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
+
+                        if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
                         {
-                            z.SubAttributeHeaders = attributeSubResultDetails.AttributeHeader.Where(q => q.SubAttributeDetailId == z.AttributeDetailID).ToList();
-                        });
+                            attributeHeaderListModel.AttributeDetails.ForEach(z =>
+                            {
+                                z.SubAttributeHeaders = attributeSubResultDetails.AttributeHeader.Where(q => q.SubAttributeDetailId == z.AttributeDetailID).ToList();
+                            });
+                        }
                     }
                     // }
                     var dataSourceList = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(dynamicForm.CompanyId, dataSourceTableIds, plantCode, applicationMasterIds, ApplicationMasterParentIds);
@@ -2186,7 +2198,7 @@ namespace Infrastructure.Repository.Query
                 return false;
             }
         }
-        public async Task<AttributeDetailsAdds> GetAttributeDetails(List<long?> AttributeIds, List<long> id, string? Type, long? companyId, string plantCode, List<ApplicationMaster> applicationMasters, List<ApplicationMasterParent> applicationMasterParents, bool? isNoDelete)
+        public async Task<AttributeDetailsAdds> GetAttributeDetails(List<AttributeDetails> AttributeDetailsList, List<long?> AttributeIds, List<long> id, string? Type, long? companyId, string plantCode, List<ApplicationMaster> applicationMasters, List<ApplicationMasterParent> applicationMasterParents, bool? isNoDelete)
         {
             try
             {
@@ -2195,12 +2207,13 @@ namespace Infrastructure.Repository.Query
                 // {
                 id = id != null && id.Count > 0 ? id : new List<long>() { -1 };
                 // AttributeIds = AttributeIds != null && AttributeIds.Count > 0 ? AttributeIds : new List<long?>() { -1 };
-                var query = "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
+                var query = string.Empty;
+               /* var query = "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
                 if (isNoDelete == true)
                 {
                     query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                 }
-                query += "\r1=1;\n\r";
+                query += "\r1=1;\n\r";*/
                 query += "select t6.*,t9.AttributeID as SubAttributeID,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t6.DynamicFormID as DynamicFormGridDropDownID,t6.ApplicationMasterSubFormId from \r\nAttributeHeader t6\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\nLEFT JOIN AttributeHeader t9 ON t9.AttributeID=t6.SubAttributeID\r\n" +
                 "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID where\r";
@@ -2221,7 +2234,8 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     var result = await connection.QueryMultipleAsync(query);
-                    attributeDetailsAdds.AttributeDetails = result.Read<AttributeDetails>().ToList();
+                    //attributeDetailsAdds.AttributeDetails = result.Read<AttributeDetails>().ToList();
+                    attributeDetailsAdds.AttributeDetails = AttributeDetailsList;
                     attributeDetailsAdds.AttributeHeader = result.Read<AttributeHeader>().ToList();
                 }
                 if (attributeDetailsAdds.AttributeHeader.Count > 0)
@@ -2642,7 +2656,7 @@ namespace Infrastructure.Repository.Query
             {
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
                 var dynamicFormSectionAttributeSecurity = new List<DynamicFormSectionAttributeSecurity>();
-                var DynamicFormAll = new List<DynamicForm>();
+                var DynamicFormAll = new List<DynamicForm>(); var AttributeDetailsList = new List<AttributeDetails>();
                 var applicationMasters = new List<ApplicationMaster>(); var applicationMasterParent = new List<ApplicationMasterParent>(); var dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 using (var connection = CreateConnection())
                 {
@@ -2673,6 +2687,9 @@ namespace Infrastructure.Repository.Query
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
                     query += "select t1.*,t2.DynamicFormSectionAttributeID,t2.SequenceNo from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
                     query += "select * from dynamicform where Id IN (" + string.Join(',', dynamicForm) + ");";
+                    query += "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
+                    query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
+                    query += "\r1=1;\n\r";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2685,6 +2702,7 @@ namespace Infrastructure.Repository.Query
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
                     DynamicFormAll = results.Read<DynamicForm>().ToList();
                     attributeHeaderListModel.DynamicFormAll = DynamicFormAll;
+                    AttributeDetailsList = results.Read<AttributeDetails>().ToList();
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
@@ -2717,12 +2735,12 @@ namespace Infrastructure.Repository.Query
                     // {
                     List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).Distinct().ToList();
                     List<long> attributeSubFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710).Select(a => a.AttributeId.Value).Distinct().ToList();
-                    attributeResultDetails = await GetAttributeDetails(attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent, true);
+                    attributeResultDetails = await GetAttributeDetails(AttributeDetailsList,attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent, true);
                     var attributeDetails = attributeResultDetails.AttributeDetails;
                     attributeHeaderListModel.AttributeDetails = attributeDetails != null && attributeDetails.Count > 0 ? attributeDetails.Where(w => attributeIds.Contains(w.AttributeID)).ToList() : new List<AttributeDetails>();
                     var AttributeDetailsIds = attributeHeaderListModel.AttributeDetails.Select(s => s.AttributeDetailID).ToList();
                     List<long?> applicationMasterSubIds = new List<long?>();
-                    var attributeSubResultDetails = await GetAttributeDetails(new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent, true);
+                    var attributeSubResultDetails = await GetAttributeDetails(AttributeDetailsList,new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent, true);
 
                     if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
                     {
@@ -5803,11 +5821,11 @@ namespace Infrastructure.Repository.Query
             AttributeHeaderListModel _AttributeHeader = new AttributeHeaderListModel();
             if (_dynamicFormGrids != null && _dynamicFormGrids.ID > 0 && dynamicFormDatas != null && dynamicFormDatas.DynamicFormDataId > 0)
             {
-                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicFormGrids, 1, false, true,true);
+                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicFormGrids, 1, false, true, true);
             }
             else
             {
-                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicForm, 1, false, true,true);
+                _AttributeHeader = await GetAllAttributeNameAsync(_dynamicForm, 1, false, true, true);
             }
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {

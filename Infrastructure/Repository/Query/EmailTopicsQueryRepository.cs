@@ -1996,7 +1996,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("AddedDate", EmailTopics.AddedDate);
                         parameterss.Add("StatusCodeID", EmailTopics.StatusCodeID);
                         parameterss.Add("SessionId", EmailTopics.SessionId);
-                        parameterss.Add("FileData", EmailTopics.FileData);
+                        parameterss.Add("FileData", EmailTopics.FileData);                        
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);

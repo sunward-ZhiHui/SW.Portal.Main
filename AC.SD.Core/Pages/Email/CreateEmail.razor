@@ -2595,6 +2595,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             server.Options.Export.Html.EmbedImages = true;
             byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
 
+            string plainText = server.Text;
+            string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
 
             var plistuniquevalue = participantIds.Distinct().ToList();
             string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
@@ -2652,6 +2654,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     NotifyUser = Data.NotifyUser,
                     TagLock = Data.TagLock,
                     FileData = fileContents,
+                    Description = shortDescription,
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,

@@ -52,8 +52,15 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @inject DataRefreshService RefreshService
 @inject ClipboardService ClipboardService
+@using System.Text.RegularExpressions
 
 <style scoped>
+    .short-description {
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px;
+}
+
     .msgOpen
     {
     height: calc(100% - 97px) !important;
@@ -166,11 +173,41 @@
     display: flex;
     justify-content: space-between;
     font-size: 14px;
-    color: #333;
-    /* border-bottom: 2px solid #4CAF50; */
-    /*  background: #dddbdb; */
+    color: #333;   
     border-bottom: 1px solid #e4e4e4;
     }
+
+
+.right-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.icon-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.icon-btn {
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+    transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+    color: #007BFF;
+}
+
+.time {
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+    white-space: nowrap;
+}
+
 
     .accordion-body {
     display: none;
@@ -825,7 +862,7 @@
                     CloseOnTargetContentClick="false"
                     PanelWidth="95%">
                         <HeaderTemplate>
-                            Attached Email
+                            @DrawerTitle
                             <DxButton Attributes="GetCloseInfoButtonAttributes()"
                             Click="CloseInfo"
                             IconCssClass="fa fa-times"
@@ -833,7 +870,15 @@
                         </HeaderTemplate>
                         <BodyTemplate>
                             <div style="width:100%;">
-                                <CopyContentPage ItemId="@ecID" OnCloseRequestMsg="onRequestReload" ></CopyContentPage>
+                                @if (DrawerView == "AttachedEmail")
+                                {
+                                    <CopyContentPage ItemId="@ecID" OnCloseRequestMsg="onRequestReload" />
+                                }
+                                else if (DrawerView == "MainSubject")
+                                {
+                                    <MainSubjectPage Page= "@isLeftMenuvisible"  ItemId="@ecID" OnCloseRequestMsg="onRequestReload" />                                   
+                                }
+                                
                             </div>                            
                         </BodyTemplate>
                         <FooterTemplate>
@@ -1186,17 +1231,41 @@
                                                                         }
                                                                     </div>
                                                                 </div>
+                                                                <!-- Right: Reply Button + Dropdown Menu -->
+                                                                    <div style="display: flex; align-items: center; gap: 20px;">
+
+                                                                        <button type="button" @onclick="@(() => ToggleMainSubject(item))" style="padding-right: 10px !important; padding-left: 10px !important; font-size: 13px; border: 1px solid #d9d9d9; padding: 2px; border-radius: 5px;" class="">
+                                                                            <i class="fa fa-envelope"></i> Main Subject
+                                                                        </button>
+
+                                                                        <button type="button" @onclick="@(() => onreply(item.ID))"
+                                                                            style="font-size: 13px; border: 1px solid #b4b4b4; padding: 2px 10px; border-radius: 5px;"
+                                                                            class="">
+                                                                            <i class="fa fa-reply"></i> Reply
+                                                                        </button>
+
+                                                                        <div class="dropdown">
+                                                                            @{
+                                                                                dynamicShowSubject = "showOpenSubject_" + item.ID;
+                                                                            }
+                                                                            <div id="@dynamicShowSubject" class="handline fa fa-ellipsis-v"
+                                                                                 @onclick="() => ShowSubjectFlyout(item)"
+                                                                                 style="margin-right: 10px; font-size: 18px; font-weight: bold;">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
 
                                                                 <!-- Right: Dropdown Menu -->                                                               
-                                                                <div class="dropdown">
+                                                               @*  <div class="dropdown">
                                                                     <button type="button" @onclick="@(() => onreply(item.ID))" style="font-size: 13px; margin-right: 20px; border: 1px solid #b4b4b4; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" class="">
-                                                                        <i class="fa fa-reply"></i> Reply
+                                                                        <i class="fa fa-reply"></i> Reply11
                                                                     </button>
                                                                     @{
                                                                         dynamicShowSubject = "showOpenSubject_" + item.ID;
                                                                     }
                                                                     <div id="@dynamicShowSubject" class="handline fa fa-ellipsis-v" @onclick="() => ShowSubjectFlyout(item)" style=" margin-right: 10px; font-size: 18px;font-weight: bold;"></div>
-                                                                </div>
+                                                                </div> *@
                                                             </div>
                                                             @if (item.ReplyConversation != null && item.ReplyConversation.Any())
                                                             {
@@ -1208,14 +1277,38 @@
                                                                         <!-- Replys-->
                                                                         <div class="accordion-item">
                                                                             <div class="accordion-header" onclick="toggleAccordion(this)">
-                                                                                <div class="sender-info">
-                                                                                    <div class="avatar-circle bg-a">
-                                                                                        @(string.IsNullOrEmpty(items.UserName) ? "" : items.UserName.Substring(0, 1))
-                                                                                    </div>
+                                                                                <div>
+                                                                                    <div class="sender-info">
+                                                                                        <div class="avatar-circle bg-a @((items.IsRead.GetValueOrDefault(false) || items.IsRead == null ? "markasread_b" : "markasunread_b"))">
+                                                                                            @(string.IsNullOrEmpty(items.UserName) ? "" : items.UserName.Substring(0, 1))
+                                                                                        </div>
 
-                                                                                    <span class="fromtxt"><span style="font-weight: 100;">From:</span> @items.UserName</span>
+                                                                                        <span class="fromtxt"><span style="font-weight: 100;">From:</span> @items.UserName</span>
+                                                                                    </div>
+                                                                                    @* <div class="short-description">
+                                                                                        @(string.IsNullOrEmpty(items.Description) ? "" : items.Description.Substring(0, Math.Min(200, items.Description.Length)))    
+                                                                                    </div>  *@
                                                                                 </div>
-                                                                                <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
+                                                                                @* <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span> *@
+                                                                                
+                                                                                 <!-- Right aligned time + icons -->
+                                                                                <div class="right-actions">
+                                                                                    <div class="time">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</div>
+                                                                                    <div class="icon-bar">
+                                                                                       @*  <i class="fa fa-thumbs-up icon-btn" title="Like"></i>
+                                                                                        <i class="fa fa-comment icon-btn" title="Message"></i>
+                                                                                        <i class="fa fa-users icon-btn" title="Group"></i> *@
+                                                                                        @if (items.IsRead.GetValueOrDefault(false))
+                                                                                        {
+                                                                                            <i class="fa fa-envelope-open icon-btn" title="Mark as Unread"></i>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <i class="fa fa-envelope icon-btn" title="Mark as Read"></i>
+                                                                                        }
+                                                                                    </div>
+                                                                                </div>
+
                                                                             </div>
                                                                             <div class="accordion-body @(isFirst ? "active1" : "")">
 
@@ -1408,123 +1501,8 @@
                                                                 <div style="text-align:center">
                                                                     <button class="loadmorebg" @onclick="() => LoadMoreRepliesnew(item.ID, item.ReplyConversationCount)">Load More</button>
                                                                 </div>
-                                                            }
+                                                            }                                                           
 
-                                                            @if(item.ReplyConversationCount > 0)
-                                                            {
-                                                                <div class="center">
-                                                                    <span class="show-main-body-btn" onclick="toggleMainBody(this)">Show Main Subject</span>
-                                                                </div>
-
-                                                                <div class="main-body" id="mainBody">
-                                                                    <div class="accordion-item">
-                                                                        <div class="accordion-header" onclick="toggleAccordion(this)">
-                                                                            <div class="sender-info">
-                                                                                <div class="avatar-circle bg-a">
-                                                                                    @(string.IsNullOrEmpty(item.UserName) ? "" : item.UserName.Substring(0, 1))
-                                                                                </div>
-                                                                                <span class="fromtxt"><strong>From:</strong> @item.UserName</span>
-                                                                            </div>
-                                                                            <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
-                                                                        </div>
-                                                                        <div class="accordion-body">
-
-                                                                            <div class="email-details" onclick="toggleDetails(this)">
-                                                                                Show To/CC
-                                                                            </div>
-                                                                            <div class="email-details-content">
-                                                                                <div>
-                                                                                    <strong>To:</strong>
-                                                                                    @if (item.AssignToList != null && item.AssignToList.Any())
-                                                                                    {
-                                                                                        @foreach (var itms in item.AssignToList)
-                                                                                        {
-                                                                                            <span>@itms.FirstName ,</span>
-                                                                                        }
-                                                                                    }
-                                                                                    <br>
-                                                                                </div>
-                                                                                @if (item.AssignCCList != null && item.AssignCCList.Any())
-                                                                                {
-                                                                                    <div>
-                                                                                        <strong>Cc:</strong>
-                                                                                        @foreach (var itm in item.AssignCCList)
-                                                                                        {
-                                                                                            <span>@itm.FirstName ,</span>
-                                                                                        }
-                                                                                    </div>
-                                                                                }
-                                                                            </div>
-
-                                                                            <div class="email-body">
-                                                                                @if (item.FileData == null)
-                                                                                {
-
-                                                                                    <div class="btn-load" @onclick="() => LoadFileDataAsync(item)">
-                                                                                        Load Content
-                                                                                    </div>
-
-
-                                                                                }
-                                                                                else
-                                                                                {
-
-                                                                                    byte[] htmlBinaryData1 = item.FileData;
-                                                                                    string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
-
-                                                                                    <div>
-                                                                                        @((MarkupString)htmlContent1)
-                                                                                    </div>
-                                                                                }
-                                                                            </div>
-                                                                            <div class="attachments">
-                                                                                <div>
-                                                                                    @foreach (var attachment in item.documents)
-                                                                                    {
-                                                                                        @*  <strong>Attachments:</strong> *@
-                                                                                        <div class="tag handline">
-                                                                                            <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
-
-                                                                                            @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-                                                                                            {
-                                                                                                <div class="options">
-                                                                                                    <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
-                                                                                                        <i class="fa fa-play" aria-hidden="true"></i>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            }
-                                                                                            else if (attachment.IsView)
-                                                                                            {
-                                                                                                <div class="options">
-                                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
-                                                                                                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
-                                                                                                    </div>
-                                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
-                                                                                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            }
-                                                                                        </div>
-                                                                                    }
-                                                                                </div>
-
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            }
-
-                                                           
-
-
-
-                                                            @* 
-                                                            @if (ReplyList != null && ReplyList.Count < totalReplyCount)
-                                                            {
-                                                                <div style="text-align:center">
-                                                                    <button class="loadmorebg" @onclick="() => LoadMoreReplies()"  Enabled="!isLoading">Load More</button>
-                                                                </div>
-                                                            } *@
                                                         </div>
                                                         <div>
                                                             @*  <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto  @((item.IsRead.GetValueOrDefault(false) || item.IsRead == null ? "markasread_border" : "markasunread_border"))" style="margin-right: 10px;">
@@ -2527,17 +2505,7 @@ Width="300px">
     </FooterContentTemplate>
 
 </DxPopup>
-@*<DxPopup @bind-Visible="@isArchiveClosed" HeaderText="Archive">
-    <BodyTemplate Context="PopupContext">       
-    <div class="text-center">
-        <Content>
-            <p>Do you want to Archive this Topic</p>
-        </Content>        
-        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitIsArchived())"/>
-        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
-    </div>      
-    </BodyTemplate>
-</DxPopup>*@
+
 
 <DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
     <BodyTemplate Context="PopupContext">      
@@ -2588,37 +2556,12 @@ Width="300px">
     </BodyTemplate>
 </DxPopup>
 
-@*<DxPopup @bind-Visible="@isFileUpload" HeaderText="Attachments">
-    <BodyTemplate Context="PopupContext">
-        <div style="padding: 15px;">
-            <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Selected File</button>
-            <div class="">              
-                <DxUpload @ref="uploadComponent" Name="files"                          
-                          Visible="@UploadVisible"                        
-                          AcceptedFileTypes=@AcceptedFileTypes
-                          UploadMode="@UploadMode.OnButtonClick"                        
-                          UploadUrl="@GetUploadUrl()"
-                          AllowMultiFileUpload="false"
-                          ExternalSelectButtonCssSelector="#overviewDemoSelectButton"                         
-                          SelectedFilesChanged="@SelectedFilesChanged"
-                          FileUploaded="@isUploadSuccess"
-                          FileUploadError="@OnUploadError">
-                </DxUpload> 
-                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>               
-            </div>
-        </div>
-    </BodyTemplate>
-</DxPopup>*@
+
 <style>
     .dxuc-upload-icon {
     display: none; /* or any other style to disable or hide the icon */
     }
 </style>
-@*
-<button class="btn btn-primary" @onclick="ShowToast">Show Toast</button>
-
-<button class="btn btn-primary" @onclick="@(()=>ToastService.ShowSuccess("welcome to ass"))">Show Toast</button>
-*@
 
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
 PositionTarget=@($"#flyout-overview-target-container-ProfileType-{_selectedDescriptionItems?.DocumentId}")
@@ -2944,6 +2887,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+    string DrawerView = "Email";
+    string DrawerTitle = "Attached Email";
     Dictionary<int, int> replyCounts = new();
     private Dictionary<int, List<EmailConversations>> replyDiscussions = new();
 
@@ -2958,6 +2903,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     private VoiceRecordingPage? RefVoiceRec { get; set; }
     internal List<EmailTopics>? _CopyLinkList;
     bool IsInfoOpen { get; set; } = false;
+    bool IsMainSubject {get;set;} = false;
     void ToggleInfo()
     {
         IsInfoOpen = !IsInfoOpen;
@@ -2967,6 +2913,17 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {        
         ecID = emailConversations.ID;
         IsInfoOpen = true;
+        
+         DrawerView = "AttachedEmail";
+         DrawerTitle = "Attached Email";
+    }
+    private void ToggleMainSubject(EmailConversations emailConversations) 
+    {        
+        ecID = emailConversations.ID;
+         IsInfoOpen = true;
+
+         DrawerView = "MainSubject";
+         DrawerTitle = "Main Subject";
     }
     private void CloseInfo()
     {
@@ -8030,6 +7987,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
 
 
+            string plainText = server.Text;
+            string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
+
             if(Data.Name == null)
             {
                 toastService.ShowToast("Please Enter Subject Name", AC.SD.Core.Services.ToastLevel.Error);
@@ -8205,6 +8165,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     Message = htmlString,
                     //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
                     FileData = fileContents,
+                    Description = shortDescription,
                     //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                     AssigntoIdss =  assigntoidsString,
                     AssignccIdss = assignccidsString,

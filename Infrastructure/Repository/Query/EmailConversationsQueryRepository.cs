@@ -1,32 +1,33 @@
-﻿using Core.Entities;
+﻿using Application.Response;
+using Azure.Core;
+using Core.Entities;
+using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
 using Dapper;
+using DevExpress.Data.Filtering.Helpers;
+using DevExpress.Xpo.DB.Helpers;
+using Google.Cloud.Firestore;
 using IdentityModel.Client;
+using Infrastructure.Data;
 using Infrastructure.Repository.Query.Base;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using Microsoft.AspNetCore.Http;
-using Application.Response;
-using Core.Entities.Views;
-using DevExpress.Data.Filtering.Helpers;
-using Azure.Core;
-using System.Threading;
-using DevExpress.Xpo.DB.Helpers;
-using System.Reflection.Metadata;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Core.EntityModels;
-using Infrastructure.Data;
-using Google.Cloud.Firestore;
+using System.Data.Services.Client;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repository.Query
 {
@@ -1127,7 +1128,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
-                                FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
+                                FC.ReplyId,FC.FileData,FC.Description,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
                                 FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
@@ -1171,7 +1172,7 @@ namespace Infrastructure.Repository.Query
             {
                 var query = @"SELECT DISTINCT
                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,                               
-                                FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
+                                FC.ReplyId,FC.FileData,FC.Description,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
@@ -1377,7 +1378,7 @@ namespace Infrastructure.Repository.Query
             SELECT 
                 FC.Name, FC.ID, FC.AddedDate, 
                 CONCAT(AU.FirstName, '-', AU.NickName) AS UserName, 
-                AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData, 
+                AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData,FC.Description, 
                 EN.IsRead, EN.ID AS EmailNotificationId, 
                 ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType,
                 ECL.EmailConversationsId AS CopyLinkEmailIds
@@ -1887,7 +1888,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
+                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,FC.Description,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
                     query += "INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId \r\n";
                     query += "LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId =" + UserId + " \r\n";
                     query += "WHERE FC.ReplyId in(" + string.Join(',', replyIds) + ") ORDER BY FC.AddedDate DESC \r\n";
@@ -2530,6 +2531,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", forumConversations.SessionId,DbType.Guid);
                             parameters.Add("AddedDate", forumConversations.AddedDate,DbType.DateTime);
                             parameters.Add("FileData", forumConversations.FileData);
+                            parameters.Add("Description", forumConversations.Description);                        
                             parameters.Add("Name", forumConversations.Name,DbType.String);
                             parameters.Add("DueDate", forumConversations.DueDate, DbType.DateTime);
                             parameters.Add("IsLockDueDate", forumConversations.IsLockDueDate);
@@ -2544,7 +2546,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 
-                            var query = "INSERT INTO EmailConversations(IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
+                            var query = "INSERT INTO EmailConversations(Description,IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@Description,@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

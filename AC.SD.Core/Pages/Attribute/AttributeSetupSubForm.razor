@@ -141,6 +141,36 @@
                             </DxComboBox>
                             <ValidationMessage For="@(() => Data.DataSourceId)" />
                         </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Attribute Header" ColSpanMd="6" Visible="@IsFormAttributeEnabled">
+                            <DxComboBox Data="@_attributes"
+                                        NullText="Select Attribute..."
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Description"
+                                        ValueFieldName="AttributeID"
+                                        EditFormat="{0}-{1}"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        ShowValidationIcon="true"
+                                        Enabled="isEdit"
+                                        Value="@Data.SubFormAttributeID"
+                                        ValueExpression="@(() => Data.SubFormAttributeID )"
+                                        ValueChanged="@((long? selectName) => SelectedItemChanged(selectName))">
+                                <Columns>
+                                    
+                                    <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
+                                                        Caption="Label Name"
+                                                        Width="100px" />
+                                    <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
+                                                        Caption="Control Type" Width="100px" />
+                                    <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeIds)"
+                                                        Caption="DropDown Type" Width="100px" />
+                                    <DxListEditorColumn FieldName="@nameof(AttributeHeader.DataSourceDisplayName)"
+                                                        Caption="Data Source" Width="100px" />
+                                </Columns>
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.SubFormAttributeID)" />
+
+                        </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Application Master" ColSpanMd="6" Visible="@isApplicationMasterEnabled">
                             <DxTagBox Data="@_applicationMasterItems"
                                       NullText="Select Application Master..."
@@ -269,6 +299,7 @@
     EditContext _editContext;
     bool isListMultiple = false;
     private AttributeDetailsSetup? RefDetails { get; set; }
+
     bool DeleteEnabled { get; set; } = false;
     bool MaskEnabled { get; set; } = false;
     bool RegEnabled { get; set; } = false;
@@ -285,8 +316,8 @@
     private string MyID = "myid";
     long AttributeIDs;
     string? isDisplay = "display:none;";
-    string? isDisplay1 = "";
-    AttributeHeader Data = new AttributeHeader();
+    string? isDisplay1 = "";bool IsFormAttributeEnabled { get; set; } = false;
+    AttributeHeader Data = new AttributeHeader(); private List<AttributeHeader>? _attributes;
     private List<CodeMaster> _stausItems;
     private List<ApplicationUser> _applicationUsers;
     private CodeMaster? codemaster;
@@ -333,10 +364,15 @@
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
         _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+        _attributes = await Mediator.Send(new GetAllAttributeNameHeader(null, null, 0));
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         loadPlantItems();
         loadDropDownList();
+    }
+    void SelectedItemChanged(long? attrId)
+    {
+        Data.SubFormAttributeID = attrId;
     }
     void loadPlantItems()
     {
@@ -436,7 +472,7 @@
         IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
         Data.SubAttributeDetailId = SubAttributeDetailId;
         Data.SubAttributeId = SubAttributeId;
-        Data.IsSubForm = true;
+        Data.IsSubForm = true; Data.SubFormAttributeID = null; IsFormAttributeEnabled = false;
         Data.SubFormType = Type;
         loadPlantItems();
         StateHasChanged();
@@ -539,6 +575,7 @@
                 AttributeRadioLayout = IsRadioLayout,
                 SubApplicationMasterIdsListIds = applicationMasterIdsListIds,
                 AttrDescription = Data.AttrDescription,
+                SubFormAttributeID=Data.SubFormAttributeID,
             };
         var result = await Mediator.Send(createReq);
         if (result > 0)
@@ -615,7 +652,7 @@
         isDisplay = "display:none;";
         isDisplay1 = "";
         DeleteEnabled = false; Data.DropDownTypeId = null; Data.IsDataSource = false; DataSourceTable = null; isGridForm = false; isApplicationMasterParentEnabled = false;
-        Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; isApplicationMasterEnabled = false;
+        Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; isApplicationMasterEnabled = false; IsFormAttributeEnabled = false;
         if (_selectedItems != null)
         {
             isDisplay = ""; isDisplay1 = "display:none;";
@@ -643,6 +680,7 @@
             Data.AttrDescription = _selectedItems.AttrDescription;
             Data.AttributeSortBy = _selectedItems.AttributeSortBy;
             Data.FilterDataSocurceId = 0;
+            Data.SubFormAttributeID = _selectedItems.SubFormAttributeID;
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_selectedItems.IsAttributeSpinEditType) ? "int" : _selectedItems.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _selectedItems.ControlType.ToLower().Contains(f.ToLower()));
@@ -705,9 +743,9 @@
             {
                 IsSpinEditTypeEnabled = true;
             }
-            if (Data.ControlTypeId == 2704)
+            if (Data.ControlTypeId == 2702)
             {
-                IsSpinEditTypeEnabled = true;
+                IsFormAttributeEnabled = true;
             }
             if (Data.ControlTypeId == 2705 || Data.ControlTypeId == 2711)
             {
@@ -786,7 +824,7 @@
         isMultipleEnabled = false;
         MaskEnabled = false; isApplicationMasterEnabled = false; isApplicationMasterParentEnabled = false;
         RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
-        isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;
+        isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;IsFormAttributeEnabled = false;
         if (type == "Add")
         {
             Data.DataSourceId = 0; Data.DynamicFormId = 0; isListMultiple = false; Data.SubApplicationMasterIdsListIds = new List<long?>();
@@ -860,6 +898,10 @@
             {
                 isListMultiple = true;
             }
+            if (controlTypeId == 2702)
+            {
+                IsFormAttributeEnabled = true;
+            }
             if (controlTypeId == 2702 || controlTypeId == 2708)
             {
                 if (Data.AttributeID == 0)
@@ -877,6 +919,7 @@
                 isGridForm = true;
             }
         }
+        StateHasChanged();
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {

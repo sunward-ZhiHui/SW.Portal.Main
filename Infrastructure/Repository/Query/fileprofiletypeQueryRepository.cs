@@ -1024,6 +1024,7 @@ namespace Infrastructure.Repository.Query
 
                 //linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
                 List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1 };
+
                 linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                 var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                 var filterQuery = string.Empty;
@@ -2199,6 +2200,7 @@ namespace Infrastructure.Repository.Query
                         if (value.FileProfileTypeId <= 0)
                         {
 
+
                             var query = "INSERT INTO [FileProfileType](IsAllowWaterMark,Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
                                 "IsAllowMobileUpload,IsDocumentAccess,ShelfLifeDuration,ShelfLifeDurationId,Hints,IsEnableCreateTask,IsCreateByYear,IsCreateByMonth," +
                                 "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId,IsDuplicateUpload) " +
@@ -2468,6 +2470,7 @@ namespace Infrastructure.Repository.Query
                                             {
                                                 query += ",UserGroupId";
                                             }
+
                                             query += "\r) OUTPUT INSERTED.DocumentUserRoleId\r";
                                             query += "VALUES (" + f + "," + user.UserId + "," + user.RoleId + "," + docId.DocumentID + "";
                                             if (user.LevelId > 0)
@@ -2596,6 +2599,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("FileProfileTypeId", documentUserRoleModel.FileProfileTypeId);
                         parameters.Add("RoleID", documentUserRoleModel.RoleID);
                         parameters.Add("UserID", documentUserRoleModel.UserID);
+
                         var Addquerys = "UPDATE DocumentUserRole SET RoleID = @RoleID WHERE  DocumentUserRoleID = @DocumentUserRoleID;";
                         if (documentUserRoleModel.IsUpdateAllDocument == true && documentUserRoleModel.UserID > 0 && documentUserRoleModel.FileProfileTypeId > 0)
                         {

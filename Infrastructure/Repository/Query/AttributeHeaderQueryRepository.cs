@@ -970,7 +970,7 @@ namespace Infrastructure.Repository.Query
                     }
 
                     query += "\rt1.DynamicFormID = " + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";
-                    
+
                     query += "select t1.GridDisplaySeqNo,(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
                         ",(case when t1.IsDependencyMultiple is NULL then  0 ELSE t1.IsDependencyMultiple END) as IsDependencyMultiple,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t11.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t9.sessionId as DynamicFormSessionId,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId," +
                         "t8.DisplayName as DataSourceDisplayName,\r\n" +
@@ -2208,12 +2208,12 @@ namespace Infrastructure.Repository.Query
                 id = id != null && id.Count > 0 ? id : new List<long>() { -1 };
                 // AttributeIds = AttributeIds != null && AttributeIds.Count > 0 ? AttributeIds : new List<long?>() { -1 };
                 var query = string.Empty;
-               /* var query = "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
-                if (isNoDelete == true)
-                {
-                    query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
-                }
-                query += "\r1=1;\n\r";*/
+                /* var query = "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
+                 if (isNoDelete == true)
+                 {
+                     query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
+                 }
+                 query += "\r1=1;\n\r";*/
                 query += "select t6.*,t9.AttributeID as SubAttributeID,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t6.DynamicFormID as DynamicFormGridDropDownID,t6.ApplicationMasterSubFormId from \r\nAttributeHeader t6\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\nLEFT JOIN AttributeHeader t9 ON t9.AttributeID=t6.SubAttributeID\r\n" +
                 "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID where\r";
@@ -2498,6 +2498,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("AttrDescription", attributeHeader.AttrDescription, DbType.String);
                         parameters.Add("IsFilterDataSource", attributeHeader.IsFilterDataSource == true ? true : null);
                         parameters.Add("FilterDataSocurceId", attributeHeader.IsFilterDataSource == true ? attributeHeader.FilterDataSocurceId > 0 ? attributeHeader.FilterDataSocurceId : null : null);
+                        parameters.Add("SubFormAttributeID", attributeHeader.SubFormAttributeID);
                         int? AttributeSortBy = null;
                         if (attributeHeader.IsSubForm == true)
                         {
@@ -2518,7 +2519,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SubApplicationMasterIds", attributeHeader.SubApplicationMasterIdsListIds != null && attributeHeader.SubApplicationMasterIdsListIds.Count() > 0 ? string.Join(",", attributeHeader.SubApplicationMasterIdsListIds) : null, DbType.String);
                         if (attributeHeader.AttributeID > 0)
                         {
-                            var Addquerys = "UPDATE AttributeHeader SET FilterDataSocurceId=@FilterDataSocurceId,IsFilterDataSource=@IsFilterDataSource,AttributeSortBy=@AttributeSortBy,AttrDescription=@AttrDescription,SubApplicationMasterIds=@SubApplicationMasterIds,ApplicationMasterSubFormId=@ApplicationMasterSubFormId,AttributeRadioLayout=@AttributeRadioLayout,AttributeIsVisible=@AttributeIsVisible,AttributeFormToolTips=@AttributeFormToolTips,IsAttributeSpinEditType=@IsAttributeSpinEditType,IsAttributeDisplayTableHeader=@IsAttributeDisplayTableHeader,SubAttributeId=@SubAttributeId,SubAttributeDetailId=@SubAttributeDetailId,IsSubForm=@IsSubForm,IsDynamicFormDropTagBox=@IsDynamicFormDropTagBox,DynamicFormId=@DynamicFormId,AttributeName = @AttributeName,IsInternal=@IsInternal,Description=@Description," +
+                            var Addquerys = "UPDATE AttributeHeader SET SubFormAttributeID=@SubFormAttributeID,FilterDataSocurceId=@FilterDataSocurceId,IsFilterDataSource=@IsFilterDataSource,AttributeSortBy=@AttributeSortBy,AttrDescription=@AttrDescription,SubApplicationMasterIds=@SubApplicationMasterIds,ApplicationMasterSubFormId=@ApplicationMasterSubFormId,AttributeRadioLayout=@AttributeRadioLayout,AttributeIsVisible=@AttributeIsVisible,AttributeFormToolTips=@AttributeFormToolTips,IsAttributeSpinEditType=@IsAttributeSpinEditType,IsAttributeDisplayTableHeader=@IsAttributeDisplayTableHeader,SubAttributeId=@SubAttributeId,SubAttributeDetailId=@SubAttributeDetailId,IsSubForm=@IsSubForm,IsDynamicFormDropTagBox=@IsDynamicFormDropTagBox,DynamicFormId=@DynamicFormId,AttributeName = @AttributeName,IsInternal=@IsInternal,Description=@Description," +
                                 "ControlType=@ControlType,EntryMask=@EntryMask, " +
                                 "RegExp=@RegExp,ModifiedByUserID=@ModifiedByUserID, " +
                                 "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID, " +
@@ -2529,9 +2530,9 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            var query = @"INSERT INTO AttributeHeader(FilterDataSocurceId,IsFilterDataSource,AttributeSortBy,AttrDescription,SubApplicationMasterIds,ApplicationMasterSubFormId,AttributeRadioLayout,AttributeIsVisible,AttributeFormToolTips,IsAttributeDisplayTableHeader,IsAttributeSpinEditType,SubAttributeId,SubAttributeDetailId,IsSubForm,IsDynamicFormDropTagBox,DynamicFormId,AttributeCompanyId,AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
+                            var query = @"INSERT INTO AttributeHeader(SubFormAttributeID,FilterDataSocurceId,IsFilterDataSource,AttributeSortBy,AttrDescription,SubApplicationMasterIds,ApplicationMasterSubFormId,AttributeRadioLayout,AttributeIsVisible,AttributeFormToolTips,IsAttributeDisplayTableHeader,IsAttributeSpinEditType,SubAttributeId,SubAttributeDetailId,IsSubForm,IsDynamicFormDropTagBox,DynamicFormId,AttributeCompanyId,AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@FilterDataSocurceId,@IsFilterDataSource,@AttributeSortBy,@AttrDescription,@SubApplicationMasterIds,@ApplicationMasterSubFormId,@AttributeRadioLayout,@AttributeIsVisible,@AttributeFormToolTips,@IsAttributeDisplayTableHeader,@IsAttributeSpinEditType,@SubAttributeId,@SubAttributeDetailId,@IsSubForm,@IsDynamicFormDropTagBox,@DynamicFormId,@AttributeCompanyId,@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
+              VALUES (@SubFormAttributeID,@FilterDataSocurceId,@IsFilterDataSource,@AttributeSortBy,@AttrDescription,@SubApplicationMasterIds,@ApplicationMasterSubFormId,@AttributeRadioLayout,@AttributeIsVisible,@AttributeFormToolTips,@IsAttributeDisplayTableHeader,@IsAttributeSpinEditType,@SubAttributeId,@SubAttributeDetailId,@IsSubForm,@IsDynamicFormDropTagBox,@DynamicFormId,@AttributeCompanyId,@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
 
                             var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters);
                             attributeHeader.AttributeID = insertedId;
@@ -2735,12 +2736,12 @@ namespace Infrastructure.Repository.Query
                     // {
                     List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).Distinct().ToList();
                     List<long> attributeSubFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710).Select(a => a.AttributeId.Value).Distinct().ToList();
-                    attributeResultDetails = await GetAttributeDetails(AttributeDetailsList,attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent, true);
+                    attributeResultDetails = await GetAttributeDetails(AttributeDetailsList, attributeIds, attributeSubFormIds, "Main", null, plantCode, applicationMasters, applicationMasterParent, true);
                     var attributeDetails = attributeResultDetails.AttributeDetails;
                     attributeHeaderListModel.AttributeDetails = attributeDetails != null && attributeDetails.Count > 0 ? attributeDetails.Where(w => attributeIds.Contains(w.AttributeID)).ToList() : new List<AttributeDetails>();
                     var AttributeDetailsIds = attributeHeaderListModel.AttributeDetails.Select(s => s.AttributeDetailID).ToList();
                     List<long?> applicationMasterSubIds = new List<long?>();
-                    var attributeSubResultDetails = await GetAttributeDetails(AttributeDetailsList,new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent, true);
+                    var attributeSubResultDetails = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), AttributeDetailsIds, "Sub", null, plantCode, applicationMasters, applicationMasterParent, true);
 
                     if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
                     {

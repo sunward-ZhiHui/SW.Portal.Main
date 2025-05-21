@@ -3599,6 +3599,44 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<int>> GetAllIdsAsync()
+        {
+            var query = "SELECT Id FROM EmailConversations";
+
+            using (var connection = CreateConnection())
+            {
+                var ids = await connection.QueryAsync<int>(query);
+                return ids.ToList();
+            }
+        }
+
+        public async Task<byte[]> GetFileDataByIdAsync(int id)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("Id", id);
+
+            var query = "SELECT FileData FROM EmailConversations WHERE Id = @Id";
+
+            using (var connection = CreateConnection())
+            {
+                var result = await connection.QueryFirstOrDefaultAsync<byte[]>(query, parameters);
+                return result ?? Array.Empty<byte>();
+            }
+        }
+
+        public async Task UpdateDescriptionAsync(int id, string description)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("Id", id);
+            parameters.Add("Description", description);
+
+            var query = "UPDATE EmailConversations SET Description = @Description WHERE Id = @Id";
+
+            using (var connection = CreateConnection())
+            {
+                await connection.ExecuteAsync(query, parameters);
+            }
+        }
     }
 
 }

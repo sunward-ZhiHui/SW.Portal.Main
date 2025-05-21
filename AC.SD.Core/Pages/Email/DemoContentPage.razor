@@ -1,0 +1,54 @@
+﻿@page "/democontent"
+@using global::Core.Repositories.Query
+@inject IEmailTopicsQueryRepository EmailRepo
+@inject IJSRuntime JSRuntime
+
+<h3>Convert Plain Text</h3>
+
+<button class="btn btn-primary" @onclick="ConvertAllPlainText">Convert</button>
+
+<p><b>Status:</b> @statusMessage</p>
+
+@code {
+    private string statusMessage = "";
+
+    private async Task ConvertAllPlainText()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("showLoading");
+
+            var ids = await EmailRepo.GetAllIdsAsync();
+
+            foreach (var id in ids)
+            {
+                var fileData = await EmailRepo.GetFileDataByIdAsync(id);
+                if (fileData is { Length: > 0 })
+                {
+                    string plainText = ExtractPlainText(fileData);
+                    if (plainText.Length > 500)
+                        plainText = plainText[..500];
+
+                    await EmailRepo.UpdateDescriptionAsync(id, plainText);
+                }
+            }
+
+            statusMessage = "Completed";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "Failed: " + ex.Message;
+        }
+        finally
+        {
+            await JSRuntime.InvokeVoidAsync("hideLoading");
+        }
+    }
+
+    private string ExtractPlainText(byte[] fileData)
+    {
+        using var server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+        server.LoadDocument(fileData); // Supports RTF, DOCX, HTML, etc.
+        return server.Text;
+    }
+}

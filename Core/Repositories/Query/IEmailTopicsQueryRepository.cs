@@ -101,5 +101,9 @@ namespace Core.Repositories.Query
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);
         Task<IReadOnlyList<Documents>> GetDynamicFormDataDynamicFormDataUploadList(Guid? SessionIds);
         Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory);
+
+        Task<List<int>> GetAllIdsAsync();
+        Task<byte[]> GetFileDataByIdAsync(int id);
+        Task UpdateDescriptionAsync(int id, string description);
     }
 }

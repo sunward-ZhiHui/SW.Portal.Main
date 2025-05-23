@@ -20,4 +20,12 @@
       <ConnectionOptions CloseConnection="true" />
     </SqlDataSource>
   </DataSources>
+  <Items>
+    <ListBox ComponentName="listBoxDashboardItem1" Name="List Box 1" DataSource="sqlDataSource1" DataMember="Products_Categories" />
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="listBoxDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
 </Dashboard>

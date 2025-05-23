@@ -1,0 +1,101 @@
+﻿@page "/DashboardPages"
+ @using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Http
+@using DevExpress.DashboardBlazor
+@using DevExpress.DashboardWeb
+@using DevExpress.DashboardAspNetCore
+@using DevExpress.DashboardCommon;
+@using System.IO;
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+<link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-ambiance.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
+<button id="workingModeSwitcher" @onclick="ChangeWorkingMode">
+    @ButtonText
+</button>
+
+ <button @onclick="ToggleMenu">Toggle Menu</button>
+
+@if (menuVisible)
+{
+    <div class="dashboard-menu">
+        @foreach (var dash in Dashboards)
+        {
+            <div @onclick="() => LoadDashboard(dash.Id)">
+                @dash.DisplayName
+            </div>
+        }
+    </div>
+}
+
+<DxDashboard DashboardId="@selectedDashboardId"  @bind-WorkingMode="@workingMode" Endpoint="api/dashboard" style="height: calc(100vh - 130px);" />
+
+@code {
+    string selectedDashboardId = "salesOverview";
+    List<DashboardItem> Dashboards = new();
+    bool menuVisible = true;
+
+    void ToggleMenu() => menuVisible = !menuVisible;
+    string endpoint = "api/dashboard";
+    WorkingMode workingMode = WorkingMode.Designer;
+    public string DashboardIdValue { get; set; } = "dashboard2";
+
+    public Dictionary<string, string> headers = new Dictionary<string, string>() { { "Authorization", "UniqueAuthKey" } };
+    protected override void OnInitialized()
+    {
+        Dashboards = LoadDashboardsFromXml("Data/Dashboards"); // adjust path as needed
+    }
+    void LoadDashboard(string id)
+    {
+        selectedDashboardId = id;
+    }
+    public void ChangeWorkingMode()
+    {
+        workingMode = workingMode == WorkingMode.Designer ? WorkingMode.Viewer : WorkingMode.Designer;
+    }
+
+    public string ButtonText
+    {
+        get
+        {
+            string value = workingMode == WorkingMode.Designer ? "Viewer" : "Designer";
+            string mode = "Switch to " + value;
+            return mode;
+        }
+    }
+    public class DashboardItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+    }
+    public List<DashboardItem> LoadDashboardsFromXml(string folderPath)
+    {
+        var dashboards = new List<DashboardItem>();
+
+        foreach (var file in Directory.GetFiles(folderPath, "*.xml"))
+        {
+            var dashboardId = Path.GetFileNameWithoutExtension(file);
+
+            var dashboard = new DevExpress.DashboardCommon.Dashboard();
+            dashboard.LoadFromXml(file); 
+            dashboards.Add(new DashboardItem
+                {
+                    Id = dashboardId,
+                    DisplayName = dashboard.Title.Text ?? dashboardId
+                });
+        }
+        if (dashboards != null && dashboards.Count() > 0)
+        {
+            selectedDashboardId = dashboards.FirstOrDefault()?.Id;
+        }
+        return dashboards;
+    }
+}

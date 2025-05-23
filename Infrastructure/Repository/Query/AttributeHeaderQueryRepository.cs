@@ -4081,6 +4081,10 @@ namespace Infrastructure.Repository.Query
                                                                     {
                                                                         listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
                                                                     }
+                                                                    else if (s.DataSourceTable == "RawMatPurch")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
+                                                                    }
                                                                     else
                                                                     {
                                                                         listName.Add(n?.AttributeDetailName + "|" + n?.Description);
@@ -4157,6 +4161,7 @@ namespace Infrastructure.Repository.Query
                                                             {
                                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                             }
+                                                            
                                                             if (s.DataSourceTable == "Location")
                                                             {
                                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
@@ -4175,6 +4180,10 @@ namespace Infrastructure.Repository.Query
                                                                             {
                                                                                 listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
                                                                             }
+                                                                            else if (s.DataSourceTable == "RawMatPurch")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
+                                                                            }
                                                                             else
                                                                             {
                                                                                 listName.Add(n?.AttributeDetailName + "|" + n?.Description);
@@ -4184,6 +4193,11 @@ namespace Infrastructure.Repository.Query
                                                                 }
                                                             }
                                                             ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                            if (s.DataSourceTable == "RawMatPurch")
+                                                            {
+                                                                var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                                ValueSets = nameList?.AttributeDetailName + "|" + nameList?.QcRefNo;
+                                                            }
                                                         }
                                                     }
                                                     else
@@ -4256,6 +4270,10 @@ namespace Infrastructure.Repository.Query
                                                                                         {
                                                                                             listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
                                                                                         }
+                                                                                        else if (dd.DataSourceTable == "RawMatPurch")
+                                                                                        {
+                                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
+                                                                                        }
                                                                                         else
                                                                                         {
                                                                                             listName.Add(n?.AttributeDetailName + "|" + n?.Description);
@@ -4308,6 +4326,11 @@ namespace Infrastructure.Repository.Query
                                                                         var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
                                                                         listss = nameList?.AttributeDetailName + "|" + nameList?.Description;
                                                                     }
+                                                                    if (dd.DataSourceTable == "RawMatPurch")
+                                                                    {
+                                                                        var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                                        listss = nameList?.AttributeDetailName + "|" + nameList?.QcRefNo;
+                                                                    }
                                                                     opts1.Add("Value", listss);
                                                                     objectData[nameData] = opts1;
                                                                     objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = listss;
@@ -4316,6 +4339,7 @@ namespace Infrastructure.Repository.Query
                                                                     dynamicFormReportItems6.Label = dd.DisplayName;
                                                                     dynamicFormReportItems6.Value = listss;
                                                                     dynamicFormReportItems.Add(dynamicFormReportItems6);
+
                                                                 }
                                                             }
                                                             else
@@ -4357,6 +4381,10 @@ namespace Infrastructure.Repository.Query
                                                                     if (s.DataSourceTable == "Employee")
                                                                     {
                                                                         listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName);
+                                                                    }
+                                                                    else if (s.DataSourceTable == "RawMatPurch")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
                                                                     }
                                                                     else
                                                                     {

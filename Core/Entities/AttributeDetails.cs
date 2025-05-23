@@ -57,6 +57,7 @@ namespace Core.Entities
         public string? SubStatus { get; set; }
         public string? Status { get; set; }
         public string? FullName { get; set; }
+        public string? QcRefNo { get; set; }
 
     }
     public class DataSourceAttributeDetails

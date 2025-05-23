@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Dynamic Form View" />
+  <DataSources>
+    <SqlDataSource Name="view_DynamicFormDashboard" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_DynamicFormDashboard">
+        <Tables>
+          <Table Name="view_DynamicFormDashboard" />
+        </Tables>
+        <Columns>
+          <Column Table="view_DynamicFormDashboard" Name="FormName" />
+          <Column Table="view_DynamicFormDashboard" Name="FormID" />
+          <Column Table="view_DynamicFormDashboard" Name="ScreenID" />
+          <Column Table="view_DynamicFormDashboard" Name="DynamicFormSectionID" />
+          <Column Table="view_DynamicFormDashboard" Name="SectionName" />
+          <Column Table="view_DynamicFormDashboard" Name="DynamicFormSectionAttributeID" />
+          <Column Table="view_DynamicFormDashboard" Name="FormUsedCount" />
+          <Column Table="view_DynamicFormDashboard" Name="Description" />
+          <Column Table="view_DynamicFormDashboard" Name="ControlType" />
+          <Column Table="view_DynamicFormDashboard" Name="ProfileNo" />
+          <Column Table="view_DynamicFormDashboard" Name="ProfileID" />
+          <Column Table="view_DynamicFormDashboard" Name="ProfileName" />
+          <Column Table="view_DynamicFormDashboard" Name="DynamicFormDataID" />
+          <Column Table="view_DynamicFormDashboard" Name="TotalCountFlow" />
+          <Column Table="view_DynamicFormDashboard" Name="CompletedFlow" />
+          <Column Table="view_DynamicFormDashboard" Name="PendingFlow" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <ComboBox ComponentName="comboBoxDashboardItem1" Name="Combo Box 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
+      <InteractivityOptions IgnoreMasterFilters="false" />
+      <DataItems>
+        <Dimension DataMember="FormName" DefaultId="DataItem0" />
+      </DataItems>
+      <FilterDimensions>
+        <Dimension DefaultId="DataItem0" />
+      </FilterDimensions>
+    </ComboBox>
+    <Pivot ComponentName="pivotDashboardItem1" Name="Pivot 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
+      <DataItems>
+        <Dimension DataMember="DynamicFormDataID" DefaultId="DataItem0" />
+        <Dimension DataMember="FormID" DefaultId="DataItem1" />
+        <Measure DataMember="TotalCountFlow" DefaultId="DataItem3" />
+        <Measure DataMember="CompletedFlow" DefaultId="DataItem4" />
+        <Measure DataMember="PendingFlow" DefaultId="DataItem5" />
+        <Dimension DataMember="ProfileNo" DefaultId="DataItem6" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem0" />
+        <Dimension DefaultId="DataItem1" />
+      </HiddenDimensions>
+      <Rows>
+        <Row DefaultId="DataItem6" />
+      </Rows>
+      <Values>
+        <Value DefaultId="DataItem3" />
+        <Value DefaultId="DataItem4" />
+        <Value DefaultId="DataItem5" />
+      </Values>
+    </Pivot>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
+      <DataItems>
+        <Dimension DataMember="FormName" DefaultId="DataItem0" />
+        <Dimension DataMember="SectionName" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem2" Name="Grid 2" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
+      <DataItems>
+        <Dimension DataMember="FormName" DefaultId="DataItem0" />
+        <Dimension DataMember="SectionName" DefaultId="DataItem1" />
+        <Dimension DataMember="Description" DefaultId="DataItem2" />
+        <Dimension DataMember="ControlType" DefaultId="DataItem3" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem2" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem3" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutItem DashboardItem="comboBoxDashboardItem1" />
+        <LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutItem DashboardItem="pivotDashboardItem1" />
+            <LayoutItem DashboardItem="gridDashboardItem2" />
+          </LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem1" />
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

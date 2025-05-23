@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard 1" />
+  <DataSources>
+    <SqlDataSource Name="ApplicationMaster 1" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="ApplicationMaster">
+        <Tables>
+          <Table Name="ApplicationMaster" />
+          <Table Name="ApplicationMasterDetail" />
+          <Relation Type="Inner" Parent="ApplicationMaster" Nested="ApplicationMasterDetail">
+            <KeyColumn Parent="ApplicationMasterID" Nested="ApplicationMasterID" />
+          </Relation>
+        </Tables>
+        <Columns>
+          <Column Table="ApplicationMaster" Name="ApplicationMasterID" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterName" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterDescription" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterCodeID" />
+          <Column Table="ApplicationMaster" Name="IsApplyProfile" />
+          <Column Table="ApplicationMaster" Name="IsApplyFileProfile" />
+          <Column Table="ApplicationMasterDetail" Name="ApplicationMasterDetailID" />
+          <Column Table="ApplicationMasterDetail" Name="ApplicationMasterID" Alias="ApplicationMasterDetail_ApplicationMasterID" />
+          <Column Table="ApplicationMasterDetail" Name="Value" />
+          <Column Table="ApplicationMasterDetail" Name="Description" />
+          <Column Table="ApplicationMasterDetail" Name="StatusCodeID" />
+          <Column Table="ApplicationMasterDetail" Name="AddedByUserID" />
+          <Column Table="ApplicationMasterDetail" Name="AddedDate" />
+          <Column Table="ApplicationMasterDetail" Name="ModifiedByUserID" />
+          <Column Table="ApplicationMasterDetail" Name="ModifiedDate" />
+          <Column Table="ApplicationMasterDetail" Name="ProfileID" />
+          <Column Table="ApplicationMasterDetail" Name="FileProfileTypeID" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <ListBox ComponentName="listBoxDashboardItem1" Name="List Box 1" DataSource="sqlDataSource1" DataMember="ApplicationMaster">
+      <DataItems>
+        <Dimension DataMember="ApplicationMasterName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+      </DataItems>
+      <FilterDimensions>
+        <Dimension DefaultId="DataItem0" />
+        <Dimension DefaultId="DataItem1" />
+      </FilterDimensions>
+    </ListBox>
+    <Card ComponentName="cardDashboardItem1" Name="Cards 1" DataSource="sqlDataSource1" DataMember="ApplicationMaster">
+      <DataItems>
+        <Measure DataMember="Value" SummaryType="Count" DefaultId="DataItem0" />
+        <Dimension DataMember="Value" DefaultId="DataItem1" />
+        <Dimension DataMember="AddedByUserID" DefaultId="DataItem2" />
+        <Dimension DataMember="Value" DefaultId="DataItem3" />
+        <Dimension DataMember="Description" DefaultId="DataItem4" />
+        <Dimension DataMember="Description" DefaultId="DataItem5" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem3" />
+        <Dimension DefaultId="DataItem4" />
+      </HiddenDimensions>
+      <SeriesDimensions>
+        <SeriesDimension DefaultId="DataItem1" />
+        <SeriesDimension DefaultId="DataItem5" />
+      </SeriesDimensions>
+      <Card>
+        <ActualValue DefaultId="DataItem0" />
+        <AbsoluteVariationNumericFormat />
+        <PercentVariationNumericFormat />
+        <PercentOfTargetNumericFormat />
+        <SparklineOptions ViewType="Bar" />
+        <LayoutTemplate Type="Stretched">
+          <TopValue Visible="true" ValueType="ActualValue" DimensionIndex="0" />
+          <MainValue Visible="true" ValueType="Title" DimensionIndex="0" />
+          <SubValue Visible="true" ValueType="Subtitle" DimensionIndex="0" />
+          <BottomValue1 Visible="true" ValueType="PercentVariation" DimensionIndex="0" />
+          <BottomValue2 Visible="true" ValueType="AbsoluteVariation" DimensionIndex="0" />
+          <DeltaIndicator Visible="true" />
+          <Sparkline Visible="true" />
+        </LayoutTemplate>
+      </Card>
+      <SparklineArgument DefaultId="DataItem2" />
+    </Card>
+  </Items>
+  <LayoutOptions>
+    <Width Value="440" />
+  </LayoutOptions>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup>
+        <LayoutItem DashboardItem="listBoxDashboardItem1" />
+        <LayoutItem DashboardItem="cardDashboardItem1" />
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

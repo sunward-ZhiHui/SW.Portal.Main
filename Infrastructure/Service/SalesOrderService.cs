@@ -908,11 +908,13 @@ namespace Infrastructure.Service
                                     UnitOfMeasureCode = b.Unit_of_Measure_Code,
                                     BatchNo = b.Batch_No,
                                     CompanyId = companyid,
-                                    ItemId = itemsExits?.ItemId
+                                    ItemId = itemsExits?.ItemId,
+                                    QcRefNo = b.QC_Ref_No,
                                 });
                             }
                             else
                             {
+                                exits.QcRefNo = b.QC_Ref_No;
                                 rawMatPurchList.Add(exits);
                             }
                         }

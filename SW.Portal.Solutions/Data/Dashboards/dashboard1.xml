@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Dashboard>
+<Dashboard CurrencyCulture="ar-KM">
   <Title Text="Sample Dashboard" />
   <DataSources>
     <SqlDataSource Name="SalesPerson" ComponentName="DataSource1" DataProcessingMode="Client">
@@ -99,6 +99,18 @@
         <Value DefaultId="DataItem4" />
       </Values>
     </Pivot>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="DataSource1" DataMember="SalesPerson">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem2" Name="Grid 2" DataSource="DataSource1" DataMember="SalesPerson">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem3" Name="Grid 3" DataSource="DataSource1" DataMember="SalesPerson">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
   </Items>
   <Groups>
     <Group ComponentName="groupDashboardItem1" Name="Group 1" />
@@ -108,16 +120,25 @@
       <LayoutItem DashboardItem="treeViewDashboardItem1" Weight="34.58929917106255" />
       <LayoutGroup Orientation="Vertical" Weight="165.41070082893745">
         <LayoutGroup Weight="165.41070082893745">
-          <LayoutItem DashboardItem="chartDashboardItem1" Weight="165.41070082893745" />
-          <LayoutTabContainer DashboardItem="tabContainerDashboardItem1" Weight="165.41070082893745">
-            <LayoutTabPage DashboardItem="dashboardTabPage1">
-              <LayoutItem DashboardItem="pieDashboardItem1" />
-            </LayoutTabPage>
-          </LayoutTabContainer>
+          <LayoutGroup Orientation="Vertical" Weight="165.41070082893745">
+            <LayoutItem DashboardItem="chartDashboardItem1" Weight="165.41070082893745" />
+            <LayoutItem DashboardItem="gridDashboardItem1" Weight="165.41070082893745" />
+          </LayoutGroup>
+          <LayoutGroup Orientation="Vertical" Weight="165.41070082893745">
+            <LayoutTabContainer DashboardItem="tabContainerDashboardItem1" Weight="165.41070082893745">
+              <LayoutTabPage DashboardItem="dashboardTabPage1">
+                <LayoutItem DashboardItem="pieDashboardItem1" />
+              </LayoutTabPage>
+            </LayoutTabContainer>
+            <LayoutItem DashboardItem="gridDashboardItem2" Weight="165.41070082893745" />
+          </LayoutGroup>
         </LayoutGroup>
         <LayoutGroup Weight="165.41070082893745">
-          <LayoutGroup DashboardItem="groupDashboardItem1" Weight="165.41070082893745">
-            <LayoutItem DashboardItem="scatterChartDashboardItem1" />
+          <LayoutGroup Orientation="Vertical" Weight="165.41070082893745">
+            <LayoutGroup DashboardItem="groupDashboardItem1" Weight="165.41070082893745">
+              <LayoutItem DashboardItem="scatterChartDashboardItem1" />
+            </LayoutGroup>
+            <LayoutItem DashboardItem="gridDashboardItem3" Weight="165.41070082893745" />
           </LayoutGroup>
           <LayoutItem DashboardItem="pivotDashboardItem1" Weight="165.41070082893745" />
         </LayoutGroup>

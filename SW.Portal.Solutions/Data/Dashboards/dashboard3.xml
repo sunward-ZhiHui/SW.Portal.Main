@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Dyanmic Form" />
+  <DataSources>
+    <SqlDataSource Name="DynamicForm" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="DynamicForm">
+        <Tables>
+          <Table Name="DynamicForm" />
+        </Tables>
+        <Columns>
+          <Column Table="DynamicForm" Name="ID" />
+          <Column Table="DynamicForm" Name="Name" />
+          <Column Table="DynamicForm" Name="ScreenID" />
+          <Column Table="DynamicForm" Name="SessionID" />
+          <Column Table="DynamicForm" Name="AttributeID" />
+          <Column Table="DynamicForm" Name="StatusCodeID" />
+          <Column Table="DynamicForm" Name="AddedByUserID" />
+          <Column Table="DynamicForm" Name="AddedDate" />
+          <Column Table="DynamicForm" Name="ModifiedByUserID" />
+          <Column Table="DynamicForm" Name="ModifiedDate" />
+          <Column Table="DynamicForm" Name="IsApproval" />
+          <Column Table="DynamicForm" Name="IsUpload" />
+          <Column Table="DynamicForm" Name="FileProfileTypeID" />
+          <Column Table="DynamicForm" Name="IsProfileNoGenerate" />
+          <Column Table="DynamicForm" Name="IsMultipleUpload" />
+          <Column Table="DynamicForm" Name="CompanyID" />
+          <Column Table="DynamicForm" Name="ProfileID" />
+          <Column Table="DynamicForm" Name="IsGridForm" />
+          <Column Table="DynamicForm" Name="IsDeleted" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <DataItems>
+        <Dimension DataMember="Name" DefaultId="DataItem0" />
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem1" />
+        <Dimension DataMember="ScreenID" DefaultId="DataItem2" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn Name="Date">
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem2" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem2" Name="Grid 2" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem4" Name="Grid 4" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem5" Name="Grid 5" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <TabContainer ComponentName="tabContainerDashboardItem1" Name="Tab Container 1">
+      <Pages>
+        <Page ComponentName="dashboardTabPage1" Name="Page 1" />
+      </Pages>
+    </TabContainer>
+    <Grid ComponentName="gridDashboardItem6" Name="Grid 6" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem7" Name="Grid 7" DataSource="sqlDataSource1" DataMember="DynamicForm">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <TabContainer ComponentName="tabContainerDashboardItem2" Name="Tab Container 2">
+      <Pages>
+        <Page ComponentName="dashboardTabPage2" Name="Page 1" />
+      </Pages>
+    </TabContainer>
+    <TabContainer ComponentName="tabContainerDashboardItem3" Name="Tab Container 3">
+      <Pages>
+        <Page ComponentName="dashboardTabPage3" Name="Page 1" />
+      </Pages>
+    </TabContainer>
+  </Items>
+  <Groups>
+    <Group ComponentName="groupDashboardItem1" Name="Group 1" />
+    <Group ComponentName="groupDashboardItem2" Name="Group 2" />
+  </Groups>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutGroup>
+              <LayoutItem DashboardItem="gridDashboardItem1" />
+              <LayoutTabContainer DashboardItem="tabContainerDashboardItem2">
+                <LayoutTabPage DashboardItem="dashboardTabPage2" />
+              </LayoutTabContainer>
+            </LayoutGroup>
+            <LayoutGroup>
+              <LayoutItem DashboardItem="gridDashboardItem5" />
+              <LayoutGroup DashboardItem="groupDashboardItem2" />
+            </LayoutGroup>
+          </LayoutGroup>
+          <LayoutGroup>
+            <LayoutGroup Orientation="Vertical">
+              <LayoutGroup DashboardItem="groupDashboardItem1" />
+              <LayoutTabContainer DashboardItem="tabContainerDashboardItem3">
+                <LayoutTabPage DashboardItem="dashboardTabPage3" />
+              </LayoutTabContainer>
+            </LayoutGroup>
+            <LayoutItem DashboardItem="gridDashboardItem7" />
+          </LayoutGroup>
+        </LayoutGroup>
+        <LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutItem DashboardItem="gridDashboardItem2" />
+            <LayoutTabContainer DashboardItem="tabContainerDashboardItem1">
+              <LayoutTabPage DashboardItem="dashboardTabPage1" />
+            </LayoutTabContainer>
+          </LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutItem DashboardItem="gridDashboardItem4" />
+            <LayoutItem DashboardItem="gridDashboardItem6" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

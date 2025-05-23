@@ -14,6 +14,7 @@ using Quartz;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using Core.EntityModels;
+using DevExpress.DashboardAspNetCore;
 
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
@@ -65,10 +66,11 @@ namespace SW.Portal.Solutions.ServerSide
                 provider.Mappings[".cs"] = "text/plain";
                 app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
                 app.UseAuthorization();
-
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
+                    endpoints.MapDashboardRoute("api/dashboard", "DefaultDashboard");
+                    RouteBuilderExtension.MapDashboardRoute(endpoints, "api/dashboard", "DefaultDashboard");
                     endpoints.MapFallbackToPage("/_Host");
 
                 });

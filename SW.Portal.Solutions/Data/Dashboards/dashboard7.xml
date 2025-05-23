@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Dynamic Form List" />
+  <Items>
+    <ListBox ComponentName="listBoxDashboardItem1" Name="List Box 1" />
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1">
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutItem DashboardItem="listBoxDashboardItem1" />
+        <LayoutItem DashboardItem="gridDashboardItem1" />
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

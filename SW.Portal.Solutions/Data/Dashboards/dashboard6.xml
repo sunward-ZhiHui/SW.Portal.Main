@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Dynamic Form" />
+  <Items>
+    <ComboBox ComponentName="comboBoxDashboardItem1" Name="Combo Box 1" />
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="comboBoxDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

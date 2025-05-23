@@ -8,6 +8,9 @@ using SW.Portal.Solutions.Models;
 using AC.SD.Core.Services;
 using Blazored.SessionStorage;
 using SW.Portal.Solutions.Services;
+using DevExpress.Blazor.RichEdit.SpellCheck;
+using Microsoft.Extensions.FileProviders;
+using System.Reflection;
 namespace SW.Portal.Solutions.ServerSide
 {
     partial class Startup
@@ -60,7 +63,7 @@ namespace SW.Portal.Solutions.ServerSide
             //});
 
             services.AddRazorComponents(); // Ensure this is called if required
-            services.AddDevExpressBlazor(); // Register DevExpress Blazor services
+            //services.AddDevExpressBlazor(); // Register DevExpress Blazor services
             services.AddOptions();
             services.AddControllers();
             services.AddHttpContextAccessor();
@@ -73,7 +76,28 @@ namespace SW.Portal.Solutions.ServerSide
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
             services.AddScoped<DataRefreshService>();
-
+            services.AddDevExpressBlazor(opts => {
+                opts.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
+            }).AddSpellCheck(opts => {
+                opts.FileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Novato");
+                opts.MaxSuggestionCount = 6;
+                opts.AddToDictionaryAction = (word, culture) => {
+                    //Write the selected word to a dictionary file
+                };
+               /* opts.Dictionaries.Add(new ISpellDictionary
+                {
+                    DictionaryPath = "Data.Dictionaries.english.xlg",
+                    GrammarPath = "Data.Dictionaries.english.aff",
+                    Culture = "en-US"
+                });
+                opts.Dictionaries.Add(new Dictionary
+                {
+                    DictionaryPath = "Data.Dictionaries.custom.dic",
+                    AlphabetPath = "Data.Dictionaries.english.txt",
+                    Culture = "en-US"
+                });*/
+            });
+            DashboardConfig.RegisterDashboard(services, Configuration, context.HostingEnvironment.ContentRootFileProvider);
 
 
             //services.AddControllersWithViews();

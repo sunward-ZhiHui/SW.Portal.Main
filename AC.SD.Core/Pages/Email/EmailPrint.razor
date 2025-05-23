@@ -197,10 +197,26 @@
                                         {
                                             <div class="tag handline">
                                                 <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
-                                                <div class="options">
-                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                                                </div>
+
+                                                @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <div class="options">
+                                                        <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="options">
+                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                        </div>
+                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -245,7 +261,7 @@
                     {
                         <div class="uk-card-footer">
                             <div>
-                                <button type="button" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
+                                <button type="button"  @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
                                     <i class="fa fa-reply"></i> Reply
                                 </button>
                                 <p style="color: #5151b3;" class="handline">@item.ReplyConversation.Count() replies </p>
@@ -321,20 +337,36 @@
                                             {
                                                 @foreach (var attachment in items.documents)
                                                 {
-                                                    <div class="tag handline">
-                                                        <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
-                                                        <div class="options">
-                                                            <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                            <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                     <div class="tag handline">
+                                                <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <div class="options">
+                                                        <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
                                                         </div>
                                                     </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="options">
+                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                        </div>
+                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
                                                 }
                                             }
                                             @if (items.ReplyConversation != null && items.ReplyConversation.Count() > 0)
                                             {
-                                                <div class="uk-card-footer">
+                                                <div class="uk-card-footer"> 
                                                     <div>
-                                                        <button type="button" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
+                                                        <button type="button" @onclick="@(() => onreply(items.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
                                                             <i class="fa fa-reply"></i> Reply
                                                         </button>
                                                         <p style="color: #5151b3;" class="handline">@items.ReplyConversation.Count() replies </p>
@@ -413,6 +445,45 @@
 </div>
 
 
+@if (true)
+{
+
+<DxWindow @bind-Visible=WindowVisible 
+    HeaderText="Post"
+    HorizontalAlignment="HorizontalAlignment.Right"
+    VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
+    CloseOnEscape="true"                                      
+    ResizeCompleted="OnWindowResizeCompleted"
+    DragCompleted="OnWindowDragCompleted"                                          
+    ShowFooter=false
+    AllowResize="true"
+    Closing="EulaClosing"
+    Width="max(75vw, 250px)"                                                                       
+    Height="800"
+    ShowCloseButton="true"                                                
+    @ref="dxWindow">
+    <BodyTemplate Context="Context">
+        <div class="dxwinheight" style="padding: 20px; overflow: auto;">
+            <DxFormLayout>
+                <div class="open-button-old" style="width:99.5%">                   
+                    <div class="boxreplay">
+                        <EmailReplyPage id="@rid" RId="@disID"></EmailReplyPage>
+                    </div>                       
+                </div>
+            </DxFormLayout>
+        </div>
+    </BodyTemplate>
+    <FooterTextTemplate>
+        <DxButton SubmitFormOnClick="true" Text="Post" CssClass="" RenderStyle="ButtonRenderStyle.Primary" />
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@context.CloseCallback" />
+    </FooterTextTemplate>
+</DxWindow>
+
+    
+}
+
+
 @code {
     DxRichEdit? richEdit { get; set; }
     [Parameter]
@@ -421,6 +492,8 @@
     public Guid TopicSessionId { get; set; }
     [Parameter]
     public string? Page { get; set; }
+    [Parameter]
+    public string? IsReply{ get; set; }
 
     string dynamicShowSubject = "showOpenSubject_";
     public List<EmailConversations>? _discussionList;
@@ -498,6 +571,7 @@
         {
             string sessionidString = ConSessionId.ToString();
             var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
+            disID = lsts[0].ID;
             if (lsts.Count > 0)
             {
                 SelectedGroup = lsts[0].TopicID.ToString();
@@ -506,8 +580,8 @@
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
         }
-       
-       
+
+
     }
 
     async void onBackFileProfileType(string url)
@@ -522,14 +596,14 @@
         string script = $"window.open('{url}', '_blank');";
         JSRuntime.InvokeVoidAsync("eval", script);        
     }
-   
+
     public void Dispose()
     {
         //NavigationManager.LocationChanged -= OnLocationChanged;
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
     }
-     public async Task onDocDownload_old(long Id)
+    public async Task onDocDownload_old(long Id)
     {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
@@ -569,4 +643,82 @@
         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 
+    DxWindow? dxWindow;
+    bool WindowVisible { get; set; } = false;
+    public string MyHeight { get; set; } = "200px";
+    string width = "800px", height = "800px";
+    long rid {get;set;}
+    long disID { get; set; }
+
+    private void onreply(long id)
+    {
+        rid = id;          
+    } 
+    private void onreply1(long id)
+    {
+        rid = id;
+        if(IsReply == "EmailDueDate")
+        {
+            WindowVisible = true;   
+        }
+        else
+        {
+             WindowVisible = false; 
+        }
+
+    }  
+     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args)
+    {
+        (width) = ($"{args.Size.Width}px");
+        MyHeight = $"{args.Size.Height}px";
+        string setHeight = $"{args.Size.Height - 320}";
+        string selector = ".editor-box-height";
+        //IsUserGroupCCOpen = false;
+        //IsUserGroupToOpen = false;
+        await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
+    }   
+    private void OnWindowDragCompleted()
+    {
+        //IsUserGroupCCOpen = false;
+        //IsUserGroupToOpen = false;
+    }
+    void EulaClosing(WindowClosingEventArgs args)
+    {
+        //closeReply();
+    }
+     private string? audioBase64Source;
+    private bool isAudioPopupVisible = false;
+    private long? currentAudioId = null;
+
+    public async Task onPlayAudio(long documentId)
+    {
+        // Close and reset if same audio clicked again
+        if (currentAudioId == documentId && isAudioPopupVisible)
+        {
+            await ResetAudioPlayer();
+            return;
+        }
+
+        // Close any other popups here if needed
+        // e.g. isAnotherPopupOpen = false;
+
+        var response = await Mediator.Send(new GetFileDownload(documentId));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("Audio not found", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        audioBase64Source = $"data:audio/wav;base64,{Convert.ToBase64String(response.ImageData)}";
+        currentAudioId = documentId;
+        isAudioPopupVisible = true;
+    }
+
+    private Task ResetAudioPlayer()
+    {
+        isAudioPopupVisible = false;
+        audioBase64Source = null;
+        currentAudioId = null;
+        return Task.CompletedTask;
+    }
 }

@@ -279,7 +279,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
             }
         </div>
         <div style="height: calc(100vh - 150px);overflow:auto;overflow-x:auto">
-            <AC.SD.Core.Pages.Email.EmailPrint ConSessionId="@_selectedItems.SessionId.Value"></AC.SD.Core.Pages.Email.EmailPrint>
+            <AC.SD.Core.Pages.Email.EmailPrint ConSessionId="@_selectedItems.SessionId.Value" IsReply="EmailDueDate"></AC.SD.Core.Pages.Email.EmailPrint>
         </div>
 
 

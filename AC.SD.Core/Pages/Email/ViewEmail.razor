@@ -7512,6 +7512,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
 
 
+             string plainText = server.Text;
+            string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
+
             if(Data.Name == null)
             {
                 toastService.ShowToast("Please Enter Subject Name", AC.SD.Core.Services.ToastLevel.Error);
@@ -7687,6 +7690,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     Message = htmlString,
                     //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
                     FileData = fileContents,
+                    Description = shortDescription,
                     //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                     AssigntoIdss =  assigntoidsString,
                     AssignccIdss = assignccidsString,

@@ -2114,7 +2114,10 @@ img {
         opacity: 1
     }
 }
-
+.markasunread_b {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
 /* On smaller screens, decrease text size */
 @media only screen and (max-width: 300px) {
     .prev, .next, .text {

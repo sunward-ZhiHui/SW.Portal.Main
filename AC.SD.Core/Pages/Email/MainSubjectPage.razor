@@ -1,0 +1,236 @@
+﻿@using Application.Queries
+@using MediatR
+@using global::Core.Entities
+@using global::Core.Repositories.Query
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+
+
+@if (_discussionList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+     @if (_discussionList != null && _discussionList.Any())
+    {
+        @foreach (var item in _discussionList)
+        {
+            <div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="sender-info">
+                            <div class="avatar-circle bg-a">
+                                @(string.IsNullOrEmpty(item.UserName) ? "" : item.UserName.Substring(0, 1))
+                            </div>
+                            <span class="fromtxt"><strong>From:</strong> @item.UserName</span>
+                        </div>
+                        <span class="time">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
+                    </div>
+                    <div class="accordion-body active1">
+
+                        <div class="email-details" onclick="toggleDetails(this)">
+                            Show To/CC
+                        </div>
+                        <div class="email-details-content">
+                            <div>
+                                <strong>To:</strong>
+                                @if (item.AssignToList != null && item.AssignToList.Any())
+                                {
+                                    @foreach (var itms in item.AssignToList)
+                                    {
+                                        <span>@itms.FirstName ,</span>
+                                    }
+                                }
+                                <br>
+                            </div>
+                            @if (item.AssignCCList != null && item.AssignCCList.Any())
+                            {
+                                <div>
+                                    <strong>Cc:</strong>
+                                    @foreach (var itm in item.AssignCCList)
+                                    {
+                                        <span>@itm.FirstName ,</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="email-body">
+                            @if (item.FileData == null)
+                            {
+
+                                <div class="btn-load" @onclick="() => LoadFileDataAsync(item)">
+                                    Load Content
+                                </div>
+
+
+                            }
+                            else
+                            {
+
+                                byte[] htmlBinaryData1 = item.FileData;
+                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+
+                                <div>
+                                    @((MarkupString)htmlContent1)
+                                </div>
+                            }
+                        </div>
+                        <div class="attachments">
+                            <div>
+                                @foreach (var attachment in item.documents)
+                                {
+                                    @*  <strong>Attachments:</strong> *@
+                                    <div class="tag handline">
+                                        <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                        @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <div class="options">
+                                                <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                    <i class="fa fa-play" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (attachment.IsView)
+                                        {
+                                            <div class="options">
+                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                </div>
+                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+
+
+@code{
+    [Parameter]
+    public Action? OnCloseRequestMsg { get; set; }
+
+    [Parameter] 
+    public long ItemId { get; set; }
+
+    [Parameter]
+    public string? Page { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<EmailConversations>? _discussionList;
+    private List<Documents>? _topicDocList;   
+    private string? DocumentViewUrl;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+
+        if (ItemId > 0)
+        {
+            _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(ItemId, applicationUser.UserID));
+        }
+    }
+    private async void onClosed()
+    {
+        OnCloseRequestMsg?.Invoke();
+    }
+
+    private string? audioBase64Source;
+    private bool isAudioPopupVisible = false;
+    private long? currentAudioId = null;
+
+    public async Task onPlayAudio(long documentId)
+    {
+        // Close and reset if same audio clicked again
+        if (currentAudioId == documentId && isAudioPopupVisible)
+        {
+            await ResetAudioPlayer();
+            return;
+        }
+
+        
+        var response = await Mediator.Send(new GetFileDownload(documentId));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("Audio not found", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        audioBase64Source = $"data:audio/wav;base64,{Convert.ToBase64String(response.ImageData)}";
+        currentAudioId = documentId;
+        isAudioPopupVisible = true;
+    }
+       private Task ResetAudioPlayer()
+    {
+        isAudioPopupVisible = false;
+        audioBase64Source = null;
+        currentAudioId = null;
+        return Task.CompletedTask;
+    }
+    public async Task onDocDownload_old(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(ItemId, applicationUser.UserID, Page));
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+       
+        var response = await Mediator.Send(new GetFileDownload(Id));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", lst.FileName, response.ImageData, "");
+        }
+
+
+    }
+    private async Task LoadFileDataAsync(EmailConversations item)
+    {
+        if (item.FileData == null)
+        {          
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            item.FileData  = await Mediator.Send(new GetFileData(item.ID));
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            StateHasChanged(); 
+        }
+    }
+    public async Task onDocDownload(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(ItemId,applicationUser.UserID,Page)); 
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        if(lst != null)
+        {            
+            var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+
+    }
+     private async Task OpenDocumentPreview(string url)
+    {        
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+
+
+}

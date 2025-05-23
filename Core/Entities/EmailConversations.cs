@@ -34,6 +34,7 @@ namespace Core.Entities
         public bool IsLockDueDate { get; set; } = false;
         public List<EmailDocumentModel>? documents { get; set; }
         public byte[] FileData { get; set; }
+        public string? Description { get; set; }
         public int? IsMobile { get; set; }
         [NotMapped]
         public string? AssigntoIdss { get; set; }

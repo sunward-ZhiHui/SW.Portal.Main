@@ -1374,4 +1374,37 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+
+
+    public class UpdatePlainTxtHandler : IRequestHandler<UpdatePlainTxt, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public UpdatePlainTxtHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UpdatePlainTxt request, CancellationToken cancellationToken)
+        {
+            var ids = await _emailTopicsQueryRepository.GetAllIdsAsync();
+
+            //foreach (var id in ids)
+            //{
+            //    byte[] fileData = await _emailTopicsQueryRepository.GetFileDataByIdAsync(id);
+
+            //    if (fileData is { Length: > 0 })
+            //    {
+            //        string plainText = ExtractPlainText(fileData);
+
+            //        if (plainText.Length > 500)
+            //            plainText = plainText[..500];
+
+            //        await _emailTopicsQueryRepository.UpdateDescriptionAsync(id, plainText);
+            //    }
+            //}
+
+            return 1;
+
+        }        
+    }
 }

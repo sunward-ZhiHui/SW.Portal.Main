@@ -707,4 +707,9 @@ namespace Application.Queries
             this.ID = ID;
         }
     }
+
+    public class UpdatePlainTxt :  IRequest<long>
+    {
+       
+    }
 }

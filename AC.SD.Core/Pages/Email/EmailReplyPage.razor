@@ -132,7 +132,8 @@
     public long id { get; set; }
     [Parameter]
     public long RId { get; set; }
-
+    [Parameter]
+    public Action<long>? OnReplyClose { get; set; }
 
     private bool loading;   
     int CurrentUplodCount { get; set; }
@@ -378,11 +379,8 @@
 
         Data.DueDate = newValue;
         StateHasChanged();
-    }
+    }  
     private async Task HandleValidSubmit()
-    {
-    }
-    private async Task HandleValidSubmit1()
     {
         if (loading)
         {
@@ -657,30 +655,24 @@
                 }
                 else
                 {
-                    //onRestText();
-                    closeReply();
-                    onloadSession();
-
-                    await msgrichEdit.NewDocumentAsync();
-                    //await onloadTwoGrid();
-
-                    // if (RTopicId == 0)
-                    // {
-                    //     await LoadDataPosts();
-                    // }
-                    // else
-                    // {
-                    //     await LoadReplyDataPosts();
-                    // }
-
-                    //WindowVisible = false;
-                    loading = false;
+                    
+                    // closeReply();
+                    // onloadSession();
+                    // await msgrichEdit.NewDocumentAsync();
+                    // OnReplyClose?.Invoke(id);
+                    //loading = false;
                 }
             }
             else
             {
 
             }
+
+            closeReply();
+            onloadSession();
+            await msgrichEdit.NewDocumentAsync();
+            OnReplyClose?.Invoke(id);
+            loading = false;
 
             submitCount++;
         }

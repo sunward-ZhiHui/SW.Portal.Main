@@ -444,9 +444,8 @@
     </div>    
 </div>
 
+<AudioPlayerModal AudioSource="@audioBase64Source" DocumentId="@currentAudioId" IsVisible="@isAudioPopupVisible" IsVisibleChanged="@(v => isAudioPopupVisible = v)" OnClosed="ResetAudioPlayer" />
 
-@if (true)
-{
 
 <DxWindow @bind-Visible=WindowVisible 
     HeaderText="Post"
@@ -467,7 +466,7 @@
             <DxFormLayout>
                 <div class="open-button-old" style="width:99.5%">                   
                     <div class="boxreplay">
-                        <EmailReplyPage id="@rid" RId="@disID"></EmailReplyPage>
+                        <EmailReplyPage id="@rid" RId="@disID" OnReplyClose="OnReplyclose" ></EmailReplyPage>
                     </div>                       
                 </div>
             </DxFormLayout>
@@ -479,9 +478,6 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@context.CloseCallback" />
     </FooterTextTemplate>
 </DxWindow>
-
-    
-}
 
 
 @code {
@@ -652,10 +648,6 @@
 
     private void onreply(long id)
     {
-        rid = id;          
-    } 
-    private void onreply1(long id)
-    {
         rid = id;
         if(IsReply == "EmailDueDate")
         {
@@ -663,11 +655,31 @@
         }
         else
         {
-             WindowVisible = false; 
+            WindowVisible = false; 
         }
 
     }  
-     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args)
+
+    private async void OnReplyclose(long RId)
+    {
+        WindowVisible = false;      
+        await LoadDatas();
+        StateHasChanged();
+    }
+    private async Task LoadDatas()
+    {
+         string sessionidString = ConSessionId.ToString();
+            var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
+            disID = lsts[0].ID;
+            if (lsts.Count > 0)
+            {
+                SelectedGroup = lsts[0].TopicID.ToString();
+                await JSRuntime.InvokeAsync<string>("showLoading");
+                _discussionList = await Mediator.Send(new GetEmailPrintReplyDiscussionList(lsts[0].ID, applicationUser.UserID));
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+            }
+    }
+    private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args)
     {
         (width) = ($"{args.Size.Width}px");
         MyHeight = $"{args.Size.Height}px";

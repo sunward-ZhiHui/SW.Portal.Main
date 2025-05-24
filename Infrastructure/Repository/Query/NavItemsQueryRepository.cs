@@ -50,7 +50,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,t2.PlantCode,t2.Description as PlantDescription from NAVItems t1 LEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId";
+                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode\r\nfrom NAVItems t1 \r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId ";
 
                 using (var connection = CreateConnection())
                 {

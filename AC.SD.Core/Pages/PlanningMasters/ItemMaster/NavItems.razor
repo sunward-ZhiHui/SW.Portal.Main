@@ -1,0 +1,234 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@implements IAsyncDisposable;
+
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/ItemMaster"
+
+<div id="NavHeader" style="@navHeaderItems">
+  @*   <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@AddItemLine" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div> *@
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_navItems" VirtualScrollingEnabled="true"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="ItemId"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeEditModel="Grid_CustomizeEditModel"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Single"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowDoubleClick="OnRowDoubleClick"
+                SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+                <DxGridDataColumn FieldName="ItemId" MinWidth="80" Visible="false" />
+                <DxGridDataColumn FieldName="PlantCode" Caption="Company" Width="30%" GroupIndex="0" />
+                <DxGridDataColumn FieldName="No" Width="30%" />
+                <DxGridDataColumn FieldName="Description" Width="50%" />
+                <DxGridDataColumn FieldName="Description2" Width="50%" />
+                <DxGridDataColumn FieldName="InternalRef" Width="30%" />
+                <DxGridDataColumn FieldName="SteroidName" Caption="Steroid" Width="30%" />
+                <DxGridDataColumn FieldName="ItemCategoryCode" Caption="Item Group" Width="30%" />
+                <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="BUOM" Width="30%" />
+                <DxGridDataColumn FieldName="PackSize" Caption="Pack Size" Width="50%" />
+                <DxGridDataColumn FieldName="PackUom" Caption="Pack Uom" Width="30%" />
+                <DxGridDataColumn FieldName="GenericCode" Caption="Generic Code" Width="50%" />
+                <DxGridDataColumn FieldName="MethodCode" Caption="Method Code" Width="50%" />
+                <DxGridDataColumn FieldName="Inventory" Caption="Inventory" Width="50%" />
+                <DxGridDataColumn FieldName="SupplyToName" Caption="Supply To" Width="50%" />
+                
+                <DxGridDataColumn FieldName="ItemSerialNo" Caption="ItemSerialNo" Width="50%" />
+            </Columns>
+
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="No" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+
+
+
+
+@code {
+
+    private List<View_NavItems> _navItems;
+    private List<ViewPlants>? _plantItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    bool EditEnabled { get; set; } = true;
+    string navHeaderItems = "";
+    string navLineItems = "display:none;";
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private View_NavItems? _selectedItems;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsUom;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsPackSize;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSupplyTo;
+    private bool HideNavHeaderLabel { get; set; } = true;
+    private bool HideNavHeaderLineLabel { get; set; } = false;
+    [Parameter]
+    public EventCallback RId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _navItems = await Mediator.Send(new GetAllNavItemsQuery());
+        PanelVisible = false;
+        if (_navItems.Count > 0)
+        {
+            _selectedItems = _navItems.FirstOrDefault();
+            EditEnabled = true;
+            StateHasChanged();
+        }
+    }
+    public async Task AddItemLine()
+    {
+        navLineItems = "";
+        navHeaderItems = "display:none;";
+    }
+    void BackEdit()
+    {
+        navHeaderItems = "";
+        navLineItems = "display:none;";
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ItemId");
+        _selectedItems = _navItems.FirstOrDefault(f => f.ItemId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+       // OnRowClick(e);
+       // await AddItemLine();
+    }
+    async Task ExportXlsx_Click()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_navItems != null)
+        {
+            _navItems.Clear();
+            _navItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
+    }
+}

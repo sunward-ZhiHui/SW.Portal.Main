@@ -4063,6 +4063,18 @@ namespace Infrastructure.Repository.Query
                                                     {
                                                         listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                     }
+                                                    if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                    {
+                                                        var listNames = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                        listName = new List<string?>();
+                                                        listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                                    }
+                                                    if (s.DataSourceTable == "RawMatPurch")
+                                                    {
+                                                        var listNames = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                        listName = new List<string?>();
+                                                        listName.Add(listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
+                                                    }
                                                     if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                     {
                                                         listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
@@ -4084,6 +4096,10 @@ namespace Infrastructure.Repository.Query
                                                                     else if (s.DataSourceTable == "RawMatPurch")
                                                                     {
                                                                         listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
+                                                                    }
+                                                                    else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.ReplanRefNo);
                                                                     }
                                                                     else
                                                                     {
@@ -4184,6 +4200,10 @@ namespace Infrastructure.Repository.Query
                                                                             {
                                                                                 listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
                                                                             }
+                                                                            else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.ReplanRefNo);
+                                                                            }
                                                                             else
                                                                             {
                                                                                 listName.Add(n?.AttributeDetailName + "|" + n?.Description);
@@ -4193,6 +4213,11 @@ namespace Infrastructure.Repository.Query
                                                                 }
                                                             }
                                                             ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                            if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                            {
+                                                                var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                                ValueSets=(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                                            }
                                                             if (s.DataSourceTable == "RawMatPurch")
                                                             {
                                                                 var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
@@ -4274,6 +4299,10 @@ namespace Infrastructure.Repository.Query
                                                                                         {
                                                                                             listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
                                                                                         }
+                                                                                        else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                        {
+                                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.ReplanRefNo);
+                                                                                        }
                                                                                         else
                                                                                         {
                                                                                             listName.Add(n?.AttributeDetailName + "|" + n?.Description);
@@ -4331,6 +4360,11 @@ namespace Infrastructure.Repository.Query
                                                                         var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
                                                                         listss = nameList?.AttributeDetailName + "|" + nameList?.QcRefNo;
                                                                     }
+                                                                    if (dd.DataSourceTable == "ReleaseProdOrderLine")
+                                                                    {
+                                                                        var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                                        listss = nameList?.AttributeDetailName + "|" + nameList?.ReplanRefNo;
+                                                                    }
                                                                     opts1.Add("Value", listss);
                                                                     objectData[nameData] = opts1;
                                                                     objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = listss;
@@ -4385,6 +4419,10 @@ namespace Infrastructure.Repository.Query
                                                                     else if (s.DataSourceTable == "RawMatPurch")
                                                                     {
                                                                         listName.Add(n?.AttributeDetailName + "|" + n?.QcRefNo);
+                                                                    }
+                                                                    else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.ReplanRefNo);
                                                                     }
                                                                     else
                                                                     {

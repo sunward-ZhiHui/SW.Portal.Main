@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                                                                            font-family: arial, sans-serif;
-                                                                                                                                                                            border-collapse: collapse;
-                                                                                                                                                                            width: 100%;
-                                                                                                                                                                        }
+                                                                                                                                                                                font-family: arial, sans-serif;
+                                                                                                                                                                                border-collapse: collapse;
+                                                                                                                                                                                width: 100%;
+                                                                                                                                                                            }
 
-                                                                                                                                                                        th {
-                                                                                                                                                                            border: 1px solid;
-                                                                                                                                                                            padding: 8px;
-                                                                                                                                                                            font-weight: bold;
+                                                                                                                                                                            th {
+                                                                                                                                                                                border: 1px solid;
+                                                                                                                                                                                padding: 8px;
+                                                                                                                                                                                font-weight: bold;
 
 
-                                                                                                                                                                        }
+                                                                                                                                                                            }
 
-                                                                                                                                                                        td {
-                                                                                                                                                                            border: 1px solid;
-                                                                                                                                                                            padding: 8px;
+                                                                                                                                                                            td {
+                                                                                                                                                                                border: 1px solid;
+                                                                                                                                                                                padding: 8px;
 
-                                                                                                                                                                        } */
+                                                                                                                                                                            } */
 
     /* tr:nth-child(even) {
-                                                                                                                                                                                background-color: #dddddd;
-                                                                                                                                                                            } */
+                                                                                                                                                                                    background-color: #dddddd;
+                                                                                                                                                                                } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -462,7 +462,7 @@
         }
         if (arg.Value != null)
         {
-            _dynamicformObjectDataList = new List<object>();_dynamicformDataList = new List<DynamicFormData>();
+            _dynamicformObjectDataList = new List<object>(); _dynamicformDataList = new List<DynamicFormData>();
             List<ExpandoObject> collection = (List<ExpandoObject>)arg.Value;
             if (collection != null && collection.Count() > 0)
             {
@@ -656,7 +656,7 @@
     {
         try
         {
-            dataColumnNames = new List<DropDownOptionsModel>(); _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>();_dynamicformDataAllList = new List<DynamicFormData>();
+            dataColumnNames = new List<DropDownOptionsModel>(); _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>(); _dynamicformDataAllList = new List<DynamicFormData>();
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form", IsVisible = false });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
@@ -676,7 +676,7 @@
                     if (_dynamicForm != null)
                     {
                         _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>(); _dynamicformDataAllList = new List<DynamicFormData>();
-                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true,false)));
+                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, false)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -1175,6 +1175,18 @@
                                     {
                                         listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                     }
+                                    if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                    {
+                                        var listNames= _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                        listName = new List<string?>();
+                                        listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                    }
+                                    if (s.DataSourceTable == "RawMatPurch")
+                                    {
+                                        var listNames = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                        listName = new List<string?>();
+                                        listName.Add(listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
+                                    }
                                     objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                 }
                             }
@@ -1230,6 +1242,18 @@
                                             {
                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                             }
+                                            if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                            {
+                                                var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                listName = new List<string?>();
+                                                listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                            }
+                                            if (s.DataSourceTable == "RawMatPurch")
+                                            {
+                                                var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                                listName = new List<string?>();
+                                                listName.Add(listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
+                                            }
                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                         }
                                     }
@@ -1281,6 +1305,21 @@
                                                         {
                                                             listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
                                                         }
+                                                        if (PlantDependencySubAttributeDetails != null)
+                                                        {
+                                                            if (dd.DataSourceTable == "ReleaseProdOrderLine")
+                                                            {
+                                                                var listNames = PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).FirstOrDefault();
+                                                                listName = new List<string?>();
+                                                                listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                                            }
+                                                            if (dd.DataSourceTable == "RawMatPurch")
+                                                            {
+                                                                var listNames = PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).FirstOrDefault();
+                                                                listName = new List<string?>();
+                                                                listName.Add(listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
+                                                            }
+                                                        }
                                                         objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                     }
                                                     else
@@ -1295,6 +1334,19 @@
                                                     if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                     {
                                                         listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                    }
+                                                    if (PlantDependencySubAttributeDetails != null)
+                                                    {
+                                                        if (dd.DataSourceTable == "ReleaseProdOrderLine")
+                                                        {
+                                                            var listNames = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                            listss = (listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                                        }
+                                                        if (dd.DataSourceTable == "RawMatPurch")
+                                                        {
+                                                            var listNames = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault();
+                                                            listss = (listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
+                                                        }
                                                     }
                                                     objectData[nameData] = listss;
                                                 }
@@ -1312,6 +1364,18 @@
                                         if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                         {
                                             listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                        }
+                                        if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                        {
+                                            var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                            listName = new List<string?>();
+                                            listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                        }
+                                        if (s.DataSourceTable == "RawMatPurch")
+                                        {
+                                            var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                            listName = new List<string?>();
+                                            listName.Add(listNames?.AttributeDetailName + "|" + listNames?.QcRefNo);
                                         }
                                         objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                     }

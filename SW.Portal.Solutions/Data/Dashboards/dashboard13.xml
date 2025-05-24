@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard Page2" />
+  <DataSources>
+    <SqlDataSource Name="ApplicationMasterParent" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="ApplicationMasterParent">
+        <Tables>
+          <Table Name="ApplicationMasterParent" />
+        </Tables>
+        <Columns>
+          <AllColumns Table="ApplicationMasterParent" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="ApplicationMasterParent">
+      <DataItems>
+        <Dimension DataMember="ApplicationMasterName" DefaultId="DataItem0" />
+        <Measure DataMember="ApplicationMasterParentCodeID" DefaultId="DataItem1" />
+        <Dimension DataMember="Description" DefaultId="DataItem2" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridMeasureColumn>
+          <Measure DefaultId="DataItem1" />
+        </GridMeasureColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem2" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

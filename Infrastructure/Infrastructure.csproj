@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SimpleCRUD" Version="2.3.0" />
     <!--<PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="24.1.3" />-->

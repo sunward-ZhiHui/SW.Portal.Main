@@ -70,5 +70,8 @@ namespace Core.Entities.Views
         public string? PackSizeName { get; set; }
         public string? SupplyToName { get; set; }
         public string? UomName { get; set; }
+        public string? GenericCode { get; set; }
+        public string? MethodCode { get; set; }
+        public string? SteroidName { get; set; }
     }
 }

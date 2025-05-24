@@ -1,0 +1,353 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@page "/tenderOrders"
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        @* <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" /> *@
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="SimualtionAddhocID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+            <DxGridDataColumn FieldName="DocumantType" Caption="Document Type" />
+            <DxGridDataColumn FieldName="SelltoCustomerNo" Caption="Customer No" MinWidth="80" />
+            <DxGridDataColumn FieldName="CustomerName" Caption="Customer Name" />
+            <DxGridDataColumn FieldName="Categories" Caption="Categories" />
+            <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" />
+            <DxGridDataColumn FieldName="ExternalDocNo" Caption="External DocNo" />
+            <DxGridDataColumn FieldName="ItemNo" Caption="ItemNo" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" />
+            <DxGridDataColumn FieldName="Description1" Caption="Description1" />
+            <DxGridDataColumn FieldName="OutstandingQty" Caption="Outstanding Qty" />
+            <DxGridDataColumn FieldName="UOMCode" Caption="UOMCode" />
+            <DxGridDataColumn FieldName="PromisedDate" Caption="Promised Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TenderOrderModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.PromisedDate != DateTime.MinValue)
+                        {
+                            startDate = item.PromisedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ShipmentDate" Caption="Shipment Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TenderOrderModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ShipmentDate != DateTime.MinValue)
+                        {
+                            startDate = item.ShipmentDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (TenderOrderModel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Document No" ColSpanMd="6">
+                    <DxTextBox @bind-Text="types.DocumentNo" ShowValidationIcon="true"></DxTextBox>
+                    <ValidationMessage For="@(() => types.DocumentNo)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="External DocNo" ColSpanMd="6">
+                    <DxTextBox @bind-Text="types.ExternalDocNo" ShowValidationIcon="true"></DxTextBox>
+                    <ValidationMessage For="@(() => types.ExternalDocNo)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Outstanding Qty" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="types.OutstandingQty" ShowValidationIcon="true"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.OutstandingQty)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Promised Date" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="types.PromisedDate" ShowValidationIcon="true"></DxDateEdit>
+                    <ValidationMessage For="@(() => types.PromisedDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Shipment Date" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="types.ShipmentDate" ShowValidationIcon="true"></DxDateEdit>
+                    <ValidationMessage For="@(() => types.ShipmentDate)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumantType" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    private List<TenderOrderModel> _quotationHistoryItems;
+    private TenderOrderModel _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<CodeMaster> _stausItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<View_NavItems>? _AllNavitems; private List<View_NavItems>? malaysiaItems; private List<View_NavItems>? singaporeItems;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        await UpdateDataAsync();
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _quotationHistoryItems = await Mediator.Send(new GetAllTenderOrderQuery());
+        EditEnabled = false; DeleteEnabled = false;
+        if (_quotationHistoryItems.Count > 0)
+        {
+            _selectedItems = _quotationHistoryItems.FirstOrDefault();
+            // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SimualtionAddhocID");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.SimualtionAddhocID == (long?)UniqueId);
+        // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Tender Orders", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (TenderOrderModel)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is TenderOrderModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is TenderOrderModel datas)
+                    {
+                        var request = new DeleteTenderOrder(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (TenderOrderModel)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateTenderOrder
+                {
+                    SimualtionAddhocID=editModel.SimualtionAddhocID,
+                    DocumentNo = editModel.DocumentNo,
+                    ExternalDocNo = editModel.ExternalDocNo,
+                    ShipmentDate = editModel.ShipmentDate,
+                    PromisedDate = editModel.PromisedDate,
+                    OutstandingQty = editModel.OutstandingQty,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateTenderOrder
+                {
+                    SimualtionAddhocID = editModel.SimualtionAddhocID,
+                    DocumentNo = editModel.DocumentNo,
+                    ExternalDocNo = editModel.ExternalDocNo,
+                    ShipmentDate = editModel.ShipmentDate,
+                    PromisedDate = editModel.PromisedDate,
+                    OutstandingQty = editModel.OutstandingQty,
+
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+}

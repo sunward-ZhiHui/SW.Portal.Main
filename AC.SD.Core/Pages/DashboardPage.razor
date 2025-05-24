@@ -18,48 +18,42 @@
 <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
-<button id="workingModeSwitcher" @onclick="ChangeWorkingMode">
-    @ButtonText
-</button>
+<DxSplitter CssClass="splitter" Width="100%">
+    <Panes>
+        <DxSplitterPane Size="15%" MinSize="200px" AllowCollapse="true">
 
- <button @onclick="ToggleMenu">Toggle Menu</button>
+            <DxButton Text="@ButtonText" Click="ChangeWorkingMode"
+                      CssClass="w-100" />
 
-@if (menuVisible)
-{
-    <div class="dashboard-menu">
-        @foreach (var dash in Dashboards)
-        {
-            <div @onclick="() => LoadDashboard(dash.Id)">
-                @dash.DisplayName
-            </div>
-        }
-    </div>
-}
+            <DxListBox Data="@DashboardIds" style="height: calc(100vh - 200px);margin-top: 5px;"
+                       TextFieldName="@nameof(DashboardItem.DisplayName)"
+                       @bind-SearchText="@SearchText"
+                       @bind-Value="@dashboardItem"
+                       ShowSearchBox="true"
+                       SearchTextParseMode="@SearchTextParseMode"
+                       ListRenderMode="ListRenderMode.Virtual">
+            </DxListBox>
+        </DxSplitterPane>
 
-<DxDashboard DashboardId="@selectedDashboardId"  @bind-WorkingMode="@workingMode" Endpoint="api/dashboard" style="height: calc(100vh - 130px);" />
+        <DxSplitterPane MaxSize="100%" AllowCollapse="true">
+            <DxDashboard Endpoint="api/dashboard" @bind-WorkingMode="@workingMode" @bind-DashboardId="dashboardItem.Id" style="height: calc(100vh - 200px);" />
 
+        </DxSplitterPane>
+    </Panes>
+</DxSplitter>
 @code {
-    string selectedDashboardId = "salesOverview";
-    List<DashboardItem> Dashboards = new();
-    bool menuVisible = true;
-
-    void ToggleMenu() => menuVisible = !menuVisible;
+    string SearchText { get; set; }
+    ListSearchTextParseMode SearchTextParseMode { get; set; } = ListSearchTextParseMode.GroupWordsByAnd;
     string endpoint = "api/dashboard";
-    WorkingMode workingMode = WorkingMode.Designer;
+    WorkingMode workingMode = WorkingMode.Viewer;
     public string DashboardIdValue { get; set; } = "dashboard2";
-
+    DashboardItem dashboardItem = new DashboardItem();
     public Dictionary<string, string> headers = new Dictionary<string, string>() { { "Authorization", "UniqueAuthKey" } };
-    protected override void OnInitialized()
-    {
-        Dashboards = LoadDashboardsFromXml("Data/Dashboards"); // adjust path as needed
-    }
-    void LoadDashboard(string id)
-    {
-        selectedDashboardId = id;
-    }
+    public List<DashboardItem> DashboardIds { get; set; } = new List<DashboardItem>();
     public void ChangeWorkingMode()
     {
         workingMode = workingMode == WorkingMode.Designer ? WorkingMode.Viewer : WorkingMode.Designer;
+        DashboardIds = LoadDashboardsFromXml();
     }
 
     public string ButtonText
@@ -71,21 +65,25 @@
             return mode;
         }
     }
+    protected override void OnInitialized()
+    {
+        DashboardIds = LoadDashboardsFromXml();
+    }
     public class DashboardItem
     {
         public string Id { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
     }
-    public List<DashboardItem> LoadDashboardsFromXml(string folderPath)
+    public List<DashboardItem> LoadDashboardsFromXml()
     {
         var dashboards = new List<DashboardItem>();
 
-        foreach (var file in Directory.GetFiles(folderPath, "*.xml"))
+        foreach (var file in Directory.GetFiles("Data/Dashboards", "*.xml"))
         {
             var dashboardId = Path.GetFileNameWithoutExtension(file);
 
             var dashboard = new DevExpress.DashboardCommon.Dashboard();
-            dashboard.LoadFromXml(file); 
+            dashboard.LoadFromXml(file);
             dashboards.Add(new DashboardItem
                 {
                     Id = dashboardId,
@@ -94,7 +92,7 @@
         }
         if (dashboards != null && dashboards.Count() > 0)
         {
-            selectedDashboardId = dashboards.FirstOrDefault()?.Id;
+            DashboardIdValue = dashboards.FirstOrDefault()?.Id;
         }
         return dashboards;
     }

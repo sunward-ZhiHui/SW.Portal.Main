@@ -188,6 +188,7 @@ namespace Infrastructure
             services.AddScoped<IProductGroupingListQueryRepository, ProductGroupingListQueryRepository>();
             services.AddScoped<IACItemsQueryRepository, ACItemsQueryRepository>();
             services.AddScoped<INAVItemLinksQueryRepository, NAVItemLinksQueryRepository>();
+            services.AddScoped<ITenderOrdersQueryRepository, TenderOrdersQueryRepository>();
             return services;
         }
     }

@@ -12,7 +12,7 @@
 @code {
     private string statusMessage = "";
 
-    private async Task ConvertAllPlainText()
+    private async Task ConvertAllPlainText1()
     {
         try
         {
@@ -44,6 +44,51 @@
             await JSRuntime.InvokeVoidAsync("hideLoading");
         }
     }
+    private async Task ConvertAllPlainText()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("showLoading");
+
+            var ids = await EmailRepo.GetAllIdsAsync();
+            List<int> failedIds = new();
+
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var fileData = await EmailRepo.GetFileDataByIdAsync(id);
+                    if (fileData is { Length: > 0 })
+                    {
+                        string plainText = ExtractPlainText(fileData);
+                        if (plainText.Length > 500)
+                            plainText = plainText[..500];
+
+                        await EmailRepo.UpdateDescriptionAsync(id, plainText);
+                    }
+                }
+                catch (Exception ex) when (ex.Message.Contains("Timeout expired"))
+                {
+                    // Log or store failed ID
+                    failedIds.Add(id);
+                    continue; // Skip this ID and continue with the next one
+                }
+            }
+
+            statusMessage = failedIds.Count == 0
+                ? "Completed"
+                : $"Completed with failures. Skipped IDs: {string.Join(", ", failedIds)}";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "Failed: " + ex.Message;
+        }
+        finally
+        {
+            await JSRuntime.InvokeVoidAsync("hideLoading");
+        }
+    }
+
 
     private string ExtractPlainText(byte[] fileData)
     {

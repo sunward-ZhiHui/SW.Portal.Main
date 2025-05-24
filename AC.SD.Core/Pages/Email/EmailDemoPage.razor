@@ -55,6 +55,9 @@
 @using System.Text.RegularExpressions
 
 <style scoped>
+    .markasunread_border_top {
+    border-top: 1px solid #242424 !important;
+}
     .short-description {
     font-size: 12px;
     color: #555;
@@ -351,6 +354,7 @@
     .email-header-left {
     display: flex;
     flex-direction: column;
+    gap: 5px;
     }
 
     .email-subject {
@@ -1105,15 +1109,28 @@
                                                                                 @foreach (var attachment in item.documents)
                                                                                 {
                                                                                     <div class="tag handline">
-                                                                                        <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
-                                                                                        @if (attachment.IsView)
-                                                                                        {
-                                                                                            <div class="options">
-                                                                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                                                                                            </div>
-                                                                                        }
-                                                                                    </div>
+                                                                                            <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                                                            @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                                                            {
+                                                                                                <div class="options">
+                                                                                                    <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                                                                        <i class="fa fa-play" aria-hidden="true"></i>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            }
+                                                                                            else if (attachment.IsView)
+                                                                                            {
+                                                                                                <div class="options">
+                                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                    </div>
+                                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
                                                                                 }
                                                                             </div>
                                                                         </div>
@@ -1195,13 +1212,28 @@
                                                                                         {
                                                                                             @foreach (var attachment in items.documents)
                                                                                             {
-                                                                                                <div class="tag handline">
+                                                                                                 <div class="tag handline">
                                                                                                     <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                                                                                    @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                                                                                    {
+                                                                                                        <div class="options">
+                                                                                                            <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    }
+                                                                                                
                                                                                                     <div class="options">
-                                                                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                                                                                                    </div>
+                                                                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                        </div>
+                                                                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                        </div>
+                                                                                                    </div>                                                                                                
                                                                                                 </div>
+                                                                                                
                                                                                             }
                                                                                         }
                                                                                     </div>
@@ -1248,8 +1280,8 @@
                                                     isAuthorization = true;
                                                     @foreach (var item in _discussionList)
                                                     {
-                                                        <div class="" style="border: 1px solid #d2d2d2;">
-                                                            <div class="email-header">
+                                                        <div class="@((item.IsRead.GetValueOrDefault(false) || item.IsRead == null ? "markasread_border" : "markasunread_border"))" style="border: 1px solid #d2d2d2;">
+                                                            <div class="email-header  @((item.IsRead.GetValueOrDefault(false) || item.IsRead == null ? "markasread_border_top" : "markasunread_border_top"))">
                                                                 <!-- Left: Subject + Date -->
                                                                 <div class="email-header-left">
                                                                     <div class="email-subject">@item.Name</div>
@@ -1263,7 +1295,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <!-- Right: Reply Button + Dropdown Menu -->
-                                                                <div style="display: flex; align-items: center; gap: 20px;">
+                                                                   @*  <div style="display: flex; align-items: center; gap: 20px;">
 
                                                                         <button type="button" @onclick="@(() => ToggleMainSubject(item))" class="top-action-btn" style="padding-right: 10px !important; padding-left: 10px !important; font-size: 13px; border: 1px solid #d9d9d9; padding: 2px; border-radius: 5px;">
                                                                             <i class="fa fa-envelope"></i> Main Subject
@@ -1283,9 +1315,83 @@
                                                                                  style="margin-right: 10px; font-size: 18px; font-weight: bold;">
                                                                             </div>
                                                                         </div>
-                                                                        
+                                                                    </div> *@
+                                                                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+
+                                                                    <!-- First Row: Buttons -->
+                                                                    <div style="display: flex; gap: 10px;">
+                                                                        <button type="button" @onclick="@(() => ToggleMainSubject(item))"
+                                                                                style="padding: 4px 10px; font-size: 13px; border: 1px solid #d9d9d9; border-radius: 5px;">
+                                                                            <i class="fa fa-envelope"></i> Main Subject
+                                                                        </button>
+
+                                                                        <button type="button" @onclick="@(() => onreply(item.ID))"
+                                                                                style="padding: 4px 10px; font-size: 13px; border: 1px solid #b4b4b4; border-radius: 5px;">
+                                                                            <i class="fa fa-reply"></i> Reply
+                                                                        </button>
+
+                                                                        <div class="dropdown">
+                                                                            @{
+                                                                                dynamicShowSubject = "showOpenSubject_" + item.ID;
+                                                                            }
+                                                                            <div id="@dynamicShowSubject" class="fa fa-ellipsis-v"
+                                                                                 @onclick="() => ShowSubjectFlyout(item)"
+                                                                                 style="font-size: 18px; font-weight: bold; cursor: pointer; padding: 4px 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Second Row: Icons -->
+                                                                    <div style="display: flex; gap: 5px; justify-content: flex-end;margin-right: 35px;">
+                                                                        @* <div title="Like" style="text-align: center; font-size: 16px; color: #555; cursor: pointer;">
+                                                                            <i class="fa fa-thumbs-up"></i><br />
+                                                                            <span style="font-size: 12px;">Like</span>
+                                                                        </div>
+                                                                        <div title="Group" style="text-align: center; font-size: 16px; color: #555; cursor: pointer;">
+                                                                            <i class="fa fa-users"></i><br />
+                                                                            <span style="font-size: 12px;">Group</span>
+                                                                        </div>
+                                                                        <div title="Message" style="text-align: center; font-size: 16px; color: #555; cursor: pointer;">
+                                                                            <i class="fa fa-comment"></i><br />
+                                                                            <span style="font-size: 12px;">Message</span>
+                                                                        </div> *@
+
+                                                                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                                                                        {
+                                                                            <span class="" style="font-size: 14px;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                                                                        }
+
+                                                                        @if (item.Urgent.GetValueOrDefault(false))
+                                                                        {
+                                                                            <span class="urgent_icon" style="font-size: 14px;"><i class="fas fa-bell" style="" aria-hidden="true"></i></span>
+                                                                        }
+
+                                                                        @if (item.NotifyUser.GetValueOrDefault(false))
+                                                                        {
+                                                                            <span class="" style="font-size: 14px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
+                                                                        }
+
+                                                                        @if (item.IsRead != null)
+                                                                        {
+                                                                            @if (item.IsRead.GetValueOrDefault(false))
+                                                                            {
+                                                                                <span class="primary_color_icon handline" style=" font-size: 14px;" @onclick="@(() => onMarkasunRead(item.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <span class="primary_color_icon handline" style="font-size: 14px;" @onclick="@(() => onMarkasRead(item.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                                            }
+
+                                                                        }
+
+
 
                                                                     </div>
+                                                                </div>
+
+                                                                   
+
                                                             </div>
                                                              <!-- Bottom Icons -->
                                                            @*  <div class="bottom-actions" style="display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ccc; margin-top: 15px;">
@@ -1401,7 +1507,7 @@
                                                                                         @foreach (var attachment in items.documents)
                                                                                         {
                                                                                             @* <strong>Attachments:</strong> *@
-                                                                                            <div class="tag handline">
+                                                                                            <div class="tag handline v">
                                                                                                 <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
 
                                                                                                 @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
@@ -1412,16 +1518,17 @@
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 }
-                                                                                                
-                                                                                                <div class="options">
-                                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
-                                                                                                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                else
+                                                                                                {
+                                                                                                    <div class="options">
+                                                                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                                                        </div>
+                                                                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                                                        </div>
                                                                                                     </div>
-                                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
-                                                                                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                
+                                                                                                }
                                                                                             </div>
                                                                                         }
                                                                                     </div>

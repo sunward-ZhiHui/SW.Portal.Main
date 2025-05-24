@@ -1,0 +1,833 @@
+﻿@using Application.Queries
+@using System.Text
+@using global::Core.Entities
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using MediatR
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime;
+@inject HttpClient httpClient;
+@using System.IO;
+@using Microsoft.JSInterop;
+@using DevExpress.DocumentView;
+@inject NavigationManager NavigationManager
+@using System.Web;
+@using global::Core.Repositories.Query
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject HttpClient httpClient;
+
+
+
+<EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+    <DxFormLayout>       
+        <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
+            <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
+            <ValidationMessage For="@(() => Data.Name)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="From" ColSpanMd="12">
+            <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
+        </DxFormLayoutItem>
+
+        @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+        {
+           
+            <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                    <DxTagBox NullText="Select Assign To..."
+                              Data="@_Toparticipant"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              Values="@Data.AssigntoIds"
+                              ValuesExpression="@(() => Data.AssigntoIds)"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="Name"
+                              ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            
+        }
+        @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+        {
+            
+            <DxFormLayoutItem Caption="CC" ColSpanMd="12">
+                <DxTagBox NullText="Select cc"
+                            Data="@_CCparticipant"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            AllowCustomTags="true"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            Values="@Data.AssignccIds"
+                            ValuesExpression="@(() => Data.AssignccIds)"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ValueFieldName="UserID"
+                            TextFieldName="Name"
+                            ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            CssClass="cw-480">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxTagBox>
+            </DxFormLayoutItem>
+
+        }
+     
+        <DxFormLayoutItem ColSpanMd="12">
+            <div class="">
+                <DxRichEdit DocumentLoaded="OnDocumentLoaded" CheckSpelling="true" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" />
+            </div>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem ColSpanMd="12">
+            <button disabled="@loading" class="fa fa-paper-plane sndrot" style="float:right; margin-top:10px;">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+            </button>
+            <div style="display:flex;" class="attmode">
+                <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+                <VoiceRecordingPage @ref=RefVoiceRec></VoiceRecordingPage>
+                <div class="">
+                    <DxUpload @ref="uploadComponent" Name="files"
+                              Visible="@AttachmentUploadVisible"
+                              AcceptedFileTypes=@AcceptedFileTypes
+                              UploadMode="@UploadMode.OnButtonClick"
+                              FileUploadStart="OnFileUploadStart"
+                              ChunkSize="200000"
+                              AllowMultiFileUpload="true"
+                              ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                              SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                              FileUploaded="@isUploadSuccess"
+                              FileUploadProgressChanged="@OnUploadProgressChanged"
+                              FileUploadStarted="@OnFileUploadStarted"
+                              FileUploadError="@OnUploadError">
+                    </DxUpload>
+                    <div class="alert alert-danger @(ErrorVisible ? " visible" : " invisible")">@MyError</div>
+                </div>
+            </div>
+        </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+
+@code {
+    [Parameter]
+    public long id { get; set; }
+    [Parameter]
+    public long RId { get; set; }
+    [Parameter]
+    public Action<long>? OnReplyClose { get; set; }
+
+    private bool loading;   
+    int CurrentUplodCount { get; set; }
+    int SelectedFilesCount { get; set; }
+    EmailConversations? Data { get; set; } = new EmailConversations();
+    internal List<EmailTopics>? _CopyLinkList;
+    public List<EmailConversations>? _replyComment;
+    bool isPushNotification { get; set; } = false;
+    int newSubjectreply = 0;
+    bool isCheckAllowParticipant { get; set; } = false;
+    private List<ViewEmployee> plist;
+    private List<ViewEmployee>? _allparticipant;
+    private List<ViewEmployee>? _Toparticipant;
+    private List<ViewEmployee>? _CCparticipant;
+    private List<ViewEmployee>? _allparticipants;
+    List<string> sToIds = new List<string>();
+    List<string> sCCIds = new List<string>();
+    private bool IsReadOnly = true;
+    private int submitCount = 0;
+    DxRichEdit? msgrichEdit { get; set; }
+
+    bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;
+    bool isCommand = false;
+    bool isCommandTopicClosed = true;
+    bool LockDueDateEnable = false;
+    bool isDynamicFormEmailSection = false;
+    private VoiceRecordingPage? RefVoiceRec { get; set; }
+    internal List<DynamicFormSection>? _DynamicFormEmailSection = new List<DynamicFormSection>();
+    private DxUpload? uploadComponent;
+    bool AttachmentUploadVisible { get; set; } = false;
+    [Parameter]
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
+    string MyMessage { get; set; }
+    string Message = "Upload";
+    Guid? _sessionId;
+    bool ErrorVisible { get; set; } = false;
+    string? MyError { get; set; }
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    public ApplicationUser? applicationUser { get; internal set; }
+    public List<EmailConversations>? _discussionList;
+    private List<EmailAssignToList>? _assigntoItems;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");            
+        
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        onloadSession();
+        plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        _discussionList = await Mediator.Send(new GetEmailPrintReplyDiscussionList(RId, applicationUser.UserID));
+        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RId));
+
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        Data.CopyEmailIds = null;
+        //_CopyLinkList = await Mediator.Send(new GetAllEmailTopicsList(applicationUser.UserID));
+        if (id > 0)
+        {
+            _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+
+            isPushNotification = _replyComment[0].NotifyUser.GetValueOrDefault(false);
+
+            Data.IsAllowParticipants = false;
+            Data.DueDate = null;
+            newSubjectreply = 0;
+
+            Data.UserType = _replyComment[0].UserType;
+
+            if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+            {
+                if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+                {
+                    isCheckAllowParticipant = true;
+                    var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+                    var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].UserId.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    //v
+                    //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    Data.AssigntoIds = new List<long>();
+                    #endregion
+
+                    #region AssignCC
+                    /*AssignCC*/
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+                    var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+                    Data.AssignccIds = parttcc.Where(userId => userId != applicationUser.UserID).ToList();
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+                    #endregion
+
+                }
+                else
+                {
+                    isCheckAllowParticipant = false;
+                    var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var allplist = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
+
+
+
+                    var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var getpatlist = getplsst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+
+
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].UserId.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    #endregion
+
+
+                    #region AssignCC
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+
+                    var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    Data.AssignccIds = getpatlist.Where(userId => userId != applicationUser.UserID).ToList();
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+                    #endregion
+                }
+
+            }
+
+            Data.Name = _replyComment[0].Name;
+            Data.From = applicationUser.UserName;
+            IsReadOnly = false;
+
+            Data.DynamicFormID = null;
+            Data.EmailFormDataSessionID = null;
+            Data.EmailFormSectionSessionID = null;
+
+
+            await Task.Delay(1000);
+            submitCount = 0;
+            await onRichTxtChangeFontsize();
+            //await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        }
+    }
+
+    async Task onRichTxtChangeFontsize()
+    {
+        if (msgrichEdit == null)
+        {
+
+        }
+        else
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        StateHasChanged(); // Force a UI update
+    }
+
+
+
+    void closeReply()
+    {
+        _replyComment = null;
+        Data.Name = null;
+        IsReadOnly = true;
+        //WindowVisible = false;
+        IsUserGroupCCOpen = false;
+        IsUserGroupToOpen = false;
+    }
+    void OnDateChanged(DateTime? newValue)
+    {
+        if (newValue != null)
+        {
+            LockDueDateEnable = true;
+
+        }
+        else
+        {
+            Data.IsLockDueDate = false;
+            LockDueDateEnable = false;
+        }
+
+        Data.DueDate = newValue;
+        StateHasChanged();
+    }  
+    private async Task HandleValidSubmit()
+    {
+        if (loading)
+        {
+            return; // Prevent multiple submissions
+        }
+
+        if (submitCount == 0)
+        {
+            loading = true;           
+            byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+
+
+            string htmlString = string.Empty;
+            var len = fileContent.Length;
+          
+
+
+            htmlString = Encoding.UTF8.GetString(fileContent);            
+
+            if (fileContent.Length == 443)
+            {
+                toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+            }
+
+            await msgrichEdit.SaveDocumentAsync();
+            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+            byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            server.LoadDocument(fileContent1);
+            server.Options.Export.Html.EmbedImages = true;
+            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+
+            string plainText = server.Text;
+            string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
+
+            if (Data.Name == null)
+            {
+                toastService.ShowToast("Please Enter Subject Name", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+            {
+                if (Data.AssigntoIds.Count() == 0)
+                {
+                    toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
+                }
+            }
+            else
+            {
+                if (Data.ToUserGroupIds == null)
+                {
+                    toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
+
+                }
+
+                if (Data.ToUserGroupIds.Count() == 0)
+                {
+                    toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
+                }
+            }
+
+
+
+            string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
+            string assignccidsString = null;
+
+            string assigntoidsString = "";
+
+            if (Data.AssigntoIds != null)
+            {
+                assigntoidsString = string.Join(",", Data.AssigntoIds);
+            }
+
+
+            if (Data.AssignccIds != null)
+            {
+                assignccidsString = string.Join(",", Data.AssignccIds);
+            }
+
+
+            List<long> concatList;
+            List<long> NotificationconcatList = new List<long>();
+
+            if (Data.AssignccIds != null)
+            {
+                concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+            }
+            else
+            {
+                if (Data.AssigntoIds != null)
+                {
+                    concatList = Data.AssigntoIds.ToList();
+                }
+                else
+                {
+                    concatList = new List<long>();
+                }
+
+            }
+
+            //List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+            concatList.Add(applicationUser.UserID);
+            concatList = concatList.Distinct().ToList();
+            string participantidsString = string.Join(",", concatList);
+
+            string plistUniqueItems = null;
+            long ConIds = 0;
+
+            var coId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0;
+            if (coId > 0)
+            {
+                if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                {
+                    var plist = await Mediator.Send(new GetByConvasationPList(coId));
+                    List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+                    NotificationconcatList = plst;
+                    List<long> uniqueItems = concatList.Except(plst).ToList();
+                    if (uniqueItems.Count > 0)
+                    {
+                        plistUniqueItems = string.Join(",", uniqueItems);
+                        NotificationconcatList.AddRange(uniqueItems);
+                    }
+                }
+                else
+                {
+                    List<long> UGlist = await Mediator.Send(new GetByConvasationPUserGroupList(coId));
+                    string UGlistString = string.Join(",", UGlist);
+
+                    List<long> concatListUserGroupItems = new List<long>();
+                    if (Data.ToUserGroupIds != null)
+                    {
+                        concatListUserGroupItems.AddRange(Data.ToUserGroupIds);
+                    }
+
+                    if (Data.CCUserGroupIds != null)
+                    {
+                        concatListUserGroupItems.AddRange(Data.CCUserGroupIds);
+                    }
+
+                    // Convert the merged list to a comma-separated string
+                    var concatListUserGroup = string.Join(",", concatListUserGroupItems);
+
+                    // Convert string to a list of long
+                    concatListUserGroupItems = concatListUserGroup.Split(',').Select(long.Parse).ToList();
+
+                    // Use Except on the collections
+                    //List<long> uniqueUserGroupItems = UGlist.Except(concatListUserGroupItems).ToList();
+                    //List<long> uniqueUserGroupItems = UGlist.Where(item => !concatListUserGroupItems.Contains(item)).ToList();
+                    List<long> uniqueUserGroupItems = concatListUserGroupItems.Except(UGlist).ToList();
+
+
+
+                    if (uniqueUserGroupItems.Count > 0)
+                    {
+                        plistUniqueItems = string.Join(",", uniqueUserGroupItems);
+                    }
+                }
+
+
+                ConIds = _replyComment[0].ID;
+
+            }
+
+            var susertype = Data.UserType;
+            var sToUserGroup = "";
+
+            if (Data.ToUserGroupIds != null)
+            {
+                sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }
+
+            var sCCUserGroup = "";
+            if (Data.CCUserGroupIds != null)
+            {
+                sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+            }
+            else
+            {
+                sCCUserGroup = "";
+            }
+
+            var sParticipantsUserGroup = "";
+            if (sCCUserGroup != null)
+            {
+                sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+            }
+            else
+            {
+                sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }
+
+
+
+
+            var createReq = new CreateEmailCoversation
+            {                
+                TopicID = RId == 0 ? id : RId,                
+                Message = htmlString,                
+                FileData = fileContents,
+                Description = shortDescription,                
+                AssigntoIdss = assigntoidsString,
+                AssignccIdss = assignccidsString,
+                PlistIdss = participantidsString,
+                AllowPlistids = plistUniqueItems,
+                DueDate = Data.DueDate,
+                EmailFormSectionSessionID = Data.EmailFormSectionSessionID,
+                EmailFormDataSessionID = Data.EmailFormDataSessionID,
+                DynamicFormID = Data.DynamicFormID,
+                IsAllowParticipants = Data.IsAllowParticipants,
+                Urgent = Data.Urgent,
+                NotifyUser = Data.NotifyUser,
+                ConIds = ConIds,                
+                AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
+                ParticipantId = applicationUser.UserID,
+                ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+                StatusCodeID = 1,
+                IsMobile = 0,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                Name = Data.Name,
+                SessionId = _sessionId,
+                ToUserGroup = sToUserGroup,
+                CCUserGroup = sCCUserGroup,
+                IsLockDueDate = Data.IsLockDueDate,
+                ParticipantsUserGroup = sParticipantsUserGroup,
+                UserType = Data.UserType,
+                CopyEmailIds = Data.CopyEmailIds
+            };
+            var result = await Mediator.Send(createReq);
+
+            if (result > 1)
+            {
+
+                if (isPushNotification)
+                {
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendMessage?id=" + result;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);
+                }
+
+                if (Data.NotifyUser.GetValueOrDefault(false))
+                {
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendMessage?id=" + result;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);
+                }
+              
+                if (RefVoiceRec != null)
+                {
+                    await RefVoiceRec.SendAllRecordings(_sessionId, "Email", 0);
+                }
+
+                if (SelectedFilesCount > 0)
+                {
+                    if (uploadComponent != null)
+                    {
+                        uploadComponent.UploadAllFiles();
+                    }
+
+                }
+                else
+                {
+                    
+                    // closeReply();
+                    // onloadSession();
+                    // await msgrichEdit.NewDocumentAsync();
+                    // OnReplyClose?.Invoke(id);
+                    //loading = false;
+                }
+            }
+            else
+            {
+
+            }
+
+            closeReply();
+            onloadSession();
+            await msgrichEdit.NewDocumentAsync();
+            OnReplyClose?.Invoke(id);
+            loading = false;
+
+            submitCount++;
+        }
+    }
+    void onloadSession()
+    {
+        _sessionId = Guid.NewGuid();
+    }
+    async void onSelectedDynFomSectionChanged(DynamicFormSection dynamicFormSections)
+    {
+
+    }
+    void onEmailCopyChanged(IEnumerable<Guid>? values)
+    {
+
+        if (values != null)
+        {
+            Data.CopyEmailIds = values;
+
+        }
+        else
+        {
+            Data.CopyEmailIds = null;
+        }
+
+        StateHasChanged();
+    }
+    void HandleInvalidSubmit()
+    {
+
+    }
+    void onSelectedToItemsChanged(IEnumerable<long>? values)
+    {
+        Data.AssigntoIds = values;
+        if (Data.AssignccIds != null)
+        {
+            var list = Data.AssignccIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssignccIds = list;
+            StateHasChanged();
+        }
+    }
+
+    async Task OnButtonUserGroupToClick()
+    {
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+        loading = true;
+        var SessionId = _sessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=false&SourceFrom=Email";
+        e.UploadUrl = url;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    private async void isUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            //loading = false;
+            await afterUploadClosed();
+        }
+        await InvokeAsync(StateHasChanged);
+
+    }
+    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
+    }
+    async Task afterUploadClosed()
+    {
+        closeReply();
+        //WindowVisible = false;
+        loading = false;
+
+        StateHasChanged();
+    }
+    async Task OnDocumentLoaded(DevExpress.Blazor.RichEdit.Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            properties.FontSize = 12;
+        });
+    }
+    void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        StateHasChanged();
+    }
+    async Task OnButtonUserGroupCCClick()
+    {
+    }
+    void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+    }
+    void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        Data.AssignccIds = values;
+        if (Data.AssigntoIds != null)
+        {
+            var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssigntoIds = list;
+            StateHasChanged();
+        }
+    }
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+        toolbar.Groups.Add(3, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);
+
+        IBarGroup clipboardGroup = toolbar.Groups[1];
+        clipboardGroup.Items.Add(5, RichEditBarItemNames.FontUnderline);
+        clipboardGroup.Items.Add(6, RichEditBarItemNames.HighlightText);
+        clipboardGroup.Items.Add(7, RichEditBarItemNames.ClipboardMenu);
+        clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);
+        clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout);
+        clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);
+
+
+        IBarGroup replace = toolbar.Groups[4];
+        replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);
+        replace.Items.Add(2, RichEditBarItemNames.Replace);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+
+
+    }
+}

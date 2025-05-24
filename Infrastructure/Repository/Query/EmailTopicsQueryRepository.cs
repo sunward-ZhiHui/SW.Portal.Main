@@ -3601,7 +3601,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<List<int>> GetAllIdsAsync()
         {
-            var query = "SELECT Id FROM EmailConversations";
+            var query = "SELECT Id FROM EmailConversations where Description is null";
 
             using (var connection = CreateConnection())
             {

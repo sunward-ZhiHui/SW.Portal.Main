@@ -27,4 +27,13 @@ namespace Application.Queries
             this.TenderOrderModel = tenderOrderModel;
         }
     }
+    public class UploadTenderOrder : PagedRequest, IRequest<TenderOrderModel>
+    {
+        public TenderOrderModel TenderOrderModel { get; private set; }
+        public UploadTenderOrder(TenderOrderModel tenderOrderModel)
+        {
+            this.TenderOrderModel = tenderOrderModel;
+        }
+    }
+    
 }

@@ -24,5 +24,9 @@ namespace Core.EntityModels
         public DateTime? ShipmentDate { get; set; }
         public string? UOMCode { get; set; }
         public string? Company { get; set; }
+        public byte[]? ByteData { get; set; }
+        public long? UserId { get; set; }
+        public long? CompanyId { get; set; }
     }
+
 }

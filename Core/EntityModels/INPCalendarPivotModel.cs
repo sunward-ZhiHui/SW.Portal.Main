@@ -769,24 +769,25 @@ namespace Core.EntityModels
     public class NavpostedShipment
     {
         public long ShipmentId { get; set; }
-        public string Company { get; set; }
+        public string? Company { get; set; }
         public long? CompanyId { get; set; }
         public DateTime? StockBalanceMonth { get; set; }
         public DateTime? PostingDate { get; set; }
-        public string Customer { get; set; }
-        public string CustomerNo { get; set; }
+        public string? Customer { get; set; }
+        public string? CustomerNo { get; set; }
         public long? CustomerId { get; set; }
-        public string DeliveryOrderNo { get; set; }
+        public string? DeliveryOrderNo { get; set; }
         public int? DolineNo { get; set; }
-        public string ItemNo { get; set; }
-        public string Description { get; set; }
+        public string? ItemNo { get; set; }
+        public string? Description { get; set; }
         public bool? IsRecived { get; set; }
         public decimal? DoQty { get; set; }
         public int StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
-        public DateTime AddedDate { get; set; }
+        public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
-
+        public DateTime? FromPostingDate { get; set; }
+        public DateTime? ToPostingDate { get; set; }
     }
     public class NavItemCitemList
     {

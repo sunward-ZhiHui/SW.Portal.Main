@@ -1366,5 +1366,67 @@ namespace Infrastructure.Service
 
             return prodNotStartList;
         }
+
+        public async Task<List<NavpostedShipment>> GetSalesDeliverOrder(ViewPlants company, NavpostedShipment navpostedShipment, List<Navcustomer> customers, List<NavpostedShipment> navpostedShipments)
+        {
+            List<NavpostedShipment> prodNotStartList = new List<NavpostedShipment>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company.NavCompanyName);
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+                var nquery = context.Context.PostedSalesShipmentLines.Where(p => p.Posting_Date <= navpostedShipment.FromPostingDate && p.Posting_Date >= navpostedShipment.ToPostingDate && p.Type == "Item").Skip(page * pageSize).Take(pageSize);
+                //var nquery = context.Context.PostedSalesShipmentLines.Where(p => p.Type == "Item").Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.PostedSalesShipmentLines> query = (DataServiceQuery<NAV.PostedSalesShipmentLines>)nquery;
+                TaskFactory<IEnumerable<NAV.PostedSalesShipmentLines>> taskFactory = new TaskFactory<IEnumerable<NAV.PostedSalesShipmentLines>>();
+                IEnumerable<NAV.PostedSalesShipmentLines> salesResults = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+                var salesList = salesResults.ToList();
+
+                salesList.ToList().ForEach(s =>
+                {
+                    var cust = customers.FirstOrDefault(f => f.Code == s.Sell_to_Customer_No);
+                    var existingDO = navpostedShipments.FirstOrDefault(d => d.DeliveryOrderNo == s.Document_No && d.ItemNo == s.No);
+                    if (existingDO == null)
+                    {
+                        var doitem = new NavpostedShipment
+                        {
+                            CompanyId = navpostedShipment.CompanyId,
+                            Company = company.PlantCode,
+                            CustomerId = cust?.CustomerId,
+                            Customer = cust != null ? cust.Name : string.Empty,
+                            CustomerNo = s.Sell_to_Customer_No,
+                            Description = s.Description + "|" + s.Description_2,
+                            DeliveryOrderNo = s.Document_No,
+                            DolineNo = s.Line_No,
+                            DoQty = s.Quantity,
+                            StockBalanceMonth = navpostedShipment.StockBalanceMonth,
+                            ItemNo = s.No,
+                            PostingDate = s.Posting_Date,
+                            AddedByUserId = navpostedShipment.AddedByUserId,
+                            StatusCodeId = 1,
+                            IsRecived = true,
+                            AddedDate = DateTime.Now,
+                        };
+                        prodNotStartList.Add(doitem);
+                    }
+                    else
+                    {
+                        existingDO.PostingDate = s.Posting_Date;
+                        existingDO.CustomerId = cust?.CustomerId;
+                        existingDO.Customer = cust != null ? cust.Name : string.Empty;
+                        existingDO.CustomerNo = s.Sell_to_Customer_No;
+                        existingDO.DoQty = s.Quantity;
+                        prodNotStartList.Add(existingDO);
+                    }
+                });
+                if (salesList.Count < 1000)
+                    break;
+                page++;
+            }
+            return prodNotStartList;
+        }
     }
 }

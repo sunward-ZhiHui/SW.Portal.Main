@@ -15,24 +15,47 @@
 
 @inject NavigationManager NavigationManager
 
-
-<div class="card" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <div class="row">
-            <div class="">
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Auto">
-                    <Items>
-                        @* <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" /> *@
-                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
-                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
-                    </Items>
-                </DxMenu>
+<div style="padding:10px;">
+    <div class="card" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="">
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Auto">
+                        <Items>
+                            @* <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" /> *@
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                            <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                            <DxMenuItem Text="Import Excel File" IconCssClass="fa fa-file-excel" id="attachmentSelectButton" Enabled="exportEnabled" />
+                        </Items>
+                    </DxMenu>
+                </div>
             </div>
         </div>
     </div>
+    <EditForm EditContext="this._editContext" Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="4">
+
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            TextFieldName="Description"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ValueFieldName="PlantID"
+                            @bind-Value="@tenderOrderModel.CompanyId"
+                            ShowValidationIcon="true">
+
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditForm>
 </div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
@@ -151,7 +174,19 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFileInput Visible="@UploadVisible"
+             AllowMultiFileUpload="false"
+             MaxFileSize="15000000"
+             ExternalSelectButtonCssSelector="#attachmentSelectButton"
+             SelectedFilesChanged="@SelectedFilesChanged"
+             AcceptedFileTypes=@AcceptedFileTypes
+             FilesUploading="OnFilesUploading">
+</DxFileInput>
 @code {
+    private List<ViewPlants> _plantItems;
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { ".xlsx" };
+    EditContext _editContext;
+    bool UploadVisible { get; set; } = false; bool exportEnabled { get; set; } = true;
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; } = true;
     bool PopupVisible { get; set; } = false;
@@ -166,14 +201,45 @@
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<CodeMaster> _stausItems;
     public ApplicationUser? applicationUser { get; private set; }
-    private List<View_NavItems>? _AllNavitems; private List<View_NavItems>? malaysiaItems; private List<View_NavItems>? singaporeItems;
+    private List<View_NavItems>? _AllNavitems; TenderOrderModel tenderOrderModel = new TenderOrderModel();
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(tenderOrderModel);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        if (_plantItems != null && _plantItems.Count() > 0)
+        {
+            tenderOrderModel.CompanyId = _plantItems.FirstOrDefault()?.PlantID;
+        }
         await UpdateDataAsync();
     }
+    int SelectedFilesCount { get; set; }
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFilesCount = files.ToList().Count;
+        InvokeAsync(StateHasChanged);
+    }
+    protected async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        exportEnabled = false; PanelVisible = true;
+        var file = args.Files[0];
+        using var stream = new System.IO.MemoryStream();
+        await file.OpenReadStream(file.Size).CopyToAsync(stream);
+        byte[] imageArray = stream.ToArray();
+        tenderOrderModel.UserId = applicationUser.UserID;
+        tenderOrderModel.ByteData = imageArray;
+        tenderOrderModel.CompanyId = tenderOrderModel.CompanyId;
+        var request = new UploadTenderOrder(tenderOrderModel);
+        var result = await Mediator.Send(request);
 
+        if (result.CompanyId > 0)
+        {
+            toastService.ShowToast("Record Uploaded Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            exportEnabled = true;
+            await UpdateDataAsync();
+        }
+    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -309,7 +375,7 @@
         {
             var createReq = new InsertOrUpdateTenderOrder
                 {
-                    SimualtionAddhocID=editModel.SimualtionAddhocID,
+                    SimualtionAddhocID = editModel.SimualtionAddhocID,
                     DocumentNo = editModel.DocumentNo,
                     ExternalDocNo = editModel.ExternalDocNo,
                     ShipmentDate = editModel.ShipmentDate,
@@ -348,6 +414,10 @@
             await UpdateDataAsync();
 
         }
+
+    }
+    void ImportXlsx_Click()
+    {
 
     }
 }

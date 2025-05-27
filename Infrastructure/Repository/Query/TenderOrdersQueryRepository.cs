@@ -18,14 +18,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Presentation;
+using Microsoft.AspNetCore.Hosting;
+using Google.Type;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.JSInterop;
+using System.IO;
 
 namespace Infrastructure.Repository.Query
 {
     public class TenderOrdersQueryRepository : DbConnector, ITenderOrdersQueryRepository
     {
-        public TenderOrdersQueryRepository(IConfiguration configuration)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public TenderOrdersQueryRepository(IConfiguration configuration, IWebHostEnvironment host)
             : base(configuration)
         {
+            _hostingEnvironment = host;
         }
         public async Task<IReadOnlyList<TenderOrderModel>> GetAllByAsync()
         {
@@ -102,28 +110,95 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        /*public async Task<IActionResult> Upload(IFormCollection files)
+        private async Task<long> InsertOrUpdate(string? TableName, string? PrimareyKeyName, long PrimareyKeyId, DynamicParameters parameters)
         {
-            var SessionId = Guid.NewGuid();
-            var plant = files["plantId"].ToString();
-            var user = files["userId"].ToString();
-            long userId = !string.IsNullOrEmpty(user) ? long.Parse(user) : -1;
-            var companyId = !string.IsNullOrEmpty(plant) ? long.Parse(plant) : -1;
-            DataTable dt = new DataTable();
-            files.Files.ToList().ForEach(f =>
+            try
             {
+                using (var connection = CreateConnection())
+                {
+                    var query = string.Empty;
+                    if (PrimareyKeyId > 0)
+                    {
+                        if (parameters is DynamicParameters subDynamic)
+                        {
+                            query += "UPDATE " + TableName + " SET\r";
+                            var names = string.Empty;
+                            if (subDynamic.ParameterNames is not null)
+                            {
+                                foreach (var keyValue in subDynamic.ParameterNames)
+                                {
+                                    names += keyValue + "=";
+                                    names += "@" + keyValue + ",";
+                                }
+                            }
+                            query += names.TrimEnd(',') + "\rwhere " + PrimareyKeyName + " = " + PrimareyKeyId + ";";
+                        }
+                    }
+                    else
+                    {
+                        if (parameters is DynamicParameters subDynamic)
+                        {
+                            query += "INSERT INTO " + TableName + "(\r";
+                            var values = string.Empty;
+                            var names = string.Empty;
+                            if (subDynamic.ParameterNames is not null)
+                            {
+                                foreach (var keyValue in subDynamic.ParameterNames)
+                                {
+                                    names += keyValue + ",";
+                                    values += "@" + keyValue + ",";
+                                }
+                            }
+                            query += names.TrimEnd(',') + ")\rOUTPUT INSERTED." + PrimareyKeyName + " VALUES(" + values.TrimEnd(',') + ");";
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        if (PrimareyKeyId > 0)
+                        {
+                            await connection.ExecuteAsync(query, parameters);
 
-                var file = f;
-                var fs = file.OpenReadStream();
-                var br = new BinaryReader(fs);
-                Byte[] document = br.ReadBytes((Int32)fs.Length);
-
-                var fileName = file.FileName;
-
-                var serverPath = _hostingEnvironment.ContentRootPath + @"\AppUpload\" + fileName;
-                System.IO.File.WriteAllBytes(serverPath, document);
-                var fileInfo = new FileInfo(serverPath);
-                using (XLWorkbook workbook = new XLWorkbook(serverPath))
+                        }
+                        else
+                        {
+                            PrimareyKeyId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                    }
+                }
+                return PrimareyKeyId;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private System.DateTime? GetDate(string dateString)
+        {
+            if (!string.IsNullOrEmpty(dateString))
+            {
+                System.DateTime date = System.DateTime.Parse(dateString);
+                //double d = double.Parse(dateString);
+                //DateTime date = DateTime.FromOADate(d);
+                return date;
+            }
+            return null;
+        }
+        public async Task<TenderOrderModel> UploadTenderOrder(TenderOrderModel TenderOrderModel)
+        {
+            try
+            {
+                var SessionId = Guid.NewGuid();
+                string folderName = _hostingEnvironment.ContentRootPath + @"\AppUpload";
+                string newFolderName = "ConvertExcel";
+                string serverPath = System.IO.Path.Combine(folderName, newFolderName);
+                if (!System.IO.Directory.Exists(serverPath))
+                {
+                    System.IO.Directory.CreateDirectory(serverPath);
+                }
+                string FromLocation = serverPath + @"\" + SessionId + ".xlsx";
+                File.WriteAllBytes(FromLocation, TenderOrderModel.ByteData);
+                DataTable dt = new DataTable();
+                using (XLWorkbook workbook = new XLWorkbook(FromLocation))
                 {
                     IXLWorksheet worksheet = workbook.Worksheet(1);
                     bool FirstRow = true;
@@ -158,72 +233,92 @@ namespace Infrastructure.Repository.Query
                     //If no data in Excel file  
                     if (FirstRow)
                     {
-                       // throw new AppException("Please Check Sheet Name or File format/Version!. Excel Export will not support lower versions(.xls).", null);
+                        // throw new AppException("Please Check Sheet Name or File format/Version!. Excel Export will not support lower versions(.xls).", null);
                     }
                 }
-            });
-
-            var tenderOrders = (from DataRow row in dt.Rows
-
-                                select new TenderOrderModel
-                                {
-                                    Categories = row["Catogories"].ToString(),
-                                    CustomerName = row["CustomerName"].ToString(),
-                                    Description = row["Description"].ToString(),
-                                    Description1 = row["Description2"].ToString(),
-                                    DocumantType = row["DocumentType"].ToString(),
-                                    DocumentNo = row["DocumentNo"].ToString(),
-                                    ExternalDocNo = row["ExternalDocumentNo"].ToString(),
-                                    ItemNo = row["ItemNo"].ToString(),
-                                    OutstandingQty = decimal.Parse(row["OutstandingQuantity"].ToString()),
-                                    PromisedDate = GetDate(row["PromisedDeliveryDate"].ToString()),
-                                    SelltoCustomerNo = row["SelltoCustomerNo"].ToString(),
-                                    ShipmentDate = GetDate(row["ShipmentDate"]?.ToString()),
-                                    UOMCode = row["UnitofMeasureCode"].ToString(),
-                                    Company = row["Company"].ToString(),
-                                }).ToList();
-
-            if (tenderOrders.Count > 0)
-            {
-
-
-                await _context.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM SimulationAddhoc");
-
-                var items = _context.Navitems.Select(s => new { s.ItemId, s.No, s.CompanyId }).AsNoTracking().ToList();
-                int count = 0;
-                int totalItems = tenderOrders.Count();
-                var addhocList = new List<SimulationAddhoc>();
-                tenderOrders.ForEach(f =>
+                List<DynamicParameters> dynamicParameters = new List<DynamicParameters>();
+                int rowCount = dt.Rows.Count;
+                if (rowCount > 0)
                 {
-                    var itemCount = count + " of " + totalItems;
-                    //notify client progress update
-                    var itemName = string.Format("{0} {1}-{2}  {3}", itemCount, f.ItemNo, f.Description, "tender items");
-                    _hub.Clients.Group(userId.ToString()).SendAsync("progress", itemName);
-                    var companyId = f.Company == "SWJB" ? 1 : 2;
-                    var simAddhoc = new SimulationAddhoc
+                    var items = await GetNavItemsAllByAsync(TenderOrderModel.CompanyId);
+                    foreach (DataRow row in dt.Rows)
                     {
-                        Categories = f.Categories,
-                        CustomerName = f.CustomerName,
-                        Description = f.Description,
-                        Description1 = f.Description1,
-                        DocumantType = f.DocumantType,
-                        DocumentNo = f.DocumentNo,
-                        ExternalDocNo = f.ExternalDocNo,
-                        ItemId = items.FirstOrDefault(i => i.No == f.ItemNo && i.CompanyId == companyId)?.ItemId,
-                        ItemNo = f.ItemNo,
-                        OutstandingQty = f.OutstandingQty,
-                        PromisedDate = f.PromisedDate,
-                        SelltoCustomerNo = f.SelltoCustomerNo,
-                        ShipmentDate = f.ShipmentDate,
-                        Uomcode = f.UOMCode,
-                    };
-                    //_context.SimulationAddhoc.Add(simAddhoc);
-                    addhocList.Add(simAddhoc);
-                    count++;
-                });
-
+                        var parameters = new DynamicParameters();
+                        var ItemNo = row["ItemNo"].ToString();
+                        var itemIds = items.FirstOrDefault(i => i.No == ItemNo && i.CompanyId == TenderOrderModel.CompanyId)?.ItemId;
+                        parameters.Add("ItemId", itemIds);
+                        parameters.Add("DocumantType", row["DocumentType"].ToString(), DbType.String);
+                        parameters.Add("CustomerName", row["CustomerName"].ToString(), DbType.String);
+                        parameters.Add("Categories", row["Catogories"].ToString(), DbType.String);
+                        parameters.Add("DocumentNo", row["DocumentNo"].ToString(), DbType.String);
+                        parameters.Add("ExternalDocNo", row["ExternalDocumentNo"].ToString(), DbType.String);
+                        parameters.Add("Description", row["Description"].ToString(), DbType.String);
+                        parameters.Add("Description1", row["Description2"].ToString(), DbType.String);
+                        parameters.Add("ItemNo", ItemNo, DbType.String);
+                        parameters.Add("OutstandingQty", row["OutstandingQuantity"].ToString(), DbType.String);
+                        parameters.Add("PromisedDate", GetDate(row["PromisedDeliveryDate"].ToString()), DbType.DateTime);
+                        parameters.Add("SelltoCustomerNo", row["SelltoCustomerNo"].ToString(), DbType.String);
+                        parameters.Add("ShipmentDate", GetDate(row["ShipmentDate"].ToString()), DbType.DateTime);
+                        parameters.Add("UOMCode", row["UnitofMeasureCode"].ToString(), DbType.String);
+                        //parameters.Add("Company", row["Company"].ToString(), DbType.String);
+                        dynamicParameters.Add(parameters);
+                    }
+                    if (dynamicParameters.Count > 0)
+                    {
+                        await DeleteTenderOrder();
+                        dynamicParameters.ForEach(async a =>
+                        {
+                            await InsertOrUpdate("SimulationAddhoc", "SimualtionAddhocID", 0, a);
+                        });
+                    }
+                }
+                System.IO.File.Delete(FromLocation);
+                return TenderOrderModel;
             }
-            return Content(SessionId.ToString());
-        }*/
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<View_NavItems>> GetNavItemsAllByAsync(long? CompanyId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("CompanyId", CompanyId);
+                var query = "Select * FROM NavItems WHERE CompanyId= @CompanyId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavItems>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task DeleteTenderOrder()
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        var query = "DELETE FROM SimulationAddhoc";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

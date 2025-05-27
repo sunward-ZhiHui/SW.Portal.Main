@@ -53,4 +53,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
 
     }
+    public class UploadTenderOrderHandler : IRequestHandler<UploadTenderOrder, TenderOrderModel>
+    {
+        private readonly ITenderOrdersQueryRepository _queryRepository;
+        public UploadTenderOrderHandler(ITenderOrdersQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<TenderOrderModel> Handle(UploadTenderOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UploadTenderOrder(request.TenderOrderModel);
+
+        }
+    }
 }

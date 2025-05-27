@@ -16,5 +16,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<TenderOrderModel>> GetAllByAsync();
         Task<TenderOrderModel> InsertOrUpdateTenderOrder(TenderOrderModel tenderOrderModel);
         Task<TenderOrderModel> DeleteTenderOrder(TenderOrderModel tenderOrderModel);
+        Task<TenderOrderModel> UploadTenderOrder(TenderOrderModel tenderOrderModel);
     }
 }

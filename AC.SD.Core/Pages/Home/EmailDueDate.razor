@@ -170,8 +170,7 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
 
     <EditFormTemplate Context="EditFormContext">
         @{
-            var types = (EmailTopics)EditFormContext.EditModel;
-            types.TopicName = "kumar";
+            var types = (EmailTopics)EditFormContext.EditModel;           
             types.ToIds = new List<long> { -1 };
         }
         <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">

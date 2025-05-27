@@ -9,7 +9,7 @@
 @inject IJSRuntime JSRuntime;
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
-
+@inject NavigationManager NavigationManager
 
 @if (_discussionList == null)
 {
@@ -62,7 +62,72 @@ else
                                 </div>
                             }
                         </div>
+                        @if (item.DynamicFormEmailSectionName != null)
+                        {
+                            <div class="replybox" style="min-height:60px;">
+                                <div style="font-weight: bold;">
+                                    Dynamic form @item.DynamicFormEmailSectionName
+                                </div>
+                                <text></text>
+                                <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                            </div>
+                        }
 
+                        @if (!string.IsNullOrEmpty(item.BackURL))
+                        {
+                            string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
+                            @if (item.ActivityType != "EmailFileProfileType")
+                            {
+                                <div class="replybox" style="min-height:60px;">
+                                    <div style="font-weight: bold;">
+                                        @ActivityTypes Comment
+                                        <div style="float:right; line-height:16px">
+                                            @if (item.ActivityType == "FileProfileType")
+                                            {
+                                                <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                    <i class="fa fa-arrow-left"></i> Back
+                                                </button>
+                                            }
+                                            else if (item.ActivityType == "EmailFileProfileType")
+                                            {
+                                                <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                    <i class="fa fa-arrow-left"></i> Back
+                                                </button>
+                                            }
+                                            else if (item.ActivityType == "DynamicForm")
+                                            {
+                                                <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                    <i class="fa fa-arrow-left"></i> Back
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                    <i class="fa fa-arrow-left"></i> Back
+                                                </button>
+
+                                            }
+
+                                        </div>
+                                    </div>
+                                    <text>@item.ActCommentName</text>
+                                    <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                                </div>
+
+                            }
+
+                        }
+                        <div class="">
+                            @if (item.CopyLinkEmailIds != null)
+                            {
+                                dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
+
+                                <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(item))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px; " class="">
+                                    <i class="fa fa-envelope"></i> Attached Email
+                                </button>
+                            }
+                        
+                        </div>
                         <div class="email-body">
                             @if (item.FileData == null)
                             {
@@ -133,16 +198,25 @@ else
 
     [Parameter]
     public string? Page { get; set; }
+
+    [Parameter]
+    public Action<long>? ToggleMainInfo { get; set; }
+
+    private string? BaseUrl;
+    private string? ProductActivityBaseUrl;
     public ApplicationUser? applicationUser { get; private set; }
     public List<EmailConversations>? _discussionList;
     private List<Documents>? _topicDocList;   
     private string? DocumentViewUrl;
-
+    string dynamicShowDrawer = "ShowOpenDrawer_";    
+   
 
     protected override async Task OnParametersSetAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];    
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
 
         if (ItemId > 0)
         {
@@ -231,6 +305,28 @@ else
     {        
         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
-
+    private void ToggleInfoclick(EmailConversations emailConversations) 
+    {        
+         ToggleMainInfo?.Invoke(emailConversations.ID);   
+    }
+    async void onBackFileProfileType(string url)
+    {
+        var urls = BaseUrl + "fileprofiletype/" + url;
+        NavigationManager.NavigateTo(urls);
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+    private async void onBackActivity(string Url)
+    {
+        var url = ProductActivityBaseUrl + Url;
+        string script = $"window.open('{url}', '_blank');";
+        await JSRuntime.InvokeVoidAsync("eval", script);
+        //NavigationManager.NavigateTo(url,true);
+    }
+    async void onBackDynamicType(string url)
+    {
+        var urls = BaseUrl + url;
+        NavigationManager.NavigateTo(urls);
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+    }
 
 }

@@ -59,8 +59,8 @@
     border-top: 1px solid #242424 !important;
 }
     .short-description {
-    font-size: 12px;
-    color: #555;
+    font-size: 11px;
+    color: #707070;
     margin-top: 4px;
 }
 
@@ -911,7 +911,7 @@
                                 }
                                 else if (DrawerView == "MainSubject")
                                 {
-                                    <MainSubjectPage Page= "@isLeftMenuvisible"  ItemId="@ecID" OnCloseRequestMsg="onRequestReload" />                                   
+                                    <MainSubjectPage Page= "@isLeftMenuvisible"  ItemId="@ecID" OnCloseRequestMsg="onRequestReload" ToggleMainInfo="onToggleMainInfo" />                                   
                                 }
                                 
                             </div>                            
@@ -1480,7 +1480,16 @@
                                                                                         </div>
                                                                                     }
                                                                                 </div>
+                                                                                <div class="">
+                                                                                    @if (items.CopyLinkEmailIds != null)
+                                                                                    {
+                                                                                        dynamicShowDrawer = "ShowOpenDrawer_" + items.ID;
 
+                                                                                        <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(items))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px; " class="">
+                                                                                            <i class="fa fa-envelope"></i> Attached Email
+                                                                                        </button>
+                                                                                    }
+                                                                                </div>
                                                                                 <div class="email-body">
                                                                                     @if (items.FileData == null)
                                                                                     {
@@ -1580,7 +1589,71 @@
                                                                                     </div>
                                                                                 }
                                                                             </div>
+                                                                            @if (item.DynamicFormEmailSectionName != null)
+                                                                            {
+                                                                                <div class="replybox" style="min-height:60px;">
+                                                                                    <div style="font-weight: bold;">
+                                                                                        Dynamic form @item.DynamicFormEmailSectionName
+                                                                                    </div>
+                                                                                    <text></text>
+                                                                                    <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                                                                                </div>
+                                                                            }
 
+                                                                            @if (!string.IsNullOrEmpty(item.BackURL))
+                                                                            {
+                                                                                string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
+                                                                                @if (item.ActivityType != "EmailFileProfileType")
+                                                                                {
+                                                                                    <div class="replybox" style="min-height:60px;">
+                                                                                        <div style="font-weight: bold;">
+                                                                                            @ActivityTypes Comment
+                                                                                            <div style="float:right; line-height:16px">
+                                                                                                @if (item.ActivityType == "FileProfileType")
+                                                                                                {
+                                                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                                                    </button>
+                                                                                                }
+                                                                                                else if (item.ActivityType == "EmailFileProfileType")
+                                                                                                {
+                                                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                                                    </button>
+                                                                                                }
+                                                                                                else if (item.ActivityType == "DynamicForm")
+                                                                                                {
+                                                                                                    <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                                                    </button>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                                                    </button>
+
+                                                                                                }
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <text>@item.ActCommentName</text>
+                                                                                        <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                                                                                    </div>
+
+                                                                                }
+
+                                                                            }
+                                                                             <div class="">
+                                                                                    @if (item.CopyLinkEmailIds != null)
+                                                                                    {
+                                                                                        dynamicShowDrawer = "ShowOpenDrawer_" + item.ID;
+
+                                                                                        <button type="button" id="@dynamicShowDrawer" @onclick="@(() => ToggleInfoclick(item))" style="font-size: 13px;border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; margin-right: 10px; padding-right: 10px; padding-left: 10px; " class="">
+                                                                                            <i class="fa fa-envelope"></i> Attached Email
+                                                                                        </button>
+                                                                                    }
+                                                                                </div>
                                                                             <div class="email-body">
                                                                                 @if (item.FileData == null)
                                                                                 {
@@ -1654,62 +1727,7 @@
                                                                 </div>
                                                             </div> *@
 
-                                                            @if (item.DynamicFormEmailSectionName != null)
-                                                            {
-                                                                <div class="replybox" style="min-height:60px;">
-                                                                    <div style="font-weight: bold;">
-                                                                        Dynamic form @item.DynamicFormEmailSectionName
-                                                                    </div>
-                                                                    <text></text>
-                                                                    <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
-                                                                </div>
-                                                            }
-
-
-                                                            @if (!string.IsNullOrEmpty(item.BackURL))
-                                                            {
-                                                                string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
-                                                                @if (item.ActivityType != "EmailFileProfileType")
-                                                                {
-                                                                    <div class="replybox" style="min-height:60px;">
-                                                                        <div style="font-weight: bold;">
-                                                                            @ActivityTypes Comment
-                                                                            <div style="float:right; line-height:16px">
-                                                                                @if (item.ActivityType == "FileProfileType")
-                                                                                {
-                                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                                    </button>
-                                                                                }
-                                                                                else if (item.ActivityType == "EmailFileProfileType")
-                                                                                {
-                                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                                    </button>
-                                                                                }
-                                                                                else if (item.ActivityType == "DynamicForm")
-                                                                                {
-                                                                                    <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                                    </button>
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                                    </button>
-
-                                                                                }
-
-                                                                            </div>
-                                                                        </div>
-                                                                        <text>@item.ActCommentName</text>
-                                                                        <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
-                                                                    </div>
-
-                                                                }
-
-                                                            }
+                                   
                                                             @* <div class="uk-card-body">
                                                                 @if (item.CopyLinkEmailIds != null)
                                                                 {
@@ -3067,6 +3085,17 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
          DrawerView = "MainSubject";
          DrawerTitle = "Main Subject";
+    }
+
+    private void onToggleMainInfo(long id)
+    {
+        ecID = id;
+        IsInfoOpen = false;
+        IsInfoOpen = true;
+        
+         DrawerView = "AttachedEmail";
+         DrawerTitle = "Attached Email";
+        StateHasChanged();
     }
     private void CloseInfo()
     {

@@ -1189,7 +1189,7 @@ namespace Infrastructure.Repository.Query
                                         INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
                             LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
-                            WHERE FC.ID = @TopicId AND FC.ReplyId = 0   
+                            WHERE FC.ID = @TopicId --AND FC.ReplyId = 0   
                             ORDER BY FC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();

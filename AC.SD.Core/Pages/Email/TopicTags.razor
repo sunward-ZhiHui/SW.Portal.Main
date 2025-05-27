@@ -450,7 +450,7 @@ Width="300px">
         //_subSectionItems = new List<ViewSubSection>();
         if (GroupTag > 0)
         {
-           // await CategoryTagChangenew(GroupTag);
+            // await CategoryTagChangenew(GroupTag);
         }
     }
 
@@ -620,7 +620,33 @@ Width="300px">
         PanelVisible = true;       
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));       
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+
+        if (_topicCategorys != null && _topicCategorys.Count > 0)
+        {
+            var firstCategory = _topicCategorys[0];
+
+            if (firstCategory.GroupTag == null)
+            {
+                if (firstCategory.CategoryTag == null)
+                {
+                    if (firstCategory.ActionTagIds == null || !firstCategory.ActionTagIds.Any(id => id.HasValue))
+                    {
+                        if (string.IsNullOrWhiteSpace(firstCategory.Name))
+                        {
+                            var request = new DeleteTopicCategoryQery(firstCategory.ID, firstCategory.TopicId);
+                            await Mediator.Send(request);
+
+                            _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+                            StateHasChanged();
+                        }
+                    }
+                }
+            }
+        }
+
+
+       
 
         var _isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
 

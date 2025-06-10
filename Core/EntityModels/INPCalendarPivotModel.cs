@@ -961,6 +961,7 @@ namespace Core.EntityModels
         public string? ItemNo { get; set; }
         public long? CompanyId { get; set; }
         public long? UserId { get; set; }
+        public byte[]? ByteData { get; set; }
     }
     public class SotckBalanceItemsList
     {

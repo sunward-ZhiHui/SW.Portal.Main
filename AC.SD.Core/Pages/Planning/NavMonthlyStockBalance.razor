@@ -21,9 +21,8 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
+                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="OnViewData" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
-                    <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="OnSync" />
-
                 </Items>
             </DxMenu>
         </div>
@@ -37,15 +36,13 @@
 
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             ListRenderMode="ListRenderMode.Virtual"
                             TextFieldName="Description"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ValueFieldName="PlantID"
-                            Value="@CurrentPlant"
-                            ValueExpression="@(() => CurrentPlant )"
+                            @bind-Value="@data.CompanyID"
                             ShowValidationIcon="true">
 
                 </DxComboBox>
@@ -110,7 +107,20 @@
         </DxGrid>
     </DxLoadingPanel>
 </div>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="false"
+         HeaderText="Stock Balance"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <StockBalanceList _selectedItemsList="@_selectedItems"></StockBalanceList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool AttachmentPopUp { get; set; } = false;
     ViewPlants CurrentPlant { get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = false;
@@ -125,6 +135,12 @@
         _editContext = new EditContext(data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        if (_plantItems != null && _plantItems.Count() > 0)
+        {
+            data.CompanyID = _plantItems.FirstOrDefault().PlantID;
+        }
+        data.FilterDate = DateTime.Now;
+        await OnSearch();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -162,7 +178,7 @@
         double d = (firstDay + date.Day - 1) / 7.0;
         return d > 5 ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
     }
-    async void OnSearch()
+    async Task OnSearch()
     {
         if ((data.CompanyID > 0) && (data.FilterDate != null))
         {
@@ -184,5 +200,10 @@
         //stockBalanceSearch.CompanyId = data.CompanyID;
         //var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
 
+    }
+    async void OnViewData()
+    {
+        AttachmentPopUp = true;
+        StateHasChanged();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public  class DistStockBalanceQuery : PagedRequest, IRequest<List<DistStockBalance>>
+    public  class DistStockBalanceQuery : PagedRequest, IRequest<List<NavStockBalanceModel>>
     {
-        public DistStockBalance? distStockBalance { get; set; }
+        public StockBalanceSearch StockBalanceSearch { get; set; }
 
-        public DistStockBalanceQuery(DistStockBalance distStockBalance)
+        public DistStockBalanceQuery(StockBalanceSearch distStockBalance)
         {
-            this.distStockBalance = distStockBalance;
+            this.StockBalanceSearch = distStockBalance;
         }
     }
     public class NavItemStockBalanceQuery : PagedRequest, IRequest<List<NavitemStockBalance>>
@@ -25,6 +26,36 @@ namespace Application.Queries
         public NavItemStockBalanceQuery(NavitemStockBalance navitemStockBalance)
         {
             this.navitemStockBalance = navitemStockBalance;
+        }
+    }
+    public class UploadStockBalanceQuery : PagedRequest, IRequest<StockBalanceSearch>
+    {
+        public StockBalanceSearch StockBalanceSearch { get; set; }
+
+        public UploadStockBalanceQuery(StockBalanceSearch stockBalanceSearch)
+        {
+            this.StockBalanceSearch = stockBalanceSearch;
+        }
+    }
+    public class GetNavItemStockBalanceById : PagedRequest, IRequest<List<NavItemStockBalanceModel>>
+    {
+        public long? Id { get; set; }
+
+        public GetNavItemStockBalanceById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class UpdateNavItemStockBalance : NavItemStockBalanceModel, IRequest<NavItemStockBalanceModel>
+    {
+    }
+    public class DeleteNavItemStockBalance : PagedRequest, IRequest<NavItemStockBalanceModel>
+    {
+        public NavItemStockBalanceModel NavItemStockBalanceModel { get; set; }
+
+        public DeleteNavItemStockBalance(NavItemStockBalanceModel navItemStockBalanceModel)
+        {
+            this.NavItemStockBalanceModel = navItemStockBalanceModel;
         }
     }
     

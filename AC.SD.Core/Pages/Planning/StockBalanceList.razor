@@ -1,0 +1,312 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="NavStockBalanceId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+
+            <DxGridDataColumn FieldName="ItemName" Caption="Item Name" />
+            <DxGridDataColumn FieldName="StockBalMonth" Caption="Stock Bal Month">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (NavItemStockBalanceModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.StockBalMonth != DateTime.MinValue)
+                        {
+                            startDate = item.StockBalMonth?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="StockBalWeek" Caption="Stock Bal Week" />
+            
+            <DxGridDataColumn FieldName="Quantity" Caption="Quantity" />
+            <DxGridDataColumn FieldName="ReworkQty" Caption="ReworkQty" />
+            <DxGridDataColumn FieldName="GlobalQty" Caption="GlobalQty" />
+            <DxGridDataColumn FieldName="Wipqty" Caption="Wipqty" />
+            <DxGridDataColumn FieldName="RejectQuantity" Caption="RejectQuantity" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (NavItemStockBalanceModel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Item Name" ColSpanMd="6">
+                   <DxTextBox @bind-Text="@types.ItemName" Enabled="false"></DxTextBox>
+                    <ValidationMessage For="@(() => types.ItemName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Item Name" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="@types.StockBalMonth" Enabled="false" PickerDisplayMode="DatePickerDisplayMode.ScrollPicker"
+                            ScrollPickerFormat="MMMM-yyyy" Mask="MMMM-yyyy"
+                            DisplayFormat="MMMM-yyyy"/>
+                    <ValidationMessage For="@(() => types.StockBalMonth)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Quantity" ColSpanMd="6">
+                   <DxSpinEdit @bind-Value="@types.Quantity"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.Quantity)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Reject Quantity" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.RejectQuantity"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.RejectQuantity)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public NavitemStockBalance _selectedItemsList{get;set;}
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; } = true;
+    DxPopup? popup;
+    private List<NavItemStockBalanceModel> _quotationHistoryItems;
+    private NavItemStockBalanceModel _selectedItems;
+    IGrid Grid { get; set; }
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _quotationHistoryItems = await Mediator.Send(new GetNavItemStockBalanceById(_selectedItemsList.ItemId));
+        EditEnabled = false; DeleteEnabled = false;
+        if (_quotationHistoryItems.Count > 0)
+        {
+            _selectedItems = _quotationHistoryItems.FirstOrDefault();
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "NavStockBalanceId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.NavStockBalanceId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (NavItemStockBalanceModel)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is NavItemStockBalanceModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is NavItemStockBalanceModel datas)
+                    {
+                        var request = new DeleteNavItemStockBalance(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (NavItemStockBalanceModel)e.EditModel;
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var UpdateReq = new UpdateNavItemStockBalance
+                {
+                    ItemId=editModel.ItemId,
+                    Quantity = editModel.Quantity,
+                    RejectQuantity = editModel.RejectQuantity,
+                    NavStockBalanceId = editModel.NavStockBalanceId,
+                    SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+}

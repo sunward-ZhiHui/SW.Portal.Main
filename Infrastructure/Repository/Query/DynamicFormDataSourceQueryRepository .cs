@@ -368,22 +368,22 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r\n";
+                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.PlantId in(" + string.Join(',', plantIds) + ");";
+                        query += "where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.PlantId=" + CompanyId + ";\r\n";
+                        query += "Where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += ";\r\n";
+                    query += "WHERE (ag.Value!='Resign' or ag.Value is null);\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -1162,7 +1162,7 @@ namespace Infrastructure.Repository.Query
                         {
                             if (DataSource == "Employee")
                             {
-                                query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as ParentId t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r";
+                                query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as ParentId t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r";
                             }
                             else if (DataSource == "NavItems")
                             {
@@ -1282,7 +1282,7 @@ namespace Infrastructure.Repository.Query
                 query += "\r";
                 if (DataSource == "Employee")
                 {
-                    query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r";
+                    query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r";
                 }
                 else if (DataSource == "NavItems")
                 {
@@ -1631,6 +1631,10 @@ namespace Infrastructure.Repository.Query
                         var queryIn = "\r\nselect \r\n(case when (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName)))='' then  bb2.ProductName ELSE  (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName))) END) as ItemBatchNoId\r\nfrom\r\n(select bb1.*,\r\nProductName = STUFF(( SELECT ',' + CAST(md.ItemBatchId AS VARCHAR(MAX)) FROM ItemBatchInfo md   WHERE md.CompanyID=bb1.CompanyId AND md.BatchNo=bb1.BatchNo   Order by md.ItemBatchId asc FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom(select b1.BatchNo,b1.CompanyId from ItemBatchInfo b1   group by b1.BatchNo,b1.CompanyId)bb1) bb2\r\n\r\n";
 
                         query += "AND t1.ItemBatchId IN(" + queryIn + ")";
+                    }
+                    if (DataSource == "Employee")
+                    {
+                        query += "AND (ag.Value!='Resign' or ag.Value is null)";
                     }
                     using (var connection = CreateConnection())
                     {

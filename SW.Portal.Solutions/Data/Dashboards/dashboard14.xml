@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Dashboard>
-  <Title Text="Dynamic Form View" />
+  <Title Text="Dynamic Form View_1" />
   <DataSources>
     <SqlDataSource Name="view_DynamicFormDashboard" ComponentName="sqlDataSource1">
       <Connection Name="DefaultConnection1" FromAppConfig="true" />
@@ -40,28 +40,6 @@
         <Dimension DefaultId="DataItem0" />
       </FilterDimensions>
     </ComboBox>
-    <Pivot ComponentName="pivotDashboardItem1" Name="Pivot 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
-      <DataItems>
-        <Dimension DataMember="DynamicFormDataID" DefaultId="DataItem0" />
-        <Dimension DataMember="FormID" DefaultId="DataItem1" />
-        <Measure DataMember="TotalCountFlow" DefaultId="DataItem3" />
-        <Measure DataMember="CompletedFlow" DefaultId="DataItem4" />
-        <Measure DataMember="PendingFlow" DefaultId="DataItem5" />
-        <Dimension DataMember="ProfileNo" DefaultId="DataItem6" />
-      </DataItems>
-      <HiddenDimensions>
-        <Dimension DefaultId="DataItem0" />
-        <Dimension DefaultId="DataItem1" />
-      </HiddenDimensions>
-      <Rows>
-        <Row DefaultId="DataItem6" />
-      </Rows>
-      <Values>
-        <Value DefaultId="DataItem3" />
-        <Value DefaultId="DataItem4" />
-        <Value DefaultId="DataItem5" />
-      </Values>
-    </Pivot>
     <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
       <DataItems>
         <Dimension DataMember="FormName" DefaultId="DataItem0" />
@@ -78,48 +56,36 @@
       <GridOptions />
       <ColumnFilterOptions />
     </Grid>
-    <Grid ComponentName="gridDashboardItem2" Name="Grid 2" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
       <DataItems>
-        <Dimension DataMember="FormName" DefaultId="DataItem0" />
-        <Dimension DataMember="SectionName" DefaultId="DataItem1" />
-        <Dimension DataMember="Description" DefaultId="DataItem2" />
-        <Dimension DataMember="ControlType" DefaultId="DataItem3" />
+        <Measure DataMember="CompletedFlow" DefaultId="DataItem0" />
+        <Measure DataMember="TotalCountFlow" DefaultId="DataItem1" />
+        <Measure DataMember="PendingFlow" DefaultId="DataItem2" />
       </DataItems>
-      <GridColumns>
-        <GridDimensionColumn>
-          <Dimension DefaultId="DataItem0" />
-        </GridDimensionColumn>
-        <GridDimensionColumn>
-          <Dimension DefaultId="DataItem1" />
-        </GridDimensionColumn>
-        <GridDimensionColumn>
-          <Dimension DefaultId="DataItem2" />
-        </GridDimensionColumn>
-        <GridDimensionColumn>
-          <Dimension DefaultId="DataItem3" />
-        </GridDimensionColumn>
-      </GridColumns>
-      <GridOptions />
-      <ColumnFilterOptions />
-    </Grid>
-    <Grid ComponentName="gridDashboardItem3" Name="Grid 3" DataSource="sqlDataSource1" DataMember="view_DynamicFormDashboard">
-      <GridOptions />
-      <ColumnFilterOptions />
-    </Grid>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem1" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem2" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
   </Items>
   <LayoutTree>
     <LayoutGroup>
       <LayoutGroup Orientation="Vertical">
         <LayoutItem DashboardItem="comboBoxDashboardItem1" />
         <LayoutGroup>
-          <LayoutGroup Orientation="Vertical">
-            <LayoutItem DashboardItem="pivotDashboardItem1" />
-            <LayoutItem DashboardItem="gridDashboardItem2" />
-          </LayoutGroup>
-          <LayoutGroup Orientation="Vertical">
-            <LayoutItem DashboardItem="gridDashboardItem1" />
-            <LayoutItem DashboardItem="gridDashboardItem3" />
-          </LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem1" />
+          <LayoutItem DashboardItem="chartDashboardItem1" />
         </LayoutGroup>
       </LayoutGroup>
     </LayoutGroup>

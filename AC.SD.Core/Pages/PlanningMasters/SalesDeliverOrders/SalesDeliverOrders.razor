@@ -149,6 +149,22 @@
             }
             <DxFormLayout CssClass="w-100">
 
+                <DxFormLayoutItem Caption="Customer" ColSpanMd="6">
+                    <DxTextBox @bind-Text="types.Customer" Enabled="false"></DxTextBox>
+                    <ValidationMessage For="@(() => types.Customer)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="ItemNo" ColSpanMd="6">
+                    <DxTextBox @bind-Text="types.ItemNo" Enabled="false"></DxTextBox>
+                    <ValidationMessage For="@(() => types.ItemNo)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxTextBox @bind-Text="types.Description" Enabled="false"></DxTextBox>
+                    <ValidationMessage For="@(() => types.Description)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="DoQty" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="types.DoQty" Enabled="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.DoQty)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Recived" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsRecived"></DxCheckBox>
                     <ValidationMessage For="@(() => types.IsRecived)" />

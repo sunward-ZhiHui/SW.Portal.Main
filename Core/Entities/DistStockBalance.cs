@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.EntityModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -54,5 +55,52 @@ namespace Core.Entities
         [NotMapped]
         public int Year { get; set; }
 
+    }
+    public class NavItemStockBalanceModel : BaseModel
+    {
+        public long NavStockBalanceId { get; set; }
+        public long? ItemId { get; set; }
+        public DateTime? StockBalMonth { get; set; }
+        public int? StockBalWeek { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? RejectQuantity { get; set; }
+        public decimal? ReworkQty { get; set; }
+        public decimal? Wipqty { get; set; }
+        public decimal? GlobalQty { get; set; }
+        public string? DistName { get; set; }
+        public string? ItemName { get; set; }
+    }
+    public class NavStockBalanceModel : BaseModel
+    {
+        public long AvnavStockBalID { get; set; }
+        public DateTime? StockBalMonth { get; set; }
+        public int? StockBalWeek { get; set; }
+        public string? ItemDecs { get; set; }
+        public string? Uom { get; set; }
+        public decimal? RemainingQty { get; set; }
+        public bool? IsNav { get; set; }
+        public string? PackSize { get; set; }
+        public int? Ac { get; set; }
+
+        public string? Dist { get; set; }
+        public string? ItemCode { get; set; }
+        public string? Packuom { get; set; }
+
+        public string? SWItemNo { get; set; }
+        public string? SWDesc { get; set; }
+        public string? SWDesc2 { get; set; }
+        public long? CompanyId { get; set; }
+        public string? InternalRefNo { get; set; }
+        public string? ItemGroup { get; set; }
+    }
+    public class ACImportModel
+    {
+        public string? DistName { get; set; }
+        public string? ItemNo { get; set; }
+        public string? Description { get; set; }
+        public string? QtyOnHand { get; set; }
+        public string? Location { get; set; }
+        public string? Month { get; set; }
+        public string? StockBalDate { get; set; }
     }
 }

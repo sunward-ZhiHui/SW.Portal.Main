@@ -190,6 +190,8 @@ namespace Infrastructure
             services.AddScoped<INAVItemLinksQueryRepository, NAVItemLinksQueryRepository>();
             services.AddScoped<ITenderOrdersQueryRepository, TenderOrdersQueryRepository>();
             services.AddScoped<ISalesDeliverOrderQueryRepository, SalesDeliverOrderQueryRepository>();
+            services.AddScoped<ISalesOrderQueryRepository, SalesOrderQueryRepository>();
+            services.AddScoped<IMasterBlanketOrderQueryRepository, MasterBlanketOrderQueryRepository>();
             return services;
         }
     }

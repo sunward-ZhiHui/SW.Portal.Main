@@ -13,117 +13,129 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
-<div  style="padding:10px;">
+<div style="padding:10px;">
 
-<div class="card w-100" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
+
+    <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Import Excel File" IconCssClass="fa fa-file-excel" id="attachmentSelectButton" Enabled="exportEnabled" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
-                    <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="OnSync" />
-               
-            </Items>
-        </DxMenu>
+                </Items>
+            </DxMenu>
+        </div>
     </div>
-</div>
+    <EditForm EditContext="this._editContext" Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="4">
 
-
-           <EditForm EditContext="this._editContext" Context="EditFormContext" >
-                        <DataAnnotationsValidator />
-                        <DxFormLayout CssClass="w-100">
-                            <DxFormLayoutItem Caption="Company" ColSpanMd="4">
-
-                                <DxComboBox Data="@_plantItems"
-                                            NullText="Select Company..."
-                                            ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            TextFieldName="Description"
-                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                            ValueFieldName="PlantID"
-                            Value="@CurrentPlant"
-                            ValueExpression="@(() => CurrentPlant )"
-                                            ShowValidationIcon="true">
+                            ListRenderMode="ListRenderMode.Virtual"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@data.CompanyId"
+                            ShowValidationIcon="true">
 
-                                </DxComboBox>
-                               
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Stock Balance Month" ColSpanMd="4">
-                            <DxDateEdit @bind-Date="data.FilterDate" ></DxDateEdit>
-                            </DxFormLayoutItem>
-                           
-                        </DxFormLayout>
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Stock Balance Month" ColSpanMd="4">
+                <DxDateEdit @bind-Date="data.StkMonth"></DxDateEdit>
+            </DxFormLayoutItem>
 
-                    </EditForm>
+        </DxFormLayout>
+
+    </EditForm>
 
 </div>
-                          <div  style="padding:10px;">                
+<div style="padding:10px;">
 
-                            <DxLoadingPanel @bind-Visible="PanelVisible"
-                                            IsContentBlocked="true"
-                                            ApplyBackgroundShading="true"
-                                            IndicatorAreaVisible="false"
-                                            Text="Fetching Data...">
-                                <DxGrid @ref="Grid"
-                                  Data="distStockBalances" VirtualScrollingEnabled="true"
-                                  KeyFieldName="DistStockBalanceId"
-                                        EditMode="GridEditMode.EditForm"
-                                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                        ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                        PagerNavigationMode="PagerNavigationMode.InputBox"
-                                        PageSizeSelectorVisible="true"
-                                        PageSizeSelectorAllRowsItemVisible="true"
-                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                        PageSize="20" CustomizeElement="Grid_CustomizeElement"
-                                        RowClick="OnRowClick"
-                                        FocusedRowEnabled="true"
-                                        AllowSelectRowByClick="true"
-                                        SelectionMode="GridSelectionMode.Single"
-                                        CssClass="ch-360"
-                                        style="height: calc(100vh - 340px);">
-                                    <Columns>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid"
+                Data="distStockBalances" VirtualScrollingEnabled="true"
+                KeyFieldName="AvnavStockBalID"
+                EditMode="GridEditMode.EditForm"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20" CustomizeElement="Grid_CustomizeElement"
+                RowClick="OnRowClick"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                SelectionMode="GridSelectionMode.Single"
+                CssClass="ch-360"
+                style="height: calc(100vh - 340px);">
+            <Columns>
 
                 <DxGridDataColumn Caption="Dist" FieldName="Dist" MinWidth="180" />
 
-                <DxGridDataColumn Caption="Dist Description" FieldName="DistDescription" MinWidth="180" />
-                <DxGridDataColumn Caption="Nav Item" FieldName="NavItem" MinWidth="180" />
-                <DxGridDataColumn Caption="Nav Description" FieldName="NavDescription" MinWidth="180" />
-                <DxGridDataColumn Caption="Nav Description2" FieldName="NavDescription2" MinWidth="180" />
-                <DxGridDataColumn Caption="Internal Ref" FieldName="InternalRef" MinWidth="180" />
-                <DxGridDataColumn Caption="Category" FieldName="Category" MinWidth="180" />
-                <DxGridDataColumn Caption="Pack UOM" FieldName="PackUOM" MinWidth="180" />
+                <DxGridDataColumn Caption="Dist Item" FieldName="ItemCode" MinWidth="180" />
+                <DxGridDataColumn Caption="Item Description" FieldName="ItemDecs" MinWidth="180" />
+                <DxGridDataColumn Caption="Nav Item" FieldName="SWItemNo" MinWidth="180" />
+                <DxGridDataColumn Caption="NAV Description" FieldName="SWDesc" MinWidth="180" />
+                <DxGridDataColumn Caption="NAV Description2" FieldName="SWDesc2" MinWidth="180" />
+                <DxGridDataColumn Caption="Internal Ref" FieldName="InternalRefNo" MinWidth="180" />
+                <DxGridDataColumn Caption="Category" FieldName="ItemGroup" MinWidth="180" />
                 <DxGridDataColumn Caption="Pack Size" FieldName="PackSize" MinWidth="180" />
-                <DxGridDataColumn Caption="Nav ItemNo" FieldName="NavItemNo" MinWidth="180" />
-                <DxGridDataColumn Caption="UOM" FieldName="UOM" MinWidth="180" />
-                <DxGridDataColumn Caption="Stock Balance Month" FieldName="StockBalMonth" MinWidth="180" DisplayFormat="dd-MMM-yy"/>
-                <DxGridDataColumn Caption="Remaining Quantity" FieldName="Quantity" MinWidth="180" />
-                                       
-                                    </Columns>
-                                    <TotalSummary>
-                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DistDescription" />
-                                    </TotalSummary>
+                <DxGridDataColumn Caption="Pack UOM" FieldName="Packuom" MinWidth="180" />
+                <DxGridDataColumn Caption="UOM" FieldName="Uom" MinWidth="180" />
+                <DxGridDataColumn Caption="Remaining Quantity" FieldName="RemainingQty" MinWidth="180" />
+                <DxGridDataColumn Caption="Stock Balance Month" FieldName="StockBalMonth" MinWidth="180" DisplayFormat="dd-MMM-yy" />
 
-                                </DxGrid>
-                            </DxLoadingPanel>
-                       </div>
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DistDescription" />
+            </TotalSummary>
+
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+<DxFileInput Visible="@UploadVisible"
+             AllowMultiFileUpload="false"
+             MaxFileSize="15000000"
+             ExternalSelectButtonCssSelector="#attachmentSelectButton"
+             SelectedFilesChanged="@SelectedFilesChanged"
+             AcceptedFileTypes=@AcceptedFileTypes
+             FilesUploading="OnFilesUploading">
+</DxFileInput>
 @code {
+    public ApplicationUser? applicationUser { get; private set; }
     ViewPlants CurrentPlant { get; set; }
     IGrid? Grid { get; set; }
-    bool  PanelVisible { get; set; } = false;
-    private List<DistStockBalance> distStockBalances;
-    private DistStockBalance? _selectedItems;
+    bool PanelVisible { get; set; } = false;
+    private List<NavStockBalanceModel> distStockBalances;
+    private NavStockBalanceModel? _selectedItems;
     private List<ViewPlants> _plantItems;
-    DistStockBalance data = new DistStockBalance();
+    StockBalanceSearch data = new StockBalanceSearch();
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { ".xlsx" };
     EditContext _editContext;
+    bool UploadVisible { get; set; } = false; bool exportEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        if (_plantItems != null && _plantItems.Count() > 0)
+        {
+            data.CompanyId = _plantItems.FirstOrDefault()?.PlantID;
+        }
+        data.StkMonth = DateTime.Now;
+        await OnSearch();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -133,51 +145,56 @@
         }
 
     }
+    int SelectedFilesCount { get; set; }
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFilesCount = files.ToList().Count;
+        InvokeAsync(StateHasChanged);
+    }
+    protected async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        exportEnabled = false; PanelVisible = true;
+        var file = args.Files[0];
+        using var stream = new System.IO.MemoryStream();
+        await file.OpenReadStream(file.Size).CopyToAsync(stream);
+        byte[] imageArray = stream.ToArray();
+        data.UserId = applicationUser.UserID;
+        data.ByteData = imageArray;
+        var request = new UploadStockBalanceQuery(data);
+        var result = await Mediator.Send(request);
+
+        if (result.CompanyId > 0)
+        {
+            toastService.ShowToast("Record Uploaded Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            exportEnabled = true;
+            await OnSearch();
+        }
+    }
     async Task OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DistStockBalanceId");
-        _selectedItems = distStockBalances.FirstOrDefault(f => f.DistStockBalanceId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AvnavStockBalID");
+        _selectedItems = distStockBalances.FirstOrDefault(f => f.AvnavStockBalID == (long?)UniqueId);
 
 
         StateHasChanged();
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
-        if(PlantsData != null)
+        if (PlantsData != null)
         {
             CurrentPlant = PlantsData;
-            data.CompanyID = PlantsData.CompanyID;
+            data.CompanyId = PlantsData.CompanyID;
         }
-        
+
     }
-    private int GetWeekNumberOfMonth(DateTime date)
+    async Task OnSearch()
     {
-        DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-        int firstDay = (int)firstDayOfMonth.DayOfWeek;
-        if (firstDay == 0)
+        if ((data.CompanyId > 0) && (data.StkMonth != null))
         {
-            firstDay = 7;
-        }
-        double d = (firstDay + date.Day - 1) / 7.0;
-        return d > 5 ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
-    }
-    async void OnSearch()
-    {
-        if((data.CompanyID >0 )&& (data.FilterDate != null))
-        {
-            data.Month = data.FilterDate.Value.Month;
-            data.Year = data.FilterDate.Value.Year;
-            var weekcount = GetWeekNumberOfMonth((DateTime)data.FilterDate);
-            data.WeekNumberOfMonth = weekcount;
-            PanelVisible = true;
             distStockBalances = await Mediator.Send(new DistStockBalanceQuery(data));
             PanelVisible = false;
             StateHasChanged();
         }
-    }
-    async void OnSync()
-    {
-        
     }
 }
 

@@ -1330,13 +1330,12 @@ namespace Infrastructure.Service
             var year = fromMonth.Year - 1;
             var tomonth = DateTime.Today.AddMonths(6);
             var context = new NAVService(_configuration, company);
-            var dates = DateTime.Today.Date.Year + "-" + DateTime.Today.Date.Month + "-" + DateTime.Today.Date.Month;
             int pageSize = 1000;
-            int page = 0;
+            int page = 0; var todayUtc = DateTime.UtcNow.Date;
+
             while (true)
             {
-                var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null).Skip(page * pageSize).Take(pageSize);
-                //var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null && f.Starting_Date >= DateTime.Today).Skip(page * pageSize).Take(pageSize);
+                var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null && f.Starting_Date >= todayUtc).Skip(page * pageSize).Take(pageSize);
                 DataServiceQuery<NAV.ProdOrderLineList> query = (DataServiceQuery<NAV.ProdOrderLineList>)nquery;
 
                 TaskFactory<IEnumerable<NAV.ProdOrderLineList>> taskFactory = new TaskFactory<IEnumerable<NAV.ProdOrderLineList>>();
@@ -1345,19 +1344,18 @@ namespace Infrastructure.Service
                 var prodCodes = result.ToList();
                 prodCodes.ForEach(f =>
                 {
-                    if (f.Starting_Date == DateTime.Today)
+
+                    var prodNotStart = new ProdOrderNotStart
                     {
-                        var prodNotStart = new ProdOrderNotStart
-                        {
-                            CompanyId = companyId,
-                            ItemNo = f.Item_No,
-                            PackSize = f.Batch_No,
-                            ProdOrderNo = f.Prod_Order_No,
-                            Quantity = f.Quantity,
-                            StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
-                        };
-                        prodNotStartList.Add(prodNotStart);
-                    }
+                        CompanyId = companyId,
+                        ItemNo = f.Item_No,
+                        PackSize = f.Batch_No,
+                        ProdOrderNo = f.Prod_Order_No,
+                        Quantity = f.Quantity,
+                        StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
+                    };
+                    prodNotStartList.Add(prodNotStart);
+
                 });
                 if (prodCodes.Count < 1000)
                     break;

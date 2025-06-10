@@ -1,0 +1,455 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@page "/SalesOrders"
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                        @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle" Click="@viewAuditLog" Enabled="@EditEnabled" /> *@
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryItems"
+            KeyFieldName="SalesOrderId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+
+            <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" />
+            <DxGridDataColumn FieldName="PurchaseOrderIssue" Caption="Purchase Order Company" MinWidth="80" />
+            <DxGridDataColumn FieldName="Customer" Caption="Customer" />
+            <DxGridDataColumn FieldName="DateOfOrder" Caption="Date Of Order">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (SalesOrderModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.DateOfOrder != DateTime.MinValue)
+                        {
+                            startDate = item.DateOfOrder?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Ponumber" Caption="PO Number" />
+            <DxGridDataColumn FieldName="ShipToCode" Caption="Ship To Code" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (SalesOrderModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (SalesOrderModel)EditFormContext.EditModel;
+            }
+            @* <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Malaysia Item" ColSpanMd="6">
+            <DxComboBox Data="@malaysiaItems"
+            NullText="Select Malaysia Item..."
+            ListRenderMode="ListRenderMode.Virtual"
+            TextFieldName="No"
+            ValueFieldName="ItemId"
+            EditFormat="{0}-{1}"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            @bind-Value="@types.MyItemId"
+            ShowValidationIcon="true">
+            <Columns>
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+            Caption="Item" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+            Caption="Description" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description2)"
+            Caption="Description2" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.PackSize)"
+            Caption="Pack Size" />
+            </Columns>
+
+            </DxComboBox>
+            <ValidationMessage For="@(() => types.MyItemId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Singapore Item" ColSpanMd="6">
+            <DxComboBox Data="@singaporeItems"
+            NullText="Select Singapore Item..."
+            ListRenderMode="ListRenderMode.Virtual"
+            TextFieldName="No"
+            ValueFieldName="ItemId"
+            EditFormat="{0}-{1}"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            @bind-Value="@types.SgItemId"
+            ShowValidationIcon="true">
+            <Columns>
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+            Caption="Item" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+            Caption="Description" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description2)"
+            Caption="Description2" />
+            <DxListEditorColumn FieldName="@nameof(View_NavItems.PackSize)"
+            Caption="Pack Size" />
+            </Columns>
+
+            </DxComboBox>
+            <ValidationMessage For="@(() => types.SgItemId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+            <DxComboBox Data="@_stausItems"
+            NullText="Select Supply By..."
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            TextFieldName="CodeValue"
+            ValueFieldName="CodeId"
+            @bind-Value="@types.StatusCodeID"
+            ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => types.StatusCodeID)" />
+            </DxFormLayoutItem>
+            </DxFormLayout> *@
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MalaysiaItemNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@* <DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="Acentry" PrimaryKeyValue="_selectedItems?.ACEntryId" DisplayColumns="CompanyId,FromDate,ToDate,CustomerId,Remark,Version" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
+    </BodyContentTemplate>
+
+</DxPopup> *@
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    bool AuditLogPopUp { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    private List<SalesOrderModel> _quotationHistoryItems;
+    private SalesOrderModel _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<CodeMaster> _stausItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<View_NavItems>? _AllNavitems; private List<View_NavItems>? malaysiaItems; private List<View_NavItems>? singaporeItems;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int?> codeIds = new List<int?>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => codeIds.Contains(w.CodeId)).ToList();
+        }
+        if (_AllNavitems != null && _AllNavitems.Count() > 0)
+        {
+            malaysiaItems = _AllNavitems.Where(w => w.CompanyId == 1 && w.StatusCodeId == 1).ToList();
+            singaporeItems = _AllNavitems.Where(w => w.CompanyId == 2 && w.StatusCodeId == 1).ToList();
+        }
+        await UpdateDataAsync();
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _quotationHistoryItems = await Mediator.Send(new GetAllSalesOrderQuery());
+        EditEnabled = false; DeleteEnabled = false;
+        if (_quotationHistoryItems.Count > 0)
+        {
+            _selectedItems = _quotationHistoryItems.FirstOrDefault();
+            // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.SalesOrderId == (long?)UniqueId);
+        // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (SalesOrderModel)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is SalesOrderModel dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is SalesOrderModel datas)
+                    {
+                        var request = new DeleteSalesOrder(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (SalesOrderModel)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateSalesOrder
+                {
+                    SalesOrderId = editModel.SalesOrderId,
+                    ProfileId = editModel.ProfileId,
+                    DateOfOrder = editModel.DateOfOrder,
+                    Ponumber = editModel.Ponumber,
+                    PurchaseOrderIssueId = editModel.PurchaseOrderIssueId,
+                    CustomerId = editModel.CustomerId,
+                    RequestShipmentDate = editModel.RequestShipmentDate,
+                    ShipingCodeType = editModel.ShipingCodeType,
+                    ShipToCodeId = editModel.ShipToCodeId,
+                    SobyCustomersSalesAddressId = editModel.SobyCustomersSalesAddressId,
+                    VanDeliveryDate = editModel.VanDeliveryDate,
+                    SessionId = Guid.NewGuid(),
+                    AddedByUserID = applicationUser?.UserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = DateTime.Now,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateSalesOrder
+                {
+                    SalesOrderId = editModel.SalesOrderId,
+                    ProfileId = editModel.ProfileId,
+                    DateOfOrder = editModel.DateOfOrder,
+                    Ponumber = editModel.Ponumber,
+                    PurchaseOrderIssueId = editModel.PurchaseOrderIssueId,
+                    CustomerId = editModel.CustomerId,
+                    RequestShipmentDate = editModel.RequestShipmentDate,
+                    ShipingCodeType = editModel.ShipingCodeType,
+                    ShipToCodeId = editModel.ShipToCodeId,
+                    SobyCustomersSalesAddressId = editModel.SobyCustomersSalesAddressId,
+                    VanDeliveryDate = editModel.VanDeliveryDate,
+                    SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void viewAuditLog()
+    {
+        AuditLogPopUp = true;
+    }
+    void CloseAuditLog()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+
+}

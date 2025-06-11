@@ -97,8 +97,11 @@ namespace SW.Portal.Solutions.ServerSide
                     Culture = "en-US"
                 });*/
             });
-            DashboardConfig.RegisterDashboard(services, Configuration, context.HostingEnvironment.ContentRootFileProvider);
-
+            services.AddHttpContextAccessor();
+            //DashboardConfig.RegisterDashboard(services, Configuration, context.HostingEnvironment.ContentRootFileProvider);
+            DashboardConfig.RegisterDashboard(services,Configuration,context.HostingEnvironment.ContentRootFileProvider,
+                services.BuildServiceProvider().GetService<IHttpContextAccessor>()
+            );
 
             //services.AddControllersWithViews();
             services.AddHttpClient();

@@ -10,6 +10,11 @@
 @using System.IO;
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @rendermode InteractiveServer
+@using global::Core.Entities
+@using global::Core.Repositories.Query
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager Navigation
+
 <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-ambiance.css" rel="stylesheet" />
@@ -36,7 +41,9 @@
         </DxSplitterPane>
 
         <DxSplitterPane MaxSize="100%" AllowCollapse="true">
-            <DxDashboard Endpoint="api/dashboard" @bind-WorkingMode="@workingMode" @bind-DashboardId="dashboardItem.Id" style="height: calc(100vh - 200px);" />
+            <DxDashboard Endpoint="api/dashboard" @bind-WorkingMode="@workingMode" @bind-DashboardId="dashboardItem.Id" style="height: calc(100vh - 200px);">
+                <DxBackendOptions RequestHttpHeaders="@headers"></DxBackendOptions>
+            </DxDashboard>
 
         </DxSplitterPane>
     </Panes>
@@ -48,7 +55,10 @@
     WorkingMode workingMode = WorkingMode.Viewer;
     public string DashboardIdValue { get; set; } = "dashboard2";
     DashboardItem dashboardItem = new DashboardItem();
-    public Dictionary<string, string> headers = new Dictionary<string, string>() { { "Authorization", "UniqueAuthKey" } };
+    //public Dictionary<string, string> headers = new Dictionary<string, string>() { { "Authorization", "UniqueAuthKey" } };
+    Dictionary<string, string> headers = new();
+    long UserId = 1;
+    public ApplicationUser? applicationUser { get; private set; }
     public List<DashboardItem> DashboardIds { get; set; } = new List<DashboardItem>();
     public void ChangeWorkingMode()
     {
@@ -64,11 +74,15 @@
             string mode = "Switch to " + value;
             return mode;
         }
-    }
-    protected override void OnInitialized()
-    {
+    }   
+
+    protected override async Task OnInitializedAsync()
+    {       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DashboardIds = LoadDashboardsFromXml();
+        headers["UserId"] = applicationUser.UserID.ToString();  
     }
+
     public class DashboardItem
     {
         public string Id { get; set; } = string.Empty;

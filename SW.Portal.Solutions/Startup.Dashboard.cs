@@ -20,7 +20,7 @@ namespace SW.Portal.Solutions
 
     public static class DashboardConfig
     {
-        public static void RegisterDashboard(IServiceCollection services, IConfiguration configuration, IFileProvider fileProvider)
+        public static void RegisterDashboard(IServiceCollection services, IConfiguration configuration, IFileProvider fileProvider, IHttpContextAccessor httpContextAccessor)
         {
 
             // string BaseDirectory = System.AppContext.BaseDirectory;
@@ -41,6 +41,33 @@ namespace SW.Portal.Solutions
                 configurator.SetDashboardStorage(new DashboardFileStorage(fileProvider.GetFileInfo("Data/Dashboards").PhysicalPath));
                 configurator.SetDataSourceStorage(new DataSourceInMemoryStorage());
                 configurator.SetConnectionStringsProvider(new DashboardConnectionStringsProvider(configuration));
+
+                configurator.AllowExecutingCustomSql = true;
+
+                configurator.CustomParameters += (sender, e) =>
+                {
+                    var httpContext = httpContextAccessor.HttpContext;
+
+                    var headerValue = httpContext?.Request?.Headers["UserId"].FirstOrDefault();
+                    if (long.TryParse(headerValue, out long userId))
+                    {
+                        var param = e.Parameters.FirstOrDefault(p => p.Name == "UserId");
+                        if (param != null)
+                        {
+                            param.Value = userId;
+                            Console.WriteLine("Backend: Overridden UserId = " + userId);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Parameter 'UserId' not found in dashboard");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("UserId not passed in headers");
+                    }
+                };
+
 
                 configurator.ConfigureDataConnection += (s, e) =>
                 {

@@ -10,12 +10,38 @@ namespace SW.Portal.Solutions
 {
     public static class DashboardUtils
     {
-        public static DashboardConfigurator CreateDashboardConfigurator(IConfiguration configuration, IFileProvider fileProvider)
+        public static DashboardConfigurator CreateDashboardConfigurator(IConfiguration configuration, IFileProvider fileProvider, IHttpContextAccessor httpContextAccessor)
         {
             DashboardConfigurator configurator = new DashboardConfigurator();
             configurator.SetDashboardStorage(new DashboardFileStorage(fileProvider.GetFileInfo("Data/Dashboards").PhysicalPath));
             configurator.SetDataSourceStorage(new DataSourceInMemoryStorage());
             configurator.SetConnectionStringsProvider(new DashboardConnectionStringsProvider(configuration));
+
+
+            configurator.CustomParameters += (sender, e) =>
+            {
+                var httpContext = httpContextAccessor.HttpContext;
+
+                var headerValue = httpContext?.Request?.Headers["UserId"].FirstOrDefault();
+                if (long.TryParse(headerValue, out long userId))
+                {
+                    var param = e.Parameters.FirstOrDefault(p => p.Name == "UserId");
+                    if (param != null)
+                    {
+                        param.Value = userId;
+                        Console.WriteLine("Backend: Overridden UserId = " + userId);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Parameter 'UserId' not found in dashboard");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("UserId not passed in headers");
+                }
+            };
+
 
             configurator.ConfigureDataConnection += (s, e) => {
                 if (e.ConnectionName == "jsonSupport")

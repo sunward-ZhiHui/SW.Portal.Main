@@ -375,6 +375,10 @@
             _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
         }
 
+        string message = $"You have {_emailNotificationCount} new email notifications.";
+
+        toastService.ShowToast(message, AC.SD.Core.Services.ToastLevel.Info);
+
         await InvokeAsync(StateHasChanged);
     }
     private async Task OpenPopup()

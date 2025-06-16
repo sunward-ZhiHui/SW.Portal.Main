@@ -1,0 +1,344 @@
+﻿@inject DemoThemeService Themes
+@implements IDisposable
+@using Application.Constant;
+@using Application.Queries;
+@using AC.SD.Core.Data.Account;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Threading;
+@inject NavigationManager NavigationManager
+
+
+<style scoped>
+    .title {
+        font-size: 21px;
+        font-weight: bold;
+        margin-top: 20px;
+        color: #3a3a3a;
+        text-align:center;
+    }
+
+    .loading, .empty {
+        font-size: 18px;
+        color: gray;
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 5px;
+    }
+
+    .notification-item {
+        /* display: flex;
+        justify-content: space-between; */
+        background-color: #f9f9fb;
+        border-left: 4px solid #0078d4;
+        padding: 10px;
+        border-radius: 1px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: background-color 0.2s ease;
+    }
+
+        .notification-item:hover {
+            background-color: #eef3fa;
+        }
+
+    .notification-text {
+        /* display: flex;
+        flex-direction: column; */
+    }
+
+    .subject {
+        font-weight: 600;
+        font-size: 12px;
+        color: #1a1a1a;      
+        cursor:pointer;
+    }
+    ._name
+    {        
+        font-size: 12px;
+    }
+
+    .timestamp {
+        font-size: 11px;
+        color: #6a6a6a;
+        text-align:right
+    }
+
+    .sender {
+        font-size: 12px;
+        font-weight: 500;
+        color: #0078d4;
+        align-self: center;
+    }
+
+    </style>
+
+<div class="themeswitcher-container shadow @StateCssClass">
+    <h3 class="title">📬 Email Notifications</h3>
+       <div class="form-group px-3 mt-2">
+        <DxTextBox @bind-Text="@SearchText"
+                   BindValueMode="BindValueMode.OnInput"
+                   InputDelay="300"
+                   NullText="🔍 Search notifications..."
+                   CssClass="cw-320"
+                   InputId="searchBox" />
+        </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center flex-column mt-4">
+            <DxProgressBar Size="80px"
+                           Type="ProgressBarType.Circular"
+                           Value="@progressValue"
+                           ShowLabel="true"
+                           ShowIcon="true"
+                           Completed="@ProgressCompleted" />
+            <div class="mt-2">Loading notifications...</div>
+        </div>
+    }
+    else if (filteredNotifications == null || !filteredNotifications.Any())
+    {
+        <div class="empty"> No matching records.</div>
+    }
+    else
+    {
+        <div class="notification-list" style="height: calc(100vh - 110px); overflow: auto;">
+            @foreach (var notification in filteredNotifications)
+            {
+                <div class="notification-item">
+                    <div class="notification-text">
+                        <div class="_name">@notification.FirstName</div>
+                        <div class="subject" @onclick="() => NavigateToEmailAsync(notification)">@notification.Name</div>
+                        <div class="sender">@notification.Description</div>                        
+                        <div class="timestamp">@Application.Common.Helper.Helper.FormatDateTime(notification.AddedDate)</div>
+                    </div>
+                    
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<DxPopup @bind-Visible="@MessageVisible"
+         HeaderText="@MessageHeader"
+         BodyText="@MessageBody" />
+
+@code {
+    [Inject] IJSRuntime JS { get; set; }
+
+    private bool isLoading = true;
+
+    private int progressValue = 0;
+    private Timer _progressTimer;
+
+
+    private bool loading;
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
+
+
+    [Parameter]
+    public bool Shown { get; set; }
+    [Parameter]
+    public EventCallback<bool> ShownChanged { get; set; }
+    [Parameter]
+    public string ThemeName { get; set; }
+    [Parameter]
+    public EventCallback<string> ThemeNameChanged { get; set; }
+    public ApplicationUser applicationUser { get; private set; }   
+
+    string StateCssClass { get { return IsLoaded ? ((Shown ? "themeswitcher-container-shown" : "themeswitcher-container-hidden")) : ""; } }
+    bool IsLoaded { get; set; }
+
+
+    private List<EmailNotifications> notifications;
+
+    private List<EmailConversations>? _emailNotificationList;
+    private List<EmailConversations>? filteredNotifications;
+    private string _searchText = string.Empty;
+    private string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (_searchText != value)
+            {
+                _searchText = value;
+                FilterNotifications();
+            }
+        }
+    }
+
+
+    // private async Task OnSearchTextChanged(string value)
+    // {
+    //     searchText = value;
+    //     FilterNotifications(value);
+    // }
+    protected override async void OnInitialized()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Shown)
+        {
+            await LoadNotificationsAsync();
+        }
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        isLoading = true;
+        StartProgress();
+        StateHasChanged();
+
+        //await Task.Delay(5000); 
+
+        try
+        {                      
+
+            _emailNotificationList = await Mediator.Send(new GetEmailUnReadNotification(applicationUser.UserID));
+            filteredNotifications = _emailNotificationList?.ToList(); // Initially all
+        }
+        catch (Exception ex)
+        {
+
+        }
+        finally
+        {
+            StopProgress();
+            isLoading = false;
+            StateHasChanged();
+        }
+
+
+    }
+
+
+    public class EmailNotifications
+    {
+        public int Id { get; set; }
+        public string Subject { get; set; }
+        public string Sender { get; set; }
+        public DateTime ReceivedTime { get; set; }
+    }
+
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
+    async Task ToggleThemeSwitcherPanel(bool shown)
+    {
+        if (shown != Shown)
+        {
+            Shown = shown;
+            await ShownChanged.InvokeAsync(shown);
+        }
+    }
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            IsLoaded = true;
+            if (Shown)
+                StateHasChanged();
+        }
+    }
+
+    private void StartProgress()
+    {
+        progressValue = 0;
+        _progressTimer = new Timer(UpdateProgress, null, 0, 50); // 50ms update
+    }
+
+    private void UpdateProgress(object state)
+    {
+        if (progressValue < 100)
+        {
+            progressValue += 2;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void StopProgress()
+    {
+        progressValue = 100;
+        _progressTimer?.Dispose();
+    }
+
+    private void ProgressCompleted()
+    {
+        // Optional: logic after 100%
+    }
+
+    public void Dispose()
+    {
+        Themes.ThemeLoadNotifier = null;
+    }
+
+    private async Task NavigateToEmailAsync(EmailConversations emailConversations)
+    {
+        var url = $"DemoViewEmail/{emailConversations.SessionId}/Email";
+        //await JS.InvokeVoidAsync("open", url, "_blank");
+        //await JS.InvokeVoidAsync(url);
+
+        NavigationManager.NavigateTo(url);
+    }
+
+    private void FilterNotifications()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            filteredNotifications = _emailNotificationList?.ToList();
+        }
+        else
+        {
+            var lowerSearch = SearchText.ToLowerInvariant();
+            filteredNotifications = _emailNotificationList?
+                .Where(n =>
+                    (!string.IsNullOrEmpty(n.Name) && n.Name.ToLowerInvariant().Contains(lowerSearch)) ||
+                    (!string.IsNullOrEmpty(n.Description) && n.Description.ToLowerInvariant().Contains(lowerSearch)) ||
+                    (!string.IsNullOrEmpty(n.FirstName) && n.FirstName.ToLowerInvariant().Contains(lowerSearch)))
+                .ToList();
+        }
+
+        StateHasChanged();
+    }
+
+
+    // private void FilterNotifications(string _)
+    // {
+    //     if (string.IsNullOrWhiteSpace(searchText))
+    //     {
+    //         filteredNotifications = _emailNotificationList?.ToList();
+    //     }
+    //     else
+    //     {
+    //         var lowerSearch = searchText.ToLowerInvariant();
+    //         filteredNotifications = _emailNotificationList?
+    //             .Where(n =>
+    //                 (!string.IsNullOrEmpty(n.Name) && n.Name.ToLowerInvariant().Contains(lowerSearch)) ||
+    //                 (!string.IsNullOrEmpty(n.Description) && n.Description.ToLowerInvariant().Contains(lowerSearch)) ||
+    //                 (!string.IsNullOrEmpty(n.FirstName) && n.FirstName.ToLowerInvariant().Contains(lowerSearch)))
+    //             .ToList();
+    //     }
+    // }
+
+
+}

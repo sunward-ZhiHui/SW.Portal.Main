@@ -84,6 +84,14 @@ namespace Application.Queries
             this.UserId = UserId;            
         }
     }
+    public class GetEmailUnReadNotification : IRequest<List<EmailConversations>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailUnReadNotification(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailPrintAllDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }

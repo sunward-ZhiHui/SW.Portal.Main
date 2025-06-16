@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Email " />
+  <DataSources>
+    <SqlDataSource Name="view_EmailInfo" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_EmailInfo">
+        <Parameter Name="UserId" Type="DevExpress.DataAccess.Expression">(System.Int64)(?UserId)</Parameter>
+        <Tables>
+          <Table Name="view_EmailInfo" />
+        </Tables>
+        <Columns>
+          <Column Table="view_EmailInfo" Name="SessionId" />
+          <Column Table="view_EmailInfo" Name="ID" />
+          <Column Table="view_EmailInfo" Name="TopicName" />
+          <Column Table="view_EmailInfo" Name="Description" />
+          <Column Table="view_EmailInfo" Name="DueDate" />
+          <Column Table="view_EmailInfo" Name="FirstName" />
+          <Column Table="view_EmailInfo" Name="LastName" />
+          <Column Table="view_EmailInfo" Name="UserId" />
+          <Column Table="view_EmailInfo" Name="URI" />
+          <Column Table="view_EmailInfo" Name="ConversationCount" />
+          <Column Table="view_EmailInfo" Name="ReadCount" />
+          <Column Table="view_EmailInfo" Name="UnreadCount" />
+          <Column Table="view_EmailInfo" Name="AddedDate" />
+        </Columns>
+        <Filter>[view_EmailInfo.UserId] = ?UserId</Filter>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="UserId" Type="System.Int64" Visible="false" />
+  </Parameters>
+  <Items>
+    <DateFilter ComponentName="dateFilterDashboardItem1" Name="Date Filter" DataSource="sqlDataSource1" DataMember="view_EmailInfo" SelectedDateTimePeriodIndex="Last One Month">
+      <InteractivityOptions IgnoreMasterFilters="false" />
+      <DataItems>
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem0" />
+      </DataItems>
+      <Dimension DefaultId="DataItem0" />
+      <DateTimePeriods>
+        <DateTimePeriod Name="Last 7 Days">
+          <StartLimit>
+            <FlowDateTimePeriodLimit Interval="Day" Offset="-7" />
+          </StartLimit>
+        </DateTimePeriod>
+        <DateTimePeriod Name="Last One Month">
+          <StartLimit>
+            <FlowDateTimePeriodLimit Interval="Month" Offset="-1" />
+          </StartLimit>
+        </DateTimePeriod>
+      </DateTimePeriods>
+    </DateFilter>
+    <Grid ComponentName="gridDashboardItem1" Name="Email Summary Table" DataSource="sqlDataSource1" DataMember="view_EmailInfo">
+      <InteractivityOptions MasterFilterMode="Multiple" />
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem2" />
+        <Measure DataMember="URI" SummaryType="Min" DefaultId="DataItem3" />
+        <Dimension DataMember="Description" DefaultId="DataItem5" />
+      </DataItems>
+      <GridColumns>
+        <GridHyperlinkColumn Name="Topic Name">
+          <DisplayValue DefaultId="DataItem0" />
+          <UriAttribute DefaultId="DataItem3" />
+        </GridHyperlinkColumn>
+        <GridDimensionColumn Name="Received Date">
+          <Dimension DefaultId="DataItem2" />
+        </GridDimensionColumn>
+        <GridDimensionColumn Name="Message">
+          <Dimension DefaultId="DataItem5" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions EnableBandedRows="true" />
+      <ColumnFilterOptions />
+    </Grid>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="sqlDataSource1" DataMember="view_EmailInfo">
+      <InteractivityOptions MasterFilterMode="Single" />
+      <DataItems>
+        <Measure DataMember="ReadCount" DefaultId="DataItem0" />
+        <Measure DataMember="UnreadCount" DefaultId="DataItem1" />
+        <Dimension DataMember="UserId" DefaultId="DataItem2" />
+      </DataItems>
+      <Arguments>
+        <Argument DefaultId="DataItem2" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem1" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup Orientation="Vertical">
+      <LayoutItem DashboardItem="dateFilterDashboardItem1" />
+      <LayoutGroup>
+        <LayoutItem DashboardItem="gridDashboardItem1" />
+        <LayoutItem DashboardItem="chartDashboardItem1" />
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

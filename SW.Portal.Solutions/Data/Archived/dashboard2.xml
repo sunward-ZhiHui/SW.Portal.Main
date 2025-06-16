@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 1" />
+  <DataSources>
+    <SqlDataSource Name="Address" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="Address">
+        <Tables>
+          <Table Name="Address" />
+        </Tables>
+        <Columns>
+          <Column Table="Address" Name="AddressID" />
+          <Column Table="Address" Name="Address1" />
+          <Column Table="Address" Name="Address2" />
+          <Column Table="Address" Name="AddressType" />
+          <Column Table="Address" Name="PostCode" />
+          <Column Table="Address" Name="City" />
+          <Column Table="Address" Name="Country" />
+          <Column Table="Address" Name="CountryCode" />
+          <Column Table="Address" Name="OfficePhone" />
+          <Column Table="Address" Name="Email" />
+          <Column Table="Address" Name="Website" />
+          <Column Table="Address" Name="CountryID" />
+          <Column Table="Address" Name="StateID" />
+          <Column Table="Address" Name="CityID" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Pie ComponentName="pieDashboardItem1" Name="Pies 1" DataSource="sqlDataSource1" DataMember="Address">
+      <DataItems>
+        <Measure DataMember="Country" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="CountryCode" SummaryType="Count" DefaultId="DataItem1" />
+      </DataItems>
+      <Values>
+        <Value DefaultId="DataItem0" />
+        <Value DefaultId="DataItem1" />
+      </Values>
+    </Pie>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="pieDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

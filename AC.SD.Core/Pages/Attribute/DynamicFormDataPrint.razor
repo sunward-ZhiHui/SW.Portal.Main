@@ -433,7 +433,7 @@
     public Guid? FormSessionId { get; set; }
     [Parameter]
     public string? IsSubForm { get; set; }
-    private AttributeHeaderListModel _AttributeHeader;
+    private AttributeHeaderListModel _AttributeHeader;DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
@@ -848,7 +848,7 @@
                                         //await loadDropdownList(dynamicFormIds, ids, FormSessionId);
                                         FormSessionIds = FormSessionId;
                                     }
-                                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds)));
+                                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds, dynamicFormSearch)));
                                     await Task.WhenAll(_dynamicformDataLists);
                                     _dynamicformDataList = await _dynamicformDataLists.Result;
                                 }

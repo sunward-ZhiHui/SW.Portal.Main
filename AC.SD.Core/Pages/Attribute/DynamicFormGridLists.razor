@@ -350,6 +350,7 @@
     bool ReInitializeDragging { get; set; }
     DotNetObjectReference<DynamicFormGridLists> DotNetHelper { get; set; }
     IJSObjectReference JsModule { get; set; }
+    DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     public long? DynamicFormSectionGridAttributeIds { get; set; }
     bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool lockpopup { get; set; } = false;
     bool PopupApprovalForm { get; set; } = false; bool isApprovalEnabled { get; set; } = false;
@@ -539,7 +540,7 @@
                     }
                     if (DynamicFormDataGridId > 0)
                     {
-                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId, null));
+                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId, null, dynamicFormSearch));
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {

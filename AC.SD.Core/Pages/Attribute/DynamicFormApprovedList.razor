@@ -234,6 +234,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
     public long? DynamicFormDataGridId { get; set; }
     public long? DynamicFormSectionGridAttributeIds { get; set; }
     bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool lockpopup { get; set; } = false;
+    DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -417,7 +418,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                         }
                     }
 
-                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null, null,null));
+                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null, null, null, dynamicFormSearch));
                     _dynamicformObjectDataList = new List<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {

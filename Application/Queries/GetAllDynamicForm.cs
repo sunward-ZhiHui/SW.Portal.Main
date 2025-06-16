@@ -217,13 +217,15 @@ namespace Application.Queries
         public long? DynamicFormDataGridId { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
-        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId, Guid? dynamicFormDataSessionId)
+        public DynamicFormSearch DynamicFormSearch { get; set; }
+        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId, Guid? dynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch)
         {
             this.Id = id;
             this.UserId = userId;
             this.DynamicFormDataGridId = dynamicFormDataGridId;
             this.DynamicFormSectionGridAttributeId = dynamicFormSectionGridAttributeId;
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
+            this.DynamicFormSearch = dynamicFormSearch;
         }
     }
     public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>
@@ -983,6 +985,14 @@ namespace Application.Queries
             this.DynamicFormDataAudit = dynamicFormDataAudit;
         }
     }
-    
+
+    public class GetDynamicFormDataOneByDataId : PagedRequest, IRequest<DynamicFormData>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormDataOneByDataId(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
 }
 

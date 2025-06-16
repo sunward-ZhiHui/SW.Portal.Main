@@ -383,7 +383,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId,request.DynamicFormSearch);
         }
 
 
@@ -1702,6 +1702,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditMasterList request, CancellationToken cancellationToken)
         {
             return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditMasterList(request.DynamicFormDataAudit);
+        }
+
+
+    }
+    public class GetDynamicFormDataOneByDataIdHandler : IRequestHandler<GetDynamicFormDataOneByDataId, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataOneByDataIdHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormData> Handle(GetDynamicFormDataOneByDataId request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormDataOneByDataIdAsync(request.DynamicFormId);
         }
 
 

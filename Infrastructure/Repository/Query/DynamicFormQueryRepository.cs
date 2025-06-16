@@ -1963,6 +1963,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormData> GetDynamicFormDataOneByDataIdAsync(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormID", Id);
+                var query = "select TOP(1) DynamicFormDataId,ProfileId,DynamicFormId,SessionId,AddedDate,AddedByUserID from DynamicFormData Where DynamicFormID=@DynamicFormID \r\norder by AddedDate asc;";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> GetDynamicFormDataOneBySessionIdAsync(Guid? SessionId)
         {
             try
@@ -2773,7 +2790,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId)
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch)
         {
             try
             {
@@ -2795,6 +2812,16 @@ namespace Infrastructure.Repository.Query
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
                     "LEFT JOIN DynamicFormSectionAttribute t6 ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
+                if (!string.IsNullOrEmpty(dynamicFormSearch.FilterType))
+                {
+                    if (dynamicFormSearch.StartDate != null && dynamicFormSearch.EndDate != null)
+                    {
+                        var from = dynamicFormSearch.StartDate.Value.ToString("yyyy-MM-dd");
+                        query += "AND CAST(t1.AddedDate AS Date)>='" + from + "'\r\n";
+                        var to = dynamicFormSearch.EndDate.Value.ToString("yyyy-MM-dd");
+                        query += "AND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
+                    }
+                }
                 if (DynamicFormDataSessionId != null)
                 {
                     query += "AND t1.SessionId=@DynamicFormDataSessionId\r\n";

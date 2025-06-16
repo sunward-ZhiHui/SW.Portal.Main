@@ -19,14 +19,14 @@ namespace Core.Entities
         public long? DynamicFormId { get; set; }
 
         public int? SortOrderBy { get; set; }
-        public bool? IsReadWrite { get; set; }=false;
+        public bool? IsReadWrite { get; set; } = false;
         public bool? IsReadOnly { get; set; } = false;
 
-        public bool? IsVisible { get; set; } = false;   
+        public bool? IsVisible { get; set; } = false;
         [NotMapped]
         public int? SortOrderAnotherBy { get; set; }
         [NotMapped]
-        public IEnumerable<AttributeHeader> AttributeIds { get; set; }=new List<AttributeHeader>();
+        public IEnumerable<AttributeHeader> AttributeIds { get; set; } = new List<AttributeHeader>();
         [NotMapped]
         public int? FormUsedCount { get; set; }
         [NotMapped]
@@ -73,7 +73,7 @@ namespace Core.Entities
         public string? PlantCode { get; set; }
         public DynamicFormDataSectionLock DynamicFormDataSectionLock { get; set; } = new DynamicFormDataSectionLock();
         public long? DynamicFormCloneSectionId { get; set; }
-        public bool? IsAutoNumberEnabled {  get; set; } = false;
+        public bool? IsAutoNumberEnabled { get; set; } = false;
         [NotMapped]
         public Guid? UniqueSessionId { get; set; }
     }
@@ -81,7 +81,12 @@ namespace Core.Entities
     {
         public int? Value { get; set; }
         public string? Text { get; set; }
-       
-    }
 
+    }
+    public class DynamicFormSearch
+    {
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? FilterType { get; set; }
+    }
 }

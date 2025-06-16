@@ -38,7 +38,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
@@ -144,6 +144,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormDataAttrUpload> DeleteDynamicFormDataAttrUpload(DynamicFormDataAttrUpload dynamicFormDataAttrUpload);
         Task<DynamicFormData> GetDynamicFormDataOneBySessionIdAsync(Guid? SessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit);
+        Task<DynamicFormData> GetDynamicFormDataOneByDataIdAsync(long? Id);
     }
 
 }

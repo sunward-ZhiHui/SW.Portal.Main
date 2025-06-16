@@ -5910,17 +5910,17 @@ namespace Infrastructure.Repository.Query
                     dataSourceTableIds.Add("ApplicationMasterParent");
                 }
                 var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
-
+                DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
                 var _dynamicformDataList = new List<DynamicFormData>();
                 if (_dynamicFormGrids != null && _dynamicFormGrids.ID > 0 && dynamicFormDatas != null && dynamicFormDatas.DynamicFormDataId > 0)
                 {
                     long? dynamicFormSectionAttributeId = dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.DynamicFormSectionAttributeId > 0 ? dynamicFormSectionAttribute.DynamicFormSectionAttributeId : null;
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId, null);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId, null, dynamicFormSearch);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 else
                 {
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)

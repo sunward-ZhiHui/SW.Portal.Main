@@ -72,6 +72,7 @@ namespace SW.Portal.Solutions.ServerSide
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
+            services.AddScoped<IAppToastService, AppToastService>();
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();

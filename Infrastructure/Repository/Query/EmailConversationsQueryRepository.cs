@@ -636,6 +636,28 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+
+        public async Task<List<EmailConversations>> GetUnReadNotificationAsync(long UserId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryAsync<EmailConversations>("sp_Select_Email_UnRead_Notification",parameters,commandType: CommandType.StoredProcedure);
+
+                    return result.ToList();
+                }
+            }
+            catch (Exception)
+            {                
+                return new List<EmailConversations>();
+            }
+        }
+
+
         public async Task<long> GetTotalNotificationCountAsync(long UserId)
         {
             try

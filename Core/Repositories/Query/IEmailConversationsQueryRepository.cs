@@ -40,6 +40,7 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
         Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(Int64 TopicId, Int64 UserId, string Option);
         Task<long> GetTotalNotificationCountAsync(long UserId);
+        Task<List<EmailConversations>> GetUnReadNotificationAsync(long UserId);
         Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId);
         Task<List<EmailConversations>> GetReplyListPagedAsync(long replyId, long UserId,int currentPage,int pageSize);
         Task<List<EmailConversations>> GetOnDiscussionListAsync(long replyId,long UserId);

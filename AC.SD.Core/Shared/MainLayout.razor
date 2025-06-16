@@ -1,5 +1,6 @@
 ﻿@using AC.SD.Core.Data.Account;
 @using AC.SD.Core.Pages.Dashboard
+@using AC.SD.Core.Shared.Email
 @using Application.Constant;
 @using Application.Queries;
 @using global::Core.Repositories.Query;
@@ -17,10 +18,23 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @inject DataRefreshService RefreshService
+@inject IAppToastService AppToast
 <style>
     .notifcationcount {
         position: absolute;
         inset: 2px 56px auto auto;
+        font-weight: normal;
+        font-size: 12px;
+        padding: 7px 7px;
+        background: #1baf2d;
+        border-radius: 4px;
+        letter-spacing: 2px;
+    }
+
+    .emailnotifcationcount
+    {
+        position: absolute;
+        inset: 2px 122px auto auto;
         font-weight: normal;
         font-size: 12px;
         padding: 7px 7px;
@@ -110,6 +124,16 @@
 
 </style>
 <Toast />
+
+<DxToastProvider Name="Customization"
+    DisplayTime="@TimeSpan.FromSeconds(7)"
+    FreezeOnClick="true"
+    HorizontalAlignment=HorizontalAlignment.Right
+    VerticalAlignment=VerticalEdge.Bottom   
+    AnimationType="ToastAnimationType.Slide"
+    ShowCloseButton="true" 
+/>
+
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.RichEdit/dx-blazor-richedit.css" rel="stylesheet" />
@@ -128,17 +152,23 @@
             <span class="notifcationcount">@_emailNotificationCount</span>
             </span> *@
 
+           @*  <DxButton Click="@ToggleEmailSwitcherPanel" IconCssClass="fa fa-envelope"></DxButton> *@
+
+            <span class="fa fa-envelope" @onclick="() => ToggleEmailSwitcherPanel()" title="Email Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+                <span class="emailnotifcationcount">@_emailNotificationCount</span>
+            </span>
 
             <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Notification-info") title="Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_NotificationCount</span>
             </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
-                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
+                      RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ButtonRenderStyleMode.Contained" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
 
 
 
         </div>
         <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" @bind-ThemeName="@ThemeName" />
+        <EmailNotification @bind-Shown="@EmailSwitcher"></EmailNotification>
     </nav>
 </div>
 <div class="@GetDemoBreadcrumbsContainerCss()">
@@ -251,10 +281,10 @@
                 </div>
                 <div class="" style="background: #e7e7e7;">
                     <div class="list-container1">
-                        <div class="list-item1" @onclick="() => GoViewEmail()">
+                       @*  <div class="list-item1" @onclick="() => GoViewEmail()">
                             <i class="fa fa-envelope"></i>
                             <p>Email AssignTo <span>@_emailNotificationCount</span></p>
-                        </div>
+                        </div> *@
                         <div class="list-item1" @onclick="() => GoMemo()">
                             <i class="fa fa-sticky-note"></i>
                             <p>Memo <span>@_memoNotificationCount</span></p>
@@ -305,6 +335,7 @@
     string? _themeName;
     bool _layoutToggled;
     bool _themeSwitcherShown;
+    bool _emailSwitcher;
     bool _isDesktop = true;
     string _searchString = "";
     ElementReference contentContainerRef;
@@ -372,12 +403,12 @@
             _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
             _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
 
-            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
+            _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
         }
 
-        string message = $"You have {_emailNotificationCount} new email notifications.";
+        string message = $"You have {_emailNotificationCount} new email notifications.";       
 
-        toastService.ShowToast(message, AC.SD.Core.Services.ToastLevel.Info);
+        AppToast.Show(message, "Notification");
 
         await InvokeAsync(StateHasChanged);
     }
@@ -438,7 +469,7 @@
 
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
-        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
+        _NotificationCount =  _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
 
         await InvokeAsync(StateHasChanged);
     }
@@ -536,6 +567,7 @@
     async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         ThemeSwitcherShown = false;
+        EmailSwitcher = false;
         if (!_isDesktop)
         {
             LayoutToggled = false;
@@ -587,10 +619,32 @@
             }
         }
     }
+    bool EmailSwitcher
+    {
+        get { return _emailSwitcher; }
+        set
+        {
+            if (_emailSwitcher != value)
+            {
+                _emailSwitcher = value;
+                if (!_isDesktop && _emailSwitcher)
+                    LayoutToggled = false;
+            }
+        }
+    }  
 
     void ToggleThemeSwitcherPanel()
     {
         ThemeSwitcherShown = !ThemeSwitcherShown;
+        if (ThemeSwitcherShown)
+            EmailSwitcher = false;
+    }
+
+    void ToggleEmailSwitcherPanel()
+    {
+        EmailSwitcher = !EmailSwitcher;
+        if (EmailSwitcher)
+            ThemeSwitcherShown = false;
     }
 
     void ModalBackdropShownChanged(bool shown)

@@ -7250,7 +7250,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
 
-        totalReplyCount = _discussionList[0].ReplyConversationCount;
+
+        if (_discussionList != null && _discussionList.Count > 0)
+        {
+            totalReplyCount = _discussionList[0].ReplyConversationCount;
+        }
+        else
+        {
+            totalReplyCount = 0; // or handle accordingly (e.g., show a message)
+        }
 
         ReplyList = new List<EmailConversations>();
         currentPage = 1;

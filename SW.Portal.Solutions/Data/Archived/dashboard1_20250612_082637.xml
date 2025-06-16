@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 1" />
+  <DataSources>
+    <SqlDataSource Name="ApplicationMaster" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="ApplicationMaster">
+        <Tables>
+          <Table Name="ApplicationMaster" />
+        </Tables>
+        <Columns>
+          <Column Table="ApplicationMaster" Name="ApplicationMasterID" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterName" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterDescription" />
+          <Column Table="ApplicationMaster" Name="ApplicationMasterCodeID" />
+          <Column Table="ApplicationMaster" Name="IsApplyProfile" />
+          <Column Table="ApplicationMaster" Name="IsApplyFileProfile" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="ApplicationMaster">
+      <DataItems>
+        <Dimension DataMember="ApplicationMasterName" DefaultId="DataItem0" />
+        <Dimension DataMember="ApplicationMasterDescription" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

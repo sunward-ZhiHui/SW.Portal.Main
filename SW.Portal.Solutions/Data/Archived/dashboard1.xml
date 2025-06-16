@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="Address" ComponentName="sqlDataSource1">
+      <Connection Name="DefaultConnection1" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="Address">
+        <Tables>
+          <Table Name="Address" />
+        </Tables>
+        <Columns>
+          <Column Table="Address" Name="AddressID" />
+          <Column Table="Address" Name="Address1" />
+          <Column Table="Address" Name="Address2" />
+          <Column Table="Address" Name="AddressType" />
+          <Column Table="Address" Name="PostCode" />
+          <Column Table="Address" Name="City" />
+          <Column Table="Address" Name="Country" />
+          <Column Table="Address" Name="CountryCode" />
+          <Column Table="Address" Name="OfficePhone" />
+          <Column Table="Address" Name="Email" />
+          <Column Table="Address" Name="Website" />
+          <Column Table="Address" Name="CountryID" />
+          <Column Table="Address" Name="StateID" />
+          <Column Table="Address" Name="CityID" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Treemap ComponentName="treemapDashboardItem1" Name="Treemap 1" DataSource="sqlDataSource1" DataMember="Address">
+      <DataItems>
+        <Measure DataMember="Country" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="StateID" DefaultId="DataItem1" />
+        <Measure DataMember="PostCode" DefaultId="DataItem2" />
+        <Measure DataMember="AddressType" DefaultId="DataItem3" />
+      </DataItems>
+      <Values>
+        <Value DefaultId="DataItem0" />
+        <Value DefaultId="DataItem1" />
+        <Value DefaultId="DataItem2" />
+        <Value DefaultId="DataItem3" />
+      </Values>
+    </Treemap>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="treemapDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

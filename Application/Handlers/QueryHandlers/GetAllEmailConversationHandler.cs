@@ -59,7 +59,25 @@ namespace Application.Handlers.QueryHandlers
             return (long)await _emailConversationsQueryRepository.GetTotalNotificationCountAsync(request.UserId);
         }
     }
+
+    public class GetEmailUnReadNotificationHandler : IRequestHandler<GetEmailUnReadNotification, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetEmailUnReadNotificationHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetEmailUnReadNotification request, CancellationToken cancellationToken)
+        {
+            return await _emailConversationsQueryRepository.GetUnReadNotificationAsync(request.UserId);
+        }
+    }
+
+
     
+
     //Get discussion list
     public class GetEmailDiscussionListHandler : IRequestHandler<GetEmailDiscussionList, List<EmailConversations>>
     {

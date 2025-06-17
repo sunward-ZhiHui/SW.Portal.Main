@@ -551,5 +551,51 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<Acitems>> GetNoACItemsList()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("StatusCodeID", 2);
+                var query = @"select t1.* from ACItems t1 where t1.StatusCodeID=@StatusCodeID;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Acitems>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Acitems> UpdateNoACItems(Acitems acitems)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DistAcid", acitems.DistAcid);
+                        parameters.Add("StatusCodeId", 1);
+                        var query = "update Acitems set StatusCodeId=@StatusCodeId WHERE DistAcid= @DistAcid;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return acitems;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public  class DistStockBalanceQuery : PagedRequest, IRequest<List<NavStockBalanceModel>>
+    public class DistStockBalanceQuery : PagedRequest, IRequest<List<NavStockBalanceModel>>
     {
         public StockBalanceSearch StockBalanceSearch { get; set; }
 
@@ -58,5 +58,17 @@ namespace Application.Queries
             this.NavItemStockBalanceModel = navItemStockBalanceModel;
         }
     }
-    
+    public class GetNoACItemsList : PagedRequest, IRequest<List<Acitems>>
+    {
+
+    }
+    public class UpdateNoACItems : PagedRequest, IRequest<Acitems>
+    {
+        public Acitems Acitems { get; set; }
+
+        public UpdateNoACItems(Acitems acitems)
+        {
+            this.Acitems = acitems;
+        }
+    }
 }

@@ -13,18 +13,18 @@ namespace Application.Handlers.QueryHandlers
 {
     public class GetDistStockBalanceQueryHandler : IRequestHandler<DistStockBalanceQuery, List<NavStockBalanceModel>>
     {
-     
-            private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
-            public GetDistStockBalanceQueryHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
-            {
-            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
-            }
-            public async Task<List<NavStockBalanceModel>> Handle(DistStockBalanceQuery request, CancellationToken cancellationToken)
-            {
-                return (List<NavStockBalanceModel>)await _distStockBalanceQueryRepository.GetAllDistStockBalanceAsync(request.StockBalanceSearch);
-            }
 
-        
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public GetDistStockBalanceQueryHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<List<NavStockBalanceModel>> Handle(DistStockBalanceQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavStockBalanceModel>)await _distStockBalanceQueryRepository.GetAllDistStockBalanceAsync(request.StockBalanceSearch);
+        }
+
+
     }
     public class GetNavStockBalanceQueryHandler : IRequestHandler<NavItemStockBalanceQuery, List<NavitemStockBalance>>
     {
@@ -49,7 +49,7 @@ namespace Application.Handlers.QueryHandlers
         {
             _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
         }
-        public async Task <StockBalanceSearch> Handle(UploadStockBalanceQuery request, CancellationToken cancellationToken)
+        public async Task<StockBalanceSearch> Handle(UploadStockBalanceQuery request, CancellationToken cancellationToken)
         {
             return (StockBalanceSearch)await _distStockBalanceQueryRepository.UploadStockBalance(request.StockBalanceSearch);
         }
@@ -83,6 +83,35 @@ namespace Application.Handlers.QueryHandlers
         public async Task<NavItemStockBalanceModel> Handle(UpdateNavItemStockBalance request, CancellationToken cancellationToken)
         {
             return (NavItemStockBalanceModel)await _distStockBalanceQueryRepository.UpdateNavItemStockBalance(request);
+        }
+
+
+    }
+    public class GetNoACItemsListHandler : IRequestHandler<GetNoACItemsList, List<Acitems>>
+    {
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public GetNoACItemsListHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<List<Acitems>> Handle(GetNoACItemsList request, CancellationToken cancellationToken)
+        {
+            return (List<Acitems>)await _distStockBalanceQueryRepository.GetNoACItemsList();
+        }
+
+
+    }
+    public class UpdateNoACItemsHandler : IRequestHandler<UpdateNoACItems, Acitems>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public UpdateNoACItemsHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<Acitems> Handle(UpdateNoACItems request, CancellationToken cancellationToken)
+        {
+            return (Acitems)await _distStockBalanceQueryRepository.UpdateNoACItems(request.Acitems);
         }
 
 

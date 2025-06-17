@@ -23,6 +23,7 @@
                 <Items>
                     <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="OnViewData" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
+                    <DxMenuItem Text="Refresh" IconCssClass="fa fa-refresh" Click="OnSync" />
                 </Items>
             </DxMenu>
         </div>
@@ -194,11 +195,16 @@
     }
     async void OnSync()
     {
-        //StockBalanceSearch stockBalanceSearch = new StockBalanceSearch();
-        //stockBalanceSearch.StkMonth = data.FilterDate.Value;
-        //stockBalanceSearch.UserId = applicationUser.UserID;
-        //stockBalanceSearch.CompanyId = data.CompanyID;
-        //var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
+        PanelVisible = true;
+        StockBalanceSearch stockBalanceSearch = new StockBalanceSearch();
+        stockBalanceSearch.UserId = applicationUser.UserID;
+        stockBalanceSearch.StkMonth = data.FilterDate.Value;
+        stockBalanceSearch.CompanyId = data.CompanyID;
+        var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
+        if (result != null)
+        {
+            await OnSearch();
+        }
 
     }
     async void OnViewData()

@@ -1,0 +1,110 @@
+﻿@using global::Core.EntityModels
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddNewEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_acItems"
+            KeyFieldName="DistAcid"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            EditMode="GridEditMode.EditForm"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="DistName" Caption="Dist" />
+            <DxGridDataColumn FieldName="ItemNo" Caption="Dist Item" MinWidth="80" />
+            <DxGridDataColumn FieldName="ItemDesc" Caption="Dist Description" />
+        </Columns>
+        
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DistName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool AddNewEnabled { get; set; } = false;
+    bool PanelVisible { get; set; } = false;
+    private Acitems _selectedItems;
+    IGrid Grid { get; set; }
+    [Parameter]
+    public StockBalanceSearch StockBalanceSearch { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    private List<Acitems> _acItems{ get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await loadData();
+    }
+    async Task loadData()
+    {
+        PanelVisible = true; AddNewEnabled = false;
+        _acItems = await Mediator.Send(new GetNoACItemsList());
+        if (_acItems != null && _acItems.Count()>0)
+        {
+            AddNewEnabled = true;
+            _selectedItems = _acItems.FirstOrDefault();
+        }
+        PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DistAcid");
+        _selectedItems = _acItems.FirstOrDefault(f => f.DistAcid == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+    }
+    async Task addNew()
+    {
+        var request = new UpdateNoACItems(_selectedItems);
+        await Mediator.Send(request);
+        toastService.ShowToast("Record Status Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+}

@@ -24,6 +24,7 @@
                 <Items>
                     <DxMenuItem Text="Import Excel File" IconCssClass="fa fa-file-excel" id="attachmentSelectButton" Enabled="exportEnabled" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
+                    <DxMenuItem Text="View Export Error" IconCssClass="fa fa-bug" Click="OnViewExportError" />
                 </Items>
             </DxMenu>
         </div>
@@ -113,7 +114,20 @@
              AcceptedFileTypes=@AcceptedFileTypes
              FilesUploading="OnFilesUploading">
 </DxFileInput>
+<DxPopup @bind-Visible="@ViewExportErrorEnabled"
+         ShowFooter="false"
+         HeaderText="Stock Balance"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ViewNoAcItems StockBalanceSearch="@data" RevokeBack="LoadItems"></ViewNoAcItems>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool  ViewExportErrorEnabled { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
     ViewPlants CurrentPlant { get; set; }
     IGrid? Grid { get; set; }
@@ -136,6 +150,10 @@
         }
         data.StkMonth = DateTime.Now;
         await OnSearch();
+    }
+    void OnViewExportError()
+    {
+        ViewExportErrorEnabled = true;
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -195,6 +213,10 @@
             PanelVisible = false;
             StateHasChanged();
         }
+    }
+    void LoadItems()
+    {
+        InvokeAsync(OnSearch);
     }
 }
 

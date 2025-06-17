@@ -1335,7 +1335,7 @@ namespace Infrastructure.Service
 
             while (true)
             {
-                var nquery = context.Context.ProdOrderLineList.Where(f => f.Actual_Start_Date == null && f.Starting_Date >= todayUtc).Skip(page * pageSize).Take(pageSize);
+                var nquery = context.Context.ProdOrderLineList.Where(f => f.Starting_Date >= todayUtc).Skip(page * pageSize).Take(pageSize);
                 DataServiceQuery<NAV.ProdOrderLineList> query = (DataServiceQuery<NAV.ProdOrderLineList>)nquery;
 
                 TaskFactory<IEnumerable<NAV.ProdOrderLineList>> taskFactory = new TaskFactory<IEnumerable<NAV.ProdOrderLineList>>();

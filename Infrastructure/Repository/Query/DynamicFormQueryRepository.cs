@@ -1969,7 +1969,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormID", Id);
-                var query = "select TOP(1) DynamicFormDataId,ProfileId,DynamicFormId,SessionId,AddedDate,AddedByUserID from DynamicFormData Where DynamicFormID=@DynamicFormID \r\norder by AddedDate asc;";
+                var query = "select TOP(1) DynamicFormDataId,ProfileId,DynamicFormId,SessionId,ModifiedDate,AddedDate,AddedByUserID from DynamicFormData Where (IsDeleted is NULL OR Isdeleted=0) AND DynamicFormID=@DynamicFormID \r\norder by ModifiedDate asc;";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
@@ -2817,9 +2817,9 @@ namespace Infrastructure.Repository.Query
                     if (dynamicFormSearch.StartDate != null && dynamicFormSearch.EndDate != null)
                     {
                         var from = dynamicFormSearch.StartDate.Value.ToString("yyyy-MM-dd");
-                        query += "AND CAST(t1.AddedDate AS Date)>='" + from + "'\r\n";
+                        query += "AND CAST(t1.ModifiedDate AS Date)>='" + from + "'\r\n";
                         var to = dynamicFormSearch.EndDate.Value.ToString("yyyy-MM-dd");
-                        query += "AND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
+                        query += "AND CAST(t1.ModifiedDate AS Date)<='" + to + "'\r\n";
                     }
                 }
                 if (DynamicFormDataSessionId != null)

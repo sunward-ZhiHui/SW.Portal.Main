@@ -6612,32 +6612,30 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         await RefAssignTo.GetID();
     }
     private async Task SubmitIsArchivedAll()
-    {       
+    {
+        if (SelectedGroups == null || SelectedGroups.Count == 0)
+        {
+            toastService.ShowToast("No topics selected for archiving.", AC.SD.Core.Services.ToastLevel.Warning);
+            return;
+        }
 
-        // if (string.IsNullOrEmpty(_headTopic[0].UserType) || _headTopic[0].UserType == "Users")
-        // {
         foreach (var item in SelectedGroups)
         {
-            var UpdateReq = new UpdateTopicArchive
-                {
-                    ID = long.Parse(item),
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now
-                };
-            var result = await Mediator.Send(UpdateReq);
+            if (string.IsNullOrWhiteSpace(item))
+                continue;
 
-            // }
-            // else
-            // {
+            var updateReq = new UpdateTopicArchive
+            {
+                ID = long.Parse(item),
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
 
-            // }
-
-
+            var result = await Mediator.Send(updateReq);
 
             isArchiveClosed = false;
-            //await LoadData();
+
             toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-            //await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
             if (isLeftMenuvisible == "AssignTo")
             {
@@ -6649,6 +6647,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 await RefAssignAll.onAssignAllGridRefresh(long.Parse(item));
             }
 
+            // Resetting state
             IsOpenFlyout = false;
             _discussionList = new List<EmailConversations>();
             _headTopic = new List<EmailTopics>();
@@ -6658,9 +6657,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         }
 
         await RefreshService.RequestRefreshAsync();
-
         StateHasChanged();
     }
+
     private async Task SubmitDocDelete(long Id)
     {
         if (Id > 0)

@@ -23,15 +23,18 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Auto">
                     <Items>
+                        <DxMenuItem Text="Back" Position="ItemPosition.Start" IconCssClass="fa fa-reply" Click="onBack" />
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
                         <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+
                     </Items>
                 </DxMenu>
             </div>
         </div>
     </div>
 </div>
+
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -41,7 +44,7 @@
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_quotationHistoryItems"
-            KeyFieldName="NavStockBalanceId"
+            KeyFieldName="PackingMethodId"
             CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -62,57 +65,77 @@
             VirtualScrollingEnabled="true"
             AllowSelectRowByClick="true">
         <Columns>
-            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
-
-            <DxGridDataColumn FieldName="ItemName" Caption="Item Name" />
-            <DxGridDataColumn FieldName="StockBalMonth" Caption="Stock Bal Month">
+            <DxGridDataColumn FieldName="NoOfUnitsPerShipperCarton" Caption="No of units per shipper carton" />
+            <DxGridDataColumn FieldName="PalletSizeName" Caption="Pallet Size" MinWidth="80" />
+            <DxGridDataColumn FieldName="NoOfShipperCartorPerPallet" Caption="No of shipper carton per pallet" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date">
                 <CellDisplayTemplate>
                     @{
-                        var item = (NavItemStockBalanceModel)context.DataItem;
+                        var item = (NavPackingMethodModel)context.DataItem;
                         var startDate = string.Empty;
-                        if (item.StockBalMonth != DateTime.MinValue)
+                        if (item.AddedDate != DateTime.MinValue)
                         {
-                            startDate = item.StockBalMonth?.ToString("MMM-yyyy");
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
                         }
                     }
                     @startDate
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="StockBalWeek" Caption="Stock Bal Week" />
-            
-            <DxGridDataColumn FieldName="Quantity" Caption="Quantity" />
-            <DxGridDataColumn FieldName="ReworkQty" Caption="ReworkQty" />
-            <DxGridDataColumn FieldName="GlobalQty" Caption="GlobalQty" />
-            <DxGridDataColumn FieldName="Wipqty" Caption="Wipqty" />
-            <DxGridDataColumn FieldName="RejectQuantity" Caption="RejectQuantity" />
+            <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (NavPackingMethodModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (NavItemStockBalanceModel)EditFormContext.EditModel;
+                var types = (NavPackingMethodModel)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Item Name" ColSpanMd="6">
-                   <DxTextBox @bind-Text="@types.ItemName" Enabled="false"></DxTextBox>
-                    <ValidationMessage For="@(() => types.ItemName)" />
+                <DxFormLayoutItem Caption="Pallet Size" ColSpanMd="6">
+                    <DxComboBox Data="@_view_ApplicationMasterDetails"
+                                NullText="Select Pallet Size..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.PalletSize" />
+                    <ValidationMessage For="@(() => types.PalletSize)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Stock Bal Month" ColSpanMd="6">
-                    <DxDateEdit @bind-Date="@types.StockBalMonth" PickerDisplayMode="DatePickerDisplayMode.ScrollPicker"
-                            ScrollPickerFormat="MMMM-yyyy" Mask="MMMM-yyyy"
-                            DisplayFormat="MMMM-yyyy"/>
-                    <ValidationMessage For="@(() => types.StockBalMonth)" />
+                <DxFormLayoutItem Caption="No of units per shipper carton" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.NoOfUnitsPerShipperCarton" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.NoOfUnitsPerShipperCarton)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Quantity" ColSpanMd="6">
-                   <DxSpinEdit @bind-Value="@types.Quantity"></DxSpinEdit>
-                    <ValidationMessage For="@(() => types.Quantity)" />
+                    <DxSpinEdit @bind-Value="@types.NoOfShipperCartorPerPallet" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.NoOfShipperCartorPerPallet)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Reject Quantity" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.RejectQuantity"></DxSpinEdit>
-                    <ValidationMessage For="@(() => types.RejectQuantity)" />
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Value="@types.StatusCodeID"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.StatusCodeID)" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemName" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="CompanyName" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
@@ -133,27 +156,38 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    [Parameter]
-    public NavitemStockBalance NavitemStockBalance{ get; set; }
-    [Parameter]
-    public NavitemStockBalance _selectedItemsList{get;set;}
-    bool ExportSelectedRowsOnly { get; set; }
+    bool AuditLogPopUp { get; set; } = false;
+    private List<View_NavItems>? _AllNavitems;
     bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
     DxPopup? popup;
-    private List<NavItemStockBalanceModel> _quotationHistoryItems;
-    private NavItemStockBalanceModel _selectedItems;
+    private List<NavPackingMethodModel> _quotationHistoryItems;
+    private NavPackingMethodModel? _selectedItems;
+    [Parameter]
+    public View_NavItems aCEntryModelItem { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
     IGrid Grid { get; set; }
+    string permission = "";
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails; private List<CodeMaster> _stausItems;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(274));
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int?> codeIds = new List<int?>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => codeIds.Contains(w.CodeId)).ToList();
+        }
         await UpdateDataAsync();
     }
-
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -164,26 +198,28 @@
     }
     async Task UpdateDataAsync()
     {
-        if (_selectedItemsList != null)
+        _selectedItems = null; _quotationHistoryItems = new List<NavPackingMethodModel>();
+        EditEnabled = false; DeleteEnabled = false;
+        if (aCEntryModelItem != null && aCEntryModelItem.ItemId > 0)
         {
+            _quotationHistoryItems = await Mediator.Send(new GetNavPackingMethodLines(aCEntryModelItem?.ItemId));
             PanelVisible = true;
-            _quotationHistoryItems = await Mediator.Send(new GetNavItemStockBalanceById(_selectedItemsList.ItemId));
-            EditEnabled = false; DeleteEnabled = false;
+
             if (_quotationHistoryItems.Count > 0)
             {
                 _selectedItems = _quotationHistoryItems.FirstOrDefault();
                 Grid.ClearSelection();
                 PanelVisible = false;
             }
-            PanelVisible = false;
-            StateHasChanged();
         }
+        PanelVisible = false;
+        StateHasChanged();
     }
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "NavStockBalanceId");
-        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.NavStockBalanceId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PackingMethodId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.PackingMethodId == (long?)UniqueId);
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -196,21 +232,12 @@
         Grid.StartEditNewRowAsync();
 
     }
-    async Task ExportXlsx_Click()
-    {
-        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = ExportSelectedRowsOnly
-            });
-    }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var navitems = (NavItemStockBalanceModel)e.EditModel;
+        var navitems = (NavPackingMethodModel)e.EditModel;
         if (e.IsNew)
         {
             navitems.StatusCodeID = 1;
-            navitems.ItemName = _selectedItemsList.ItemNo;
-            navitems.StockBalMonth = NavitemStockBalance.FilterDate;
         }
         else
         {
@@ -225,7 +252,7 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is NavItemStockBalanceModel dataselectItems)
+                    if (item is NavPackingMethodModel dataselectItems)
                     {
                         _selectedItems = dataselectItems;
                         Grid.StartEditDataItemAsync(_selectedItems);
@@ -245,6 +272,7 @@
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
+        AddPopup = false;
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -269,9 +297,9 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is NavItemStockBalanceModel datas)
+                    if (item is NavPackingMethodModel datas)
                     {
-                        var request = new DeleteNavItemStockBalance(datas);
+                        var request = new DeleteNavPackingMethod(datas);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -289,43 +317,53 @@
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editModel = (NavItemStockBalanceModel)e.EditModel;
+        var editModel = (NavPackingMethodModel)e.EditModel;
         if (e.IsNew)
         {
-            var UpdateReq = new UpdateNavItemStockBalance
+            var createReq = new InsertOrUpdateNavPackingMethod
                 {
-                    StockBalMonth = editModel.StockBalMonth,
-                    ItemId = _selectedItems.ItemId,
-                    Quantity = editModel.Quantity,
-                    RejectQuantity = editModel.RejectQuantity,
-                    NavStockBalanceId = editModel.NavStockBalanceId,
+                    PackingMethodId=editModel.PackingMethodId,
+                    ItemId = aCEntryModelItem.ItemId,
+                    PalletSize = editModel.PalletSize,
+                    NoOfShipperCartorPerPallet = editModel.NoOfShipperCartorPerPallet,
+                    NoOfUnitsPerShipperCarton = editModel.NoOfUnitsPerShipperCarton,
                     SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
                     AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
                     ModifiedByUserID = applicationUser?.UserID,
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = editModel.StatusCodeID,
                     AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
-
                 };
-            var ans = await Mediator.Send(UpdateReq);
-            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
             await UpdateDataAsync();
+
+
         }
         else
         {
-            var UpdateReq = new UpdateNavItemStockBalance
+            var UpdateReq = new InsertOrUpdateNavPackingMethod
                 {
-                    ItemId = _selectedItems.ItemId,
-                    Quantity = editModel.Quantity,
-                    RejectQuantity = editModel.RejectQuantity,
-                    NavStockBalanceId = editModel.NavStockBalanceId,
+                    PackingMethodId = editModel.PackingMethodId,
+                    ItemId = aCEntryModelItem.ItemId,
+                    PalletSize = editModel.PalletSize,
+                    NoOfShipperCartorPerPallet = editModel.NoOfShipperCartorPerPallet,
+                    NoOfUnitsPerShipperCarton = editModel.NoOfUnitsPerShipperCarton,
                     SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
                     AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
-                    ModifiedByUserID = applicationUser?.UserID,
+                    ModifiedByUserID = editModel.ModifiedByUserID == null ? applicationUser?.UserID : editModel.ModifiedByUserID,
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = editModel.StatusCodeID,
-                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
-
+                    AddedDate = DateTime.Now,
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -333,5 +371,9 @@
 
         }
 
+    }
+    void onBack()
+    {
+        RevokeBack.Invoke();
     }
 }

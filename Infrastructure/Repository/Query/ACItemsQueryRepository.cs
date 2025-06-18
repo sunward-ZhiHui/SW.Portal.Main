@@ -109,6 +109,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<ACItemsModel>> GetDDACItems()
+        {
+            try
+            {
+                List<ACItemsModel> aCItemsModels = new List<ACItemsModel>();
+                var query = "select * from ACItems;";
+                using (var connection = CreateConnection())
+                {
+                    aCItemsModels = (await connection.QueryAsync<ACItemsModel>(query)).ToList();
+                }
+                if (aCItemsModels.Count > 0)
+                {
+                    aCItemsModels.ForEach(s =>
+                    {
+                        s.Description = (String.IsNullOrEmpty(s.ItemNo) ? "No ItemNo" : s.ItemNo) + " | " + s.ItemDesc + " | " + (String.IsNullOrEmpty(s.PackSize) ? "No Packsize" : s.PackSize);
+                    });
+                }
+                return aCItemsModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<NavItemCitemList>> GetNavItemCitemList(long? ItemId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("NavItemId", ItemId);
+                List<NavItemCitemList> aCItemsModels = new List<NavItemCitemList>();
+                var query = "select * from NavItemCitemList where NavItemId=@NavItemId;";
+                using (var connection = CreateConnection())
+                {
+                    aCItemsModels = (await connection.QueryAsync<NavItemCitemList>(query, parameters)).ToList();
+                }
+                return aCItemsModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private async Task<long> InsertOrUpdate(string? TableName, string? PrimareyKeyName, long PrimareyKeyId, DynamicParameters parameters)
         {
             try

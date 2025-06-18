@@ -24,6 +24,31 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ACItemsModel>)await _queryRepository.GetAllByAsync(request.ACItemsModel);
         }
     }
+    public class GetDDACItemsHandler : IRequestHandler<GetDDACItems, List<ACItemsModel>>
+    {
+        private readonly IACItemsQueryRepository _queryRepository;
+        public GetDDACItemsHandler(IACItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ACItemsModel>> Handle(GetDDACItems request, CancellationToken cancellationToken)
+        {
+            return (List<ACItemsModel>)await _queryRepository.GetDDACItems();
+        }
+    }
+
+    public class GetNavItemCitemListHandler : IRequestHandler<GetNavItemCitemList, List<NavItemCitemList>>
+    {
+        private readonly IACItemsQueryRepository _queryRepository;
+        public GetNavItemCitemListHandler(IACItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<NavItemCitemList>> Handle(GetNavItemCitemList request, CancellationToken cancellationToken)
+        {
+            return (List<NavItemCitemList>)await _queryRepository.GetNavItemCitemList(request.ItemId);
+        }
+    }
     public class InsertOrUpdateAcitemsHandler : IRequestHandler<InsertOrUpdateAcitems, ACItemsModel>
     {
         private readonly IACItemsQueryRepository _queryRepository;

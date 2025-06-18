@@ -19,7 +19,7 @@
 </style>
 @page "/ItemMaster"
 
-@*<div id="NavHeader" style="@navHeaderItems">
+<div id="NavHeader">
     <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
         <div class="card-body p-0">
             <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -27,11 +27,12 @@
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@AddItemLine" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Add PackMethod" IconCssClass="fa fa-add" Click="@OpenAuditLog" Enabled="@EditEnabled" />
                     <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
                 </Items>
             </DxMenu>
         </div>
-    </div> *@
+    </div>
     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
                     ApplyBackgroundShading="true"
@@ -86,19 +87,38 @@
     </DxLoadingPanel>
 </div>
 
+<DxPopup @bind-Visible="@navItemsEditPopup"
+         ShowFooter="false"
+         HeaderText="Edit Master"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="auto">
+    <BodyContentTemplate>
+        <EditItemMasters _selectedItems="@_selectedItems" RevokeBack="OnBackList"></EditItemMasters>
+    </BodyContentTemplate>
 
+</DxPopup>
+<DxPopup @bind-Visible="@NavPackingMethodEnabled"
+         ShowFooter="false"
+         HeaderText="NavPacking Method"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <NavPackingMethodList RevokeBack="CloseAuditLog" aCEntryModelItem="_selectedItems"></NavPackingMethodList>
+    </BodyContentTemplate>
 
+</DxPopup>
 
 @code {
-
+    bool NavPackingMethodEnabled { get; set; } = false;
     private List<View_NavItems> _navItems;
     private List<ViewPlants>? _plantItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; }
     bool EditEnabled { get; set; } = true;
-    string navHeaderItems = "";
-    string navLineItems = "display:none;";
+    bool navItemsEditPopup { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private View_NavItems? _selectedItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsUom;
@@ -124,15 +144,29 @@
             StateHasChanged();
         }
     }
-    public async Task AddItemLine()
+    void CloseAuditLog()
     {
-        navLineItems = "";
-        navHeaderItems = "display:none;";
+        NavPackingMethodEnabled = false;
+        InvokeAsync(UpdateDataAsync);
+    }
+    void OpenAuditLog()
+    {
+        NavPackingMethodEnabled = true;
+        StateHasChanged();
+    }
+    void OnBackList()
+    {
+        navItemsEditPopup = false;
+        StateHasChanged();
+        InvokeAsync(UpdateDataAsync);
+    }
+    void AddItemLine()
+    {
+        navItemsEditPopup = true;
     }
     void BackEdit()
     {
-        navHeaderItems = "";
-        navLineItems = "display:none;";
+        navItemsEditPopup = false;
         StateHasChanged();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
@@ -165,8 +199,8 @@
     }
     public async Task OnRowDoubleClick(GridRowClickEventArgs e)
     {
-       // OnRowClick(e);
-       // await AddItemLine();
+        // OnRowClick(e);
+        // await AddItemLine();
     }
     async Task ExportXlsx_Click()
     {

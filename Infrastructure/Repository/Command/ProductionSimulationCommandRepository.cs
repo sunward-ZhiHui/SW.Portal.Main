@@ -113,12 +113,41 @@ namespace Infrastructure.Repository.Command
             }
 
         }
+        public async Task<long?> DeleteExistingProductionSimulation(ViewPlants plantData, long? UserId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("CompanyId", plantData.PlantID);
+                        var query = "DELETE FROM ProductionSimulation WHERE CompanyId= @CompanyId AND (IsBMRTicket=0 OR IsBMRTicket is null);";
+                       
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return UserId;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task IsRereshSyncLoadData(long? CompanyId, long? UserId)
         {
             var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
             if (plantData != null)
             {
+                await DeleteExistingProductionSimulation(plantData, UserId);
                 await InsertOrUpdateProdPlanningLine(plantData, UserId);
                 await InsertOrUpdateGetProdOrderOutputLine(plantData, UserId);
                 await InsertOrUpdateProdGroupLine(plantData, UserId);

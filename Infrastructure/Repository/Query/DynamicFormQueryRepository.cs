@@ -1969,7 +1969,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormID", Id);
-                var query = "select TOP(1) DynamicFormDataId,ProfileId,DynamicFormId,SessionId,ModifiedDate,AddedDate,AddedByUserID from DynamicFormData Where (IsDeleted is NULL OR Isdeleted=0) AND DynamicFormID=@DynamicFormID \r\norder by ModifiedDate asc;";
+                var query = "select TOP(1) DynamicFormDataId,ProfileId,DynamicFormId,SessionId,ModifiedDate,AddedDate,AddedByUserID from DynamicFormData Where (IsDeleted is NULL OR Isdeleted=0) AND DynamicFormID=@DynamicFormID \r\norder by ModifiedDate desc;";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);

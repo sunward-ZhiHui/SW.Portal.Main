@@ -171,6 +171,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DistStockBalanceModel>> GetNavDistStockBalanceById(long? id)
+        {
+            try
+            {
+                List<DistStockBalanceModel> navStockBalanceModels = new List<DistStockBalanceModel>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DistItemId", id);
+                var query = "select t1.*,t2.DistName,t2.ItemNo as ItemName,t1.POQuantity as POqty from DistStockBalance t1\r\nLEFT JOIN Acitems t2 ON t1.DistItemId=t2.DistACID where t1.DistItemId=@DistItemId;";
+                using (var connection = CreateConnection())
+                {
+                    navStockBalanceModels = (await connection.QueryAsync<DistStockBalanceModel>(query, parameters)).ToList();
+                }
+                return navStockBalanceModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Acitems> InsertAcItems(Acitems acitems, DistStockBalance distStockBalance)
         {
             try
@@ -496,12 +515,14 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
                     parameters.Add("NavStockBalanceId", value.NavStockBalanceId);
                     parameters.Add("Quantity", value.Quantity);
+                    parameters.Add("ItemId", value.ItemId);
                     parameters.Add("RejectQuantity", value.RejectQuantity);
                     parameters.Add("StatusCodeID", value.StatusCodeID);
                     parameters.Add("AddedByUserID", value.AddedByUserID);
                     parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
                     parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
                     parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
+                    parameters.Add("StockBalMonth", value.StockBalMonth, DbType.DateTime);
                     if (value.NavStockBalanceId > 0)
                     {
                         var query = "UPDATE NavitemStockBalance SET ModifiedByUserID=@ModifiedByUserID,Quantity=@Quantity,RejectQuantity=@RejectQuantity,ModifiedDate=@ModifiedDate\r" +
@@ -510,6 +531,12 @@ namespace Infrastructure.Repository.Query
                     }
                     else
                     {
+                        var stockBalWeek = GetWeekNumberOfMonth(value.StockBalMonth.Value);
+                        parameters.Add("StockBalWeek", stockBalWeek);
+                        var query1 = "INSERT INTO NavitemStockBalance(ItemId,RejectQuantity,Quantity,StockBalMonth,StockBalWeek,AddedDate,AddedByUserId)  " +
+                                                    "OUTPUT INSERTED.NavStockBalanceId VALUES " +
+                                                   "(@ItemId,@RejectQuantity,@Quantity,@StockBalMonth,@StockBalWeek,@AddedDate,@AddedByUserId);\n\r";
+                        await connection.QuerySingleOrDefaultAsync<long>(query1, parameters);
                     }
                     return value;
 
@@ -583,6 +610,77 @@ namespace Infrastructure.Repository.Query
                         var query = "update Acitems set StatusCodeId=@StatusCodeId WHERE DistAcid= @DistAcid;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return acitems;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DistStockBalanceModel> UpdateDistStockBalance(DistStockBalanceModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DistStockBalanceId", value.DistStockBalanceId);
+                    parameters.Add("Quantity", value.Quantity);
+                    parameters.Add("POQuantity", value.PoQty);
+                    parameters.Add("StatusCodeID", value.StatusCodeID);
+                    parameters.Add("StockBalMonth", value.StockBalMonth, DbType.DateTime);
+                    parameters.Add("DistItemId", value.DistItemId);
+                    parameters.Add("AddedByUserID", value.AddedByUserID);
+                    parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                    parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                    parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
+                    if (value.DistStockBalanceId > 0)
+                    {
+                        var query = "UPDATE DistStockBalance SET ModifiedByUserID=@ModifiedByUserID,Quantity=@Quantity,POQuantity=@POQuantity,ModifiedDate=@ModifiedDate\r" +
+                            "WHERE DistStockBalanceId = @DistStockBalanceId";
+                        await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var stockBalWeek = GetWeekNumberOfMonth(value.StockBalMonth.Value);
+                        parameters.Add("StockBalWeek", stockBalWeek);
+                        var query1 = "INSERT INTO DistStockBalance(POQuantity,DistItemId,Quantity,StockBalMonth,StockBalWeek,AddedDate,AddedByUserId)  " +
+                                                     "OUTPUT INSERTED.DistStockBalanceId VALUES " +
+                                                    "(@POQuantity,@DistItemId,@Quantity,@StockBalMonth,@StockBalWeek,@AddedDate,@AddedByUserId);\n\r";
+                        await connection.QuerySingleOrDefaultAsync<long>(query1, parameters);
+                    }
+                    return value;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DistStockBalanceModel> DeleteDistStockBalance(DistStockBalanceModel navItemStockBalanceModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DistStockBalanceId", navItemStockBalanceModel.DistStockBalanceId);
+                        var query = "DELETE FROM DistStockBalance WHERE DistStockBalanceId= @DistStockBalanceId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return navItemStockBalanceModel;
                     }
                     catch (Exception exp)
                     {

@@ -41,7 +41,7 @@
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_quotationHistoryItems"
-            KeyFieldName="NavStockBalanceId"
+            KeyFieldName="DistStockBalanceId"
             CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -63,12 +63,12 @@
             AllowSelectRowByClick="true">
         <Columns>
             @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
-
+            <DxGridDataColumn FieldName="DistName" Caption="Dist Name" />
             <DxGridDataColumn FieldName="ItemName" Caption="Item Name" />
             <DxGridDataColumn FieldName="StockBalMonth" Caption="Stock Bal Month">
                 <CellDisplayTemplate>
                     @{
-                        var item = (NavItemStockBalanceModel)context.DataItem;
+                        var item = (DistStockBalanceModel)context.DataItem;
                         var startDate = string.Empty;
                         if (item.StockBalMonth != DateTime.MinValue)
                         {
@@ -79,35 +79,36 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="StockBalWeek" Caption="Stock Bal Week" />
-            
+
             <DxGridDataColumn FieldName="Quantity" Caption="Quantity" />
-            <DxGridDataColumn FieldName="ReworkQty" Caption="ReworkQty" />
-            <DxGridDataColumn FieldName="GlobalQty" Caption="GlobalQty" />
-            <DxGridDataColumn FieldName="Wipqty" Caption="Wipqty" />
-            <DxGridDataColumn FieldName="RejectQuantity" Caption="RejectQuantity" />
+            <DxGridDataColumn FieldName="PoQty" Caption="Po Qty" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (NavItemStockBalanceModel)EditFormContext.EditModel;
+                var types = (DistStockBalanceModel)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Dist Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.DistName" Enabled="false"></DxTextBox>
+                    <ValidationMessage For="@(() => types.DistName)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Item Name" ColSpanMd="6">
-                   <DxTextBox @bind-Text="@types.ItemName" Enabled="false"></DxTextBox>
+                    <DxTextBox @bind-Text="@types.ItemName" Enabled="false"></DxTextBox>
                     <ValidationMessage For="@(() => types.ItemName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Stock Bal Month" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Item Name" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.StockBalMonth" PickerDisplayMode="DatePickerDisplayMode.ScrollPicker"
-                            ScrollPickerFormat="MMMM-yyyy" Mask="MMMM-yyyy"
-                            DisplayFormat="MMMM-yyyy"/>
+                                ScrollPickerFormat="MMMM-yyyy" Mask="MMMM-yyyy"
+                                DisplayFormat="MMMM-yyyy" />
                     <ValidationMessage For="@(() => types.StockBalMonth)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Quantity" ColSpanMd="6">
-                   <DxSpinEdit @bind-Value="@types.Quantity"></DxSpinEdit>
+                    <DxSpinEdit @bind-Value="@types.Quantity"></DxSpinEdit>
                     <ValidationMessage For="@(() => types.Quantity)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Reject Quantity" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.RejectQuantity"></DxSpinEdit>
-                    <ValidationMessage For="@(() => types.RejectQuantity)" />
+                <DxFormLayoutItem Caption="Po Quantity" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.PoQty"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.PoQty)" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -134,14 +135,14 @@
 </DxPopup>
 @code {
     [Parameter]
-    public NavitemStockBalance NavitemStockBalance{ get; set; }
+    public StockBalanceSearch StockBalanceSearch{ get; set; }
     [Parameter]
-    public NavitemStockBalance _selectedItemsList{get;set;}
+    public NavStockBalanceModel _selectedItemsList { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; } = true;
     DxPopup? popup;
-    private List<NavItemStockBalanceModel> _quotationHistoryItems;
-    private NavItemStockBalanceModel _selectedItems;
+    private List<DistStockBalanceModel> _quotationHistoryItems;
+    private DistStockBalanceModel _selectedItems;
     IGrid Grid { get; set; }
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -167,7 +168,7 @@
         if (_selectedItemsList != null)
         {
             PanelVisible = true;
-            _quotationHistoryItems = await Mediator.Send(new GetNavItemStockBalanceById(_selectedItemsList.ItemId));
+            _quotationHistoryItems = await Mediator.Send(new GetNavDistStockBalanceById(_selectedItemsList.AvnavStockBalID));
             EditEnabled = false; DeleteEnabled = false;
             if (_quotationHistoryItems.Count > 0)
             {
@@ -182,8 +183,8 @@
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "NavStockBalanceId");
-        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.NavStockBalanceId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DistStockBalanceId");
+        _selectedItems = _quotationHistoryItems.FirstOrDefault(f => f.DistStockBalanceId == (long?)UniqueId);
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -205,12 +206,13 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var navitems = (NavItemStockBalanceModel)e.EditModel;
+        var navitems = (DistStockBalanceModel)e.EditModel;
         if (e.IsNew)
         {
             navitems.StatusCodeID = 1;
-            navitems.ItemName = _selectedItemsList.ItemNo;
-            navitems.StockBalMonth = NavitemStockBalance.FilterDate;
+            navitems.DistName = _selectedItemsList.Dist;
+            navitems.ItemName = _selectedItemsList.ItemCode;
+            navitems.StockBalMonth = StockBalanceSearch.StkMonth;
         }
         else
         {
@@ -225,7 +227,7 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is NavItemStockBalanceModel dataselectItems)
+                    if (item is DistStockBalanceModel dataselectItems)
                     {
                         _selectedItems = dataselectItems;
                         Grid.StartEditDataItemAsync(_selectedItems);
@@ -269,9 +271,9 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is NavItemStockBalanceModel datas)
+                    if (item is DistStockBalanceModel datas)
                     {
-                        var request = new DeleteNavItemStockBalance(datas);
+                        var request = new DeleteDistStockBalance(datas);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -289,16 +291,16 @@
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editModel = (NavItemStockBalanceModel)e.EditModel;
+        var editModel = (DistStockBalanceModel)e.EditModel;
         if (e.IsNew)
         {
-            var UpdateReq = new UpdateNavItemStockBalance
+            var UpdateReq = new UpdateDistStockBalance
                 {
-                    StockBalMonth = editModel.StockBalMonth,
-                    ItemId = _selectedItems.ItemId,
+                    DistItemId = _selectedItemsList.AvnavStockBalID,
+                    StockBalMonth = StockBalanceSearch.StkMonth,
                     Quantity = editModel.Quantity,
-                    RejectQuantity = editModel.RejectQuantity,
-                    NavStockBalanceId = editModel.NavStockBalanceId,
+                    PoQty = editModel.PoQty,
+                    DistStockBalanceId = editModel.DistStockBalanceId,
                     SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
                     AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
                     ModifiedByUserID = applicationUser?.UserID,
@@ -308,17 +310,18 @@
 
                 };
             var ans = await Mediator.Send(UpdateReq);
-            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("Record Inserted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
         else
         {
-            var UpdateReq = new UpdateNavItemStockBalance
+            var UpdateReq = new UpdateDistStockBalance
                 {
-                    ItemId = _selectedItems.ItemId,
+                    StockBalMonth = StockBalanceSearch.StkMonth,
+                    DistItemId = _selectedItemsList.AvnavStockBalID,
                     Quantity = editModel.Quantity,
-                    RejectQuantity = editModel.RejectQuantity,
-                    NavStockBalanceId = editModel.NavStockBalanceId,
+                    PoQty = editModel.PoQty,
+                    DistStockBalanceId = editModel.DistStockBalanceId,
                     SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
                     AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
                     ModifiedByUserID = applicationUser?.UserID,

@@ -23,7 +23,9 @@
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
                     <DxMenuItem Text="Import Excel File" IconCssClass="fa fa-file-excel" id="attachmentSelectButton" Enabled="exportEnabled" />
+                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="OnViewData" Enabled="EditEnbled" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
+                   
                     <DxMenuItem Text="View Export Error" IconCssClass="fa fa-bug" Click="OnViewExportError" />
                 </Items>
             </DxMenu>
@@ -126,7 +128,20 @@
     <FooterContentTemplate Context="Context">
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="false"
+         HeaderText="Stock Balance"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <DistStockBalanceList StockBalanceSearch="@data" _selectedItemsList="@_selectedItems"></DistStockBalanceList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool EditEnbled { get; set; } = false; bool AttachmentPopUp { get; set; } = false;
     bool  ViewExportErrorEnabled { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
     ViewPlants CurrentPlant { get; set; }
@@ -207,9 +222,16 @@
     }
     async Task OnSearch()
     {
+        EditEnbled = false;
         if ((data.CompanyId > 0) && (data.StkMonth != null))
         {
+
             distStockBalances = await Mediator.Send(new DistStockBalanceQuery(data));
+            if (distStockBalances!=null && distStockBalances.Count()>0)
+            {
+                _selectedItems = distStockBalances.FirstOrDefault();
+                EditEnbled = true;
+            }
             PanelVisible = false;
             StateHasChanged();
         }
@@ -217,6 +239,11 @@
     void LoadItems()
     {
         InvokeAsync(OnSearch);
+    }
+    async void OnViewData()
+    {
+        AttachmentPopUp = true;
+        StateHasChanged();
     }
 }
 

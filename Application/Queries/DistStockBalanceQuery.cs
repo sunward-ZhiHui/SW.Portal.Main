@@ -71,4 +71,25 @@ namespace Application.Queries
             this.Acitems = acitems;
         }
     }
+    public class GetNavDistStockBalanceById : PagedRequest, IRequest<List<DistStockBalanceModel>>
+    {
+        public long? Id { get; set; }
+
+        public GetNavDistStockBalanceById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class UpdateDistStockBalance : DistStockBalanceModel, IRequest<DistStockBalanceModel>
+    {
+    }
+    public class DeleteDistStockBalance : PagedRequest, IRequest<DistStockBalanceModel>
+    {
+        public DistStockBalanceModel DistStockBalanceModel { get; set; }
+
+        public DeleteDistStockBalance(DistStockBalanceModel navItemStockBalanceModel)
+        {
+            this.DistStockBalanceModel = navItemStockBalanceModel;
+        }
+    }
 }

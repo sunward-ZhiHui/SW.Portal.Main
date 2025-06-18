@@ -1,0 +1,265 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@Onback" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-pencil" Click="@addEdit" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm EditContext="this._editContext" Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.No" Enabled="false"></DxTextBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.Description" Enabled="false"></DxTextBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Sales Category" ColSpanMd="6">
+            <DxComboBox Data="@_salesCategoryItems"
+                        NullText="Select Sales Category..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Text"
+                        ValueFieldName="Id"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.CategoryId" ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Dist Items" ColSpanMd="6">
+            <DxTagBox Data="@_aCItemItems"
+                      NullText="Select Dist Items..."
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      TextFieldName="Description"
+                      ValueFieldName="DistACID"
+                      @bind-Values="@Data.NavItemCustomerItemID" />
+            <ValidationMessage For="@(() => Data.NavItemCustomerItemID)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Steroid/Non Steroid" ColSpanMd="6">
+            <DxRadioGroup Items="@RadioButtonOptions"
+                          ValueFieldName="@nameof(DropDownOptionsModel.Value)"
+                          Value="@Data.SteroidName"
+                          ValueExpression="@(() => Data.SteroidName )"
+                          ValueChanged="@((string value) => OnTemplateUploadRadioGroupValueChanged(value,Data))"
+                          Layout="RadioGroupLayout.Horizontal"
+                          CssClass="dx-demo-radio-group">
+                <ItemTemplate Context="context1">@context1.Text</ItemTemplate>
+            </DxRadioGroup>
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="Shelf Life" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.ShelfLife" Enabled="false"></DxTextBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Pack Size(K)" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.PackSize"></DxSpinEdit>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Pack Uom" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.PackUom"></DxTextBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Generic Code" ColSpanMd="6">
+            <DxComboBox Data="@_view_GenericCodes"
+                        NullText="Select Generic Code..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Code"
+                        ValueFieldName="GenericCodeId"
+                        @bind-Value="@Data.GenericCodeId" />
+            <ValidationMessage For="@(() => Data.GenericCodeId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Method Code" ColSpanMd="6">
+            <DxComboBox Data="@_NavMethodCodeItems"
+                        NullText="Select Method Code..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="MethodName"
+                        ValueFieldName="MethodCodeID"
+                        @bind-Value="@Data.MethodCodeId" />
+            <ValidationMessage For="@(() => Data.MethodCodeId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Replenishment Method" ColSpanMd="6">
+            <DxComboBox Data="@_view_ApplicationMasterDetails"
+                        NullText="Select Replenishment Method..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+                        @bind-Value="@Data.ReplenishmentMethodId" />
+            <ValidationMessage For="@(() => Data.ReplenishmentMethodId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Status Code" ColSpanMd="6">
+            <DxComboBox Data="@_StatusCodeItems"
+                        NullText="Select Status Code..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="CodeValue"
+                        ValueFieldName="CodeId"
+                        @bind-Value="@Data.StatusCodeId" />
+            <ValidationMessage For="@(() => Data.StatusCodeId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Pack Qty" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.PackQty"></DxSpinEdit>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Is Different Acuom" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="Data.IsDifferentAcuom"></DxCheckBox>
+        </DxFormLayoutItem>
+    </DxFormLayout>
+
+</EditForm>
+@code {
+    [Parameter]
+    public View_NavItems _selectedItems { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    EditContext _editContext;
+    View_NavItems Data = new View_NavItems();
+    IEnumerable<DropDownOptionsModel> RadioButtonOptions;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+    private List<GenericCodes> _view_GenericCodes;
+    private bool loading;
+    private List<NavMethodCodeModel> _NavMethodCodeItems; private List<CodeMaster> _StatusCodeItems = new List<CodeMaster>(); private List<ACItemsModel> _aCItemItems = new List<ACItemsModel>();
+    private List<DropDownOptionsModel> _salesCategoryItems = new List<DropDownOptionsModel>();
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        salesCatList();
+        _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(264));
+        _view_GenericCodes = await Mediator.Send(new GetByGenericCodes());
+        _NavMethodCodeItems = await Mediator.Send(new GetAllNavMethodCodeQuery());
+        _aCItemItems = await Mediator.Send(new GetDDACItems());
+        Data = _selectedItems;
+        Data.CompanyId = _selectedItems.CompanyId;
+        Data.MethodCodeId = _selectedItems.MethodCodeId;
+        Data.GenericCodeId = _selectedItems.GenericCodeId;
+        Data.CategoryId = _selectedItems.CategoryId;
+        Data.PackQty = _selectedItems.PackQty;
+        Data.PackSize = _selectedItems.PackSize; Data.SteroidName = _selectedItems.SteroidName;
+        Data.ReplenishmentMethodId = _selectedItems.ReplenishmentMethodId; Data.No = _selectedItems.No; Data.Description = _selectedItems.Description;
+        Data.StatusCodeId = _selectedItems.StatusCodeId; Data.PackUom = _selectedItems.PackUom; Data.ShelfLife = _selectedItems.ShelfLife;
+        Data.IsDifferentAcuom = false;
+        Data.ItemSerialNo = "1";
+        if (Data.IsDifferentAcuom == true)
+        {
+            Data.IsDifferentAcuom = true;
+        }
+        var result = await Mediator.Send(new GetNavItemCitemList(Data.ItemId));
+        if (result != null && result.Count() > 0)
+        {
+            Data.NavItemCustomerItemID = result.Select(s => s.NavItemCustomerItemId).ToList();
+        }
+        StateHasChanged();
+    }
+    void salesCatList()
+    {
+        List<DropDownOptionsModel> RadioButtonOptionss = new List<DropDownOptionsModel>();
+        DropDownOptionsModel dropDownOptionsModel111 = new DropDownOptionsModel();
+        dropDownOptionsModel111.Text = "Steroid";
+        dropDownOptionsModel111.Value = "Steroid";
+        RadioButtonOptionss.Add(dropDownOptionsModel111);
+        DropDownOptionsModel dropDownOptionsModel221 = new DropDownOptionsModel();
+        dropDownOptionsModel221.Text = "Non Steroid";
+        dropDownOptionsModel221.Value = "Non-Steroid";
+        RadioButtonOptionss.Add(dropDownOptionsModel221);
+        RadioButtonOptions = RadioButtonOptionss;
+
+
+        CodeMaster CodeMaster1 = new CodeMaster();
+        CodeMaster1.CodeValue = "CCPC";
+        CodeMaster1.CodeId = 1;
+        _StatusCodeItems.Add(CodeMaster1);
+        CodeMaster CodeMaster2 = new CodeMaster();
+        CodeMaster2.CodeValue = "TBC";
+        CodeMaster2.CodeId = 2;
+        _StatusCodeItems.Add(CodeMaster2);
+
+        DropDownOptionsModel dropDownOptionsModel1 = new DropDownOptionsModel();
+        dropDownOptionsModel1.Text = "CAP";
+        dropDownOptionsModel1.Id = 1;
+        _salesCategoryItems.Add(dropDownOptionsModel1);
+        DropDownOptionsModel dropDownOptionsModel2 = new DropDownOptionsModel();
+        dropDownOptionsModel2.Text = "CREAM";
+        dropDownOptionsModel2.Id = 2;
+        _salesCategoryItems.Add(dropDownOptionsModel2);
+
+        DropDownOptionsModel dropDownOptionsModel3 = new DropDownOptionsModel();
+        dropDownOptionsModel3.Text = "DD";
+        dropDownOptionsModel3.Id = 3;
+        _salesCategoryItems.Add(dropDownOptionsModel3);
+        DropDownOptionsModel dropDownOptionsModel4 = new DropDownOptionsModel();
+        dropDownOptionsModel4.Text = "SYRUP";
+        dropDownOptionsModel4.Id = 4;
+        _salesCategoryItems.Add(dropDownOptionsModel4);
+        DropDownOptionsModel dropDownOptionsModel5 = new DropDownOptionsModel();
+        dropDownOptionsModel5.Text = "TABLET";
+        dropDownOptionsModel5.Id = 5;
+        _salesCategoryItems.Add(dropDownOptionsModel5);
+        DropDownOptionsModel dropDownOptionsModel6 = new DropDownOptionsModel();
+        dropDownOptionsModel6.Text = "VET";
+        dropDownOptionsModel6.Id = 6;
+        _salesCategoryItems.Add(dropDownOptionsModel6);
+        DropDownOptionsModel dropDownOptionsModel7 = new DropDownOptionsModel();
+        dropDownOptionsModel7.Text = "POWDER";
+        dropDownOptionsModel7.Id = 7;
+        _salesCategoryItems.Add(dropDownOptionsModel7);
+        DropDownOptionsModel dropDownOptionsModel8 = new DropDownOptionsModel();
+        dropDownOptionsModel8.Text = "INJ";
+        dropDownOptionsModel8.Id = 8;
+        _salesCategoryItems.Add(dropDownOptionsModel8);
+    }
+    void OnTemplateUploadRadioGroupValueChanged(string? radioValue, View_NavItems types)
+    {
+        types.SteroidName = radioValue;
+    }
+    void Onback()
+    {
+        RevokeBack?.Invoke();
+    }
+    async Task addEdit()
+    {
+         await this.HandleValidSubmit();
+
+
+    }
+    async Task HandleValidSubmit()
+    {
+        loading = true;
+        if (Data.ItemId > 0)
+        {
+            Data.ModifiedByUserId = applicationUser.UserID;
+            Data.ModifiedDate = DateTime.Now;
+            var result = await Mediator.Send(new UpdateNavItem(Data));
+            if (result.ItemId > 0)
+            {
+                toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                loading = false;
+                RevokeBack?.Invoke();
+            }
+            StateHasChanged();
+        }
+        else
+        {
+
+        }
+    }
+}

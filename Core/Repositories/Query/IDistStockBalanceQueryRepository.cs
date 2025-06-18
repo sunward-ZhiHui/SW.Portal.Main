@@ -20,5 +20,8 @@ namespace Core.Repositories.Query
         Task<NavItemStockBalanceModel> DeleteNavItemStockBalance(NavItemStockBalanceModel navItemStockBalanceModel);
         Task<IReadOnlyList<Acitems>> GetNoACItemsList();
         Task<Acitems> UpdateNoACItems(Acitems acitems);
+        Task<IReadOnlyList<DistStockBalanceModel>> GetNavDistStockBalanceById(long? id);
+        Task<DistStockBalanceModel> DeleteDistStockBalance(DistStockBalanceModel navItemStockBalanceModel);
+        Task<DistStockBalanceModel> UpdateDistStockBalance(DistStockBalanceModel distStockBalanceModel);
     }
 }

@@ -742,6 +742,7 @@ namespace Core.EntityModels
         public long? NavItemCustomerItemId { get; set; }
         public long? NavItemId { get; set; }
         public string? CustomerNmae { get; set; }
+        public string? Description { get; set; }
     }
     public class OrderRequirementLineModel : BaseModel
     {

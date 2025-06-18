@@ -453,6 +453,9 @@ namespace Infrastructure.Service
                     var Company = company.NavCompanyName;
 
                     var context = new NAVService(_configuration, Company);
+                   
+
+
 
                     var post = new SWWebIntegration.WebIntegration_PortClient();
 

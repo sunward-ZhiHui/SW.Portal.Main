@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.EntityModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -73,5 +74,16 @@ namespace Core.Entities.Views
         public string? GenericCode { get; set; }
         public string? MethodCode { get; set; }
         public string? SteroidName { get; set; }
+        public long? MethodCodeId { get; set; }
+        public IEnumerable<long?> NavItemCustomerItemID { get; set; } = new List<long?>();
+    }
+    public class NavPackingMethodModel : BaseModel
+    {
+        public long PackingMethodId { get; set; }
+        public long? ItemId { get; set; }
+        public long? NoOfUnitsPerShipperCarton { get; set; }
+        public long? PalletSize { get; set; }
+        public string? PalletSizeName { get; set; }
+        public long? NoOfShipperCartorPerPallet { get; set; }
     }
 }

@@ -50,7 +50,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode\r\nfrom NAVItems t1 \r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId ";
+                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,\r\n(select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCodeId from NAVItems t1\r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
 
                 using (var connection = CreateConnection())
                 {
@@ -111,7 +111,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<GenericCodes>> GetByGenericCodes()
+        {
+            try
+            {
+                var query = "select  * from GenericCodes where StatusCodeID=1";
 
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<GenericCodes>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type, long? CompanyId)
         {
             try
@@ -130,6 +145,52 @@ namespace Infrastructure.Repository.Query
                     }
                 }
                 return rawMatItemLists;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<View_NavItems> UpdateNavItem(View_NavItems view_NavItems)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ItemId", view_NavItems.ItemId, DbType.Int64);
+                    parameters.Add("ModifiedDate", view_NavItems.ModifiedDate, DbType.DateTime);
+                    parameters.Add("ModifiedByUserId", view_NavItems.ModifiedByUserId, DbType.Int64);
+                    parameters.Add("Steroid", view_NavItems.SteroidName == "Steroid" ? true : false);
+                    parameters.Add("CategoryId", view_NavItems.CategoryId);
+                    parameters.Add("ShelfLife", view_NavItems.ShelfLife, DbType.String);
+                    parameters.Add("Quota", view_NavItems.Quota, DbType.String);
+                    parameters.Add("PackSize", view_NavItems.PackSize);
+                    parameters.Add("PackUom", view_NavItems.PackUom, DbType.String);
+                    parameters.Add("PackQty", view_NavItems.PackQty);
+                    parameters.Add("StatusCodeId", view_NavItems.StatusCodeId);
+                    parameters.Add("GenericCodeId", view_NavItems.GenericCodeId);
+                    parameters.Add("IsDifferentAcuom", view_NavItems.IsDifferentAcuom); parameters.Add("MethodCodeId", view_NavItems.MethodCodeId);
+                    var query1 = "delete from NavItemCitemList where NavItemId=@ItemId;";
+                    await connection.ExecuteAsync(query1, parameters);
+                    var query = "UPDATE Navitems SET IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE ItemId = @ItemId;";
+                    query += "IF NOT Exists(select 1 from NavMethodCodeLines where MethodCodeId=@MethodCodeId AND ItemId=@ItemId)\r\nBEGIN\r\n" +
+                        "insert into NavMethodCodeLines (ItemId,MethodCodeId,AddedByUserId,AddedDate,StatusCodeId) values(@ItemId,@MethodCodeId,@ModifiedByUserId,@ModifiedDate,1)\r\nEND;";
+
+                    if (view_NavItems.NavItemCustomerItemID != null && view_NavItems.NavItemCustomerItemID.ToList().Count > 0)
+                    {
+                        view_NavItems.NavItemCustomerItemID.ToList().ForEach(item =>
+                        {
+                            query += "INSERT INTO NavItemCitemList(NavItemCustomerItemId,NavItemId) VALUES " +
+                           "(" + item + "," + view_NavItems.ItemId + ");";
+
+                        });
+                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return view_NavItems;
+
+                }
+
             }
             catch (Exception exp)
             {
@@ -1471,6 +1532,93 @@ namespace Infrastructure.Repository.Query
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<NavPackingMethodModel>> GetNavPackingMethodLines(long? ItemId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ItemId", ItemId);
+                var query = "select t1.*,t2.Value as PalletSizeName,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser from NavPackingMethod t1\r\nLEFT JOIN ApplicationMasterDetail t2 ON t1.PalletSize=t2.ApplicationMasterDetailID\r\nLEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID\r\nLEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.ItemId=@ItemId;";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<NavPackingMethodModel>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<NavPackingMethodModel> DeleteNavPackingMethod(NavPackingMethodModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("PackingMethodId", value.PackingMethodId);
+                        var query = "DELETE FROM NavPackingMethod WHERE PackingMethodId= @PackingMethodId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<NavPackingMethodModel> InsertOrUpdateNavPackingMethod(NavPackingMethodModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("PackingMethodId", value.PackingMethodId);
+                    parameters.Add("NoOfShipperCartorPerPallet", value.NoOfShipperCartorPerPallet);
+                    parameters.Add("PalletSize", value.PalletSize);
+                    parameters.Add("NoOfUnitsPerShipperCarton", value.NoOfUnitsPerShipperCarton);
+                    parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                    parameters.Add("AddedByUserID", value.AddedByUserID); parameters.Add("ItemId", value.ItemId);
+                    parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                    parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
+                    parameters.Add("StatusCodeID", value.StatusCodeID);
+
+                    var lastInsertedRecordId = value.PackingMethodId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  NavPackingMethod SET StatusCodeID=@StatusCodeID,NoOfShipperCartorPerPallet=@NoOfShipperCartorPerPallet,PalletSize=@PalletSize,NoOfUnitsPerShipperCarton=@NoOfUnitsPerShipperCarton," +
+                            "ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,ItemId=@ItemId  WHERE PackingMethodId =@PackingMethodId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [NavPackingMethod](StatusCodeID,ItemId,NoOfShipperCartorPerPallet,PalletSize,NoOfUnitsPerShipperCarton,AddedDate,AddedByUserID,ModifiedByUserID,ModifiedDate) " +
+                            "OUTPUT INSERTED.PackingMethodId VALUES " +
+                            "(@StatusCodeID,  @ItemId,@NoOfShipperCartorPerPallet,@PalletSize,@NoOfUnitsPerShipperCarton,@AddedDate,@AddedByUserID,@ModifiedByUserID,@ModifiedDate)";
+                        value.PackingMethodId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return value;
 
                 }
 

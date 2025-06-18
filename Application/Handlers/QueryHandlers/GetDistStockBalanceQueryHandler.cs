@@ -116,4 +116,66 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetNavDistStockBalanceByIdHandler : IRequestHandler<GetNavDistStockBalanceById, List<DistStockBalanceModel>>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public GetNavDistStockBalanceByIdHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<List<DistStockBalanceModel>> Handle(GetNavDistStockBalanceById request, CancellationToken cancellationToken)
+        {
+            return (List<DistStockBalanceModel>)await _distStockBalanceQueryRepository.GetNavDistStockBalanceById(request.Id);
+        }
+
+
+    }
+
+    public class UpdateDistStockBalanceHandler : IRequestHandler<UpdateDistStockBalance, DistStockBalanceModel>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public UpdateDistStockBalanceHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<DistStockBalanceModel> Handle(UpdateDistStockBalance request, CancellationToken cancellationToken)
+        {
+            return (DistStockBalanceModel)await _distStockBalanceQueryRepository.UpdateDistStockBalance(request);
+        }
+
+
+    }
+
+    public class DeleteDistStockBalanceHandler : IRequestHandler<DeleteDistStockBalance, DistStockBalanceModel>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public DeleteDistStockBalanceHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<DistStockBalanceModel> Handle(DeleteDistStockBalance request, CancellationToken cancellationToken)
+        {
+            return await _distStockBalanceQueryRepository.DeleteDistStockBalance(request.DistStockBalanceModel);
+        }
+
+
+    }
+    public class DeleteNavItemStockBalanceHandler : IRequestHandler<DeleteNavItemStockBalance, NavItemStockBalanceModel>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public DeleteNavItemStockBalanceHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<NavItemStockBalanceModel> Handle(DeleteNavItemStockBalance request, CancellationToken cancellationToken)
+        {
+            return await _distStockBalanceQueryRepository.DeleteNavItemStockBalance(request.NavItemStockBalanceModel);
+        }
+
+
+    }
 }

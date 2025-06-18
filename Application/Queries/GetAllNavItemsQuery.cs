@@ -218,4 +218,36 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class GetByGenericCodes : PagedRequest, IRequest<List<GenericCodes>>
+    {
+
+    }
+    public class UpdateNavItem : PagedRequest, IRequest<View_NavItems>
+    {
+        public View_NavItems View_NavItems { get; set; }
+        public UpdateNavItem(View_NavItems CompanyId)
+        {
+            this.View_NavItems = CompanyId;
+        }
+    }
+
+    public class GetNavPackingMethodLines : PagedRequest, IRequest<List<NavPackingMethodModel>>
+    {
+        public long? ItemId { get; set; }
+        public GetNavPackingMethodLines(long? itemId)
+        {
+            ItemId = itemId;
+        }
+    }
+    public class DeleteNavPackingMethod : PagedRequest, IRequest<NavPackingMethodModel>
+    {
+        public NavPackingMethodModel NavPackingMethodModel { get; set; }
+        public DeleteNavPackingMethod(NavPackingMethodModel CompanyId)
+        {
+            this.NavPackingMethodModel = CompanyId;
+        }
+    }
+    public class InsertOrUpdateNavPackingMethod : NavPackingMethodModel, IRequest<NavPackingMethodModel>
+    {
+    }
 }

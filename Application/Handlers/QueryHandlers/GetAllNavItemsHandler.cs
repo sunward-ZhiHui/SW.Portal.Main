@@ -405,4 +405,79 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetByGenericCodesHandler : IRequestHandler<GetByGenericCodes, List<GenericCodes>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetByGenericCodesHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<GenericCodes>> Handle(GetByGenericCodes request, CancellationToken cancellationToken)
+        {
+            return (List<GenericCodes>)await _queryRepository.GetByGenericCodes();
+
+        }
+    }
+    public class UpdateNavItemHandler : IRequestHandler<UpdateNavItem, View_NavItems>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public UpdateNavItemHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<View_NavItems> Handle(UpdateNavItem request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateNavItem(request.View_NavItems);
+
+        }
+    }
+
+
+    public class GetNavPackingMethodLinesHandler : IRequestHandler<GetNavPackingMethodLines, List<NavPackingMethodModel>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetNavPackingMethodLinesHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<NavPackingMethodModel>> Handle(GetNavPackingMethodLines request, CancellationToken cancellationToken)
+        {
+            return (List<NavPackingMethodModel>)await _queryRepository.GetNavPackingMethodLines(request.ItemId);
+
+        }
+    }
+
+    public class DeleteNavPackingMethodHandler : IRequestHandler<DeleteNavPackingMethod, NavPackingMethodModel>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public DeleteNavPackingMethodHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<NavPackingMethodModel> Handle(DeleteNavPackingMethod request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteNavPackingMethod(request.NavPackingMethodModel);
+
+        }
+    }
+    public class InsertOrUpdateNavPackingMethodHandler : IRequestHandler<InsertOrUpdateNavPackingMethod, NavPackingMethodModel>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateNavPackingMethodHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<NavPackingMethodModel> Handle(InsertOrUpdateNavPackingMethod request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateNavPackingMethod(request);
+
+        }
+    }
 }

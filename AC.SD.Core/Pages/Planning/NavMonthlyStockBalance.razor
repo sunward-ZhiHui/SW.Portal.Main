@@ -21,7 +21,7 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
-                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="OnViewData" />
+                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="OnViewData" Enabled="EditEnbled" />
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
                     <DxMenuItem Text="Refresh" IconCssClass="fa fa-refresh" Click="OnSync" />
                 </Items>
@@ -97,7 +97,7 @@
                 <DxGridDataColumn Caption="Pack Size" FieldName="PackSize" MinWidth="180" />
                 <DxGridDataColumn Caption="Quantity" FieldName="Quantity" MinWidth="180" />
                 <DxGridDataColumn Caption="Pack UOM" FieldName="PackUOM" MinWidth="180" />
-                <DxGridDataColumn Caption="StockBalMonth" FieldName="StockBalMonth" MinWidth="180" />
+                <DxGridDataColumn Caption="StockBalMonth" FieldName="StockBalMonth" DisplayFormat="dd-MMM-yy" MinWidth="180" />
 
 
             </Columns>
@@ -115,13 +115,13 @@
          ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <StockBalanceList _selectedItemsList="@_selectedItems"></StockBalanceList>
+        <StockBalanceList NavitemStockBalance="@data" _selectedItemsList="@_selectedItems"></StockBalanceList>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    bool AttachmentPopUp { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false; bool EditEnbled { get; set; } = false;
     ViewPlants CurrentPlant { get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = false;
@@ -181,6 +181,7 @@
     }
     async Task OnSearch()
     {
+        EditEnbled = false;
         if ((data.CompanyID > 0) && (data.FilterDate != null))
         {
             data.Month = data.FilterDate.Value.Month;
@@ -189,6 +190,11 @@
             data.WeekNumberOfMonth = weekcount;
             PanelVisible = true;
             navitemStockBalance = await Mediator.Send(new NavItemStockBalanceQuery(data));
+            if (navitemStockBalance != null && navitemStockBalance.Count()>0)
+            {
+                _selectedItems = navitemStockBalance.FirstOrDefault();
+                EditEnbled = true;
+            }
             PanelVisible = false;
             StateHasChanged();
         }

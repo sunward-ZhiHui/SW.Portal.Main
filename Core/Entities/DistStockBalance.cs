@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class DistStockBalance:BaseEntity
+    public class DistStockBalance : BaseEntity
     {
         [Key]
         public long DistStockBalanceId { get; set; }
-        public long DistItemId {  get; set; }
+        public long DistItemId { get; set; }
         public DateTime StockBalMonth { get; set; }
         public int StockBalWeek { get; set; }
         public decimal POQuantity { get; set; }
         public decimal Avg6MonthQty { get; set; }
-        public decimal Quantity { get; set;}
+        public decimal Quantity { get; set; }
         [NotMapped]
         public long CompanyID { get; set; }
         [NotMapped]
@@ -29,13 +29,13 @@ namespace Core.Entities
         [NotMapped]
         public string DistDescription { get; set; }
         [NotMapped]
-        public string NavItem {  get; set; }
+        public string NavItem { get; set; }
         [NotMapped]
         public string NavDescription { get; set; }
         [NotMapped]
         public string NavDescription2 { get; set; }
         [NotMapped]
-        public string InternalRef { get; set;}
+        public string InternalRef { get; set; }
         [NotMapped]
         public string Category { get; set; }
         [NotMapped]
@@ -43,9 +43,9 @@ namespace Core.Entities
         [NotMapped]
         public string PackSize { get; set; }
         [NotMapped]
-        public string NavItemNo { get; set;}
+        public string NavItemNo { get; set; }
         [NotMapped]
-        public string UOM { get; set;}
+        public string UOM { get; set; }
         [NotMapped]
         public string NavCompany { get; set; }
         [NotMapped]
@@ -102,5 +102,17 @@ namespace Core.Entities
         public string? Location { get; set; }
         public string? Month { get; set; }
         public string? StockBalDate { get; set; }
+    }
+    public class DistStockBalanceModel : BaseModel
+    {
+        public long DistStockBalanceId { get; set; }
+        public long? DistItemId { get; set; }
+        public string? DistName { get; set; }
+        public string? ItemName { get; set; }
+        public DateTime? StockBalMonth { get; set; }
+        public int? StockBalWeek { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? PoQty { get; set; }
+
     }
 }

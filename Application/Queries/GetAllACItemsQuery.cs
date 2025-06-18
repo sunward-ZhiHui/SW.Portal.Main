@@ -20,10 +20,23 @@ namespace Application.Queries
             this.ACItemsModel = aCItemsModel;
         }
     }
+
+    public class GetDDACItems : PagedRequest, IRequest<List<ACItemsModel>>
+    {
+    }
     public class InsertOrUpdateAcitems : ACItemsModel, IRequest<ACItemsModel>
     {
 
     }
+    public class GetNavItemCitemList : PagedRequest, IRequest<List<NavItemCitemList>>
+    {
+        public long? ItemId { get; set; }
+        public GetNavItemCitemList(long? itemId)
+        {
+            this.ItemId = itemId;
+        }
+    }
+
     public class DeleteACItems : ACEntryModel, IRequest<ACItemsModel>
     {
         public ACItemsModel ACItemsModel { get; private set; }

@@ -16,6 +16,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ACItemsModel>> GetAllByAsync(ACItemsModel aCItemsModel);
         Task<ACItemsModel> DeleteACItems(ACItemsModel value);
         Task<ACItemsModel> InsertOrUpdateAcitems(ACItemsModel value);
-
+        Task<IReadOnlyList<ACItemsModel>> GetDDACItems();
+        Task<IReadOnlyList<NavItemCitemList>> GetNavItemCitemList(long? ItemId);
     }
 }

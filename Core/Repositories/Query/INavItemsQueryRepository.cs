@@ -45,5 +45,10 @@ namespace Core.Repositories.Query
         Task<RawMatPurch> GetRawMatPurchList(long? CompanyId);
         Task<ReleaseProdOrderLine> GetReleaseProdOrderLineList(long? CompanyId);
         Task<AllProdOrderLine> GetAllProdOrderLineList(long? CompanyId);
+        Task<IReadOnlyList<GenericCodes>> GetByGenericCodes();
+        Task<View_NavItems> UpdateNavItem(View_NavItems view_NavItems);
+        Task<IReadOnlyList<NavPackingMethodModel>> GetNavPackingMethodLines(long? ItemId);
+        Task<NavPackingMethodModel> InsertOrUpdateNavPackingMethod(NavPackingMethodModel value);
+        Task<NavPackingMethodModel> DeleteNavPackingMethod(NavPackingMethodModel value);
     }
 }

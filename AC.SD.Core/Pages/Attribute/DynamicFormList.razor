@@ -470,8 +470,8 @@
             var resultData = await Mediator.Send(new GetDynamicFormDataOneByDataId(_dynamicForm?.ID));
             if (resultData != null)
             {
-                dynamicFormSearch.StartDate = resultData.AddedDate.AddDays(-6);
-                dynamicFormSearch.EndDate = resultData.AddedDate;
+                dynamicFormSearch.StartDate = resultData.ModifiedDate.Value.AddDays(-6);
+                dynamicFormSearch.EndDate = resultData.ModifiedDate;
             }
             else
             {
@@ -484,7 +484,7 @@
             var resultData = await Mediator.Send(new GetDynamicFormDataOneByDataId(_dynamicForm?.ID));
             if (resultData != null)
             {
-                var today = resultData.AddedDate.Date;
+                var today = resultData.ModifiedDate.Value.Date;
                 var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
                 dynamicFormSearch.StartDate = firstDayOfMonth;
                 dynamicFormSearch.EndDate = firstDayOfMonth.AddMonths(1).AddDays(-1);

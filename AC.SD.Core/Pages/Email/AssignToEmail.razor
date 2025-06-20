@@ -283,19 +283,38 @@
     }
     public  async Task GetID()
     {
+        // foreach (object item in SelectedDataItems)
+        // {
+        //     if (item is EmailTopics emailTopics)
+        //     {
+
+        //         SelectedGroups.Add(emailTopics.ID.ToString());
+
+
+        //     }
+
+        // }
+
+        // ToTopicIds?.Invoke(SelectedGroups);
+
+        // StateHasChanged();
+
+
+        if (SelectedDataItems == null || SelectedDataItems.Count == 0)
+            return;
+
+        SelectedGroups.Clear(); 
+
         foreach (object item in SelectedDataItems)
         {
             if (item is EmailTopics emailTopics)
             {
-
                 SelectedGroups.Add(emailTopics.ID.ToString());
-
-
             }
-
         }
 
-        ToTopicIds?.Invoke(SelectedGroups);
+        if (SelectedGroups.Count > 0)
+            ToTopicIds?.Invoke(SelectedGroups);
 
         StateHasChanged();
 

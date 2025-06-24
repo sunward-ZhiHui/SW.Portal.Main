@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Repositories.Query;
 using Dapper;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Google.Api.Gax.ResourceNames;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
@@ -155,7 +156,7 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var parameters = new DynamicParameters();
+                        var parameters = new DynamicParameters();  
                         parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                         parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
@@ -173,6 +174,42 @@ namespace Infrastructure.Repository.Query
                         throw new Exception(exp.Message, exp);
                     }
                     
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        async Task<long> IApplicationPermissionListQueryRepository.UpdateOrder(ApplicationPermission applicationPermission)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Name", applicationPermission.Name, DbType.String);
+                        parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
+                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                        parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
+
+                        var query = "UPDATE ApplicationPermission SET PermissionOrder = @PermissionOrder WHERE PermissionName = @PermissionName AND PermissionURL = @PermissionURL AND Name = @Name";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
 
             }

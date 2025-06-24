@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ApplicationPermission>> GetAllAsync();
         Task<long> Insert(ApplicationPermission applicationPermission);
         Task<long> Update(ApplicationPermission applicationPermission);
+        Task<long> UpdateOrder(ApplicationPermission applicationPermission);        
         Task<long> Delete(long id, long permissionid );
         Task<IReadOnlyList<ApplicationPermission>> GetAllListByParentIDAsync(string parentID);
         Task<IReadOnlyList<ApplicationPermission>> GetAllListByParentAsync();

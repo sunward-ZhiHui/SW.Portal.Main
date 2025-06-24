@@ -1,5 +1,7 @@
 ﻿@page "/DashboardPages"
  @using System.Security.Claims
+@using Application.Queries
+@using MediatR
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Http
@@ -10,69 +12,75 @@
 @using System.IO;
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @rendermode InteractiveServer
+@using System.Text.Json
 @using global::Core.Entities
 @using global::Core.Repositories.Query
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager Navigation
 
-<link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-ambiance.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
-<link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+
 <DxSplitter CssClass="splitter" Width="100%">
     <Panes>
-        <DxSplitterPane Size="15%" MinSize="200px" AllowCollapse="true">
+        <DxSplitterPane Size="18%" MinSize="200px" AllowCollapse="true">
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex gap-2">
+                    <DxButton Text="@ButtonText"
+                              Click="ChangeWorkingMode"
+                              CssClass="btn btn-primary flex-fill" />
+                    <DxButton Text="Sync"
+                              Click="SyncDashboards"
+                              CssClass="btn btn-success flex-fill" />
+                </div>
 
-            <DxButton Text="@ButtonText" Click="ChangeWorkingMode"
-                      CssClass="w-100" />
+                <DxListBox Data="@DashboardIds"
+                           TextFieldName="@nameof(DashboardItem.DisplayName)"
+                           @bind-SearchText="@SearchText"
+                           @bind-Value="@dashboardItem"
+                           ShowSearchBox="true"
+                           SearchTextParseMode="@SearchTextParseMode"
+                           ListRenderMode="ListRenderMode.Virtual"
+                           style="height: calc(100vh - 200px); margin-top: 5px;">
+                    <ItemTemplate Context="item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span>@item.DisplayName</span>
+                            <div style="display: flex; gap: 4px;">
+                                <DxButton IconCssClass="fa fa-arrow-up"
+                                          RenderStyle="ButtonRenderStyle.Success"
+                                          Click="@(() => MoveUp(item))"
+                                          Style="font-size: 11px;" />
+                                <DxButton IconCssClass="fa fa-arrow-down"
+                                          RenderStyle="ButtonRenderStyle.Warning"
+                                          Click="@(() => MoveDown(item))"
+                                          Style="font-size: 11px;" />
+                                <DxButton RenderStyle="ButtonRenderStyle.Danger" IconCssClass="dx-icon-trash" Click="@(args => PromptDelete(item))"
+                                          Style="font-size: 11px;" />
+                            </div>
+                        </div>
+                    </ItemTemplate>
 
-           @*  <DxListBox Data="@DashboardIds" style="height: calc(100vh - 200px);margin-top: 5px;"
-                       TextFieldName="@nameof(DashboardItem.DisplayName)"
-                       @bind-SearchText="@SearchText"
-                       @bind-Value="@dashboardItem"
-                       ShowSearchBox="true"
-                       SearchTextParseMode="@SearchTextParseMode"
-                       ListRenderMode="ListRenderMode.Virtual">
-            </DxListBox> *@
-
-
-
-            <DxListBox Data="@DashboardIds"
-                       TextFieldName="@nameof(DashboardItem.DisplayName)"
-                       @bind-SearchText="@SearchText"
-                       @bind-Value="@dashboardItem"
-                       ShowSearchBox="true"
-                       SearchTextParseMode="@SearchTextParseMode"
-                       ListRenderMode="ListRenderMode.Virtual"
-                       style="height: calc(100vh - 200px); margin-top: 5px;">
-                <ItemTemplate Context="item">
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                        <span>@item.DisplayName</span>
-                        <DxButton IconCssClass="dx-icon-trash"
-                                  CssClass="btn btn-sm btn-danger"
-                                  Click="@(args => PromptDelete(item))"
-                                  Style="margin-left: 8px; font-size: 11px;" />
-                    </div>
-                </ItemTemplate>
-
-            </DxListBox>
-
-
-
+                </DxListBox>
+            </div>
         </DxSplitterPane>
 
         <DxSplitterPane MaxSize="100%" AllowCollapse="true">
-            <DxDashboard Endpoint="api/dashboard" @bind-WorkingMode="@workingMode" @bind-DashboardId="dashboardItem.Id" style="height: calc(100vh - 200px);">
-                <DxBackendOptions RequestHttpHeaders="@headers"></DxBackendOptions>
+            <DxDashboard Endpoint="api/dashboard"
+                         @bind-WorkingMode="@workingMode"
+                         @bind-DashboardId="dashboardItem.Id"
+                         style="height: calc(100vh - 200px);">
+                <DxBackendOptions RequestHttpHeaders="@headers" />
             </DxDashboard>
-
         </DxSplitterPane>
     </Panes>
 </DxSplitter>
+
+
+
+
+
 
 
 <DxPopup @bind-Visible="isDeletePopupVisible"
@@ -106,7 +114,7 @@
     bool isDeletePopupVisible = false;
     DashboardItem? dashboardToDelete = null;
 
-
+    private List<string> _customOrder = new();
 
     public void ChangeWorkingMode()
     {
@@ -127,14 +135,34 @@
     protected override async Task OnInitializedAsync()
     {       
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        LoadCustomOrder();
         DashboardIds = LoadDashboardsFromXml();
-        headers["UserId"] = applicationUser.UserID.ToString();  
+        dashboardItem = DashboardIds.FirstOrDefault() ?? new DashboardItem();
+
+        if (applicationUser != null)
+            headers["UserId"] = applicationUser.UserID.ToString();
+    }
+    public void LoadCustomOrder()
+    {
+        var orderPath = Path.Combine("Data", "dashboard-order.json");
+
+        if (File.Exists(orderPath))
+        {
+            var json = File.ReadAllText(orderPath);
+            _customOrder = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+        }
+        else
+        {
+            // fallback if no custom order file
+            _customOrder = new();
+        }
     }
 
     public class DashboardItem
     {
         public string Id { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
+        public string? XmlData { get; set; } // Optional
     }
     public List<DashboardItem> LoadDashboardsFromXmlold()
     {
@@ -159,7 +187,7 @@
         return dashboards;
     }
 
-    public List<DashboardItem> LoadDashboardsFromXml()
+    public List<DashboardItem> LoadDashboardsFromXml21()
     {
         var dashboards = new List<DashboardItem>();
 
@@ -183,7 +211,37 @@
 
         return dashboards;
     }
+    public List<DashboardItem> LoadDashboardsFromXml()
+    {
+        var dashboards = new List<DashboardItem>();
 
+        foreach (var file in Directory.GetFiles("Data/Dashboards", "*.xml"))
+        {
+            var dashboardId = Path.GetFileNameWithoutExtension(file);
+
+            var dashboard = new DevExpress.DashboardCommon.Dashboard();
+            dashboard.LoadFromXml(file);
+
+            dashboards.Add(new DashboardItem
+            {
+                Id = dashboardId,
+                DisplayName = dashboard.Title.Text ?? dashboardId
+            });
+        }
+
+        // Apply custom order
+        dashboards = dashboards
+            .OrderBy(d => _customOrder.Contains(d.Id) ? _customOrder.IndexOf(d.Id) : int.MaxValue)
+            .ThenBy(d => d.DisplayName) // fallback order
+            .ToList();
+
+        if (dashboards.Any())
+        {
+            DashboardIdValue = dashboards.First().Id;
+        }
+
+        return dashboards;
+    }
     private void PromptDelete(DashboardItem item)
     {
         dashboardToDelete = item;
@@ -230,7 +288,134 @@
         }
     }
    
-    private void ConfirmDelete()
+    private async Task ConfirmDelete_v()
+    {
+        try
+        {
+            if (dashboardToDelete != null)
+            {
+                string sourcePath = Path.Combine("Data/Dashboards", $"{dashboardToDelete.Id}.xml");
+                string archiveFolder = Path.Combine("Data/Archived");
+
+                // Ensure the archive folder exists
+                Directory.CreateDirectory(archiveFolder);
+
+                // Generate archive filename
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string newFileName = $"{dashboardToDelete.Id}_{timestamp}.xml";
+                string destinationPath = Path.Combine(archiveFolder, newFileName);
+
+                // Move the file to archive
+                if (File.Exists(sourcePath))
+                {
+                    File.Move(sourcePath, destinationPath);
+                }
+
+                //Delete associated permission from DB
+                var existingPermissions = await Mediator.Send(new GetApplicationByParentIDListQuery("60800"));
+
+                var matchedPermission = existingPermissions
+                    .FirstOrDefault(p => p.PermissionURL == dashboardToDelete.Id);
+
+                if (matchedPermission != null)
+                {
+                    var request = new DeleteApplicationPermissionListQuery(matchedPermission.PermissionID, matchedPermission.PermissionID);
+                    await Mediator.Send(request);
+                }
+
+                // Reload dashboard list
+                DashboardIds = LoadDashboardsFromXml();
+
+                // Reset selection if deleted item was selected
+                if (dashboardItem?.Id == dashboardToDelete.Id)
+                {
+                    dashboardItem = DashboardIds.FirstOrDefault();
+                }
+
+                toastService.ShowToast($"'{dashboardToDelete.DisplayName}' deleted", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error moving/renaming dashboard: {ex.Message}");
+        }
+        finally
+        {
+            dashboardToDelete = null;
+            isDeletePopupVisible = false;
+        }
+    }
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            if (dashboardToDelete != null)
+            {
+                string sourcePath = Path.Combine("Data/Dashboards", $"{dashboardToDelete.Id}.xml");
+                string archiveFolder = Path.Combine("Data/Archived");
+
+                // Ensure the archive folder exists
+                Directory.CreateDirectory(archiveFolder);
+
+                // Generate archive filename
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string newFileName = $"{dashboardToDelete.Id}_{timestamp}.xml";
+                string destinationPath = Path.Combine(archiveFolder, newFileName);
+
+                // Move the file to archive
+                if (File.Exists(sourcePath))
+                {
+                    File.Move(sourcePath, destinationPath);
+                }
+
+                // ✅ Remove dashboard ID from dashboard-order.json
+                string orderPath = Path.Combine("Data", "dashboard-order.json");
+                if (File.Exists(orderPath))
+                {
+                    var json = File.ReadAllText(orderPath);
+                    var idList = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+
+                    if (idList.Remove(dashboardToDelete.Id))
+                    {
+                        var updatedJson = JsonSerializer.Serialize(idList, new JsonSerializerOptions { WriteIndented = true });
+                        File.WriteAllText(orderPath, updatedJson);
+                    }
+                }
+
+                // Delete associated permission from DB
+                var existingPermissions = await Mediator.Send(new GetApplicationByParentIDListQuery("60800"));
+                var matchedPermission = existingPermissions.FirstOrDefault(p => p.PermissionURL == dashboardToDelete.Id);
+
+                if (matchedPermission != null)
+                {
+                    var request = new DeleteApplicationPermissionListQuery(matchedPermission.PermissionID, matchedPermission.PermissionID);
+                    await Mediator.Send(request);
+                }
+
+                // Reload dashboard list
+                DashboardIds = LoadDashboardsFromXml();
+
+                // Reset selection if deleted item was selected
+                if (dashboardItem?.Id == dashboardToDelete.Id)
+                {
+                    dashboardItem = DashboardIds.FirstOrDefault();
+                }
+
+                toastService.ShowToast($"'{dashboardToDelete.DisplayName}' deleted", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error moving/renaming dashboard: {ex.Message}");
+        }
+        finally
+        {
+            dashboardToDelete = null;
+            isDeletePopupVisible = false;
+        }
+    }
+
+    private void ConfirmDeleteold1()
     {
         try
         {
@@ -272,6 +457,127 @@
             dashboardToDelete = null;
             isDeletePopupVisible = false;
         }
+    }
+
+    public async Task SyncDashboardsold()
+    {      
+        var dashboards = LoadDashboardsFromXml();
+
+        var existingPermissions = await Mediator.Send(new GetApplicationByParentIDListQuery("60800"));
+
+        foreach (var item in dashboards)
+        {            
+            if (existingPermissions.Any(p => p.PermissionURL == item.Id))
+            continue;
+
+
+            string xmlPath = $"Data/Dashboards/{item.Id}.xml";
+            string xmlContent = await File.ReadAllTextAsync(xmlPath);
+
+            var request = new CreateApplicationPermissionQuery
+            {
+                ParentID = 60800,
+                PermissionName = item.DisplayName,
+                PermissionURL = item.Id,
+                Component = "DynamicDashboard",
+                Name = "DynamicDashboard",
+                PermissionLevel = 1,
+                IsPermissionURL = true,
+                IsHeader = false,
+                PermissionOrder = "1"
+            };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record Sync Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+        }
+
+        StateHasChanged();
+    }
+    public async Task SyncDashboards()
+    {
+        var dashboards = LoadDashboardsFromXml(); // already sorted
+        var existingPermissions = await Mediator.Send(new GetApplicationByParentIDListQuery("60800"));
+
+        // STEP 1: Create missing permissions with correct PermissionOrder immediately
+        for (int i = 0; i < dashboards.Count; i++)
+        {
+            var item = dashboards[i];
+            string correctOrder = (i + 1).ToString();
+
+            var exists = existingPermissions.Any(p => p.PermissionURL == item.Id);
+            if (!exists)
+            {
+                string xmlPath = $"Data/Dashboards/{item.Id}.xml";
+                string xmlContent = await File.ReadAllTextAsync(xmlPath);
+
+                var createRequest = new CreateApplicationPermissionQuery
+                {
+                    ParentID = 60800,
+                    PermissionName = item.DisplayName,
+                    PermissionURL = item.Id,
+                    Component = "DynamicDashboard",
+                    Name = "DynamicDashboard",
+                    PermissionLevel = 1,
+                    IsPermissionURL = true,
+                    IsHeader = false,
+                    PermissionOrder = correctOrder
+                };
+
+                await Mediator.Send(createRequest);
+                toastService.ShowToast($"Created: {item.DisplayName}", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+
+        // STEP 2: Update permission order for all dashboards
+        for (int i = 0; i < dashboards.Count; i++)
+        {
+            var item = dashboards[i];
+            string correctOrder = (i + 1).ToString();
+
+            var updateRequest = new UpdateOrderApplicationPermission
+            {
+                ParentID = 60800,
+                PermissionName = item.DisplayName,
+                PermissionURL = item.Id,
+                Name = "DynamicDashboard",
+                PermissionOrder = correctOrder
+            };
+
+            await Mediator.Send(updateRequest);
+            toastService.ShowToast($"Updated Order: {item.DisplayName}", AC.SD.Core.Services.ToastLevel.Info);
+        }
+
+        StateHasChanged();
+    }
+
+    void MoveUp(DashboardItem item)
+    {
+        int index = DashboardIds.IndexOf(item);
+        if (index > 0)
+        {
+            (DashboardIds[index], DashboardIds[index - 1]) = (DashboardIds[index - 1], DashboardIds[index]);
+            SaveDashboardOrder();
+            StateHasChanged();
+        }
+    }
+
+    void MoveDown(DashboardItem item)
+    {
+        int index = DashboardIds.IndexOf(item);
+        if (index < DashboardIds.Count - 1)
+        {
+            (DashboardIds[index], DashboardIds[index + 1]) = (DashboardIds[index + 1], DashboardIds[index]);
+            SaveDashboardOrder();
+            StateHasChanged();
+        }
+    }
+
+    void SaveDashboardOrder()
+    {
+        var orderPath = Path.Combine("Data", "dashboard-order.json");
+        var idList = DashboardIds.Select(d => d.Id).ToList();
+        var json = JsonSerializer.Serialize(idList);
+        File.WriteAllText(orderPath, json);
     }
 
 

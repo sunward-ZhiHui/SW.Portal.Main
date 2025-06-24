@@ -54,6 +54,23 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
+    public class UpdateOrderApplicationPermissionHandler : IRequestHandler<UpdateOrderApplicationPermission, long>
+    {
+        private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;
+        public UpdateOrderApplicationPermissionHandler(IApplicationPermissionListQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateOrderApplicationPermission request, CancellationToken cancellationToken)
+        {
+            var req = await _rolepermissionQueryRepository.UpdateOrder(request);
+            return req;
+        }
+    }
+
+    
+
     public class DeleteApplicationPermissionListHandler : IRequestHandler<DeleteApplicationPermissionListQuery, long>
     {
         private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;

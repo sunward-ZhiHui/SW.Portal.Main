@@ -1,0 +1,109 @@
+﻿@page "/DynamicDashboard/{TSessionId:guid}"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Http
+@using DevExpress.DashboardBlazor
+@using DevExpress.DashboardWeb
+@using DevExpress.DashboardAspNetCore
+@using DevExpress.DashboardCommon;
+@using System.IO;
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+@using global::Core.Entities
+@using global::Core.Repositories.Query
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager Navigation
+@using Application.Queries
+@using MediatR
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+
+@if (dashboardItem != null && !string.IsNullOrEmpty(dashboardItem.Id))
+{
+    <DxDashboard Endpoint="api/dashboard"
+                 @bind-WorkingMode="@workingMode"
+                 @bind-DashboardId="dashboardItem.Id"
+                 style="height: calc(100vh - 200px);">
+        <DxBackendOptions RequestHttpHeaders="@headers" />
+    </DxDashboard>
+}
+
+
+@code {
+    [Parameter]
+    public Guid TSessionId { get; set; }
+    string SearchText { get; set; }
+    ListSearchTextParseMode SearchTextParseMode { get; set; } = ListSearchTextParseMode.GroupWordsByAnd;
+    string endpoint = "api/dashboard";
+    WorkingMode workingMode = WorkingMode.Viewer;
+    public string DashboardIdValue { get; set; } = "dashboard2";
+    DashboardItem dashboardItem = new DashboardItem();    
+    Dictionary<string, string> headers = new();
+    long UserId = 1;
+    public ApplicationUser? applicationUser { get; private set; }
+    public List<DashboardItem> DashboardIds { get; set; } = new List<DashboardItem>();
+    bool isDeletePopupVisible = false;
+    DashboardItem? dashboardToDelete = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("showLoading");
+
+        string sessionidString = TSessionId.ToString();
+        var lsts = await Mediator.Send(new GetListByApplicationPermissionSession(sessionidString));
+
+        if (lsts != null && lsts.Count > 0)
+        {
+            string dashboardId = lsts[0].PermissionURL;
+
+            if (!string.IsNullOrEmpty(dashboardId))
+            {
+                LoadDashboardsFromXml(dashboardId);
+            }
+        }
+
+        await JSRuntime.InvokeVoidAsync("hideLoading");
+    }
+
+   
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        //DashboardIds = LoadDashboardsFromXml();
+        headers["UserId"] = applicationUser.UserID.ToString();
+    }
+
+    public class DashboardItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;       
+    }
+    public List<DashboardItem> LoadDashboardsFromXml(string dashboardId)
+    {
+        var dashboards = new List<DashboardItem>();
+
+        foreach (var file in Directory.GetFiles("Data/Dashboards", "*.xml"))
+        {
+            var id = Path.GetFileNameWithoutExtension(file);
+            var dashboard = new DevExpress.DashboardCommon.Dashboard();
+            dashboard.LoadFromXml(file);
+
+            dashboards.Add(new DashboardItem
+            {
+                Id = id,
+                DisplayName = dashboard.Title.Text ?? id
+            });
+        }
+
+        DashboardIds = dashboards;
+
+        // Set the dashboardItem from the matching ID
+        dashboardItem = dashboards.FirstOrDefault(x => x.Id == dashboardId) ?? dashboards.FirstOrDefault();
+
+        return dashboards;
+    }
+
+}

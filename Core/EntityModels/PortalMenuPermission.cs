@@ -28,7 +28,16 @@ namespace Core.EntityModels
         public Guid UniqueSessionID { get; set; }
         public string? PermissionURL { get; set; }
     }
+    public class BreadcrumbModel
+    {
+        public string Title { get; set; }
+        public string Name { get; set; }
+        public string URL { get; set; }
+        public bool Selected { get; set; }
+        public long? PermissionID { get; set; }
+        public int Removed { get; set; } = 0;
 
+    }
     public class PortalPermissionModel
     {
         public long? PermissionID { get; set; }

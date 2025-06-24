@@ -21,6 +21,15 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
 
+<link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/ace-theme-ambiance.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
+<link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
+
 @if (dashboardItem != null && !string.IsNullOrEmpty(dashboardItem.Id))
 {
     <DxDashboard Endpoint="api/dashboard"

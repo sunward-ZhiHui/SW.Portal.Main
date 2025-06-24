@@ -27,6 +27,7 @@ namespace Core.EntityModels
         public byte[]? ByteData { get; set; }
         public long? UserId { get; set; }
         public long? CompanyId { get; set; }
+        public string? CompanyName { get; set; }
     }
 
 }

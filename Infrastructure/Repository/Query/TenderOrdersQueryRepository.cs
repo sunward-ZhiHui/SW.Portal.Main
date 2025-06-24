@@ -39,7 +39,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select * from SimulationAddhoc";
+                var query = "select t1.*,t2.PlantCode as CompanyName from SimulationAddhoc t1\r\n\r\nLeft Join Plant t2 ON t1.CompanyID=t2.PlantID";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<TenderOrderModel>(query)).ToList();
@@ -243,9 +243,15 @@ namespace Infrastructure.Repository.Query
                     var items = await GetNavItemsAllByAsync(TenderOrderModel.CompanyId);
                     foreach (DataRow row in dt.Rows)
                     {
+                        var companyName = row["Company"].ToString();
+                        var companyId = 1;
+                        if (companyName == "SWSIN")
+                        {
+                            companyId = 2;
+                        }
                         var parameters = new DynamicParameters();
                         var ItemNo = row["ItemNo"].ToString();
-                        var itemIds = items.FirstOrDefault(i => i.No == ItemNo && i.CompanyId == TenderOrderModel.CompanyId)?.ItemId;
+                        var itemIds = items.FirstOrDefault(i => i.No == ItemNo && i.CompanyId == companyId)?.ItemId;
                         parameters.Add("ItemId", itemIds);
                         parameters.Add("DocumantType", row["DocumentType"].ToString(), DbType.String);
                         parameters.Add("CustomerName", row["CustomerName"].ToString(), DbType.String);
@@ -260,7 +266,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SelltoCustomerNo", row["SelltoCustomerNo"].ToString(), DbType.String);
                         parameters.Add("ShipmentDate", GetDate(row["ShipmentDate"].ToString()), DbType.DateTime);
                         parameters.Add("UOMCode", row["UnitofMeasureCode"].ToString(), DbType.String);
-                        //parameters.Add("Company", row["Company"].ToString(), DbType.String);
+                        parameters.Add("CompanyId", companyId);
                         dynamicParameters.Add(parameters);
                     }
                     if (dynamicParameters.Count > 0)
@@ -286,10 +292,10 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyId", CompanyId);
-                var query = "Select * FROM NavItems WHERE CompanyId= @CompanyId;";
+                var query = "Select ItemId,companyId,no,Description FROM NavItems\r\n";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_NavItems>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<View_NavItems>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

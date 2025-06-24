@@ -20,6 +20,10 @@ namespace Application.Queries
     {
 
     }
+    public class UpdateOrderApplicationPermission : ApplicationPermission, IRequest<long>
+    {
+
+    }    
     public class DeleteApplicationPermissionListQuery : ApplicationPermission, IRequest<long>
     {
         public long ID { get; set; }

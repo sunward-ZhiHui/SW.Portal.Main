@@ -955,7 +955,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
             }
             if (_selectedItemsDAta.IsDraft == false)
             {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId + "/Email";
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
         }

@@ -1238,7 +1238,7 @@
             {
                 if (emailExits.IsEmailCreated == true && emailExits.IsPartialEmailCreated == true)
                 {
-                    var url = NavigationManager.BaseUri + "ViewEmail/" + emailExits.EmailSessionId;
+                    var url = NavigationManager.BaseUri + "ViewEmail/" + emailExits.EmailSessionId + "/Email";
                     await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 }
                 else if (emailExits.IsEmailCreated == false && emailExits.IsPartialEmailCreated == true)

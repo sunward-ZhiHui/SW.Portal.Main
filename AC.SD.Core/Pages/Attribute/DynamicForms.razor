@@ -3943,7 +3943,7 @@
             }
             if (_dynamicformData.IsDraft == false)
             {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + _dynamicformData.EmailTopicSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _dynamicformData.EmailTopicSessionId + "/Email";
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
         }

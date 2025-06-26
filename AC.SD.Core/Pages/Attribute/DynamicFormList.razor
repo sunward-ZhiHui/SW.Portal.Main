@@ -1724,7 +1724,7 @@
             }
             if (_selectedItemsDAta.IsDraft == false)
             {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItemsDAta.EmailTopicSessionId+"/Email";
                 await JS.InvokeVoidAsync("window.open", url, "_blank");
             }
         }

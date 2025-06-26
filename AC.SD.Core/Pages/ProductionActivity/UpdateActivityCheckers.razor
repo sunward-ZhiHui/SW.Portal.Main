@@ -299,7 +299,7 @@
         {
             if (selectedFiles.IsEmailCreated == true && selectedFiles.IsPartialEmailCreated == true)
             {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + selectedFiles.EmailSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + selectedFiles.EmailSessionId + "/Email";
                 await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
             else if (selectedFiles.IsEmailCreated == false && selectedFiles.IsPartialEmailCreated == true)

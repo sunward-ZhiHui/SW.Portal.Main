@@ -732,7 +732,7 @@
             else
             {
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                var url = NavigationManager.BaseUri + "ViewEmail/" + result.EmailCreateSessionId;
+                var url = NavigationManager.BaseUri + "ViewEmail/" + result.EmailCreateSessionId + "/Email";
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 backUrl();
             }
@@ -784,7 +784,7 @@
         if (SelectedFilesCount == isUploadSuccessCount)
         {
             toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-            var url = NavigationManager.BaseUri + "ViewEmail/" + uploadEmailSessionId;
+            var url = NavigationManager.BaseUri + "ViewEmail/" + uploadEmailSessionId + "/Email";
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             backUrl();
         }

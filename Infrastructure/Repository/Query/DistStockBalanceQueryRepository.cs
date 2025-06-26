@@ -416,13 +416,14 @@ namespace Infrastructure.Repository.Query
                 }*/
                 var query = "select * from Navcustomer;";
                 query += "select * from Acitems;";
-                query += "select * from DistStockBalance;";
-                List<Navcustomer> customers = new List<Navcustomer>(); List<Acitems> acitems = new List<Acitems>(); List<DistStockBalance> DistStockBalances = new List<DistStockBalance>();
+                // query += "select * from DistStockBalance;";
+                List<Navcustomer> customers = new List<Navcustomer>(); List<Acitems> acitems = new List<Acitems>();
+                //List<DistStockBalance> DistStockBalances = new List<DistStockBalance>();
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query);
                     customers = results.Read<Navcustomer>().ToList();
-                    acitems = results.Read<Acitems>().ToList(); DistStockBalances = results.Read<DistStockBalance>().ToList();
+                    acitems = results.Read<Acitems>().ToList(); //DistStockBalances = results.Read<DistStockBalance>().ToList();
                 }
                 acItems.ForEach(async ac =>
                 {
@@ -471,6 +472,7 @@ namespace Infrastructure.Repository.Query
                         exist.ModifiedByUserId = userId;
                         exist.ModifiedDate = DateTime.Now;
                         var stockBalWeek = GetWeekNumberOfMonth(acMonth);
+                        var DistStockBalances = await GetNavDistStockBalanceOneById(exist.DistAcid, acMonth);
                         var stkbalances = DistStockBalances.Where(fd => fd.DistItemId == exist.DistAcid && fd.StockBalMonth.Month == acMonth.Month && fd.StockBalMonth.Year == acMonth.Year);
                         DistStockBalance stkbalance = null;
                         if (stkbalances.Any(c => c.StockBalWeek == stockBalWeek))
@@ -505,6 +507,28 @@ namespace Infrastructure.Repository.Query
             {
             }
             return TenderOrderModel;
+        }
+        public async Task<List<DistStockBalance>> GetNavDistStockBalanceOneById(long? id, DateTime acMonth)
+        {
+            try
+            {
+                List<DistStockBalance> navStockBalanceModels = new List<DistStockBalance>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DistItemId", id);
+
+                parameters.Add("Month", acMonth.Month);
+                parameters.Add("Year", acMonth.Year);
+                var query = "select t1.* from DistStockBalance t1 where t1.DistItemId=@DistItemId  AND MONTH(t1.StockBalMonth) = @Month AND YEAR(t1.StockBalMonth)=@Year;";
+                using (var connection = CreateConnection())
+                {
+                    navStockBalanceModels = (await connection.QueryAsync<DistStockBalance>(query, parameters)).ToList();
+                }
+                return navStockBalanceModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<NavItemStockBalanceModel> UpdateNavItemStockBalance(NavItemStockBalanceModel value)
         {

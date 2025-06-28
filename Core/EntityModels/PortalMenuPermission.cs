@@ -19,6 +19,7 @@ namespace Core.EntityModels
         public string MenuOrder { get; set; }
         public string Component { get; set; }
         public string Name { get; set; }
+        public string PermissionName { get; set; }
         public string Icon { get; set; }
         public string ScreenID { get; set; }
         public List<PortalMenuModel> Items { get; set; }

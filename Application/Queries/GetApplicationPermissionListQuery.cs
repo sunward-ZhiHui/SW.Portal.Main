@@ -11,6 +11,11 @@ namespace Application.Queries
 {
     public class GetApplicationPermissionListQuery : PagedRequest, IRequest<List<ApplicationPermission>>
     {
+        public long parentId { get; set; }
+        public GetApplicationPermissionListQuery(long ParentId)
+        {
+            this.parentId = ParentId;
+        }
     }
 
     public class CreateApplicationPermissionListQuery : ApplicationPermission, IRequest<long>

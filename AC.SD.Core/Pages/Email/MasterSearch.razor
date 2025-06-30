@@ -818,8 +818,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     protected override async Task OnParametersSetAsync()
     {
 
-        Data.AllParticipantCondition = "AND";
-        Data.SubjectCondition = "AND";
+        Data.AllParticipantCondition = "OR";
+        Data.SubjectCondition = "OR";
         Data.GroupCondition = "AND";
         Data.CategoryCondition = "AND";
         Data.ActionCondition = "AND";

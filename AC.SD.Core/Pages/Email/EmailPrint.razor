@@ -53,6 +53,7 @@
             @foreach (var item in _discussionList)
             {               
                 <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
+
                     <div class="uk-card-header">
                         <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                             <div class="mailbox-read-info">
@@ -63,7 +64,7 @@
                                     <div class="mailbox-read-time" style="float:right;">
                                         <div class="" style="margin-top: -21px; margin-right: 16px;"><span style="font-weight:bold;"> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</div>
                                     </div>
-                                }                               
+                                }
                                 @{
                                     dynamicShowSubject = "showOpenSubject_" + item.ID;
                                 }
@@ -80,181 +81,8 @@
                                 {
                                     <span class="primary_color_icon"><i class="fa fa-commenting" style="margin-top: 8px;" aria-hidden="true"></i></span>
                                 }                               
-                                <h5>
-                                    From: @item.UserName
-                                    @if (item.OnBehalfName != null)
-                                    {
-                                        <span style="font-weight:bold; font-size:12px; margin-left:10px;">OnBehalf : </span>
-                                        <span style="font-size:12px;"> @item.OnBehalfName </span>
-                                        @if (item.Follow == "Follow Up")
-                                        {
-                                            <span class="fa fa-link" style="font-size:12px; margin-left: 10px;color: red;" aria-hidden="true"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fa fa-chain-broken" style="font-size:12px; margin-left: 10px;" aria-hidden="true"></span>
-                                        }
-                                    }
-                                    <br>
-
-                                    <div class="mailbox-read-time" style="float:right;">
-                                        <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>                                       
-                                    </div>
-                                    To:
-                                    @if (item.AssignToList != null && item.AssignToList.Any())
-                                    {
-                                        @foreach (var items in item.AssignToList)
-                                        {
-                                            <span>@items.FirstName ,</span>
-                                        }
-                                    }
-                                    <br>
-                                    @if (item.AssignCCList != null && item.AssignCCList.Any())
-                                    {
-                                        <text>CC:</text>
-                                        @foreach (var items in item.AssignCCList)
-                                        {
-                                            <span>@items.FirstName ,</span>
-                                        }
-                                    }
-                                </h5>
                             </div>
                         </div>
-                    </div>
-                    @if (!string.IsNullOrEmpty(item.BackURL))
-                    {
-                        string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
-
-                        <div class="replybox" style="min-height:60px;">
-                            <div style="font-weight: bold;">
-                                @ActivityTypes Comment
-                                <div style="float:right; line-height:16px">
-                                    @if (item.ActivityType == "FileProfileType")
-                                    {
-                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </button>
-                                    }
-                                    else if (item.ActivityType == "EmailFileProfileType")
-                                    {
-                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </button>
-
-                                    }
-
-                                </div>
-                            </div>
-                            <text>@item.ActCommentName</text>
-                            <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
-                        </div>
-
-                    }
-                    <div class="uk-card-body">
-
-                        <div>
-                            @{
-                                byte[] htmlBinaryData = item.FileData; // Your HTML binary data
-                                string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
-                                @((MarkupString)htmlContent)
-                            }
-                        </div>
-
-
-                        @*  @{
-
-                            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
-                            byte[] fileContent1 = item.FileData;
-                            server.LoadDocument(fileContent1);
-                            server.Options.Export.Html.EmbedImages = true;
-                            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Rtf);
-
-                            item.FileData = fileContents;
-                        }
-
-                        <DxRichEdit CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="richEdit" DocumentContent="@item.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
- *@
-
-
-
-                        @* <CopyToClipboardButton Text="htmlContent" />
-                            <p class="uk-text-success">
-                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                </p> *@
-
-                        @if (item.documents.Any())
-                        {
-                            <div class="uk-card-footer">
-                                <div>
-                                    <div class="">
-                                        @foreach (var attachment in item.documents)
-                                        {
-                                            <div class="tag handline">
-                                                <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
-
-                                                @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    <div class="options">
-                                                        <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
-                                                            <i class="fa fa-play" aria-hidden="true"></i>
-                                                        </div>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="options">
-                                                        <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
-                                                            <i class="fa fa-cloud-download" aria-hidden="true"></i>
-                                                        </div>
-                                                        <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
-                                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @* <div class="uk-card-footer">
-                <div>
-                <div class="accordion-item">
-                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>
-
-                @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
-                {
-                @foreach (var attachment in item.documents)
-                {
-                <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                }
-                string firststring = "#overviewDemoSelectButton_";
-                Guid? secondstring = item.SessionId;
-                string extt = firststring + secondstring;
-
-                <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
-                <DxUpload @ref="MyUpload" Name="files"
-                AcceptedFileTypes=@AcceptedFileTypes
-                Visible="@UploadVisible"
-                ExternalSelectButtonCssSelector="@extt"
-                UploadUrl="@GetDocUploadUrl(@item.SessionId)"
-                Id="@extt"
-                SelectedFilesChanged="@SelectedFilesChanged1"
-                CssClass="w-100"
-                FileUploaded="@HandleUploadSuccess">
-                </DxUpload>
-                }
-
-                </div>
-                </div>
-                </div>*@
                     </div>
 
                     @if (item.ReplyConversation.Count() > 0)
@@ -438,6 +266,162 @@
                             </div>
                         </div>
                     }
+
+                    <div class="uk-card-header">
+                        <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
+                            <div class="mailbox-read-info">
+                                <h3>@item.Name</h3>
+
+                                @if (item.DueDate != null)
+                                {
+                                    <div class="mailbox-read-time" style="float:right;">
+                                        <div class="" style="margin-top: -21px; margin-right: 16px;"><span style="font-weight:bold;"> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</div>
+                                    </div>
+                                }
+                                @{
+                                    dynamicShowSubject = "showOpenSubject_" + item.ID;
+                                }
+                                <div id="@dynamicShowSubject" class="handline fa fa-ellipsis-v" style="font-size: 18px;    font-weight: bold; float: right; margin-top: -20px;"></div>
+                                @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                                {
+                                    <span class="primary_color_icon" style="margin-top: 5px;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                                }
+                                @if (item.Urgent.GetValueOrDefault(false))
+                                {
+                                    <span class="urgent_icon"><i class="fas fa-bell" style="margin-top: 8px;" aria-hidden="true"></i></span>
+                                }
+                                @if (item.NotifyUser.GetValueOrDefault(false))
+                                {
+                                    <span class="primary_color_icon"><i class="fa fa-commenting" style="margin-top: 8px;" aria-hidden="true"></i></span>
+                                }
+                                <h5>
+                                    From: @item.UserName
+                                    @if (item.OnBehalfName != null)
+                                    {
+                                        <span style="font-weight:bold; font-size:12px; margin-left:10px;">OnBehalf : </span>
+                                        <span style="font-size:12px;"> @item.OnBehalfName </span>
+                                        @if (item.Follow == "Follow Up")
+                                        {
+                                            <span class="fa fa-link" style="font-size:12px; margin-left: 10px;color: red;" aria-hidden="true"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fa fa-chain-broken" style="font-size:12px; margin-left: 10px;" aria-hidden="true"></span>
+                                        }
+                                    }
+                                    <br>
+
+                                    <div class="mailbox-read-time" style="float:right;">
+                                        <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
+                                    </div>
+                                    To:
+                                    @if (item.AssignToList != null && item.AssignToList.Any())
+                                    {
+                                        @foreach (var items in item.AssignToList)
+                                        {
+                                            <span>@items.FirstName ,</span>
+                                        }
+                                    }
+                                    <br>
+                                    @if (item.AssignCCList != null && item.AssignCCList.Any())
+                                    {
+                                        <text>CC:</text>
+                                        @foreach (var items in item.AssignCCList)
+                                        {
+                                            <span>@items.FirstName ,</span>
+                                        }
+                                    }
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(item.BackURL))
+                    {
+                        string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
+
+                        <div class="replybox" style="min-height:60px;">
+                            <div style="font-weight: bold;">
+                                @ActivityTypes Comment
+                                <div style="float:right; line-height:16px">
+                                    @if (item.ActivityType == "FileProfileType")
+                                    {
+                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL + "/" + item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                            <i class="fa fa-arrow-left"></i> Back
+                                        </button>
+                                    }
+                                    else if (item.ActivityType == "EmailFileProfileType")
+                                    {
+                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL + "/" + item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                            <i class="fa fa-arrow-left"></i> Back
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                            <i class="fa fa-arrow-left"></i> Back
+                                        </button>
+
+                                    }
+
+                                </div>
+                            </div>
+                            <text>@item.ActCommentName</text>
+                            <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                        </div>
+
+                    }
+                    <div class="uk-card-body">
+
+                        <div>
+                            @{
+                                byte[] htmlBinaryData = item.FileData; // Your HTML binary data
+                                string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
+                                @((MarkupString)htmlContent)
+                            }
+                        </div>
+
+                        @if (item.documents.Any())
+                        {
+                            <div class="uk-card-footer">                               
+                                <div class="">
+                                    @foreach (var attachment in item.documents)
+                                    {
+                                        <div class="tag handline">
+                                            <i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName
+
+                                            @if (attachment.FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                <div class="options">
+                                                    <div class="play" @onclick="@(() => onPlayAudio(attachment.DocumentID))">
+                                                        <i class="fa fa-play" aria-hidden="true"></i>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="options">
+                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))">
+                                                        <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                    </div>
+                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))">
+                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                </div>
+                               
+                            </div>
+                        }
+
+                    </div>
+
+
+
+
+
                 </div>
             }
         }

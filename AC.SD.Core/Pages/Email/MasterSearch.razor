@@ -670,7 +670,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
     List<SubjectFilterModel> SubjectFilters = new List<SubjectFilterModel>()
     {
-        new SubjectFilterModel()
+        new SubjectFilterModel() { SubjectCondition = "OR" } 
     };
 
     void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
@@ -820,10 +820,10 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         Data.AllParticipantCondition = "OR";
         Data.SubjectCondition = "OR";
-        Data.GroupCondition = "AND";
-        Data.CategoryCondition = "AND";
-        Data.ActionCondition = "AND";
-        Data.OtherTagCondition = "AND";
+        Data.GroupCondition = "OR";
+        Data.CategoryCondition = "OR";
+        Data.ActionCondition = "OR";
+        Data.OtherTagCondition = "OR";
 
         Data.SubjectLike = "=";
         Data.GroupLike = "=";

@@ -1029,7 +1029,42 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
+
+    void UpdateAllParticipants()
+    {
+        var toIds = Data.ToIds ?? Enumerable.Empty<long>();
+        var ccIds = Data.CCIds ?? Enumerable.Empty<long>();
+        var onBehalfId = Data.OnBehalf;
+
+        _Toparticipant = _participant
+            .Where(p => p.UserID != onBehalfId)
+            .ToList();
+
+        _CCparticipant = _participant
+            .Where(p => p.UserID != onBehalfId)
+            .ToList();
+
+        _OnBehalfparticipant = _participant
+            .Where(p => !toIds.Contains(p.UserID.Value) && !ccIds.Contains(p.UserID.Value))
+            .ToList();
+    }
+
+
     void onSelectedToItemsChanged(IEnumerable<long>? values)
+    {
+        Data.ToIds = values;
+
+        // Remove from CC if same user is selected in To
+        if (Data.CCIds != null)
+        {
+            Data.CCIds = Data.CCIds.Where(p => !values.Contains(p)).ToList();
+        }
+
+        UpdateAllParticipants();
+        StateHasChanged();
+    }
+
+    void onSelectedToItemsChanged_VV(IEnumerable<long>? values)
     {
 
         if (values != null)
@@ -1266,8 +1301,22 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         StateHasChanged();
     }
-
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        Data.CCIds = values;
+
+        // Remove from To if same user is selected in CC
+        if (Data.ToIds != null)
+        {
+            Data.ToIds = Data.ToIds.Where(p => !values.Contains(p)).ToList();
+        }
+
+        UpdateAllParticipants();
+        StateHasChanged();
+    }
+
+
+    void onSelectedCCItemsChanged_VV(IEnumerable<long>? values)
     {
 
         if (values != null)
@@ -1338,9 +1387,25 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         _OnBehalfparticipant = _participant.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
     }
 
+    void onSelectedOnBehalfItemsChanged(ViewEmployee? values)
+    {
+        if (values != null)
+        {
+            Data.OnBehalf = values.UserID;
+            selectBehalf = values;
+        }
+        else
+        {
+            Data.OnBehalf = null;
+            selectBehalf = null;
+        }
+
+        UpdateAllParticipants();
+        StateHasChanged();
+    }
 
 
-    void onSelectedOnBehalfItemsChanged(ViewEmployee values)
+    void onSelectedOnBehalfItemsChanged_VV(ViewEmployee values)
     {
         if (values != null)
         {

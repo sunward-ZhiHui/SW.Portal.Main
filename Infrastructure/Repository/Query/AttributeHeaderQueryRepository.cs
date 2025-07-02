@@ -1009,6 +1009,7 @@ namespace Infrastructure.Repository.Query
                         query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                     }
                     query += "\r1=1;\n\r";
+                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2710 And (IsDeleted is null OR IsDeleted=0))\r\n;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -1021,6 +1022,7 @@ namespace Infrastructure.Repository.Query
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
                     DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
                     AttributeDetailsList = results.Read<AttributeDetails>().ToList();
+                    attributeHeaderListModel.AttributeGroupCheckBoxes = results.Read<AttributeGroupCheckBox>().ToList();
                 }
                 if (attributeHeaderListModel.ApplicationMasterParent != null && attributeHeaderListModel.ApplicationMasterParent.Count() > 0)
                 {
@@ -2691,6 +2693,7 @@ namespace Infrastructure.Repository.Query
                     query += "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
                     query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                     query += "\r1=1;\n\r";
+                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2710 And (IsDeleted is null OR IsDeleted=0))\r\n;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2704,6 +2707,7 @@ namespace Infrastructure.Repository.Query
                     DynamicFormAll = results.Read<DynamicForm>().ToList();
                     attributeHeaderListModel.DynamicFormAll = DynamicFormAll;
                     AttributeDetailsList = results.Read<AttributeDetails>().ToList();
+                    attributeHeaderListModel.AttributeGroupCheckBoxes = results.Read<AttributeGroupCheckBox>().ToList();
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
@@ -4177,7 +4181,7 @@ namespace Infrastructure.Repository.Query
                                                             {
                                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                             }
-                                                            
+
                                                             if (s.DataSourceTable == "Location")
                                                             {
                                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
@@ -4216,7 +4220,7 @@ namespace Infrastructure.Repository.Query
                                                             if (s.DataSourceTable == "ReleaseProdOrderLine")
                                                             {
                                                                 var listNames = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
-                                                                ValueSets=(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
+                                                                ValueSets = (listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
                                                             }
                                                             if (s.DataSourceTable == "RawMatPurch")
                                                             {
@@ -4503,21 +4507,47 @@ namespace Infrastructure.Repository.Query
                                                 }
                                                 else if (s.ControlType == "CheckBox")
                                                 {
-                                                    bool? values = itemValue == null ? false : (bool)itemValue;
-                                                    opts.Add("Label", s.DisplayName);
-                                                    opts.Add("Value", values);
-                                                    objectData[attrName] = opts;
-                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
-                                                    DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
-                                                    dynamicFormReportItems6.AttrId = attrName;
-                                                    dynamicFormReportItems6.Label = s.DisplayName;
-                                                    dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
-                                                    dynamicFormReportItems.Add(dynamicFormReportItems6);
-                                                    //if (values == true)
-                                                    // {
-                                                    SubAttrsHeader = s.SubAttributeHeaders;
-                                                    // }
-                                                    loadSubHeaders(SubAttrsHeader, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                                    {
+                                                        string valuesData = string.Empty;
+                                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                                        {
+                                                            var optsSub = new Dictionary<object, object>();
+                                                            var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                            var NamesA = jsonObj.ContainsKey(nameData);
+                                                            if (NamesA == true)
+                                                            {
+                                                                var itemValueA = jsonObj[nameData];
+                                                                bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
+                                                                if (valuesA == true)
+                                                                {
+                                                                    valuesData += r.Value + ",";
+                                                                }
+                                                            }
+                                                        });
+                                                        opts.Add("Label", s.DisplayName);
+                                                        opts.Add("Value", valuesData);
+                                                        objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = valuesData;
+                                                    }
+                                                    else
+                                                    {
+                                                        bool? values = itemValue == null ? false : (bool)itemValue;
+                                                        opts.Add("Label", s.DisplayName);
+                                                        opts.Add("Value", values);
+                                                        objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
+                                                        DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
+                                                        dynamicFormReportItems6.AttrId = attrName;
+                                                        dynamicFormReportItems6.Label = s.DisplayName;
+                                                        dynamicFormReportItems6.Value = values != null ? values.ToString() : string.Empty;
+                                                        dynamicFormReportItems.Add(dynamicFormReportItems6);
+
+                                                        SubAttrsHeader = s.SubAttributeHeaders;
+
+                                                        loadSubHeaders(SubAttrsHeader, s, jsonObj, dynamicFormReportItems, objectData, objectDataList);
+                                                    }
                                                 }
                                                 else
                                                 {

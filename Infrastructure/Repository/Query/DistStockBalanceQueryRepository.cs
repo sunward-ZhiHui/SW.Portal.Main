@@ -415,17 +415,19 @@ namespace Infrastructure.Repository.Query
                     }
                 }*/
                 var query = "select * from Navcustomer;";
-                query += "select * from Acitems;";
+               // query += "select * from Acitems;";
                 // query += "select * from DistStockBalance;";
-                List<Navcustomer> customers = new List<Navcustomer>(); List<Acitems> acitems = new List<Acitems>();
+                List<Navcustomer> customers = new List<Navcustomer>(); 
+               // List<Acitems> acitems = new List<Acitems>();
                 //List<DistStockBalance> DistStockBalances = new List<DistStockBalance>();
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query);
                     customers = results.Read<Navcustomer>().ToList();
-                    acitems = results.Read<Acitems>().ToList(); //DistStockBalances = results.Read<DistStockBalance>().ToList();
+                    //acitems = results.Read<Acitems>().ToList(); 
+                    //DistStockBalances = results.Read<DistStockBalance>().ToList();
                 }
-                acItems.ForEach(async ac =>
+                foreach (var ac in acItems) 
                 {
                     long? custId = null;
                     var cust = customers.FirstOrDefault(cu => cu.Name == ac.DistName);
@@ -439,8 +441,8 @@ namespace Infrastructure.Repository.Query
                     }
                     var acMonth = TenderOrderModel.StkMonth;
                     var qty = acItems.Where(q => q.ItemNo == ac.ItemNo && q.DistName == ac.DistName).Sum(s => decimal.Parse(s.QtyOnHand));
-
-                    var exist = acitems.FirstOrDefault(d => d.CustomerId == custId && d.CompanyId == companyId && d.ItemNo == ac.ItemNo);
+                    var acitemsData = await GetNavAcitemsOneById(custId, companyId, ac.ItemNo);
+                    var exist = acitemsData.FirstOrDefault(d => d.CustomerId == custId && d.CompanyId == companyId && d.ItemNo == ac.ItemNo);
                     if (exist == null)
                     {
                         var acitem = new Acitems
@@ -500,7 +502,7 @@ namespace Infrastructure.Repository.Query
                             await UpadatetDistStockBalance(stkbalance);
                         }
                     }
-                });
+                }
 
             }
             catch (Exception ex)
@@ -522,6 +524,27 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     navStockBalanceModels = (await connection.QueryAsync<DistStockBalance>(query, parameters)).ToList();
+                }
+                return navStockBalanceModels;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<Acitems>> GetNavAcitemsOneById(long? CustomerId, long? CompanyId, string? ItemNo)
+        {
+            try
+            {
+                List<Acitems> navStockBalanceModels = new List<Acitems>();
+                var parameters = new DynamicParameters();
+                parameters.Add("CustomerId", CustomerId);
+                parameters.Add("CompanyId", CompanyId);
+                parameters.Add("ItemNo", ItemNo, DbType.String);
+                var query = "select t1.* from Acitems t1 where t1.CustomerId=@CustomerId  AND CompanyId=@CompanyId AND ItemNo=@ItemNo;";
+                using (var connection = CreateConnection())
+                {
+                    navStockBalanceModels = (await connection.QueryAsync<Acitems>(query, parameters)).ToList();
                 }
                 return navStockBalanceModels;
             }

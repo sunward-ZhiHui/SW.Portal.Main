@@ -1661,7 +1661,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true, true,false));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true, true, false));
                         _DynamicFormSectionIds = _AttributeHeader.DynamicFormSectionAttributeSections.Select(s => s.DynamicFormSectionId).Distinct().ToList();
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
@@ -1737,6 +1737,25 @@
                                             addTempSectionAttributes.Add(addTempSectionAttributesss);
                                         }
                                     });
+                                }
+                                if (a.ControlTypeId == 2710)
+                                {
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                        {
+                                            var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                            typesLists.Add(a.DataType);
+                                            objectNameLists.Add(nameData);
+                                            AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
+                                            addTempSectionAttributess.DataType = a.DataType;
+                                            addTempSectionAttributess.DynamicAttributeName = nameData;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = nameData;
+                                            addTempSectionAttribute.UniqueId = nameData;
+                                            addTempSectionAttributes.Add(addTempSectionAttributess);
+                                        });
+                                    }
                                 }
                                 if (a.DataSourceTable == "DynamicGrid")
                                 {
@@ -2023,6 +2042,24 @@
                                             }
                                             else
                                             {
+                                                if(a.ControlType == "CheckBox")
+                                                {
+                                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                                    {
+                                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                                        {
+                                                            var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                            var NamesA = jsonObjs.ContainsKey(nameData);
+                                                            if(NamesA==true)
+                                                            {
+                                                                var itemValueA = jsonObjs[nameData];
+                                                                bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
+                                                                Data.GetType().GetProperty(nameData).SetValue(Data, valuesA);
+                                                            }
+                                                        });
+                                                    }
+                                                }
                                                 List<AttributeHeader> SubAttrsHeader = new List<AttributeHeader>();
                                                 if (a.ControlType == "TextBox" || a.ControlType == "Memo" || a.ControlType == "Password")
                                                 {
@@ -5759,38 +5796,46 @@
                          }
                          else if (s.ControlType == "CheckBox")
                          {
-                             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-                             editor.AddAttribute(j + 1, "Checked", valueData ?? false);
-                             editor.AddAttribute(j + 1, "CheckedExpression", lambda);
-                             if (isAccessOnly == true)
+                             var attrGroupCheckBox = _AttributeHeader.AttributeGroupCheckBoxes.Where(w => w.AttributeId == s.AttributeId).ToList();
+                             if (attrGroupCheckBox.Count() > 0)
                              {
-                                 editor.AddAttribute(j + 1, "Enabled", isReadonly);
+                                 loadGroupCheckBox(s,attrGroupCheckBox,editor,j);
                              }
                              else
                              {
-                                 editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
-                             }
-                             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, (str) => OnCheckedChangedItem(str, property, a, s)));
-                             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                             {
-                                 if (valueData == null || (bool)valueData == false)
+                                 editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                                 editor.AddAttribute(j + 1, "Checked", valueData ?? false);
+                                 editor.AddAttribute(j + 1, "CheckedExpression", lambda);
+                                 if (isAccessOnly == true)
                                  {
-                                     isRequiredCount += 1;
-                                     if (isSubmit == true)
+                                     editor.AddAttribute(j + 1, "Enabled", isReadonly);
+                                 }
+                                 else
+                                 {
+                                     editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
+                                 }
+                                 editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, (str) => OnCheckedChangedItem(str, property, a, s)));
+                                 if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                                 {
+                                     if (valueData == null || (bool)valueData == false)
                                      {
-                                         //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                         isRequiredCount += 1;
+                                         if (isSubmit == true)
+                                         {
+                                             //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                         }
                                      }
                                  }
-                             }
-                             editor.CloseComponent();
-                             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                             {
-                                 if (valueData == null || (bool)valueData == false && isSubmit == true)
+                                 editor.CloseComponent();
+                                 if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
                                  {
-                                     editor.OpenElement(j + 1, "span");
-                                     editor.AddAttribute(j + 1, "class", "text-danger");
-                                     editor.AddContent(j + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
-                                     editor.CloseElement();
+                                     if (valueData == null || (bool)valueData == false && isSubmit == true)
+                                     {
+                                         editor.OpenElement(j + 1, "span");
+                                         editor.AddAttribute(j + 1, "class", "text-danger");
+                                         editor.AddContent(j + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                                         editor.CloseElement();
+                                     }
                                  }
                              }
                          }
@@ -6524,14 +6569,14 @@
                                                 layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
                                                 layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
                                                 layoutItemBuilders.CloseComponent();
-                                               layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-                                             layoutItemBuilders.AddAttribute(9, "FieldName", "QcRefNo");
-                                             layoutItemBuilders.AddAttribute(9, "Caption", "QcRefNo");
-                                             layoutItemBuilders.CloseComponent();
-                                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                             layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                                             layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
-                                             layoutItemBuilders.CloseComponent();
+                                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                                layoutItemBuilders.AddAttribute(9, "FieldName", "QcRefNo");
+                                                layoutItemBuilders.AddAttribute(9, "Caption", "QcRefNo");
+                                                layoutItemBuilders.CloseComponent();
+                                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                                layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
+                                                layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                                                layoutItemBuilders.CloseComponent();
                                             }
 
                                         }));
@@ -7064,13 +7109,13 @@
                                                layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
                                                layoutItemBuilders1.CloseComponent();
                                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
-                                             layoutItemBuilders1.AddAttribute(9, "FieldName", "QcRefNo");
-                                             layoutItemBuilders1.AddAttribute(9, "Caption", "QcRefNo");
-                                             layoutItemBuilders1.CloseComponent();
-                                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                                             layoutItemBuilders1.AddAttribute(10, "FieldName", "CompanyName");
-                                             layoutItemBuilders1.AddAttribute(10, "Caption", "Comapny");
-                                             layoutItemBuilders1.CloseComponent();
+                                               layoutItemBuilders1.AddAttribute(9, "FieldName", "QcRefNo");
+                                               layoutItemBuilders1.AddAttribute(9, "Caption", "QcRefNo");
+                                               layoutItemBuilders1.CloseComponent();
+                                               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                               layoutItemBuilders1.AddAttribute(10, "FieldName", "CompanyName");
+                                               layoutItemBuilders1.AddAttribute(10, "Caption", "Comapny");
+                                               layoutItemBuilders1.CloseComponent();
                                            }
                                        }));
                                            if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
@@ -11061,6 +11106,112 @@
             }
         });
     }
+    private Dictionary<string, bool> ExpandStates = new();
+    private void ToggleExpand(string key)
+{
+    if (ExpandStates.ContainsKey(key))
+        ExpandStates[key] = !ExpandStates[key];
+    else
+        ExpandStates[key] = true;
+
+    StateHasChanged();
+}
+    void loadGroupCheckBox(DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j)
+    {
+        var attrParent = attributeGroupCheckBoxes.Where(w => w.ParentId == null).ToList();
+        int index = 1;
+        attrParent.ForEach(s =>
+        {
+            string numbering = index.ToString();
+            string key = s.AttributeGroupCheckBoxId.ToString();
+
+            if (!ExpandStates.ContainsKey(key))
+                ExpandStates[key] = true; // default expanded
+
+            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{s.AttributeGroupCheckBoxId}_GroupCheckBox";
+            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+            if (propertyCheck != null)
+            {
+                int p = 20;
+                var valueDataAppMaster = propertyCheck.GetValue(Data);
+                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+                editor.OpenElement(j + 1, "div");
+                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+                // Checkbox
+                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+                editor.CloseComponent();
+
+                // Label with toggle click
+                editor.OpenElement(j + 1, "label");
+                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+                editor.AddContent(j + 1, $"{numbering}. {s.Value}");
+                editor.CloseElement();
+
+                editor.CloseElement();
+
+                if (ExpandStates[key])
+                    loadGroupCheckBoxNested(s, a, attributeGroupCheckBoxes, editor, j, p, numbering);
+            }
+
+            index++;
+        });
+    }
+
+    void loadGroupCheckBoxNested(AttributeGroupCheckBox parent, DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j, int p, string parentNumbering)
+    {
+        var children = attributeGroupCheckBoxes.Where(w => w.ParentId == parent.AttributeGroupCheckBoxId).ToList();
+        int childIndex = 1;
+
+        children.ForEach(child =>
+        {
+            string numbering = $"{parentNumbering}.{childIndex}";
+            string key = child.AttributeGroupCheckBoxId.ToString();
+
+            if (!ExpandStates.ContainsKey(key))
+                ExpandStates[key] = true; // default expanded
+
+            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{child.AttributeGroupCheckBoxId}_GroupCheckBox";
+            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+            if (propertyCheck != null)
+            {
+                var valueDataAppMaster = propertyCheck.GetValue(Data);
+                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+                editor.OpenElement(j + 1, "div");
+                editor.AddAttribute(j + 1, "style", $"padding-left:{p}px;");
+                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+                editor.CloseComponent();
+
+                // Label with toggle click
+                editor.OpenElement(j + 1, "label");
+                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+                editor.AddContent(j + 1, $"{numbering}. {child.Value}");
+                editor.CloseElement();
+
+                editor.CloseElement();
+
+                if (ExpandStates[key])
+                    loadGroupCheckBoxNested(child, a, attributeGroupCheckBoxes, editor, j, p + 20, numbering);
+            }
+
+            childIndex++;
+        });
+    }
+
 }
 
 

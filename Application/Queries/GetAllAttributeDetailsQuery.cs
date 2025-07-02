@@ -46,4 +46,29 @@ namespace Application.Queries
             this.AttributeDetailsID = AttributeDetailsID;
         }
     }
+
+    public class DeleteAttributeGroupCheckBox : AttributeDetails, IRequest<AttributeGroupCheckBox>
+    {
+        public AttributeGroupCheckBox AttributeGroupCheckBox { get; set; }
+        public DeleteAttributeGroupCheckBox(AttributeGroupCheckBox attributeGroupCheckBox)
+        {
+            this.AttributeGroupCheckBox = attributeGroupCheckBox;
+        }
+    }
+    public class InsertOrUpdateAttributeGroupCheckBox : AttributeGroupCheckBox, IRequest<AttributeGroupCheckBox>
+    {
+        /*public AttributeGroupCheckBox AttributeGroupCheckBox { get; set; }
+        public InsertOrUpdateAttributeGroupCheckBox(AttributeGroupCheckBox  attributeGroupCheckBox)
+        {
+            this.AttributeGroupCheckBox = attributeGroupCheckBox;
+        }*/
+    }
+    public class GetAttributeGroupCheckBoxList : PagedRequest, IRequest<List<AttributeGroupCheckBox>>
+    {
+        public long? ID { get; set; }
+        public GetAttributeGroupCheckBoxList(long? ID)
+        {
+            this.ID = ID;
+        }
+    }
 }

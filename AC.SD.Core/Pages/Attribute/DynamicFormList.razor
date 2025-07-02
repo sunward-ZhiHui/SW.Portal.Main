@@ -1234,8 +1234,31 @@
                                         }
                                         else if (s.ControlType == "CheckBox")
                                         {
-                                            bool? values = itemValue == null ? false : (bool)itemValue;
-                                            objectData[attrName] = values;
+                                            string valuesData = string.Empty;
+                                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                            if (_attributeGroupCheckBoxes.Count() > 0)
+                                            {
+                                                _attributeGroupCheckBoxes.ForEach(r =>
+                                                {
+                                                    var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                    var NamesA = jsonObj.ContainsKey(nameData);
+                                                    if (NamesA == true)
+                                                    {
+                                                        var itemValueA = jsonObj[nameData];
+                                                        bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
+                                                        if(valuesA==true)
+                                                        {
+                                                            valuesData += r.Value + ",";
+                                                        }
+                                                    }
+                                                });
+                                                objectData[attrName] = valuesData.TrimEnd(','); 
+                                            }
+                                            else
+                                            {
+                                                bool? values = itemValue == null ? false : (bool)itemValue;
+                                                objectData[attrName] = values;
+                                            }
                                         }
                                         else
                                         {

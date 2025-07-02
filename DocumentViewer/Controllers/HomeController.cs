@@ -1188,7 +1188,7 @@ namespace DocumentViewer.Controllers
                         attachments.ForEach(a =>
                         {
                             var attachment = a as MsgReader.Outlook.Storage.Message.Attachment;
-                            if (attachment.ContentId != null && attachment.IsInline == true)
+                            if (attachment!=null && attachment.ContentId != null && attachment.IsInline == true)
                             {
                                 var contentId = "cid:" + attachment.ContentId;
                                 if (plainTextBytes.Contains(contentId))

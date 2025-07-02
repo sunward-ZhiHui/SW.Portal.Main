@@ -201,17 +201,24 @@
     }
     async void OnSync()
     {
-        PanelVisible = true;
-        StockBalanceSearch stockBalanceSearch = new StockBalanceSearch();
-        stockBalanceSearch.UserId = applicationUser.UserID;
-        stockBalanceSearch.StkMonth = data.FilterDate.Value;
-        stockBalanceSearch.CompanyId = data.CompanyID;
-        var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
-        if (result != null)
+        try
         {
-            await OnSearch();
+            PanelVisible = true;
+            StockBalanceSearch stockBalanceSearch = new StockBalanceSearch();
+            stockBalanceSearch.UserId = applicationUser.UserID;
+            stockBalanceSearch.StkMonth = data.FilterDate.Value;
+            stockBalanceSearch.CompanyId = data.CompanyID;
+            var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
+            if (result != null)
+            {
+                await OnSearch();
+            }
         }
-
+        catch(Exception ex)
+        {
+             PanelVisible = false;
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+        }
     }
     async void OnViewData()
     {

@@ -28,17 +28,17 @@ namespace Application.Handlers.QueryHandlers
 
     public class GetAllAttributeLoadHandler : IRequestHandler<GetAllAttributeLoadQuery, List<AttributeDetails>>
     {
-       
+
         private readonly IAttributeDetailsQueryRepository _attrubutequeryRepository;
         public GetAllAttributeLoadHandler(IAttributeDetailsQueryRepository attrubutequeryRepository)
         {
-            
+
             _attrubutequeryRepository = attrubutequeryRepository;
         }
         public async Task<List<AttributeDetails>> Handle(GetAllAttributeLoadQuery request, CancellationToken cancellationToken)
         {
             return (List<AttributeDetails>)await _attrubutequeryRepository.LoadAttributelst(request.ID);
-          
+
         }
     }
 
@@ -88,6 +88,51 @@ namespace Application.Handlers.QueryHandlers
         {
             var req = await _QueryRepository.Delete(request.AttributeDetailsID);
             return req;
+        }
+    }
+    public class GetAttributeGroupCheckBoxListHandler : IRequestHandler<GetAttributeGroupCheckBoxList, List<AttributeGroupCheckBox>>
+    {
+
+        private readonly IAttributeDetailsQueryRepository _attrubutequeryRepository;
+        public GetAttributeGroupCheckBoxListHandler(IAttributeDetailsQueryRepository attrubutequeryRepository)
+        {
+
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeGroupCheckBox>> Handle(GetAttributeGroupCheckBoxList request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeGroupCheckBox>)await _attrubutequeryRepository.GetAttributeGroupCheckBoxList(request.ID);
+
+        }
+    }
+    public class DeleteAttributeGroupCheckBoxHandler : IRequestHandler<DeleteAttributeGroupCheckBox, AttributeGroupCheckBox>
+    {
+        private readonly IAttributeDetailsQueryRepository _QueryRepository;
+
+        public DeleteAttributeGroupCheckBoxHandler(IAttributeDetailsQueryRepository QueryRepository)
+        {
+            _QueryRepository = QueryRepository;
+        }
+
+        public async Task<AttributeGroupCheckBox> Handle(DeleteAttributeGroupCheckBox request, CancellationToken cancellationToken)
+        {
+            return await _QueryRepository.DeleteAttributeGroupCheckBox(request.AttributeGroupCheckBox);
+
+        }
+    }
+    public class InsertOrUpdateAttributeGroupCheckBoxHandler : IRequestHandler<InsertOrUpdateAttributeGroupCheckBox, AttributeGroupCheckBox>
+    {
+        private readonly IAttributeDetailsQueryRepository _QueryRepository;
+
+        public InsertOrUpdateAttributeGroupCheckBoxHandler(IAttributeDetailsQueryRepository QueryRepository)
+        {
+            _QueryRepository = QueryRepository;
+        }
+
+        public async Task<AttributeGroupCheckBox> Handle(InsertOrUpdateAttributeGroupCheckBox request, CancellationToken cancellationToken)
+        {
+            return await _QueryRepository.InsertOrUpdateAttributeGroupCheckBox(request);
+
         }
     }
 }

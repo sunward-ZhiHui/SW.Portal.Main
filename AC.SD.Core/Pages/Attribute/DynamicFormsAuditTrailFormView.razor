@@ -123,7 +123,7 @@
         _dynamicForm = await dynamicForms.Result;
         if (_dynamicForm != null)
         {
-            var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false,true)));
+            var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false, true)));
             await Task.WhenAll(_AttributeHeaders);
             _AttributeHeader = await _AttributeHeaders.Result;
         }
@@ -144,6 +144,26 @@
                 if (!string.IsNullOrEmpty(pvalue))
                 {
                     setPreviousDisplayValue(pvalue, a.AttributeId);
+                }
+                var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
+                if (typeName.ControlTypeId == 2710)
+                {
+                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
+                    if (_attributeGroupCheckBoxes.Count() > 0)
+                    {
+                        _attributeGroupCheckBoxes.ForEach(r =>
+                        {
+                            var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                            if (nameData == a.AttributeId && a.CurrentValueId == "True")
+                            {
+                                setCurrentDisplayValue(r.Value, nameData);
+                            }
+                            if (nameData == a.AttributeId && a.PrevValueId == "True")
+                            {
+                                setPreviousDisplayValue(r.Value, nameData);
+                            }
+                        });
+                    }
                 }
             });
             _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
@@ -735,7 +755,7 @@
                                         if (values != null)
                                         {
                                             int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
-                                            DateTime dateTimes =new DateTime();
+                                            DateTime dateTimes = new DateTime();
                                             var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
                                             objectData[attrName] = dd1.ToString("hh:mm tt");
                                         }
@@ -743,14 +763,14 @@
                                         {
                                             objectData[attrName] = "";
                                         }
-                                        
+
                                     }
                                     else if (s.ControlType == "SpinEdit")
                                     {
                                         if (s.IsSpinEditType == "decimal")
                                         {
                                             decimal? values = itemValue == null ? null : (decimal)itemValue;
-                                            objectData[attrName] = values==null?"":values.ToString();
+                                            objectData[attrName] = values == null ? "" : values.ToString();
                                         }
                                         else
                                         {

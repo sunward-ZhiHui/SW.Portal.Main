@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.EntityModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -75,5 +76,17 @@ namespace Core.Entities
         public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
         public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; } = new List<DynamicFormFilterBy>();
         public object Data { get; set; } = new object();
+    }
+    public class AttributeGroupCheckBox:BaseModel
+    {
+        [Key]
+        public long AttributeGroupCheckBoxId { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
+        public string? Value { get; set; }
+        public string? Description { get; set; }
+        public bool? IsDeleted { get; set; } = false;
+        public long? AttributeId { get; set; }
+        public long? ParentId { get; set; }
+        public bool Checked { get; set; } = false;
     }
 }

@@ -90,10 +90,10 @@ namespace Application.Handlers.QueryHandlers
         public async Task<string> Handle(GetNAVStockBalanceQuery request, CancellationToken cancellationToken)
         {
             var result = await _salesOrderService.GetNAVStockBalance(request.StockBalanceSearch);
-            if (!string.IsNullOrEmpty(result))
+           /* if (!string.IsNullOrEmpty(result))
             {
                 var res = await _postSalesOrderQueryRepository.UpdateStockBalanceData(result);
-            }
+            }*/
             // Return the result as a string
             return result;
         }

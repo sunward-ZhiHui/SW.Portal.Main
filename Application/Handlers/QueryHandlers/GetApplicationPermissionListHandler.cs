@@ -19,7 +19,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ApplicationPermission>> Handle(GetApplicationPermissionListQuery request, CancellationToken cancellationToken)
         {
-            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetAllAsync();
+            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetAllAsync(request.parentId);
         } 
     }
 

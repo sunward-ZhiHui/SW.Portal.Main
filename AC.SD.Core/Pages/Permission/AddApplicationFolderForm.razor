@@ -65,7 +65,8 @@
     [Parameter]
     public Guid? SessionIds { get; set; }
     EditContext _editContext;
-    long? ParentId { get; set; }
+    [Parameter]
+    public long? ParentId { get; set; }
     private List<ApplicationPermission> _Data;
     ApplicationPermission Data = new ApplicationPermission();
     [Parameter]
@@ -75,7 +76,7 @@
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
-        ParentId = 60400;
+        //ParentId = 60400;
         if (SessionIds != null)
         {
             _Data = await Mediator.Send(new GetApplicationBySessionIDListQuery(SessionIds));
@@ -83,7 +84,7 @@
         }
         if (SessionIds != null && IsEdit == true)
         {
-          
+
             Data.PermissionName = _Data[0].PermissionName;
             Data.PermissionOrder = _Data[0].PermissionOrder;
             Data.PermissionID = _Data[0].PermissionID;
@@ -130,11 +131,19 @@
             RevokeBack?.Invoke();
 
         }
-       
+
     }
     void backUrl()
     {
-        NavigationManager.NavigateTo("applicationPermissionLists");
+        if (ParentId == 60400)
+        {
+            NavigationManager.NavigateTo("applicationPermissionLists");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("CustomDashboard");
+        }
+
     }
     void ResetForm()
     {

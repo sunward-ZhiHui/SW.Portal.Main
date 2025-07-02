@@ -626,9 +626,9 @@ Width="300px">
         {
             var firstCategory = _topicCategorys[0];
 
-            if (firstCategory.GroupTag == null)
+            if (firstCategory.GroupTag == 0)
             {
-                if (firstCategory.CategoryTag == null)
+                if (firstCategory.CategoryTag == 0)
                 {
                     if (firstCategory.ActionTagIds == null || !firstCategory.ActionTagIds.Any(id => id.HasValue))
                     {

@@ -54,8 +54,7 @@
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
         <Columns>            
-            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
+            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>          
             <DxGridDataColumn FieldName="PermissionOrder" Caption="Order" />
         </Columns> 
         <EditFormTemplate Context="EditFormContext">
@@ -137,7 +136,7 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
+        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery(60400));
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("templeUser");
         //await jsRuntime.InvokeAsync<string>("hideLoading");
@@ -166,7 +165,7 @@
 
 
         PanelVisible = true;
-        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
+        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery(60400));
         PanelVisible = false;
 
         StateHasChanged();

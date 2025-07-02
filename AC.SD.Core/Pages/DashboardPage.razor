@@ -37,12 +37,7 @@
         <DxSplitterPane Size="18%" MinSize="200px" AllowCollapse="true">
             <div class="d-flex flex-column gap-2">
                 <div class="d-flex gap-2">
-                    <DxButton Text="@ButtonText"
-                              Click="ChangeWorkingMode"
-                              CssClass="btn btn-primary flex-fill" />
-                    <DxButton Text="Sync"
-                              Click="SyncDashboards"
-                              CssClass="btn btn-success flex-fill" />
+                    <DxButton Text="@ButtonText" Click="ChangeWorkingMode" CssClass="btn btn-primary flex-fill" />                  
                 </div>
 
                 <DxListBox Data="@DashboardIds"
@@ -56,15 +51,7 @@
                     <ItemTemplate Context="item">
                         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                             <span>@item.DisplayName</span>
-                            <div style="display: flex; gap: 4px;">
-                                <DxButton IconCssClass="fa fa-arrow-up"
-                                          RenderStyle="ButtonRenderStyle.Success"
-                                          Click="@(() => MoveUp(item))"
-                                          Style="font-size: 11px;" />
-                                <DxButton IconCssClass="fa fa-arrow-down"
-                                          RenderStyle="ButtonRenderStyle.Warning"
-                                          Click="@(() => MoveDown(item))"
-                                          Style="font-size: 11px;" />
+                            <div style="display: flex; gap: 4px;">                               
                                 <DxButton RenderStyle="ButtonRenderStyle.Danger" IconCssClass="dx-icon-trash" Click="@(args => PromptDelete(item))"
                                           Style="font-size: 11px;" />
                             </div>
@@ -558,36 +545,5 @@
 
         StateHasChanged();
     }
-
-    void MoveUp(DashboardItem item)
-    {
-        int index = DashboardIds.IndexOf(item);
-        if (index > 0)
-        {
-            (DashboardIds[index], DashboardIds[index - 1]) = (DashboardIds[index - 1], DashboardIds[index]);
-            SaveDashboardOrder();
-            StateHasChanged();
-        }
-    }
-
-    void MoveDown(DashboardItem item)
-    {
-        int index = DashboardIds.IndexOf(item);
-        if (index < DashboardIds.Count - 1)
-        {
-            (DashboardIds[index], DashboardIds[index + 1]) = (DashboardIds[index + 1], DashboardIds[index]);
-            SaveDashboardOrder();
-            StateHasChanged();
-        }
-    }
-
-    void SaveDashboardOrder()
-    {
-        var orderPath = Path.Combine("Data", "dashboard-order.json");
-        var idList = DashboardIds.Select(d => d.Id).ToList();
-        var json = JsonSerializer.Serialize(idList);
-        File.WriteAllText(orderPath, json);
-    }
-
 
 }

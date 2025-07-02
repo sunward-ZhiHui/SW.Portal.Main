@@ -1,4 +1,5 @@
-﻿@using global::Core.EntityModels;
+﻿@using DevExpress.Blazor.DocumentMetadata
+@using global::Core.EntityModels;
 @inject NavigationManager NavigationManager
 @using Application.Queries;
 @using MediatR
@@ -9,7 +10,7 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 
-<DxTreeView @ref="treeView"
+@* <DxTreeView @ref="treeView"
             @bind-FilterString="FilterString"
             FilterMinLength="2"
             ShowFilterPanel="true"
@@ -26,10 +27,43 @@
                                Key="PermissionID"
                                ParentKey="ParentID" />
     </DataMappings>
-</DxTreeView>
+</DxTreeView> *@
+
+<DxLoadingPanel @bind-Visible="indicatorVisible"
+                IndicatorAnimationType="WaitIndicatorAnimationType.Pulse"
+                IndicatorVisible="indicatorVisible"
+                IndicatorAreaVisible="indicatorAreaVisible"
+                ApplyBackgroundShading="true"
+                TextAlignment="LoadingPanelTextAlignment.Right"
+                Text="Fetching Menus...">
+    <DxTreeView @ref="menutreeView"
+                @bind-FilterString="@FilterString"
+                FilterMinLength="2"
+                style="height:calc(100vh - 69px)"
+                CssClass="sidebar-tree"
+                ShowFilterPanel="true"
+                Target="_blank"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                Data="@portalMenuModel"
+                ExpandButtonIconCssClass="demo-icon-expand"
+                CollapseButtonIconCssClass="demo-icon-collapse"
+                AllowSelectNodes="true"
+                SelectionChanged="@SelectionChanged">
+        <DataMappings>
+            <DxTreeViewDataMapping Text="Title"
+                                   Key="PermissionID"
+                                   ParentKey="ParentID" />
+        </DataMappings>
+    </DxTreeView>
+</DxLoadingPanel>
 
 
 @code {
+    bool indicatorVisible { get; set; }
+    bool indicatorAreaVisible { get; set; } = true;
+    private DxTreeView menutreeView;
+    public string componentName { get; set; } = "";
+    private string? lastLocation;
 
     internal DxTreeView treeView;
     internal string previousUri;
@@ -41,7 +75,10 @@
     string segmentcurrentUri = "";
     protected override void OnInitialized()
     {
+        lastLocation = NavigationManager.Uri;
         NavigationManager.LocationChanged += HandleLocationChanged;
+        StateHasChanged();
+        base.OnInitialized();
     }
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
@@ -56,11 +93,42 @@
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
         }
 
+        UpdateSelection(); 
+        base.OnParametersSet();
+
+
         NavigationManager.LocationChanged += OnLocationChanged;
         await InvokeAsync(StateHasChanged);
     }
+    void UpdateSelection()
+    {
+        var pageName = NavigationManager.GetCurrentPageName().Split('?')[0];
+        if (menutreeView != null && !string.IsNullOrEmpty(pageName))
+        {
+            if (portalMenuModel != null)
+            {
 
-    async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+                var menu = portalMenuModel.Where(f => f.Name == pageName).FirstOrDefault();
+
+                if (menu != null && !string.IsNullOrEmpty(menu.Title))
+                {
+                    if (!string.IsNullOrEmpty(componentName))
+                    {
+                        menutreeView.SelectNode((n) => n.Text == menu.Title);
+                        menutreeView.ExpandToNode((n) => n.Text == menu.Title);
+                    }
+                }
+            }
+        }
+    }
+     void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        if (args.Location == lastLocation) return; // Ignore redundant navigation
+        lastLocation = args.Location;
+
+        UpdateSelection();
+    }
+    async void OnLocationChangedold(object? sender, LocationChangedEventArgs args)
     {
         var currentUri = NavigationManager.Uri;
         // var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
@@ -85,21 +153,44 @@
     }
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
-        string uri = NavigationManager.Uri;
-        string baseUri = NavigationManager.BaseUri;
-        treeView.SelectNode(n =>
+
+        var pageName = NavigationManager.GetCurrentPageName().Split('?')[0];
+        if (menutreeView != null && !string.IsNullOrEmpty(pageName))
         {
-            var dataItem = n.DataItem as PortalMenuModel;
-            string rep1 = uri.Replace(baseUri, "").ToLower();
-            string[] UrlList = rep1.Split("/");
-            if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
+            if (portalMenuModel != null)
             {
-                if (expandNodesToSelection)
-                    ExpandToSelectedNode(n);
-                return true;
+
+                var menu = portalMenuModel.Where(f => f.Name == pageName).FirstOrDefault();
+
+                if (menu != null && !string.IsNullOrEmpty(menu.Title))
+                {
+                    if (!string.IsNullOrEmpty(componentName))
+                    {
+                        menutreeView.SelectNode((n) => n.Text == menu.Title);
+                        menutreeView.ExpandToNode((n) => n.Text == menu.Title);
+                    }
+                }
             }
-            return false;
-        });
+        }
+
+
+
+
+        // string uri = NavigationManager.Uri;
+        // string baseUri = NavigationManager.BaseUri;
+        // treeView.SelectNode(n =>
+        // {
+        //     var dataItem = n.DataItem as PortalMenuModel;
+        //     string rep1 = uri.Replace(baseUri, "").ToLower();
+        //     string[] UrlList = rep1.Split("/");
+        //     if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
+        //     {
+        //         if (expandNodesToSelection)
+        //             ExpandToSelectedNode(n);
+        //         return true;
+        //     }
+        //     return false;
+        // });
     }
     public void LoadUpdateSelection(string currentUri, bool expandNodesToSelection)
     {
@@ -140,13 +231,16 @@
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {
+
         if (e.NodeInfo?.DataItem != null)
         {
             var dataItem = e.NodeInfo.DataItem as PortalMenuModel;
-            if (dataItem != null && dataItem.Component != null || dataItem.Name != null)
-            {
+            componentName = dataItem.Name;
+            if (dataItem != null && dataItem.Name != null)
+            {              
                 var isPermissionURL = dataItem.IsPermissionURL;
                 var url = dataItem.Name;
+
                 if (url != null)
                 {
                     if (isPermissionURL)
@@ -166,14 +260,49 @@
                         }
                     }
                 }
-
             }
-            var nodes = treeView.GetNodesInfo(n => true);
+            var nodes = menutreeView.GetNodesInfo(n => true);
             foreach (var node in nodes)
             {
-                treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
+                menutreeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
             }
         }
+
+
+        // if (e.NodeInfo?.DataItem != null)
+        // {
+        //     var dataItem = e.NodeInfo.DataItem as PortalMenuModel;
+        //     if (dataItem != null && dataItem.Component != null || dataItem.Name != null)
+        //     {
+        //         var isPermissionURL = dataItem.IsPermissionURL;
+        //         var url = dataItem.Name;
+        //         if (url != null)
+        //         {
+        //             if (isPermissionURL)
+        //             {
+        //                 NavigationManager.NavigateTo($"{url}/{dataItem.UniqueSessionID}");
+        //             }
+        //             else
+        //             {
+        //                 if (dataItem.ParentID == 60248)
+        //                 {
+        //                     var urls = $"{url}/{dataItem.Component}/{dataItem.PermissionURL}";
+        //                     NavigationManager.NavigateTo(urls);
+        //                 }
+        //                 else
+        //                 {
+        //                     NavigationManager.NavigateTo($"{url}");
+        //                 }
+        //             }
+        //         }
+
+        //     }
+        //     var nodes = treeView.GetNodesInfo(n => true);
+        //     foreach (var node in nodes)
+        //     {
+        //         treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
+        //     }
+        // }
 
         StateHasChanged();
     }

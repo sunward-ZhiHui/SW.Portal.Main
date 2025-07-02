@@ -11,7 +11,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
-<div class="items">
+@* <div class="items">
     @foreach (var item in Items)
     {
         @if (!string.IsNullOrEmpty(item.Item2))
@@ -24,7 +24,23 @@
         }
         <span class="separator"></span>
     }
+</div> *@
+
+<div class="items">
+    <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default" AllowTabReorder="false" ScrollMode="TabsScrollMode.Auto" ActiveTabIndex="@ActiveTabIndex" TabClosing="TabClosing">
+        <DxTabPage TabIconCssClass="tabs-icon-home tabs-icon" Click="@OnHomeClick" />
+
+        @foreach (var item in breadcrumbs)
+        {
+            <DxTabPage @key="item.Name" Text="@item.Title" Id="@item.Name" AllowClose="true" Click="@(() => OnPageClick(item))">
+
+            </DxTabPage>
+        }
+    </DxTabs>
+
 </div>
+
+
 <DxPopup HeaderText="Access Denied"
          @bind-Visible="@PopupVisible"
          CloseOnEscape="false"
@@ -48,6 +64,13 @@
     public ApplicationUser applicationUser { get; private set; }
     const string HomePageTitle = "Home";
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
+
+    int ActiveTabIndex { get; set; } = 1;
+    List<BreadcrumbModel> breadcrumbs { get; set; } = new List<BreadcrumbModel>();
+    string selectedItem = "";
+    BreadcrumbModel removedSiteMap;
+    string screenID = "";
+
     private bool isDevelopmentMode;
     protected override async Task OnInitializedAsync()
     {
@@ -71,14 +94,29 @@
         else
         {
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
-            BreadcrumbsGenerate();
+            //BreadcrumbsGenerate();
         }
 
 
 
         NavigationManager.LocationChanged += OnLocationChanged;
+
+        breadcrumbs = new List<BreadcrumbModel>();
+        removedSiteMap = new BreadcrumbModel();
+
         //UpdateItems(NavigationManager.Uri)dashboard;
 
+    }
+    async Task OnPageClick(BreadcrumbModel page)
+    {
+        NavigationManager.NavigateTo(page.URL);
+        await InvokeAsync(StateHasChanged);
+    }
+    async Task OnHomeClick()
+    {
+        ActiveTabIndex = 0;
+        NavigationManager.NavigateTo("myday");
+        await InvokeAsync(StateHasChanged);
     }
     void BackPermission()
     {
@@ -90,6 +128,11 @@
 
         PopupVisible = false;
         NavigationManager.NavigateTo("dashboard");
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await UpdateItems(NavigationManager.Uri);
     }
     void BreadcrumbsGenerate()
     {
@@ -176,14 +219,180 @@
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {
-        Items.Clear();
-        BreadcrumbsGenerate();
+        // Items.Clear();
+        // BreadcrumbsGenerate();
+        // StateHasChanged();
+
+        UpdateItems(args.Location);
+    }
+    // void UpdateItems(string currentUri)
+    // {
+    //     Items.Clear();
+    //     StateHasChanged();
+    // }
+
+    async Task UpdateItems(string currentUri)
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var currentPageName = uri.Segments.LastOrDefault()?.Trim('/');
+
+        if (string.IsNullOrWhiteSpace(currentPageName))
+            return;
+
+        var menulisting = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        if (menulisting is null || !menulisting.Any())
+            return;
+
+        var validMenuItems = menulisting.Where(f => !string.IsNullOrWhiteSpace(f.Name)).ToList();
+
+        PortalMenuModel pageItem = validMenuItems
+            .FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
+
+        if (pageItem == null && Guid.TryParse(currentPageName, out var currentGuid))
+        {
+            pageItem = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
+            if (pageItem != null)
+            {
+                selectedItem = $"{pageItem.Name}/{pageItem.UniqueSessionID}";
+            }
+        }
+        else if (pageItem != null)
+        {
+            selectedItem = pageItem.Name;
+        }
+
+        if (pageItem == null)
+            return;
+
+        string url = selectedItem;
+
+        AddBreadcrumbIfNotExists(pageItem, url, selectedItem);
+
+        ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
         StateHasChanged();
     }
-    void UpdateItems(string currentUri)
+
+
+    void AddBreadcrumbIfNotExists(PortalMenuModel item, string url, string name)
     {
-        Items.Clear();
-        StateHasChanged();
+        if (!breadcrumbs.Any(b => b.PermissionID == item.PermissionID))
+        {
+            breadcrumbs.Add(new BreadcrumbModel
+            {
+                Title = item.Title,
+                Selected = true,
+                URL = url,
+                Name = name,
+                PermissionID = item.PermissionID
+            });
+        }
+    }
+
+
+
+    async Task UpdateItems_v(string currentUri)
+    {
+        // Get the last segment of the URL as the current page name
+        var uri = new Uri(NavigationManager.Uri);
+        var currentPageName = uri.Segments.LastOrDefault()?.Trim('/');
+
+        if (!string.IsNullOrEmpty(currentPageName))
+        {
+            var menulisting = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+
+            if (menulisting.Any())
+            {
+                var validMenuItems = menulisting.Where(f => !string.IsNullOrEmpty(f.Name)).ToList();
+                var currentPage = validMenuItems.FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
+                               
+
+                //var currentPage = menulisting.FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
+                if (currentPage != null)
+                {
+                    var demoPage = currentPage;
+                    var parentPage = menulisting.FirstOrDefault(f => f.PermissionID == demoPage.ParentID);
+
+                    var url = demoPage.Name; // Only the page name as URL
+                    selectedItem = demoPage.Name;
+
+                    while (demoPage != null)
+                    {
+                        bool exists = breadcrumbs.Exists(t => t.PermissionID == demoPage.PermissionID);
+                        if (!exists)
+                        {
+                            breadcrumbs.Add(new BreadcrumbModel
+                            {
+                                Title = demoPage.Title,
+                                Selected = true,
+                                URL = url,
+                                Name = selectedItem,
+                                PermissionID = demoPage.PermissionID
+                            });
+                        }
+                        demoPage = null;
+                    }
+
+                    ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
+                    StateHasChanged();
+                }  
+                else if (Guid.TryParse(currentPageName, out var currentGuid))
+                {
+                    var sessionlst = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
+
+
+                    var demoPage = sessionlst;
+                    var parentPage = menulisting.FirstOrDefault(f => f.PermissionID == demoPage.ParentID);
+
+                    var url = demoPage.Name + "/" + demoPage.UniqueSessionID;
+                    selectedItem = demoPage.Name + "/" + demoPage.UniqueSessionID;
+
+                    while (demoPage != null)
+                    {
+                        bool exists = breadcrumbs.Exists(t => t.PermissionID == demoPage.PermissionID);
+                        if (!exists)
+                        {
+                            breadcrumbs.Add(new BreadcrumbModel
+                            {
+                                Title = demoPage.Title,
+                                Selected = true,
+                                URL = url,
+                                Name = selectedItem,
+                                PermissionID = demoPage.PermissionID
+                            });
+                        }
+                        demoPage = null;
+                    }
+
+                    ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
+                    StateHasChanged();
+                }
+
+            }
+        }
+    }
+
+
+   
+
+    async Task TabClosing(TabCloseEventArgs args)
+    {
+        var title = args.TabInfo.Text;
+        var tabIndex = args.TabIndex - 1;
+        removedSiteMap = breadcrumbs.FirstOrDefault(f => f.Title == title);
+        breadcrumbs.Remove(removedSiteMap);
+        if (selectedItem == removedSiteMap.Name)
+        {
+            if (breadcrumbs.Count() > 0)
+            {
+                var page = breadcrumbs.LastOrDefault();
+                NavigationManager.NavigateTo(page.URL, false);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("home", false);
+            }
+        }
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()

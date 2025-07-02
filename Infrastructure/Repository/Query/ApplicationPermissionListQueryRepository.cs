@@ -73,17 +73,17 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        public async Task<IReadOnlyList<ApplicationPermission>> GetAllAsync()
+        public async Task<IReadOnlyList<ApplicationPermission>> GetAllAsync(long parentId)
         {
             try
             {
                 var parameters = new DynamicParameters();
-              
-                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400 ORDER BY PermissionOrder";
+                parameters.Add("parentId", parentId);
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=@parentId ORDER BY PermissionOrder";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ApplicationPermission>(query)).ToList();
+                    return (await connection.QueryAsync<ApplicationPermission>(query,parameters)).ToList();
                 }
             }
             catch (Exception exp)

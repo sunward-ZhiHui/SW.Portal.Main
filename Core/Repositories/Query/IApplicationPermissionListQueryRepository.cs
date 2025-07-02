@@ -10,7 +10,7 @@ namespace Core.Repositories.Query
 {
     public interface IApplicationPermissionListQueryRepository : IQueryRepository<ApplicationPermission>
     {
-        Task<IReadOnlyList<ApplicationPermission>> GetAllAsync();
+        Task<IReadOnlyList<ApplicationPermission>> GetAllAsync(long parentId);
         Task<long> Insert(ApplicationPermission applicationPermission);
         Task<long> Update(ApplicationPermission applicationPermission);
         Task<long> UpdateOrder(ApplicationPermission applicationPermission);        

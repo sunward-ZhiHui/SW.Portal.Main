@@ -189,7 +189,119 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<NavitemStockBalance> InsertOrUpdateNavitemStockBalance(List<NavitemStockBalance> rawMatItemList)
+        {
+            NavitemStockBalance navitemStockBalance = new NavitemStockBalance();
+            foreach (var rawMatItem in rawMatItemList)
+            {
+                await InsertOrUpdateNavitemStockBalances(rawMatItem);
+            }
 
+            return navitemStockBalance;
+        }
+        public async Task<NavitemStockBalance> InsertOrUpdateNavitemStockBalances(NavitemStockBalance itemBatchInfo)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("NavStockBalanceId", itemBatchInfo.NavStockBalanceId);
+                    parameters.Add("ItemId", itemBatchInfo.ItemId);
+                    parameters.Add("Quantity", itemBatchInfo.Quantity, DbType.Decimal);
+                    parameters.Add("GlobalQty", itemBatchInfo.GlobalQty, DbType.Decimal);
+                    parameters.Add("ReworkQty", itemBatchInfo.ReworkQty, DbType.Decimal);
+                    parameters.Add("Wipqty", itemBatchInfo.Wipqty, DbType.Decimal);
+                    parameters.Add("Kivqty", itemBatchInfo.Kivqty, DbType.Decimal);
+                    parameters.Add("RejectQuantity", itemBatchInfo.RejectQuantity, DbType.Decimal);
+                    parameters.Add("StockBalWeek", itemBatchInfo.StockBalWeek);
+                    parameters.Add("StockBalMonth", itemBatchInfo.StockBalMonth == DateTime.MinValue ? null : itemBatchInfo.StockBalMonth, DbType.DateTime);
+                    parameters.Add("Supply1ProcessQty", itemBatchInfo.Supply1ProcessQty);
+                    parameters.Add("SupplyWipqty", itemBatchInfo.SupplyWipqty);
+                    parameters.Add("NotStartInvQty", itemBatchInfo.NotStartInvQty, DbType.Decimal);
+                    parameters.Add("AddedByUserId", itemBatchInfo.AddedByUserId);
+                    parameters.Add("ModifiedByUserId", itemBatchInfo.ModifiedByUserId);
+                    parameters.Add("StatusCodeId", 1);
+                    parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                    parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                    var lastInsertedRecordId = itemBatchInfo.NavStockBalanceId;
+                    if (itemBatchInfo.NavStockBalanceId > 0)
+                    {
+                        var query = "Update  NavitemStockBalance SET StatusCodeId=@StatusCodeId,ItemId=@ItemId,Quantity=@Quantity,GlobalQty=@GlobalQty,ReworkQty=@ReworkQty,Wipqty=@Wipqty,Kivqty=@Kivqty,RejectQuantity=@RejectQuantity,StockBalWeek=@StockBalWeek," +
+                            "StockBalMonth=@StockBalMonth,Supply1ProcessQty=@Supply1ProcessQty,SupplyWipqty=@SupplyWipqty,NotStartInvQty=@NotStartInvQty,ModifiedByUserId=@ModifiedByUserId,ModifiedDate=@ModifiedDate WHERE NavStockBalanceId = @NavStockBalanceId";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [NavitemStockBalance](ItemId,Quantity,GlobalQty,ReworkQty,Wipqty,Kivqty,RejectQuantity,StockBalWeek," +
+                            "StockBalMonth,Supply1ProcessQty,SupplyWipqty,NotStartInvQty,StatusCodeId,AddedDate,AddedByUserId,ModifiedByUserId,ModifiedDate) OUTPUT INSERTED.NavStockBalanceId VALUES " +
+                            "(@ItemId,@Quantity,@GlobalQty,@ReworkQty,@Wipqty,@Kivqty,@RejectQuantity,@StockBalWeek,@StockBalMonth,@Supply1ProcessQty,@SupplyWipqty,@NotStartInvQty,@StatusCodeId,@AddedDate,@AddedByUserId,@ModifiedByUserId,@ModifiedDate)";
+
+                        itemBatchInfo.NavStockBalanceId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return itemBatchInfo;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DistStockBalanceKiv> InsertOrUpdateDistStockBalanceKiv(List<DistStockBalanceKiv> rawMatItemList)
+        {
+            DistStockBalanceKiv navitemStockBalance = new DistStockBalanceKiv();
+            foreach (var rawMatItem in rawMatItemList)
+            {
+                await InsertOrUpdateDistStockBalanceKivs(rawMatItem);
+            }
+
+            return navitemStockBalance;
+        }
+        public async Task<DistStockBalanceKiv> InsertOrUpdateDistStockBalanceKivs(DistStockBalanceKiv itemBatchInfo)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DistKivId", itemBatchInfo.DistKivId);
+                    parameters.Add("ItemId", itemBatchInfo.ItemId);
+                    parameters.Add("CustomerId", itemBatchInfo.CustomerId);
+                    parameters.Add("Quantity", itemBatchInfo.Quantity, DbType.Decimal);
+                    parameters.Add("ItemNo", itemBatchInfo.ItemNo, DbType.String);
+                    parameters.Add("CompanyId", itemBatchInfo.CompanyId);
+                    parameters.Add("CustomerNo", itemBatchInfo.CustomerNo);
+                    parameters.Add("StockBalWeek", itemBatchInfo.StockBalWeek);
+                    parameters.Add("StockBalMonth", itemBatchInfo.StockBalMonth == DateTime.MinValue ? null : itemBatchInfo.StockBalMonth, DbType.DateTime);
+                    var lastInsertedRecordId = itemBatchInfo.DistKivId;
+                    if (itemBatchInfo.DistKivId > 0)
+                    {
+                        var query = "Update  DistStockBalanceKiv SET ItemId=@ItemId,Quantity=@Quantity," +
+                            "CustomerId=@CustomerId,ItemNo=@ItemNo,CompanyId=@CompanyId,CustomerNo=@CustomerNo,StockBalWeek=@StockBalWeek," +
+                            "StockBalMonth=@StockBalMonth WHERE DistKivId = @DistKivId";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [DistStockBalanceKiv](ItemId,Quantity,CustomerId,ItemNo,CompanyId,CustomerNo,StockBalWeek," +
+                            "StockBalMonth) OUTPUT INSERTED.DistKivId VALUES " +
+                            "(@ItemId,@Quantity,@CustomerId,@ItemNo,@CompanyId,@CustomerNo,@StockBalWeek,@StockBalMonth)";
+
+                        itemBatchInfo.DistKivId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return itemBatchInfo;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }
 

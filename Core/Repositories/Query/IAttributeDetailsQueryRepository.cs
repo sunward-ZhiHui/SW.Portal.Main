@@ -18,5 +18,8 @@ namespace Core.Repositories.Query
         Task<long> Delete(long id);
         Task<IReadOnlyList<AttributeDetails>> LoadAttributelst(long Id);
         AttributeDetails AttributeDetailsValueCheckValidation(string? value, long id, long? attributeId);
+        Task<IReadOnlyList<AttributeGroupCheckBox>> GetAttributeGroupCheckBoxList(long? AttributeId);
+        Task<AttributeGroupCheckBox> InsertOrUpdateAttributeGroupCheckBox(AttributeGroupCheckBox attributeGroupCheckBox);
+        Task<AttributeGroupCheckBox> DeleteAttributeGroupCheckBox(AttributeGroupCheckBox attributeGroupCheckBox);
     }
 }

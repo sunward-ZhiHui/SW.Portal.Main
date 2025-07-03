@@ -17,6 +17,8 @@ namespace Core.Repositories.Query
         Task<string> InsertRawMatItemList(IEnumerable<RawMatItemList> rawMatItemList);
         Task<SotckBalanceItemsList> GetSotckBalanceItemsListAsync(StockBalanceSearch searchModel);
         Task<string> UpdateStockBalanceData(string query);
+        Task<NavitemStockBalance> InsertOrUpdateNavitemStockBalance(List<NavitemStockBalance> navitemStockBalance);
+        Task<DistStockBalanceKiv> InsertOrUpdateDistStockBalanceKiv(List<DistStockBalanceKiv> distStockBalanceKivs);
     }
-   
+
 }

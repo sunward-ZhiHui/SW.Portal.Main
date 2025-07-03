@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                                                                                font-family: arial, sans-serif;
-                                                                                                                                                                                border-collapse: collapse;
-                                                                                                                                                                                width: 100%;
-                                                                                                                                                                            }
+                                                                                                                                                                                    font-family: arial, sans-serif;
+                                                                                                                                                                                    border-collapse: collapse;
+                                                                                                                                                                                    width: 100%;
+                                                                                                                                                                                }
 
-                                                                                                                                                                            th {
-                                                                                                                                                                                border: 1px solid;
-                                                                                                                                                                                padding: 8px;
-                                                                                                                                                                                font-weight: bold;
+                                                                                                                                                                                th {
+                                                                                                                                                                                    border: 1px solid;
+                                                                                                                                                                                    padding: 8px;
+                                                                                                                                                                                    font-weight: bold;
 
 
-                                                                                                                                                                            }
+                                                                                                                                                                                }
 
-                                                                                                                                                                            td {
-                                                                                                                                                                                border: 1px solid;
-                                                                                                                                                                                padding: 8px;
+                                                                                                                                                                                td {
+                                                                                                                                                                                    border: 1px solid;
+                                                                                                                                                                                    padding: 8px;
 
-                                                                                                                                                                            } */
+                                                                                                                                                                                } */
 
     /* tr:nth-child(even) {
-                                                                                                                                                                                    background-color: #dddddd;
-                                                                                                                                                                                } */
+                                                                                                                                                                                        background-color: #dddddd;
+                                                                                                                                                                                    } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -223,15 +223,16 @@
     }
     if (a.ControlType == "CheckBox")
     {
-        bool? values = valueData == null ? false : (bool)valueData;
-        if (values == true)
+        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
+        if (_attributeGroupCheckBoxes > 0)
         {
-        //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+            string? values = valueData == null ? string.Empty : (string)valueData;
         }
         else
         {
-        // valueData = "";
+            bool? values = valueData == null ? false : (bool)valueData;
         }
+      
     }
     if (a.ControlTypeId == 2712)
     {
@@ -254,11 +255,18 @@
                             }
                             if (a.ControlType == "CheckBox")
                             {
-    bool? values = valueData == null ? false : (bool)valueData;
-    if (values == true)
-    {
-        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
-    }
+                                var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
+                                if (_attributeGroupCheckBoxes > 0)
+                                {
+                                }
+                                else
+                                {
+                                    bool? values = valueData == null ? false : (bool)valueData;
+                                    if (values == true)
+                                    {
+                                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                                    }
+                                }
 
 
                             }
@@ -367,14 +375,14 @@
                                 }
                                 if (a.ControlType == "CheckBox")
                                 {
-    bool? values = valueData == null ? false : (bool)valueData;
-    if (values == true)
+    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
+    if (_attributeGroupCheckBoxes > 0)
     {
-    //valueData = "<i class=\"fa fa-check\" style=\"color:black; margin-left:10px; cursor:pointer;\" aria-hidden=\"\"></i>";
+        string? values = valueData == null ? string.Empty : (string)valueData;
     }
     else
     {
-    // valueData = "";
+        bool? values = valueData == null ? false : (bool)valueData;
     }
                                 }
                                 if (a.ControlTypeId == 2712)
@@ -391,19 +399,25 @@
                                 long? idData = null;
                                 if (byName.ContainsKey(b.Value + "_Id"))
                                 {
-    idData = (long?)byName[b.Value + "_Id"];
-    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+                                    idData = (long?)byName[b.Value + "_Id"];
+                                    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
                                 }
 
                             }
                             if (a.ControlType == "CheckBox")
                             {
+                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
+                            if (_attributeGroupCheckBoxes > 0)
+                            {
+                            }
+                            else
+                            {
                                 bool? values = valueData == null ? false : (bool)valueData;
                                 if (values == true)
                                 {
-    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                                    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
                                 }
-
+                            }
 
                             }
                         });
@@ -433,7 +447,7 @@
     public Guid? FormSessionId { get; set; }
     [Parameter]
     public string? IsSubForm { get; set; }
-    private AttributeHeaderListModel _AttributeHeader;DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
+    private AttributeHeaderListModel _AttributeHeader; DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
@@ -1177,7 +1191,7 @@
                                     }
                                     if (s.DataSourceTable == "ReleaseProdOrderLine")
                                     {
-                                        var listNames= _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
+                                        var listNames = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).FirstOrDefault();
                                         listName = new List<string?>();
                                         listName.Add(listNames?.AttributeDetailName + "|" + listNames?.ReplanRefNo);
                                     }
@@ -1409,9 +1423,32 @@
                                 }
                                 else if (s.ControlType == "CheckBox")
                                 {
-                                    bool? values = itemValue == null ? false : (bool)itemValue;
-                                    objectData[attrName] = values;
-                                    loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                    string valuesData = string.Empty;
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                    {
+                                        var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                        var NamesA = jsonObj.ContainsKey(nameData);
+                                        if (NamesA == true)
+                                        {
+                                            var itemValueA = jsonObj[nameData];
+                                            bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
+                                            if (valuesA == true)
+                                            {
+                                                valuesData += r.Value + ",";
+                                            }
+                                        }
+                                    });
+                                        objectData[attrName] = valuesData.TrimEnd(',');
+                                    }
+                                    else
+                                    {
+                                        bool? values = itemValue == null ? false : (bool)itemValue;
+                                        objectData[attrName] = values;
+                                        loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                    }
                                 }
                                 else
                                 {

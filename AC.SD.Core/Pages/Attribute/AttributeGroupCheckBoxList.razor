@@ -1,0 +1,254 @@
+﻿@using global::Core.Entities
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                <DxMenuItem Text="Add Main" IconCssClass="fa fa-add" Click="@addNew" />
+            </Items>
+        </DxMenu>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="tree-list-container">
+    <DxTreeList @ref="TreeList"
+                Data="_attributes"
+                KeyFieldName="AttributeGroupCheckBoxId"
+                ParentKeyFieldName="ParentId"
+                HasChildrenFieldName="HasChildren"
+                VirtualScrollingEnabled="true"
+                ValidationEnabled="true"
+                CustomizeEditModel="TreeList_CustomizeEditModel"
+                EditModelSaving="TreeList_EditModelSaving"
+                DataItemDeleting="TreeList_DataItemDeleting"
+                PopupEditFormCssClass="pw-800"
+                EditMode="CurrentEditMode"
+                ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                TextWrapEnabled="false"
+
+                style="height: calc(100vh - 220px);"
+                HighlightRowOnHover="true">
+        <Columns>
+            <DxTreeListCommandColumn Width="200px">
+                <HeaderTemplate>
+                    @* <DxButton IconCssClass="fa fa-add"
+                              RenderStyle="ButtonRenderStyle.Link"
+                              Text="Add Main"
+                              Click="@(() => TreeList.StartEditNewRowAsync())" /> *@
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    <div class="grid-cell-align-center">
+                        <DxButton IconCssClass="fa fa-add"
+                                  RenderStyle="ButtonRenderStyle.Link"
+                                  Text=""
+                                  Click="@(() => TreeList.StartEditNewRowAsync(context.VisibleIndex))" />
+                        <DxButton IconCssClass="fa fa-pencil"
+                                  RenderStyle="ButtonRenderStyle.Link"
+                                  Text=""
+                                  Click="@(() => TreeList.StartEditRowAsync(context.VisibleIndex))" />
+                        <DxButton IconCssClass="fa fa-remove"
+                                  RenderStyle="ButtonRenderStyle.Link"
+                                  Text=""
+                                  Click="@(() => TreeList.ShowRowDeleteConfirmation(context.VisibleIndex))" />
+                    </div>
+                </CellDisplayTemplate>
+            </DxTreeListCommandColumn>
+            @*  <DxTreeListCommandColumn Width="200px"  /> *@
+            <DxTreeListDataColumn FieldName="Value" Caption="Name" />
+            <DxTreeListDataColumn FieldName="Description" Caption="Description" />
+            <DxTreeListDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="50" />
+            <DxTreeListDataColumn FieldName="AddedDate" Caption="Added Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (AttributeGroupCheckBox)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate != null && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate.Value.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxTreeListDataColumn>
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var datas = (AttributeGroupCheckBox)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="datas.Value" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => datas.Value)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxMemo @bind-Text="datas.Description" ShowValidationIcon="true" Rows="5"/>
+                </DxFormLayoutItem>
+
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxTreeList>
+</div>
+
+@code {
+    bool UsePopupEditForm { get; set; }
+    TreeListEditMode CurrentEditMode { get { return UsePopupEditForm ? TreeListEditMode.PopupEditForm : TreeListEditMode.EditForm; } }
+    ITreeList TreeList { get; set; }
+    private List<AttributeGroupCheckBox> _attributes { get; set; } = new List<AttributeGroupCheckBox>();
+    [Parameter]
+    public ApplicationUser? applicationUser { get; set; }
+    [Parameter]
+    public AttributeHeader AttributeDetails { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        try
+        {
+            _attributes = await Mediator.Send(new GetAttributeGroupCheckBoxList(AttributeDetails?.AttributeID));
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void TreeList_CustomizeEditModel(TreeListCustomizeEditModelEventArgs e)
+    {
+        try
+        {
+            var editablePlant = (AttributeGroupCheckBox)e.EditModel;
+            if (e.IsNew)
+            {
+                editablePlant.StatusCodeID = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    async Task TreeList_EditModelSaving(TreeListEditModelSavingEventArgs e)
+    {
+        try
+        {
+            var editablePlant = (AttributeGroupCheckBox)e.EditModel;
+            if (e.IsNew)
+            {
+                if (e.ParentDataItem != null)
+                {
+                    editablePlant.ParentId = ((AttributeGroupCheckBox)e.ParentDataItem).AttributeGroupCheckBoxId;
+                }
+                var request = new InsertOrUpdateAttributeGroupCheckBox
+                    {
+                        AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
+                        Description = editablePlant.Description,
+                        Value = editablePlant.Value,
+                        AttributeId = AttributeDetails.AttributeID,
+                        StatusCodeID = editablePlant.StatusCodeID,
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ParentId = editablePlant.ParentId,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                    };
+
+                var result = await Mediator.Send(request);
+                if (e.ParentDataItem != null)
+                {
+                    if (result.AttributeGroupCheckBoxId > 0)
+                    {
+                        AttributeGroupCheckBox editablePlant1 = new AttributeGroupCheckBox();
+                        editablePlant1.Value = editablePlant.Value;
+                        editablePlant1.Description = editablePlant.Description;
+                        editablePlant1.ParentId = editablePlant.ParentId;
+                        editablePlant1.AddedByUserID = applicationUser.UserID;
+                        editablePlant1.AddedDate = DateTime.Now;
+                        editablePlant1.ModifiedDate = DateTime.Now;
+                        editablePlant1.ModifiedByUserID = applicationUser.UserID;
+                        editablePlant1.AttributeGroupCheckBoxId = result.AttributeGroupCheckBoxId;
+                        editablePlant1.ModifiedByUser = applicationUser.UserName;
+                        editablePlant1.AddedByUser = applicationUser.UserName;
+                        editablePlant1.AttributeId = AttributeDetails.AttributeID;
+                        _attributes.Add(editablePlant1);
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    await LoadData();
+                }
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                var request = new InsertOrUpdateAttributeGroupCheckBox
+                    {
+                        AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
+                        Description = editablePlant.Description,
+                        Value = editablePlant.Value,
+                        ParentId = editablePlant.ParentId,
+                        AttributeId = AttributeDetails.AttributeID,
+                        StatusCodeID = editablePlant.StatusCodeID,
+                        AddedByUserID = editablePlant.AddedByUserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = editablePlant.AddedDate,
+                        ModifiedDate = DateTime.Now,
+                    };
+                var result = await Mediator.Send(request);
+                await LoadData();
+                toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                // if (result.AttributeGroupCheckBoxId > 0)
+                // {
+                //     editablePlant.ModifiedByUser = applicationUser.UserName;
+                //     editablePlant.ModifiedDate = DateTime.Now;
+                //     editablePlant.ModifiedByUserID = applicationUser.UserID;
+                //     editablePlant.AttributeGroupCheckBoxId = result.AttributeGroupCheckBoxId;
+                // }
+                // e.CopyChangesToDataItem();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    async Task addNew()
+    {
+        await TreeList.StartEditNewRowAsync();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    async Task TreeList_DataItemDeleting(TreeListDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (AttributeGroupCheckBox)e.DataItem;
+        try
+        {
+            var request = new DeleteAttributeGroupCheckBox(editablePlant);
+            await Mediator.Send(request);
+            toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
+            await LoadData();
+            //_attributes.Remove((AttributeGroupCheckBox)e.DataItem);
+        }
+        catch (Exception eq)
+        {
+            toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

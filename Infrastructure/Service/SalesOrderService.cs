@@ -432,8 +432,8 @@ namespace Infrastructure.Service
             {
                 var companyListData = await _postSalesOrderQueryRepository.GetSotckBalanceItemsListAsync(searchModel);
                 string query = string.Empty;
-                query += UpdateSotckBalance(searchModel, companyListData);
-                query += UpdateKIVQty(searchModel, companyListData);
+                await UpdateSotckBalance(searchModel, companyListData);
+                await UpdateKIVQty(searchModel, companyListData);
                 return query;
             }
             catch (Exception ex)
@@ -441,7 +441,7 @@ namespace Infrastructure.Service
                 throw new Exception("Stock balance update failed with some unexpected errors!", ex);
             }
         }
-        public string UpdateSotckBalance(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
+        public async Task<string> UpdateSotckBalance(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
         {
             string query = string.Empty;
             var companyList = companyListData.PlantData.ToList();
@@ -453,13 +453,15 @@ namespace Infrastructure.Service
                     var Company = company.NavCompanyName;
 
                     var context = new NAVService(_configuration, Company);
-                   
+
 
 
 
                     var post = new SWWebIntegration.WebIntegration_PortClient();
 
-                    post.Endpoint.Address = new EndpointAddress(new Uri(_configuration[Company + ":SoapUrl"] + "/" + _configuration[Company + ":Company"] + "/Codeunit/WebIntegration"), new DnsEndpointIdentity(""));
+                    var endpointUrl = $"{_configuration[Company + ":SoapUrl"]}/{_configuration[Company + ":Company"]}/Codeunit/WebIntegration";
+                    post.Endpoint.Address = new EndpointAddress(new Uri(endpointUrl));
+                    //post.Endpoint.Address = new EndpointAddress(new Uri(_configuration[Company + ":SoapUrl"] + "/" + _configuration[Company + ":Company"] + "/Codeunit/WebIntegration"), new DnsEndpointIdentity(""));
 
                     post.ClientCredentials.UserName.UserName = _configuration[Company + ":UserName"];
                     post.ClientCredentials.UserName.Password = _configuration[Company + ":Password"];
@@ -482,7 +484,7 @@ namespace Infrastructure.Service
 
                     if (totalItems > 0)
                     {
-                        inventoryItems.ForEach(f =>
+                        foreach (var f in inventoryItems)
                         {
                             var stockdate = searchModel.StkMonth;
 
@@ -501,28 +503,57 @@ namespace Infrastructure.Service
                             var stockNav = companyListData.NavitemStockBalance.FirstOrDefault(d => d.ItemId == f.ItemId && d.StockBalMonth.Value.Month == month && d.StockBalMonth.Value.Year == year && d.StockBalWeek == weekofMonth);
                             if (stockNav == null)
                             {
-                                var stockdates = stockdate.ToString("yyyy-mm-dd");
-                                var AddedByUserId = 1; var StatusCodeId = 1; var RejectQuantity = 0; var Supply1ProcessQty = 0; var SupplyWipqty = 0;
-                                query += "INSERT INTO NavitemStockBalance(ItemId,AddedByUserId,AddedDate,StatusCodeId,Quantity,GlobalQty,ReworkQty,Wipqty,Kivqty,RejectQuantity,StockBalWeek,StockBalMonth,Supply1ProcessQty,SupplyWipqty,NotStartInvQty)VALUES " +
-                                "(" + f.ItemId + "," + AddedByUserId + ",'GetDate()'," + StatusCodeId + "," + (stockBalance > 0 ? stockBalance : 0) + "," + (fmqty > 0 ? fmqty : 0) + "," + (reqty > 0 ? reqty : 0) + "," + (kivQty > 0 ? kivQty : 0) + "," + RejectQuantity + "," + weekofMonth + ",'" + stockdates + "'," + Supply1ProcessQty + "," + SupplyWipqty + "," + (notStartqty > 0 ? notStartqty : 0) + ");\n\r";
+                                //var stockdates = stockdate.ToString("yyyy-mm-dd");
+                                // var AddedByUserId = 1; var StatusCodeId = 1; var RejectQuantity = 0; var Supply1ProcessQty = 0; var SupplyWipqty = 0;
+                                // query += "INSERT INTO NavitemStockBalance(ItemId,AddedByUserId,AddedDate,StatusCodeId,Quantity,GlobalQty,ReworkQty,Wipqty,Kivqty,RejectQuantity,StockBalWeek,StockBalMonth,Supply1ProcessQty,SupplyWipqty,NotStartInvQty)VALUES " +
+                                //"(" + f.ItemId + "," + AddedByUserId + ",'GetDate()'," + StatusCodeId + "," + (stockBalance > 0 ? stockBalance : 0) + "," + (fmqty > 0 ? fmqty : 0) + "," + (reqty > 0 ? reqty : 0) + "," + (wipqty > 0 ? wipqty : 0) + "," + (kivQty > 0 ? kivQty : 0) + "," + RejectQuantity + "," + weekofMonth + ",'" + stockdates + "'," + Supply1ProcessQty + "," + SupplyWipqty + "," + (notStartqty > 0 ? notStartqty : 0) + ");\n\r";
+
+                                navitemStockBalances.Add(new NavitemStockBalance
+                                {
+                                    ItemId = f.ItemId,
+                                    AddedByUserId = 1,
+                                    AddedDate = DateTime.Now,
+                                    StatusCodeId = 1,
+                                    Quantity = stockBalance,
+                                    GlobalQty = fmqty,
+                                    ReworkQty = reqty,
+                                    Wipqty = wipqty,
+                                    Kivqty = kivQty,
+                                    RejectQuantity = 0,
+                                    StockBalWeek = weekofMonth,
+                                    StockBalMonth = stockdate,
+                                    Supply1ProcessQty = 0,
+                                    SupplyWipqty = 0,
+                                    NotStartInvQty = notStartqty,
+                                });
                             }
                             else
                             {
-                                query += "Update  NavitemStockBalance SET Quantity=" + (stockBalance > 0 ? stockBalance : 0) + ",StockBalWeek=" + weekofMonth + ",Wipqty=" + (wipqty > 0 ? wipqty : 0) + ",ReworkQty=" + (reqty > 0 ? reqty : 0) + ",GlobalQty=" + (fmqty > 0 ? fmqty : 0) + ",Kivqty=" + (kivQty > 0 ? kivQty : 0) + ",NotStartInvQty=" + (notStartqty > 0 ? notStartqty : 0) + " WHERE ID =" + stockNav.NavStockBalanceId + ";\n\r";
+                                stockNav.Quantity = stockBalance;
+                                stockNav.StockBalWeek = weekofMonth;
+                                stockNav.Wipqty = wipqty;
+                                stockNav.ReworkQty = reqty;
+                                stockNav.GlobalQty = fmqty;
+                                stockNav.Kivqty = kivQty;
+                                stockNav.NotStartInvQty = notStartqty;
+                                navitemStockBalances.Add(stockNav);
+                                //query += "Update  NavitemStockBalance SET Quantity=" + (stockBalance > 0 ? stockBalance : 0) + ",StockBalWeek=" + weekofMonth + ",Wipqty=" + (wipqty > 0 ? wipqty : 0) + ",ReworkQty=" + (reqty > 0 ? reqty : 0) + ",GlobalQty=" + (fmqty > 0 ? fmqty : 0) + ",Kivqty=" + (kivQty > 0 ? kivQty : 0) + ",NotStartInvQty=" + (notStartqty > 0 ? notStartqty : 0) + " WHERE ID =" + stockNav.NavStockBalanceId + ";\n\r";
                             }
                             count++;
-                        });
+                        }
                     }
+                    await _postSalesOrderQueryRepository.InsertOrUpdateNavitemStockBalance(navitemStockBalances);
                 }
             }
             return query;
         }
-        public string UpdateKIVQty(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
+        public async Task<string> UpdateKIVQty(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
         {
             try
             {
                 string querys = string.Empty;
                 var companyList = companyListData.PlantData.ToList();
+                List<DistStockBalanceKiv> DistStockBalanceKivs = new List<DistStockBalanceKiv>();
                 if (companyList != null && companyList.Count() > 0)
                 {
                     var company = companyList.FirstOrDefault(f => f.PlantID == searchModel.CompanyId.GetValueOrDefault(0));
@@ -535,7 +566,7 @@ namespace Infrastructure.Service
 
                         if (inventoryItems != null && inventoryItems.Count() > 0)
                         {
-                            inventoryItems.ForEach(f =>
+                            foreach (var f in inventoryItems)
                             {
                                 var context = new NAVService(_configuration, Company);
 
@@ -558,19 +589,32 @@ namespace Infrastructure.Service
                                     var stockNav = companyListData.DistStockBalanceKiv.FirstOrDefault(d => d.ItemNo == f.No && d.StockBalMonth.Value.Month == month && d.StockBalMonth.Value.Year == year && d.StockBalWeek == weekofMonth && d.CustomerId == custMas.CustomerId);
                                     if (stockNav == null)
                                     {
-                                        var stockdates = stockdate.ToString("yyyy-mm-dd");
-                                        querys += "INSERT INTO DistStockBalanceKiv(ItemId,ItemNo,CompanyId,CustomerId,Quantity,CustomerNo,StockBalWeek,StockBalMonth)VALUES " +
-                               "(" + itemMas?.ItemId + "," + c.No + "," + custMas?.CustomerId + "" + (c.Outstanding_Quantity > 0 ? c.Outstanding_Quantity : 0) + "," + (c.Sell_to_Customer_Name) + "," + weekofMonth + ",'" + stockdates + "');\n\r";
-
+                                        // var stockdates = stockdate.ToString("yyyy-mm-dd");
+                                        // querys += "INSERT INTO DistStockBalanceKiv(ItemId,ItemNo,CompanyId,CustomerId,Quantity,CustomerNo,StockBalWeek,StockBalMonth)VALUES " +
+                                        //"(" + itemMas?.ItemId + "," + c.No + "," + custMas?.CustomerId + "" + (c.Outstanding_Quantity > 0 ? c.Outstanding_Quantity : 0) + "," + (c.Sell_to_Customer_Name) + "," + weekofMonth + ",'" + stockdates + "');\n\r";
+                                        var distKIV = new DistStockBalanceKiv
+                                        {
+                                            ItemId = itemMas?.ItemId,
+                                            ItemNo = c.No,
+                                            CompanyId = searchModel.CompanyId,
+                                            CustomerId = custMas?.CustomerId,
+                                            Quantity = c.Outstanding_Quantity,
+                                            CustomerNo = c.Sell_to_Customer_Name,
+                                            StockBalWeek = weekofMonth,
+                                            StockBalMonth = stockdate,
+                                        };
+                                        DistStockBalanceKivs.Add(distKIV);
                                     }
                                     else
                                     {
-
                                         var Quantity = stockNav.Quantity + c.Outstanding_Quantity;
-                                        querys += "Update  DynamicForm SET Quantity=" + Quantity + " WHERE ID =" + stockNav.DistKivId + ";\n\r";
+                                        stockNav.Quantity += c.Outstanding_Quantity;
+                                        DistStockBalanceKivs.Add(stockNav);
+                                        //querys += "Update  DynamicForm SET Quantity=" + Quantity + " WHERE ID =" + stockNav.DistKivId + ";\n\r";
                                     }
                                 });
-                            });
+                            }
+                            await _postSalesOrderQueryRepository.InsertOrUpdateDistStockBalanceKiv(DistStockBalanceKivs);
                         }
 
                     }

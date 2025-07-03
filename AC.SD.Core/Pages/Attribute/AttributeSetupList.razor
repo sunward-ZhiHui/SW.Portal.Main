@@ -21,6 +21,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Add Sub Controls" IconCssClass="fa fa-wpforms" Click="@AddSubFormPopup" Enabled="IsCheckBoxEnabled" />
+                <DxMenuItem Text="Add Group CheckBox" IconCssClass="fa fa-check-square" Click="@addGroupCheckBox" Enabled="@IsGroupCheckBoxEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@addExport" />
             </Items>
         </DxMenu>
@@ -141,7 +142,25 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AddGroupCheckBoxEnabled"
+         ShowFooter="false"
+         HeaderText="Add Group CheckBox"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px"
+         CloseOnEscape="false" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <AttributeGroupCheckBoxList @ref="refAttributeGroupCheckBoxList" applicationUser="@applicationUser" RevokeBack="CloseSubFormPopup" AttributeDetails="@_selectedItems"></AttributeGroupCheckBoxList>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool IsGroupCheckBoxEnabled { get; set; } = false;
+    bool AddGroupCheckBoxEnabled { get; set; } = false;
+    private AttributeGroupCheckBoxList refAttributeGroupCheckBoxList { get; set; }
     private AttributeSubFormSetupList refAttributeSubFormSetupList { get; set; }
     private IDisposable? DynamicFormPage2;
     IGrid? Grid { get; set; }
@@ -201,6 +220,7 @@
     }
     void CloseSubFormPopup()
     {
+        AddGroupCheckBoxEnabled = false;
         AddPopup = false;
         InvokeAsync(loadData);
         StateHasChanged();
@@ -225,7 +245,7 @@
     void loadSelectedItems()
     {
 
-        EditEnabled = false; DeleteEnabled = false; IsCheckBoxEnabled = false;
+        EditEnabled = false; DeleteEnabled = false; IsCheckBoxEnabled = false; IsGroupCheckBoxEnabled = false;
         if (_selectedItems != null)
         {
 
@@ -233,6 +253,10 @@
             if (_selectedItems.ControlTypeId == 2710)
             {
                 IsCheckBoxEnabled = true;
+            }
+            if (_selectedItems.ControlTypeId == 2710)
+            {
+                IsGroupCheckBoxEnabled = true;
             }
             if (_selectedItems.FormUsedCount > 0)
             {
@@ -280,6 +304,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        AddGroupCheckBoxEnabled = false;
         AddPopup = false;
         InvokeAsync(loadData);
         Blukdeletepopup = false;
@@ -306,5 +331,9 @@
         await Grid.ExportToXlsxAsync("Attribute Master", new GridXlExportOptions()
         {
         });
+    }
+    void addGroupCheckBox()
+    {
+        AddGroupCheckBoxEnabled = true;
     }
 }

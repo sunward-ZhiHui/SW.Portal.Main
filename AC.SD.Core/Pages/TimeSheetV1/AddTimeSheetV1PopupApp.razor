@@ -305,10 +305,9 @@
                           ValueFieldName="RePlanRefNo"
                           @bind-Values="@Data.FPDDIds"
                           CssClass="cw-480">
-
-
                     <Columns>
                         <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
+                        <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ItemNo)" Caption="Item No" />
                         <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.RePlanRefNo)" Caption="RePlan RefNo" />
                         <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
                         <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />

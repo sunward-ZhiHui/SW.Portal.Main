@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
@@ -28,13 +29,13 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    
+
                     var parameters = new DynamicParameters();
                     parameters.Add("id", id);
                     //var query = "DELETE  FROM AttributeDetails WHERE AttributeDetailID = @id";
                     var query = "Update AttributeDetails SET Disabled=1 WHERE  AttributeDetailID = @id";
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
-                    return rowsAffected;                       
+                    return rowsAffected;
                 }
 
             }
@@ -165,7 +166,7 @@ namespace Infrastructure.Repository.Query
 
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
                     return rowsAffected;
-                       
+
                 }
 
             }
@@ -200,6 +201,118 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public IEnumerable<AttributeGroupCheckBox> GetChild(long? id, List<AttributeGroupCheckBox> attributeGroupCheckBoxes)
+        {
+            var locations = attributeGroupCheckBoxes.Where(x => x.ParentId == id).ToList();
+
+            var child = locations.AsEnumerable().Union(attributeGroupCheckBoxes.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.AttributeGroupCheckBoxId, attributeGroupCheckBoxes))).ToList();
+            return child;
+        }
+        public async Task<AttributeGroupCheckBox> DeleteAttributeGroupCheckBox(AttributeGroupCheckBox attributeGroupCheckBox)
+        {
+
+            try
+            {
+                var result = await GetAttributeGroupCheckBoxList(attributeGroupCheckBox.AttributeId);
+                var childLists = GetChild(attributeGroupCheckBox.AttributeGroupCheckBoxId, result.ToList());
+                using (var connection = CreateConnection())
+                {
+
+                    var parameters = new DynamicParameters();
+                    parameters.Add("AttributeGroupCheckBoxId", attributeGroupCheckBox.AttributeGroupCheckBoxId);
+                    var query = "Update AttributeGroupCheckBox SET IsDeleted=1 WHERE  AttributeGroupCheckBoxId = @AttributeGroupCheckBoxId;";
+                    var ids = childLists.Select(x => x.AttributeGroupCheckBoxId).ToList();
+                    if (ids.Count > 0)
+                    {
+                        query += "Update AttributeGroupCheckBox SET IsDeleted=1 WHERE  AttributeGroupCheckBoxId IN(" + string.Join(',', ids) + ");";
+                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return attributeGroupCheckBox;
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<IReadOnlyList<AttributeGroupCheckBox>> GetAttributeGroupCheckBoxList(long? AttributeId)
+        {
+            try
+            {
+                List<AttributeGroupCheckBox> attributeGroupCheckBoxes = new List<AttributeGroupCheckBox>();
+                var parameters = new DynamicParameters();
+                parameters.Add("AttributeId", AttributeId);
+
+                var query = "SELECT t1.*,t2.UserName as AddedByUser FROM AttributeGroupCheckBox t1 \r\nJOIN ApplicationUser t2 ON t1.AddedByUserID=t2.UserID\r\n" +
+                    "Where (t1.IsDeleted=0 OR t1.IsDeleted IS NULL) AND t1.AttributeID = @AttributeId";
+                using (var connection = CreateConnection())
+                {
+                    attributeGroupCheckBoxes = (await connection.QueryAsync<AttributeGroupCheckBox>(query, parameters)).ToList();
+                }
+                return attributeGroupCheckBoxes;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<AttributeGroupCheckBox> InsertOrUpdateAttributeGroupCheckBox(AttributeGroupCheckBox attributeGroupCheckBox)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AttributeGroupCheckBoxId", attributeGroupCheckBox.AttributeGroupCheckBoxId);
+                        parameters.Add("AttributeId", attributeGroupCheckBox.AttributeId);
+                        parameters.Add("Value", attributeGroupCheckBox.Value, DbType.String);
+                        parameters.Add("Description", attributeGroupCheckBox.Description, DbType.String);
+                        parameters.Add("IsDeleted", attributeGroupCheckBox.IsDeleted == true ? true : null);
+                        parameters.Add("SessionId", attributeGroupCheckBox.SessionId);
+                        parameters.Add("AddedByUserID", attributeGroupCheckBox.AddedByUserID);
+                        parameters.Add("AddedDate", attributeGroupCheckBox.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedByUserID", attributeGroupCheckBox.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", attributeGroupCheckBox.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", attributeGroupCheckBox.StatusCodeID);
+                        parameters.Add("ParentId", attributeGroupCheckBox.ParentId);
+                        if (attributeGroupCheckBox.AttributeGroupCheckBoxId > 0)
+                        {
+                            var query = " UPDATE AttributeGroupCheckBox SET ParentId=@ParentId,Value=@Value,Description=@Description,IsDeleted = @IsDeleted,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE AttributeGroupCheckBoxId = @AttributeGroupCheckBoxId";
+
+                            await connection.ExecuteAsync(query, parameters);
+                        }
+                        else
+                        {
+                            var query = "INSERT INTO AttributeGroupCheckBox(ParentId,AttributeId,Value,Description,IsDeleted,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeGroupCheckBoxId  VALUES " +
+                                "(@ParentId,@AttributeId,@Value,@Description,@IsDeleted,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+
+                            attributeGroupCheckBox.AttributeGroupCheckBoxId = await connection.ExecuteScalarAsync<long>(query, parameters);
+                        }
+
+                        return attributeGroupCheckBox;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
             }
         }
     }

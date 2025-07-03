@@ -99,6 +99,7 @@ namespace Core.Entities
         public List<DynamicFormSectionAttributeSection> DynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
         public List<DynamicForm> DynamicFormAll = new List<DynamicForm>();
         public List<DynamicFormSectionAttrFormulaFunction> DynamicFormSectionAttrFormulaFunctions { get; set; } = new List<DynamicFormSectionAttrFormulaFunction>();
+        public List<AttributeGroupCheckBox> AttributeGroupCheckBoxes { get; set; } = new List<AttributeGroupCheckBox>();
     }
     public class DynamicFormGridModel
     {

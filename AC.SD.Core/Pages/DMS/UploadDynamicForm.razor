@@ -1468,6 +1468,25 @@
                                         }
                                     });
                                 }
+                                if (a.ControlTypeId == 2710)
+                                {
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                        {
+                                            var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                            typesLists.Add(a.DataType);
+                                            objectNameLists.Add(nameData);
+                                            AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
+                                            addTempSectionAttributess.DataType = a.DataType;
+                                            addTempSectionAttributess.DynamicAttributeName = nameData;
+                                            addTempSectionAttribute.DynamicAttributeFieldName = nameData;
+                                            addTempSectionAttribute.UniqueId = nameData;
+                                            addTempSectionAttributes.Add(addTempSectionAttributess);
+                                        });
+                                    }
+                                }
                                 if (a.DataSourceTable == "DynamicGrid")
                                 {
                                     var dynamicGridFormIds = a.DynamicGridDynamicFormData.Select(s => s.DynamicFormDataGridFormId).Distinct().ToList();
@@ -1804,6 +1823,21 @@
                                                 }
                                                 else if (a.ControlType == "CheckBox")
                                                 {
+                                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                                    {
+                                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                                        {
+                                                            var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                            var NamesA = jsonObjs.ContainsKey(nameData);
+                                                            if(NamesA==true)
+                                                            {
+                                                                var itemValueA = jsonObjs[nameData];
+                                                                bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
+                                                                Data.GetType().GetProperty(nameData).SetValue(Data, valuesA);
+                                                            }
+                                                        });
+                                                    }
                                                     bool? values = itemValue == null ? false : (bool)itemValue;
                                                     Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                                     if (values == true)
@@ -5360,6 +5394,13 @@
                    }
                    else if (s.ControlType == "CheckBox")
                    {
+                       var attrGroupCheckBox = _AttributeHeader.AttributeGroupCheckBoxes.Where(w => w.AttributeId == s.AttributeId).ToList();
+                       if (attrGroupCheckBox.Count() > 0)
+                       {
+                           loadGroupCheckBox(s, attrGroupCheckBox, editor, j);
+                       }
+                       else
+                       {
                        editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
                        editor.AddAttribute(j + 1, "Checked", valueData ?? false);
                        editor.AddAttribute(j + 1, "CheckedExpression", lambda);
@@ -5394,6 +5435,7 @@
                                editor.CloseElement();
                            }
                        }
+                   }
                    }
                    else if (s.ControlType == "RadioGroup")
                    {
@@ -10381,4 +10423,110 @@
             }
         });
     }
+    private Dictionary<string, bool> ExpandStates = new();
+    private void ToggleExpand(string key)
+    {
+        if (ExpandStates.ContainsKey(key))
+            ExpandStates[key] = !ExpandStates[key];
+        else
+            ExpandStates[key] = true;
+
+        StateHasChanged();
+    }
+    void loadGroupCheckBox(DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j)
+    {
+        var attrParent = attributeGroupCheckBoxes.Where(w => w.ParentId == null).ToList();
+        int index = 1;
+        attrParent.ForEach(s =>
+        {
+            string numbering = index.ToString();
+            string key = s.AttributeGroupCheckBoxId.ToString();
+
+            if (!ExpandStates.ContainsKey(key))
+                ExpandStates[key] = true; // default expanded
+
+            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{s.AttributeGroupCheckBoxId}_GroupCheckBox";
+            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+            if (propertyCheck != null)
+            {
+                int p = 20;
+                var valueDataAppMaster = propertyCheck.GetValue(Data);
+                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+                editor.OpenElement(j + 1, "div");
+                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+                // Checkbox
+                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+                editor.CloseComponent();
+
+                // Label with toggle click
+                editor.OpenElement(j + 1, "label");
+                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+                editor.AddContent(j + 1, $"{numbering}. {s.Value}");
+                editor.CloseElement();
+
+                editor.CloseElement();
+
+                if (ExpandStates[key])
+                    loadGroupCheckBoxNested(s, a, attributeGroupCheckBoxes, editor, j, p, numbering);
+            }
+
+            index++;
+        });
+    }
+
+    void loadGroupCheckBoxNested(AttributeGroupCheckBox parent, DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j, int p, string parentNumbering)
+    {
+        var children = attributeGroupCheckBoxes.Where(w => w.ParentId == parent.AttributeGroupCheckBoxId).ToList();
+        int childIndex = 1;
+
+        children.ForEach(child =>
+        {
+            string numbering = $"{parentNumbering}.{childIndex}";
+            string key = child.AttributeGroupCheckBoxId.ToString();
+
+            if (!ExpandStates.ContainsKey(key))
+                ExpandStates[key] = true; // default expanded
+
+            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{child.AttributeGroupCheckBoxId}_GroupCheckBox";
+            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+            if (propertyCheck != null)
+            {
+                var valueDataAppMaster = propertyCheck.GetValue(Data);
+                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+                editor.OpenElement(j + 1, "div");
+                editor.AddAttribute(j + 1, "style", $"padding-left:{p}px;");
+                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+                editor.CloseComponent();
+
+                // Label with toggle click
+                editor.OpenElement(j + 1, "label");
+                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+                editor.AddContent(j + 1, $"{numbering}. {child.Value}");
+                editor.CloseElement();
+
+                editor.CloseElement();
+
+                if (ExpandStates[key])
+                    loadGroupCheckBoxNested(child, a, attributeGroupCheckBoxes, editor, j, p + 20, numbering);
+            }
+
+            childIndex++;
+        });
+    }
+
 }

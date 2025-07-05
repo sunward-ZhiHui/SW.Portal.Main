@@ -27,7 +27,7 @@
 </div> *@
 
 <div class="items">
-    <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default" AllowTabReorder="false" ScrollMode="TabsScrollMode.Auto" ActiveTabIndex="@ActiveTabIndex" TabClosing="TabClosing">
+   @*  <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default" AllowTabReorder="false" ScrollMode="TabsScrollMode.Auto" ActiveTabIndex="@ActiveTabIndex" TabClosing="TabClosing">
         <DxTabPage TabIconCssClass="tabs-icon-home tabs-icon" Click="@OnHomeClick" />
 
         @foreach (var item in breadcrumbs)
@@ -36,7 +36,31 @@
 
             </DxTabPage>
         }
+    </DxTabs> *@
+
+
+    <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default"
+            AllowTabReorder="false"
+            ScrollMode="TabsScrollMode.Auto"
+            ActiveTabIndex="@ActiveTabIndex"
+            TabClosing="TabClosing">
+
+        <DxTabPage TabIconCssClass="tabs-icon-home tabs-icon" Click="@OnHomeClick" />
+
+        @foreach (var item in breadcrumbs)
+        {
+            <DxTabPage @key="item.Name"
+                       Text="@item.Title"
+                       Id="@item.Name"
+                       AllowClose="true"
+                       Click="@(() => OnPageClick(item))">
+            </DxTabPage>
+        }
     </DxTabs>
+
+
+
+
 
 </div>
 
@@ -62,7 +86,7 @@
     public PortalMenuModel _appPermissionListItems { get; set; }
     private List<PortalMenuModel> _appPermissionItems;
     public ApplicationUser applicationUser { get; private set; }
-    const string HomePageTitle = "Home";
+    const string HomePageTitle = "Dashboard";
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
 
     int ActiveTabIndex { get; set; } = 1;
@@ -114,9 +138,12 @@
     }
     async Task OnHomeClick()
     {
+        // ActiveTabIndex = 0;
+        // NavigationManager.NavigateTo("Dashboard");
+        // await InvokeAsync(StateHasChanged);
+        selectedItem = "Dashboard";
         ActiveTabIndex = 0;
-        NavigationManager.NavigateTo("myday");
-        await InvokeAsync(StateHasChanged);
+        NavigationManager.NavigateTo("Dashboard", false);
     }
     void BackPermission()
     {
@@ -127,7 +154,7 @@
     {
 
         PopupVisible = false;
-        NavigationManager.NavigateTo("dashboard");
+        NavigationManager.NavigateTo("Dashboard");
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -232,6 +259,56 @@
     // }
 
     async Task UpdateItems(string currentUri)
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var currentPageName = uri.Segments.LastOrDefault()?.Trim('/');
+
+        if (string.IsNullOrWhiteSpace(currentPageName))
+            return;
+
+        // Skip adding breadcrumbs if the current page is "Dashboard"
+        if (currentPageName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
+        {
+            selectedItem = "Dashboard";
+            ActiveTabIndex = 0; // Set home tab as active
+            StateHasChanged();
+            return;
+        }
+
+        var menulisting = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        if (menulisting is null || !menulisting.Any())
+            return;
+
+        var validMenuItems = menulisting.Where(f => !string.IsNullOrWhiteSpace(f.Name)).ToList();
+
+        PortalMenuModel pageItem = validMenuItems
+            .FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
+
+        if (pageItem == null && Guid.TryParse(currentPageName, out var currentGuid))
+        {
+            pageItem = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
+            if (pageItem != null)
+            {
+                selectedItem = $"{pageItem.Name}/{pageItem.UniqueSessionID}";
+            }
+        }
+        else if (pageItem != null)
+        {
+            selectedItem = pageItem.Name;
+        }
+
+        if (pageItem == null)
+            return;
+
+        string url = selectedItem;
+        AddBreadcrumbIfNotExists(pageItem, url, selectedItem);
+
+        ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
+        StateHasChanged();
+    }
+
+
+    async Task UpdateItems_VVV(string currentUri)
     {
         var uri = new Uri(NavigationManager.Uri);
         var currentPageName = uri.Segments.LastOrDefault()?.Trim('/');
@@ -389,7 +466,7 @@
             }
             else
             {
-                NavigationManager.NavigateTo("home", false);
+                NavigationManager.NavigateTo("Dashboard", false);
             }
         }
         await InvokeAsync(StateHasChanged);

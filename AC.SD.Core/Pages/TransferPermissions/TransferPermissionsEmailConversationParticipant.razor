@@ -313,7 +313,8 @@ Text="Fetching Data...">
                 {
                     TopicID = id.TopicID,
                     AssigntoIds = AssigntoIdss,
-                    AssignccIds = AssignccIdss,
+                    //AssignccIds = AssignccIdss,
+                    AssignccIds = new long[] { -1 },
                     // Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
                     Message = $"Transfer Details:<br/><br/>" +
               $"<strong>From:</strong> {fromname}<br/>" +

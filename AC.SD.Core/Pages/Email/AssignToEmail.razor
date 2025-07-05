@@ -281,25 +281,23 @@
         EnableArchiveAll.Invoke();
         DisableOpenClose.Invoke();
     }
-    public  async Task GetID()
+    public void GetID()
     {
-        // foreach (object item in SelectedDataItems)
-        // {
-        //     if (item is EmailTopics emailTopics)
-        //     {
+        if (SelectedDataItems == null || SelectedDataItems.Count == 0)
+            return;
 
-        //         SelectedGroups.Add(emailTopics.ID.ToString());
+        SelectedGroups.Clear();
 
+        foreach (var item in SelectedDataItems.OfType<EmailTopics>())
+        {
+            SelectedGroups.Add(item.ID.ToString());
+        }
 
-        //     }
-
-        // }
-
-        // ToTopicIds?.Invoke(SelectedGroups);
-
-        // StateHasChanged();
-
-
+        if (SelectedGroups.Count > 0)
+            ToTopicIds?.Invoke(SelectedGroups);
+    }
+    public  async Task GetIDold()
+    {
         if (SelectedDataItems == null || SelectedDataItems.Count == 0)
             return;
 

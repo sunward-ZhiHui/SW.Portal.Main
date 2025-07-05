@@ -383,7 +383,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId,request.DynamicFormSearch);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId, request.DynamicFormSearch);
         }
 
 
@@ -1716,6 +1716,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DynamicFormData> Handle(GetDynamicFormDataOneByDataId request, CancellationToken cancellationToken)
         {
             return await _dynamicFormQueryRepository.GetDynamicFormDataOneByDataIdAsync(request.DynamicFormId);
+        }
+
+
+    }
+    public class GetDynamicFormDataTableSyncHandler : IRequestHandler<GetDynamicFormDataTableSync, DynamicForm>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataTableSyncHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicForm> Handle(GetDynamicFormDataTableSync request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormDataTableSync(request.DropDownOptionsModel, request.DynamicformObjectDataList, request.AttributeHeader, request.DynamicForm);
         }
 
 

@@ -137,6 +137,7 @@ namespace Core.Entities
         public bool? IsDynamicGrid { get; set; } = false;
         public string? ControlType { get; set; }
         public bool? IsSubForm { get; set; } = false;
+        public long? DynamicFormSectionAttributeId { get; set; }
     }
     public class DropDownOptionsGridListModel
     {

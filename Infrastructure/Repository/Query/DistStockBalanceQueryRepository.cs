@@ -477,6 +477,7 @@ namespace Infrastructure.Repository.Query
                         var DistStockBalances = await GetNavDistStockBalanceOneById(exist.DistAcid, acMonth);
                         var stkbalances = DistStockBalances.Where(fd => fd.DistItemId == exist.DistAcid && fd.StockBalMonth.Month == acMonth.Month && fd.StockBalMonth.Year == acMonth.Year);
                         DistStockBalance stkbalance = null;
+
                         if (stkbalances.Any(c => c.StockBalWeek == stockBalWeek))
                         {
                             stkbalance = stkbalances.FirstOrDefault(s => s.StockBalWeek == stockBalWeek);

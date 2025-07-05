@@ -994,5 +994,19 @@ namespace Application.Queries
             this.DynamicFormId = dynamicFormId;
         }
     }
+    public class GetDynamicFormDataTableSync : PagedRequest, IRequest<DynamicForm>
+    {
+        public List<DropDownOptionsModel> DropDownOptionsModel { get; set; }
+        public List<object> DynamicformObjectDataList { get; set; }
+        public AttributeHeaderListModel AttributeHeader { get; set; }
+        public DynamicForm DynamicForm { get; set; }
+        public GetDynamicFormDataTableSync(List<DropDownOptionsModel> dropDownOptionsModels, List<object> _dynamicformObjectDataList, AttributeHeaderListModel attributeHeaderListModel, DynamicForm dynamicForm)
+        {
+            this.DropDownOptionsModel = dropDownOptionsModels;
+            this.DynamicformObjectDataList = _dynamicformObjectDataList;
+            this.AttributeHeader = attributeHeaderListModel;
+            this.DynamicForm = dynamicForm;
+        }
+    }
 }
 

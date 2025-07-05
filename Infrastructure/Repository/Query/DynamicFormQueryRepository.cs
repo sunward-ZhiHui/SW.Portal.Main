@@ -6,6 +6,8 @@ using Core.Helpers;
 using Core.Repositories.Query;
 using Dapper;
 using DevExpress.Xpo.DB.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
 using Google.Protobuf.WellKnownTypes;
@@ -32,12 +34,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Azure.Core.HttpHeader;
 using static Duende.IdentityServer.Models.IdentityResources;
 using static iText.IO.Image.Jpeg2000ImageData;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static iTextSharp.text.pdf.AcroFields;
+using static iTextSharp.text.pdf.PdfDiv;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -8114,6 +8118,295 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<DynamicForm> GetDynamicFormDataTableSync(List<DropDownOptionsModel> dropDownOptionsModels, List<object> _dynamicformObjectDataList, AttributeHeaderListModel attributeHeaderListModel, DynamicForm dynamicForm)
+        {
+            try
+            {
+                List<DynamicParameters> DynamicParameters = new List<DynamicParameters>();
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        if (dropDownOptionsModels != null && dropDownOptionsModels.Count() > 0)
+                        {
+                            var parameters = new DynamicParameters();
+                            string tableName = "DynamicForm_" + dynamicForm.ScreenID.ToLower();
+                            string createsql = "create table " + tableName + " (";
+                            string alterSql = string.Empty;
+                            var parameters1 = new DynamicParameters();
+                            parameters1.Add("tableName", tableName, DbType.String);
+                            // var query = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME =@tableName;";
+                            var query = "DROP TABLE IF EXISTS " + tableName;
+                            var res = (await connection.QueryAsync<Table_Schema>(query, parameters1)).ToList();
+                            createsql += "[DynamicFormDataItemID] [bigint] IDENTITY(1,1) NOT NULL,[DynamicFormDataID] [bigint] NULL,[DynamicFormDataGridId] [bigint] NULL,[GridSortOrderByNo] [int] NULL,";
+                            dropDownOptionsModels.ForEach(s =>
+                            {
+                                var dataType = attributeHeaderListModel.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId)?.FirstOrDefault();
+                                if (dataType != null)
+                                {
+                                    if (s.IsSubForm == true)
+                                    {
+                                        var namess = Regex.Replace(s.Text, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                        var attrNames = dataType.DynamicFormSectionAttributeId + "_" + s.AttributeDetailID + "_" + namess;
+                                        s.AttributeDetailName = attrNames.ToLower();
+                                        createsql += "[" + attrNames + "] [nvarchar](2000) NULL,";
+                                    }
+                                    else
+                                    {
+                                        var names = Regex.Replace(s.Text, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                        var attrName = dataType.DynamicFormSectionAttributeId + "_" + names.Replace(" ", "_");
+                                        if (dataType.ControlType == "SpinEdit")
+                                        {
+                                            if (dataType.DataType == typeof(decimal?))
+                                            {
+                                                createsql += "[" + attrName + "] [decimal](18, 5) NULL,";
+                                            }
+                                            else
+                                            {
+                                                createsql += "[" + attrName + "] [int] NULL,";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (dataType.DataType == typeof(DateTime?))
+                                            {
+                                                createsql += "[" + attrName + "] [datetime] NULL,";
+                                            }
+                                            else if (dataType.DataType == typeof(TimeSpan?))
+                                            {
+                                                createsql += "[" + attrName + "] [time] NULL,";
+                                            }
+
+                                            else if (dataType.DataType == typeof(bool?))
+                                            {
+                                                var GcheckBox = attributeHeaderListModel.AttributeGroupCheckBoxes.Where(w => w.AttributeId == dataType.AttributeId).Count();
+                                                if (GcheckBox > 0)
+                                                {
+                                                    createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                                }
+                                                else
+                                                {
+                                                    createsql += "[" + attrName + "] [bit] NULL,";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                            }
+                                        }
+                                        /*var exits = res.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                        if (exits == null)
+                                        {
+                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName.ToLower() + "] [nvarchar](2000) NULL;\n";
+                                        }*/
+
+                                        s.AttributeDetailName = attrName.ToLower();
+                                    }
+                                }
+                                else
+                                {
+                                    if (s.Value != "DynamicFormDataId" && s.Value != "IsFileprofileTypeDocument")
+                                    {
+                                        var namesData = Regex.Replace(s.Value, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                        namesData = namesData.Replace(" ", "_");
+                                        if (s.Value == "ModifiedDate")
+                                        {
+                                            createsql += "[" + namesData + "] [datetime] NULL,";
+                                        }
+                                        else if (s.Value == "SortOrderByNo")
+                                        {
+                                            createsql += "[" + namesData + "] [int] NULL,";
+                                        }
+                                        else
+                                        {
+                                            createsql += "[" + namesData + "] [nvarchar](2000) NULL,";
+                                        }
+                                        /*var exitsData = res.Where(w => w.COLUMN_NAME.ToLower() == namesData.ToLower()).FirstOrDefault();
+                                        if (exitsData == null)
+                                        {
+                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + namesData + "] [nvarchar](2000) NULL;\n";
+                                        }*/
+                                        s.AttributeDetailName = namesData.ToLower();
+                                    }
+                                }
+                            });
+                            createsql += "CONSTRAINT [PK_" + tableName + "] PRIMARY KEY CLUSTERED \r\n(\r\n\t[DynamicFormDataItemID] ASC\r\n)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]\r\n) ON [PRIMARY]";
+                            /*if (res.Count() > 0)
+                            {
+                                if (!string.IsNullOrEmpty(alterSql))
+                                {
+                                    using (SqlCommand command = new SqlCommand((string)alterSql, (SqlConnection)connection))
+                                    {
+                                        connection.Open();
+                                        await command.ExecuteNonQueryAsync();
+                                        connection.Close();
+                                    }
+                                }
+                            }
+                            else
+                            {*/
+                            if (!string.IsNullOrEmpty(createsql))
+                            {
+                                using (SqlCommand command = new SqlCommand((string)createsql, (SqlConnection)connection))
+                                {
+                                    connection.Open();
+                                    await command.ExecuteNonQueryAsync();
+                                    connection.Close();
+                                }
+                            }
+                            //}
+
+                            if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
+                            {
+                                string sql = string.Empty;
+                                string columnName = string.Empty; string values = string.Empty;
+                                foreach (var s in _dynamicformObjectDataList)
+                                {
+                                    var parameterss = new DynamicParameters();
+
+                                    dynamic v = s;
+                                    var byName = (IDictionary<string, object>)s;
+                                    parameterss.Add("DynamicFormDataID", v.DynamicFormDataId, DbType.String);
+                                    parameterss.Add("DynamicFormDataGridId", v.DynamicFormDataGridId);
+                                    parameterss.Add("GridSortOrderByNo", v.GridSortOrderByNo);
+                                    dropDownOptionsModels.ForEach(q =>
+                                    {
+                                        if (!string.IsNullOrEmpty(q.AttributeDetailName))
+                                        {
+                                            if (byName.ContainsKey(q.Value) && byName[q.Value] != null)
+                                            {
+                                                var Typevalues = byName[q.Value]?.GetType();
+
+
+                                                if (Typevalues == typeof(decimal) || Typevalues == typeof(decimal?))
+                                                {
+                                                    var names = (decimal?)byName[q.Value];
+                                                    parameterss.Add(q.AttributeDetailName, names, DbType.Decimal);
+                                                }
+                                                if (Typevalues == typeof(int) || Typevalues == typeof(int?))
+                                                {
+                                                    var names = (int?)byName[q.Value];
+                                                    parameterss.Add(q.AttributeDetailName, names, DbType.Int32);
+                                                }
+                                                else if (Typevalues == typeof(DateTime) || Typevalues == typeof(DateTime?))
+                                                {
+                                                    var names = (DateTime?)byName[q.Value];
+                                                    parameterss.Add(q.AttributeDetailName, names, DbType.DateTime);
+                                                }
+                                                else if (Typevalues == typeof(TimeSpan) || Typevalues == typeof(TimeSpan?))
+                                                {
+                                                    var names = (TimeSpan?)byName[q.Value];
+                                                    if (names != null)
+                                                    {
+                                                        DateTime time = DateTime.Today.Add((TimeSpan)names);
+                                                        parameterss.Add(q.AttributeDetailName, time, DbType.Time);
+                                                    }
+
+                                                }
+
+                                                else if (Typevalues == typeof(bool) || Typevalues == typeof(bool?))
+                                                {
+                                                    var names = (bool?)byName[q.Value];
+                                                    parameterss.Add(q.AttributeDetailName, names);
+                                                }
+                                                else
+                                                {
+                                                    var names = (string)byName[q.Value]?.ToString();
+                                                    parameterss.Add(q.AttributeDetailName, names, DbType.String);
+                                                }
+
+                                            }
+                                        }
+                                    });
+                                    DynamicParameters.Add(parameterss);
+                                }
+                            }
+                            if (DynamicParameters.Count() > 0)
+                            {
+                                foreach (var p in DynamicParameters)
+                                {
+                                    await InsertOrUpdate(tableName, "DynamicFormDataItemID", 0, p);
+                                }
+                            }
+                        }
+                        return dynamicForm;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        private async Task<long> InsertOrUpdate(string? TableName, string? PrimareyKeyName, long PrimareyKeyId, DynamicParameters parameters)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var query = string.Empty;
+                    if (PrimareyKeyId > 0)
+                    {
+                        if (parameters is DynamicParameters subDynamic)
+                        {
+                            query += "UPDATE " + TableName + " SET\r";
+                            var names = string.Empty;
+                            if (subDynamic.ParameterNames is not null)
+                            {
+                                foreach (var keyValue in subDynamic.ParameterNames)
+                                {
+                                    names += "[" + keyValue + "]=";
+                                    names += "@" + keyValue + ",";
+                                }
+                            }
+                            query += names.TrimEnd(',') + "\rwhere " + PrimareyKeyName + " = " + PrimareyKeyId + ";";
+                        }
+                    }
+                    else
+                    {
+                        if (parameters is DynamicParameters subDynamic)
+                        {
+                            query += "INSERT INTO " + TableName + "(\r";
+                            var values = string.Empty;
+                            var names = string.Empty;
+                            if (subDynamic.ParameterNames is not null)
+                            {
+                                foreach (var keyValue in subDynamic.ParameterNames)
+                                {
+                                    names += "[" + keyValue + "],";
+                                    values += "@" + keyValue + ",";
+                                }
+                            }
+                            query += names.TrimEnd(',') + ")\rOUTPUT INSERTED." + PrimareyKeyName + " VALUES(" + values.TrimEnd(',') + ");";
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        if (PrimareyKeyId > 0)
+                        {
+                            await connection.ExecuteAsync(query, parameters);
+
+                        }
+                        else
+                        {
+                            PrimareyKeyId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                    }
+                }
+                return PrimareyKeyId;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

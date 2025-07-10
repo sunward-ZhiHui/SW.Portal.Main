@@ -11,10 +11,20 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
+    //public class GetAllSoOrder : PagedRequest, IRequest<List<View_SoSalesOrder>>
+    //{
+    //    public string SearchString { get; set; }
+    //}
     public class GetAllSoOrder : PagedRequest, IRequest<List<View_SoSalesOrder>>
     {
         public string SearchString { get; set; }
+
+        // Add filter parameters
+        public string FilterType { get; set; } // "Last7Days", "LastMonth", "Between"
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
     }
+
     public class GetAllSoOrderBySession : PagedRequest, IRequest<View_SoSalesOrder>
     {
         public string SearchString { get; set; }

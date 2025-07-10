@@ -11,18 +11,40 @@ using System.Linq;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {
+    //public class GetAllSoOrderHandler : IRequestHandler<GetAllSoOrder, List<View_SoSalesOrder>>
+    //{
+    //    private readonly ISoSalesOrderQueryRepository _queryRepository;
+    //    public GetAllSoOrderHandler(ISoSalesOrderQueryRepository queryRepository)
+    //    {
+    //        _queryRepository = queryRepository;
+    //    }
+    //    public async Task<List<View_SoSalesOrder>> Handle(GetAllSoOrder request, CancellationToken cancellationToken)
+    //    {
+    //        return (List<View_SoSalesOrder>)await _queryRepository.GetAllAsync();
+    //    }
+    //}
+
     public class GetAllSoOrderHandler : IRequestHandler<GetAllSoOrder, List<View_SoSalesOrder>>
     {
         private readonly ISoSalesOrderQueryRepository _queryRepository;
+
         public GetAllSoOrderHandler(ISoSalesOrderQueryRepository queryRepository)
         {
             _queryRepository = queryRepository;
         }
+
         public async Task<List<View_SoSalesOrder>> Handle(GetAllSoOrder request, CancellationToken cancellationToken)
         {
-            return (List<View_SoSalesOrder>)await _queryRepository.GetAllAsync();
+            var result = await _queryRepository.GetAllAsync(
+                request.FilterType,
+                request.FromDate,
+                request.ToDate
+            );
+
+            return result.ToList(); // You may add pagination or search here later
         }
     }
+
 
     public class GetAllSoOrderBySessionHandler : IRequestHandler<GetAllSoOrderBySession, View_SoSalesOrder>
     {

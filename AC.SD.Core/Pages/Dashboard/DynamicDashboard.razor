@@ -10,6 +10,7 @@
 @using System.IO;
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @rendermode InteractiveServer
+@using System.Threading
 @using global::Core.Entities
 @using global::Core.Repositories.Query
 @inject ILocalStorageService<ApplicationUser> _localStorageService
@@ -20,6 +21,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
+@implements IAsyncDisposable
+
 
 <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
@@ -56,6 +59,7 @@
     public List<DashboardItem> DashboardIds { get; set; } = new List<DashboardItem>();
     bool isDeletePopupVisible = false;
     DashboardItem? dashboardToDelete = null;
+    private CancellationTokenSource _cts = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -80,9 +84,16 @@
    
     protected override async Task OnInitializedAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        //DashboardIds = LoadDashboardsFromXml();
-        headers["UserId"] = applicationUser.UserID.ToString();
+        try
+        {
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            headers["UserId"] = applicationUser?.UserID.ToString() ?? "0";
+        }
+        catch (Exception ex)
+        {
+            // log or handle if necessary
+        }
+      
     }
 
     public class DashboardItem
@@ -113,6 +124,22 @@
         dashboardItem = dashboards.FirstOrDefault(x => x.Id == dashboardId) ?? dashboards.FirstOrDefault();
 
         return dashboards;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+
+        await Task.CompletedTask;
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("hideLoading");
+        }
+        catch
+        {
+            // JS interop may fail if component is disposed
+        }
     }
 
 }

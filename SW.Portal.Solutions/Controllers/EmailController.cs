@@ -674,14 +674,22 @@ namespace SW.Portal.Solutions.Controllers
                     var responseContent = await response.Content.ReadAsStringAsync();
 
                     // Log response content for debugging
-                    Console.WriteLine(responseContent);
+                    //Console.WriteLine(responseContent);
+
+                    // Handle UNREGISTERED token
+                    if (!response.IsSuccessStatusCode && responseContent.Contains("UNREGISTERED"))
+                    {
+                        // Optionally log and remove token
+                        Console.WriteLine($"Invalid FCM Token: {tokens}");
+                        return "UNREGISTERED";
+                    }
 
                     return responseContent; // Return response or analyze as needed
                 }
                 catch (Exception ex)
                 {
                     // Log exceptions for further analysis
-                    Console.WriteLine($"Error sending notification: {ex.Message}");
+                    //Console.WriteLine($"Error sending notification: {ex.Message}");
                     return $"Error: {ex.Message}";
                 }
             }

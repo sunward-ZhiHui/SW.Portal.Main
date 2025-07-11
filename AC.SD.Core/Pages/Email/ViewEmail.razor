@@ -6524,6 +6524,27 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     }
     public async Task onDocDownload_old(long Id)
     {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+        var lst = _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        if (lst == null)
+        {
+            toastService.ShowToast("Document not found.", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        var response = await Mediator.Send(new GetFileDownload(Id));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("File does not exist.", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        await JSRuntime.InvokeVoidAsync("downloadFile", lst.FileName, response.ImageData, "");
+    }
+
+    public async Task onDocDownload_old_VV(long Id)
+    {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 

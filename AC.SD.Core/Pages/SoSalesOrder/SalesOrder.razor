@@ -25,6 +25,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
+                <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter())" id=@($"flyout-overview-target-container-FilterSalesOrder") />
             </Items>
         </DxMenu>
     </div>
@@ -120,6 +121,52 @@
     </DxGrid>
 </DxLoadingPanel>
 
+<DxFlyout @bind-IsOpen=IsFilterOpen
+          PositionTarget=@($"#flyout-overview-target-container-FilterSalesOrder")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Search Form"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+              @*   <DxRadioGroup Items="@RadioButtonOptions"
+                              Value="@dynamicFormSearch.FilterType"
+                              ValueExpression="@(() => dynamicFormSearch.FilterType)"
+                              ValueChanged="@((string value) => OnTemplateUploadRadioGroupValueChanged(value))"
+                              Layout="RadioGroupLayout.Horizontal"
+                              CssClass="dx-demo-radio-group" /> *@
+                <DxRadioGroup Items="@RadioButtonOptions"
+                  TextFieldName="Value"
+                  ValueFieldName="Key"
+                  Value="@dynamicFormSearch.FilterType"
+                  ValueExpression="@(() => dynamicFormSearch.FilterType)"
+                  ValueChanged="@((string value) => OnTemplateUploadRadioGroupValueChanged(value))"
+                  Layout="RadioGroupLayout.Horizontal"
+                  CssClass="dx-demo-radio-group" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="From" ColSpanMd="12" Visible="@filterEnabled">
+                <DxDateEdit NullText="Select a From Date..." @bind-Date="@dynamicFormSearch.StartDate" Mask="dd-MMMM-yyyy" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="To" ColSpanMd="12" Visible="@filterEnabled">
+                <DxDateEdit NullText="Select a To Date..." @bind-Date="@dynamicFormSearch.EndDate" Mask="dd-MMMM-yyyy" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(() => OnFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(() => OnClearFilterDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(() => OnCloseFilterDocuments()) />
+
+    </FooterContentTemplate>
+</DxFlyout>
+
 @code {
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<View_SoSalesOrder> _salesOrderItems;
@@ -129,10 +176,40 @@
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; }
+    bool IsFilterOpen { get; set; } = false;
+   // IEnumerable<string> RadioButtonOptions = new[] { "Last 7 Days", "Last One Month", "Set Filter" };
+  
+    //bool filterEnabled { get; set; } = false;
+    bool filterClicked { get; set; } = false;
+
+
+    public class FilterSearchModel
+    {
+        public string FilterType { get; set; } = "Last7Days";  // default
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+    private FilterSearchModel dynamicFormSearch = new();
+    private bool filterEnabled => dynamicFormSearch.FilterType == "Between";
+
+    private IEnumerable<KeyValuePair<string, string>> RadioButtonOptions = new[]
+    {
+        new KeyValuePair<string, string>("Last7Days", "Last 7 Days"),
+        new KeyValuePair<string, string>("LastMonth", "Last One Month"),
+        new KeyValuePair<string, string>("Between", "Set Filter")
+    };
+
+
+
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        _salesOrderItems = await Mediator.Send(new GetAllSoOrder());
+
+        _salesOrderItems = await Mediator.Send(new GetAllSoOrder
+        {
+            FilterType = "Last7Days"
+        });
+
         PanelVisible = false;
         if (_salesOrderItems.Count > 0)
         {
@@ -248,6 +325,44 @@
         }
         SelectedDataItems = null;
         _selectedItems = null;
+    }
+    void OnFileProfiltefilter()
+    {
+        IsFilterOpen = true; 
+        StateHasChanged();
+    }
+    void OnTemplateUploadRadioGroupValueChanged(string value)
+    {
+        dynamicFormSearch.FilterType = value;
+        StateHasChanged();
+    }
+    async Task OnFilterDocuments()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+
+        _salesOrderItems = await Mediator.Send(new GetAllSoOrder
+        {
+            FilterType = dynamicFormSearch.FilterType,
+            FromDate = dynamicFormSearch.StartDate,
+            ToDate = dynamicFormSearch.EndDate
+        });
+
+        IsFilterOpen = false;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+
+    void OnClearFilterDocuments()
+    {
+        dynamicFormSearch.FilterType = "Last7Days";
+        dynamicFormSearch.StartDate = null;
+        dynamicFormSearch.EndDate = null;
+        StateHasChanged();
+    }
+
+    void OnCloseFilterDocuments()
+    {
+        IsFilterOpen = false;
+        StateHasChanged();
     }
     //void ColumnChooserButton_Click()
     //{

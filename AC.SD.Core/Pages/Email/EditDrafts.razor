@@ -244,7 +244,7 @@ else
 
 
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
-                                <DxComboBox Data="@_Allparticipant"
+                                <DxComboBox Data="@_OnBehalfparticipant"
                                             NullText="Select OnBehalf..."
                                             AllowUserInput="true"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -902,6 +902,7 @@ else
     DxRichEdit msgrichEdit { get; set; }
     DxRichEdit msgrichEdit1 { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+    internal List<ViewEmployee>? _OnBehalfparticipant;
     bool IsOpen { get; set; } = false;
 
     bool ShowCheckboxes { get; set; } = true;
@@ -1234,6 +1235,19 @@ else
     }
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
+        Data.ToIds = values;
+
+        // Remove from CC if same user is selected in To
+        if (Data.CCIds != null)
+        {
+            Data.CCIds = Data.CCIds.Where(p => !values.Contains(p)).ToList();
+        }
+
+        UpdateAllParticipants();
+        StateHasChanged();
+    }
+    void onSelectedToItemsChanged_VV(IEnumerable<long>? values)
+    {
 
         if (values != null)
         {
@@ -1363,6 +1377,37 @@ else
         InvokeAsync(StateHasChanged);
     }
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        Data.CCIds = values;
+
+        // Remove from To if same user is selected in CC
+        if (Data.ToIds != null)
+        {
+            Data.ToIds = Data.ToIds.Where(p => !values.Contains(p)).ToList();
+        }
+
+        UpdateAllParticipants();
+        StateHasChanged();
+    }
+    void UpdateAllParticipants()
+    {
+        var toIds = Data.ToIds ?? Enumerable.Empty<long>();
+        var ccIds = Data.CCIds ?? Enumerable.Empty<long>();
+        var onBehalfId = Data.OnBehalf;
+
+        _Toparticipant = _participant
+            .Where(p => p.UserID != onBehalfId)
+            .ToList();
+
+        _CCparticipant = _participant
+            .Where(p => p.UserID != onBehalfId)
+            .ToList();
+
+        _OnBehalfparticipant = _participant
+            .Where(p => !toIds.Contains(p.UserID.Value) && !ccIds.Contains(p.UserID.Value))
+            .ToList();
+    }
+    void onSelectedCCItemsChanged_VV(IEnumerable<long>? values)
     {
 
         if (values != null)
@@ -1677,7 +1722,7 @@ else
 
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
+        _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
         //_category = topicmodel;        
 

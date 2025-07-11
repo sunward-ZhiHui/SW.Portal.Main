@@ -66,7 +66,7 @@ namespace SW.Portal.Solutions.ServerSide
             //services.AddDevExpressBlazor(); // Register DevExpress Blazor services
             services.AddOptions();
             services.AddControllers();
-            services.AddHttpContextAccessor();
+         
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
             services.AddBlazoredSessionStorage();
             services.AddSingleton<DemoConfiguration>();
@@ -98,7 +98,7 @@ namespace SW.Portal.Solutions.ServerSide
                     Culture = "en-US"
                 });*/
             });
-            services.AddHttpContextAccessor();
+         
             //DashboardConfig.RegisterDashboard(services, Configuration, context.HostingEnvironment.ContentRootFileProvider);
             DashboardConfig.RegisterDashboard(services,Configuration,context.HostingEnvironment.ContentRootFileProvider,
                 services.BuildServiceProvider().GetService<IHttpContextAccessor>()

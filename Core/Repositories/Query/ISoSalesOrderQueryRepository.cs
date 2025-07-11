@@ -11,7 +11,8 @@ namespace Core.Repositories.Query
 {
     public interface ISoSalesOrderQueryRepository : IQueryRepository<View_SoSalesOrder>
     {
-        Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync();
+        //Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync();
+        Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync(string filterType = null,DateTime? fromDate = null,DateTime? toDate = null);
         Task<View_SoSalesOrder> GetByIdAsync(Int64 id);
         Task<View_SoSalesOrder> GetAllBySessionAsync(Guid? SessionId);
     }

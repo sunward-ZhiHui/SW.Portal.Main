@@ -22,6 +22,9 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
+@implements IDisposable
+@using System.Threading;
+
 
 <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
@@ -109,6 +112,7 @@
     public List<DashboardItem> DashboardIds { get; set; } = new List<DashboardItem>();
     bool isDeletePopupVisible = false;
     DashboardItem? dashboardToDelete = null;
+    private CancellationTokenSource _cts = new();
 
     private List<string> _customOrder = new();
 
@@ -545,5 +549,19 @@
 
         StateHasChanged();
     }
+    public void Dispose()
+    {        
+        dashboardToDelete = null;
+        dashboardItem = null;
+        DashboardIds.Clear();
+        _customOrder.Clear();
+        _cts.Cancel();
+        _cts.Dispose();
+    }
 
+    public async ValueTask DisposeAsync()
+    {
+        // For async disposal of services like IJSRuntime or others.
+        await Task.CompletedTask;
+    }
 }

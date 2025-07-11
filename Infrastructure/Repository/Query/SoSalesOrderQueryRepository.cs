@@ -19,15 +19,52 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync()
+        //public async Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync()
+        //{
+        //    try
+        //    {
+        //        var query = "select  * from view_SoSalesOrder Order By AddedDate Desc ";
+
+        //        using (var connection = CreateConnection())
+        //        {
+        //            return (await connection.QueryAsync<View_SoSalesOrder>(query)).ToList();
+        //        }
+        //    }
+        //    catch (Exception exp)
+        //    {
+        //        throw new Exception(exp.Message, exp);
+        //    }
+        //}
+        public async Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync(string filterType = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
-                var query = "select  * from view_SoSalesOrder Order By AddedDate Desc ";
+                var queryBuilder = new StringBuilder("SELECT * FROM view_SoSalesOrder WHERE 1=1");
+
+                // Apply filter based on type
+                if (!string.IsNullOrEmpty(filterType))
+                {
+                    if (filterType == "Last7Days")
+                    {
+                        queryBuilder.Append(" AND AddedDate >= @FromDate");
+                        fromDate = DateTime.UtcNow.Date.AddDays(-7);
+                    }
+                    else if (filterType == "LastMonth")
+                    {
+                        queryBuilder.Append(" AND AddedDate >= @FromDate");
+                        fromDate = DateTime.UtcNow.Date.AddMonths(-1);
+                    }
+                    else if (filterType == "Between" && fromDate.HasValue && toDate.HasValue)
+                    {
+                        queryBuilder.Append(" AND AddedDate BETWEEN @FromDate AND @ToDate");
+                    }
+                }
+
+                queryBuilder.Append(" ORDER BY AddedDate DESC");
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_SoSalesOrder>(query)).ToList();
+                    return (await connection.QueryAsync<View_SoSalesOrder>(queryBuilder.ToString(), new { FromDate = fromDate, ToDate = toDate })).ToList();
                 }
             }
             catch (Exception exp)
@@ -35,6 +72,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<View_SoSalesOrder> GetByIdAsync(long id)
         {
             try

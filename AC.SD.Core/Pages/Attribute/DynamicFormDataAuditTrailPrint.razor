@@ -1,212 +1,217 @@
-﻿@using Application.Commands;
-@using Application.Queries;
-@using Application.Response;
-@using MediatR
+﻿@using Application.Queries;
 @using Newtonsoft.Json
 @using Newtonsoft.Json.Linq
 @using System.Dynamic
 @using global::Core.Entities;
-@using global::Core.Entities.Views;
+@using MediatR
 @inject IMediator Mediator
-@using DevExpress.Export
 @using global::Core.Repositories.Query;
-@inject IJSRuntime jsRuntime;
-@inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IAsyncDisposable
-
-
-
-<DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-
-    <DxGrid @ref="SMAttributeGrid" Data="@_DynamicFormDataAuditList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="DynamicFormDataAuditId"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            CssClass="ch-360"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            AllowSelectRowByClick="true"
-            CustomizeElement="Grid_CustomizeElement"
-            AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Single"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-        <Columns>
-            <DxGridDataColumn FieldName="DynamicFormDataAuditId" Visible="false" />
-            <DxGridDataColumn FieldName="IsDeleted" Caption="Deleted" MinWidth="10" />
-            <DxGridDataColumn FieldName="RowNum" Caption="Row Num" MinWidth="20" />
-            <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
-            <DxGridDataColumn FieldName="PreValue" MinWidth="50" Caption="Prev Value">
-                @*  <CellDisplayTemplate>
+@if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+{
+    <h3 style=" text-align: center;padding:5px;">Audit Trail</h3>
+    foreach (var itemData in _DynamicFormDataAuditList)
+    {
+        <!-- Group 1 -->
+        <div style="background-color: #fff;border: 1px solid #ddd;box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+                                                                                                                                            margin-bottom: 30px;
+                                                                                                                                            padding: 15px;
+                                                                                                                                            border-radius: 6px;">
+            <div style="background-color: #e5e7eb;
+                                                                                                                                            padding: 10px;
+                                                                                                                                            font-weight: bold;
+                                                                                                                                            border-radius: 4px;
+                                                                                                                                            margin-bottom: 10px;">
                 @{
-                var item = (DynamicFormDataAudit)context.DataItem;
+                    var startDate = string.Empty;
+                    if (itemData.PreUpdateDate != DateTime.MinValue)
+                    {
+                        startDate = itemData.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                    }
+                    var startDates = string.Empty;
+                    if (itemData.AuditDateTime.HasValue && itemData.AuditDateTime != DateTime.MinValue)
+                    {
+                        startDates = itemData.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
+                    }
                 }
-                <div>@(item.PreValue != null ? ((MarkupString)item.PreValue) : "")</div>
-                </CellDisplayTemplate> *@
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="CurrentValue" MinWidth="50" Caption="Current Value">
-                @* <CellDisplayTemplate>
-                @{
-                var item = (DynamicFormDataAudit)context.DataItem;
-                }
-                <div>@(item.PreValue != null ? ((MarkupString)item.PreValue) : "")</div>
-                </CellDisplayTemplate> *@
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="PreUser" MinWidth="50" Caption="Prev User" />
-            <DxGridDataColumn FieldName="PreUpdateDate" Caption="Prev Update Date" MinWidth="50">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DynamicFormDataAudit)context.DataItem;
-                        var startDate = string.Empty;
-                        if (item.PreUpdateDate != DateTime.MinValue)
+                Row Num: @itemData.RowNum | Prev User: @itemData.PreUser | Prev Update Date: @startDate | Audit User: @itemData.AuditUser| Audit Date: @startDates
+            </div>
+            <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Deleted</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Row Num</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Value</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Current Value</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev User</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Update</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit User</th>
+                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (itemData.DynamicFormDataAudits.Count() > 0)
+                    {
+                        foreach (var itemDatas in itemData.DynamicFormDataAudits)
                         {
-                            startDate = item.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                            var startDate1 = string.Empty;
+                            if (itemDatas.PreUpdateDate != DateTime.MinValue)
+                            {
+                                startDate1 = itemDatas.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                            }
+                            var startDates1 = string.Empty;
+                            if (itemDatas.AuditDateTime.HasValue && itemDatas.AuditDateTime != DateTime.MinValue)
+                            {
+                                startDates1 = itemDatas.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
+                            }
+                            <tr>
+                                @if (itemDatas.IsDeleted == true)
+                                {
+                                    <td style="border:1px solid;padding:8px;"><input type="checkbox" checked disabled /></td>
+                                }
+                                else
+                                {
+                                    <td style="border:1px solid;padding:8px;"><input type="checkbox" disabled /></td>
+                                }
+                                <td style="border:1px solid;padding:8px;">@itemDatas.RowNum</td>
+                                <td style="border:1px solid;padding:8px;">@itemDatas.DisplayName</td>
+                                <td style="border:1px solid;padding:8px;">@itemDatas.PreValue</td>
+                                <td style="border:1px solid;padding:8px;">@itemDatas.CurrentValue</td>
+                                <td style="border:1px solid;padding:8px;">@itemDatas.PreUser</td>
+                                <td style="border:1px solid;padding:8px;">@startDate1</td>
+                                <td style="border:1px solid;padding:8px;">@itemDatas.AuditUser</td>
+                                <td style="border:1px solid;padding:8px;">@startDates1</td>
+                            </tr>
                         }
                     }
-                    @startDate
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AuditUser" MinWidth="50" Caption="Audit User"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="AuditDateTime" Caption="Audit Date" MinWidth="50">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DynamicFormDataAudit)context.DataItem;
-                        var startDate = string.Empty;
-                        if (item.AuditDateTime.HasValue && item.AuditDateTime != DateTime.MinValue)
-                        {
-                            startDate = item.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
-                        }
-                    }
-                    @startDate
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridCommandColumn Width="160px" Visible="false" />
-        </Columns>
-
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DisplayName" />
-        </TotalSummary>
-
-    </DxGrid>
-</DxLoadingPanel>
-
+                </tbody>
+            </table>
+        </div>
+    }
+}
 @code {
-    IGrid? SMAttributeGrid { get; set; }
     [Parameter]
-    public DynamicFormDataAudit Items { get; set; }
-    bool PanelAttibuteVisible { get; set; } = true;
-    public ApplicationUser? applicationUser { get; private set; }
-    bool IsDynamicFormAttributeEnabled { get; set; } = false; bool IsFormulaEnabled { get; set; } = false;
-    public List<DynamicFormDataAudit> _DynamicFormDataAuditList { get; set; }
+    public Guid? FormSessionIds { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public DynamicForm _dynamicForm { get; set; }
+    public ApplicationUser? applicationUser { get; set; }
+    private AttributeHeaderListModel _AttributeHeader;
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
-    private DynamicFormDataAudit _selectedItems; bool EditEnabled { get; set; } = false; private DynamicForm _dynamicForm; private AttributeHeaderListModel _AttributeHeader;
+    public List<DynamicFormDataAudit> _DynamicFormDataAuditList { get; set; } = new List<DynamicFormDataAudit>();
     IDictionary<string, object> objectData = new ExpandoObject(); IDictionary<string, object> pobjectData = new ExpandoObject();
+
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
-        await UpdateDataAsync();
-    }
-    async Task UpdateDataAsync()
-    {
-        EditEnabled = false;
-        var dynamicForms = Task.Factory.StartNew(() => Mediator.Send(new GetAllDynamicFormList(Items.DynamicFormSessionId, -1)));
-        await Task.WhenAll(dynamicForms);
-        _dynamicForm = await dynamicForms.Result;
-        if (_dynamicForm != null)
+        _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditList(FormSessionIds));
+        _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
+        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false, false));
+        if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
         {
-            var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false, false)));
-            await Task.WhenAll(_AttributeHeaders);
-            _AttributeHeader = await _AttributeHeaders.Result;
-        }
-        _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditBySessionList(Items.SessionId));
-        if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
-        {
-            var res = _DynamicFormDataAuditList.Where(w => w.CurrentData != null).FirstOrDefault();
-            await getSetList(res);
-            var vids = objectData.Cast<dynamic>().ToList(); var pids = pobjectData.Cast<dynamic>().ToList();
-            _DynamicFormDataAuditList.ForEach(a =>
+            List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
+            var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
+            dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
+            ApplicationMasterIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
+            ApplicationMasterParentIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
+            if (ApplicationMasterIds.Count > 0)
             {
-                string value = vids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
-                if (!string.IsNullOrEmpty(value))
+                dataSourceTableIds.Add("ApplicationMaster");
+            }
+            if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
+            {
+                dataSourceTableIds.Add("ApplicationMasterParent");
+            }
+            var PlantDependencySubAttributeDetailss = Task.Factory.StartNew(() => Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>())));
+            await Task.WhenAll(PlantDependencySubAttributeDetailss);
+            PlantDependencySubAttributeDetails = await PlantDependencySubAttributeDetailss.Result;
+
+            if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+            {
+                var resultData = await Mediator.Send(new GetDynamicFormDataAuditBySessionMultipleList(_DynamicFormDataAuditList.Select(z => z.SessionId).Distinct().ToList()));
+                foreach (var w in _DynamicFormDataAuditList)
                 {
-                    setCurrentDisplayValue(value, a.AttributeId);
-                }
-                string pvalue = pids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
-                if (!string.IsNullOrEmpty(pvalue))
-                {
-                    setPreviousDisplayValue(pvalue, a.AttributeId);
-                }
-                var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                if (typeName!=null && typeName.ControlTypeId == 2715)
-                {
-                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
-                    if (_attributeGroupCheckBoxes.Count() > 0)
+                    objectData = new ExpandoObject(); pobjectData = new ExpandoObject();
+                    var resultItem = resultData.Where(m => m.SessionId == w.SessionId).OrderBy(p => p.RowNum).ToList();
+                    var res = resultItem.Where(w => w.CurrentData != null).FirstOrDefault();
+                    await getSetList(res, resultItem);
+                    var vids = objectData.Cast<dynamic>().ToList(); var pids = pobjectData.Cast<dynamic>().ToList();
+                    resultItem.ForEach(a =>
                     {
-                        _attributeGroupCheckBoxes.ForEach(r =>
+                        string value = vids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
+                        if (!string.IsNullOrEmpty(value))
                         {
-                            var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                            if (nameData == a.AttributeId )
+                            setCurrentDisplayValue(value, a.AttributeId, resultItem);
+                        }
+                        string pvalue = pids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
+                        if (!string.IsNullOrEmpty(pvalue))
+                        {
+                            setPreviousDisplayValue(pvalue, a.AttributeId, resultItem);
+                        }
+                        var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
+                        if (typeName != null && typeName.ControlTypeId == 2715)
+                        {
+                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
+                            if (_attributeGroupCheckBoxes.Count() > 0)
                             {
-                                setCurrentDisplayValue(r.Value, nameData);
+                                _attributeGroupCheckBoxes.ForEach(r =>
+                                {
+                                    var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                    if (nameData == a.AttributeId)
+                                    {
+                                        setCurrentDisplayValue(r.Value, nameData, resultItem);
+                                    }
+                                    if (nameData == a.AttributeId)
+                                    {
+                                        setPreviousDisplayValue(r.Value, nameData, resultItem);
+                                    }
+                                });
                             }
-                            if (nameData == a.AttributeId)
-                            {
-                                setPreviousDisplayValue(r.Value, nameData);
-                            }
-                        });
-                    }
+                        }
+                    });
+
+
+                    w.DynamicFormDataAudits = resultItem;
                 }
-            });
-            _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
-            EditEnabled = true;
+
+            }
         }
-        PanelAttibuteVisible = false;
-        StateHasChanged();
     }
-    void setDisplayName(string? DisplayName, string? KeyName)
+    void setDisplayName(string? DisplayName, string? KeyName, List<DynamicFormDataAudit> dynamicFormDataAudits)
     {
-        int index = _DynamicFormDataAuditList.FindIndex(a => a.AttributeId == KeyName);
+        int index = dynamicFormDataAudits.FindIndex(a => a.AttributeId == KeyName);
         if (index == -1)
         {
 
         }
         else
         {
-            _DynamicFormDataAuditList[index].DisplayName = DisplayName;
+            dynamicFormDataAudits[index].DisplayName = DisplayName;
         }
     }
-    void setCurrentDisplayValue(string? DisplayName, string? KeyName)
+    void setCurrentDisplayValue(string? DisplayName, string? KeyName, List<DynamicFormDataAudit> dynamicFormDataAudits)
     {
-        int index = _DynamicFormDataAuditList.FindIndex(a => a.AttributeId == KeyName);
+        int index = dynamicFormDataAudits.FindIndex(a => a.AttributeId == KeyName);
         if (index == -1)
         {
 
         }
         else
         {
-            _DynamicFormDataAuditList[index].CurrentValue = DisplayName;
+            dynamicFormDataAudits[index].CurrentValue = DisplayName;
         }
     }
-    void setPreviousDisplayValue(string? DisplayName, string? KeyName)
+    void setPreviousDisplayValue(string? DisplayName, string? KeyName, List<DynamicFormDataAudit> dynamicFormDataAudits)
     {
-        int index = _DynamicFormDataAuditList.FindIndex(a => a.AttributeId == KeyName);
+        int index = dynamicFormDataAudits.FindIndex(a => a.AttributeId == KeyName);
         if (index == -1)
         {
 
         }
         else
         {
-            _DynamicFormDataAuditList[index].PreValue = DisplayName;
+            dynamicFormDataAudits[index].PreValue = DisplayName;
         }
     }
     private static bool IsValidJson(string strInput)
@@ -236,7 +241,7 @@
             return false;
         }
     }
-    async Task getSetList(DynamicFormDataAudit? dynamicFormDataAudit)
+    async Task getSetList(DynamicFormDataAudit? dynamicFormDataAudit, List<DynamicFormDataAudit> dynamicFormDataAudits)
     {
         if (dynamicFormDataAudit != null)
         {
@@ -248,11 +253,11 @@
                     a.ApplicationMaster.ForEach(ab =>
                     {
                         var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                        setDisplayName(ab.ApplicationMasterName, nameData);
+                        setDisplayName(ab.ApplicationMasterName, nameData, dynamicFormDataAudits);
                         if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                         {
                             var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                            setDisplayName(a.GridDropDownDynamicFormName, nameData);
+                            setDisplayName(a.GridDropDownDynamicFormName, nameData, dynamicFormDataAudits);
                         }
                     });
                 }
@@ -264,19 +269,19 @@
                         a.ApplicationMasterParents.ForEach(ab =>
                         {
                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                            setDisplayName(ab.ApplicationMasterName, nameData);
+                            setDisplayName(ab.ApplicationMasterName, nameData, dynamicFormDataAudits);
                             RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                             {
                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                setDisplayName(a.GridDropDownDynamicFormName, nameData);
+                                setDisplayName(a.GridDropDownDynamicFormName, nameData, dynamicFormDataAudits);
                             }
                         });
                         if (dataColumnNames != null && dataColumnNames.Count() > 0)
                         {
                             dataColumnNames.ForEach(aq =>
                             {
-                                setDisplayName(aq.Text, aq.Value);
+                                setDisplayName(aq.Text, aq.Value, dynamicFormDataAudits);
                             });
                         }
                     }
@@ -290,7 +295,7 @@
                     a.AttributeHeaderDataSource.ForEach(dd =>
                     {
                         var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                        setDisplayName(dd.DisplayName, nameData);
+                        setDisplayName(dd.DisplayName, nameData, dynamicFormDataAudits);
                     });
                 }
                 if (a.ControlType == "CheckBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
@@ -319,13 +324,13 @@
                         SubAttributeHeadersList.ForEach(dd =>
                         {
                             var subAttrName = a.DynamicFormSectionAttributeId + "_" + dd.SubDynamicAttributeName;
-                            setDisplayName(dd.Description, subAttrName);
+                            setDisplayName(dd.Description, subAttrName, dynamicFormDataAudits);
                             if (dd.DataSourceTable == "ApplicationMaster" && dd.SubApplicationMaster != null && dd.SubApplicationMaster.Count() > 0)
                             {
                                 dd.SubApplicationMaster.ForEach(ab =>
                                 {
                                     var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + dd.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
-                                    setDisplayName(ab.ApplicationMasterName, appendAppMaster);
+                                    setDisplayName(ab.ApplicationMasterName, appendAppMaster, dynamicFormDataAudits);
                                 });
                             }
                         });
@@ -336,22 +341,7 @@
 
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {
-                List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
-                var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
-                dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
-                ApplicationMasterIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
-                ApplicationMasterParentIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
-                if (ApplicationMasterIds.Count > 0)
-                {
-                    dataSourceTableIds.Add("ApplicationMaster");
-                }
-                if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
-                {
-                    dataSourceTableIds.Add("ApplicationMasterParent");
-                }
-                var PlantDependencySubAttributeDetailss = Task.Factory.StartNew(() => Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>())));
-                await Task.WhenAll(PlantDependencySubAttributeDetailss);
-                PlantDependencySubAttributeDetails = await PlantDependencySubAttributeDetailss.Result;
+
                 dynamic jsonObj = new object(); dynamic pjsonObj = new object();
                 if (IsValidJson(dynamicFormDataAudit.CurrentData))
                 {
@@ -1848,31 +1838,5 @@
                 RemoveApplicationMasterParentSingleNameItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
-    }
-    void OnRowClick(GridRowClickEventArgs e)
-    {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataAuditId");
-        _selectedItems = _DynamicFormDataAuditList.FirstOrDefault(f => f.DynamicFormDataAuditId == (long?)UniqueId);
-    }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-
-        if (e.ElementType == GridElementType.DataCell)
-        {
-            var isDeletedCheck = (DynamicFormDataAudit)SMAttributeGrid.GetDataItem(e.VisibleIndex);
-            if (isDeletedCheck.IsDeleted == true)
-            {
-                e.Style = "text-decoration:line-through;color:red;";
-            }
-        }
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-    }
-    public async ValueTask DisposeAsync()
-    {
-        // System.GC.Collect();
-        //GC.SuppressFinalize(this);
     }
 }

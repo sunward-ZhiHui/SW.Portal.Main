@@ -45,6 +45,34 @@
         height: auto;
     }
 </style>
+<style scoped>
+
+    #customers {
+        /* font-family: Arial, Helvetica, sans-serif;
+                                                                                                        border-collapse: collapse;*/
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+</style>
 <script>
     function htmlpdfGenerate() {
         var element = document.getElementById('htmlPdfPrint');
@@ -762,7 +790,79 @@
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=dynamicFormSectionAttrFormulaEnabled
+          PositionTarget=@($"#flyout-overview-target-container-SectionAttrFormula-{dynamicFormSectionAttrFormulaFunction1?.DynamicFormSectionAttributeId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Set Range"
+          FooterVisible="true"
+          CloseOnOutsideClick="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 250px)"
+          Position=@(FlyoutPosition.Left | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+
+            <table style="width:100%" id="customers">
+                @if (@dynamicFormSectionAttrFormulaFunction1?.DynamicFormSectionAttributeId > 0)
+                {
+                    string formatteds = string.Empty;
+                    if (dynamicFormSectionAttrFormulaFunction1.AValue > 0)
+                    {
+                        decimal value = (decimal)dynamicFormSectionAttrFormulaFunction1.AValue;
+                        formatteds = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                    }
+                    <tr>
+                        <th>Type</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.Type</td>
+                    </tr>
+                    <tr>
+                        <th>Range Formula</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.FormulaFunctionName</td>
+                    </tr>
+                    <tr>
+                        <th>AValue</th>
+                        <td>@formatteds</td>
+                    </tr>
+                    if (@dynamicFormSectionAttrFormulaFunction1.IsBValueEnabled == true)
+                    {
+                        string formatted = string.Empty;
+                        if (dynamicFormSectionAttrFormulaFunction1.BValue > 0)
+                        {
+                            decimal value = (decimal)dynamicFormSectionAttrFormulaFunction1.BValue;
+                            formatted = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                        }
+                        <tr>
+                            <th>BValue</th>
+                            <td>@formatted</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>Color Value</th>
+                        <td><input type="color" style="pointer-events:none;" @bind="dynamicFormSectionAttrFormulaFunction1.ColorValue" /></td>
+                    </tr>
+                    <tr>
+                        <th>Color Code</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.ColorValue</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr><td colspan="2">No Records Found.</td></tr>
+                }
+            </table>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => dynamicFormSectionAttrFormulaEnabled = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    bool dynamicFormSectionAttrFormulaEnabled { get; set; } = false;
+    DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
     bool imageUploadPopup { get; set; } = false;
     private AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList refDynamicFormUploadImageList { get; set; }
     bool EditEnabled { get; set; } = false;
@@ -1074,7 +1174,7 @@
     async Task loadDynamicForm()
     {
         await onshowLoading();
-        _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
+        _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>(); dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
         EditEnabled = false; IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
@@ -1468,7 +1568,7 @@
                                         }
                                     });
                                 }
-                                if (a.ControlTypeId == 2710)
+                                if (a.ControlTypeId == 2715)
                                 {
                                     var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
                                     if (_attributeGroupCheckBoxes.Count() > 0)
@@ -1821,7 +1921,7 @@
 
                                                     }
                                                 }
-                                                else if (a.ControlType == "CheckBox")
+                                                else if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
                                                 {
                                                     var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
                                                     if (_attributeGroupCheckBoxes.Count() > 0)
@@ -3746,9 +3846,45 @@
         }
         StateHasChanged();
     }
+    void FormulaCalulationValues(DynamicFormSection dynamicFormSection)
+    {
+        var res = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.FormulaTextBox != null && w.FormulaTextBox != "").OrderBy(o => o.SortOrderBy).ToList();
+        if (res != null && res.Count() > 0)
+        {
+            res.ForEach(s =>
+            {
+                var property = Data.GetType().GetProperty(s.DynamicAttributeName);
+                if (property != null)
+                {
+                    FormatValesSetData(property, dynamicFormSection, s);
+                    var dynamicFormSectionAttribute = s;
+                }
+            });
+        }
+    }
+    void OnSpinEditChangedItem(decimal? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        property.SetValue(Data, str);
+        FormulaCalulationValues(dynamicFormSection);
+    }
+    void OnSpinEditChangedItem1(int? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        property.SetValue(Data, str);
+        FormulaCalulationValues(dynamicFormSection);
+    }
+    void OnSpinTextChangedItem(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute, DynamicFormSectionAttrFormulaFunction colorCodeExitss)
+    {
+        dynamicFormSectionAttrFormulaFunction1 = colorCodeExitss;
+        dynamicFormSectionAttrFormulaFunction1.FormulaTextBox = dynamicFormSectionAttribute.FormulaTextBox;
+        dynamicFormSectionAttrFormulaEnabled = true;
+    }
     void OnTextChangedItem(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
         //property.SetValue(Data, str);
+        FormatValesSetData(property, dynamicFormSection, dynamicFormSectionAttribute);
+    }
+    void FormatValesSetData(PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
         try
         {
             if (!string.IsNullOrEmpty(dynamicFormSectionAttribute.FormulaTextBox))
@@ -3875,7 +4011,6 @@
             toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-
     void OnCheckedChangedItem(bool? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
         property.SetValue(Data, str);
@@ -5104,15 +5239,26 @@
                        editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                        if (!string.IsNullOrEmpty(s.FormulaTextBox))
                        {
+                           var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId && w.IsCalculate == true).FirstOrDefault();
+
                            editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
-                           {
-                               dx.OpenComponent<DxEditorButton>(j + 1);
-                               dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
-                               dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
-                               dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
-                               dx.CloseComponent();
-                           }));
-                           var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                          {
+                              if (colorCodeExits != null)
+                              {
+                                  dx.OpenComponent<DxEditorButton>(j + 1);
+                                  dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                                  dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExits.Type);
+                                  dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExits.DynamicFormSectionAttributeId}");
+                                  dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExits)));
+                                  dx.CloseComponent();
+                              }
+                              dx.OpenComponent<DxEditorButton>(j + 1);
+                              dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                              dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                              dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                              dx.CloseComponent();
+
+                          }));
                            if (colorCodeExits != null)
                            {
                                var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
@@ -5125,6 +5271,28 @@
                                    editor.AddAttribute(j + 1, "style", "color:black;");
                                }
                            }
+                       }
+                       var colorCodeExitss = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId && w.IsCalculate == false).FirstOrDefault();
+                       if (colorCodeExitss != null)
+                       {
+                           var colorExitsCodes = ExpressionEvaluatorColorCode(colorCodeExitss, s);
+                           if (!string.IsNullOrEmpty(colorExitsCodes))
+                           {
+                               editor.AddAttribute(j + 1, "style", "color:" + colorExitsCodes + ";");
+                           }
+                           else
+                           {
+                               editor.AddAttribute(j + 1, "style", "color:black;");
+                           }
+                           editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
+                          {
+                              dx.OpenComponent<DxEditorButton>(j + 1);
+                              dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                              dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExitss.Type);
+                              dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExitss.DynamicFormSectionAttributeId}");
+                              dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExitss)));
+                              dx.CloseComponent();
+                          }));
                        }
                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                        {
@@ -5312,7 +5480,7 @@
                                    editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                                }
                                editor.AddAttribute(j + 1, "BindValueMode", BindValueMode.OnInput);
-                               editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { property.SetValue(Data, str); }));
+                               editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => OnSpinEditChangedItem1(str, property, a, s)));
                            }
                            if (propertyType.Name == "Decimal")
                            {
@@ -5328,20 +5496,29 @@
                                    editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                                }
                                //editor.AddAttribute(j + 1, "MinValue", 0M);
-
-                               editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
+                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => OnSpinEditChangedItem(str, property, a, s)));
                            }
                            if (!string.IsNullOrEmpty(s.FormulaTextBox))
                            {
+                               var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId && w.IsCalculate == true).FirstOrDefault();
+
                                editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
-                          {
-                              dx.OpenComponent<DxEditorButton>(j + 1);
-                              dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
-                              dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
-                              dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
-                              dx.CloseComponent();
-                          }));
-                               var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                               {
+                                   if (colorCodeExits != null)
+                                   {
+                                       dx.OpenComponent<DxEditorButton>(j + 1);
+                                       dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                                       dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExits.Type);
+                                       dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExits.DynamicFormSectionAttributeId}");
+                                       dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExits)));
+                                       dx.CloseComponent();
+                                   }
+                                   dx.OpenComponent<DxEditorButton>(j + 1);
+                                   dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                                   dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                                   dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                                   dx.CloseComponent();
+                               }));
                                if (colorCodeExits != null)
                                {
                                    var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
@@ -5354,6 +5531,28 @@
                                        editor.AddAttribute(j + 1, "style", "color:black;");
                                    }
                                }
+                           }
+                           var colorCodeExitss = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId && w.IsCalculate == false).FirstOrDefault();
+                           if (colorCodeExitss != null)
+                           {
+                               var colorExitsCodes = ExpressionEvaluatorColorCode(colorCodeExitss, s);
+                               if (!string.IsNullOrEmpty(colorExitsCodes))
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:" + colorExitsCodes + ";");
+                               }
+                               else
+                               {
+                                   editor.AddAttribute(j + 1, "style", "color:black;");
+                               }
+                               editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
+                              {
+                                  dx.OpenComponent<DxEditorButton>(j + 1);
+                                  dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                                  dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExitss.Type);
+                                  dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExitss.DynamicFormSectionAttributeId}");
+                                  dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExitss)));
+                                  dx.CloseComponent();
+                              }));
                            }
                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor.AddAttribute(j + 1, "ValueExpression", lambda);
@@ -5391,6 +5590,15 @@
                                editor.CloseElement();
                            }
                        }
+                   }
+                   else if (s.ControlType == "GroupCheckBox")
+                   {
+                       var attrGroupCheckBox = _AttributeHeader.AttributeGroupCheckBoxes.Where(w => w.AttributeId == s.AttributeId).ToList();
+                       if (attrGroupCheckBox.Count() > 0)
+                       {
+                           loadGroupCheckBox(s, attrGroupCheckBox, editor, j);
+                       }
+                       
                    }
                    else if (s.ControlType == "CheckBox")
                    {

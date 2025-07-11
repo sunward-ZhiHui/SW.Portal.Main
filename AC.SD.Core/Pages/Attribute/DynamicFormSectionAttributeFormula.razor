@@ -192,7 +192,7 @@
          Closed="EulaPopupFormulaClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm" SelectedItems="@SelectedItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm" IsCalculate="true" SelectedItems="@SelectedItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />

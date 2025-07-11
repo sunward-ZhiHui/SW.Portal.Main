@@ -265,6 +265,15 @@ namespace Application.Queries
             this.DocumentId = documentId;
         }
     }
+    public class GetDocumentUserRoleMultipleList : PagedRequest, IRequest<List<DocumentUserRoleModel>>
+    {
+        public List<long?> DocumentIds { get; set; }
+        public GetDocumentUserRoleMultipleList(List<long?> documentIds)
+        {
+            this.DocumentIds = documentIds;
+        }
+    }
+    
     public class DeleteDocumentUserRole : PagedRequest, IRequest<DocumentUserRoleModel>
     {
         public DocumentUserRoleModel DocumentUserRole { get; private set; }
@@ -543,4 +552,12 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class DeleteDocumentUserRoleMultiple : PagedRequest, IRequest<DocumentUserRole>    {
+        public List<long?> DocumentIds { get; set; }
+        public DeleteDocumentUserRoleMultiple(List<long?> documentIds)
+        {
+            this.DocumentIds = documentIds;
+        }
+    }
+    
 }

@@ -1009,7 +1009,7 @@ namespace Infrastructure.Repository.Query
                         query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                     }
                     query += "\r1=1;\n\r";
-                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2710 And (IsDeleted is null OR IsDeleted=0))\r\n;";
+                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2715 And (IsDeleted is null OR IsDeleted=0))\r\n;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -1160,7 +1160,7 @@ namespace Infrastructure.Repository.Query
                                 s.DataType = typeof(int?);
                             }
                         }
-                        else if (s.ControlType == "CheckBox")
+                        else if (s.ControlType == "CheckBox" || s.ControlType== "GroupCheckBox")
                         {
                             s.SubAttributeHeaders = attributeResultDetails.AttributeHeader.Where(x => x.SubAttributeId == s.AttributeId).ToList();
                             s.DataType = typeof(bool?);
@@ -1453,7 +1453,7 @@ namespace Infrastructure.Repository.Query
                                 s.DataType = typeof(int?);
                             }
                         }
-                        else if (s.ControlType == "CheckBox")
+                        else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                         {
                             s.DataType = typeof(string);
                         }
@@ -2330,7 +2330,7 @@ namespace Infrastructure.Repository.Query
                                 s.SubDataType = typeof(int?);
                             }
                         }
-                        else if (s.ControlType == "CheckBox")
+                        else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                         {
                             s.SubDataType = typeof(bool?);
                         }
@@ -2693,7 +2693,7 @@ namespace Infrastructure.Repository.Query
                     query += "select  *,CONCAT('Attr_',AttributeDetailID) as AttributeDetailNameId from AttributeDetails WHERE\r";
                     query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                     query += "\r1=1;\n\r";
-                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2710 And (IsDeleted is null OR IsDeleted=0))\r\n;";
+                    query += "select t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2715 And (IsDeleted is null OR IsDeleted=0))\r\n;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2818,7 +2818,7 @@ namespace Infrastructure.Repository.Query
                                 s.DataType = typeof(int?);
                             }
                         }
-                        else if (s.ControlType == "CheckBox")
+                        else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                         {
                             s.SubAttributeHeaders = attributeResultDetails.AttributeHeader.Where(x => x.SubAttributeId == s.AttributeId).ToList();
                             s.DataType = typeof(bool?);
@@ -4505,9 +4505,9 @@ namespace Infrastructure.Repository.Query
                                                         dynamicFormReportItems.Add(dynamicFormReportItems6);
                                                     }
                                                 }
-                                                else if (s.ControlType == "CheckBox")
+                                                else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                                                 {
-                                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(v => v.AttributeId == s.AttributeId).ToList();
                                                     if (_attributeGroupCheckBoxes.Count() > 0)
                                                     {
                                                         string valuesData = string.Empty;

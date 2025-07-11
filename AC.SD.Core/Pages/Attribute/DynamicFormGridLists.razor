@@ -966,7 +966,7 @@
                                                                 objectData[attrName] = values;
                                                             }
                                                         }
-                                                        else if (s.ControlType == "CheckBox")
+                                                        else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                                                         {
                                                             string valuesData = string.Empty;
                                                             var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();

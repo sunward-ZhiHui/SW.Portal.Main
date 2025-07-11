@@ -888,6 +888,14 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class GetDynamicFormDataAuditBySessionMultipleList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
+    {
+        public List<Guid?> SessionId { get; private set; }
+        public GetDynamicFormDataAuditBySessionMultipleList(List<Guid?> sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
     public class GetDynamicFormFormulaMathFunList : PagedRequest, IRequest<List<DynamicFormFormulaMathFun>>
     {
 

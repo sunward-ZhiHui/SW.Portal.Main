@@ -128,6 +128,8 @@
     public Action? RevokeBack { get; set; }
     [Parameter]
     public DynamicFormSectionAttribute SelectedItems { get; set; }
+    [Parameter]
+    public bool? IsCalculate { get; set; } = true;
     private List<DynamicFormSectionAttrFormulaFunction> _dynamicFormSectionAttrFormulaFunction;
     private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunction;
     private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunctionAll;
@@ -161,6 +163,7 @@
             _dynamicFormSectionAttrFormulaFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaFunction(SelectedItems.DynamicFormSectionAttributeId));
             if (_dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0)
             {
+                _dynamicFormSectionAttrFormulaFunction = _dynamicFormSectionAttrFormulaFunction.Where(w => w.IsCalculate == IsCalculate).ToList();
                 // EditEnabled = true; DeleteEnabled = true;
                 AddEnabled = false;
                 _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault();
@@ -190,6 +193,7 @@
                 DynamicFormSectionAttrFormulaFunctionId = navitems.DynamicFormSectionAttrFormulaFunctionId,
                 ColorValue = !string.IsNullOrEmpty(navitems.ColorValue) ? navitems.ColorValue : "#000000",
                 IsBValueEnabled = navitems.IsBValueEnabled,
+                IsCalculate=IsCalculate,
             };
 
         if (e.IsNew)

@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                                                                                    font-family: arial, sans-serif;
-                                                                                                                                                                                    border-collapse: collapse;
-                                                                                                                                                                                    width: 100%;
-                                                                                                                                                                                }
+                                                                                                                                                                                                                font-family: arial, sans-serif;
+                                                                                                                                                                                                                border-collapse: collapse;
+                                                                                                                                                                                                                width: 100%;
+                                                                                                                                                                                                            }
 
-                                                                                                                                                                                th {
-                                                                                                                                                                                    border: 1px solid;
-                                                                                                                                                                                    padding: 8px;
-                                                                                                                                                                                    font-weight: bold;
+                                                                                                                                                                                                            th {
+                                                                                                                                                                                                                border: 1px solid;
+                                                                                                                                                                                                                padding: 8px;
+                                                                                                                                                                                                                font-weight: bold;
 
 
-                                                                                                                                                                                }
+                                                                                                                                                                                                            }
 
-                                                                                                                                                                                td {
-                                                                                                                                                                                    border: 1px solid;
-                                                                                                                                                                                    padding: 8px;
+                                                                                                                                                                                                            td {
+                                                                                                                                                                                                                border: 1px solid;
+                                                                                                                                                                                                                padding: 8px;
 
-                                                                                                                                                                                } */
+                                                                                                                                                                                                            } */
 
     /* tr:nth-child(even) {
-                                                                                                                                                                                        background-color: #dddddd;
-                                                                                                                                                                                    } */
+                                                                                                                                                                                                                    background-color: #dddddd;
+                                                                                                                                                                                                                } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -163,120 +163,120 @@
 
                         {
                             _AttributeHeader.DynamicFormSection.ForEach(s =>
-        {
-            query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
-            query += "<tr>";
-            query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
-            query += "</tr>";
-            query += "</table>";
+                    {
+                    query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
+                    query += "<tr>";
+                    query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
+                    query += "</tr>";
+                    query += "</table>";
 
-            if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
-            {
-                var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
-                query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
-                dynamicFormSectionAttribute.ForEach(a =>
-            {
-                            var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
-                            if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
-                            {
-    dataColumnNamesList.ForEach(b =>
-            {
-                            object? valueData = null;
-                            var byName = byNames;
-                            if (byName != null)
-                            {
-    if (!string.IsNullOrEmpty(b.Value))
-    {
-        if (byName.ContainsKey(b.Value))
-        {
-            valueData = byName[b.Value];
-        }
-    }
-    if (a.ControlType == "DateEdit")
-    {
-        if (valueData != null)
-        {
-            string? dates = (string?)valueData.ToString();
-            if (!string.IsNullOrEmpty(dates))
-            {
-                DateTime? myDate = DateTime.Parse(dates);
-                if (myDate != null && myDate != DateTime.MinValue)
+                    if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count() > 0)
+                    {
+                        var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
+                        query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
+                        dynamicFormSectionAttribute.ForEach(a =>
                 {
-                    valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
-                }
-            }
-        }
-    }
-    if (a.ControlType == "TimeEdit")
-    {
-        if (valueData != "")
-        {
-            TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
-            if (values != null)
-            {
-                int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
-                DateTime dateTimes = new DateTime();
-                var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
-                valueData = dd1.ToString("hh:mm tt");
-            }
-        }
-    }
-    if (a.ControlType == "CheckBox")
-    {
-        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
-        if (_attributeGroupCheckBoxes > 0)
-        {
-            string? values = valueData == null ? string.Empty : (string)valueData;
-        }
-        else
-        {
-            bool? values = valueData == null ? false : (bool)valueData;
-        }
-      
-    }
-    if (a.ControlTypeId == 2712)
-    {
-        valueData = "";
-    }
-                            }
-                            query += "<tr>";
-                            query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
-                            query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
-                            query += "</tr>";
-                            if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                    var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+                    if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+                    {
+                        dataColumnNamesList.ForEach(b =>
+                {
+                    object? valueData = null;
+                    var byName = byNames;
+                    if (byName != null)
+                    {
+                        if (!string.IsNullOrEmpty(b.Value))
+                        {
+                            if (byName.ContainsKey(b.Value))
                             {
-    long? idData = null;
-    if (byName.ContainsKey(b.Value + "_Id"))
-    {
-        idData = (long?)byName[b.Value + "_Id"];
-        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
-    }
-
+                                valueData = byName[b.Value];
                             }
-                            if (a.ControlType == "CheckBox")
+                        }
+                        if (a.ControlType == "DateEdit")
+                        {
+                            if (valueData != null)
                             {
-                                var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
-                                if (_attributeGroupCheckBoxes > 0)
+                                string? dates = (string?)valueData.ToString();
+                                if (!string.IsNullOrEmpty(dates))
                                 {
-                                }
-                                else
-                                {
-                                    bool? values = valueData == null ? false : (bool)valueData;
-                                    if (values == true)
+                                    DateTime? myDate = DateTime.Parse(dates);
+                                    if (myDate != null && myDate != DateTime.MinValue)
                                     {
-                                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                                        valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
                                     }
                                 }
-
-
                             }
-                        });
+                        }
+                        if (a.ControlType == "TimeEdit")
+                        {
+                            if (valueData != "")
+                            {
+                                TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
+                                if (values != null)
+                                {
+                                    int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
+                                    DateTime dateTimes = new DateTime();
+                                    var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
+                                    valueData = dd1.ToString("hh:mm tt");
+                                }
+                            }
+                        }
+                        if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                        {
+                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
+                            if (_attributeGroupCheckBoxes > 0)
+                            {
+                                string? values = valueData == null ? string.Empty : (string)valueData;
+                            }
+                            else
+                            {
+                                bool? values = valueData == null ? false : (bool)valueData;
                             }
 
-                        });
-                query += "</table>";
-            }
-        });
+                        }
+                        if (a.ControlTypeId == 2712)
+                        {
+                            valueData = "";
+                        }
+                    }
+                    query += "<tr>";
+                    query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                    query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                    query += "</tr>";
+                    if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                    {
+                        long? idData = null;
+                        if (byName.ContainsKey(b.Value + "_Id"))
+                        {
+                            idData = (long?)byName[b.Value + "_Id"];
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+                        }
+
+                    }
+                    if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                    {
+                        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
+                        if (_attributeGroupCheckBoxes > 0)
+                        {
+                        }
+                        else
+                        {
+                            bool? values = valueData == null ? false : (bool)valueData;
+                            if (values == true)
+                            {
+                                query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                            }
+                        }
+
+
+                    }
+                });
+                    }
+
+                });
+                        query += "</table>";
+                    }
+                });
 
 
                         }
@@ -327,113 +327,115 @@
                         var dynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.Where(x => x.DynamicFormSectionId == s.DynamicFormSectionId).ToList();
                         query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                         dynamicFormSectionAttribute.ForEach(a =>
-    {
-        var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
-        if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
-        {
-            dataColumnNamesList.ForEach(b =>
-            {
-                            object? valueData = null;
-                            var byName = (IDictionary<string, object>)_dynamicformObjectData;
-                            if (byName != null)
+                {
+                    var dataColumnNamesList = dataColumnNames.Where(w => w.Id == a.DynamicFormSectionAttributeId && w.IsSubForm == false).ToList();
+                    if (dataColumnNamesList != null && dataColumnNamesList.Count() > 0)
+                    {
+                        dataColumnNamesList.ForEach(b =>
+                {
+                    object? valueData = null;
+                    var byName = (IDictionary<string, object>)_dynamicformObjectData;
+                    if (byName != null)
+                    {
+                        if (!string.IsNullOrEmpty(b.Value))
+                        {
+                            if (byName.ContainsKey(b.Value))
                             {
-                                if (!string.IsNullOrEmpty(b.Value))
+                                valueData = byName[b.Value];
+                            }
+                        }
+                        if (a.ControlType == "DateEdit")
+                        {
+                            if (valueData != null)
+                            {
+                                string? dates = (string?)valueData.ToString();
+                                if (!string.IsNullOrEmpty(dates))
                                 {
-    if (byName.ContainsKey(b.Value))
-    {
-        valueData = byName[b.Value];
-    }
-                                }
-                                if (a.ControlType == "DateEdit")
-                                {
-    if (valueData != null)
-    {
-        string? dates = (string?)valueData.ToString();
-        if (!string.IsNullOrEmpty(dates))
-        {
-            DateTime? myDate = DateTime.Parse(dates);
-            if (myDate != null && myDate != DateTime.MinValue)
-            {
-                valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
-            }
-        }
-    }
-                                }
-                                if (a.ControlType == "TimeEdit")
-                                {
-    if (valueData != "")
-    {
-        TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
-        if (values != null)
-        {
-            int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
-            DateTime dateTimes = new DateTime();
-            var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
-            valueData = dd1.ToString("hh:mm tt");
-        }
-    }
-                                }
-                                if (a.ControlType == "CheckBox")
-                                {
-    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
-    if (_attributeGroupCheckBoxes > 0)
-    {
-        string? values = valueData == null ? string.Empty : (string)valueData;
-    }
-    else
-    {
-        bool? values = valueData == null ? false : (bool)valueData;
-    }
-                                }
-                                if (a.ControlTypeId == 2712)
-                                {
-    valueData = "";
+                                    DateTime? myDate = DateTime.Parse(dates);
+                                    if (myDate != null && myDate != DateTime.MinValue)
+                                    {
+                                        valueData = myDate != null ? Application.Common.Helper.Helper.FormatDate((DateTime?)myDate) : null;
+                                    }
                                 }
                             }
-                            query += "<tr>";
-                            query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
-                            query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
-                            query += "</tr>";
-                            if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                        }
+                        if (a.ControlType == "TimeEdit")
+                        {
+                            if (valueData != "")
                             {
-                                long? idData = null;
-                                if (byName.ContainsKey(b.Value + "_Id"))
+                                TimeSpan? values = valueData == null ? null : (TimeSpan?)valueData;
+                                if (values != null)
                                 {
-                                    idData = (long?)byName[b.Value + "_Id"];
-                                    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+                                    int hrs = values.Value.Hours; int min = values.Value.Minutes; int sec = values.Value.Seconds;
+                                    DateTime dateTimes = new DateTime();
+                                    var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
+                                    valueData = dd1.ToString("hh:mm tt");
                                 }
-
                             }
-                            if (a.ControlType == "CheckBox")
-                            {
-                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).Count();
+                        }
+                        if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                        {
+                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
                             if (_attributeGroupCheckBoxes > 0)
                             {
+                                string? values = valueData == null ? string.Empty : (string)valueData;
                             }
                             else
                             {
                                 bool? values = valueData == null ? false : (bool)valueData;
-                                if (values == true)
-                                {
-                                    query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
-                                }
                             }
+                        }
+                        if (a.ControlTypeId == 2712)
+                        {
+                            valueData = "";
+                        }
+                    }
+                    query += "<tr>";
+                    query += "<th width=\"30%\" style=\"text-align:left; border:1px solid;padding:8px;font-weight:bold;\">" + b.Text + "</th>";
+                    query += "<td width=\"70%\" style=\"border:1px solid;padding:8px;\">" + valueData + "</td>";
+                    query += "</tr>";
+                    if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                    {
+                        long? idData = null;
+                        if (byName.ContainsKey(b.Value + "_Id"))
+                        {
+                            idData = (long?)byName[b.Value + "_Id"];
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId, idData);
+                        }
 
+                    }
+                    if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                    {
+                        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
+                        if (_attributeGroupCheckBoxes > 0)
+                        {
+                        }
+                        else
+                        {
+                            bool? values = valueData == null ? false : (bool)valueData;
+                            if (values == true)
+                            {
+                                query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
                             }
-                        });
-        }
-    });
+                        }
+
+                    }
+                });
+                    }
+                });
                         query += "</table>";
                     }
                 });
                 @((MarkupString)query
                     )
-            }
+                }
 
         }
     }
+    <DynamicFormDataAuditTrailPrint @ref="refDynamicFormDataAuditTrailPrint" FormSessionIds="@FormSessionId" SessionId="@SessionId"></DynamicFormDataAuditTrailPrint>
 </div>
 @code {
+    private DynamicFormDataAuditTrailPrint? refDynamicFormDataAuditTrailPrint { get; set; }
     private List<DropDownOptionsModel> _variationgridlistss { get; set; }
     private List<ExpandoObject?> _dynamicformObjectDataVariationList { get; set; }
     object VariationNoValue { get; set; }
@@ -447,7 +449,8 @@
     public Guid? FormSessionId { get; set; }
     [Parameter]
     public string? IsSubForm { get; set; }
-    private AttributeHeaderListModel _AttributeHeader; DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
+    private AttributeHeaderListModel _AttributeHeader{ get; set; }
+    DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
@@ -689,6 +692,7 @@
 
                     if (_dynamicForm != null)
                     {
+
                         _dynamicformObjectDataList = new List<object>(); _dynamicformObjectDataAllList = new List<object>(); _dynamicformDataAllList = new List<DynamicFormData>();
                         var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, false)));
                         await Task.WhenAll(_AttributeHeaders);
@@ -862,9 +866,11 @@
                                         //await loadDropdownList(dynamicFormIds, ids, FormSessionId);
                                         FormSessionIds = FormSessionId;
                                     }
+                                   
                                     var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds, dynamicFormSearch)));
                                     await Task.WhenAll(_dynamicformDataLists);
                                     _dynamicformDataList = await _dynamicformDataLists.Result;
+                                    
                                 }
                             }
                         }
@@ -1421,10 +1427,10 @@
                                         objectData[attrName] = values;
                                     }
                                 }
-                                else if (s.ControlType == "CheckBox")
+                                else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                                 {
                                     string valuesData = string.Empty;
-                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == s.AttributeId).ToList();
                                     if (_attributeGroupCheckBoxes.Count() > 0)
                                     {
                                         _attributeGroupCheckBoxes.ForEach(r =>

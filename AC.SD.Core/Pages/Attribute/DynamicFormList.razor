@@ -383,7 +383,7 @@
          ShowFooter="true"
          HeaderText="Sync"
          ShowCloseButton="true"
-         Width="300px">
+         Width="500px">
     <BodyContentTemplate>
         <p>
             Are you sure Sync Table from DyanmicForm?
@@ -1332,7 +1332,7 @@
                                                 objectData[attrName] = values;
                                             }
                                         }
-                                        else if (s.ControlType == "CheckBox")
+                                        else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
                                         {
                                             string valuesData = string.Empty;
                                             var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(g => g.AttributeId == s.AttributeId).ToList();

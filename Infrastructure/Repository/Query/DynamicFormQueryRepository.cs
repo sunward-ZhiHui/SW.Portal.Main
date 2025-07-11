@@ -7436,18 +7436,19 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("BValue", value.BValue);
                     parameters.Add("ColorValue", value.ColorValue, DbType.String);
                     parameters.Add("IsBValueEnabled", value.IsBValueEnabled == true ? true : false);
+                    parameters.Add("IsCalculate", value.IsCalculate == false ? false : null);
                     parameters.Add("DynamicFormSectionAttrFormulaFunctionId", value.DynamicFormSectionAttrFormulaFunctionId);
                     if (value.DynamicFormSectionAttrFormulaFunctionId > 0)
                     {
-                        var query = "UPDATE DynamicFormSectionAttrFormulaFunction SET ColorValue=@ColorValue,IsBValueEnabled=@IsBValueEnabled,DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId = @DynamicFormSectionAttrFormulaMasterFuntionId,AValue =@AValue,BValue =@BValue\r" +
+                        var query = "UPDATE DynamicFormSectionAttrFormulaFunction SET IsCalculate=@IsCalculate,ColorValue=@ColorValue,IsBValueEnabled=@IsBValueEnabled,DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId = @DynamicFormSectionAttrFormulaMasterFuntionId,AValue =@AValue,BValue =@BValue\r" +
                             "WHERE DynamicFormSectionAttrFormulaFunctionId = @DynamicFormSectionAttrFormulaFunctionId";
 
                         await connection.ExecuteAsync(query, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO DynamicFormSectionAttrFormulaFunction(ColorValue,IsBValueEnabled,DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId,AValue,BValue) OUTPUT INSERTED.DynamicFormSectionAttrFormulaFunctionId VALUES " +
-                            "(@ColorValue,@IsBValueEnabled,@DynamicFormSectionAttributeId,@DynamicFormSectionAttrFormulaMasterFuntionId,@AValue,@BValue)";
+                        var query = "INSERT INTO DynamicFormSectionAttrFormulaFunction(IsCalculate,ColorValue,IsBValueEnabled,DynamicFormSectionAttributeId,DynamicFormSectionAttrFormulaMasterFuntionId,AValue,BValue) OUTPUT INSERTED.DynamicFormSectionAttrFormulaFunctionId VALUES " +
+                            "(@IsCalculate,@ColorValue,@IsBValueEnabled,@DynamicFormSectionAttributeId,@DynamicFormSectionAttrFormulaMasterFuntionId,@AValue,@BValue)";
 
                         var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         value.DynamicFormSectionAttrFormulaFunctionId = rowsAffected;
@@ -7861,8 +7862,13 @@ namespace Infrastructure.Repository.Query
                     var to = dynamicFormDataAudit.AuditDateTime.Value.ToString("yyyy-MM-dd");
                     filterQuery += "\rAND CAST(t1.AuditDateTime AS Date)='" + to + "'\r";
                 }
-                var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,tt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  from DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId " + filterQuery + " group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId AND (tt2.IsDeleted is null OR tt2.IsDeleted=0)\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)tt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=tt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+                //var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId " + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId AND (tt2.IsDeleted is null OR tt2.IsDeleted=0)\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+                var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId " + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId \r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
 
+                if (dynamicFormDataAudit.IsDeleted == true)
+                {
+                    query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId " + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId AND tt2.IsDeleted=1\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+                }
                 using (var connection = CreateConnection())
                 {
                     dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
@@ -7886,6 +7892,29 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                }
+                return dynamicFormDataAudits;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionMultipleList(List<Guid?> SessionId)
+        {
+            try
+            {
+                List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
+                var parameters = new DynamicParameters();
+                if (SessionId != null && SessionId.Count > 0)
+                {
+                    string? SessionIds = string.Join(',', SessionId.Select(i => $"'{i}'"));
+                    var query = "select t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId in(" + SessionIds + ")";
+
+                    using (var connection = CreateConnection())
+                    {
+                        dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                    }
                 }
                 return dynamicFormDataAudits;
             }

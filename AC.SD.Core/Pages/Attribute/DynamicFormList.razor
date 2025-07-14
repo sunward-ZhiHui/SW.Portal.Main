@@ -832,11 +832,14 @@
                         if (_dynamicForm != null)
                         {
                             await loadDynamicFormDataLists();
+                            if(_dynamicformDataList!=null && _dynamicformDataList.Count()>0)
+                            {
                             _dynamicformObjectDataList = loadItems(_dynamicformDataList);
                             //EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                             _selectedItems = _dynamicformDataList.FirstOrDefault();
                             FileProfileTypeId = _selectedItems.FileProfileTypeId;
                             //Grid.SetFocusedRowIndex(0);
+                            }
                         }
 
 

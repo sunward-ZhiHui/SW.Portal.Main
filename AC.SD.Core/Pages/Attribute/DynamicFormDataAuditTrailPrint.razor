@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
 @if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
 {
     <h3 style=" text-align: center;padding:5px;">Audit Trail</h3>
@@ -110,6 +111,7 @@
         _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, false, false));
         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
         {
+            await JSRuntime.InvokeAsync<string>("showLoading");
             List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
             var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
             dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
@@ -129,6 +131,7 @@
 
             if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
             {
+                await JSRuntime.InvokeAsync<string>("showLoading");
                 var resultData = await Mediator.Send(new GetDynamicFormDataAuditBySessionMultipleList(_DynamicFormDataAuditList.Select(z => z.SessionId).Distinct().ToList()));
                 foreach (var w in _DynamicFormDataAuditList)
                 {
@@ -174,9 +177,10 @@
 
                     w.DynamicFormDataAudits = resultItem;
                 }
-
+                await JSRuntime.InvokeAsync<string>("hideLoading");
             }
         }
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void setDisplayName(string? DisplayName, string? KeyName, List<DynamicFormDataAudit> dynamicFormDataAudits)
     {

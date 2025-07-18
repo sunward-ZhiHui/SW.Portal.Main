@@ -777,16 +777,18 @@
         foldersListItems, DocumentsModel s, List<string>
         foldersModel, FileProfileTypeModel fileProfileTypeModel)
     {
-
-        if (s.ParentId != null)
+        if (s != null)
         {
-            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
-            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
-            foldersModel.Add(items.FileName);
-        }
-        else if (s.ParentId == null)
-        {
-            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+            if (s.ParentId != null)
+            {
+                var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+                GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+                foldersModel.Add(items.FileName);
+            }
+            else if (s.ParentId == null)
+            {
+                fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+            }
         }
         return fileProfileTypeModel;
     }

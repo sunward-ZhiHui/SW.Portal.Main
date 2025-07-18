@@ -838,8 +838,8 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("Name", dynamicForm.Name);
-                        parameters.Add("ScreenID", dynamicForm.ScreenID,DbType.String);
-                        parameters.Add("SessionID", dynamicForm.SessionID,DbType.Guid);
+                        parameters.Add("ScreenID", dynamicForm.ScreenID, DbType.String);
+                        parameters.Add("SessionID", dynamicForm.SessionID, DbType.Guid);
                         parameters.Add("AttributeID", dynamicForm.AttributeID);
                         parameters.Add("AddedByUserID", dynamicForm.AddedByUserID);
                         parameters.Add("ModifiedByUserID", dynamicForm.ModifiedByUserID);
@@ -2046,7 +2046,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ProfileNo", profileNo, DbType.String);
                         var sortNo = await GeDynamicFormDataSortOrdrByNo(dynamicFormData);
                         parameters.Add("SortOrderByNo", sortNo);
-                        long? gridSortOrderByNo = null;
+                        long? gridSortOrderByNo = dynamicFormData.GridSortOrderByNo;
                         if (dynamicFormData.IsDynamicFormDataGrid == true)
                         {
                             gridSortOrderByNo = await GeDynamicFormDataGridSortOrderByNo(dynamicFormData);
@@ -2079,7 +2079,7 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertAuditTrail(dynamicFormData, preData);
                         }
-                        //await CreateDynamicTable(dynamicFormData, insert);
+                        //await CreateDynamicTable1(dynamicFormData, insert);
                         return dynamicFormData;
                     }
 
@@ -2167,6 +2167,246 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<DynamicFormData> CreateDynamicTable1(DynamicFormData dynamicFormData, bool? insert)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        string createsql = string.Empty;
+                        var result = await GetDynamicFormOneByIdAsync(dynamicFormData.DynamicFormId);
+                        if (result != null && result.ID > 0)
+                        {
+                            if (dynamicFormData.AttributeHeader != null && dynamicFormData.AttributeHeader.DynamicFormSectionAttribute != null)
+                            {
+                                string tableName = "DynamicForm_" + result.ScreenID.ToLower();
+                                createsql = "create table " + tableName + " (";
+                                string alterSql = string.Empty;
+                                createsql += "[DynamicFormDataItemID] [bigint] IDENTITY(1,1) NOT NULL,[DynamicFormDataID] [bigint] NULL,";
+
+                                dynamicFormData.AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                                {
+                                    if (a.DataSourceTable == "ApplicationMaster")
+                                    {
+                                        if (a.ApplicationMaster.Count() > 0)
+                                        {
+                                            a.ApplicationMaster.ForEach(ab =>
+                                            {
+                                                var attrName = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                var attrNames = a.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
+
+                                                createsql += "[" + attrNames + "] [bigint] NULL,";
+                                                /*if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
+                                                {
+                                                    var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                    dataColumnNames.Add(new DropDownOptionsModel() { DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                                }*/
+                                            });
+                                        }
+                                    }
+                                    else if (a.DataSourceTable == "ApplicationMasterParent")
+                                    {
+                                        if (a.ApplicationMasterParents.Count() > 0)
+                                        {
+                                            a.ApplicationMasterParents.ForEach(ab =>
+                                            {
+                                                var attrName = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                var attrNames = a.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
+                                                createsql += "[" + attrNames + "] [bigint] NULL,";
+                                                RemoveApplicationMasterParentSingleItem(ab, a, createsql, dynamicFormData.AttributeHeader);
+                                                /*if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
+                                                {
+                                                    var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                    dataColumnNames.Add(new DropDownOptionsModel() { DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo });
+                                                }*/
+                                            });
+                                        }
+                                    }
+                                    else if (a.ControlType == "CheckBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                    {
+                                        if (a.ControlType == "CheckBox")
+                                        {
+                                            var attrNames = Regex.Replace(a.DisplayName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                            var attrName = a.DynamicFormSectionAttributeId + "_" + attrNames.Replace(" ", "_");
+                                            createsql += "[" + attrName + "] [bit] NULL,";
+                                        }
+                                        if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                        {
+                                            var attrDetails = dynamicFormData.AttributeHeader.AttributeDetails.Where(mm => mm.AttributeID == a.AttributeId && mm.DropDownTypeId == null).ToList();
+                                            if (attrDetails.Count() > 0)
+                                            {
+                                                attrDetails.ForEach(q =>
+                                                {
+                                                    if (q.SubAttributeHeaders.Count() > 0)
+                                                    {
+                                                        q.SubAttributeHeaders.ForEach(w =>
+                                                        {
+                                                            var nameData = Regex.Replace(w.Description, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                            var subattrName = a.DynamicFormSectionAttributeId + "_" + nameData.Replace(" ", "_");
+                                                            if (w.ControlType == "ComboBox")
+                                                            {
+                                                                createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                            }
+                                                            else if (w.ControlType == "SpinEdit")
+                                                            {
+                                                                if (w.IsAttributeSpinEditType == "decimal")
+                                                                {
+                                                                    createsql += "[" + subattrName + "] [decimal](18, 5) NULL,";
+                                                                }
+                                                                else
+                                                                {
+                                                                    createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                                }
+                                                            }
+                                                            else if (w.ControlType == "DateEdit")
+                                                            {
+                                                                createsql += "[" + subattrName + "] [datetime] NULL,";
+                                                            }
+                                                            else if (w.ControlType == "TimeEdit")
+                                                            {
+                                                                createsql += "[" + subattrName + "] [time] NULL,";
+                                                            }
+                                                            else
+                                                            {
+                                                                createsql += "[" + subattrName + "] [nvarchar](2000) NULL,";
+                                                            }
+                                                            if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
+                                                            {
+                                                                w.SubApplicationMaster.ForEach(ab =>
+                                                                {
+                                                                    var attrNames = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                                    var attrName = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + attrNames.Replace(" ", "_");
+                                                                    createsql += "[" + attrName + "] [bigint] NULL,";
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (a.SubAttributeHeaders.Count() > 0)
+                                            {
+                                                a.SubAttributeHeaders.ForEach(w =>
+                                                {
+                                                    var nameData = Regex.Replace(w.Description, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                    var subattrName = a.DynamicFormSectionAttributeId + "_" + nameData.Replace(" ", "_");
+                                                    if (w.ControlType == "ComboBox")
+                                                    {
+                                                        createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                    }
+                                                    else if (w.ControlType == "SpinEdit")
+                                                    {
+                                                        if (w.IsAttributeSpinEditType == "decimal")
+                                                        {
+                                                            createsql += "[" + subattrName + "] [decimal](18, 5) NULL,";
+                                                        }
+                                                        else
+                                                        {
+                                                            createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                        }
+                                                    }
+                                                    else if (w.ControlType == "DateEdit")
+                                                    {
+                                                        createsql += "[" + subattrName + "] [datetime] NULL,";
+                                                    }
+                                                    else if (w.ControlType == "TimeEdit")
+                                                    {
+                                                        createsql += "[" + subattrName + "] [time] NULL,";
+                                                    }
+                                                    else
+                                                    {
+                                                        createsql += "[" + subattrName + "] [nvarchar](2000) NULL,";
+                                                    }
+                                                    if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
+                                                    {
+                                                        w.SubApplicationMaster.ForEach(ab =>
+                                                        {
+                                                            var attrNames = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                                            var attrName = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + attrNames.Replace(" ", "_");
+                                                            createsql += "[" + attrName + "] [bigint] NULL,";
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var attrNames = Regex.Replace(a.DisplayName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                        var attrName = a.DynamicFormSectionAttributeId + "_" + attrNames.Replace(" ", "_");
+
+                                        if (a.ControlType == "ComboBox")
+                                        {
+                                            createsql += "[" + attrName + "] [bigint] NULL,";
+                                        }
+                                        else if (a.ControlType == "SpinEdit")
+                                        {
+                                            if (a.IsSpinEditType == "decimal")
+                                            {
+                                                createsql += "[" + attrName + "] [decimal](18, 5) NULL,";
+                                            }
+                                            else
+                                            {
+                                                createsql += "[" + attrName + "] [bigint] NULL,";
+                                            }
+                                        }
+                                        else if (a.ControlType == "DateEdit")
+                                        {
+                                            createsql += "[" + attrName + "] [datetime] NULL,";
+                                        }
+                                        else if (a.ControlType == "TimeEdit")
+                                        {
+                                            createsql += "[" + attrName + "] [time] NULL,";
+                                        }
+                                        else
+                                        {
+                                            createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                        }
+                                    }
+                                    if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
+                                    {
+                                        a.AttributeHeaderDataSource.ForEach(dd =>
+                                        {
+                                            var attrNames = Regex.Replace(dd.DataSourceTable, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                            var attrName = a.DynamicFormSectionAttributeId + "_" + attrNames.Replace(" ", "_");
+                                            createsql += "[" + attrName + "] [bigint] NULL,";
+                                        });
+                                    }
+
+                                });
+                            }
+                        }
+                        return dynamicFormData;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        void RemoveApplicationMasterParentSingleItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, string createsql, AttributeHeaderListModel _AttributeHeader)
+        {
+            if (applicationMasterParent != null)
+            {
+                var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == applicationMasterParent.ApplicationMasterParentCodeId);
+                if (listss != null)
+                {
+                    var attrName = Regex.Replace(listss.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                    var attrNames = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
+                    createsql += "[" + attrNames + "] [bigint] NULL,";
+                    RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, createsql, _AttributeHeader);
+                }
             }
         }
         private async Task<DynamicFormData> CreateDynamicTable(DynamicFormData dynamicFormData, bool? insert)
@@ -8180,6 +8420,25 @@ namespace Infrastructure.Repository.Query
                                 var dataType = attributeHeaderListModel.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId)?.FirstOrDefault();
                                 if (dataType != null)
                                 {
+                                    if (s.ControlType == "ComboBox" || s.ControlType == "RadioGroup" || s.ControlType == "Radio" || s.ControlType == "TagBox" || s.ControlType == "ListBox")
+                                    {
+                                        var namess = Regex.Replace(s.Text, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
+                                        string attrNames = dataType.DynamicFormSectionAttributeId.ToString();
+                                        if (s.AttributeDetailID > 0)
+                                        {
+                                            attrNames += "_" + s.AttributeDetailID;
+                                        }
+                                        attrNames += "_" + namess + "_UId";
+                                        s.AttributeDetailNameId = attrNames.ToLower();
+                                        if (s.ControlType == "TagBox" || s.IsMultiple == true)
+                                        {
+                                            createsql += "[" + attrNames + "] [nvarchar](500) NULL,";
+                                        }
+                                        else
+                                        {
+                                            createsql += "[" + attrNames + "] [bigint] NULL,";
+                                        }
+                                    }
                                     if (s.IsSubForm == true)
                                     {
                                         var namess = Regex.Replace(s.Text, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
@@ -8302,58 +8561,111 @@ namespace Infrastructure.Repository.Query
 
                                     dynamic v = s;
                                     var byName = (IDictionary<string, object>)s;
+                                    var dId = (long?)v.DynamicFormDataId;
                                     parameterss.Add("DynamicFormDataID", v.DynamicFormDataId, DbType.String);
                                     parameterss.Add("DynamicFormDataGridId", v.DynamicFormDataGridId);
                                     parameterss.Add("GridSortOrderByNo", v.GridSortOrderByNo);
-                                    dropDownOptionsModels.ForEach(q =>
-                                    {
-                                        if (!string.IsNullOrEmpty(q.AttributeDetailName))
+                                    
+                                        dropDownOptionsModels.ForEach(q =>
                                         {
-                                            if (byName.ContainsKey(q.Value) && byName[q.Value] != null)
+
+                                            if (!string.IsNullOrEmpty(q.AttributeDetailName))
                                             {
-                                                var Typevalues = byName[q.Value]?.GetType();
 
-
-                                                if (Typevalues == typeof(decimal) || Typevalues == typeof(decimal?))
+                                                if (byName.ContainsKey(q.Value) && byName[q.Value] != null)
                                                 {
-                                                    var names = (decimal?)byName[q.Value];
-                                                    parameterss.Add(q.AttributeDetailName, names, DbType.Decimal);
-                                                }
-                                                if (Typevalues == typeof(int) || Typevalues == typeof(int?))
-                                                {
-                                                    var names = (int?)byName[q.Value];
-                                                    parameterss.Add(q.AttributeDetailName, names, DbType.Int32);
-                                                }
-                                                else if (Typevalues == typeof(DateTime) || Typevalues == typeof(DateTime?))
-                                                {
-                                                    var names = (DateTime?)byName[q.Value];
-                                                    parameterss.Add(q.AttributeDetailName, names, DbType.DateTime);
-                                                }
-                                                else if (Typevalues == typeof(TimeSpan) || Typevalues == typeof(TimeSpan?))
-                                                {
-                                                    var names = (TimeSpan?)byName[q.Value];
-                                                    if (names != null)
+                                                    var Typevalues = byName[q.Value]?.GetType();
+                                                    if (q.ControlType == "DateEdit")
                                                     {
-                                                        DateTime time = DateTime.Today.Add((TimeSpan)names);
-                                                        parameterss.Add(q.AttributeDetailName, time, DbType.Time);
+                                                        if (byName[q.Value] != null && byName[q.Value] != "")
+                                                        {
+                                                            var names = (DateTime?)byName[q.Value];
+                                                            parameterss.Add(q.AttributeDetailName, names, DbType.DateTime);
+                                                        }
+                                                        else
+                                                        {
+                                                            parameterss.Add(q.AttributeDetailName, null, DbType.DateTime);
+                                                        }
                                                     }
+                                                    else if (q.ControlType == "TimeEdit")
+                                                    {
+                                                        if (byName[q.Value] != null && byName[q.Value] != "")
+                                                        {
+                                                            var names = (TimeSpan?)byName[q.Value];
+                                                            if (names != null)
+                                                            {
+                                                                DateTime time = DateTime.Today.Add((TimeSpan)names);
+                                                                parameterss.Add(q.AttributeDetailName, time, DbType.Time);
+                                                            }
+                                                            else
+                                                            {
+                                                                parameterss.Add(q.AttributeDetailName, null, DbType.Time);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            parameterss.Add(q.AttributeDetailName, null, DbType.Time);
+                                                        }
+                                                    }
+                                                    else if (q.ControlType == "SpinEdit")
+                                                    {
+                                                        if (Typevalues == typeof(decimal) || Typevalues == typeof(decimal?))
+                                                        {
+                                                            var names = (decimal?)byName[q.Value];
+                                                            parameterss.Add(q.AttributeDetailName, names, DbType.Decimal);
+                                                        }
+                                                        if (Typevalues == typeof(int) || Typevalues == typeof(int?))
+                                                        {
+                                                            var names = (int?)byName[q.Value];
+                                                            parameterss.Add(q.AttributeDetailName, names, DbType.Int32);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        var names = byName[q.Value]?.ToString();
+                                                        parameterss.Add(q.AttributeDetailName, names, DbType.String);
 
-                                                }
+                                                    }
+                                                    var NameId = q.Value + "_UId";
+                                                    if (byName.ContainsKey(NameId) && byName[q.Value] != null)
+                                                    {
+                                                        var TypevalueId = byName[NameId]?.GetType();
+                                                        var nameValue = byName[NameId];
+                                                        if (q.ControlType == "ComboBox" || q.ControlType == "Radio" || q.ControlType == "RadioGroup")
+                                                        {
+                                                            var ids = (long?)nameValue;
+                                                            parameterss.Add(q.AttributeDetailNameId, ids > 0 ? ids : null);
+                                                        }
+                                                        else if (q.ControlType == "ListBox" && q.IsMultiple == false)
+                                                        {
+                                                            var ids = (long?)nameValue;
+                                                            parameterss.Add(q.AttributeDetailNameId, ids > 0 ? ids : null);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (q.IsMultiple == true || q.ControlType == "TagBox")
+                                                            {
+                                                                string joins = string.Empty;
+                                                                if (nameValue != null)
+                                                                {
+                                                                    List<long?> listData = (List<long?>)nameValue;
+                                                                    if (listData != null && listData.Count() > 0)
+                                                                    {
+                                                                        joins = string.Join(',', listData);
+                                                                    }
+                                                                }
+                                                                parameterss.Add(q.AttributeDetailNameId, joins, DbType.String);
+                                                            }
+                                                            else
+                                                            {
 
-                                                else if (Typevalues == typeof(bool) || Typevalues == typeof(bool?))
-                                                {
-                                                    var names = (bool?)byName[q.Value];
-                                                    parameterss.Add(q.AttributeDetailName, names);
+                                                            }
+                                                        }
+                                                    }
                                                 }
-                                                else
-                                                {
-                                                    var names = (string)byName[q.Value]?.ToString();
-                                                    parameterss.Add(q.AttributeDetailName, names, DbType.String);
-                                                }
-
                                             }
-                                        }
-                                    });
+                                        });
+                                    
                                     DynamicParameters.Add(parameterss);
                                 }
                             }

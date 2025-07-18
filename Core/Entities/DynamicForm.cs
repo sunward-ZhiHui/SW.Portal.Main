@@ -61,6 +61,7 @@ namespace Core.Entities
         public Type? DataType { get; set; }
         public string? DynamicAttributeFieldName { get; set; }
         public string? UniqueId { get; set; }
+        public string? ControlType { get; set; }
     }
     public class DynamicFormDataListItems
     {

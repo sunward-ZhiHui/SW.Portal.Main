@@ -147,28 +147,48 @@
                     setPreviousDisplayValue(pvalue, a.AttributeId);
                 }
                 var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                if (typeName!=null && typeName.ControlTypeId == 2715)
+                if (typeName != null && typeName.ControlTypeId == 2715)
                 {
-                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
-                    if (_attributeGroupCheckBoxes.Count() > 0)
-                    {
-                        _attributeGroupCheckBoxes.ForEach(r =>
-                        {
-                            var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                            if (nameData == a.AttributeId )
-                            {
-                                setCurrentDisplayValue(r.Value, nameData);
-                            }
-                            if (nameData == a.AttributeId)
-                            {
-                                setPreviousDisplayValue(r.Value, nameData);
-                            }
-                        });
-                    }
+                    // var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
+                    // if (_attributeGroupCheckBoxes.Count() > 0)
+                    // {
+                    //     _attributeGroupCheckBoxes.ForEach(r =>
+                    //     {
+                    //         var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                    //         if (nameData == a.AttributeId )
+                    //         {
+                    //             setCurrentDisplayValue(r.Value, nameData);
+                    //         }
+                    //         if (nameData == a.AttributeId)
+                    //         {
+                    //             setPreviousDisplayValue(r.Value, nameData);
+                    //         }
+                    //     });
+                    // }
                 }
             });
-            _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
-            EditEnabled = true;
+
+            List<DynamicFormDataAudit> _DynamicFormDataAuditLists = new List<DynamicFormDataAudit>();
+            if(_DynamicFormDataAuditList!=null && _DynamicFormDataAuditList.Count()>0)
+            {
+                _DynamicFormDataAuditList.ForEach(f =>
+                {
+                    if (string.IsNullOrEmpty(f.CurrentValue) && string.IsNullOrEmpty(f.PreValue))
+                    {
+                        //_DynamicFormDataAuditList.Remove(f);
+                    }
+                    else
+                    {
+                        _DynamicFormDataAuditLists.Add(f);                      
+                    }
+                });
+            }
+            if (_DynamicFormDataAuditLists != null && _DynamicFormDataAuditLists.Count() > 0)
+            {
+                _DynamicFormDataAuditList = _DynamicFormDataAuditLists;
+                _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+                EditEnabled = true;
+            }
         }
         PanelAttibuteVisible = false;
         StateHasChanged();
@@ -284,6 +304,18 @@
                 else
                 {
 
+                }
+                if (a.ControlType == "GroupCheckBox")
+                {
+                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                    if (_attributeGroupCheckBoxes.Count() > 0)
+                    {
+                        _attributeGroupCheckBoxes.ForEach(r =>
+                        {
+                            var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                            setDisplayName(r.Value, nameData);
+                        });
+                    }
                 }
                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
                 {
@@ -784,6 +816,32 @@
                                         bool? values = itemValue == null ? false : (bool)itemValue;
                                         objectData[attrName] = values == true ? "Checked" : "";
                                         loadSubHeaders(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                    }
+                                    else if (s.ControlType == "GroupCheckBox")
+                                    {
+                                        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == s.AttributeId).ToList();
+                                        if (_attributeGroupCheckBoxes.Count() > 0)
+                                        {
+                                            _attributeGroupCheckBoxes.ForEach(r =>
+                                            {
+                                                var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                var itemDepExits = jsonObj.ContainsKey(nameData);
+                                                if (itemDepExits == true)
+                                                {
+                                                    var itemDepValue = jsonObj[nameData];
+                                                    if (r.IsTextBox == true)
+                                                    {
+                                                        string? values = itemDepValue == null ? string.Empty : (string)itemDepValue;
+                                                        objectData[nameData] = values;
+                                                    }
+                                                    else
+                                                    {
+                                                        bool? values = itemDepValue == null ? false : (bool)itemDepValue;
+                                                        objectData[nameData] = values == true ? "Checked" : "";
+                                                    }
+                                                }
+                                            });
+                                        }
                                     }
                                     else
                                     {
@@ -1309,6 +1367,32 @@
                                        bool? values = itemValue == null ? false : (bool)itemValue;
                                        pobjectData[attrName] = values == true ? "Checked" : "";
                                        loadPrevSubHeaders(s.SubAttributeHeaders, s, jsonObj, pobjectData);
+                                   }
+                                   else if (s.ControlType == "GroupCheckBox")
+                                   {
+                                       var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == s.AttributeId).ToList();
+                                       if (_attributeGroupCheckBoxes.Count() > 0)
+                                       {
+                                           _attributeGroupCheckBoxes.ForEach(r =>
+                                           {
+                                               var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                               var itemDepExits = jsonObj.ContainsKey(nameData);
+                                               if (itemDepExits == true)
+                                               {
+                                                   var itemDepValue = jsonObj[nameData];
+                                                   if (r.IsTextBox == true)
+                                                   {
+                                                       string? values = itemDepValue == null ? string.Empty : (string)itemDepValue;
+                                                       pobjectData[nameData] = values;
+                                                   }
+                                                   else
+                                                   {
+                                                       bool? values = itemDepValue == null ? false : (bool)itemDepValue;
+                                                       pobjectData[nameData] = values == true ? "Checked" : "";
+                                                   }
+                                               }
+                                           });
+                                       }
                                    }
                                    else
                                    {

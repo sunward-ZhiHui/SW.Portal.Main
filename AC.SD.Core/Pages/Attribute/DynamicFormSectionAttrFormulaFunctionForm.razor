@@ -163,7 +163,7 @@
             _dynamicFormSectionAttrFormulaFunction = await Mediator.Send(new GetDynamicFormSectionAttrFormulaFunction(SelectedItems.DynamicFormSectionAttributeId));
             if (_dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0)
             {
-                _dynamicFormSectionAttrFormulaFunction = _dynamicFormSectionAttrFormulaFunction.Where(w => w.IsCalculate == IsCalculate).ToList();
+                //_dynamicFormSectionAttrFormulaFunction = _dynamicFormSectionAttrFormulaFunction.Where(w => w.IsCalculate == true).ToList();
                 // EditEnabled = true; DeleteEnabled = true;
                 AddEnabled = false;
                 _selectedAttributeItems = _dynamicFormSectionAttrFormulaFunction.FirstOrDefault();
@@ -251,7 +251,7 @@
             var masterIds = _dynamicFormSectionAttrFormulaFunction != null && _dynamicFormSectionAttrFormulaFunction.Count() > 0 ? _dynamicFormSectionAttrFormulaFunction.Select(s => s.DynamicFormSectionAttrFormulaMasterFuntionId).ToList() : new List<long?>();
             _dynamicFormSectionAttrFormulaMasterFunction = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(w => !masterIds.Contains(w.MasterID)).ToList();
             navitems.BValue = 0;
-            navitems.ColorValue = "#000000";
+            navitems.ColorValue = "#ff0000";
         }
         else
         {

@@ -42,6 +42,7 @@ namespace Core.Entities
         public string? AreaName { get; set; }
         public string? AttributeDetailNameId { get; set; }
         public string? DesignationName { get; set; }
+        public string? DepartmentName { get; set; }
         public string? Description2 { get; set; }
         public string? ReplanRefNo { get; set; }
         public string? StartingDate { get; set; }
@@ -77,7 +78,7 @@ namespace Core.Entities
         public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; } = new List<DynamicFormFilterBy>();
         public object Data { get; set; } = new object();
     }
-    public class AttributeGroupCheckBox:BaseModel
+    public class AttributeGroupCheckBox : BaseModel
     {
         [Key]
         public long AttributeGroupCheckBoxId { get; set; }
@@ -88,5 +89,7 @@ namespace Core.Entities
         public long? AttributeId { get; set; }
         public long? ParentId { get; set; }
         public bool Checked { get; set; } = false;
+        public bool? IsTextBox { get; set; } = false;
+        public List<AttributeGroupCheckBox> Children { get; set; } = new List<AttributeGroupCheckBox>();
     }
 }

@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                                                                                                                font-family: arial, sans-serif;
-                                                                                                                                                                                                                border-collapse: collapse;
-                                                                                                                                                                                                                width: 100%;
-                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                        font-family: arial, sans-serif;
+                                                                                                                                                                                                                                                        border-collapse: collapse;
+                                                                                                                                                                                                                                                        width: 100%;
+                                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                                                            th {
-                                                                                                                                                                                                                border: 1px solid;
-                                                                                                                                                                                                                padding: 8px;
-                                                                                                                                                                                                                font-weight: bold;
+                                                                                                                                                                                                                                                    th {
+                                                                                                                                                                                                                                                        border: 1px solid;
+                                                                                                                                                                                                                                                        padding: 8px;
+                                                                                                                                                                                                                                                        font-weight: bold;
 
 
-                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                                                            td {
-                                                                                                                                                                                                                border: 1px solid;
-                                                                                                                                                                                                                padding: 8px;
+                                                                                                                                                                                                                                                    td {
+                                                                                                                                                                                                                                                        border: 1px solid;
+                                                                                                                                                                                                                                                        padding: 8px;
 
-                                                                                                                                                                                                            } */
+                                                                                                                                                                                                                                                    } */
 
     /* tr:nth-child(even) {
-                                                                                                                                                                                                                    background-color: #dddddd;
-                                                                                                                                                                                                                } */
+                                                                                                                                                                                                                                                            background-color: #dddddd;
+                                                                                                                                                                                                                                                        } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -221,18 +221,9 @@
                                 }
                             }
                         }
-                        if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                        if (a.ControlType == "CheckBox" )
                         {
-                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
-                            if (_attributeGroupCheckBoxes > 0)
-                            {
-                                string? values = valueData == null ? string.Empty : (string)valueData;
-                            }
-                            else
-                            {
                                 bool? values = valueData == null ? false : (bool)valueData;
-                            }
-
                         }
                         if (a.ControlTypeId == 2712)
                         {
@@ -253,20 +244,15 @@
                         }
 
                     }
-                    if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                    if (a.ControlType == "CheckBox")
                     {
-                        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
-                        if (_attributeGroupCheckBoxes > 0)
-                        {
-                        }
-                        else
-                        {
+
                             bool? values = valueData == null ? false : (bool)valueData;
                             if (values == true)
                             {
                                 query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
                             }
-                        }
+                        
 
 
                     }
@@ -290,7 +276,7 @@
     }
     else
     {
-        if (_dynamicForm != null)
+        if (_dynamicForm != null && _dynamicformDataList != null && _dynamicformDataList.Count() > 0)
         {
             query = string.Empty;
             query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
@@ -373,17 +359,11 @@
                                 }
                             }
                         }
-                        if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                        if (a.ControlType == "CheckBox")
                         {
-                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
-                            if (_attributeGroupCheckBoxes > 0)
-                            {
-                                string? values = valueData == null ? string.Empty : (string)valueData;
-                            }
-                            else
-                            {
+                            
                                 bool? values = valueData == null ? false : (bool)valueData;
-                            }
+                            
                         }
                         if (a.ControlTypeId == 2712)
                         {
@@ -404,20 +384,15 @@
                         }
 
                     }
-                    if (a.ControlType == "CheckBox" || a.ControlType == "GroupCheckBox")
+                    if (a.ControlType == "CheckBox")
                     {
-                        var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == a.AttributeId).Count();
-                        if (_attributeGroupCheckBoxes > 0)
-                        {
-                        }
-                        else
-                        {
+                       
                             bool? values = valueData == null ? false : (bool)valueData;
                             if (values == true)
                             {
                                 query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
                             }
-                        }
+                        
 
                     }
                 });
@@ -431,6 +406,75 @@
                 }
 
         }
+    }
+
+    @if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttrFormulaFunctions != null && _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Count() > 0)
+    {
+        <h3 style=" text-align: center;padding:5px;">Formula</h3>
+        <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
+                    <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;word-break: break-word;white-space: normal;">Formula</th>
+                    <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Range Formula</th>
+                    <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">AValue</th>
+                    <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">BValue</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var FormulaTextBoxData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.FormulaTextBox != "").ToList();
+                    string htmlData = string.Empty;
+                    if (FormulaTextBoxData != null && FormulaTextBoxData.Count() > 0)
+                    {
+                        FormulaTextBoxData.ForEach(f =>
+                        {
+                            var colorCodeExitss = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == f.DynamicFormSectionAttributeId).FirstOrDefault();
+
+                            string formatteds = string.Empty; string formatted = string.Empty; 
+                            if (colorCodeExitss != null)
+                            {
+                                if (colorCodeExitss.AValue > 0)
+                                {
+                                    decimal value = (decimal)colorCodeExitss.AValue;
+                                    formatteds = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                                }
+                                if (colorCodeExitss.BValue > 0)
+                                {
+                                    decimal value = (decimal)colorCodeExitss.BValue;
+                                    formatted = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(f.FormulaTextBox))
+                            {
+                                var encodedName = System.Net.WebUtility.HtmlEncode(colorCodeExitss?.FormulaFunctionName);
+                                htmlData += "<tr><td style =\"border:1px solid;padding:8px;\">" + f.DisplayName + "</td>";
+                                htmlData += "<td style =\"border:1px solid;padding:8px;word-break: break-word;white-space: normal;\">" + f.FormulaTextBox + "</td>";
+                                htmlData += "<td style =\"border:1px solid;padding:8px;\">" + ((MarkupString)encodedName) + "</td>";
+                                htmlData += "<td style =\"border:1px solid;padding:8px;\">" + formatteds + "</td>";
+                                htmlData += "<td style =\"border:1px solid;padding:8px;\">" + formatted + "</td></tr>";
+
+                            }
+                            else
+                            {
+                                if (colorCodeExitss != null)
+                                {
+                                    var encodedName = System.Net.WebUtility.HtmlEncode(colorCodeExitss?.FormulaFunctionName);
+                                    htmlData += "<tr><td style =\"border:1px solid;padding:8px;\">" + f.DisplayName + "</td>";
+                                    htmlData += "<td style =\"border:1px solid;padding:8px;word-break: break-word;white-space: normal;\"></td>";
+                                    htmlData += "<td style =\"border:1px solid;padding:8px;\">" + ((MarkupString)encodedName) + "</td>";
+                                    htmlData += "<td style =\"border:1px solid;padding:8px;\">" + formatteds + "</td>";
+                                    htmlData += "<td style =\"border:1px solid;padding:8px;\">" + formatted + "</td></tr>";
+                                }
+                            }
+                        });
+                    }
+
+                    @((MarkupString)htmlData)
+
+                }
+            </tbody>
+        </table>
     }
     <DynamicFormDataAuditTrailPrint @ref="refDynamicFormDataAuditTrailPrint" FormSessionIds="@FormSessionId" SessionId="@SessionId"></DynamicFormDataAuditTrailPrint>
 </div>
@@ -449,7 +493,7 @@
     public Guid? FormSessionId { get; set; }
     [Parameter]
     public string? IsSubForm { get; set; }
-    private AttributeHeaderListModel _AttributeHeader{ get; set; }
+    private AttributeHeaderListModel _AttributeHeader { get; set; }
     DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
     public ApplicationUser? applicationUser { get; private set; }
@@ -867,11 +911,11 @@
                                         //await loadDropdownList(dynamicFormIds, ids, FormSessionId);
                                         FormSessionIds = FormSessionId;
                                     }
-                                   
+
                                     var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds, dynamicFormSearch)));
                                     await Task.WhenAll(_dynamicformDataLists);
                                     _dynamicformDataList = await _dynamicformDataLists.Result;
-                                    
+
                                 }
                             }
                         }
@@ -1428,7 +1472,13 @@
                                         objectData[attrName] = values;
                                     }
                                 }
-                                else if (s.ControlType == "CheckBox" || s.ControlType == "GroupCheckBox")
+                                else if (s.ControlType == "CheckBox")
+                                {
+                                    bool? values = itemValue == null ? false : (bool)itemValue;
+                                    objectData[attrName] = values;
+                                    loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                }
+                                else if (s.ControlType == "GroupCheckBox")
                                 {
                                     string valuesData = string.Empty;
                                     var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(b => b.AttributeId == s.AttributeId).ToList();
@@ -1441,10 +1491,21 @@
                                         if (NamesA == true)
                                         {
                                             var itemValueA = jsonObj[nameData];
-                                            bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
-                                            if (valuesA == true)
+                                            if (r.IsTextBox == true)
                                             {
-                                                valuesData += r.Value + ",";
+                                                string? valuesA = itemValueA == null ? string.Empty : (string?)itemValueA;
+                                                if (!string.IsNullOrEmpty(valuesA))
+                                                {
+                                                    valuesData += "<li>" + r.Value + "->(" + valuesA + ")" + "</li>";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
+                                                if (valuesA == true)
+                                                {
+                                                    valuesData += "<li>" + r.Value + "</li>";
+                                                }
                                             }
                                         }
                                     });

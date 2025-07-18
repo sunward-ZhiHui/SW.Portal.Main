@@ -937,11 +937,11 @@ namespace Infrastructure.Service
                     var prodCodes = result.ToList();
                     prodCodes.ForEach(b =>
                     {
-                        var exitsData = rawMatPurchList.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid && f.BatchNo == b.Batch_No).Count();
+                        var exitsData = rawMatPurchList.Where(f =>  f.QcRefNo == b.QC_Ref_No && f.ExpirationDate == b.Expiration_Date && f.ItemNo == b.Item_No && f.CompanyId == companyid && b.Batch_No == f.BatchNo).Count();
                         if (exitsData == 0)
                         {
                             var itemsExits = navitems.FirstOrDefault(f => f.CompanyId == companyid && f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
-                            var exits = rawMatPurches.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid && b.Batch_No == f.BatchNo).FirstOrDefault();
+                            var exits = rawMatPurches.Where(f => f.QcRefNo == b.QC_Ref_No && f.ExpirationDate == b.Expiration_Date && f.ItemNo == b.Item_No && f.CompanyId == companyid && b.Batch_No == f.BatchNo).FirstOrDefault();
                             if (exits == null)
                             {
                                 rawMatPurchList.Add(new Core.Entities.RawMatPurch
@@ -957,11 +957,21 @@ namespace Infrastructure.Service
                                     CompanyId = companyid,
                                     ItemId = itemsExits?.ItemId,
                                     QcRefNo = b.QC_Ref_No,
+                                    DocumentNo= b.Document_No,
                                 });
                             }
                             else
                             {
                                 exits.QcRefNo = b.QC_Ref_No;
+                                exits.ItemNo = b.Item_No;
+                                exits.Description = b.Description;
+                                exits.Description2 = b.Description_2;
+                                exits.Quantity = b.Quantity;
+                                exits.DocumentNo=b.Document_No;
+                                exits.ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date;
+                                exits.ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date;
+                                exits.UnitOfMeasureCode = b.Unit_of_Measure_Code;
+                                exits.BatchNo = b.Batch_No;
                                 rawMatPurchList.Add(exits);
                             }
                         }

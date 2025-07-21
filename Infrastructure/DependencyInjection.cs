@@ -191,7 +191,9 @@ namespace Infrastructure
             services.AddScoped<ITenderOrdersQueryRepository, TenderOrdersQueryRepository>();
             services.AddScoped<ISalesDeliverOrderQueryRepository, SalesDeliverOrderQueryRepository>();
             services.AddScoped<ISalesOrderQueryRepository, SalesOrderQueryRepository>();
-            services.AddScoped<IMasterBlanketOrderQueryRepository, MasterBlanketOrderQueryRepository>();
+            services.AddScoped<IMasterBlanketOrderQueryRepository, MasterBlanketOrderQueryRepository>();            
+            services.AddScoped<ISPCDataTrendingQueryRepository, SPCDataTrendingQueryRepository>();
+            services.AddScoped<ISPCDataFinishedProdctQueryRepository, SPCDataFinishedProdctQueryRepository>();
             return services;
         }
     }

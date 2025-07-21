@@ -38,16 +38,61 @@ namespace SW.Portal.Solutions
             services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) =>
             {
                 DashboardConfigurator configurator = new DashboardConfigurator();
-                configurator.SetDashboardStorage(new DashboardFileStorage(fileProvider.GetFileInfo("Data/Dashboards").PhysicalPath));
+
+                // === Dashboard storage selection logic ===
+                var defaultDashboardPath = fileProvider.GetFileInfo("Data/Dashboards").PhysicalPath;
+                var spcDashboardPath = fileProvider.GetFileInfo("Data/SPCDashboards").PhysicalPath;
+
+                // Example: conditionally use one or the other
+                var httpContext = httpContextAccessor.HttpContext;
+                var dashboardType = httpContext?.Request?.Headers["DashboardType"].FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(dashboardType) && dashboardType.Equals("SPC", StringComparison.OrdinalIgnoreCase))
+                {
+                    configurator.SetDashboardStorage(new DashboardFileStorage(spcDashboardPath));
+                    Console.WriteLine("Using SPC Dashboard path: " + spcDashboardPath);
+                }
+                else
+                {
+                    configurator.SetDashboardStorage(new DashboardFileStorage(defaultDashboardPath));
+                    Console.WriteLine("Using Default Dashboard path: " + defaultDashboardPath);
+                }
+
+                // === Other config ===
                 configurator.SetDataSourceStorage(new DataSourceInMemoryStorage());
                 configurator.SetConnectionStringsProvider(new DashboardConnectionStringsProvider(configuration));
 
+                // JSON data sources registration
+                var jsonStorage = new DataSourceInMemoryStorage();
+
+                var jsonFiles = new[]
+                {
+                     ("spc_trending", "wwwroot/data/SPCTrendingData.json"),
+                     ("spc_finished_product", "wwwroot/data/SPCFinishedProductData.json")
+                };
+
+                foreach (var (key, relativePath) in jsonFiles)
+                {
+                    var jsonPath = fileProvider.GetFileInfo(relativePath).PhysicalPath;
+                    if (File.Exists(jsonPath))
+                    {
+                        var jsonText = File.ReadAllText(jsonPath);
+                        var jsonDataSource = new DashboardJsonDataSource(key.Replace("_", " ").ToUpper())
+                        {
+                            JsonSource = new CustomJsonSource(jsonText),
+                            RootElement = ""
+                        };
+
+                        jsonStorage.RegisterDataSource(key, jsonDataSource.SaveToXml());
+                    }
+                }
+
+                configurator.SetDataSourceStorage(jsonStorage);
                 configurator.AllowExecutingCustomSql = true;
 
+                // UserId from header
                 configurator.CustomParameters += (sender, e) =>
                 {
-                    var httpContext = httpContextAccessor.HttpContext;
-
                     var headerValue = httpContext?.Request?.Headers["UserId"].FirstOrDefault();
                     if (long.TryParse(headerValue, out long userId))
                     {
@@ -57,42 +102,9 @@ namespace SW.Portal.Solutions
                             param.Value = userId;
                             Console.WriteLine("Backend: Overridden UserId = " + userId);
                         }
-                        else
-                        {
-                            Console.WriteLine("Parameter 'UserId' not found in dashboard");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("UserId not passed in headers");
                     }
                 };
 
-
-                configurator.ConfigureDataConnection += (s, e) =>
-                {
-                    //if (e.ConnectionName == "jsonSupport")
-                    //{
-                    //    Uri fileUri = new Uri(fileProvider.GetFileInfo("Data/Support.json").PhysicalPath, UriKind.RelativeOrAbsolute);
-                    //    JsonSourceConnectionParameters jsonParams = new JsonSourceConnectionParameters();
-                    //    jsonParams.JsonSource = new UriJsonSource(fileUri);
-                    //    e.ConnectionParameters = jsonParams;
-                    //}
-                    //if (e.ConnectionName == "jsonCategories")
-                    //{
-                    //    Uri fileUri = new Uri(fileProvider.GetFileInfo("Data/Categories.json").PhysicalPath, UriKind.RelativeOrAbsolute);
-                    //    JsonSourceConnectionParameters jsonParams = new JsonSourceConnectionParameters();
-                    //    jsonParams.JsonSource = new UriJsonSource(fileUri);
-                    //    e.ConnectionParameters = jsonParams;
-                    //}
-                    //if (e.ConnectionName == "jsonCustomers")
-                    //{
-                    //    JsonSourceConnectionParameters jsonParams = new JsonSourceConnectionParameters();
-                    //    jsonParams.JsonSource = new UriJsonSource(
-                    //        new Uri("https://raw.githubusercontent.com/DevExpress-Examples/DataSources/master/JSON/customers.json"));
-                    //    e.ConnectionParameters = jsonParams;
-                    //}
-                };
                 return configurator;
             });
 

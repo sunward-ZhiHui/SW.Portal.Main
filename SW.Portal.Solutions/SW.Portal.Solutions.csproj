@@ -54,6 +54,8 @@
 
   <ItemGroup>
     <Folder Include="AppUpload\Documents\" />
+    <Folder Include="wwwroot\dashboards\" />
+    <Folder Include="wwwroot\data\" />
   </ItemGroup>
 
 </Project>

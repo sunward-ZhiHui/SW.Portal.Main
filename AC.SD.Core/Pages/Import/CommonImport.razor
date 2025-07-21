@@ -1,0 +1,339 @@
+﻿@using Application.Queries;
+@using AutoMapper.Configuration
+@using ClosedXML.Excel
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using FluentValidation
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using System.IO
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using System.ComponentModel
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.Repositories.Query
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Linq
+@using Microsoft.AspNetCore.Components.Forms
+@using OfficeOpenXml;
+@using ClosedXML.Excel;
+@using System;
+@using System.Collections.Generic;
+@using System.Threading.Tasks;
+@typeparam TItem
+
+
+<DxMenuItem Text="Import File" IconCssClass="fa fa-file" @onclick="TriggerFileInput" />
+
+
+<InputFile OnChange="@HandleFileChange" @ref="inputFile" accept=".xlsx,.xls" style="display:none;" />
+
+<DxPopup @bind-Visible="@IsPopupVisible" ShowFooter="true"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false" HeaderText="Match Excel Headers with Properties">
+    <BodyContentTemplate>
+        <DxGrid @ref="Gridpop" EditMode="GridEditMode.EditCell"
+                ShowAllRows="true" ValidationEnabled="true" Data="@HeaderPropertyMappings"
+                EditModelSaving="Grid_EditModelSavingpop"
+                CustomizeElement="Grid_CustomizeElementpop"
+                CustomizeEditModel="Grid_CustomizeEditModelpop"
+                VirtualScrollingEnabled="true"
+                style="height:calc(100vh - 200px);overflow-y:auto;">
+            <Columns>
+                <DxGridDataColumn FieldName="ExcelHeader" ReadOnly Caption="Excel Header" />
+                <DxGridDataColumn FieldName="DocumentProperty" Caption="Document Property">
+                    <EditSettings>
+                        <DxComboBoxSettings Data="@PropertyList" FilteringMode="DataGridFilteringMode.Contains" />
+                    </EditSettings>
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@(() => OnSaveClick())" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => IsPopupVisible = false)" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+    private IGrid? Gridpop;
+    //[Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public EventCallback<IList<TItem>> OnImportCompleted { get; set; }
+    InputFile? inputFile;
+    private bool IsPopupVisible { get; set; } = false;
+    private IList<string> PropertyList { get; set; } = new List<string>();
+    private IList<HeaderPropertyMapping> HeaderPropertyMappings { get; set; } = new List<HeaderPropertyMapping>();
+    private IList<TItem> Items { get; set; } = new List<TItem>();
+    private Stream UploadedFileStream { get; set; }
+
+
+    IList<HeaderPropertyMapping>? _InvoiceDataSourcepop { get; set; }
+    Dictionary<HeaderPropertyMapping, DataChangepop> UnsavedChangespop { get; } = new();
+    bool BatchItemsEnabledpop => UnsavedChangespop.Count > 0 || Gridpop.IsEditing();
+    record DataChangepop(DataChangepopTypepop Type, HashSet<string> ChangedFields);
+    enum DataChangepopTypepop { Modification, Addition, Delete }
+
+
+
+
+    private async Task TriggerFileInput()
+    {
+        await jsRuntime.InvokeAsync<object>("triggerClick", inputFile.Element);
+        //await jsRuntime.InvokeVoidAsync("document.getElementById", "attachmentSelectButton").InvokeVoidAsync("click");
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            await jsRuntime.InvokeAsync<string>("showLoading");
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                UploadedFileStream = new MemoryStream(memoryStream.ToArray()); // Save the file stream for reprocessing
+                Items = await ReadDataFromExcelAsync(memoryStream);
+                if (Items != null && Items.Count > 0)
+                {
+                    UploadedFileStream.Position = 0; // Reset the stream position to the beginning
+                    await OnImportCompleted.InvokeAsync(Items);
+                }
+            }
+            await jsRuntime.InvokeAsync<string>("hideLoading");
+        }
+    }
+
+    private async Task<IList<TItem>> ReadDataFromExcelAsync(Stream stream)
+    {
+        var result = new List<TItem>();
+
+        using (var workbook = new XLWorkbook(stream))
+        {
+            var worksheet = workbook.Worksheet(1);
+            var headerRow = worksheet.Row(1);
+            var headers = headerRow.Cells().Select(c => c.GetString()).ToList();
+
+            var properties = typeof(TItem).GetProperties()
+                .Where(p => p.GetCustomAttribute<DisplayNameAttribute>() != null)
+                .ToDictionary(p => p.GetCustomAttribute<DisplayNameAttribute>().DisplayName, p => p);
+
+            var invalidHeaders = headers.Where(header => !properties.ContainsKey(header)).ToList();
+
+            if (invalidHeaders.Any())
+            {
+                // Populate HeaderPropertyMappings and show the popup
+                HeaderPropertyMappings = headers.Select(header => new HeaderPropertyMapping
+                {
+                    ExcelHeader = header,
+                    DocumentProperty = properties.ContainsKey(header) ? header : null
+                }).ToList();
+
+                PropertyList = properties.Keys.ToList();
+                IsPopupVisible = true;
+                return null;
+            }
+
+            var rowCount = worksheet.RangeUsed().RowCount();
+            for (int row = 2; row <= rowCount; row++)
+            {
+                var item = Activator.CreateInstance<TItem>();
+                var isRowEmpty = true;
+
+                foreach (var header in headers)
+                {
+                    if (properties.TryGetValue(header, out var property))
+                    {
+                        var cellValue = worksheet.Cell(row, headers.IndexOf(header) + 1).GetString();
+                        var propertyType = property.PropertyType;
+
+                        if (!string.IsNullOrEmpty(cellValue))
+                        {
+                            isRowEmpty = false;
+                            if (propertyType == typeof(string))
+                            {
+                                property.SetValue(item, cellValue);
+                            }
+                            else if (propertyType == typeof(decimal) || propertyType == typeof(decimal?))
+                            {
+                                property.SetValue(item, decimal.TryParse(cellValue, out var decimalValue) ? (decimal?)decimalValue : null);
+                            }
+                            else if (propertyType == typeof(DateTime) || propertyType == typeof(DateTime?))
+                            {
+                                property.SetValue(item, DateTime.TryParse(cellValue, out var dateValue) ? (DateTime?)dateValue : null);
+                            }
+                            else if (propertyType == typeof(Guid) || propertyType == typeof(Guid?))
+                            {
+                                property.SetValue(item, Guid.TryParse(cellValue, out var guidValue) ? (Guid?)guidValue : null);
+                            }
+                            else if (propertyType == typeof(long) || propertyType == typeof(long?))
+                            {
+                                property.SetValue(item, long.TryParse(cellValue, out var longValue) ? (long?)longValue : null);
+                            }
+                        }
+                    }
+                }
+
+                if (!isRowEmpty)
+                {
+                    result.Add(item);
+                }
+                else
+                {
+                    toastService.ShowToast($"Error processing row {row}: Row is empty", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private async Task ProcessExcelFileWithMappings()
+    {
+        if (UploadedFileStream != null)
+        {
+            UploadedFileStream.Position = 0; // Reset the stream position to the beginning
+            Items = await ReadDataWithMappingsAsync(UploadedFileStream);
+            await OnImportCompleted.InvokeAsync(Items);
+        }
+    }
+
+    private async Task<IList<TItem>> ReadDataWithMappingsAsync(Stream stream)
+    {
+        var result = new List<TItem>();
+
+        using (var workbook = new XLWorkbook(stream))
+        {
+            var worksheet = workbook.Worksheet(1);
+            var headerRow = worksheet.Row(1);
+            var headers = headerRow.Cells().Select(c => c.GetString()).ToList();
+
+            var properties = typeof(TItem).GetProperties()
+                .Where(p => p.GetCustomAttribute<DisplayNameAttribute>() != null)
+                .ToDictionary(p => p.GetCustomAttribute<DisplayNameAttribute>().DisplayName, p => p);
+
+            var headerMappings = HeaderPropertyMappings.ToDictionary(h => h.ExcelHeader, h => h.DocumentProperty);
+
+            var rowCount = worksheet.RangeUsed().RowCount();
+            for (int row = 2; row <= rowCount; row++)
+            {
+                var item = Activator.CreateInstance<TItem>();
+                var isRowEmpty = true;
+
+                foreach (var header in headers)
+                {
+                    if (headerMappings.TryGetValue(header, out var mappedProperty) && !string.IsNullOrEmpty(mappedProperty) &&
+                        properties.TryGetValue(mappedProperty, out var property))
+                    {
+                        var cellValue = worksheet.Cell(row, headers.IndexOf(header) + 1).GetString();
+                        var propertyType = property.PropertyType;
+
+                        if (!string.IsNullOrEmpty(cellValue))
+                        {
+                            isRowEmpty = false;
+                            if (propertyType == typeof(string))
+                            {
+                                property.SetValue(item, cellValue);
+                            }
+                            else if (propertyType == typeof(decimal) || propertyType == typeof(decimal?))
+                            {
+                                property.SetValue(item, decimal.TryParse(cellValue, out var decimalValue) ? (decimal?)decimalValue : null);
+                            }
+                            else if (propertyType == typeof(DateTime) || propertyType == typeof(DateTime?))
+                            {
+                                property.SetValue(item, DateTime.TryParse(cellValue, out var dateValue) ? (DateTime?)dateValue : null);
+                            }
+                            else if (propertyType == typeof(Guid) || propertyType == typeof(Guid?))
+                            {
+                                property.SetValue(item, Guid.TryParse(cellValue, out var guidValue) ? (Guid?)guidValue : null);
+                            }
+                            else if (propertyType == typeof(long) || propertyType == typeof(long?))
+                            {
+                                property.SetValue(item, long.TryParse(cellValue, out var longValue) ? (long?)longValue : null);
+                            }
+                        }
+                    }
+                }
+
+                if (!isRowEmpty)
+                {
+                    result.Add(item);
+                }
+                else
+                {
+                    toastService.ShowToast($"Error processing row {row}: Row is empty", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private async Task OnSaveClick()
+    {
+        IsPopupVisible = false;
+        await ProcessExcelFileWithMappings(); // Re-process the Excel file with the new mappings
+    }
+
+    private void OnCancelClick()
+    {
+        IsPopupVisible = false;
+    }
+
+    private void Grid_EditModelSavingpop(GridEditModelSavingEventArgs e)
+    {
+        var editableinvoiceDocument = (HeaderPropertyMapping)e.EditModel;
+        var invoiceDocument = (HeaderPropertyMapping)e.DataItem;
+        if (e.IsNew)
+        {
+            _InvoiceDataSourcepop.Add(editableinvoiceDocument);
+            UnsavedChangespop[editableinvoiceDocument] = new(DataChangepopTypepop.Addition, new());
+        }
+        else
+        {
+            var changedFields = DataUtils.ApplyModifiedFields(editableinvoiceDocument, invoiceDocument);
+            if (changedFields.Count > 0)
+            {
+                if (UnsavedChangespop.TryGetValue(invoiceDocument, out var changes))
+                    changes.ChangedFields.UnionWith(changedFields);
+                else
+                    UnsavedChangespop.Add(invoiceDocument, new(DataChangepopTypepop.Modification, changedFields));
+            }
+        }
+    }
+    private void Grid_CustomizeElementpop(GridCustomizeElementEventArgs ea)
+    {
+        if (ea.ElementType == GridElementType.DataCell)
+        {
+            // var invoiceDocument = (HeaderPropertyMapping)Grid.GetDataItem(ea.VisibleIndex);
+            // var column = (IGridDataColumn)ea.Column;
+            // bool isNew = invoiceDocument == null;
+            // if (!isNew && UnsavedChangespop.TryGetValue(invoiceDocument, out var changes))
+            // {
+            //     if (changes.Type == DataChangepopTypepop.Addition || changes.ChangedFields.Contains(column.FieldName))
+            //         ea.CssClass = "grid-modified-cell";
+            // }
+        }
+    }
+    private void Grid_CustomizeEditModelpop(GridCustomizeEditModelEventArgs e)
+    {
+
+        if (e.IsNew)
+        {
+            var newinvoiceDocument = (HeaderPropertyMapping)e.EditModel;
+            newinvoiceDocument.Id = _InvoiceDataSourcepop.Any() ? _InvoiceDataSourcepop.Max(x => x.Id) + 1 : 1;
+        }
+
+    }
+}

@@ -49,8 +49,8 @@ namespace Core.Entities
     public class SubjectFilterModel
     {
         public string BySubject { get; set; }
-        public string SubjectLike { get; set; } = "=";
-        public string SubjectCondition { get; set; } = "AND";
+        public string SubjectLike { get; set; } = "contains";
+        public string SubjectCondition { get; set; } = "OR";
     }
 
     public class DropDownModel

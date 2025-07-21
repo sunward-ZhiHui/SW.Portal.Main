@@ -49,7 +49,7 @@
                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                     <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
-                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
                 </Items>
             </DxMenu>
         </div>
@@ -106,7 +106,7 @@
                                 @{
                                     dynamic item = (ExpandoObject)context.DataItem;
                                 }
-                                <i class="fa fa-wpforms" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" onclick="@(() => openFormGridList(s,(ExpandoObject)context.DataItem))"></i>
+                                <i class="fa fa-wpforms" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" onclick="@(() => openFormGridList(s, (ExpandoObject)context.DataItem))"></i>
 
                             </CellDisplayTemplate>
                         </DxGridDataColumn>
@@ -178,6 +178,29 @@
                                                 }
                                             }
                                             @(items != null ? Application.Common.Helper.Helper.FormatDate(items) : null)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                }
+                                else if (s.ControlType == "GroupCheckBox")
+                                {
+                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                string? items = string.Empty;
+                                                dynamic item = (ExpandoObject)context.DataItem;
+                                                if (!string.IsNullOrEmpty(s.Value))
+                                                {
+                                                    var listName = ((IDictionary<String, Object>)item)[s.Value];
+                                                    if (listName == null || listName == "")
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        items = (string?)listName;
+                                                    }
+                                                }
+                                            }
+                                            @((MarkupString)items)
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
                                 }
@@ -814,12 +837,39 @@
                                                         }
                                                         else
                                                         {
-                                                            var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            List<string?> listName = new List<string?>();
+                                                            if (_AttributeHeader != null)
                                                             {
-                                                                listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                                var nameList = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                                if (nameList != null && nameList.Count() > 0)
+                                                                {
+                                                                    nameList.ForEach(n =>
+                                                                    {
+                                                                        if (s.DataSourceTable == "Employee")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "RawMatPurch")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                        {
+                                                                            listName.Add(n?.NameList);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                        }
+                                                                    });
+                                                                }
                                                             }
-                                                            objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                            objectData[attrName] = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
+                                                           
                                                         }
                                                     }
                                                     else
@@ -869,12 +919,38 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                                                    if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                    List<string?> listName = new List<string?>();
+                                                                    if (_AttributeHeader != null)
                                                                     {
-                                                                        listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                                        var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                                        if (nameList != null && nameList.Count() > 0)
+                                                                        {
+                                                                            nameList.ForEach(n =>
+                                                                            {
+                                                                                if (s.DataSourceTable == "Employee")
+                                                                                {
+                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                }
+                                                                                else if (s.DataSourceTable == "RawMatPurch")
+                                                                                {
+                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                }
+                                                                                else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                {
+                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                }
+                                                                                else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                {
+                                                                                    listName.Add(n?.NameList);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                }
+                                                                            });
+                                                                        }
                                                                     }
-                                                                    objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                    objectData[attrName] = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
                                                                 }
                                                             }
                                                             else
@@ -896,12 +972,38 @@
                                                                             if (itemDepValue is JArray)
                                                                             {
                                                                                 List<long?> listData = itemDepValue.ToObject<List<long?>>();
-                                                                                var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                                                                if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                                List<string?> listName = new List<string?>();
+                                                                                if (PlantDependencySubAttributeDetails != null)
                                                                                 {
-                                                                                    listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
+                                                                                    var nameList = PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).ToList();
+                                                                                    if (nameList != null && nameList.Count() > 0)
+                                                                                    {
+                                                                                        nameList.ForEach(n =>
+                                                                                        {
+                                                                                            if (s.DataSourceTable == "Employee")
+                                                                                            {
+                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                            }
+                                                                                            else if (s.DataSourceTable == "RawMatPurch")
+                                                                                            {
+                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                            }
+                                                                                            else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                            {
+                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                            }
+                                                                                            else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                            {
+                                                                                                listName.Add(n?.NameList);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                            }
+                                                                                        });
+                                                                                    }
                                                                                 }
-                                                                                objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                                objectData[nameData] = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
                                                                             }
                                                                             else
                                                                             {
@@ -911,12 +1013,36 @@
                                                                         else
                                                                         {
                                                                             long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
-                                                                            var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
-                                                                            if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                            var nameList = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).ToList();
+                                                                            List<string?> listName = new List<string?>();
+                                                                            if (nameList != null && nameList.Count() > 0)
                                                                             {
-                                                                                listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                                nameList.ForEach(n =>
+                                                                                {
+                                                                                    if (s.DataSourceTable == "Employee")
+                                                                                    {
+                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "RawMatPurch")
+                                                                                    {
+                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                    {
+                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                    {
+                                                                                        listName.Add(n?.NameList);
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                    }
+                                                                                });
                                                                             }
-                                                                            objectData[nameData] = listss;
+
+                                                                            objectData[nameData] = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
                                                                         }
                                                                     }
                                                                     else
@@ -931,12 +1057,36 @@
                                                             long? Svalues = itemValue == null ? null : (long)itemValue;
                                                             if (Svalues != null)
                                                             {
-                                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                                                if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                List<string?> listName = new List<string?>();
+                                                                var nameList = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).ToList();
+                                                                if (nameList != null && nameList.Count() > 0)
                                                                 {
-                                                                    listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                                    nameList.ForEach(n =>
+                                                                    {
+                                                                        if (s.DataSourceTable == "Employee")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "RawMatPurch")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                        }
+                                                                        else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                        {
+                                                                            listName.Add(n?.NameList);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                        }
+                                                                    });
+
                                                                 }
-                                                                objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                objectData[attrName] = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
                                                             }
                                                             else
                                                             {
@@ -966,10 +1116,10 @@
                                                                 objectData[attrName] = values;
                                                             }
                                                         }
-                                                        else if (s.ControlType == "CheckBox")
+                                                        else if (s.ControlType == "GroupCheckBox")
                                                         {
                                                             string valuesData = string.Empty;
-                                                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == s.AttributeId).ToList();
+                                                            var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(g => g.AttributeId == s.AttributeId).ToList();
                                                             if (_attributeGroupCheckBoxes.Count() > 0)
                                                             {
                                                                 _attributeGroupCheckBoxes.ForEach(r =>
@@ -978,21 +1128,36 @@
                                                                     var NamesA = jsonObj.ContainsKey(nameData);
                                                                     if (NamesA == true)
                                                                     {
+                                                                        valuesData += "<ul>";
                                                                         var itemValueA = jsonObj[nameData];
-                                                                        bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
-                                                                        if (valuesA == true)
+                                                                        if (r.IsTextBox == true)
                                                                         {
-                                                                            valuesData += r.Value + ",";
+                                                                            string? valuesA = itemValueA == null ? string.Empty : (string?)itemValueA;
+                                                                            // if (!string.IsNullOrEmpty(valuesA))
+                                                                            // {
+                                                                            valuesData += "<li>" + r.Value + "->(" + valuesA + ")" + "</li>";
+                                                                            // }
                                                                         }
+                                                                        else
+                                                                        {
+                                                                            bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
+                                                                            if (valuesA == true)
+                                                                            {
+                                                                                valuesData += "<li>" + r.Value + "</li>";
+                                                                            }
+                                                                        }
+                                                                        valuesData += "</ul>";
                                                                     }
                                                                 });
                                                                 objectData[attrName] = valuesData.TrimEnd(',');
                                                             }
-                                                            else
-                                                            {
-                                                                bool? values = itemValue == null ? false : (bool)itemValue;
-                                                                objectData[attrName] = values;
-                                                            }
+
+                                                        }
+                                                        else if (s.ControlType == "CheckBox")
+                                                        {
+                                                            bool? values = itemValue == null ? false : (bool)itemValue;
+                                                            objectData[attrName] = values;
+
                                                         }
                                                         else
                                                         {

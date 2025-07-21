@@ -7,15 +7,15 @@
     <div class="card-body p-0">
         <div class="row">
             <div class="">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
-                <DxMenuItem Text="Add Main" IconCssClass="fa fa-add" Click="@addNew" />
-            </Items>
-        </DxMenu>
-        </div>
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add Main" IconCssClass="fa fa-add" Click="@addNew" />
+                    </Items>
+                </DxMenu>
+            </div>
         </div>
     </div>
 </div>
@@ -34,7 +34,6 @@
                 EditMode="CurrentEditMode"
                 ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
                 TextWrapEnabled="false"
-
                 style="height: calc(100vh - 220px);"
                 HighlightRowOnHover="true">
         <Columns>
@@ -65,6 +64,7 @@
             @*  <DxTreeListCommandColumn Width="200px"  /> *@
             <DxTreeListDataColumn FieldName="Value" Caption="Name" />
             <DxTreeListDataColumn FieldName="Description" Caption="Description" />
+            <DxTreeListDataColumn FieldName="IsTextBox" Caption="Is TextBox" />
             <DxTreeListDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="50" />
             <DxTreeListDataColumn FieldName="AddedDate" Caption="Added Date">
                 <CellDisplayTemplate>
@@ -89,8 +89,12 @@
                     <DxTextBox @bind-Text="datas.Value" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => datas.Value)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                    <DxMemo @bind-Text="datas.Description" ShowValidationIcon="true" Rows="5"/>
+                <DxFormLayoutItem Caption="Is TextBox" ColSpanMd="6" Visible="@isMainForm">
+                    <DxCheckBox @bind-Checked="datas.IsTextBox" />
+                    <ValidationMessage For="@(() => datas.IsTextBox)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                    <DxMemo @bind-Text="datas.Description" ShowValidationIcon="true" Rows="5" />
                 </DxFormLayoutItem>
 
             </DxFormLayout>
@@ -100,6 +104,7 @@
 </div>
 
 @code {
+    bool isMainForm { get; set; } = false;
     bool UsePopupEditForm { get; set; }
     TreeListEditMode CurrentEditMode { get { return UsePopupEditForm ? TreeListEditMode.PopupEditForm : TreeListEditMode.EditForm; } }
     ITreeList TreeList { get; set; }
@@ -135,6 +140,19 @@
             if (e.IsNew)
             {
                 editablePlant.StatusCodeID = 1;
+                isMainForm = false;
+                if (e.ParentDataItem != null)
+                {
+                    isMainForm = true;
+                }
+            }
+            else
+            {
+                isMainForm = false;
+                if (e.ParentDataItem != null)
+                {
+                    isMainForm = true;
+                }
             }
         }
         catch (Exception ex)
@@ -154,18 +172,19 @@
                     editablePlant.ParentId = ((AttributeGroupCheckBox)e.ParentDataItem).AttributeGroupCheckBoxId;
                 }
                 var request = new InsertOrUpdateAttributeGroupCheckBox
-                    {
-                        AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
-                        Description = editablePlant.Description,
-                        Value = editablePlant.Value,
-                        AttributeId = AttributeDetails.AttributeID,
-                        StatusCodeID = editablePlant.StatusCodeID,
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        ParentId = editablePlant.ParentId,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                    };
+                {
+                    AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
+                    Description = editablePlant.Description,
+                    Value = editablePlant.Value,
+                    AttributeId = AttributeDetails.AttributeID,
+                    StatusCodeID = editablePlant.StatusCodeID,
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ParentId = editablePlant.ParentId,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    IsTextBox=editablePlant.IsTextBox,
+                };
 
                 var result = await Mediator.Send(request);
                 if (e.ParentDataItem != null)
@@ -174,6 +193,7 @@
                     {
                         AttributeGroupCheckBox editablePlant1 = new AttributeGroupCheckBox();
                         editablePlant1.Value = editablePlant.Value;
+                        editablePlant1.IsTextBox = editablePlant.IsTextBox;
                         editablePlant1.Description = editablePlant.Description;
                         editablePlant1.ParentId = editablePlant.ParentId;
                         editablePlant1.AddedByUserID = applicationUser.UserID;
@@ -197,18 +217,19 @@
             else
             {
                 var request = new InsertOrUpdateAttributeGroupCheckBox
-                    {
-                        AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
-                        Description = editablePlant.Description,
-                        Value = editablePlant.Value,
-                        ParentId = editablePlant.ParentId,
-                        AttributeId = AttributeDetails.AttributeID,
-                        StatusCodeID = editablePlant.StatusCodeID,
-                        AddedByUserID = editablePlant.AddedByUserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = editablePlant.AddedDate,
-                        ModifiedDate = DateTime.Now,
-                    };
+                {
+                    AttributeGroupCheckBoxId = editablePlant.AttributeGroupCheckBoxId,
+                    Description = editablePlant.Description,
+                    Value = editablePlant.Value,
+                    ParentId = editablePlant.ParentId,
+                    AttributeId = AttributeDetails.AttributeID,
+                    StatusCodeID = editablePlant.StatusCodeID,
+                    AddedByUserID = editablePlant.AddedByUserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = editablePlant.AddedDate,
+                    ModifiedDate = DateTime.Now,
+                    IsTextBox = editablePlant.IsTextBox,
+                };
                 var result = await Mediator.Send(request);
                 await LoadData();
                 toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -229,6 +250,7 @@
     }
     async Task addNew()
     {
+        //isMainForm = false;
         await TreeList.StartEditNewRowAsync();
     }
     void onBack()

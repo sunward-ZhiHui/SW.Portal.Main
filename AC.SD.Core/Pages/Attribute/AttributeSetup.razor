@@ -33,6 +33,7 @@
                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                                             <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
                                             <DxMenuItem Text="Add Sub Controls" IconCssClass="fa fa-wpforms" Click="@AddSubFormPopup" Enabled="IsCheckBoxEnabled" />
+                                            <DxMenuItem Text="Add Group CheckBox" IconCssClass="fa fa-check-square" Click="@addGroupCheckBox" Enabled="@IsGroupCheckBoxEnabled" />
                                         </Items>
                                     </DxMenu>
                                 </div>
@@ -251,7 +252,25 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AddGroupCheckBoxEnabled"
+         ShowFooter="false"
+         HeaderText="Add Group CheckBox"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px"
+         CloseOnEscape="false" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <AttributeGroupCheckBoxList @ref="refAttributeGroupCheckBoxList" applicationUser="@applicationUser" RevokeBack="CloseSubFormPopup" AttributeDetails="@Data"></AttributeGroupCheckBoxList>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private AttributeGroupCheckBoxList refAttributeGroupCheckBoxList { get; set; }
+    bool IsGroupCheckBoxEnabled { get; set; } = false;
+    bool AddGroupCheckBoxEnabled { get; set; } = false;
     private IDisposable? DynamicFormPage;
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -350,7 +369,7 @@
 
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         DynamicFormPage?.Dispose();
         refAttributeSubFormSetupList?.DisposeAsync();
         RefDetails?.DisposeAsync();
@@ -371,7 +390,7 @@
         _dynamicFormFilter?.Clear();
         dynamicFormSectionSpinEdit?.Clear();
         _dynamicForm?.Clear(); _dynamicForms?.Clear();
-       
+
         //GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
@@ -381,7 +400,7 @@
     }
     void CloseSubFormPopup()
     {
-        AddPopup = false;
+        AddPopup = false; AddGroupCheckBoxEnabled = false;
         StateHasChanged();
     }
     void AddSubFormPopup()
@@ -503,7 +522,7 @@
         ActiveTabIndex = 0;
         AttributeDetailsEnabled = false; isGridForm = false; DataSourceTable = null;
         Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;
-        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null; IsCheckBoxEnabled = false;
+        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null; IsCheckBoxEnabled = false; IsGroupCheckBoxEnabled = false;
         _dynamicForms = new List<DynamicForm>();
         _dynamicForms = _dynamicForm;
         loadPlantItems();
@@ -622,6 +641,10 @@
             {
                 IsCheckBoxEnabled = true;
             }
+            if (Data.ControlTypeId == 2715)
+            {
+                IsGroupCheckBoxEnabled = true;
+            }
             var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == Data.ControlTypeId)?.CodeValue;
             if (controlType != null)
             {
@@ -694,7 +717,7 @@
         isDropDownType = false; isDataSource = false; IsDynamicFormDropTagBoxEnabled = false;
         isDisplay = "display:none;";
         isDisplay1 = ""; AttributeDetailsEnabled = false; DataSourceTable = null; IsCheckBoxEnabled = false; isListMultiple = false; IsSpinEditTypeEnabled = false;
-        IsRadioLayoutEnabled = false;
+        IsRadioLayoutEnabled = false; IsGroupCheckBoxEnabled = false;
         if (header != null)
         {
             if (header.AttributeID > 0)
@@ -721,7 +744,7 @@
             Data.IsSubForm = null;
             Data.SubAttributeDetailId = null;
             Data.SubAttributeId = null; IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
-            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null; IsCheckBoxEnabled = false;
+            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null; IsCheckBoxEnabled = false; IsGroupCheckBoxEnabled = false;
             loadPlantItems();
             if (Data.AttributeID > 0)
             {
@@ -805,6 +828,10 @@
             {
                 IsCheckBoxEnabled = true;
             }
+            if (_master.ControlTypeId == 2715)
+            {
+                IsGroupCheckBoxEnabled = true;
+            }
             if (_master.FormUsedCount > 0)
             {
                 isEdit = false;
@@ -872,6 +899,10 @@
                 IsRadioLayoutEnabled = true;
             }
         }
+    }
+    void addGroupCheckBox()
+    {
+        AddGroupCheckBoxEnabled = true;
     }
     void OnTemplateUploadRadioGroupValueChanged(string? radioValue)
     {

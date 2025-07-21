@@ -51,6 +51,8 @@ namespace Core.Entities
         public long? CloneDynamicFormId { get; set; }
         public long? OldDynamicFormId { get; set; }
         public int? SortBy { get; set; }
+        public string? SopNo { get; set; }
+        public string? VersionNo { get; set; }
     }
     public class AddTempSectionAttribute
     {
@@ -59,6 +61,7 @@ namespace Core.Entities
         public Type? DataType { get; set; }
         public string? DynamicAttributeFieldName { get; set; }
         public string? UniqueId { get; set; }
+        public string? ControlType { get; set; }
     }
     public class DynamicFormDataListItems
     {

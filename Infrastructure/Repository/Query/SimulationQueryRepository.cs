@@ -188,51 +188,63 @@ namespace Infrastructure.Repository.Query
                         s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
                         s.Month1_ = s.Month1 == 0 ? null : s.Month1;
                         s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
-                        s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                        //s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                        s.ProductionProjected1_ = (s.Month1 + s.ProjectedHoldingStock1) - s.BlanketAddhoc1;
                         s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
                         s.Month2_ = s.Month2 == 0 ? null : s.Month2;
                         s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
-                        s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                        s.ProductionProjected2_ = (s.Month2 + s.ProjectedHoldingStock2) - s.BlanketAddhoc2;
+                        //s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
                         s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
                         s.Month3_ = s.Month3 == 0 ? null : s.Month3;
                         s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
-                        s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                        s.ProductionProjected3_ = (s.Month3 + s.ProjectedHoldingStock3) - s.BlanketAddhoc3;
+                        //s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
                         s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
                         s.Month4_ = s.Month4 == 0 ? null : s.Month4;
                         s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
-                        s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                        s.ProductionProjected4_ = (s.Month4 + s.ProjectedHoldingStock4) - s.BlanketAddhoc4;
+                        //s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
                         s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
                         s.Month5_ = s.Month5 == 0 ? null : s.Month5;
                         s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
-                        s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                        s.ProductionProjected5_ = (s.Month5 + s.ProjectedHoldingStock5) - s.BlanketAddhoc5;
+                        //s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
                         s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
                         s.Month6_ = s.Month6 == 0 ? null : s.Month6;
                         s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
-                        s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                        s.ProductionProjected6_ = (s.Month6 + s.ProjectedHoldingStock6) - s.BlanketAddhoc6;
+                        //s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
                         s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
                         s.Month7_ = s.Month7 == 0 ? null : s.Month7;
                         s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
-                        s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                        //s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                        s.ProductionProjected7_ = (s.Month7 + s.ProjectedHoldingStock7) - s.BlanketAddhoc7;
                         s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
                         s.Month8_ = s.Month8 == 0 ? null : s.Month8;
                         s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
-                        s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                        //s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                        s.ProductionProjected8_ = (s.Month8 + s.ProjectedHoldingStock8) - s.BlanketAddhoc8;
                         s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
                         s.Month9_ = s.Month9 == 0 ? null : s.Month9;
                         s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
-                        s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                        //s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                        s.ProductionProjected9_ = (s.Month9 + s.ProjectedHoldingStock9) - s.BlanketAddhoc9;
                         s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
                         s.Month10_ = s.Month10 == 0 ? null : s.Month10;
                         s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
-                        s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                        //s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                        s.ProductionProjected10_ = (s.Month10 + s.ProjectedHoldingStock10) - s.BlanketAddhoc10;
                         s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
                         s.Month11_ = s.Month11 == 0 ? null : s.Month11;
                         s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
-                        s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                        //s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                        s.ProductionProjected11_ = (s.Month11 + s.ProjectedHoldingStock11) - s.BlanketAddhoc11;
                         s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
                         s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                         s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
-                        s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                        //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                        s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
                         var GroupTicket1 = s.GroupItemTicket1 + "," + s.GroupTicket1;
                         if (GroupTicket1 != null)
                         {
@@ -1846,51 +1858,63 @@ namespace Infrastructure.Repository.Query
                     s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
                     s.Month1_ = s.Month1 == 0 ? null : s.Month1;
                     s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
-                    s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    //s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    s.ProductionProjected1_ = (s.Month1 + s.ProjectedHoldingStock1) - s.BlanketAddhoc1;
                     s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
                     s.Month2_ = s.Month2 == 0 ? null : s.Month2;
                     s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
-                    s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                    s.ProductionProjected2_ = (s.Month2 + s.ProjectedHoldingStock2) - s.BlanketAddhoc2;
+                    //s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
                     s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
                     s.Month3_ = s.Month3 == 0 ? null : s.Month3;
                     s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
-                    s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                    s.ProductionProjected3_ = (s.Month3 + s.ProjectedHoldingStock3) - s.BlanketAddhoc3;
+                    //s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
                     s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
                     s.Month4_ = s.Month4 == 0 ? null : s.Month4;
                     s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
-                    s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                    s.ProductionProjected4_ = (s.Month4 + s.ProjectedHoldingStock4) - s.BlanketAddhoc4;
+                    //s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
                     s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
                     s.Month5_ = s.Month5 == 0 ? null : s.Month5;
                     s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
-                    s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                    s.ProductionProjected5_ = (s.Month5 + s.ProjectedHoldingStock5) - s.BlanketAddhoc5;
+                    //s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
                     s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
                     s.Month6_ = s.Month6 == 0 ? null : s.Month6;
                     s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
-                    s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                    s.ProductionProjected6_ = (s.Month6 + s.ProjectedHoldingStock6) - s.BlanketAddhoc6;
+                    //s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
                     s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
                     s.Month7_ = s.Month7 == 0 ? null : s.Month7;
                     s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
-                    s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    //s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    s.ProductionProjected7_ = (s.Month7 + s.ProjectedHoldingStock7) - s.BlanketAddhoc7;
                     s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
                     s.Month8_ = s.Month8 == 0 ? null : s.Month8;
                     s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
-                    s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    //s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    s.ProductionProjected8_ = (s.Month8 + s.ProjectedHoldingStock8) - s.BlanketAddhoc8;
                     s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
                     s.Month9_ = s.Month9 == 0 ? null : s.Month9;
                     s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
-                    s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    //s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    s.ProductionProjected9_ = (s.Month9 + s.ProjectedHoldingStock9) - s.BlanketAddhoc9;
                     s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
                     s.Month10_ = s.Month10 == 0 ? null : s.Month10;
                     s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
-                    s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    //s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    s.ProductionProjected10_ = (s.Month10 + s.ProjectedHoldingStock10) - s.BlanketAddhoc10;
                     s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
                     s.Month11_ = s.Month11 == 0 ? null : s.Month11;
                     s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
-                    s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    //s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    s.ProductionProjected11_ = (s.Month11 + s.ProjectedHoldingStock11) - s.BlanketAddhoc11;
                     s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
                     s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                     s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
-                    s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
                     s.NoOfTicket1_ = s.NoOfTicket1;
                     s.NoOfTicket2_ = s.NoOfTicket2;
                     s.NoOfTicket3_ = s.NoOfTicket3;
@@ -2155,7 +2179,7 @@ namespace Infrastructure.Repository.Query
             return acreports.OrderBy(o => o.ItemNo).ToList();
 
         }
-        
+
         private async Task<List<INPCalendarPivotModel>> SimulationAddhocV33(DateRangeModel endDate, List<NAVRecipesModel> recipeList, List<NAVRecipesModel> _orderRecipeList)
         {
             var categoryList = new List<string>
@@ -2558,9 +2582,9 @@ namespace Infrastructure.Repository.Query
                             OrderRecipeLists = Orderitemreceips,
                             IsSteroid = ac.Steroid.GetValueOrDefault(false),
                             SalesCategoryId = ac.CategoryId,
-                            SalesCategory= salesCatLists.Where(w=>w.Id== ac.CategoryId).FirstOrDefault()?.Text,
+                            SalesCategory = salesCatLists.Where(w => w.Id == ac.CategoryId).FirstOrDefault()?.Text,
                             LocationID = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).LocationId : null,
-                           // SalesCategory = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).Code : "",
+                            // SalesCategory = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).Code : "",
                             MethodCodeId = ac.NavMethodCodeLines.Count > 0 ? ac.NavMethodCodeLines.First().MethodCodeId : -1,
                             GenericCodeID = ac.GenericCodeId,
                             Customer = custmerItem.DistName,
@@ -3299,7 +3323,7 @@ namespace Infrastructure.Repository.Query
                                 SalesCategoryId = ac.CategoryId,
                                 SalesCategory = salesCatLists.Where(w => w.Id == ac.CategoryId).FirstOrDefault()?.Text,
                                 LocationID = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).LocationId : null,
-                               // SalesCategory = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).Code : "",
+                                // SalesCategory = categoryItems != null && categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId) != null ? categoryItems.FirstOrDefault(a => a.SaleCategoryId == ac.CategoryId).Code : "",
                                 MethodCodeId = ac.NavMethodCodeLines.Count > 0 ? ac.NavMethodCodeLines.First().MethodCodeId : -1,
                                 GenericCodeID = ac.GenericCodeId,
                                 AddhocCust = adhoc.Categories,
@@ -3536,51 +3560,63 @@ namespace Infrastructure.Repository.Query
                     s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
                     s.Month1_ = s.Month1 == 0 ? null : s.Month1;
                     s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
-                    s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    //s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    s.ProductionProjected1_ = (s.Month1 + s.ProjectedHoldingStock1) - s.BlanketAddhoc1;
                     s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
                     s.Month2_ = s.Month2 == 0 ? null : s.Month2;
                     s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
-                    s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                    s.ProductionProjected2_ = (s.Month2 + s.ProjectedHoldingStock2) - s.BlanketAddhoc2;
+                    //s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
                     s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
                     s.Month3_ = s.Month3 == 0 ? null : s.Month3;
                     s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
-                    s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                    s.ProductionProjected3_ = (s.Month3 + s.ProjectedHoldingStock3) - s.BlanketAddhoc3;
+                    //s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
                     s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
                     s.Month4_ = s.Month4 == 0 ? null : s.Month4;
                     s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
-                    s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                    s.ProductionProjected4_ = (s.Month4 + s.ProjectedHoldingStock4) - s.BlanketAddhoc4;
+                    //s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
                     s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
                     s.Month5_ = s.Month5 == 0 ? null : s.Month5;
                     s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
-                    s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                    s.ProductionProjected5_ = (s.Month5 + s.ProjectedHoldingStock5) - s.BlanketAddhoc5;
+                    //s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
                     s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
                     s.Month6_ = s.Month6 == 0 ? null : s.Month6;
                     s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
-                    s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                    s.ProductionProjected6_ = (s.Month6 + s.ProjectedHoldingStock6) - s.BlanketAddhoc6;
+                    //s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
                     s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
                     s.Month7_ = s.Month7 == 0 ? null : s.Month7;
                     s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
-                    s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    //s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    s.ProductionProjected7_ = (s.Month7 + s.ProjectedHoldingStock7) - s.BlanketAddhoc7;
                     s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
                     s.Month8_ = s.Month8 == 0 ? null : s.Month8;
                     s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
-                    s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    //s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    s.ProductionProjected8_ = (s.Month8 + s.ProjectedHoldingStock8) - s.BlanketAddhoc8;
                     s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
                     s.Month9_ = s.Month9 == 0 ? null : s.Month9;
                     s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
-                    s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    //s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    s.ProductionProjected9_ = (s.Month9 + s.ProjectedHoldingStock9) - s.BlanketAddhoc9;
                     s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
                     s.Month10_ = s.Month10 == 0 ? null : s.Month10;
                     s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
-                    s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    //s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    s.ProductionProjected10_ = (s.Month10 + s.ProjectedHoldingStock10) - s.BlanketAddhoc10;
                     s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
                     s.Month11_ = s.Month11 == 0 ? null : s.Month11;
                     s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
-                    s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    //s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    s.ProductionProjected11_ = (s.Month11 + s.ProjectedHoldingStock11) - s.BlanketAddhoc11;
                     s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
                     s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                     s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
-                    s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
                     s.NoOfTicket1_ = s.NoOfTicket1;
                     s.NoOfTicket2_ = s.NoOfTicket2;
                     s.NoOfTicket3_ = s.NoOfTicket3;
@@ -3592,7 +3628,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket1 != null)
                     {
                         var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
-                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null;;
+                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null; ;
                         var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
                         if (tick1_ != null && tick1_.Count > 0)
                         {
@@ -5238,51 +5274,63 @@ namespace Infrastructure.Repository.Query
                     s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
                     s.Month1_ = s.Month1 == 0 ? null : s.Month1;
                     s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
-                    s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    //s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    s.ProductionProjected1_ = (s.Month1 + s.ProjectedHoldingStock1) - s.BlanketAddhoc1;
                     s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
                     s.Month2_ = s.Month2 == 0 ? null : s.Month2;
                     s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
-                    s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                    s.ProductionProjected2_ = (s.Month2 + s.ProjectedHoldingStock2) - s.BlanketAddhoc2;
+                    //s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
                     s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
                     s.Month3_ = s.Month3 == 0 ? null : s.Month3;
                     s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
-                    s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                    s.ProductionProjected3_ = (s.Month3 + s.ProjectedHoldingStock3) - s.BlanketAddhoc3;
+                    //s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
                     s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
                     s.Month4_ = s.Month4 == 0 ? null : s.Month4;
                     s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
-                    s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                    s.ProductionProjected4_ = (s.Month4 + s.ProjectedHoldingStock4) - s.BlanketAddhoc4;
+                    //s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
                     s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
                     s.Month5_ = s.Month5 == 0 ? null : s.Month5;
                     s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
-                    s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                    s.ProductionProjected5_ = (s.Month5 + s.ProjectedHoldingStock5) - s.BlanketAddhoc5;
+                    //s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
                     s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
                     s.Month6_ = s.Month6 == 0 ? null : s.Month6;
                     s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
-                    s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                    s.ProductionProjected6_ = (s.Month6 + s.ProjectedHoldingStock6) - s.BlanketAddhoc6;
+                    //s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
                     s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
                     s.Month7_ = s.Month7 == 0 ? null : s.Month7;
                     s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
-                    s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    //s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    s.ProductionProjected7_ = (s.Month7 + s.ProjectedHoldingStock7) - s.BlanketAddhoc7;
                     s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
                     s.Month8_ = s.Month8 == 0 ? null : s.Month8;
                     s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
-                    s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    //s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    s.ProductionProjected8_ = (s.Month8 + s.ProjectedHoldingStock8) - s.BlanketAddhoc8;
                     s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
                     s.Month9_ = s.Month9 == 0 ? null : s.Month9;
                     s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
-                    s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    //s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    s.ProductionProjected9_ = (s.Month9 + s.ProjectedHoldingStock9) - s.BlanketAddhoc9;
                     s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
                     s.Month10_ = s.Month10 == 0 ? null : s.Month10;
                     s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
-                    s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    //s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    s.ProductionProjected10_ = (s.Month10 + s.ProjectedHoldingStock10) - s.BlanketAddhoc10;
                     s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
                     s.Month11_ = s.Month11 == 0 ? null : s.Month11;
                     s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
-                    s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    //s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    s.ProductionProjected11_ = (s.Month11 + s.ProjectedHoldingStock11) - s.BlanketAddhoc11;
                     s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
                     s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                     s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
-                    s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
                     s.NoOfTicket1_ = s.NoOfTicket1;
                     s.NoOfTicket2_ = s.NoOfTicket2;
                     s.NoOfTicket3_ = s.NoOfTicket3;
@@ -5294,7 +5342,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket1 != null)
                     {
                         var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
-                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null;;
+                        s.NoOfTicketCount1_ = tic1.Count() > 0 ? tic1.Count() : null; ;
                         var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
                         if (tick1_ != null && tick1_.Count > 0)
                         {
@@ -5316,7 +5364,7 @@ namespace Infrastructure.Repository.Query
                     if (GroupTicket2 != null)
                     {
                         var tic2 = GroupTicket2.Split(",").ToList().Where(w => w != "," && w != "").ToList();
-                        s.NoOfTicketCount2_ = tic2.Count() > 0 ? tic2.Count() : null;;
+                        s.NoOfTicketCount2_ = tic2.Count() > 0 ? tic2.Count() : null; ;
                         var tick2_ = tic2.Distinct().ToList(); s.Ticket2 = "";
                         if (tick2_ != null && tick2_.Count > 0)
                         {

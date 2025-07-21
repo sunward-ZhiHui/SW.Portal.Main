@@ -50,7 +50,7 @@
                                 <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
                                 @* <DxMenuItem Text="Filter DropDown List" IconCssClass="fa fa-external-link" Click="@OpenFilterDropDownOdataUrl" Enabled="@EditEnabled" /> *@
                                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
-                               @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" /> *@
+                                @*  <DxMenuItem Text="OData Url 1" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl1" Enabled="@EditEnabled" /> *@
                                 <DxMenuItem Text="OData Url Paging" IconCssClass="fa fa-external-link" Click="@OpenOdataUrlPaging" Enabled="@EditEnabled" />
                             </Items>
                         </DxMenuItem>
@@ -84,7 +84,7 @@
                                     TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
                                     Value="@Data.CompanyId"
-                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueExpression="@(() => Data.CompanyId)"
                                     ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true">
@@ -109,7 +109,7 @@
                                     TextFieldName="Name"
                                     ValueFieldName="ProfileID"
                                     Value="@Data.ProfileId"
-                                    ValueExpression="@(() => Data.ProfileId )"
+                                    ValueExpression="@(() => Data.ProfileId)"
                                     ValueChanged="@((long? plantData) => SelectedProfileChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true">
@@ -153,7 +153,16 @@
                         <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SOP NO" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.SopNo" ShowValidationIcon="true"></DxTextBox>
 
+                        <ValidationMessage For="@(() => Data.SopNo)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Version No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.VersionNo" ShowValidationIcon="true"></DxTextBox>
+
+                        <ValidationMessage For="@(() => Data.VersionNo)" />
+                    </DxFormLayoutItem>
                     @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
                     </DxFormLayoutItem>
@@ -241,7 +250,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsFileProfileTypeFilterDocOpen = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -439,7 +448,7 @@
         Data.SessionId = null;
         Data.IsGridForm = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
-        Data.IsApproval = false;
+        Data.IsApproval = false; Data.SopNo = null; Data.VersionNo = null;
         Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
         {
@@ -464,7 +473,7 @@
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;
-                Data.IsGridForm = dynamicFormData.IsGridForm;
+                Data.IsGridForm = dynamicFormData.IsGridForm; Data.SopNo = dynamicFormData.SopNo; Data.VersionNo = dynamicFormData.VersionNo;
                 if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);
@@ -648,22 +657,24 @@
         if (Data.ID > 0)
         {
             var editReq = new EditDynamicForm
-                {
-                    ID = Data.ID,
-                    Name = Data.Name,
-                    ScreenID = Data.ScreenID,
-                    SessionID = Data.SessionID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = DateTime.Now,
-                    IsApproval = Data.IsApproval,
-                    IsUpload = Data.IsUpload,
-                    CompanyId = Data.CompanyId,
-                    ProfileId = Data.ProfileId,
-                    IsGridForm = Data.IsGridForm,
-                    FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
-                };
+            {
+                ID = Data.ID,
+                Name = Data.Name,
+                ScreenID = Data.ScreenID,
+                SessionID = Data.SessionID,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = DateTime.Now,
+                IsApproval = Data.IsApproval,
+                IsUpload = Data.IsUpload,
+                CompanyId = Data.CompanyId,
+                ProfileId = Data.ProfileId,
+                IsGridForm = Data.IsGridForm,
+                VersionNo = Data.VersionNo,
+                SopNo = Data.SopNo,
+                FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
+            };
 
             await Mediator.Send(editReq);
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -674,21 +685,23 @@
         else
         {
             var createReq = new CreateDynamicForm
-                {
-                    Name = Data.Name,
-                    ScreenID = Data.ScreenID,
-                    SessionID = Guid.NewGuid(),
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = DateTime.Now,
-                    IsApproval = Data.IsApproval,
-                    CompanyId = Data.CompanyId,
-                    ProfileId = Data.ProfileId,
-                    IsGridForm = Data.IsGridForm,
-                    FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
-                };
+            {
+                Name = Data.Name,
+                ScreenID = Data.ScreenID,
+                SessionID = Guid.NewGuid(),
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = DateTime.Now,
+                IsApproval = Data.IsApproval,
+                CompanyId = Data.CompanyId,
+                ProfileId = Data.ProfileId,
+                IsGridForm = Data.IsGridForm,
+                VersionNo = Data.VersionNo,
+                SopNo = Data.SopNo,
+                FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
+            };
             var result = await Mediator.Send(createReq);
             if (result > 0)
             {
@@ -764,16 +777,18 @@
         foldersListItems, DocumentsModel s, List<string>
         foldersModel, FileProfileTypeModel fileProfileTypeModel)
     {
-
-        if (s.ParentId != null)
+        if (s != null)
         {
-            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
-            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
-            foldersModel.Add(items.FileName);
-        }
-        else if (s.ParentId == null)
-        {
-            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+            if (s.ParentId != null)
+            {
+                var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+                GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+                foldersModel.Add(items.FileName);
+            }
+            else if (s.ParentId == null)
+            {
+                fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+            }
         }
         return fileProfileTypeModel;
     }

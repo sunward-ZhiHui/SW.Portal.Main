@@ -54,6 +54,38 @@
         display: none;
     }
 </style>
+<style scoped>
+    .table-responsives {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #customers {
+        /* font-family: Arial, Helvetica, sans-serif;
+                                                                                                                    border-collapse: collapse;*/
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+</style>
 <script>
     function htmlpdfGenerate() {
         var element = document.getElementById('htmlPdfPrint');
@@ -757,8 +789,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectName" Click=@(()=> OnUpdateDescription()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectName" Click=@(() => OnUpdateDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@PopupUpload"
@@ -807,7 +839,7 @@
         <span>@DynamicFormInfoSection?.Instruction</span>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSectionInfoOpen = false) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSectionInfoOpen = false) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout @bind-IsOpen=IsTooltipInfoOpen
@@ -826,7 +858,7 @@
         <span>@_tooltipInstruction</span>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsTooltipInfoOpen = false) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsTooltipInfoOpen = false) />
     </FooterContentTemplate>
 </DxFlyout>
 
@@ -882,8 +914,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsWokFlowDescriptionOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectWokFlowName" Click=@(()=> OnUpdateWorkFlowDescription()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsWokFlowDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectWokFlowName" Click=@(() => OnUpdateWorkFlowDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@IsSectionLockOpen"
@@ -956,7 +988,86 @@
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=dynamicFormSectionAttrFormulaEnabled
+          PositionTarget=@($"#flyout-overview-target-container-SectionAttrFormula-{dynamicFormSectionAttrFormulaFunction1?.DynamicFormSectionAttributeId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Set Range"
+          FooterVisible="true"
+          CloseOnOutsideClick="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 250px)"
+          Position=@(FlyoutPosition.Left | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="table-responsives" style="width:100%">
+
+            <table style="width:100%" id="customers">
+                @if (@dynamicFormSectionAttrFormulaFunction1?.DynamicFormSectionAttributeId > 0)
+                {
+                    string formatteds = string.Empty;
+                    if (dynamicFormSectionAttrFormulaFunction1.AValue > 0)
+                    {
+                        decimal value = (decimal)dynamicFormSectionAttrFormulaFunction1.AValue;
+                        formatteds = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                    }
+                    <tr>
+                        <th>Type</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.Type</td>
+                    </tr>
+                    <tr>
+                        <th>Range Formula</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.FormulaFunctionName</td>
+                    </tr>
+                    <tr>
+                        <th>AValue</th>
+                        <td>@formatteds</td>
+                    </tr>
+                    if (@dynamicFormSectionAttrFormulaFunction1.IsBValueEnabled == true)
+                    {
+                        string formatted = string.Empty;
+                        if (dynamicFormSectionAttrFormulaFunction1.BValue > 0)
+                        {
+                            decimal value = (decimal)dynamicFormSectionAttrFormulaFunction1.BValue;
+                            formatted = value % 1 == 0 ? ((int)value).ToString() : value.ToString();
+                        }
+                        <tr>
+                            <th>BValue</th>
+                            <td>@formatted</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>Color Value</th>
+                        <td><input type="color" style="pointer-events:none;" @bind="dynamicFormSectionAttrFormulaFunction1.ColorValue" /></td>
+                    </tr>
+                    <tr>
+                        <th>Color Code</th>
+                        <td>@dynamicFormSectionAttrFormulaFunction1?.ColorValue</td>
+                    </tr>
+                    @* @if (!string.IsNullOrEmpty(dynamicFormSectionAttrFormulaFunction1.FormulaTextBox))
+                    {
+                        <tr>
+                        <th>Calculation Formula</th>
+                            <td>@dynamicFormSectionAttrFormulaFunction1?.FormulaTextBox</td>
+                    </tr>
+                    } *@
+                }
+                else
+                {
+                    <tr><td colspan="2">No Records Found.</td></tr>
+                }
+            </table>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => dynamicFormSectionAttrFormulaEnabled = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    bool dynamicFormSectionAttrFormulaEnabled { get; set; } = false;
+    DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
     bool imageUploadPopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     private AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList refDynamicFormUploadImageList { get; set; }
@@ -1335,7 +1446,7 @@
     {
         await onshowLoading();
 
-        _DropDownBoxGridModel = new List<DropDownBoxGridModel>(); _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
+        _DropDownBoxGridModel = new List<DropDownBoxGridModel>(); _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>(); dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
         IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; EditEnabled = false;
         _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
@@ -1705,6 +1816,7 @@
                                 addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + a.DisplayName;
                                 addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_";
                                 addTempSectionAttribute.ID = a.DynamicFormSectionAttributeId;
+                                addTempSectionAttribute.ControlType = a.ControlType;
                                 addTempSectionAttributes.Add(addTempSectionAttribute);
                                 if (a.ControlTypeId == 2704)
                                 {
@@ -1722,6 +1834,7 @@
                                         addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster_" + ab.ApplicationMasterName;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster_";
+                                        addTempSectionAttribute.ControlType = a.ControlType;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
                                         {
@@ -1734,11 +1847,12 @@
                                             addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
                                             addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_";
                                             addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_" + ab.ApplicationMasterName;
+                                            addTempSectionAttribute.ControlType = a.IsDynamicFormGridDropdownMultiple == true ? "TagBox" : "ComboBox";
                                             addTempSectionAttributes.Add(addTempSectionAttributesss);
                                         }
                                     });
                                 }
-                                if (a.ControlTypeId == 2710)
+                                if (a.ControlTypeId == 2715)
                                 {
                                     var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
                                     if (_attributeGroupCheckBoxes.Count() > 0)
@@ -1746,13 +1860,14 @@
                                         _attributeGroupCheckBoxes.ForEach(r =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                                            typesLists.Add(a.DataType);
+                                            typesLists.Add(r.IsTextBox == true ? typeof(string) : a.DataType);
                                             objectNameLists.Add(nameData);
                                             AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
-                                            addTempSectionAttributess.DataType = a.DataType;
+                                            addTempSectionAttributess.DataType = r.IsTextBox == true ? typeof(string) : a.DataType;
                                             addTempSectionAttributess.DynamicAttributeName = nameData;
                                             addTempSectionAttribute.DynamicAttributeFieldName = nameData;
                                             addTempSectionAttribute.UniqueId = nameData;
+                                            addTempSectionAttribute.ControlType = r.IsTextBox == true ? "Memo" : "GroupCheckBox";
                                             addTempSectionAttributes.Add(addTempSectionAttributess);
                                         });
                                     }
@@ -1772,6 +1887,7 @@
                                             addTempSectionAttributess.DynamicAttributeName = nameData;
                                             addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + r + "_DynamicGrid" + a.DisplayName;
                                             addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + r + "_DynamicGrid_";
+                                            addTempSectionAttribute.ControlType = a.ControlType;
                                             addTempSectionAttributes.Add(addTempSectionAttributess);
                                         });
                                     }
@@ -1788,6 +1904,7 @@
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar_" + ab.ApplicationMasterName;
                                         addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar_";
+                                        addTempSectionAttribute.ControlType = a.ControlType;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         loadApplicationMasterParentDataList(a, ab, typesLists, objectNameLists);
                                         if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
@@ -1801,6 +1918,7 @@
                                             addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
                                             addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_" + ab.ApplicationMasterName;
                                             addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster_";
+                                            addTempSectionAttribute.ControlType = a.IsDynamicFormGridDropdownMultiple == true ? "TagBox" : "ComboBox";
                                             addTempSectionAttributes.Add(addTempSectionAttributesss);
                                         }
                                     });
@@ -1820,6 +1938,7 @@
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributess.DynamicAttributeFieldName = nameData;
                                         addTempSectionAttributess.UniqueId = nameData + "_";
+                                        addTempSectionAttribute.ControlType = a.IsDependencyMultiple == true ? "TagBox" : "ComboBox";
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                     });
                                     if (a.IsSetDefaultValue == true)
@@ -1848,6 +1967,7 @@
                                                         addTempSectionAttribute.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
                                                         addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + d.Description;
                                                         addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_";
+                                                        addTempSectionAttribute.ControlType = d.ControlType;
                                                         addTempSectionAttributes.Add(addTempSectionAttribute);
                                                         typesLists.Add(d.SubDataType);
                                                         objectNameLists.Add(a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName);
@@ -1858,6 +1978,7 @@
                                                                 AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
                                                                 var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                                                                 addTempSectionAttributeSub.DataType = d.SubDataType;
+                                                                addTempSectionAttributeSub.ControlType = d.ControlType;
                                                                 addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
                                                                 addTempSectionAttributeSub.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_";
                                                                 addTempSectionAttributeSub.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_" + ab.ApplicationMasterName;
@@ -1891,6 +2012,7 @@
                                                         {
                                                             AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                                             addTempSectionAttribute.DataType = d.SubDataType;
+                                                            addTempSectionAttribute.ControlType = d.ControlType;
                                                             addTempSectionAttribute.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName;
                                                             addTempSectionAttribute.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_";
                                                             addTempSectionAttribute.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + d.Description;
@@ -1904,6 +2026,7 @@
                                                                     AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
                                                                     var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                                                                     addTempSectionAttributeSub.DataType = d.SubDataType;
+                                                                    addTempSectionAttributeSub.ControlType = d.ControlType;
                                                                     addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
                                                                     addTempSectionAttributeSub.DynamicAttributeFieldName = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_" + ab.ApplicationMasterName;
                                                                     addTempSectionAttributeSub.UniqueId = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster_";
@@ -1937,6 +2060,7 @@
                                             var appendNames = d.DynamicFormSectionAttributeId + "_RadioCheckRemarks_" + d.AttributeName;
                                             AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                                             addTempSectionAttribute.DataType = typeof(string);
+                                            addTempSectionAttribute.ControlType = "TextBox";
                                             addTempSectionAttribute.DynamicAttributeName = appendNames;
                                             addTempSectionAttribute.DynamicAttributeFieldName = appendNames;
                                             addTempSectionAttribute.UniqueId = appendNames + "_";
@@ -2042,7 +2166,7 @@
                                             }
                                             else
                                             {
-                                                if(a.ControlType == "CheckBox")
+                                                if (a.ControlType == "GroupCheckBox")
                                                 {
                                                     var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
                                                     if (_attributeGroupCheckBoxes.Count() > 0)
@@ -2051,11 +2175,19 @@
                                                         {
                                                             var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
                                                             var NamesA = jsonObjs.ContainsKey(nameData);
-                                                            if(NamesA==true)
+                                                            if (NamesA == true)
                                                             {
                                                                 var itemValueA = jsonObjs[nameData];
-                                                                bool? valuesA = itemValueA == null ? false : (bool)itemValueA;
-                                                                Data.GetType().GetProperty(nameData).SetValue(Data, valuesA);
+                                                                if (r.IsTextBox == true)
+                                                                {
+                                                                    string? valuesA = itemValueA == null ? string.Empty : (string)itemValueA;
+                                                                    Data.GetType().GetProperty(nameData).SetValue(Data, valuesA);
+                                                                }
+                                                                else
+                                                                {
+                                                                    bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
+                                                                    Data.GetType().GetProperty(nameData).SetValue(Data, valuesA);
+                                                                }
                                                             }
                                                         });
                                                     }
@@ -2362,6 +2494,7 @@
             objectNameLists.Add(nameData);
             AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
             addTempSectionAttributess.DataType = dynamicFormSectionAttribute.DataType;
+            addTempSectionAttributess.ControlType = dynamicFormSectionAttribute.ControlType;
             addTempSectionAttributess.DynamicAttributeName = nameData;
             addTempSectionAttributess.UniqueId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar_";
             addTempSectionAttributess.DynamicAttributeFieldName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar_" + dataList.ApplicationMasterName;
@@ -3405,26 +3538,26 @@
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
                     var editReq = new InsertOrUpdateDynamicFormData
-                        {
-                            AddTempSectionAttributes = addTempSectionAttributes,
-                            DynamicFormProfile = Datas,
-                            ProfileId = _dynamicformData.ProfileId,
-                            ProfileNo = _dynamicformData.ProfileNo,
-                            DynamicFormDataId = dynamicFormData.DynamicFormDataId,
-                            DynamicFormId = _dynamicform.ID,
-                            DynamicFormItem = strJson,
-                            SessionId = dynamicFormData.SessionId,
-                            ModifiedByUserID = applicationUser.UserID,
-                            AddedByUserID = dynamicFormData.AddedByUserID,
-                            ModifiedDate = DateTime.Now,
-                            StatusCodeID = 1,
-                            AddedDate = dynamicFormData.AddedDate,
-                            AttributeHeader = _AttributeHeader,
-                            ObjectData = Data,
-                            IsSendApproval = IsSendApproval,
-                            FileProfileSessionID = FileProfileSessionId,
-                            DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
-                        };
+                    {
+                        AddTempSectionAttributes = addTempSectionAttributes,
+                        DynamicFormProfile = Datas,
+                        ProfileId = _dynamicformData.ProfileId,
+                        ProfileNo = _dynamicformData.ProfileNo,
+                        DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                        DynamicFormId = _dynamicform.ID,
+                        DynamicFormItem = strJson,
+                        SessionId = dynamicFormData.SessionId,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedByUserID = dynamicFormData.AddedByUserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = dynamicFormData.AddedDate,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                        FileProfileSessionID = FileProfileSessionId,
+                        DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
+                    };
 
                     var result = await Mediator.Send(editReq);
                     if (result.DynamicFormDataId > 0)
@@ -3465,22 +3598,22 @@
                 else
                 {
                     var createReq = new InsertOrUpdateDynamicFormData
-                        {
-                            AddTempSectionAttributes = addTempSectionAttributes,
-                            DynamicFormProfile = Datas,
-                            ProfileId = dynamicFormData.ProfileId,
-                            DynamicFormItem = strJson,
-                            DynamicFormId = _dynamicform.ID,
-                            SessionId = Guid.NewGuid(),
-                            AddedByUserID = applicationUser.UserID,
-                            ModifiedByUserID = applicationUser.UserID,
-                            ModifiedDate = DateTime.Now,
-                            StatusCodeID = 1,
-                            AddedDate = DateTime.Now,
-                            AttributeHeader = _AttributeHeader,
-                            ObjectData = Data,
-                            IsSendApproval = IsSendApproval,
-                        };
+                    {
+                        AddTempSectionAttributes = addTempSectionAttributes,
+                        DynamicFormProfile = Datas,
+                        ProfileId = dynamicFormData.ProfileId,
+                        DynamicFormItem = strJson,
+                        DynamicFormId = _dynamicform.ID,
+                        SessionId = Guid.NewGuid(),
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = DateTime.Now,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                    };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
                     {
@@ -3538,26 +3671,28 @@
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
                     var editReq = new InsertOrUpdateDynamicFormData
-                        {
-                            AddTempSectionAttributes = addTempSectionAttributes,
-                            DynamicFormProfile = Datas,
-                            ProfileId = _dynamicformData.ProfileId,
-                            ProfileNo = _dynamicformData.ProfileNo,
-                            DynamicFormDataId = dynamicFormData.DynamicFormDataId,
-                            DynamicFormId = _dynamicform.ID,
-                            DynamicFormItem = strJson,
-                            SessionId = dynamicFormData.SessionId,
-                            ModifiedByUserID = applicationUser.UserID,
-                            AddedByUserID = dynamicFormData.AddedByUserID,
-                            ModifiedDate = DateTime.Now,
-                            StatusCodeID = 1,
-                            AddedDate = dynamicFormData.AddedDate,
-                            AttributeHeader = _AttributeHeader,
-                            ObjectData = Data,
-                            IsSendApproval = IsSendApproval,
-                            FileProfileSessionID = FileProfileSessionId,
-                            DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
-                        };
+                    {
+                        AddTempSectionAttributes = addTempSectionAttributes,
+                        DynamicFormProfile = Datas,
+                        ProfileId = _dynamicformData.ProfileId,
+                        ProfileNo = _dynamicformData.ProfileNo,
+                        DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                        DynamicFormId = _dynamicform.ID,
+                        DynamicFormItem = strJson,
+                        SessionId = dynamicFormData.SessionId,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedByUserID = dynamicFormData.AddedByUserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = dynamicFormData.AddedDate,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                        FileProfileSessionID = FileProfileSessionId,
+                        DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
+                        DynamicFormSectionGridAttributeId = _dynamicformData.DynamicFormSectionGridAttributeId,
+                        GridSortOrderByNo = _dynamicformData.GridSortOrderByNo,
+                    };
 
                     var result = await Mediator.Send(editReq);
                     if (result.DynamicFormDataId > 0)
@@ -3598,22 +3733,22 @@
                 else
                 {
                     var createReq = new InsertOrUpdateDynamicFormData
-                        {
-                            AddTempSectionAttributes = addTempSectionAttributes,
-                            DynamicFormProfile = Datas,
-                            ProfileId = dynamicFormData.ProfileId,
-                            DynamicFormItem = strJson,
-                            DynamicFormId = _dynamicform.ID,
-                            SessionId = Guid.NewGuid(),
-                            AddedByUserID = applicationUser.UserID,
-                            ModifiedByUserID = applicationUser.UserID,
-                            ModifiedDate = DateTime.Now,
-                            StatusCodeID = 1,
-                            AddedDate = DateTime.Now,
-                            AttributeHeader = _AttributeHeader,
-                            ObjectData = Data,
-                            IsSendApproval = IsSendApproval,
-                        };
+                    {
+                        AddTempSectionAttributes = addTempSectionAttributes,
+                        DynamicFormProfile = Datas,
+                        ProfileId = dynamicFormData.ProfileId,
+                        DynamicFormItem = strJson,
+                        DynamicFormId = _dynamicform.ID,
+                        SessionId = Guid.NewGuid(),
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = DateTime.Now,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                    };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
                     {
@@ -3810,14 +3945,14 @@
             if (dynamicFormApproval.IsApproved == true)
             {
                 var createReq = new InsertDynamicFormApproved
-                    {
-                        DynamicFormId = _dynamicform.ID,
-                        DynamicFormDataId = dynamicFormData.DynamicFormDataId,
-                        DynamicFormApprovedId = dynamicFormApproval.DynamicFormApprovedId,
-                        DynamicFormApprovalId = dynamicFormApproval.DynamicFormApprovalId,
-                        ApprovedDescription = dynamicFormApproval.ApprovedDescription,
-                        IsApproved = dynamicFormApproval.IsApproved,
-                    };
+                {
+                    DynamicFormId = _dynamicform.ID,
+                    DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                    DynamicFormApprovedId = dynamicFormApproval.DynamicFormApprovedId,
+                    DynamicFormApprovalId = dynamicFormApproval.DynamicFormApprovalId,
+                    ApprovedDescription = dynamicFormApproval.ApprovedDescription,
+                    IsApproved = dynamicFormApproval.IsApproved,
+                };
                 var result = await Mediator.Send(createReq);
                 if (result.DynamicFormApprovedId > 0)
                 {
@@ -4003,17 +4138,17 @@
             if (result == true)
             {
                 var insertData = new DynamicFormData
-                    {
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        SessionId = _dynamicformData.SessionId,
-                        ProfileNo = _dynamicformData.ProfileNo,
-                        StatusCodeID = 1,
-                        DynamicFormDataId = _dynamicformData.DynamicFormDataId,
-                        BackUrl = backurl
-                    };
+                {
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = _dynamicformData.SessionId,
+                    ProfileNo = _dynamicformData.ProfileNo,
+                    StatusCodeID = 1,
+                    DynamicFormDataId = _dynamicformData.DynamicFormDataId,
+                    BackUrl = backurl
+                };
                 var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
                 if (response.DynamicFormDataId > 0)
                 {
@@ -4069,9 +4204,45 @@
         }
         StateHasChanged();
     }
+    void FormulaCalulationValues(DynamicFormSection dynamicFormSection)
+    {
+        var res = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.FormulaTextBox != null && w.FormulaTextBox != "").OrderBy(o => o.SortOrderBy).ToList();
+        if (res != null && res.Count() > 0)
+        {
+            res.ForEach(s =>
+            {
+                var property = Data.GetType().GetProperty(s.DynamicAttributeName);
+                if (property != null)
+                {
+                    FormatValesSetData(property, dynamicFormSection, s);
+                    var dynamicFormSectionAttribute = s;
+                }
+            });
+        }
+    }
+    void OnSpinEditChangedItem(decimal? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        property.SetValue(Data, str);
+        FormulaCalulationValues(dynamicFormSection);
+    }
+    void OnSpinEditChangedItem1(int? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        property.SetValue(Data, str);
+        FormulaCalulationValues(dynamicFormSection);
+    }
+    void OnSpinTextChangedItem(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute, DynamicFormSectionAttrFormulaFunction colorCodeExitss)
+    {
+        dynamicFormSectionAttrFormulaFunction1 = colorCodeExitss;
+        dynamicFormSectionAttrFormulaFunction1.FormulaTextBox = dynamicFormSectionAttribute.FormulaTextBox;
+        dynamicFormSectionAttrFormulaEnabled = true;
+    }
     void OnTextChangedItem(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
         //property.SetValue(Data, str);
+        FormatValesSetData(property, dynamicFormSection, dynamicFormSectionAttribute);
+    }
+    void FormatValesSetData(PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
         try
         {
             if (!string.IsNullOrEmpty(dynamicFormSectionAttribute.FormulaTextBox))
@@ -4301,6 +4472,7 @@
                             AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
                             var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                             addTempSectionAttributeSub.DataType = s.SubDataType;
+                            addTempSectionAttribute.ControlType = s.ControlType;
                             addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
                             addTempSectionAttributes.Add(addTempSectionAttributeSub);
                         });
@@ -4375,6 +4547,7 @@
                         AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
                         addTempSectionAttribute.DataType = dynamicFormSectionAttribute.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                         addTempSectionAttribute.DynamicAttributeName = nameData;
+                        addTempSectionAttribute.ControlType = dynamicFormSectionAttribute.IsDependencyMultiple == true ? "TagBox" : "ComboBox";
                         addTempSectionAttributes.Add(addTempSectionAttribute);
                     }
                 }
@@ -4634,6 +4807,7 @@
                             var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
                             addTempSectionAttributeSub.DataType = s.SubDataType;
                             addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                            addTempSectionAttribute.ControlType = s.ControlType;
                             addTempSectionAttributes.Add(addTempSectionAttributeSub);
                         });
                     }
@@ -5503,30 +5677,45 @@
 
                              editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                              //editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, (str) => OnTextChangedItem(str, property, a, s)));
-                             if (!string.IsNullOrEmpty(s.FormulaTextBox))
+
+                             var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                             if (!string.IsNullOrEmpty(s.FormulaTextBox) || colorCodeExits != null)
                              {
                                  editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
-                                {
-                                    dx.OpenComponent<DxEditorButton>(j + 1);
-                                    dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
-                                    dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
-                                    dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
-                                    dx.CloseComponent();
-                                }));
-                                 var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                             {
                                  if (colorCodeExits != null)
                                  {
-                                     var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
-                                     if (!string.IsNullOrEmpty(colorExitsCode))
-                                     {
-                                         editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
-                                     }
-                                     else
-                                     {
-                                         editor.AddAttribute(j + 1, "style", "color:black;");
-                                     }
+                                     dx.OpenComponent<DxEditorButton>(j + 1);
+                                     dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                                     dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExits.Type);
+                                     dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExits.DynamicFormSectionAttributeId}");
+                                     dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExits)));
+                                     dx.CloseComponent();
+                                 }
+                                 if (!string.IsNullOrEmpty(s.FormulaTextBox))
+                                 {
+                                     dx.OpenComponent<DxEditorButton>(j + 1);
+                                     dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                                     dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                                     dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                                     dx.CloseComponent();
+                                 }
+
+                             }));
+                             }
+                             if (colorCodeExits != null)
+                             {
+                                 var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
+                                 if (!string.IsNullOrEmpty(colorExitsCode))
+                                 {
+                                     editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
+                                 }
+                                 else
+                                 {
+                                     editor.AddAttribute(j + 1, "style", "color:black;");
                                  }
                              }
+
                              editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                              if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                              {
@@ -5714,7 +5903,7 @@
                                          editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                                      }
                                      editor.AddAttribute(j + 1, "BindValueMode", BindValueMode.OnInput);
-                                     editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { property.SetValue(Data, str); }));
+                                     editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => OnSpinEditChangedItem1(str, property, a, s)));
                                  }
                                  if (propertyType.Name == "Decimal")
                                  {
@@ -5731,32 +5920,46 @@
                                      }
                                      //editor.AddAttribute(j + 1, "MinValue", 0M);
 
-                                     editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
+                                     editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => OnSpinEditChangedItem(str, property, a, s)));
                                  }
-                                 if (!string.IsNullOrEmpty(s.FormulaTextBox))
+                                 var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
+                                 if (!string.IsNullOrEmpty(s.FormulaTextBox) || colorCodeExits != null)
                                  {
                                      editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
-                                    {
-                                        dx.OpenComponent<DxEditorButton>(j + 1);
-                                        dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
-                                        dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
-                                        dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
-                                        dx.CloseComponent();
-                                    }));
-                                     var colorCodeExits = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).FirstOrDefault();
-                                     if (colorCodeExits != null)
                                      {
-                                         var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
-                                         if (!string.IsNullOrEmpty(colorExitsCode))
+                                         if (colorCodeExits != null)
                                          {
-                                             editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
+                                             dx.OpenComponent<DxEditorButton>(j + 1);
+                                             dx.AddAttribute(j + 1, "IconCssClass", "fa fa-eye");
+                                             dx.AddAttribute(j + 1, "Tooltip", "Type:" + colorCodeExits.Type);
+                                             dx.AddAttribute(j + 1, "id", $"flyout-overview-target-container-SectionAttrFormula-{colorCodeExits.DynamicFormSectionAttributeId}");
+                                             dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnSpinTextChangedItem(str, property, a, s, colorCodeExits)));
+                                             dx.CloseComponent();
                                          }
-                                         else
+                                         if (!string.IsNullOrEmpty(s.FormulaTextBox))
                                          {
-                                             editor.AddAttribute(j + 1, "style", "color:black;");
+                                             dx.OpenComponent<DxEditorButton>(j + 1);
+                                             dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                                             dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                                             dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                                             dx.CloseComponent();
                                          }
+
+                                     }));
+                                 }
+                                 if (colorCodeExits != null)
+                                 {
+                                     var colorExitsCode = ExpressionEvaluatorColorCode(colorCodeExits, s);
+                                     if (!string.IsNullOrEmpty(colorExitsCode))
+                                     {
+                                         editor.AddAttribute(j + 1, "style", "color:" + colorExitsCode + ";");
+                                     }
+                                     else
+                                     {
+                                         editor.AddAttribute(j + 1, "style", "color:black;");
                                      }
                                  }
+
                                  editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                                  editor.AddAttribute(j + 1, "ValueExpression", lambda);
                              }
@@ -5794,50 +5997,52 @@
                                  }
                              }
                          }
-                         else if (s.ControlType == "CheckBox")
+                         else if (s.ControlType == "GroupCheckBox")
                          {
                              var attrGroupCheckBox = _AttributeHeader.AttributeGroupCheckBoxes.Where(w => w.AttributeId == s.AttributeId).ToList();
                              if (attrGroupCheckBox.Count() > 0)
                              {
-                                 loadGroupCheckBox(s,attrGroupCheckBox,editor,j);
+                                 loadGroupCheckBox(s, attrGroupCheckBox, editor, j);
+                             }
+
+                         }
+                         else if (s.ControlType == "CheckBox")
+                         {
+                             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+                             editor.AddAttribute(j + 1, "Checked", valueData ?? false);
+                             editor.AddAttribute(j + 1, "CheckedExpression", lambda);
+                             if (isAccessOnly == true)
+                             {
+                                 editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              }
                              else
                              {
-                                 editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-                                 editor.AddAttribute(j + 1, "Checked", valueData ?? false);
-                                 editor.AddAttribute(j + 1, "CheckedExpression", lambda);
-                                 if (isAccessOnly == true)
+                                 editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
+                             }
+                             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, (str) => OnCheckedChangedItem(str, property, a, s)));
+                             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                             {
+                                 if (valueData == null || (bool)valueData == false)
                                  {
-                                     editor.AddAttribute(j + 1, "Enabled", isReadonly);
-                                 }
-                                 else
-                                 {
-                                     editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
-                                 }
-                                 editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, (str) => OnCheckedChangedItem(str, property, a, s)));
-                                 if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                                 {
-                                     if (valueData == null || (bool)valueData == false)
+                                     isRequiredCount += 1;
+                                     if (isSubmit == true)
                                      {
-                                         isRequiredCount += 1;
-                                         if (isSubmit == true)
-                                         {
-                                             //editor.AddAttribute(j + 1, "style", "border-color:red;");
-                                         }
-                                     }
-                                 }
-                                 editor.CloseComponent();
-                                 if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                                 {
-                                     if (valueData == null || (bool)valueData == false && isSubmit == true)
-                                     {
-                                         editor.OpenElement(j + 1, "span");
-                                         editor.AddAttribute(j + 1, "class", "text-danger");
-                                         editor.AddContent(j + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
-                                         editor.CloseElement();
+                                         //editor.AddAttribute(j + 1, "style", "border-color:red;");
                                      }
                                  }
                              }
+                             editor.CloseComponent();
+                             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                             {
+                                 if (valueData == null || (bool)valueData == false && isSubmit == true)
+                                 {
+                                     editor.OpenElement(j + 1, "span");
+                                     editor.AddAttribute(j + 1, "class", "text-danger");
+                                     editor.AddContent(j + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                                     editor.CloseElement();
+                                 }
+                             }
+
                          }
                          else if (s.ControlType == "RadioGroup")
                          {
@@ -6058,7 +6263,7 @@
                                  editor.AddAttribute(j + 1, "Data", attributeDetailss);
                                  if (s.DataSourceTable == "Employee")
                                  {
-                                     editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
+                                     editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}{4}");
                                  }
                                  else if (s.DataSourceTable == "RawMatPurch")
                                  {
@@ -6163,6 +6368,10 @@
                                              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                              layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                                              layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                                             layoutItemBuilders.CloseComponent();
+                                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                             layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                                             layoutItemBuilders.AddAttribute(8, "Caption", "Department");
                                              layoutItemBuilders.CloseComponent();
                                          }
                                          if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -6423,7 +6632,7 @@
                                  editor.AddAttribute(j + 1, "Data", attributeDetailss);
                                  if (s.DataSourceTable == "Employee")
                                  {
-                                     editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
+                                     editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}{4}");
                                  }
                                  else if (s.DataSourceTable == "RawMatPurch")
                                  {
@@ -6515,6 +6724,10 @@
                                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                                 layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                                                 layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                                                layoutItemBuilders.CloseComponent();
+                                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                                layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                                                layoutItemBuilders.AddAttribute(8, "Caption", "Department");
                                                 layoutItemBuilders.CloseComponent();
                                             }
                                             if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -6770,6 +6983,10 @@
                                     layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                                     layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                                     layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                    layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                                    layoutItemBuilders.AddAttribute(8, "Caption", "Department");
+                                    layoutItemBuilders.CloseComponent();
                                 }
                                 if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                 {
@@ -6953,7 +7170,7 @@
                                            editor11.AddAttribute(d + 1, "Data", aatrDetails);
                                            if (ff.DataSourceTable == "Employee")
                                            {
-                                               editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}");
+                                               editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}{4}");
                                            }
                                            else if (ff.DataSourceTable == "RawMatPurch")
                                            {
@@ -7054,6 +7271,10 @@
                                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                                layoutItemBuilders1.AddAttribute(7, "FieldName", "DesignationName");
                                                layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
+                                               layoutItemBuilders1.CloseComponent();
+                                               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                                               layoutItemBuilders1.AddAttribute(8, "FieldName", "DepartmentName");
+                                               layoutItemBuilders1.AddAttribute(8, "Caption", "Department");
                                                layoutItemBuilders1.CloseComponent();
                                            }
                                            if (ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -7699,7 +7920,7 @@
                             editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                             if (q.DataSourceTable == "Employee")
                             {
-                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
+                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}{4}");
                             }
                             else if (q.DataSourceTable == "RawMatPurch")
                             {
@@ -7787,6 +8008,10 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                         layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                        layoutItemBuilders.AddAttribute(8, "Caption", "Department");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -7880,7 +8105,7 @@
                             editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                             if (q.DataSourceTable == "Employee")
                             {
-                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
+                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}{4}");
                             }
                             else if (q.DataSourceTable == "RawMatPurch")
                             {
@@ -7968,6 +8193,10 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                         layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                        layoutItemBuilders.AddAttribute(8, "Caption", "Department");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "FinishedProdOrderLine")
@@ -8172,6 +8401,10 @@
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                             layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Department");
                             layoutItemBuilders.CloseComponent();
                         }
                         if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -10609,7 +10842,7 @@
                     editor11.AddAttribute(l + 1, "Data", listSubData);
                     if (q.DataSourceTable == "Employee")
                     {
-                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}");
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}{4}");
                     }
                     else if (q.DataSourceTable == "RawMatPurch")
                     {
@@ -10695,6 +10928,10 @@
                             layoutItemBuilders1.AddAttribute(7, "FieldName", "DesignationName");
                             layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
                             layoutItemBuilders1.CloseComponent();
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders1.AddAttribute(8, "FieldName", "DepartmentName");
+                            layoutItemBuilders1.AddAttribute(8, "Caption", "Department");
+                            layoutItemBuilders1.CloseComponent();
                         }
                         if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
@@ -10772,7 +11009,7 @@
                     }
                     if (q.DataSourceTable == "Employee")
                     {
-                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}");
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}{4}");
                     }
                     else if (q.DataSourceTable == "RawMatPurch")
                     {
@@ -10841,6 +11078,10 @@
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders1.AddAttribute(7, "FieldName", "DesignationName");
                             layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
+                            layoutItemBuilders1.CloseComponent();
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders1.AddAttribute(8, "FieldName", "DepartmentName");
+                            layoutItemBuilders1.AddAttribute(8, "Caption", "Department");
                             layoutItemBuilders1.CloseComponent();
                         }
                         if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -11008,6 +11249,10 @@
                             layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                             layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                             layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Department");
+                            layoutItemBuilders.CloseComponent();
                         }
                         if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
@@ -11108,109 +11353,231 @@
     }
     private Dictionary<string, bool> ExpandStates = new();
     private void ToggleExpand(string key)
-{
-    if (ExpandStates.ContainsKey(key))
-        ExpandStates[key] = !ExpandStates[key];
-    else
-        ExpandStates[key] = true;
+    {
+        if (ExpandStates.ContainsKey(key))
+            ExpandStates[key] = !ExpandStates[key];
+        else
+            ExpandStates[key] = true;
 
-    StateHasChanged();
-}
+        StateHasChanged();
+    }
     void loadGroupCheckBox(DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j)
     {
-        var attrParent = attributeGroupCheckBoxes.Where(w => w.ParentId == null).ToList();
+        var lookup = attributeGroupCheckBoxes.ToLookup(x => x.ParentId);
+        Func<long?, List<AttributeGroupCheckBox>> build = null;
+        build = pid =>
+            lookup[pid]
+                .Select(x => new AttributeGroupCheckBox()
+                {
+                    AttributeGroupCheckBoxId = x.AttributeGroupCheckBoxId,
+                    Value = x.Value,
+                    ParentId = x.ParentId,
+                    Description = x.Description,
+                    IsDeleted = x.IsDeleted,
+                    AttributeId = x.AttributeId,
+                    Checked = x.Checked,
+                    IsTextBox = x.IsTextBox,
+                    Children = build(x.AttributeGroupCheckBoxId),
+
+                })
+                .ToList();
+        var nestedlist = build(null).ToList();
         int index = 1;
-        attrParent.ForEach(s =>
+        foreach (var item in nestedlist)
         {
-            string numbering = index.ToString();
-            string key = s.AttributeGroupCheckBoxId.ToString();
-
-            if (!ExpandStates.ContainsKey(key))
-                ExpandStates[key] = true; // default expanded
-
-            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{s.AttributeGroupCheckBoxId}_GroupCheckBox";
-            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
-            if (propertyCheck != null)
-            {
-                int p = 20;
-                var valueDataAppMaster = propertyCheck.GetValue(Data);
-                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
-                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
-
-                editor.OpenElement(j + 1, "div");
-                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
-
-                // Checkbox
-                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
-                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
-                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
-                editor.CloseComponent();
-
-                // Label with toggle click
-                editor.OpenElement(j + 1, "label");
-                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
-                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
-                editor.AddContent(j + 1, $"{numbering}. {s.Value}");
-                editor.CloseElement();
-
-                editor.CloseElement();
-
-                if (ExpandStates[key])
-                    loadGroupCheckBoxNested(s, a, attributeGroupCheckBoxes, editor, j, p, numbering);
-            }
-
+            RenderComplaintItem(item, a, j, editor, index.ToString(), true);
             index++;
-        });
+        }
     }
-
-    void loadGroupCheckBoxNested(AttributeGroupCheckBox parent, DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j, int p, string parentNumbering)
+    void RenderComplaintItem(AttributeGroupCheckBox item, DynamicFormSectionAttribute a, int indent, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string numberPrefix = "", bool? IsNested = false, bool? isVisible = true)
     {
-        var children = attributeGroupCheckBoxes.Where(w => w.ParentId == parent.AttributeGroupCheckBoxId).ToList();
-        int childIndex = 1;
+        int seq = 0;
 
-        children.ForEach(child =>
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "mb-1");
+        builder.AddAttribute(seq++, "style", $"padding-left: {indent}px;");
+
+        var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{item.AttributeId}_{item.AttributeGroupCheckBoxId}_GroupCheckBox";
+        var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+
+        if (item.IsTextBox == false)
         {
-            string numbering = $"{parentNumbering}.{childIndex}";
-            string key = child.AttributeGroupCheckBoxId.ToString();
+            var valueDataAppMaster = propertyCheck.GetValue(Data);
+            var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+            var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(bool?)), accesspropertyAppMaster);
 
-            if (!ExpandStates.ContainsKey(key))
-                ExpandStates[key] = true; // default expanded
-
-            var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{child.AttributeGroupCheckBoxId}_GroupCheckBox";
-            var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
-            if (propertyCheck != null)
+            builder.OpenComponent<DxCheckBox<bool?>>(seq++);
+            builder.AddAttribute(seq++, "Checked", valueDataAppMaster ?? false);
+            builder.AddAttribute(seq++, "CheckedExpression", lambdapropertyAppMaster);
+            builder.AddAttribute(seq++, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, val => propertyCheck.SetValue(Data, val)));
+            builder.AddAttribute(seq++, "ChildContent", (RenderFragment)((b) =>
             {
-                var valueDataAppMaster = propertyCheck.GetValue(Data);
-                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
-                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+                b.OpenElement(seq++, "span");
+                b.AddAttribute(seq++, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                if (IsNested == true)
+                {
+                    b.AddContent(seq++, $"{numberPrefix}. {item.Value}");
+                }
+                else
+                {
+                    b.AddContent(seq++, $"{numberPrefix} {item.Value}");
+                }
+                b.CloseElement();
+            }));
+            builder.CloseComponent();
+        }
 
-                editor.OpenElement(j + 1, "div");
-                editor.AddAttribute(j + 1, "style", $"padding-left:{p}px;");
-                editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+        if (item.IsTextBox == true && isVisible == true)
+        {
+            var valueDataAppMaster = propertyCheck.GetValue(Data);
+            var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+            var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), accesspropertyAppMaster);
 
-                editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-                editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
-                editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
-                editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
-                editor.CloseComponent();
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "align-items-center gap-2");
 
-                // Label with toggle click
-                editor.OpenElement(j + 1, "label");
-                editor.AddAttribute(j + 1, "style", "cursor:pointer;");
-                //editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
-                editor.AddContent(j + 1, $"{numbering}. {child.Value}");
-                editor.CloseElement();
+            builder.OpenElement(seq++, "label");
+            builder.AddAttribute(seq++, "style", "min-width: 150px;");
+            builder.AddContent(seq++, $"{numberPrefix} {item.Value}");
+            builder.CloseElement();
 
-                editor.CloseElement();
+            builder.OpenComponent<DxMemo>(seq++);
+            builder.AddAttribute(seq++, "Text", valueDataAppMaster);
+            builder.AddAttribute(seq++, "TextExpression", lambdapropertyAppMaster);
+            builder.AddAttribute(seq++, "TextChanged", EventCallback.Factory.Create<string>(this, val => propertyCheck.SetValue(Data, val)));
+            builder.AddAttribute(seq++, "style", "margin-top:10px;");
+            builder.AddAttribute(seq++, "Rows", 5);
+            builder.CloseComponent();
 
-                if (ExpandStates[key])
-                    loadGroupCheckBoxNested(child, a, attributeGroupCheckBoxes, editor, j, p + 20, numbering);
+            builder.CloseElement(); // close textbox row
+        }
+
+        builder.CloseElement(); // container div
+
+        // 🔁 Render children with recursive numbering
+        if (item.Children?.Any() == true)
+        {
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "d-flex flex-wrap gap-2 ms-4 mb-2");
+
+            for (int i = 0; i < item.Children.Count; i++)
+            {
+                var child = item.Children[i];
+                //$"{parentNumbering}.{childIndex}";
+                // Correct numbering here
+                string childNumber = string.IsNullOrEmpty(numberPrefix) ? $"{i + 1}" : $"{numberPrefix}.{i + 1}";
+
+                var appendAppData = $"{a.DynamicFormSectionAttributeId}_{child.AttributeId}_{item.AttributeGroupCheckBoxId}_GroupCheckBox";
+                var propertyChecks = Data.GetType().GetProperty(appendAppData);
+                var valueData = (bool?)propertyChecks?.GetValue(Data);
+
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "style", child.IsTextBox == true ? "flex: 0 0 100%;" : "flex: 0 0 calc(33.33% - 10px);");
+                RenderComplaintItem(child, a, indent + 20, builder, childNumber, false, valueData ?? false);
+                builder.CloseElement();
             }
 
-            childIndex++;
-        });
+            builder.CloseElement(); // close child container
+        }
     }
+
+    //RenderFragment RenderComplaintItem(AttributeGroupCheckBox item, DynamicFormSectionAttribute a,int indent, bool? isVisible = true) => builder =>
+
+    // void loadGroupCheckBox(DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j)
+    // {
+    //     var attrParent = attributeGroupCheckBoxes.Where(w => w.ParentId == null).ToList();
+    //     int index = 1;
+    //     attrParent.ForEach(s =>
+    //     {
+    //         string numbering = index.ToString();
+    //         string key = s.AttributeGroupCheckBoxId.ToString();
+
+    //         if (!ExpandStates.ContainsKey(key))
+    //             ExpandStates[key] = true; default expanded
+
+    //         var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{s.AttributeGroupCheckBoxId}_GroupCheckBox";
+    //         var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+    //         if (propertyCheck != null)
+    //         {
+    //             int p = 20;
+    //             var valueDataAppMaster = propertyCheck.GetValue(Data);
+    //             var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+    //             var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+    //             editor.OpenElement(j + 1, "div");
+    //             editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+    //             Checkbox
+    //             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+    //             editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+    //             editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+    //             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+    //             editor.CloseComponent();
+
+    //             Label with toggle click
+    //             editor.OpenElement(j + 1, "label");
+    //             editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+    //             editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+    //             editor.AddContent(j + 1, $"{numbering}. {s.Value}");
+    //             editor.CloseElement();
+
+    //             editor.CloseElement();
+
+    //             if (ExpandStates[key])
+    //                 loadGroupCheckBoxNested(s, a, attributeGroupCheckBoxes, editor, j, p, numbering);
+    //         }
+
+    //         index++;
+    //     });
+    // }
+
+    // void loadGroupCheckBoxNested(AttributeGroupCheckBox parent, DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j, int p, string parentNumbering)
+    // {
+    //     var children = attributeGroupCheckBoxes.Where(w => w.ParentId == parent.AttributeGroupCheckBoxId).ToList();
+    //     int childIndex = 1;
+
+    //     children.ForEach(child =>
+    //     {
+    //         string numbering = $"{parentNumbering}.{childIndex}";
+    //         string key = child.AttributeGroupCheckBoxId.ToString();
+
+    //         if (!ExpandStates.ContainsKey(key))
+    //             ExpandStates[key] = true; default expanded
+
+    //         var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{child.AttributeGroupCheckBoxId}_GroupCheckBox";
+    //         var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
+    //         if (propertyCheck != null)
+    //         {
+    //             var valueDataAppMaster = propertyCheck.GetValue(Data);
+    //             var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+    //             var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
+
+    //             editor.OpenElement(j + 1, "div");
+    //             editor.AddAttribute(j + 1, "style", $"padding-left:{p}px;");
+    //             editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
+
+    //             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
+    //             editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
+    //             editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
+    //             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
+    //             editor.CloseComponent();
+
+    //             Label with toggle click
+    //             editor.OpenElement(j + 1, "label");
+    //             editor.AddAttribute(j + 1, "style", "cursor:pointer;");
+    //             editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
+    //             editor.AddContent(j + 1, $"{numbering}. {child.Value}");
+    //             editor.CloseElement();
+
+    //             editor.CloseElement();
+
+    //             if (ExpandStates[key])
+    //                 loadGroupCheckBoxNested(child, a, attributeGroupCheckBoxes, editor, j, p + 20, numbering);
+    //         }
+
+    //         childIndex++;
+    //     });
+    // }
 
 }
 

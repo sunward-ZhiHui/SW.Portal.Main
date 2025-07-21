@@ -55,8 +55,8 @@
                     @startDate
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AuditUser" MinWidth="50" Caption="Current User"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="AuditDateTime" Caption="Current Update Date" MinWidth="50">
+            <DxGridDataColumn FieldName="AuditUser" MinWidth="50" Caption="Audit User"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="AuditDateTime" Caption="Audit Date" MinWidth="50">
                 <CellDisplayTemplate>
                     @{
                         var item = (DynamicFormDataAudit)context.DataItem;

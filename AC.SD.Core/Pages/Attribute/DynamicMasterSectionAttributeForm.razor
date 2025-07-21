@@ -25,6 +25,7 @@
                 <DxMenuItem Text="Add Control Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Control Section" IconCssClass="fa fa-user-lock" Click="@addValuePermission" Enabled="@IsDynamicFormAttributeEnabled" />
                 <DxMenuItem Text="Add Formula" IconCssClass="fa fa-calculator" Click="@OpenAddFormulaPopup" Enabled="@IsFormulaEnabled" />
+                <DxMenuItem Text="Set Range" IconCssClass="fa fa-calculator" Click="@RangeFunctionAdd" Enabled="@IsFormulaEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -430,7 +431,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddFormulaPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@RangeFunctionAddPopup"
+         ShowFooter="false"
+         HeaderText="Add Range"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Closed="EulaPopupFormulasClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForms" IsCalculate="false" SelectedItems="@_selectedAttributeItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private DynamicFormSectionAttrFormulaFunctionForm refDynamicFormSectionAttrFormulaFunctionForms;
+    public bool RangeFunctionAddPopup { get; set; } = false;
     public bool AddFormulaPopup { get; set; } = false;
     private DynamicFormSectionAttributeFormula refDynamicFormSectionAttributeFormula;
     private DynamicFormSectionAttributeSectionForm refDynamicFormSectionAttributeSectionForm;
@@ -516,7 +533,19 @@
         InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
-
+    void EulaPopupFormulasClosed(PopupClosedEventArgs args)
+    {
+        RangeFunctionAddPopup = false;
+    }
+    void RangeFunctionAdd()
+    {
+        RangeFunctionAddPopup = true;
+    }
+    void closeRangeFunctionAdd()
+    {
+        RangeFunctionAddPopup = false;
+        StateHasChanged();
+    }
     public async Task loadChildData(long? dynamicFormIds)
     {
         DynamicFormSectionId = dynamicFormIds;

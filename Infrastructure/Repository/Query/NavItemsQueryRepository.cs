@@ -1313,18 +1313,19 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("ItemId", finishedProdOrderLine.ItemId);
                     parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
                     parameters.Add("QcRefNo", finishedProdOrderLine.QcRefNo, DbType.String);
+                    parameters.Add("DocumentNo", finishedProdOrderLine.DocumentNo, DbType.String);
                     var lastInsertedRecordId = finishedProdOrderLine.RawMatPurchId;
                     if (lastInsertedRecordId > 0)
                     {
-                        var query1 = "Update  RawMatPurch SET QcRefNo=@QcRefNo,BatchNo=@BatchNo,ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,ExpirationDate=@ExpirationDate,ManufacturingDate=@ManufacturingDate," +
+                        var query1 = "Update  RawMatPurch SET DocumentNo=@DocumentNo,QcRefNo=@QcRefNo,BatchNo=@BatchNo,ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,ExpirationDate=@ExpirationDate,ManufacturingDate=@ManufacturingDate," +
                             "UnitOfMeasureCode=@UnitOfMeasureCode,ItemId=@ItemId,CompanyId=@CompanyId  WHERE RawMatPurchId =@RawMatPurchId;";
                         var rowsAffected = await connection.ExecuteAsync(query1, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO [RawMatPurch](QcRefNo,BatchNo,ItemNo,Description,Description2,Quantity,ExpirationDate,ManufacturingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
+                        var query = "INSERT INTO [RawMatPurch](DocumentNo,QcRefNo,BatchNo,ItemNo,Description,Description2,Quantity,ExpirationDate,ManufacturingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
                             "OUTPUT INSERTED.RawMatPurchId VALUES " +
-                            "(@QcRefNo,@BatchNo,@ItemNo,@Description,@Description2,@Quantity,@ExpirationDate,@ManufacturingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
+                            "(@DocumentNo,@QcRefNo,@BatchNo,@ItemNo,@Description,@Description2,@Quantity,@ExpirationDate,@ManufacturingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;

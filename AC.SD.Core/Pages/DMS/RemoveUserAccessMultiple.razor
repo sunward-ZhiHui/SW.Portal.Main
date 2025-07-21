@@ -1,0 +1,165 @@
+﻿@using System.Collections
+@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using MediatR;
+@inject IMediator Mediator
+@using Application.Queries;
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_documentUserRoleLists"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DocumentUserRoleID"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            VirtualScrollingEnabled="true"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DocumentUserRoleID" Visible="false" />
+            <DxGridDataColumn FieldName="FullName" Caption="User Name" GroupIndex="0" MinWidth="170" />
+            <DxGridDataColumn FieldName="FileName" Caption="Doc Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DocumentRoleName" Caption="Role" MinWidth="170" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="170" />
+            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="170" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentRoleName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDeleteDocumentUserRoleMultiple" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public IEnumerable DocumentsItems { get; set; }
+    public List<DocumentsModel> DocumentsModels { get; set; } = new List<DocumentsModel>();
+    private DocumentUserRoleModel _selectedItems;
+    public List<DocumentUserRoleModel> _documentUserRoleLists { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool PanelVisible { get; set; }
+    IGrid? SMGrid { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentsModels = DocumentsItems.Cast<DocumentsModel>().ToList();
+        await loadData();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentUserRoleID");
+        _selectedItems = _documentUserRoleLists.FirstOrDefault(f => f.DocumentUserRoleID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    public async Task loadData()
+    {
+        DeleteEnabled = false;
+        _documentUserRoleLists = new List<DocumentUserRoleModel>();
+        var docIds = DocumentsModels.Where(w => w.Checked == true && w.Type == "Document").Select(s => s.DocumentID).ToList();
+        if (docIds.Count() > 0)
+        {
+            _documentUserRoleLists = await Mediator.Send(new GetDocumentUserRoleMultipleList(docIds));
+            if (_documentUserRoleLists.Count > 0)
+            {
+                _documentUserRoleLists.ForEach(s =>
+                {
+                    var docList = DocumentsModels.Where(w => w.DocumentID == s.DocumentID).FirstOrDefault();
+                    s.FileName = docList?.FileName;
+                });
+                _selectedItems = _documentUserRoleLists.FirstOrDefault();
+                DeleteEnabled = true;
+            }
+        }
+        StateHasChanged();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        InvokeAsync(loadData);
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task onDeleteDocumentUserRoleMultiple()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                List<long?> docIds = new List<long?>();
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentUserRoleModel dataItem)
+                    {
+                        docIds.Add(dataItem.DocumentUserRoleID);
+                    }
+
+                }
+                var request = new DeleteDocumentUserRoleMultiple(docIds);
+                await Mediator.Send(request);
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await loadData();
+                SMGrid.SetFocusedRowIndex(0);
+            }
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

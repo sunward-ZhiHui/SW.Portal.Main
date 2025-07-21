@@ -285,16 +285,17 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ModifiedDate", attributeGroupCheckBox.ModifiedDate, DbType.DateTime);
                         parameters.Add("StatusCodeID", attributeGroupCheckBox.StatusCodeID);
                         parameters.Add("ParentId", attributeGroupCheckBox.ParentId);
+                        parameters.Add("IsTextBox", attributeGroupCheckBox.IsTextBox == true ? true : false);
                         if (attributeGroupCheckBox.AttributeGroupCheckBoxId > 0)
                         {
-                            var query = " UPDATE AttributeGroupCheckBox SET ParentId=@ParentId,Value=@Value,Description=@Description,IsDeleted = @IsDeleted,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE AttributeGroupCheckBoxId = @AttributeGroupCheckBoxId";
+                            var query = " UPDATE AttributeGroupCheckBox SET IsTextBox=@IsTextBox,ParentId=@ParentId,Value=@Value,Description=@Description,IsDeleted = @IsDeleted,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE AttributeGroupCheckBoxId = @AttributeGroupCheckBoxId";
 
                             await connection.ExecuteAsync(query, parameters);
                         }
                         else
                         {
-                            var query = "INSERT INTO AttributeGroupCheckBox(ParentId,AttributeId,Value,Description,IsDeleted,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeGroupCheckBoxId  VALUES " +
-                                "(@ParentId,@AttributeId,@Value,@Description,@IsDeleted,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+                            var query = "INSERT INTO AttributeGroupCheckBox(IsTextBox,ParentId,AttributeId,Value,Description,IsDeleted,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeGroupCheckBoxId  VALUES " +
+                                "(@IsTextBox,@ParentId,@AttributeId,@Value,@Description,@IsDeleted,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
                             attributeGroupCheckBox.AttributeGroupCheckBoxId = await connection.ExecuteScalarAsync<long>(query, parameters);
                         }

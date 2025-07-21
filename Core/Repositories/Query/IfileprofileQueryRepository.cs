@@ -42,6 +42,7 @@ namespace Core.Repositories.Query
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);
         Task<DocumentUserRoleModel> InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole);
         Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id,long? DocumentId);
+        Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleMultipleList(List<long?> DocumentId);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
         Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
         Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id, long? ProfileId);
@@ -70,6 +71,7 @@ namespace Core.Repositories.Query
 
         Task<IReadOnlyList<FileProfileTypeModel>> GetAllFileProfileDropdownAsync();
         Task<IReadOnlyList<DocumentsModel>> GetFileProfileTypeFoldersFilesCount(long? selectedFileProfileTypeID);
+        Task<DocumentUserRole> DeleteDocumentUserRoleMultiple(List<long?> DocumentIds);
 
     }
 }

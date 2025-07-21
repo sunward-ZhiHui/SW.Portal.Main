@@ -458,6 +458,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetDocumentUserRoleMultipleListHandler : IRequestHandler<GetDocumentUserRoleMultipleList, List<DocumentUserRoleModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentUserRoleMultipleListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentUserRoleModel>> Handle(GetDocumentUserRoleMultipleList request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleMultipleList(request.DocumentIds);
+        }
+
+    }
     public class DeleteDocumentUserRoleHandler : IRequestHandler<DeleteDocumentUserRole, DocumentUserRoleModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
@@ -953,6 +966,19 @@ namespace Application.Handlers.QueryHandlers
             public async Task<List<DocumentChangeProfileNo>> Handle(GetDocumentChangeProfileNoBySessionId request, CancellationToken cancellationToken)
             {
                 return (List<DocumentChangeProfileNo>)await _documentsqueryrepository.GetDocumentChangeProfileNoBySessionId(request.SessionId);
+            }
+
+        }
+        public class DeleteDocumentUserRoleMultipleHandler : IRequestHandler<DeleteDocumentUserRoleMultiple, DocumentUserRole>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public DeleteDocumentUserRoleMultipleHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentUserRole> Handle(DeleteDocumentUserRoleMultiple request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.DeleteDocumentUserRoleMultiple(request.DocumentIds);
             }
 
         }

@@ -67,6 +67,7 @@
                     <DxMenuItem Position="ItemPosition.End" title="Export Excel" IconCssClass="fa fa-file-excel" Click="@getExcel" />
                     <DxMenuItem Position="ItemPosition.Start" title="@ProfileTypeInfoName" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
                     <DxMenuItem Position="ItemPosition.Start" title="@PermissionName" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
+                    <DxMenuItem Position="ItemPosition.Start" title="Delete User Access for Mutiple" IconCssClass="fa fa-users" Click="OnDeleteMultipleSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
@@ -249,8 +250,8 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type" MinWidth="170" />
-                 <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
-               @*  <DxGridDataColumn FieldName="NewProfileNo" Caption="New Profile" MinWidth="170" >
+                <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
+                @*  <DxGridDataColumn FieldName="NewProfileNo" Caption="New Profile" MinWidth="170" >
                  </DxGridDataColumn> *@
                 <DxGridDataColumn FieldName="ActivityProfileNo" Caption="Activity Profile" MinWidth="170" />
                 <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="170">
@@ -318,7 +319,7 @@
                 </DxGridDataColumn>
             </Columns>
             <TotalSummary>
-                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="NewProfileNoDisplay" />
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
             </TotalSummary>
         </DxGrid>
     </DxLoadingPanel>
@@ -377,8 +378,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout @bind-IsOpen=IsExpiryDateOpen
@@ -401,8 +402,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsExpiryDateOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateExpiryDate()) />
 
 
     </FooterContentTemplate>
@@ -429,8 +430,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsRenameOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateDocumentRename()) />
 
 
     </FooterContentTemplate>
@@ -559,9 +560,9 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(()=> OnFilterDocuments()) />
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(()=> OnClearFilterDocuments()) />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(()=> OnCloseFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(() => OnFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(() => OnClearFilterDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(() => OnCloseFilterDocuments()) />
 
     </FooterContentTemplate>
 </DxFlyout>
@@ -623,7 +624,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsFileProfileTypeFilterDocOpen = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -658,7 +659,7 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeInfoOpen = false) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsFileProfileTypeInfoOpen = false) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@IsAddFileProfileTypeInfo"
@@ -726,7 +727,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsMoveDocumentsOpen = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsMoveDocumentsOpen = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -769,6 +770,19 @@
         <ChangeProfileNos @ref="refChangeProfileNos" TypeName="FileProfileType" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ChangeProfileNos>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@IsDeleteMultipleSecurityOpen"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         HeaderText="Remove User Access"
+         Closed="EulaPopupMoveDocumentClosed"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <RemoveUserAccessMultiple DocumentsItems="@_SelectedDocList"></RemoveUserAccessMultiple>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     bool PopupChangeProfileNo { get; set; } = false;
     private string? PermissionName { get; set; }
@@ -781,7 +795,7 @@
     private ParentLinkDocuments refParentLinkDocuments; private LinkDocumentsList refLinkDocumentsList;
     bool MissingUploadFileProfileTypePopup { get; set; } = false;
     string? MoveDocumentName { get; set; } = string.Empty;
-    bool MoveDocumentPopup { get; set; } = false;
+    bool MoveDocumentPopup { get; set; } = false; bool IsDeleteMultipleSecurityOpen { get; set; } = false;
     bool isCheckAllEnabled { get; set; } = false;
     bool CheckedAll { get; set; } = false;
     string? isMoveEnabled { get; set; } = "display:none;";
@@ -884,6 +898,7 @@
     bool isEnablePath { get; set; } = false;
     public string? SearchText { get; set; } = null;
     ITreeList TreeList { get; set; }
+    public List<DocumentsModel> _SelectedDocList { get; set; } = new List<DocumentsModel>();
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -1876,18 +1891,18 @@
         else
         {
             var request = new CreateApplicationMasterChildCommand
-                {
-                    ApplicationMasterParentId = 122,
-                    ParentId = null,
-                    Description = groupTag,
-                    Value = groupTag,
-                    AddedByUserId = applicationUser.UserID,
-                    ModifiedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
-                    SessionId = Guid.NewGuid(),
-                };
+            {
+                ApplicationMasterParentId = 122,
+                ParentId = null,
+                Description = groupTag,
+                Value = groupTag,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                StatusCodeId = 1,
+                SessionId = Guid.NewGuid(),
+            };
             var rlt = await Mediator.Send(request);
             grouptTagId = rlt.ApplicationMasterChildId;
         }
@@ -1904,18 +1919,18 @@
             else
             {
                 var request = new CreateApplicationMasterChildCommand
-                    {
-                        ApplicationMasterParentId = 123,
-                        ParentId = grouptTagId,
-                        Description = tagString,
-                        Value = tagString,
-                        AddedByUserId = applicationUser.UserID,
-                        ModifiedByUserId = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        StatusCodeId = 1,
-                        SessionId = Guid.NewGuid(),
-                    };
+                {
+                    ApplicationMasterParentId = 123,
+                    ParentId = grouptTagId,
+                    Description = tagString,
+                    Value = tagString,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeId = 1,
+                    SessionId = Guid.NewGuid(),
+                };
                 var rlt = await Mediator.Send(request);
                 catTagId = rlt.ApplicationMasterChildId;
 
@@ -1933,19 +1948,19 @@
             string subjectName = Path.GetFileNameWithoutExtension(filePath);
 
             var createReq = new CreateActivityEmail
-                {
-                    SubjectName = subjectName,
-                    Comment = _selectedItems.Description,
-                    ActivityType = "FileProfileType",
-                    SessionId = _selectedItems.SessionID,
-                    BackURL = MainSessionId.ToString(),
-                    DocumentSessionId = _selectedItems.SessionID,
-                    AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ManufacturingProcessId = grouptTagId,
-                    CategoryActionId = catTagId
+            {
+                SubjectName = subjectName,
+                Comment = _selectedItems.Description,
+                ActivityType = "FileProfileType",
+                SessionId = _selectedItems.SessionID,
+                BackURL = MainSessionId.ToString(),
+                DocumentSessionId = _selectedItems.SessionID,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ManufacturingProcessId = grouptTagId,
+                CategoryActionId = catTagId
 
-                };
+            };
 
             var result = await Mediator.Send(createReq);
         }
@@ -1973,20 +1988,20 @@
             string subjectName = Path.GetFileNameWithoutExtension(filePath);
 
             var createReq = new UpdateActivityEmail
-                {
-                    SubjectName = subjectName,
-                    Comment = _selectedItems.Description,
-                    ActivityType = "FileProfileType",
-                    SessionId = _selectedItems.SessionID,
-                    BackURL = MainSessionId.ToString(),
-                    DocumentSessionId = _selectedItems.SessionID,
-                    AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ManufacturingProcessId = grouptTagId,
-                    CategoryActionId = catTagId,
-                    ActivityEmailTopicID = itemlst[0].ActivityEmailTopicID
+            {
+                SubjectName = subjectName,
+                Comment = _selectedItems.Description,
+                ActivityType = "FileProfileType",
+                SessionId = _selectedItems.SessionID,
+                BackURL = MainSessionId.ToString(),
+                DocumentSessionId = _selectedItems.SessionID,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ManufacturingProcessId = grouptTagId,
+                CategoryActionId = catTagId,
+                ActivityEmailTopicID = itemlst[0].ActivityEmailTopicID
 
-                };
+            };
 
             var result = await Mediator.Send(createReq);
 
@@ -2013,18 +2028,18 @@
     {
 
         var request = new CreateApplicationMasterChildCommand
-            {
-                ApplicationMasterParentId = MasterParentId,
-                ParentId = ParentId,
-                Description = notes,
-                Value = notes,
-                AddedByUserId = applicationUser.UserID,
-                ModifiedByUserId = applicationUser.UserID,
-                AddedDate = DateTime.Now,
-                ModifiedDate = DateTime.Now,
-                StatusCodeId = 1,
-                SessionId = Guid.NewGuid(),
-            };
+        {
+            ApplicationMasterParentId = MasterParentId,
+            ParentId = ParentId,
+            Description = notes,
+            Value = notes,
+            AddedByUserId = applicationUser.UserID,
+            ModifiedByUserId = applicationUser.UserID,
+            AddedDate = DateTime.Now,
+            ModifiedDate = DateTime.Now,
+            StatusCodeId = 1,
+            SessionId = Guid.NewGuid(),
+        };
         await Mediator.Send(request);
     }
     void onViewparentDocuments()
@@ -2113,7 +2128,7 @@
     {
         InvokeAsync(loadFileProfileData);
         IsAddFileProfileTypeInfo = false;
-        PopupShareDocuments = false;PopupChangeProfileNo = false;
+        PopupShareDocuments = false; PopupChangeProfileNo = false;
         StateHasChanged();
     }
     async void BackUpload()
@@ -2499,12 +2514,26 @@
 
         }
     }
+    void OnDeleteMultipleSecurity()
+    {
+        _SelectedDocList = fileProfileTypeDocuments.Where(w => w.Checked == true && w.Type == "Document").ToList();
+        if (_SelectedDocList.Count == 0)
+        {
+            toastService.ShowToast("Must select Document", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            IsDeleteMultipleSecurityOpen = true;
+        }
+    }
+
     void PopupMoveDocumentClosed()
     {
         MoveDocumentPopup = false;
     }
     void EulaPopupMoveDocumentClosed()
     {
+        IsDeleteMultipleSecurityOpen = false;
         MoveDocumentPopup = false;
     }
     void onMissingUploadFileProfileType()
@@ -2694,7 +2723,7 @@
         // within the worksheet
         char c = (char)((int)'A' + headers.Count - 1);
         AutoFilter autoFilter1 = new AutoFilter()
-            { Reference = "A1:" + c + headers.Count + 1 };
+        { Reference = "A1:" + c + headers.Count + 1 };
 
         Worksheet sheet1 = new Worksheet();
         sheet1.Append(sheetData);
@@ -2713,11 +2742,11 @@
 
         // Append a new worksheet and associate it with the workbook.
         Sheet sheet = new Sheet()
-            {
-                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
-                SheetId = sheetId,
-                Name = SheetDisName
-            };
+        {
+            Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+            SheetId = sheetId,
+            Name = SheetDisName
+        };
 
         sheets.Append(sheet);
     }

@@ -28,6 +28,8 @@ namespace Core.Entities
         public string? Type { get; set; }
         [NotMapped]
         public string? FormulaFunctionName { get; set; }
+        public bool? IsCalculate { get; set; } = true;
+        public string? FormulaTextBox { get; set; }
     }
     public class DynamicFormSectionAttrFormulaMasterFunction
     {

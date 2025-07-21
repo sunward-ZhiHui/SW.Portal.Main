@@ -1545,6 +1545,20 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormDataAuditBySessionMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditBySessionMultipleList, List<DynamicFormDataAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAuditBySessionMultipleListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditBySessionMultipleList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditBySessionMultipleList(request.SessionId);
+        }
+
+
+    }
     public class GetDynamicFormFormulaMathFunListHandler : IRequestHandler<GetDynamicFormFormulaMathFunList, List<DynamicFormFormulaMathFun>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;

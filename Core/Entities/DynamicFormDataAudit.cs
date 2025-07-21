@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,5 +35,7 @@ namespace Core.Entities
         public string? ProfileNo { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
         public long? CountData { get; set; }
+        [NotMapped]
+        public List<DynamicFormDataAudit> DynamicFormDataAudits { get; set; }=new List<DynamicFormDataAudit>();
     }
 }

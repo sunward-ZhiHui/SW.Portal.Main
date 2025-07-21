@@ -22,5 +22,6 @@ namespace Core.Entities
         public long? CompanyId { get; set; }
         public string? BatchNo { get; set; }
         public string? QcRefNo { get; set; }
+        public string? DocumentNo { get; set; }
     }
 }

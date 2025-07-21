@@ -110,6 +110,7 @@ namespace Core.Entities
         public List<DynamicForm> DynamicForm { get; set; } = new List<DynamicForm>();
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
         public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
+        public List<AttributeGroupCheckBox> AttributeGroupCheckBoxes { get; set; } = new List<AttributeGroupCheckBox>();
     }
     public class DropDownGridOptionsModel
     {
@@ -133,11 +134,13 @@ namespace Core.Entities
         public long? OrderBy { get; set; } = 0;
         public long AttributeDetailID { get; set; }
         public string? AttributeDetailName { get; set; }
+        public string? AttributeDetailNameId { get; set; }
         public long? DynamicFormId { get; set; }
         public bool? IsDynamicGrid { get; set; } = false;
         public string? ControlType { get; set; }
         public bool? IsSubForm { get; set; } = false;
         public long? DynamicFormSectionAttributeId { get; set; }
+        public bool? IsMultiple { get; set; } = false;
     }
     public class DropDownOptionsGridListModel
     {

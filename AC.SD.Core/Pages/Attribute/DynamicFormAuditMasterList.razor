@@ -81,8 +81,11 @@
                     </Columns>
                 </DxComboBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Audit Date" ColSpanMd="4">
+            <DxFormLayoutItem Caption="Audit Date" ColSpanMd="3">
                 <DxDateEdit NullText="Select a Audit Date..." Date="@DataAudit.AuditDateTime" DateExpression="@(() => DataAudit.AuditDateTime)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="1">
+                <DxCheckBox Checked="@DataAudit.IsDeleted" CheckedExpression="@(() => DataAudit.IsDeleted)" CheckedChanged="@((bool? value) => SelectedDeletedChanged(value))">Deleted</DxCheckBox>
             </DxFormLayoutItem>
         </DxFormLayout>
 
@@ -111,6 +114,7 @@
             VirtualScrollingEnabled="true">
 
         <Columns>
+            <DxGridDataColumn FieldName="IsDeleted" Caption="Deleted" MinWidth="10" />
             <DxGridDataColumn FieldName="RowNum" Caption="Row Num" MinWidth="10" Visible="false" />
             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="10" GroupIndex="0" />
             <DxGridDataColumn FieldName="PreUser" MinWidth="50" Caption="Prev User" />
@@ -181,6 +185,10 @@
             {
                 _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
                 EditEnabled = true;
+                if (_selectedItems!=null && _selectedItems.IsDeleted == true)
+                {
+                    EditEnabled = false;
+                }
             }
         }
         PanelVisible = false;
@@ -201,11 +209,20 @@
         DataAudit.AuditUserId = userId;
         await loadData();
     }
+    async Task SelectedDeletedChanged(bool? isDeleted)
+    {
+        DataAudit.IsDeleted = isDeleted;
+        await loadData();
+    }
     void OnRowclick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RowNum");
         _selectedItems = _DynamicFormDataAuditList.FirstOrDefault(f => f.RowNum == (long?)UniqueId);
         EditEnabled = true;
+        if (_selectedItems!=null && _selectedItems.IsDeleted == true)
+        {
+            EditEnabled = false;
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

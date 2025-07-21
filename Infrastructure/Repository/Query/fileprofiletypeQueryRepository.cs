@@ -1479,6 +1479,32 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleMultipleList(List<long?> DocumentId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "select t1.*,t2.DocumentRoleName,t2.DocumentRoleDescription,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.Name as FileProfileType,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(t6.FirstName,' | ',t6.LastName) as FullName\r\n" +
+                    "from DocumentUserRole t1\r\n" +
+                    "JOIN DocumentRole t2 ON t1.RoleID=t2.DocumentRoleID\r\n" +
+                    "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                    "LEFT JOIN FileProfileType t4 ON t4.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
+                    "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
+                    "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                    "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE 1=1\r\n";
+                query += "AND t1.DocumentId IN(" + string.Join(',', DocumentId) + ");";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentUserRoleModel>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<FileProfileSetUpDropDown>> GetFileProfileSetUpDropDownAsync()
         {
             try
@@ -3072,6 +3098,36 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<FileProfileTypeModel>(query)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentUserRole> DeleteDocumentUserRoleMultiple(List<long?> DocumentIds)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        DocumentUserRole documentUserRole = new DocumentUserRole();
+                        documentUserRole.DocumentUserRoleId = 1;
+                        var parameters = new DynamicParameters();
+                        DocumentIds = DocumentIds != null && DocumentIds.Count > 0 ? DocumentIds : new List<long?>() { -1 };
+                        var query = "Delete from DocumentUserRole where DocumentUserRoleId in(" + string.Join(',', DocumentIds) + ");";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return documentUserRole;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
             }
             catch (Exception exp)
             {

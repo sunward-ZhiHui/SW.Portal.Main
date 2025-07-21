@@ -133,6 +133,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteDynamicFormDataAssignUser(long? Id, List<long?> Ids);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? sessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionMultipleList(List<Guid?> SessionId);
         Task<IReadOnlyList<DynamicFormFormulaMathFun>> GetDynamicFormFormulaMathFunList();
         Task<IReadOnlyList<DynamicFormSectionSecurity>> GetDynamicFormSectionSecuritySettingList(long? Id);
         Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetDynamicFormWorkFlowApprovalSettingList(long? Id);

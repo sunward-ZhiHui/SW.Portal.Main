@@ -1,0 +1,248 @@
+﻿@page "/dynamic-spc"
+@using System.Drawing
+@inject ChartService chartService
+
+<h3>Dynamic SPC Chart Builder</h3>
+
+<!-- Table dropdown -->
+<!-- Table Selector -->
+<DxComboBox T="string"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"      
+            Data="@tableList"
+            Value="@selectedTable"
+            ValueChanged="@((string newValue) => OnTableChanged(newValue))"
+            NullText="Select Table" />
+
+@* @if (columnList?.Count > 0)
+{
+    <!-- X Axis Selector -->
+    <DxComboBox T="string"
+                Data="@columnList"
+                Value="@xField"
+                ValueChanged="@((string val) => xField = val)"
+                Placeholder="Select X Axis" />
+
+    <!-- Y Axis Selector -->
+    <DxComboBox T="string"
+                Data="@columnList"
+                Value="@yField"
+                ValueChanged="@((string val) => yField = val)"
+                Placeholder="Select Y Axis" />
+} *@
+
+@if (columnList?.Count > 0)
+{
+    <!-- X Axis: All columns -->
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@xField"
+                ValueChanged="@((string val) => xField = val)"
+                NullText="Select X-Axis (Numeric Only)" />
+
+    <!-- Y Axis: Numeric only -->
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@yField"
+                ValueChanged="@((string val) => yField = val)"
+                NullText="Select Y-Axis (Numeric Only)" />
+}
+<!-- Spec limits -->
+<div>
+    <DxSpinEdit @bind-Value="@LSL" NullText="LSL" />
+    <DxSpinEdit @bind-Value="@USL" NullText="USL" />
+</div>
+
+<!-- Chart Title -->
+<DxTextBox @bind-Text="@chartTitle" NullText="Chart Title" />
+<DxTextBox @bind-Text="@xAxisLabel" NullText="X Axis Label" />
+<DxTextBox @bind-Text="@yAxisLabel" NullText="Y Axis Label" />
+
+<DxButton Click="LoadChart">Generate Chart</DxButton>
+
+@if (processedData?.Count > 0)
+{
+    <DxChart Data="processedData" Width="100%" Height="500px">
+        <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+
+        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                       Position="RelativePosition.Outside"
+                       VerticalAlignment="VerticalEdge.Top"
+                       Orientation="Orientation.Horizontal" />
+
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+            <DxChartAxisTitle Text="@xAxisLabel" />
+
+            <!-- Spec + control limits -->
+            <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+                <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@UCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@LCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+            </DxChartConstantLine>
+        </DxChartArgumentAxis>
+
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="@yAxisLabel" />
+        </DxChartValueAxis>
+
+        <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+        <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                                  ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+       
+
+
+        <DxChartBarSeries T="CapabilityData"
+                          TArgument="double"
+                          TValue="int"
+                          Name="Frequency"
+                          ArgumentField="c => c.SpecificGravity"
+                          ValueField="c => c.Frequency" />
+
+        <DxChartLineSeries T="CapabilityData"
+                           TArgument="double"
+                           TValue="double"
+                           Name="Normal Curve"
+                           ArgumentField="c => c.SpecificGravity"
+                           ValueField="c => c.NormalizedCurve"
+                           Color="Color.Orange" />
+
+
+
+    </DxChart>
+}
+
+
+@code
+{    
+
+    public class CapabilityData
+    {
+        public double SpecificGravity { get; set; }
+        public int Frequency { get; set; }
+        public double NormalizedCurve { get; set; }
+    }
+    List<string> numericColumnList = new(); // for Y-axis
+
+
+    List<string> tableList = new();
+    List<string> columnList = new();
+    string selectedTable, xField, yField;
+
+    string chartTitle = "SPC Capability Chart";
+    string xAxisLabel = "X Axis";
+    string yAxisLabel = "Y Axis";
+    string lineField;
+    List<LineSeriesData> lineSeriesData = new();
+
+
+    public class LineSeriesData
+    {
+        public double XValue { get; set; }
+        public double LineValue { get; set; }
+    }
+
+
+    double avg, UCL, LCL, LSL, USL;
+    List<CapabilityData> processedData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    private async Task OnTableChangedold(string newTable)
+    {
+        selectedTable = newTable;
+        columnList = await chartService.GetColumnListAsync(newTable);
+    }
+    private async Task OnTableChanged(string table)
+    {
+        selectedTable = table;
+
+        // All columns for X-axis
+        columnList = await chartService.GetColumnListAsync(table);
+
+        // Only numeric columns for Y-axis
+        numericColumnList = await chartService.GetNumericColumnsAsync(table);
+    }
+
+    private async Task LoadChart()
+    {
+        var data = await chartService.GetChartDataAsync(selectedTable, xField, yField);
+        var yValues = data.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+        var variance = yValues.Average(v => Math.Pow(v - avg, 2));
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // 1️⃣ Build histogram bins
+        processedData = yValues
+            .GroupBy(v => Math.Round(v, 3))
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+
+        // 2️⃣ Compute normal distribution values
+        var maxFreq = processedData.Max(p => p.Frequency);
+
+        // Compute raw normal pdf values
+        var pdfValues = processedData.Select(p =>
+            (SpecificGravity: p.SpecificGravity,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
+            )).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        // 3️⃣ Assign NormalizedCurve scaled to histogram height
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(p => Math.Abs(p.SpecificGravity - item.SpecificGravity) < 0.0001).PDF;
+            item.NormalizedCurve = pdf * scaleFactor;
+        }
+    }
+
+
+    private async Task LoadChartold()
+    {
+        var data = await chartService.GetChartDataAsync(selectedTable, xField, yField);
+        var yValues = data.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+        var variance = yValues.Average(v => Math.Pow(v - avg, 2));
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        processedData = yValues
+            .GroupBy(v => Math.Round(v, 3))
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+    }
+
+   
+
+}

@@ -194,6 +194,7 @@ namespace Infrastructure
             services.AddScoped<IMasterBlanketOrderQueryRepository, MasterBlanketOrderQueryRepository>();            
             services.AddScoped<ISPCDataTrendingQueryRepository, SPCDataTrendingQueryRepository>();
             services.AddScoped<ISPCDataFinishedProdctQueryRepository, SPCDataFinishedProdctQueryRepository>();
+            services.AddScoped<IChartRepository, ChartRepository>();            
             return services;
         }
     }

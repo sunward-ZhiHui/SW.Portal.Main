@@ -1,0 +1,310 @@
+﻿@page "/spcd-chart"
+@using System.Drawing
+
+
+<DxChart Data="capabilityDataList" Width="100%" Height="500px">
+    <DxChartTitle Text="Specific Gravity Capability Analysis" />
+
+    <!-- ✅ Legend at top-right -->
+    <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                
+                   Orientation="Orientation.Horizontal" />
+
+
+
+    <!-- ✅ X-Axis -->
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+        <DxChartAxisTitle Text="Specific Gravity" />
+
+        <!-- Constant Lines -->
+        <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"LSL={LSL:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"USL={USL:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+            <DxChartConstantLineLabel Text="@($"Avg={avg:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+
+        @* <DxChartConstantLine Value="@minus3Sigma" Color="Color.Blue" Width="1">
+            <DxChartConstantLineLabel Text="@($"-3σ={minus3Sigma:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@plus3Sigma" Color="Color.Blue" Width="1">
+            <DxChartConstantLineLabel Text="@($"+3σ={plus3Sigma:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine> *@
+    </DxChartArgumentAxis>
+
+    <!-- ✅ Y-Axis -->
+    <DxChartValueAxis Name="FrequencyAxis">
+        <DxChartAxisTitle Text="Frequency" />
+    </DxChartValueAxis>
+
+    <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+    <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                              ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+    <!-- ✅ HISTOGRAM -->
+    <DxChartBarSeries T="CapabilityData" TArgument="double" TValue="int"
+                      Name="Frequency"
+                      ArgumentField="c => c.SpecificGravity"
+                      ValueField="c => c.Frequency" />
+
+    <!-- ✅ NORMAL CURVE -->
+    <DxChartLineSeries T="CapabilityData" TArgument="double" TValue="double"
+                       Name="Normal Curve"
+                       ArgumentField="c => c.SpecificGravity"
+                       ValueField="c => c.NormalizedCurve"                       
+                       Width="2" />
+</DxChart>
+
+
+
+
+
+@* <DxChart Data="BatchDataList" Width="100%" Height="500px">
+    <DxChartTitle Text="Specific Gravity Trend" />
+
+    <!-- X-Axis = SpecificGravity -->
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+        <DxChartAxisTitle Text="Specific Gravity" />
+    </DxChartArgumentAxis>
+
+    <!-- Y-Axis = BatchID -->
+    <DxChartValueAxis>
+        <DxChartAxisTitle Text="Batch ID" />
+    </DxChartValueAxis>
+
+    <!-- Line Series -->
+    <DxChartLineSeries T="BatchData" TArgument="double" TValue="double"
+                       Name="Batch vs Specific Gravity"
+                       ArgumentField="b => b.SpecificGravity"
+                       ValueField="b => b.BatchID"
+                       Color="Color.Red"
+                        />
+</DxChart>
+
+<DxChart Data="capabilityDataList" Width="100%" Height="500px">
+    <DxChartTitle Text="Specific Gravity Capability Analysis" />
+
+    <!-- ✅ X-Axis -->
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+        <DxChartAxisTitle Text="Specific Gravity" />
+
+        <!-- LSL -->
+        <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"LSL={LSL:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <!-- USL -->
+        <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"USL={USL:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <!-- Avg -->
+        <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+            <DxChartConstantLineLabel Text="@($"Avg={avg:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <!-- -3σ -->
+        <DxChartConstantLine Value="@minus3Sigma" Color="Color.Blue" Width="1">
+            <DxChartConstantLineLabel Text="@($"-3σ={minus3Sigma:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <!-- +3σ -->
+        <DxChartConstantLine Value="@plus3Sigma" Color="Color.Blue" Width="1">
+            <DxChartConstantLineLabel Text="@($"+3σ={plus3Sigma:F4}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+    </DxChartArgumentAxis>
+
+    <!-- ✅ Y-Axis -->
+    <DxChartValueAxis Name="FrequencyAxis">
+        <DxChartAxisTitle Text="Frequency" />
+    </DxChartValueAxis>
+
+    <!-- ✅ HISTOGRAM BARS -->
+    <DxChartBarSeries T="CapabilityData" TArgument="double" TValue="int"
+                      Name="Frequency"
+                      ArgumentField="c => c.SpecificGravity"
+                      ValueField="c => c.Frequency" />
+
+    <!-- ✅ NORMAL CURVE LINE SERIES -->
+    <DxChartLineSeries T="CapabilityData" TArgument="double" TValue="double"
+                       Name="Normal Curve"
+                       ArgumentField="c => c.SpecificGravity"
+                       ValueField="c => c.NormalizedCurve"                      
+                       Width="2" />
+</DxChart>
+ *@
+@code {
+    public class BatchData
+    {
+        public double BatchID { get; set; }
+        public double SpecificGravity { get; set; }
+        public double TrendValue { get; set; }
+        public double TargetValue { get; set; }
+        public double AnotherMetric { get; set; }
+    }
+
+    public class CapabilityData
+    {
+        public double SpecificGravity { get; set; }
+        public int Frequency { get; set; }
+        public double NormalizedCurve { get; set; }
+    }
+       
+
+    IEnumerable<BatchData> BatchDataList1 = new[] {
+        new BatchData{ BatchID = 0 , SpecificGravity = 0, TrendValue = 1.250, TargetValue = 1.255, AnotherMetric = 1.22 },
+        new BatchData{ BatchID = 1,  SpecificGravity = 0, TrendValue = 1.252, TargetValue = 1.255, AnotherMetric = 1.24 },
+        new BatchData{ BatchID = 2, SpecificGravity = 0, TrendValue = 1.251, TargetValue = 1.255, AnotherMetric = 1.23 },
+        new BatchData{ BatchID = 3, SpecificGravity = 3.36, TrendValue = 1.252, TargetValue = 1.255, AnotherMetric = 1.25 },
+        new BatchData{ BatchID = 4, SpecificGravity = 4.8, TrendValue = 1.253, TargetValue = 1.255, AnotherMetric = 1.27 },
+        new BatchData{ BatchID = 5, SpecificGravity = 6.1, TrendValue = 1.253, TargetValue = 1.255, AnotherMetric = 1.29 },
+        new BatchData{ BatchID = 6, SpecificGravity = 6.5, TrendValue = 1.254, TargetValue = 1.255, AnotherMetric = 1.28 },
+        new BatchData{ BatchID = 7, SpecificGravity = 7.4, TrendValue = 1.254, TargetValue = 1.255, AnotherMetric = 1.30 },
+        new BatchData{ BatchID = 8, SpecificGravity = 8.4, TrendValue = 1.255, TargetValue = 1.255, AnotherMetric = 1.31 },
+        new BatchData{ BatchID = 9,  SpecificGravity = 9.5, TrendValue = 1.253, TargetValue = 1.255, AnotherMetric = 1.32 },
+        new BatchData{ BatchID = 10, SpecificGravity = 9.6, TrendValue = 1.254, TargetValue = 1.255, AnotherMetric = 1.33 },
+        new BatchData{ BatchID = 11, SpecificGravity = 9.65, TrendValue = 1.256, TargetValue = 1.255, AnotherMetric = 1.35 }
+    };
+
+    IEnumerable<BatchData> BatchDataList2 = new[] {
+        new BatchData{ BatchID = 1, SpecificGravity = 1.245, TrendValue = 1.245, TargetValue = 1.255, AnotherMetric = 1.24 },
+        new BatchData{ BatchID = 2, SpecificGravity = 1.247, TrendValue = 1.247, TargetValue = 1.255, AnotherMetric = 1.25 },
+        new BatchData{ BatchID = 3, SpecificGravity = 1.248, TrendValue = 1.248, TargetValue = 1.255, AnotherMetric = 1.24 },
+        new BatchData{ BatchID = 4, SpecificGravity = 1.249, TrendValue = 1.249, TargetValue = 1.255, AnotherMetric = 1.26 },
+        new BatchData{ BatchID = 5, SpecificGravity = 1.250, TrendValue = 1.250, TargetValue = 1.255, AnotherMetric = 1.27 },
+        new BatchData{ BatchID = 6, SpecificGravity = 1.251, TrendValue = 1.251, TargetValue = 1.255, AnotherMetric = 1.26 },
+        new BatchData{ BatchID = 7, SpecificGravity = 1.252, TrendValue = 1.252, TargetValue = 1.255, AnotherMetric = 1.27 },
+        new BatchData{ BatchID = 8, SpecificGravity = 1.252, TrendValue = 1.252, TargetValue = 1.255, AnotherMetric = 1.28 },
+        new BatchData{ BatchID = 9, SpecificGravity = 1.253, TrendValue = 1.253, TargetValue = 1.255, AnotherMetric = 1.29 },
+        new BatchData{ BatchID = 10, SpecificGravity = 1.254, TrendValue = 1.254, TargetValue = 1.255, AnotherMetric = 1.30 },
+        new BatchData{ BatchID = 11, SpecificGravity = 1.255, TrendValue = 1.255, TargetValue = 1.255, AnotherMetric = 1.31 },
+        new BatchData{ BatchID = 12, SpecificGravity = 1.256, TrendValue = 1.256, TargetValue = 1.255, AnotherMetric = 1.32 },
+        new BatchData{ BatchID = 13, SpecificGravity = 1.257, TrendValue = 1.257, TargetValue = 1.255, AnotherMetric = 1.33 },
+        new BatchData{ BatchID = 14, SpecificGravity = 1.258, TrendValue = 1.258, TargetValue = 1.255, AnotherMetric = 1.34 },
+        new BatchData{ BatchID = 15, SpecificGravity = 1.259, TrendValue = 1.259, TargetValue = 1.255, AnotherMetric = 1.35 },
+    };
+
+    IEnumerable<BatchData> BatchDataList = new[] {
+        new BatchData{ BatchID = 1, SpecificGravity = 1.245, TrendValue = 1.245, TargetValue = 1.255, AnotherMetric = 1.24 },
+        new BatchData{ BatchID = 2, SpecificGravity = 1.247, TrendValue = 1.247, TargetValue = 1.255, AnotherMetric = 1.25 },
+        new BatchData{ BatchID = 3, SpecificGravity = 1.248, TrendValue = 1.248, TargetValue = 1.255, AnotherMetric = 1.24 },
+        new BatchData{ BatchID = 4, SpecificGravity = 1.249, TrendValue = 1.249, TargetValue = 1.255, AnotherMetric = 1.26 }        
+    };
+
+
+    List<CapabilityData> capabilityDataList = new();
+
+    double avg = 1.2530;
+    double minus3Sigma = 1.2525;
+    double plus3Sigma = 1.2540;
+    double LSL = 1.2462;
+    double USL = 1.2478;
+
+
+    protected override void OnInitialized()
+    {
+        var sgValues = BatchDataList.Select(b => b.SpecificGravity).ToList();
+
+        // ✅ Mean & Std Dev
+        avg = sgValues.Average();
+        double variance = sgValues.Average(v => Math.Pow(v - avg, 2));
+        double stdDev = Math.Sqrt(variance);
+
+        //minus3Sigma = avg - 3 * stdDev;
+        //plus3Sigma = avg + 3 * stdDev;
+
+        // ✅ Group into histogram bins
+        var grouped = sgValues
+            .GroupBy(v => Math.Round(v, 3)) // 0.001 bin width
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+
+        // ✅ Max frequency for scaling
+        double maxFreq = grouped.Max(x => x.Frequency);
+
+        // ✅ Compute normal curve for each bin
+        foreach (var item in grouped)
+        {
+            double z = (item.SpecificGravity - avg) / stdDev;
+            double normalPdf = (1.0 / (stdDev * Math.Sqrt(2 * Math.PI))) * Math.Exp(-0.5 * z * z);
+
+            // Scale to histogram height
+            item.NormalizedCurve = normalPdf * maxFreq * stdDev;
+        }
+
+        capabilityDataList = grouped;
+    }
+
+    // protected override void OnInitialized()
+    // {
+    //     // var sgValues = BatchDataList.Select(b => b.TrendValue).ToList();
+
+    //     // avg = sgValues.Average();
+    //     // double variance = sgValues.Average(v => Math.Pow(v - avg, 2));
+    //     // double stdDev = Math.Sqrt(variance);
+
+    //     // minus3Sigma = avg - 3 * stdDev;
+    //     // plus3Sigma = avg + 3 * stdDev;
+
+    //     // capabilityDataList = sgValues
+    //     //     .GroupBy(v => Math.Round(v, 3)) // bin width 0.001
+    //     //     .Select(g => new CapabilityData
+    //     //     {
+    //     //         SpecificGravity = g.Key,
+    //     //         Frequency = g.Count()
+    //     //     })
+    //     //     .OrderBy(d => d.SpecificGravity)
+    //     //     .ToList();
+
+
+
+    //     var sgValues = BatchDataList.Select(b => b.SpecificGravity).ToList();
+
+    //     // Mean & sigma
+    //     avg = sgValues.Average();
+    //     double variance = sgValues.Average(v => Math.Pow(v - avg, 2));
+    //     double stdDev = Math.Sqrt(variance);
+
+    //     minus3Sigma = avg - 3 * stdDev;
+    //     plus3Sigma = avg + 3 * stdDev;
+
+    //     // Group into histogram bins
+    //     capabilityDataList = sgValues
+    //         .GroupBy(v => Math.Round(v, 3)) // group by SG to 3 decimals
+    //         .Select(g => new CapabilityData
+    //         {
+    //             SpecificGravity = g.Key,
+    //             Frequency = g.Count()
+    //         })
+    //         .OrderBy(d => d.SpecificGravity)
+    //         .ToList();
+
+
+
+    //     // Normal distribution scaling to match histogram height
+    //     double maxFreq = capabilityDataList.Max(x => x.Frequency);
+    //     double sigma = Math.Sqrt(variance);
+
+    //     foreach (var item in capabilityDataList)
+    //     {
+    //         double z = (item.SpecificGravity - avg) / sigma;
+    //         double normalPdf = (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) * Math.Exp(-0.5 * z * z);
+
+    //         // scale so it visually aligns with bars
+    //         item.NormalizedCurve = normalPdf * maxFreq * sigma;
+    //     }
+
+
+
+        
+    // }   
+}

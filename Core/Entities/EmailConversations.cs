@@ -141,6 +141,8 @@ namespace Core.Entities
 
         [NotMapped]
         public bool IsRepliesLoading { get; set; } = false;
+        [NotMapped]
+        public bool EmailTransfer { get; set; } = false;
     }
     public class EmailDocumentModel
     {        

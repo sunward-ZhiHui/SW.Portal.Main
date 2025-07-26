@@ -1,0 +1,462 @@
+﻿@using Application.Queries;
+@using AutoMapper.Configuration
+@using ClosedXML.Excel
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using FluentValidation
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using System.IO
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using System.ComponentModel
+@using Microsoft.AspNetCore.Hosting
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.Repositories.Query
+@inject NavigationManager NavigationManager
+@page "/SPCTrendingActive"
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Linq
+@using Microsoft.AspNetCore.Components.Forms
+@using OfficeOpenXml;
+@using ClosedXML.Excel;
+@using System;
+@using System.Collections.Generic;
+@using System.Threading.Tasks;
+
+<style scoped>
+    .grid-container {
+        display: contents;
+    }
+
+    .grid-toolbar-new,
+    .grid-toolbar-delete,
+    .grid-toolbar-save,
+    .grid-toolbar-cancel {
+        background-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        background-position: center center;
+        background-color: currentColor;
+        height: 16px;
+        width: 16px;
+        opacity: 0.7;
+    }
+
+    .grid-toolbar-new {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/grid-toolbar-new.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/grid-toolbar-new.svg");
+    }
+
+    .grid-toolbar-delete {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/grid-toolbar-delete.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/grid-toolbar-delete.svg");
+    }
+
+    .grid-icon-delete {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/delete.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/delete.svg");
+    }
+
+    .grid-toolbar-save {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/save.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/save.svg");
+    }
+
+    .grid-toolbar-cancel {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/undo.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/undo.svg");
+    }
+
+    .grid-modified-cell {
+        background-color: rgba(var(--bs-primary-rgb), 0.15) !important;
+    }
+
+    .c-width {
+        width: 200px !important;
+    }
+
+    .dxbl-listbox > ul > li {
+        width: 200px !important;
+    }
+
+    .grid-toolbar-upload {
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/upload.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/upload.svg");
+        background-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        background-position: center center;
+        background-color: currentColor;
+        height: 16px;
+        width: 16px;
+        opacity: 0.7;
+    }
+
+</style>
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="New" Click="New_Click" IconCssClass="grid-toolbar-new" Enabled="true" />
+                        <DxMenuItem Text="Save" Click="Save_Click" IconCssClass="grid-toolbar-save" Enabled="@BatchItemsEnabled" BeginGroup="true" />
+                        <DxMenuItem Text="Cancel" Click="Cancel_Click" IconCssClass="grid-toolbar-cancel" Enabled="@BatchItemsEnabled" />
+                        <DxMenuItem Text="Generate" Click="Generate_Click" IconCssClass="grid-toolbar-generate" Enabled="@(SelectedDataItems?.Any() == true)" />
+                        <AC.SD.Core.Pages.Import.CommonImport TItem="SPCDataTrending" OnImportCompleted="@OnImportCompleted"></AC.SD.Core.Pages.Import.CommonImport>
+                    </Items>
+                </DxMenu>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxGrid @ref="Grid"
+        AutoExpandAllGroupRows="true"
+        Data="@_SpcDataSource"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorItems="@(new int[] { 10, 20, 100 })"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSize="20"
+        KeyFieldName="ID"
+        ShowGroupPanel="true"
+        ValidationEnabled="true"
+        TextWrapEnabled="false"
+        EditMode="GridEditMode.EditCell"
+        style="height: calc(100vh - 200px);"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+        EditModelSaving="Grid_EditModelSaving"
+        CustomizeElement="Grid_CustomizeElement"
+        CustomizeEditModel="Grid_CustomizeEditModel">
+
+    <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="QCRefNo" MinWidth="250" />
+        <DxGridDataColumn FieldName="Assay" MinWidth="280" />
+        <DxGridCommandColumn Width="30px" FixedPosition="GridColumnFixedPosition.Right" NewButtonVisible="false">
+            <CellDisplayTemplate>
+                <div class="grid-cell-align-center">
+                    <DxButton IconCssClass="grid-icon grid-icon-delete"
+                              RenderStyle="ButtonRenderStyle.Link"
+                              Click="@(() => DeleteDataItem(context.DataItem))" />
+                </div>
+            </CellDisplayTemplate>
+            <CellEditTemplate>
+                <div class="grid-cell-align-center">
+                    <DxButton Enabled="false"
+                              CssClass="grid-disabled-button"
+                              IconCssClass="grid-icon grid-icon-delete"
+                              RenderStyle="ButtonRenderStyle.Link" />
+                </div>
+            </CellEditTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+
+@code {    
+    [Inject] private IWebHostEnvironment env { get; set; }
+    private string FileName { get; set; } = "SPCTrendingData";
+    private string Status { get; set; }
+    private IGrid? Gridpop;
+    private bool IsPopupVisible { get; set; } = false;
+    private IList<HeaderPropertyMapping> HeaderPropertyMappings { get; set; } = new List<HeaderPropertyMapping>();
+    private IList<string> PropertyList { get; set; } = new List<string>();
+
+    private IGrid? Grid;
+    public ApplicationUser? applicationUser { get; private set; }
+    IList<SPCDataTrending>? _SpcDataSource { get; set; }
+
+    Dictionary<SPCDataTrending, DataChange> UnsavedChanges { get; } = new();
+    bool BatchItemsEnabled => UnsavedChanges.Count > 0 || Grid.IsEditing();
+    record DataChange(DataChangeType Type, HashSet<string> ChangedFields);
+    enum DataChangeType { Modification, Addition, Delete }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("templeUser");
+        await InitializeDataSources();
+        await UpdateDataAsync();
+    }
+    private async Task InitializeDataSources()
+    {
+              
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize the inputFile reference after first render
+            //inputFile = await JSRuntime.InvokeAsync<ElementReference>("inputFileInterop.initInputFile", "attachmentSelectButton");
+            StateHasChanged();
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var data = await Mediator.Send(new GetSPCDataTrendingList());
+        _SpcDataSource = new List<SPCDataTrending>(data);
+        Grid.AutoFitColumnWidths();
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task New_Click()
+    {
+        await Grid.StartEditNewRowAsync();
+    }
+
+    private async Task Save_Click()
+    {
+        foreach (var unsavedChange in UnsavedChanges)
+        {
+            var changedItem = unsavedChange.Key;
+            var changeType = unsavedChange.Value.Type;
+            var dataItem = await FindDataItem(changedItem);
+            switch (changeType)
+            {
+
+                case DataChangeType.Addition:
+                    if (ValidateInvoiceDocument(changedItem, out var validationErrors))
+                    {
+
+                        await Mediator.Send(new CreateSPCDataTrendingQuery { SPCDataTrending = changedItem });
+                        toastService.ShowToast("New Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    }
+                    else
+                    {
+                        foreach (var error in validationErrors)
+                        {
+                            toastService.ShowToast(error, AC.SD.Core.Services.ToastLevel.Error);
+                        }
+                        // If validation fails, don't remove the item from UnsavedChanges
+                        continue;
+                    }
+                    break;
+                case DataChangeType.Delete:
+                    await Mediator.Send(new DeleteSPCDataTrendingQuery { ID = dataItem.ID });
+                    toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    break;
+                case DataChangeType.Modification:
+
+                    await Mediator.Send(new UpdateSPCDataTrendingQuery { DataItem = dataItem, ChangedItem = changedItem });
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    break;
+            }
+            UnsavedChanges.Remove(unsavedChange.Key);
+        }
+
+
+    }
+    private bool ValidateInvoiceDocument(SPCDataTrending invoice, out List<string> validationErrors)
+    {
+        var context = new System.ComponentModel.DataAnnotations.ValidationContext(invoice, serviceProvider: null, items: null);
+        var results = new List<ValidationResult>();
+        validationErrors = new List<string>();
+
+        bool isValid = Validator.TryValidateObject(invoice, context, results, true);
+        if (!isValid)
+        {
+            foreach (var validationResult in results)
+            {
+                validationErrors.Add(validationResult.ErrorMessage);
+            }
+        }
+
+        return isValid;
+    }
+    async Task ClearUnsavedChangesAsync()
+    {
+        UnsavedChanges.Clear();
+        Grid.Reload();
+        await UpdateDataAsync();
+    }
+    async Task<SPCDataTrending> FindDataItem(SPCDataTrending changedItem)
+    {
+        var data = await Mediator.Send(new GetSPCDataTrendingList());
+        var result = data.FirstOrDefault(e => e.ID == changedItem.ID);
+        return (result);
+    }
+    private async Task Cancel_Click()
+    {
+        await Grid.CancelEditAsync();
+        await ClearUnsavedChangesAsync();
+    }
+    public class SPCDataTrendingDto
+    {
+        public long ID { get; set; }
+        public string? QCRefNo { get; set; }
+        public decimal Assay { get; set; }
+    }
+    private async Task Generate_Click()
+    {
+        if (SelectedDataItems?.Any() != true)
+        {
+            Status = "❌ No rows selected!";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FileName))
+        {
+            Status = "⚠️ Please enter a file name.";
+            return;
+        }
+
+        try
+        {
+            string cleanName = string.Concat(FileName.Split(Path.GetInvalidFileNameChars()));
+            string folder = Path.Combine(env.WebRootPath, "data");
+            Directory.CreateDirectory(folder);
+
+            string fullPath = Path.Combine(folder, $"{cleanName}.json");
+
+            // Map to DTO to avoid serializing BaseEntity
+            var selectedList = SelectedDataItems
+                .Cast<SPCDataTrending>()
+                .Select(x => new SPCDataTrendingDto
+                {
+                    ID = x.ID,
+                    QCRefNo = x.QCRefNo,
+                    Assay = x.Assay
+                }).ToList();
+
+            string json = JsonSerializer.Serialize(selectedList, new JsonSerializerOptions { WriteIndented = true });
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+
+            await File.WriteAllTextAsync(fullPath, json);
+
+            Status = $"✅ JSON saved successfully: /data/{cleanName}.json";
+            toastService.ShowToast("JSON file saved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        catch (Exception ex)
+        {
+            Status = $"❌ Error: {ex.Message}";
+            toastService.ShowToast("Error saving JSON file.", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+
+    async void DeleteDataItem(object dataItem)
+    {
+        var SPCDataTrending = (SPCDataTrending)dataItem;
+        UnsavedChanges[SPCDataTrending] = new(DataChangeType.Delete, new());
+        _SpcDataSource.Remove(SPCDataTrending);
+        Grid.Reload();
+    }
+
+    private void Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableSPCDataTrending = (SPCDataTrending)e.EditModel;
+        var SPCDataTrending = (SPCDataTrending)e.DataItem;
+        if (e.IsNew)
+        {
+            _SpcDataSource.Add(editableSPCDataTrending);
+            UnsavedChanges[editableSPCDataTrending] = new(DataChangeType.Addition, new());
+        }
+        else
+        {
+            var changedFields = DataUtils.ApplyModifiedFields(editableSPCDataTrending, SPCDataTrending);
+            if (changedFields.Count > 0)
+            {
+                if (UnsavedChanges.TryGetValue(SPCDataTrending, out var changes))
+                    changes.ChangedFields.UnionWith(changedFields);
+                else
+                    UnsavedChanges.Add(SPCDataTrending, new(DataChangeType.Modification, changedFields));
+            }
+        }
+    }
+
+    private void Grid_CustomizeElement(GridCustomizeElementEventArgs ea)
+    {
+        if (ea.ElementType == GridElementType.DataCell)
+        {
+            var SPCDataTrending = (SPCDataTrending)Grid.GetDataItem(ea.VisibleIndex);
+            var column = (IGridDataColumn)ea.Column;
+            bool isNew = SPCDataTrending == null;
+            if (!isNew && UnsavedChanges.TryGetValue(SPCDataTrending, out var changes))
+            {
+                if (changes.Type == DataChangeType.Addition || changes.ChangedFields.Contains(column.FieldName))
+                    ea.CssClass = "grid-modified-cell";
+            }
+        }
+    }
+
+    private void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var newSPCDataTrending = (SPCDataTrending)e.EditModel;
+        if (e.IsNew)
+        {
+
+
+            newSPCDataTrending.AddedDate = DateTime.Now;
+            newSPCDataTrending.AddedByUserID = applicationUser.UserID;
+            newSPCDataTrending.SessionId = Guid.NewGuid();
+            newSPCDataTrending.QCRefNo = "";
+            newSPCDataTrending.Assay = 0;
+            newSPCDataTrending.ID = _SpcDataSource.Any() ? _SpcDataSource.Max(x => x.ID) + 1 : 1;
+
+        }
+        else
+        {
+
+            // newSPCDataTrending.QCRefNo = "";
+            // newSPCDataTrending.Assay = 0;
+            newSPCDataTrending.ModifiedByUserID = applicationUser.UserID;
+            newSPCDataTrending.ModifiedDate = DateTime.Now;
+        }
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    private async Task OnImportCompleted(IList<SPCDataTrending> items)
+    {
+        if (items != null)
+        {
+            foreach (var registration in items)
+            {
+                registration.ID = _SpcDataSource.Any() ? _SpcDataSource.Max(x => x.ID) + 1 : 1;
+                registration.AddedDate = DateTime.Now;
+                registration.ModifiedDate = DateTime.Now;
+               
+                registration.AddedByUserID = applicationUser.UserID;
+                registration.ModifiedByUserID = applicationUser.UserID;
+               
+                registration.SessionId = Guid.NewGuid();
+                
+
+                UnsavedChanges[registration] = new DataChange(DataChangeType.Addition, new HashSet<string>());
+                _SpcDataSource.Add(registration); // Add the invoice to the data source
+            }
+        }
+        else
+        {
+            toastService.ShowToast("InValid Column Excel", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+    }
+
+
+}

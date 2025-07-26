@@ -54,6 +54,7 @@
         RowDoubleClick="OnRowApprovalDoubleClick"
         SelectionMode="GridSelectionMode.Single">
     <Columns>
+        @* <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anomaly Workflow" MinWidth="30" /> *@
         <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
         <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
         <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
@@ -90,6 +91,9 @@
                 </DxComboBox>
                 <ValidationMessage For="@(() => types.UserId)" />
             </DxFormLayoutItem>
+           @*  <DxFormLayoutItem Caption="Is Anomaly Workflow" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="types.IsAnomalyStatus"></DxCheckBox>
+            </DxFormLayoutItem> *@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxTagBox Data="_dynamicFormSectionData"
                           @bind-Values="types.SelectDynamicFormSectionIDs"
@@ -299,6 +303,7 @@
                     dynamicFormWorkFlowForm.CurrentApprovalUserName = listsItems[0].CurrentApprovalUserName;
                     dynamicFormWorkFlowForm.ApprovedStatus = listsItems[0].ApprovedStatus;
                     dynamicFormWorkFlowForm.IsApproved = listsItems[0].IsApproved;
+                    dynamicFormWorkFlowForm.IsAnomalyStatus = listsItems[0].IsAnomalyStatus;
                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
                 });
             }

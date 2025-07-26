@@ -142,7 +142,6 @@
                     {
                         if (s.Value == "IsFileprofileTypeDocument")
                         {
-
                             <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40">
                                 <CellDisplayTemplate>
                                     @{
@@ -232,13 +231,28 @@
                                 }
                                 else
                                 {
-                                    if (s.Value == "ProfileNo")
+                                    if (s.ControlType == "Upload Image")
                                     {
-                                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortIndex="0" SortOrder="GridColumnSortOrder.Descending" />
+                                        <DxGridDataColumn Caption="@s.Text" Visible="@s.IsVisible" MinWidth="40">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    dynamic item = (ExpandoObject)context.DataItem;
+                                                }
+                                                <i class="fa fa-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" onclick="@(() => openUploadImageFormGridList1(s, (ExpandoObject)context.DataItem))"></i>
+
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
                                     }
                                     else
                                     {
-                                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                                        if (s.Value == "ProfileNo")
+                                        {
+                                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortIndex="0" SortOrder="GridColumnSortOrder.Descending" />
+                                        }
+                                        else
+                                        {
+                                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                                        }
                                     }
                                 }
                             }
@@ -420,12 +434,29 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => OnSyncTables())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@imageUploadPopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Image List"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList @ref="refDynamicFormUploadImageList" _dynamicformData="@_filterdynamicformData" RevokeBack="backImageUpload" dynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    DynamicFormSectionAttribute _filterDynamicFormSectionAttribute = new DynamicFormSectionAttribute();
+    DynamicFormData _filterdynamicformData = new DynamicFormData();
     string? tableName { get; set; }
-    bool SyncTablepopup { get; set; } = false;
+    bool SyncTablepopup { get; set; } = false; bool imageUploadPopup { get; set; } = false;
     bool filterEnabled { get; set; } = false; bool filterClicked { get; set; } = false;
     bool createAuditpopup { get; set; } = false; bool OdataAttrListpopup { get; set; } = false;
     bool isBackDisabled { get; set; } = true;
+    private AC.SD.Core.Pages.Attribute.DynamicFormUploadImageList refDynamicFormUploadImageList { get; set; }
     private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
     private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
     private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
@@ -711,29 +742,73 @@
                                 if (a.DataSourceTable == "ApplicationMaster")
                                 {
                                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
-                                    if ( a.ApplicationMaster.Count() > 0)
+                                    if (a.ApplicationMaster.Count() > 0)
                                     {
                                         a.ApplicationMaster.ForEach(ab =>
+                                {
+                                    var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                    dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+                                    if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
+                                    {
+                                        var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                        dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+                                    }
+                                });
+                                    }
+                                }
+                                else if (a.ControlType == "GroupCheckBox")
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
+
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(z =>
                                         {
-                                            var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() {IsMultiple=a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo ,IsVisible=a.IsDisplayTableHeader.Value});
-                                            if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
+                                            if (z.IsTextBox == true)
                                             {
-                                                var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo,IsVisible=a.IsDisplayTableHeader.Value });
+                                                if (z.SubAttributeHeaders.Count() > 0)
+                                                {
+                                                    z.SubAttributeHeaders.ForEach(w =>
+                                                    {
+                                                        if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
+                                                        {
+                                                            w.SubApplicationMaster.ForEach(ab =>
+                                                            {
+                                                                var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + w.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                                                                dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = w.IsMultiple, IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            var nameData = a.DynamicFormSectionAttributeId + "_" + w.SubDynamicAttributeName;
+                                                            dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = w.IsMultiple, IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = nameData, Text = w.Description, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + z.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                //dataColumnNames.Add(new DropDownOptionsModel() { DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = z.Value, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
+
                                             }
                                         });
+
                                     }
+
                                 }
                                 else if (a.DataSourceTable == "ApplicationMasterParent")
                                 {
                                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
-                                    if ( a.ApplicationMasterParents.Count() > 0)
+                                    if (a.ApplicationMasterParents.Count() > 0)
                                     {
                                         a.ApplicationMasterParents.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo ,IsVisible=a.IsDisplayTableHeader.Value});
+                                            dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
                                             RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                             {
@@ -759,13 +834,13 @@
                                                     q.SubAttributeHeaders.ForEach(w =>
                                                     {
                                                         var nameData = a.DynamicFormSectionAttributeId + "_" + w.SubDynamicAttributeName;
-                                                        dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple=w.IsMultiple,IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = nameData, Text = w.Description, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = false });
+                                                        dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = w.IsMultiple, IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = nameData, Text = w.Description, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = false });
                                                         if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
                                                         {
                                                             w.SubApplicationMaster.ForEach(ab =>
                                                             {
                                                                 var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + w.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
-                                                                dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple=w.IsMultiple, IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = false });
+                                                                dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = w.IsMultiple, IsSubForm = true, AttributeDetailID = w.AttributeID, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = w.ControlType, Value = appendAppMaster, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = false });
 
                                                             });
                                                         }
@@ -791,6 +866,7 @@
 
                                                     });
                                                 }
+
                                             });
                                         }
                                     }
@@ -1515,25 +1591,24 @@
                                                 {
                                                     var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
                                                     var NamesA = jsonObj.ContainsKey(nameData);
-                                                    if (NamesA == true)
+                                                    var itemValueA = jsonObj[nameData];
+                                                    if (r.IsTextBox == true)
                                                     {
-
-                                                        var itemValueA = jsonObj[nameData];
-                                                        if (r.IsTextBox == true)
-                                                        {
-                                                            string? valuesA = itemValueA == null ? string.Empty : (string?)itemValueA;
-                                                            if (!string.IsNullOrEmpty(valuesA))
-                                                            {
-                                                                valuesData += "<li>" + r.Value + "->(" + valuesA + ")" + "</li>";
-                                                            }
-                                                        }
-                                                        else
+                                                        loadSubHeaders(r.SubAttributeHeaders, s, jsonObj, objectData);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (NamesA == true)
                                                         {
                                                             bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
                                                             if (valuesA == true)
                                                             {
                                                                 valuesData += "<li>" + r.Value + "</li>";
                                                             }
+                                                        }
+                                                        else
+                                                        {
+                                                            //objectData[nameData] = r.Value.TrimEnd(',');
                                                         }
 
                                                     }
@@ -1570,6 +1645,29 @@
                             }
                             else
                             {
+                                if (s.ControlType == "GroupCheckBox")
+                                {
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(g => g.AttributeId == s.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(r =>
+                                        {
+                                            var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                            var NamesA = jsonObj.ContainsKey(nameData);
+                                            var itemValueA = jsonObj[nameData];
+                                            if (r.IsTextBox == true)
+                                            {
+                                                loadSubHeaders(r.SubAttributeHeaders, s, jsonObj, objectData);
+                                            }
+                                            else
+                                            {
+
+
+                                            }
+                                        });
+                                        objectData[attrName] = string.Empty;
+                                    }
+                                }
                                 if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
                                 {
                                     objectData[attrName] = string.Empty;
@@ -1685,44 +1783,95 @@
                     {
                         var values = (JArray)itemValues;
                         List<long?> listDatas = values.ToObject<List<long?>>();
-                        if (d.IsMultiple == true || d.ControlType == "TagBox")
+                        if (d.DataSourceTable == "DynamicGrid")
                         {
-                            var ValueSet = string.Empty;
-                            if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
-                            {
-                                var nameList = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).ToList();
-                                List<string?> listName = new List<string?>();
-                                if (nameList != null && nameList.Count() > 0)
-                                {
-                                    nameList.ForEach(n =>
-                                    {
-                                        if (d.DataSourceTable == "Employee")
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                        }
-                                        else if (d.DataSourceTable == "RawMatPurch")
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                        }
-                                        else if (d.DataSourceTable == "ReleaseProdOrderLine")
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                        }
-                                        else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
-                                        {
-                                            listName.Add(n?.NameList);
-                                        }
-                                        else
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                        }
-                                    });
+                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == d.DynamicFormId).FirstOrDefault()?.DropDownOptionsModels;
 
-                                }
-                                ValueSet = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
+                            string displayNames = string.Empty;
+
+                            if (listDatas != null && listDatas.Count > 0)
+                            {
+                                var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                listDatas.ForEach(l =>
+                                {
+                                    if (collection != null)
+                                    {
+                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                        {
+                                            dynamic eod = v;
+                                            var vv = eod.DynamicFormId;
+                                            string listone = string.Empty;
+                                            if (gridlistss != null && gridlistss.Count() > 0)
+                                            {
+                                                var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                g1.ForEach(q =>
+                                           {
+                                               var byName = (IDictionary<string, object>)v;
+                                               if (q.Value != null)
+                                               {
+                                                   if (byName.ContainsKey(q.Value))
+                                                   {
+                                                       var names = (string)byName[q.Value]?.ToString();
+                                                       listone += names + "|";
+                                                   }
+                                               }
+                                           });
+                                            }
+                                            eod.DisplayItemsQuery = listone;
+                                            if ((long?)eod.AttributeDetailID == l)
+                                            {
+                                                displayNames += eod.DisplayItemsQuery + ",";
+                                            }
+                                        }
+                                    }
+                                });
                             }
                             objectData[subAttrName + "_UId"] = listDatas;
-                            objectData[subAttrName] = ValueSet;
+                            objectData[subAttrName] = displayNames.TrimEnd(',');
+
+                        }
+                        else
+                        {
+                            if (d.IsMultiple == true || d.ControlType == "TagBox")
+                            {
+                                var ValueSet = string.Empty;
+                                if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                {
+                                    var nameList = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).ToList();
+                                    List<string?> listName = new List<string?>();
+                                    if (nameList != null && nameList.Count() > 0)
+                                    {
+                                        nameList.ForEach(n =>
+                                        {
+                                            if (d.DataSourceTable == "Employee")
+                                            {
+                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                            }
+                                            else if (d.DataSourceTable == "RawMatPurch")
+                                            {
+                                                listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                            }
+                                            else if (d.DataSourceTable == "ReleaseProdOrderLine")
+                                            {
+                                                listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                            }
+                                            else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
+                                            {
+                                                listName.Add(n?.NameList);
+                                            }
+                                            else
+                                            {
+                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                            }
+                                        });
+
+                                    }
+                                    ValueSet = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
+                                }
+                                objectData[subAttrName + "_UId"] = listDatas;
+                                objectData[subAttrName] = ValueSet;
+                            }
                         }
                     }
                     else if (d.ControlType == "ListBox" && d.IsMultiple == false)
@@ -1781,39 +1930,84 @@
                         {
                             long? values = itemValues == null ? null : (long)itemValues;
                             var ValueSet = string.Empty;
-                            if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                            if (values > 0)
                             {
-                                var nameList = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).ToList();
-
-                                List<string?> listName = new List<string?>();
-                                if (nameList != null && nameList.Count() > 0)
+                                if (d.DataSourceTable == "DynamicGrid")
                                 {
-                                    nameList.ForEach(n =>
+                                    List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                    gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == d.DynamicFormId).FirstOrDefault()?.DropDownOptionsModels;
+                                    var displayNames = string.Empty;
+                                    var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                    if (collection != null)
                                     {
-                                        if (d.DataSourceTable == "Employee")
+                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                         {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                            dynamic eod = v;
+                                            var vv = eod.DynamicFormId;
+                                            var AttributeDetailIds = eod.AttributeDetailID;
+                                            string listone = string.Empty;
+                                            if (gridlistss != null && gridlistss.Count() > 0)
+                                            {
+                                                var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                g1.ForEach(q =>
+                                           {
+                                               var byName = (IDictionary<string, object>)v;
+                                               if (q.Value != null)
+                                               {
+                                                   if (byName.ContainsKey(q.Value))
+                                                   {
+                                                       var names = (string)byName[q.Value]?.ToString();
+                                                       listone += names + "|";
+                                                   }
+                                               }
+                                           });
+                                            }
+                                            eod.DisplayItemsQuery = listone;
+                                            if ((long?)eod.AttributeDetailID == values)
+                                            {
+                                                displayNames += eod.DisplayItemsQuery;
+                                            }
                                         }
-                                        else if (d.DataSourceTable == "RawMatPurch")
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                        }
-                                        else if (d.DataSourceTable == "ReleaseProdOrderLine")
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                        }
-                                        else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
-                                        {
-                                            listName.Add(n?.NameList);
-                                        }
-                                        else
-                                        {
-                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                        }
-                                    });
-
+                                    }
+                                    ValueSet = displayNames.TrimEnd(',');
                                 }
-                                ValueSet = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
+                                else
+                                {
+                                    if (d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                    {
+                                        var nameList = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).ToList();
+
+                                        List<string?> listName = new List<string?>();
+                                        if (nameList != null && nameList.Count() > 0)
+                                        {
+                                            nameList.ForEach(n =>
+                                            {
+                                                if (d.DataSourceTable == "Employee")
+                                                {
+                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                }
+                                                else if (d.DataSourceTable == "RawMatPurch")
+                                                {
+                                                    listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                }
+                                                else if (d.DataSourceTable == "ReleaseProdOrderLine")
+                                                {
+                                                    listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                }
+                                                else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
+                                                {
+                                                    listName.Add(n?.NameList);
+                                                }
+                                                else
+                                                {
+                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                }
+                                            });
+
+                                        }
+                                        ValueSet = listName != null && listName.Count > 0 ? (string.Join(",", listName)).TrimEnd(',') : string.Empty;
+                                    }
+                                }
                             }
                             objectData[subAttrName + "_UId"] = values;
                             objectData[subAttrName] = ValueSet;
@@ -1902,6 +2096,11 @@
                                             }
                                             objectData[appendAppMaster + "_UId"] = values;
                                             objectData[appendAppMaster] = ValueSet;
+                                        }
+                                        else
+                                        {
+                                            objectData[appendAppMaster + "_UId"] = null;
+                                            objectData[appendAppMaster] = string.Empty;
                                         }
                                     }
                                 }
@@ -2450,6 +2649,19 @@
         PopupApprovalForm = false;
         StateHasChanged();
     }
+    void openUploadImageFormGridList1(DropDownOptionsModel dropDownOptionsModel, object datas)
+    {
+        dynamic item = (ExpandoObject)datas;
+        long? ids = (long?)item.DynamicFormDataId;
+        _filterdynamicformData = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == ids);
+        _filterDynamicFormSectionAttribute = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == dropDownOptionsModel.DynamicFormSectionAttributeId);
+        imageUploadPopup = true;
+    }
+    void backImageUpload()
+    {
+        imageUploadPopup = false;
+        StateHasChanged();
+    }
     void openFormGridList(DropDownOptionsModel dropDownOptionsModel, object datas)
     {
         var values = dropDownOptionsModel.Value;
@@ -2661,181 +2873,188 @@
     }
     async Task addSectionEntry(SpreadsheetDocument spreadsheetDoc, WorkbookPart workbookpart, Sheets sheets, uint sheetId, string SheetDisName)
     {
-        SheetData sheetData = new SheetData();
-
-        Row titleRow = new Row { RowIndex = (UInt32)1 };
-        List<string> headers = new List<string>();
-        if (dataColumnNames != null && dataColumnNames.Count() > 0)
+        try
         {
-            foreach (var s in dataColumnNames)
-            {
-                if (s.IsVisible == true)
-                {
-                    if (s.Value == "IsFileprofileTypeDocument")
-                    {
+            SheetData sheetData = new SheetData();
 
-                    }
-                    else
-                    {
-                        headers.Add(s.Text);
-                    }
-                }
-            }
-            if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0)
+            Row titleRow = new Row { RowIndex = (UInt32)1 };
+            List<string> headers = new List<string>();
+            if (dataColumnNames != null && dataColumnNames.Count() > 0)
             {
-                headers.Add("No Section. Default Upload");
-                _dynamicFormSectionData.ForEach(q =>
+                foreach (var s in dataColumnNames)
                 {
-                    headers.Add(q.SectionName);
-                });
-            }
-        }
-        headersAdd(titleRow, headers);
-
-        // Append Row to SheetData
-        sheetData.AppendChild(titleRow);
-
-        if (Items != null && Items.Count() > 0)
-        {
-            foreach (var a in Items)
-            {
-                dynamic item = (ExpandoObject)a;
-                var byName = (IDictionary<string, object>)a;
-                var _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(item.DynamicFormId, applicationUser.UserID, item.DynamicFormDataId));
-                Row row = new Row();
-                if (dataColumnNames != null && dataColumnNames.Count() > 0)
-                {
-                    foreach (var s in dataColumnNames)
+                    if (s.IsVisible == true)
                     {
-                        if (s.IsVisible == true)
+                        if (s.Value == "IsFileprofileTypeDocument")
                         {
 
-                            if (s.IsDynamicGrid == true)
+                        }
+                        else
+                        {
+                            headers.Add(s.Text);
+                        }
+                    }
+                }
+                if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0)
+                {
+                    headers.Add("No Section. Default Upload");
+                    _dynamicFormSectionData.ForEach(q =>
+                    {
+                        headers.Add(q.SectionName);
+                    });
+                }
+            }
+            headersAdd(titleRow, headers);
+
+            // Append Row to SheetData
+            sheetData.AppendChild(titleRow);
+
+            if (Items != null && Items.Count() > 0)
+            {
+                foreach (var a in Items)
+                {
+                    dynamic item = (ExpandoObject)a;
+                    var byName = (IDictionary<string, object>)a;
+                    var _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(item.DynamicFormId, applicationUser.UserID, item.DynamicFormDataId));
+                    Row row = new Row();
+                    if (dataColumnNames != null && dataColumnNames.Count() > 0)
+                    {
+                        foreach (var s in dataColumnNames)
+                        {
+                            if (s.IsVisible == true)
                             {
 
-                            }
-                            else
-                            {
-                                if (s.Value == "IsFileprofileTypeDocument")
+                                if (s.IsDynamicGrid == true)
                                 {
+
                                 }
                                 else
                                 {
-                                    if (s.Value == "ModifiedDate")
+                                    if (s.Value == "IsFileprofileTypeDocument")
                                     {
-                                        row.AppendChild(addCellValues("DateTime", (string?)byName[s.Value].ToString()));
-
                                     }
                                     else
                                     {
-                                        if (s.ControlType == "DateEdit")
+                                        if (s.Value == "ModifiedDate")
                                         {
-                                            if (byName[s.Value] != null)
-                                            {
-                                                row.AppendChild(addCellValues("Date", (string?)byName[s.Value].ToString()));
-                                            }
-                                            else
-                                            {
-                                                row.AppendChild(addCellValues("Date", null));
-                                            }
+                                            row.AppendChild(addCellValues("DateTime", (string?)byName[s.Value].ToString()));
+
                                         }
                                         else
                                         {
-                                            if (s.Value == "ProfileNo")
+                                            if (s.ControlType == "DateEdit")
                                             {
                                                 if (byName[s.Value] != null)
                                                 {
-                                                    row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                    row.AppendChild(addCellValues("Date", (string?)byName[s.Value].ToString()));
                                                 }
                                                 else
                                                 {
-                                                    row.AppendChild(addCellValues("String", null));
+                                                    row.AppendChild(addCellValues("Date", null));
                                                 }
-
                                             }
                                             else
                                             {
-                                                if (byName[s.Value] != null)
+                                                if (s.Value == "ProfileNo")
                                                 {
-                                                    row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                    if (byName[s.Value] != null)
+                                                    {
+                                                        row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                    }
+                                                    else
+                                                    {
+                                                        row.AppendChild(addCellValues("String", null));
+                                                    }
+
                                                 }
                                                 else
                                                 {
-                                                    row.AppendChild(addCellValues("String", null));
+                                                    if (byName[s.Value] != null)
+                                                    {
+                                                        row.AppendChild(addCellValues("String", (string?)byName[s.Value].ToString()));
+                                                    }
+                                                    else
+                                                    {
+                                                        row.AppendChild(addCellValues("String", null));
+                                                    }
                                                 }
                                             }
                                         }
+
                                     }
-
                                 }
-                            }
 
+                            }
+                        }
+                        if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+                        {
+                            _dynamicFormSectionList.ForEach(d =>
+                            {
+                                if (d.IsFileExits == "Yes")
+                                {
+                                    var url = DocumentViewUrl + "?url=" + d.UniqueSessionId;
+                                    Cell cellHeader = new Cell();
+                                    cellHeader.DataType = CellValues.InlineString;
+                                    CellFormula cellFormula1 = new CellFormula() { Space = SpaceProcessingModeValues.Preserve };
+                                    cellFormula1.Text = @"HYPERLINK(""" + url + @""", """ + d.FileName + @""")";
+
+                                    cellHeader.CellFormula = cellFormula1;
+                                    Run run1 = new Run();
+                                    run1.Append(new Text(d.FileName));
+
+                                    RunProperties run1Properties = new RunProperties();
+                                    run1Properties.Append(new Bold());
+                                    run1.RunProperties = run1Properties;
+                                    InlineString inlineString = new InlineString();
+                                    inlineString.Append(run1);
+                                    cellHeader.Append(inlineString);
+                                    row.AppendChild(cellHeader);
+                                }
+                                else
+                                {
+                                    row.AppendChild(addCellValues("String", null));
+                                }
+                            });
                         }
                     }
-                    if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
-                    {
-                        _dynamicFormSectionList.ForEach(d =>
-                        {
-                            if (d.IsFileExits == "Yes")
-                            {
-                                var url = DocumentViewUrl + "?url=" + d.UniqueSessionId;
-                                Cell cellHeader = new Cell();
-                                cellHeader.DataType = CellValues.InlineString;
-                                CellFormula cellFormula1 = new CellFormula() { Space = SpaceProcessingModeValues.Preserve };
-                                cellFormula1.Text = @"HYPERLINK(""" + url + @""", """ + d.FileName + @""")";
-
-                                cellHeader.CellFormula = cellFormula1;
-                                Run run1 = new Run();
-                                run1.Append(new Text(d.FileName));
-
-                                RunProperties run1Properties = new RunProperties();
-                                run1Properties.Append(new Bold());
-                                run1.RunProperties = run1Properties;
-                                InlineString inlineString = new InlineString();
-                                inlineString.Append(run1);
-                                cellHeader.Append(inlineString);
-                                row.AppendChild(cellHeader);
-                            }
-                            else
-                            {
-                                row.AppendChild(addCellValues("String", null));
-                            }
-                        });
-                    }
+                    sheetData.AppendChild(row);
                 }
-                sheetData.AppendChild(row);
             }
+            // Set the AutoFilter property to a range that is the size of the data
+            // within the worksheet
+            char c = (char)((int)'A' + headers.Count - 1);
+            AutoFilter autoFilter1 = new AutoFilter()
+            { Reference = "A1:" + c + headers.Count + 1 };
+
+            Worksheet sheet1 = new Worksheet();
+            sheet1.Append(sheetData);
+            sheet1.Append(autoFilter1);
+
+
+            // Add a WorksheetPart to the WorkbookPart.
+            WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = sheet1;
+            var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+            Columns columns = new Columns();
+            columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
+            worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
+            // Add Sheets to the Workbook.
+
+
+            // Append a new worksheet and associate it with the workbook.
+            Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = sheetId,
+                Name = SheetDisName
+            };
+
+            sheets.Append(sheet);
         }
-        // Set the AutoFilter property to a range that is the size of the data
-        // within the worksheet
-        char c = (char)((int)'A' + headers.Count - 1);
-        AutoFilter autoFilter1 = new AutoFilter()
-        { Reference = "A1:" + c + headers.Count + 1 };
-
-        Worksheet sheet1 = new Worksheet();
-        sheet1.Append(sheetData);
-        sheet1.Append(autoFilter1);
-
-
-        // Add a WorksheetPart to the WorkbookPart.
-        WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
-        worksheetPart.Worksheet = sheet1;
-        var sheetdatas = worksheetPart.Worksheet.GetFirstChild<SheetData>();
-        Columns columns = new Columns();
-        columns.Append(new Column() { Min = 1, Max = 100, Width = 40, CustomWidth = true });
-        worksheetPart.Worksheet.InsertBefore(columns, sheetdatas);
-        // Add Sheets to the Workbook.
-
-
-        // Append a new worksheet and associate it with the workbook.
-        Sheet sheet = new Sheet()
+        catch (Exception ex)
         {
-            Id = spreadsheetDoc.WorkbookPart.GetIdOfPart(worksheetPart),
-            SheetId = sheetId,
-            Name = SheetDisName
-        };
 
-        sheets.Append(sheet);
+        }
     }
     void OnSyncTable()
     {

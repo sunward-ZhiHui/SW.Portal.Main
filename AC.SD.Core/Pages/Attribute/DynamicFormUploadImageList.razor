@@ -17,7 +17,41 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
+<style scoped>
+    /* .responsive-video {
+                            width: 960px;
+                            height: 540px;
+                            max-width: 100%;
+                        } */
 
+    .responsive-video {
+        width: 100%;
+        max-height: 100%;
+        border-radius: 8px;
+    }
+
+    .media-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .media-content {
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .media-title {
+        margin-top: 8px;
+        font-size: 1rem;
+        text-align: center;
+    }
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -26,7 +60,8 @@
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="View Image" IconCssClass="fa fa-image" Click="@addViewImage" Enabled="@DeleteEnabled" />
+                @*  <DxMenuItem Text="View Image" IconCssClass="fa fa-image" Click="@addViewImage" Enabled="@ImageEnabled" /> *@
+                <DxMenuItem Text="View/Play" IconCssClass="fa fa-video" Click="@addViewVideo" Enabled="@DeleteEnabled" />
             </Items>
         </DxMenu>
 
@@ -116,13 +151,74 @@
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@Videopopup"
+         ShowFooter="true"
+         HeaderText="Video"
+         Closed="EulaPopupClosed"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         Width="auto">
+    <BodyContentTemplate>
+        @* <video class="responsive-video" controls autoplay>
+            <source src="@videoUrl" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video> *@
+        <DxCarousel Width="750px"
+                    Height="450px"
+                    AllowPagingByClick="false"
+                    CssClass="demo-carousel-container"
+                    ActiveItemIndexChanged="@OnSlideChanged">
+            <Items>
+                @foreach (var item in carouselDatas)
+                {
+                    <DxCarouselItem>
+                        <div class="media-wrapper">
+                            @if (item.Type == "video")
+                            {
+                                <video @ref="videoRefs[item.Index]" class="responsive-video" controls  muted>
+                                    <source src="@item.Source" type="@item.FileType" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            }
+                            else if (item.Type == "image")
+                            {
+                                <img src="@item.Source" alt="@item.AlternateText" class="responsive-video" />
+                            }
+                            <div class="media-title">@item.AlternateText</div>
+                        </div>
+                    </DxCarouselItem>
+                }
+            </Items>
+        </DxCarousel>
+
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+<script>
+        window.playVideo = function (videoElement) {
+        if (videoElement) {
+            videoElement.play();
+        }
+    };
+
+    window.pauseVideo = function (videoElement) {
+        if (videoElement) {
+            videoElement.pause();
+        }
+    };
+</script>
 @code {
+    DxCarousel carousel; ElementReference[] videoRefs;
+    int iData = 0;
     int? height { get; set; }
     int? width { get; set; }
     string? imagesrc { get; set; }
-    bool Imagepopup { get; set; } = false; bool isEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
+    bool Imagepopup { get; set; } = false; bool isEnabled { get; set; } = false; bool Videopopup { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool ImageEnabled { get; set; } = false; bool VideoEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; string? videoUrl { get; set; }
     private List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadListItems { get; set; }
     private DynamicFormDataAttrUpload _selectedItems;
     IGrid? SMShareGrid { get; set; }
@@ -143,12 +239,13 @@
     {
         await LoadData();
     }
+
     async Task LoadData()
     {
-        DeleteEnabled = false; carouselDatas = new List<CarouselData>(); isEnabled = false;
+        DeleteEnabled = false; carouselDatas = new List<CarouselData>(); isEnabled = false; ImageEnabled = false; VideoEnabled = false;
         var _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
         _DynamicFormDataAttrUploadListItems = new List<DynamicFormDataAttrUpload>();
-        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        if (_dynamicformData != null && dynamicFormSectionAttribute !=null && _dynamicformData.DynamicFormDataId > 0)
         {
             var response = await Mediator.Send(new GetDynamicFormDataAttrUpload(dynamicFormSectionAttribute.DynamicFormSectionAttributeId, _dynamicformData.DynamicFormDataId));
             if (response != null && response.Count() > 0)
@@ -176,17 +273,54 @@
                 // carouselData.Source = ResizeImage(s);
                 if (s.ImageData != null)
                 {
-                    carouselData.Source = "data:" + s.ImageType + ";base64," + Convert.ToBase64String(s.ImageData);
-                    carouselData.AlternateText = s.FileName;
-                    carouselDatas.Add(carouselData);
+                    if ((!string.IsNullOrEmpty(s.ImageType)))
+                    {
+                        var type = s.ImageType.Split("/")[0].ToLower();
+                        carouselData.Source = "data:" + s.ImageType + ";base64," + Convert.ToBase64String(s.ImageData);
+                        carouselData.AlternateText = s.FileName;
+                        carouselData.Type = type;
+                        carouselData.FileType = s.ImageType;
+                        carouselData.Index = (i - 1);
+                        carouselDatas.Add(carouselData);
+                    }
                 }
                 i++;
             });
+            videoRefs = new ElementReference[carouselDatas.Count];
             isEnabled = true;
             _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault();
+            ImageEnabled = false; DeleteEnabled = false; VideoEnabled = false;
+            if (_selectedItems != null)
+            {
+                if ((!string.IsNullOrEmpty(_selectedItems.ImageType)) && _selectedItems.ImageType.Split("/")[0].ToLower() == "image".ToLower())
+                {
+                    ImageEnabled = true;
+                }
+                if ((!string.IsNullOrEmpty(_selectedItems.ImageType)) && _selectedItems.ImageType.Split("/")[0].ToLower() == "video".ToLower())
+                {
+                    VideoEnabled = true;
+                }
+            }
             DeleteEnabled = true;
             SMShareGrid.SetFocusedRowIndex(0);
             StateHasChanged();
+        }
+    }
+    private async Task OnSlideChanged(int newIndex)
+    {
+        foreach (var i in carouselDatas)
+        {
+            if (carouselDatas[i.Index].Type == "video")
+            {
+                if (i.Index == newIndex)
+                {
+                    await JSRuntime.InvokeVoidAsync("playVideo", videoRefs[i.Index]);
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("pauseVideo", videoRefs[i.Index]);
+                }
+            }
         }
     }
     string ResizeImage(DynamicFormDataAttrUpload dynamicFormDataAttrUpload)
@@ -228,6 +362,17 @@
             Imagepopup = true;
         }
     }
+    void addViewVideo()
+    {
+        videoUrl = "";
+        if (_selectedItems != null && _selectedItems.ImageData != null)
+        {
+            string base64 = Convert.ToBase64String(_selectedItems.ImageData);
+            videoUrl = $"data:video/mp4;base64,{base64}";
+
+            Videopopup = true;
+        }
+    }
     void onBack()
     {
         RevokeBack.Invoke();
@@ -244,7 +389,19 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueId");
         _selectedItems = _DynamicFormDataAttrUploadListItems.FirstOrDefault(f => f.UniqueId == (int?)UniqueId);
-
+        ImageEnabled = false; DeleteEnabled = false; VideoEnabled = false;
+        if (_selectedItems != null)
+        {
+            if ((!string.IsNullOrEmpty(_selectedItems.ImageType)) && _selectedItems.ImageType.Split("/")[0].ToLower() == "image".ToLower())
+            {
+                ImageEnabled = true;
+            }
+            if ((!string.IsNullOrEmpty(_selectedItems.ImageType)) && _selectedItems.ImageType.Split("/")[0].ToLower() == "video".ToLower())
+            {
+                VideoEnabled = true;
+            }
+            DeleteEnabled = true;
+        }
     }
     void addDetailDelete()
     {
@@ -283,7 +440,7 @@
 
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
-        Blukdeletepopup = false; Imagepopup = false;
+        Blukdeletepopup = false; Imagepopup = false; Videopopup = false;
         // await LoadData();
     }
     public async ValueTask DisposeAsync()

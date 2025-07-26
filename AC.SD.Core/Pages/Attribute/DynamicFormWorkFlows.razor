@@ -86,6 +86,7 @@
         <Columns>
            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
+            @* <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anomaly Workflow" MinWidth="30" /> *@
             <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
             <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
             <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40" />
@@ -173,6 +174,9 @@
                 <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
                 <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
                 </DxTagBox>
+                </DxFormLayoutItem> *@
+               @*  <DxFormLayoutItem Caption="Is Anomaly Workflow" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAnomalyStatus"></DxCheckBox>
                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                     <DxTagBox Data="_dynamicFormSectionData"

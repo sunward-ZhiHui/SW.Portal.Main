@@ -28,5 +28,8 @@ namespace Core.Entities
     {
         public string? Source { get; set; }
         public string? AlternateText { get; set; }
+        public string? Type { get; set; }
+        public string? FileType { get; set; }
+        public int Index { get; set; }
     }
 }

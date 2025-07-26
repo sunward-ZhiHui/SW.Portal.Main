@@ -60,6 +60,7 @@ namespace Core.Entities
         public string? Status { get; set; }
         public string? FullName { get; set; }
         public string? QcRefNo { get; set; }
+        public long? AttributeGroupCheckBoxId { get; set; }   
 
     }
     public class DataSourceAttributeDetails
@@ -91,5 +92,6 @@ namespace Core.Entities
         public bool Checked { get; set; } = false;
         public bool? IsTextBox { get; set; } = false;
         public List<AttributeGroupCheckBox> Children { get; set; } = new List<AttributeGroupCheckBox>();
+        public List<AttributeHeader> SubAttributeHeaders { get; set; } = new List<AttributeHeader>();
     }
 }

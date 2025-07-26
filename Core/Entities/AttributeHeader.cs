@@ -86,6 +86,7 @@ namespace Core.Entities
         public string? DropDownTypeIds { get; set; } = null;
         public int? DummyNo { get; set; }
         public long? SubFormAttributeID { get; set; }
+        public long? AttributeGroupCheckBoxId { get; set; }
     }
     public class AttributeHeaderListModel
     {

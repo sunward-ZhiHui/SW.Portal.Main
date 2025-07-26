@@ -100,7 +100,7 @@
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <AttributeSetupSubForm @ref="refAttributeSetupSubForm" RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
+        <AttributeSetupSubForm @ref="refAttributeSetupSubForm" RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" AttributeGroupCheckBoxId="@AttributeGroupCheckBoxId" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -145,6 +145,8 @@
     public long? SubAttributeId { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    [Parameter]
+    public long? AttributeGroupCheckBoxId{ get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     bool DeleteEnabled { get; set; } = false; bool IsSortOrderByOpen { get; set; } = false;
@@ -219,7 +221,14 @@
         try
         {
             PanelVisible = true;
-            _attributes = await Mediator.Send(new GetAllAttributeNameHeader(true, Type, Type == "SubAttributeDetailID" ? SubAttributeDetailId : SubAttributeId));
+            if (Type == "GroupCheckBox")
+            {
+                _attributes = await Mediator.Send(new GetAllAttributeNameHeader(true, Type,AttributeGroupCheckBoxId));
+            }
+            else
+            {
+                _attributes = await Mediator.Send(new GetAllAttributeNameHeader(true, Type, Type == "SubAttributeDetailID" ? SubAttributeDetailId : SubAttributeId));
+            }
             if (_attributes != null && _attributes.Count > 0)
             {
                 _selectedItems = _attributes.FirstOrDefault();

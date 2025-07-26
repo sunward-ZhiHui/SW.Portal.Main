@@ -76,6 +76,7 @@ namespace Core.Entities
         public bool? IsAutoNumberEnabled { get; set; } = false;
         [NotMapped]
         public Guid? UniqueSessionId { get; set; }
+        public long? LinkFileProfileTypeDocumentID { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

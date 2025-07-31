@@ -701,21 +701,16 @@
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
-            // dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
-
-            // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
             if (SessionId != null)
             {
                 _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
 
                 if (_dynamicForm != null)
                 {
-                    //_dynamicFormSectionAttributesList = await Mediator.Send(new GetDynamicFormAttributeItemList(_dynamicForm?.ID));
-                    // _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSection(_dynamicForm?.ID));
                     if (_dynamicForm != null)
                     {
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, false)));
+                        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, true)));
                         await Task.WhenAll(_AttributeHeaders);
                         _AttributeHeader = await _AttributeHeaders.Result;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -741,19 +736,18 @@
                             {
                                 if (a.DataSourceTable == "ApplicationMaster")
                                 {
-                                    //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                     if (a.ApplicationMaster.Count() > 0)
                                     {
                                         a.ApplicationMaster.ForEach(ab =>
-                                {
-                                    var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                    dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
-                                    if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
-                                    {
-                                        var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                        dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
-                                    }
-                                });
+                                        {
+                                            var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                            dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+                                            if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
+                                            {
+                                                var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm", OrderBy = a.GridDisplaySeqNo, IsVisible = a.IsDisplayTableHeader.Value });
+                                            }
+                                        });
                                     }
                                 }
                                 else if (a.ControlType == "GroupCheckBox")
@@ -791,8 +785,6 @@
                                             }
                                             else
                                             {
-                                                //var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + z.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                                                //dataColumnNames.Add(new DropDownOptionsModel() { DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = z.Value, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
 
                                             }
                                         });
@@ -802,7 +794,6 @@
                                 }
                                 else if (a.DataSourceTable == "ApplicationMasterParent")
                                 {
-                                    //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                     if (a.ApplicationMasterParents.Count() > 0)
                                     {
                                         a.ApplicationMasterParents.ForEach(ab =>
@@ -934,10 +925,8 @@
                             if (_dynamicformDataList != null && _dynamicformDataList.Count() > 0)
                             {
                                 _dynamicformObjectDataList = loadItems(_dynamicformDataList);
-                                //EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                                 _selectedItems = _dynamicformDataList.FirstOrDefault();
                                 FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                                //Grid.SetFocusedRowIndex(0);
                             }
                         }
 
@@ -956,14 +945,12 @@
                 if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
                 {
                     Items = new ObservableCollection<object>(_dynamicformObjectDataList);
-                    //Grid.SetFocusedRowIndex(0);
                 }
             }
             else
             {
 
             }
-            //await onhideLoading();
             PanelVisible = false;
             StateHasChanged();
         }
@@ -3066,12 +3053,14 @@
         PanelVisible = true; SyncTablepopup = false;
         DynamicFormSearch dynamicFormSearch1 = new DynamicFormSearch();
         var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch1)));
-        await Task.WhenAll(_dynamicformDataLists);
+        var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, false)));
+        await Task.WhenAll(_dynamicformDataLists, _AttributeHeaders);
         var _dynamicformDataListItems = await _dynamicformDataLists.Result;
+        var _AttributeHeadersDetails = await _AttributeHeaders.Result;
         var _dynamicformObjectDataLists = loadItems(_dynamicformDataListItems);
         dynamicFormSearch1.StartDate = DateTime.Today.AddYears(50);
         dynamicFormSearch1.EndDate = DateTime.Now;
-        var resultData = await Mediator.Send(new GetDynamicFormDataTableSync(dataColumnNames, _dynamicformObjectDataLists, _AttributeHeader, _dynamicForm));
+        var resultData = await Mediator.Send(new GetDynamicFormDataTableSync(dataColumnNames, _dynamicformObjectDataLists, _AttributeHeadersDetails, _dynamicForm));
         if (resultData.ID > 0)
         {
             PanelVisible = false;

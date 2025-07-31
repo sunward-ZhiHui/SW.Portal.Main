@@ -84,17 +84,56 @@
 
 
         <Columns>
-           @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
-            @* <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anomaly Workflow" MinWidth="30" /> *@
-            <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
-            <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
-            <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40" />
-            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
-            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="40" />
-            <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
+            <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="20" />
+            <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anonymous" MinWidth="30" />
+            @if (!IsAnomalyStatus)
+            {
+                <DxGridDataColumn FieldName="IsMultipleUser" Caption="Is Multiple User" MinWidth="30" />
+            }
+
+            @if (!IsAnomalyStatus)
+            {
+                <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DynamicFormWorkFlow)context.DataItem;
+                            if (item.IsAnomalyStatus == false && item.IsMultipleUser == false)
+                            {
+                                if (item.UserId > 0)
+                                {
+                                    <span>@item.FullName</span>
+                                }
+                                else
+                                {
+                                    <span style="color:red;">User Not Assigned</span>
+                                }
+                            }
+                            else
+                            {
+                                if (item.IsMultipleUser == true && (item.DynamicFormWorkFlowMultipleUsers == null || item.DynamicFormWorkFlowMultipleUsers.Count == 0))
+                                {
+                                    <span style="color:red;">Users Not Assigned</span>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-users" aria-hidden="true" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormWorkFlowId}") style="cursor:pointer;padding:5px;margin-right:5px;color:black" onclick="@(() => openFormGridList(item))"></i>
+                                }
+
+                            }
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                @if (!IsMultipleUserExits)
+                {
+                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
+                    <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="40" />
+                }
+            }
             <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="40" />
-            <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
+            <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
+            <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="@(IsMultipleUserExits == true ? "Is Allow Update Delegate" : "Is Allow Update")" MinWidth="30" />
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -102,25 +141,57 @@
                 var types = (DynamicFormWorkFlow)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Users" ColSpanMd="6">
-                    <DxComboBox Data="_usersList"
-                                @bind-Value="types.UserId"
-                                NullText="Select User..."
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                ValueFieldName="UserID"
-                                TextFieldName="FirstName"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                EditFormat="{0}-{1}-{3}"
-                                ListRenderMode="ListRenderMode.Virtual">
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => types.UserId)" />
+                <DxFormLayoutItem Caption="Is Anonymous" ColSpanMd="6">
+                    <DxCheckBox Checked="types.IsAnomalyStatus" CheckedExpression="@(() => types.IsAnomalyStatus)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(types, value))"></DxCheckBox>
+                    <ValidationMessage For="@(() => types.IsAnomalyStatus)" />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Multiple User" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                    <DxCheckBox Checked="types.IsMultipleUser" CheckedExpression="@(() => types.IsMultipleUser)" CheckedChanged="@((bool? value) => OnIsMultipleUserValueChanged(types, value))"></DxCheckBox>
+                </DxFormLayoutItem>
+                @if (types.IsMultipleUser == true)
+                {
+                    <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                        <DxTagBox Data="_usersList"
+                                  @bind-Values="types.SelectUserIDs"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="FirstName"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  EditFormat="{0}-{1}-{3}"
+                                  ListRenderMode="ListRenderMode.Virtual">
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        </DxTagBox>
+                        <ValidationMessage For="@(() => types.SelectUserIDs)" />
+                    </DxFormLayoutItem>
+                }
+                else
+                {
+                    <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                        <DxComboBox Data="_usersList"
+                                    @bind-Value="types.UserId"
+                                    NullText="Select User..."
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ValueFieldName="UserID"
+                                    TextFieldName="FirstName"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    EditFormat="{0}-{1}-{3}"
+                                    ListRenderMode="ListRenderMode.Virtual">
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => types.UserId)" />
+                    </DxFormLayoutItem>
+                }
                 @*  <DxFormLayoutItem Caption="Type" ColSpanMd="7">
                 <DxRadioGroup Items="@TemplateUploadOptions"
                 Value="@types.Type"
@@ -128,26 +199,9 @@
                 ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(types,value))"
                 Layout="RadioGroupLayout.Horizontal"
                 CssClass="dx-demo-radio-group" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="UserEnabled">
-                <DxTagBox Data="_usersList"
-                @bind-Values="types.SelectUserIDs"
-                NullText="Select To..."
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                ValueFieldName="UserID"
-                TextFieldName="FirstName"
-                SearchMode="ListSearchMode.AutoSearch"
-                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                EditFormat="{0}-{1}-{3}"
-                ListRenderMode="ListRenderMode.Virtual">
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                </DxTagBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="User Group" ColSpanMd="6" Visible="UserGroupEnabled">
+                </DxFormLayoutItem>*@
+
+                @*<DxFormLayoutItem Caption="User Group" ColSpanMd="6" Visible="UserGroupEnabled">
                 <DxTagBox Data="_userGroupsList"
                 @bind-Values="types.SelectUserGroupIDs"
                 NullText="Select To..."
@@ -175,9 +229,7 @@
                 <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
                 </DxTagBox>
                 </DxFormLayoutItem> *@
-               @*  <DxFormLayoutItem Caption="Is Anomaly Workflow" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="types.IsAnomalyStatus"></DxCheckBox>
-                </DxFormLayoutItem> *@
+
                 <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                     <DxTagBox Data="_dynamicFormSectionData"
                               @bind-Values="types.SelectDynamicFormSectionIDs"
@@ -197,9 +249,18 @@
                     <DxSpinEdit @bind-Value="@types.SequenceNo" NullText="Type a Sequence No 1,2,3,..." MinValue="1" CssClass="cw-320" InputId="seNullableValue" />
                     <ValidationMessage For="@(() => types.SequenceNo)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
-                </DxFormLayoutItem>
+                @if (types.IsMultipleUser == true)
+                {
+                    <DxFormLayoutItem Caption="Is Allow Update" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                    </DxFormLayoutItem>
+                }
+                else
+                {
+                    <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                    </DxFormLayoutItem>
+                }
                 <DxFormLayoutItem Caption="Is Parallel Workflow" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsParallelWorkflow"></DxCheckBox>
                 </DxFormLayoutItem>
@@ -242,8 +303,46 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsRenameOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedItems?.DynamicFormWorkFlowId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Users"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxGrid Data="@DynamicFormWorkFlowMultipleUsers" ShowGroupPanel="true"
+                ShowGroupedColumns="true"
+                ShowSearchBox="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                KeyFieldName="DynamicFormWorkFlowMultipleUserId"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="10"
+                CssClass="ch-360"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" TextWrapEnabled="false">
+            <Columns>
+                <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="80" />
+                <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+                <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="100" />
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsRenameOpen = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
-    private DynamicFormWorkFlowApprovalForm refDynamicFormWorkFlowApprovalForm{ get; set; }
+    bool IsRenameOpen { get; set; } = false;
+    private DynamicFormWorkFlowApprovalForm refDynamicFormWorkFlowApprovalForm { get; set; }
     IEnumerable<string> TemplateUploadOptions = new[] { "User"/* , "User Group", "Level" */ };
     [Parameter]
     public long? dynamicFormId { get; set; }
@@ -266,7 +365,7 @@
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabledApproval { get; set; } = false;
     bool AddEnabledApproval { get; set; } = false;
-
+    bool IsAnomalyStatusEnabled { get; set; } = true;
     bool UserEnabled { get; set; } = false;
     bool UserGroupEnabled { get; set; } = false;
     bool LevelEnabled { get; set; } = false;
@@ -279,7 +378,8 @@
     public List<DocumentRole> _documentRoleList { get; set; }
     public List<ViewLevel> _levelMasterLists { get; set; }
     private List<DynamicFormSection>? _dynamicFormSectionAllData; private List<DynamicFormSection>? _dynamicFormSectionData;
-    public List<long> SelectDynamicFormSectionIDs { get; set; } = new List<long>();
+    public List<long> SelectDynamicFormSectionIDs { get; set; } = new List<long>(); bool IsMultipleUserExits { get; set; } = false; bool IsAnomalyStatus { get; set; } = false;
+    public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
     protected override async Task OnInitializedAsync()
     {
 
@@ -294,6 +394,44 @@
     {
         dynamicFormId = dynamicFormIds;
         await UpdateDataAsync();
+    }
+    void openFormGridList(DynamicFormWorkFlow dynamicFormWorkFlow)
+    {
+        IsRenameOpen = true;
+        DynamicFormWorkFlowMultipleUsers = dynamicFormWorkFlow.DynamicFormWorkFlowMultipleUsers;
+    }
+    void OnTemplateDataSourceGroupValueChanged(DynamicFormWorkFlow types, bool? radioValue)
+    {
+        types.IsAnomalyStatus = radioValue;
+        IsAnomalyStatusEnabled = false;
+        if (types.IsAnomalyStatus == true)
+        {
+            types.UserId = 0;
+        }
+        else
+        {
+            IsAnomalyStatusEnabled = true;
+            if (types.IsMultipleUser == true)
+            {
+                types.UserId = 0;
+            }
+            else
+            {
+                types.UserId = null;
+            }
+        }
+    }
+    void OnIsMultipleUserValueChanged(DynamicFormWorkFlow types, bool? radioValue)
+    {
+        types.IsMultipleUser = radioValue;
+        if (radioValue == true)
+        {
+            types.UserId = 0;
+        }
+        else
+        {
+            types.UserId = null;
+        }
     }
     void OnTemplateUploadGroupValueChanged(DynamicFormWorkFlow types, string? radioValue)
     {
@@ -320,18 +458,18 @@
         var navitems = (DynamicFormWorkFlow)e.EditModel;
         if (e.IsNew)
         {
-            navitems.Type = "User";
+            navitems.Type = "User"; IsAnomalyStatusEnabled = true;
             UserEnabled = true;
             navitems.DynamicFormId = dynamicFormId;
             if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
             {
-                List<long> ids =  new List<long>();
+                List<long> ids = new List<long>();
 
                 if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count() > 0)
                 {
                     _dynamicFormApprovalData.ForEach(a =>
                     {
-                        if (a.SelectDynamicFormSectionIDs != null && a.SelectDynamicFormSectionIDs.Count()>0)
+                        if (a.SelectDynamicFormSectionIDs != null && a.SelectDynamicFormSectionIDs.Count() > 0)
                         {
                             ids.AddRange(a.SelectDynamicFormSectionIDs);
                         }
@@ -339,10 +477,36 @@
                 }
                 _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !ids.Contains(w.DynamicFormSectionId)).ToList();
             }
+            if (_dynamicFormApprovalData?.Any() == true)
+            {
+                var exists = _dynamicFormApprovalData.FirstOrDefault(w => w.IsAnomalyStatus == true);
+                if (exists != null)
+                {
+                    IsAnomalyStatusEnabled = false;
+                    navitems.IsAnomalyStatus = true;
+                    navitems.UserId = 0;
+                }
+                var existss = _dynamicFormApprovalData.FirstOrDefault(w => w.IsMultipleUser == true);
+                if (existss != null)
+                {
+                    OnIsMultipleUserValueChanged(navitems, true);
+                }
+                navitems.IsAllowDelegateUser = _dynamicFormApprovalData.Any(w => w.IsAllowDelegateUser == true);
+                navitems.IsParallelWorkflow = _dynamicFormApprovalData.Any(w => w.IsParallelWorkflow == true);
+            }
         }
         else
         {
-            UserEnabled = true;
+            UserEnabled = true; IsAnomalyStatusEnabled = true;
+            if (navitems.IsAnomalyStatus == true)
+            {
+                navitems.UserId = 0;
+                IsAnomalyStatusEnabled = false;
+            }
+            if (navitems.IsMultipleUser == true)
+            {
+                navitems.UserId = 0;
+            }
             if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
             {
                 _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !navitems.DynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).ToList();
@@ -363,6 +527,8 @@
                 _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormWorkFlow(dynamicFormId));
                 if (_dynamicFormApprovalData.Count > 0)
                 {
+                    IsMultipleUserExits = _dynamicFormApprovalData.Any(w => w.IsMultipleUser == true);
+                    IsAnomalyStatus = _dynamicFormApprovalData.Any(w => w.IsAnomalyStatus == true);
                     _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
                     List<long?> userIdss = new List<long?>();
                     EditEnabledApproval = true;
@@ -400,6 +566,7 @@
         {
             try
             {
+
                 var result = await Mediator.Send(new InsertDynamicFormWorkFlow(editModel));
                 if (!string.IsNullOrEmpty(result.Type))
                 {
@@ -415,6 +582,12 @@
         }
         else
         {
+            if (editModel.IsAnomalyStatus == true)
+            {
+                editModel.IsMultipleUser = false;
+                editModel.UserId = null;
+                editModel.SelectUserIDs = new List<long?>();
+            }
             var result = await Mediator.Send(new InsertDynamicFormWorkFlow(editModel));
             if (!string.IsNullOrEmpty(result.Type))
             {
@@ -517,10 +690,10 @@
         //     else
         //     {
 
-                SMWorkFlowGrids.StartEditDataItemAsync(_selectedItems);
+        SMWorkFlowGrids.StartEditDataItemAsync(_selectedItems);
 
-          //  }
-       // }
+        //  }
+        // }
 
     }
     void addDeleteApproval()
@@ -549,14 +722,14 @@
             //         if (item is DynamicFormWorkFlow selectData)
             //         {
             var request = new DeleteDynamicFormWorkFlow(_selectedItems);
-                        await Mediator.Send(request);
-                        Blukdeletepopup = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        SMWorkFlowGrids.SetFocusedRowIndex(0);
-                  //  }
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            SMWorkFlowGrids.SetFocusedRowIndex(0);
+            //  }
 
-               // }
-           // }
+            // }
+            // }
         }
         catch (Exception eq)
         {
@@ -585,8 +758,8 @@
         TemplateUploadOptions = null;
         SelectedDataItems = null;
         _dynamicFormApprovalData?.Clear();
-        _selectedItems=null;
-        _selectlst=null;
+        _selectedItems = null;
+        _selectlst = null;
         _usersList?.Clear();
         _userGroupsList?.Clear();
         _documentRoleList?.Clear();

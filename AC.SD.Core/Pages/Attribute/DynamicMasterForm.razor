@@ -434,6 +434,7 @@
         EditEnabled = false;
         _editContext = new EditContext(Data);
         Data.AddedDate = DateTime.Now;
+        ActiveSubTabIndex = 0;
         Data.AddedBy = applicationUser.UserName;
         Data.ID = 0;
         Data.IsApproval = false;
@@ -597,6 +598,7 @@
     }
     async Task addNew()
     {
+        ActiveSubTabIndex = 0;
         if (SessionIds != null)
         {
             NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");

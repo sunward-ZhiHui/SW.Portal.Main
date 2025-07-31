@@ -52,7 +52,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                            border-collapse: collapse;*/
+                                                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -1268,68 +1268,104 @@
                                 isWorkflowEnabled = false; isSaveEnabled = false; isApprovalEnabled = false; isVisibleButton = false; IsUploadEnabled = false;
                                 if (notCompleted != null && notCompleted.Count() > 0)
                                 {
+                                    if (_dynamicform.IsApproval == true)
+                                    {
+                                        isApprovalEnabled = true;
+                                        isVisibleButton = true;
+                                        if (_dynamicformData != null)
+                                        {
+                                            CheckedApprovalData();
+                                        }
+                                    }
+                                    if (_dynamicformData == null)
+                                    {
+                                        isSaveEnabled = true;
+                                    }
                                     var IsParallelWorkflowCount = notCompleted.Where(w => w.IsParallelWorkflow == true).Count();
+                                    var IsMultipleUserCount = notCompleted.Where(w => w.IsMultipleUser == true).Count();
                                     if (IsParallelWorkflowCount > 0)
                                     {
-                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                                        if (_dynamicform.IsApproval == true)
+                                        bool shouldEnableWorkflow = false;
+
+                                        if (IsMultipleUserCount > 0)
                                         {
-                                            isApprovalEnabled = true;
-                                            isVisibleButton = true;
-                                            if (_dynamicformData != null)
+                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                                            if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                             {
-                                                CheckedApprovalData();
+                                                shouldEnableWorkflow = true;
                                             }
                                         }
-                                        if (_dynamicformData == null)
+                                        else
                                         {
-                                            isSaveEnabled = true;
-                                        }
-                                        if (exitss != null)
-                                        {
-                                            if (exitss.IsWorkFlowDone == 0)
+                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                            if (exitss != null)
                                             {
-                                                isWorkflowEnabled = true; isSaveEnabled = true;
-                                                if (_dynamicformData != null)
+                                                shouldEnableWorkflow = true;
+                                            }
+                                            else
+                                            {
+                                                var isAnomalous = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
+                                                if (isAnomalous != null)
                                                 {
-                                                    if (isApproval == true)
-                                                    {
-                                                        IsUploadEnabled = true;
-                                                    }
+                                                    shouldEnableWorkflow = true;
                                                 }
                                             }
                                         }
+
+                                        // Apply common actions
+                                        if (shouldEnableWorkflow)
+                                        {
+                                            isWorkflowEnabled = true;
+                                            isSaveEnabled = true;
+
+                                            if (_dynamicformData != null && isApproval == true)
+                                            {
+                                                IsUploadEnabled = true;
+                                            }
+                                        }
+
                                     }
                                     else
                                     {
-                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                                        if (_dynamicform.IsApproval == true)
+                                        bool shouldEnableWorkflow = false;
+
+                                        if (IsMultipleUserCount > 0)
                                         {
-                                            isApprovalEnabled = true;
-                                            isVisibleButton = true;
-                                            if (_dynamicformData != null)
+                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                                            if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                             {
-                                                CheckedApprovalData();
+                                                shouldEnableWorkflow = true;
                                             }
                                         }
-                                        if (_dynamicformData == null)
+                                        else
                                         {
-                                            isSaveEnabled = true;
-                                        }
-                                        if (exitss != null)
-                                        {
-                                            if (exitss.IsWorkFlowDone == 0)
+                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                            if (exitss != null)
                                             {
-                                                isWorkflowEnabled = true; isSaveEnabled = true;
-                                                if (_dynamicformData != null)
+                                                shouldEnableWorkflow = true;
+                                            }
+                                            else
+                                            {
+                                                var isAnomalous = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
+                                                if (isAnomalous != null)
                                                 {
-                                                    if (isApproval == true)
-                                                    {
-                                                        IsUploadEnabled = true;
-                                                    }
+                                                    shouldEnableWorkflow = true;
                                                 }
                                             }
                                         }
+
+                                        // Apply common actions if eligible
+                                        if (shouldEnableWorkflow)
+                                        {
+                                            isWorkflowEnabled = true;
+                                            isSaveEnabled = true;
+
+                                            if (_dynamicformData != null && isApproval == true)
+                                            {
+                                                IsUploadEnabled = true;
+                                            }
+                                        }
+
                                     }
                                 }
 
@@ -1392,6 +1428,9 @@
                                                 dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
                                                 dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
                                                 dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
+                                                dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
+                                                dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
                                                 _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
                                             });
                                             break;
@@ -3749,11 +3788,40 @@
 
         if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0 && _dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
         {
-            var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.UserId == applicationUser.UserID);
-            if (dynamicFormWorkFlowSectionId != null)
+            var isMultipleUser = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.IsMultipleUser == true);
+            var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.IsAnomalyStatus == true);
+            if (isMultipleUser != null)
             {
-                var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(dynamicFormWorkFlowSectionId.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
-                if (resultData == null)
+                var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId);
+                if (dynamicFormWorkFlowSectionId != null)
+                {
+                    if (dynamicFormWorkFlowSectionId?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                    {
+                        var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(dynamicFormWorkFlowSectionId.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
+                        if (resultData == null)
+                        {
+                            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+                            if (response != null)
+                            {
+                                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
+                                isVisibleButton = false;
+                                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
+                                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                                await loadDynamicForm();
+                                StateHasChanged();
+                            }
+
+                        }
+                        else
+                        {
+                            toastService.ShowToast("Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (isAna != null)
                 {
                     var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
                     if (response != null)
@@ -3765,15 +3833,34 @@
                         await loadDynamicForm();
                         StateHasChanged();
                     }
-
-
                 }
                 else
                 {
-                    toastService.ShowToast("Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                    var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.UserId == applicationUser.UserID);
+                    if (dynamicFormWorkFlowSectionId != null)
+                    {
+                        var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(dynamicFormWorkFlowSectionId.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
+                        if (resultData == null)
+                        {
+                            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+                            if (response != null)
+                            {
+                                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
+                                isVisibleButton = false;
+                                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
+                                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                                await loadDynamicForm();
+                                StateHasChanged();
+                            }
+
+                        }
+                        else
+                        {
+                            toastService.ShowToast("Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                        }
+                    }
                 }
             }
-
         }
         else
         {
@@ -4778,10 +4865,99 @@
                        {
                            if (exitss.IsWorkFlowDone == 0)
                            {
-                               var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
-                               if (userExits != null)
+                               if (exitss.IsMultipleUser == true)
                                {
+                                   if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                   {
+                                       if (isVisible != false)
+                                       {
+                                           isVisible = true;
+                                       }
+                                       if (isReadonly == false)
+                                       {
+                                           isReadonly = true;
+                                       }
+                                   }
+                                   else
+                                   {
+                                       if (isVisible != false)
+                                       {
+                                           isVisible = true;
+                                       }
+                                       isReadonly = false;
+                                   }
+                               }
+                               else
+                               {
+                                   var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.IsAnomalyStatus == true);
+                                   if (isAna != null)
+                                   {
+                                       if (isVisible != false)
+                                       {
+                                           isVisible = true;
+                                       }
+                                       if (isReadonly == false)
+                                       {
+                                           isReadonly = true;
+                                       }
+                                   }
+                                   else
+                                   {
+                                       var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                                       if (userExits != null)
+                                       {
 
+                                           if (isVisible != false)
+                                           {
+                                               isVisible = true;
+                                           }
+                                           if (isReadonly == false)
+                                           {
+                                               isReadonly = true;
+                                           }
+                                       }
+                                       else
+                                       {
+                                           if (isVisible != false)
+                                           {
+                                               isVisible = true;
+                                           }
+                                           isReadonly = false;
+                                       }
+                                   }
+                               }
+                           }
+                           else
+                           {
+                               if (isVisible != false)
+                               {
+                                   isVisible = true;
+                               }
+                               isReadonly = false;
+                           }
+                       }
+                       else
+                       {
+                           if (isVisible != false)
+                           {
+                               isVisible = true;
+                           }
+                           isReadonly = false;
+                       }
+                   }
+               }
+               else
+               {
+                   if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
+                   {
+                       var IsMultipleUserCount = _dynamicFormWorkFlowSectionNoWorkFlow.Where(w => w.IsMultipleUser == true).Count();
+                       if (IsMultipleUserCount > 0)
+                       {
+                           var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
+                           if (exitss != null)
+                           {
+                               if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                               {
                                    if (isVisible != false)
                                    {
                                        isVisible = true;
@@ -4811,38 +4987,42 @@
                        }
                        else
                        {
-                           if (isVisible != false)
+                           var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.IsAnomalyStatus == true);
+                           if (isAna != null)
                            {
-                               isVisible = true;
+                               if (isVisible != false)
+                               {
+                                   isVisible = true;
+                               }
+                               if (isReadonly == false)
+                               {
+                                   isReadonly = true;
+                               }
                            }
-                           isReadonly = false;
-                       }
-                   }
-               }
-               else
-               {
-                   if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
-                   {
-                       var exitsUserDatas = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(q => q.DynamicFormSectionId == a.DynamicFormSectionId && q.UserId == applicationUser.UserID);
-                       if (exitsUserDatas != null)
-                       {
+                           else
+                           {
+                               var exitsUserDatas = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(q => q.DynamicFormSectionId == a.DynamicFormSectionId && q.UserId == applicationUser.UserID);
+                               if (exitsUserDatas != null)
+                               {
 
-                           if (isVisible != false)
-                           {
-                               isVisible = true;
+                                   if (isVisible != false)
+                                   {
+                                       isVisible = true;
+                                   }
+                                   if (isReadonly == false)
+                                   {
+                                       isReadonly = true;
+                                   }
+                               }
+                               else
+                               {
+                                   if (isVisible != false)
+                                   {
+                                       isVisible = true;
+                                   }
+                                   isReadonly = false;
+                               }
                            }
-                           if (isReadonly == false)
-                           {
-                               isReadonly = true;
-                           }
-                       }
-                       else
-                       {
-                           if (isVisible != false)
-                           {
-                               isVisible = true;
-                           }
-                           isReadonly = false;
                        }
                    }
                    else
@@ -4933,6 +5113,7 @@
 
                formLayoutBuilder.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
            {
+               var isWorkSection = _dynamicFormWorkFlowSectionNoWorkFlow.Where(m => m.DynamicFormSectionId == a.DynamicFormSectionId).FirstOrDefault();
                layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
                layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
                layoutItemBuilder.AddAttribute(i + 1, "Expanded", isGridPrint == true ? true : (k == 0 ? true : false));
@@ -4942,6 +5123,10 @@
                layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
                {
                    b.OpenElement(i + 1, "div");
+                   if (isWorkSection != null)
+                   {
+                       b.AddAttribute(i + 1, "style", "color:red;");
+                   }
                    b.AddContent(i + 1, a.SortOrderBy + ". " + a.SectionName);
                    b.CloseElement();
                    b.OpenElement(i + 1, "div");
@@ -5096,7 +5281,7 @@
                                var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
                                //var Gridaccess = Expression.Property(Expression.Constant(DataGridObject), s.DynamicAttributeName);
                                //var Gridlambda = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), Gridaccess);
-                              // var Gridproperty = DataGridObject.GetType().GetProperty(s.DynamicAttributeName);
+                               // var Gridproperty = DataGridObject.GetType().GetProperty(s.DynamicAttributeName);
                                //var GridvalueData = Gridproperty.GetValue(DataGridObject);
                                //var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == s.DynamicAttributeName);
                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
@@ -7106,7 +7291,7 @@
                {
                    if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
                    {
-                       loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly, a,s.ColSpan);
+                       loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly, a, s.ColSpan);
                    }
                }
                else
@@ -10598,7 +10783,7 @@
         }
     }
 
-    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection,int? colSpan)
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, DynamicFormSection dynamicFormSection, int? colSpan)
     {
         var appcount = q.SubApplicationMaster.Count();
         int dumNo = 1;
@@ -10620,7 +10805,7 @@
                 var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).OrderBy(o => o.AttributeDetailName).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :colSpan);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : colSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
                 editor11.OpenElement(i + 1, "div");

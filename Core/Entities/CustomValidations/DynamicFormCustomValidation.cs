@@ -247,6 +247,84 @@ namespace Core.Entities.CustomValidations
         }
     }
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFlowMultipleUsersCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var datas = (DynamicFormWorkFlow)validationContext.ObjectInstance;
+            if (value != null)
+            {
+                if (datas.IsAnomalyStatus == false && datas.IsMultipleUser==true)
+                {
+                    if (datas.SelectUserIDs == null)
+                    {
+                        return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+                    }
+                    else
+                    {
+                        if (datas.SelectUserIDs.Count() > 0)
+                        {
+                            return ValidationResult.Success;
+                        }
+                        else
+                        {
+                            return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+                        }
+                    }
+
+                }
+                else
+                {
+                    return ValidationResult.Success;
+                }
+            }
+            else
+            {
+                return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+            }
+        }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFlowFormMultipleUsersCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var datas = (DynamicFormWorkFlowForm)validationContext.ObjectInstance;
+            if (value != null)
+            {
+                if (datas.IsAnomalyStatus == false && datas.IsMultipleUser == true)
+                {
+                    if (datas.SelectUserIDs == null)
+                    {
+                        return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+                    }
+                    else
+                    {
+                        if (datas.SelectUserIDs.Count() > 0)
+                        {
+                            return ValidationResult.Success;
+                        }
+                        else
+                        {
+                            return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+                        }
+                    }
+
+                }
+                else
+                {
+                    return ValidationResult.Success;
+                }
+            }
+            else
+            {
+                return new ValidationResult("User Name is Required", new[] { validationContext.MemberName });
+            }
+        }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class DynamicFormWorkFormFlowSectionCustomValidation : ValidationAttribute
     {
 

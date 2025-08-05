@@ -831,6 +831,21 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+
+    public class GetDynamicFormDataListHandler : IRequestHandler<GetDynamicFormDataList, List<DynamicFormData>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataList(request.DyamicFormIds,request.DynamicFormDataGridId);
+        }
+
+
+    }
     public class DeleteDynamicFormSectionAttributeSecurityHandler : IRequestHandler<DeleteDynamicFormSectionAttributeSecurity, long>
     {
         private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
@@ -1531,6 +1546,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId);
         }
     }
+    public class GetDynamicFormDataAuditMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditMultipleList, List<DynamicFormDataAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataAuditMultipleListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditMultipleList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditMultipleList(request.SessionId);
+        }
+    }
     public class GetDynamicFormDataAuditBySessionListHandler : IRequestHandler<GetDynamicFormDataAuditBySessionList, List<DynamicFormDataAudit>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -1545,6 +1572,7 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    
     public class GetDynamicFormDataAuditBySessionMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditBySessionMultipleList, List<DynamicFormDataAudit>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;

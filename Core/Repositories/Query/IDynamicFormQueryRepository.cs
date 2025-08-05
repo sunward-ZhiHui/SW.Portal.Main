@@ -74,7 +74,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormSectionAttributeSecurity> InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity value);
         Task<IReadOnlyList<DynamicFormSectionAttributeSecurity>> GetDynamicFormSectionAttributeSecurityList(long? Id);
         Task<long> DeleteDynamicFormSectionAttributeSecurity(long? Id, List<long?> Ids);
-
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataList(List<long?> DynamicFormIDs,long? DynamicFormDataGridId);
         Task<IReadOnlyList<DynamicFormData?>> GetDynamicFormDataApprovalList(long? userId);
 
         Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData);
@@ -132,6 +132,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<long> DeleteDynamicFormDataAssignUser(long? Id, List<long?> Ids);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? sessionId);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMultipleList(List<Guid?> SessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionMultipleList(List<Guid?> SessionId);
         Task<IReadOnlyList<DynamicFormFormulaMathFun>> GetDynamicFormFormulaMathFunList();

@@ -126,6 +126,22 @@ namespace Application.Handlers.QueryHandlers
             return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId, request.IsSubFormLoad, request.IsNoDelete, request.IsTableHeader);
         }
     }
+    public class GetAllAttributeNameByIdHandler : IRequestHandler<GetAllAttributeNameById, AttributeHeaderListModel>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeNameByIdHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameById request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetAllAttributeNameByIdAsync(request.DynamicFormIds, request.UserId);
+        }
+    }
+    
     public class GetAttributeHeaderDataSourceHandler : IRequestHandler<GetAttributeHeaderDataSource, List<AttributeHeaderDataSource>>
     {
 

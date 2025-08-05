@@ -7024,6 +7024,29 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataList(List<long?> DynamicFormIDs,long? DynamicFormDataGridId)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@DynamicFormIDs", DynamicFormIDs!=null? DynamicFormIDs:new List<long?>() { -1});
+                parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
+                var query = "select t1.*,t2.UserName as ModifiedBy,t3.UserName as AddedBy,t4.SessionId as DynamicFormSessionId from DynamicFormData t1\r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.ModifiedByUserID\r\n" +
+                    "JOIN DynamicForm t4 ON t1.DynamicFormID=t4.ID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\n" +
+                    "WHERE (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormDataGridId=@DynamicFormDataGridId AND t1.DynamicFormID IN @DynamicFormIDs;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormApprovedChanged> InsertDynamicFormApprovedChanged(DynamicFormApprovedChanged dynamicFormApprovedChanged)
         {
             try
@@ -8522,6 +8545,38 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 using (var connection = CreateConnection())
                 {
                     dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                }
+                return dynamicFormDataAudits;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMultipleList(List<Guid?> SessionId)
+        {
+            try
+            {
+                List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
+                var parameters = new DynamicParameters();
+                if (SessionId != null && SessionId.Count > 0)
+                {
+                    string? SessionIds = string.Join(',', SessionId.Select(i => $"'{i}'"));
+                    var query = "Select tt2.SessionId as DynamicFormDataSessionId,Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
+                    "(select TOP(1) t7.AuditDateTime from DynamicFormDataAudit t7 where t7.Sessionid=t1.Sessionid order by t7.DynamicFormDataAuditId asc)as AuditDateTime,\r\n" +
+                    "(select TOP(1) t6.PreUpdateDate from DynamicFormDataAudit t6 where t6.Sessionid=t1.Sessionid order by t6.DynamicFormDataAuditId asc)as PreUpdateDate,\r\n" +
+                    "(select TOP(1) t4.PreUserID from DynamicFormDataAudit t4 where t4.Sessionid=t1.Sessionid order by t4.DynamicFormDataAuditId asc)as PreUserID,\r\n" +
+                    "(select TOP(1) t5.AuditUserId from DynamicFormDataAudit t5 where t5.Sessionid=t1.Sessionid order by t5.DynamicFormDataAuditId asc)as AuditUserId,\r\n" +
+                    "(select TOP(1) t3.DynamicFormDataId from DynamicFormDataAudit t3 where t3.Sessionid=t1.Sessionid order by t3.DynamicFormDataAuditId asc)as DynamicFormDataId,\r\n" +
+                    "(select TOP(1) t2.DynamicFormDataAuditId from DynamicFormDataAudit t2 where t2.Sessionid=t1.Sessionid order by t2.DynamicFormDataAuditId asc)as DynamicFormDataAuditId from DynamicFormDataAudit t1  group by t1.Sessionid)tt1\r\n" +
+                    "JOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID\n\r" +
+                    "JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
+                    "JOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId where tt2.SessionId in(" + SessionIds + ")";
+
+                    using (var connection = CreateConnection())
+                    {
+                        dynamicFormDataAudits = (await connection.QueryAsync<DynamicFormDataAudit>(query, parameters)).ToList();
+                    }
                 }
                 return dynamicFormDataAudits;
             }

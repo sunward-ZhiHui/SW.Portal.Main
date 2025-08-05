@@ -152,26 +152,6 @@
                         {
                             setPreviousDisplayValue(pvalue, a.AttributeId, resultItem);
                         }
-                        var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                        if (typeName != null && typeName.ControlTypeId == 2715)
-                        {
-                            // var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
-                            // if (_attributeGroupCheckBoxes.Count() > 0)
-                            // {
-                            //     _attributeGroupCheckBoxes.ForEach(r =>
-                            //     {
-                            //         var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                            //         if (nameData == a.AttributeId)
-                            //         {
-                            //             setCurrentDisplayValue(r.Value, nameData, resultItem);
-                            //         }
-                            //         if (nameData == a.AttributeId)
-                            //         {
-                            //             setPreviousDisplayValue(r.Value, nameData, resultItem);
-                            //         }
-                            //     });
-                            // }
-                        }
                     });
 
                     List<DynamicFormDataAudit> _DynamicFormDataAuditLists = new List<DynamicFormDataAudit>();
@@ -287,7 +267,7 @@
                         {
                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
                             setDisplayName(ab.ApplicationMasterName, nameData, dynamicFormDataAudits);
-                            RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
+                            RemoveApplicationMasterParentSingleCurItem(ab, a, dataColumnNames);
                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                             {
                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -523,7 +503,7 @@
                                 s.ApplicationMasterParents.ForEach(ab =>
                                 {
                                     nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
-                                    RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                    RemoveApplicationMasterParentSingleCurNameItem(ab, s, nameDatas);
                                     if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                                     {
                                         var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -583,7 +563,7 @@
                                 {
                                     nameDatas.ForEach(n =>
                                     {
-                                        loadApplicationMasterParentData(jsonObj, s, n, objectData);
+                                        loadApplicationMasterParentCurrentData(jsonObj, s, n, objectData);
                                     });
                                 }
                             }
@@ -760,7 +740,7 @@
                                                     SubAttributeHeadersList.AddRange(z.SubAttributeHeaders);
                                                 }
                                             });
-                                            loadSubHeaders(SubAttributeHeadersList, s, jsonObj, objectData);
+                                            loadCurrentSubHeaders(SubAttributeHeadersList, s, jsonObj, objectData);
                                         }
                                     }
                                     else if (s.ControlType == "ListBox" && s.IsMultiple == false)
@@ -823,7 +803,7 @@
                                     {
                                         bool? values = itemValue == null ? false : (bool)itemValue;
                                         objectData[attrName] = values == true ? "Checked" : "";
-                                        loadSubHeaders(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                        loadCurrentSubHeaders(s.SubAttributeHeaders, s, jsonObj, objectData);
                                     }
                                     else if (s.ControlType == "GroupCheckBox")
                                     {
@@ -839,7 +819,7 @@
                                                 var itemValueA = jsonObj[nameData];
                                                 if (r.IsTextBox == true)
                                                 {
-                                                    loadSubHeaders(r.SubAttributeHeaders, s, jsonObj, objectData);
+                                                    loadCurrentSubHeaders(r.SubAttributeHeaders, s, jsonObj, objectData);
                                                 }
                                                 else
                                                 {
@@ -900,7 +880,7 @@
                                     s.ApplicationMasterParents.ForEach(ab =>
                                     {
                                         nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
-                                        RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                        RemoveApplicationMasterParentSingleCurNameItem(ab, s, nameDatas);
                                         if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                                         {
                                             var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -1088,7 +1068,7 @@
                                s.ApplicationMasterParents.ForEach(ab =>
                                {
                                    nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
-                                   RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                   RemoveApplicationMasterParentSingleCurNameItem(ab, s, nameDatas);
                                    if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                                    {
                                        var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -1403,7 +1383,7 @@
                                                var itemValueA = jsonObj[nameData];
                                                if (r.IsTextBox == true)
                                                {
-                                                   loadSubHeaders(r.SubAttributeHeaders, s, jsonObj, pobjectData);
+                                                   loadCurrentSubHeaders(r.SubAttributeHeaders, s, jsonObj, pobjectData);
                                                }
                                                else
                                                {
@@ -1464,7 +1444,7 @@
                                    s.ApplicationMasterParents.ForEach(ab =>
                                    {
                                        nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
-                                       RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                       RemoveApplicationMasterParentSingleCurNameItem(ab, s, nameDatas);
                                        if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                                        {
                                            var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -1515,7 +1495,7 @@
 
                });
     }
-    void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, dynamic jsonObjs, IDictionary<string, object> objectData)
+    void loadCurrentSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, dynamic jsonObjs, IDictionary<string, object> objectData)
     {
         if (jsonObjs != null)
         {
@@ -1982,7 +1962,7 @@
         }
 
     }
-    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
+    void loadApplicationMasterParentCurrentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
     {
 
         var SubNamess = jsonObj.ContainsKey(nameData);
@@ -2032,7 +2012,7 @@
 
 
     }
-    void RemoveApplicationMasterParentSingleItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)
+    void RemoveApplicationMasterParentSingleCurItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)
     {
         if (applicationMasterParent != null)
         {
@@ -2041,11 +2021,11 @@
             {
                 var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
                 dataColumnNames.Add(new DropDownOptionsModel() { ControlType = dynamicFormSectionAttribute.ControlType, Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm", OrderBy = dynamicFormSectionAttribute.GridDisplaySeqNo });
-                RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, dataColumnNames);
+                RemoveApplicationMasterParentSingleCurItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
     }
-    void RemoveApplicationMasterParentSingleNameItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<string?> dataColumnNames)
+    void RemoveApplicationMasterParentSingleCurNameItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<string?> dataColumnNames)
     {
         if (applicationMasterParent != null)
         {
@@ -2054,7 +2034,7 @@
             {
                 var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
                 dataColumnNames.Add(nameData);
-                RemoveApplicationMasterParentSingleNameItem(listss, dynamicFormSectionAttribute, dataColumnNames);
+                RemoveApplicationMasterParentSingleCurNameItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
     }

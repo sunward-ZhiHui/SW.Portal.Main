@@ -72,7 +72,19 @@ namespace Application.Queries
             this.AttributeHeader = attributeHeader;
         }
     }
+    
+        public class GetAllAttributeNameById : PagedRequest, IRequest<AttributeHeaderListModel>
+    {
 
+        public List<long?> DynamicFormIds { get; set; }
+        public long? UserId { get; set; }
+       
+        public GetAllAttributeNameById(List<long?> dynamicFormIds, long? userId)
+        {
+            this.DynamicFormIds = dynamicFormIds;
+            this.UserId = userId;
+        }
+    }
     public class GetAllAttributeNameList : PagedRequest, IRequest<AttributeHeaderListModel>
     {
 

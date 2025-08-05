@@ -2856,7 +2856,7 @@ namespace Infrastructure.Repository.Query
                 var applicationMasters = new List<ApplicationMaster>(); var applicationMasterParent = new List<ApplicationMasterParent>(); var dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 using (var connection = CreateConnection())
                 {
-                    var query = "select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy " +
+                    var query = "select t1.DynamicFormID,t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy " +
                         "from DynamicFormSection t1\n\r" +
                          "JOIN DynamicForm t10 ON t1.DynamicFormID=t10.ID\r\n" +
                         "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND  t1.DynamicFormID IN (" + string.Join(',', dynamicForm) + ") order by  t1.SortOrderBy asc;\n\r";
@@ -2887,6 +2887,7 @@ namespace Infrastructure.Repository.Query
                     query += "\r(Disabled=0 OR Disabled IS NULL) AND\r";
                     query += "\r1=1;\n\r";
                     query += "select t1.IsTextBox,t1.AttributeGroupCheckBoxID,t1.value,t1.Description,t1.IsDeleted,t1.AttributeID,t1.ParentID from AttributeGroupCheckBox t1 where  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.AttributeID in(select AttributeID from AttributeHeader where ControlTypeID=2715 And (IsDeleted is null OR IsDeleted=0))\r\n;";
+                    query += "SELECT t1.*,t2.Type,t2.FormulaFunctionName FROM DynamicFormSectionAttrFormulaFunction t1 JOIN DynamicFormSectionAttrFormulaMasterFunction t2 ON t1.DynamicFormSectionAttrFormulaMasterFuntionId=t2.MasterID;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2901,6 +2902,7 @@ namespace Infrastructure.Repository.Query
                     attributeHeaderListModel.DynamicFormAll = DynamicFormAll;
                     AttributeDetailsList = results.Read<AttributeDetails>().ToList();
                     attributeHeaderListModel.AttributeGroupCheckBoxes = results.Read<AttributeGroupCheckBox>().ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttrFormulaFunctions = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {

@@ -506,6 +506,17 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetDynamicFormDataList : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public List<long?> DyamicFormIds { get; set; }
+        public long? DynamicFormDataGridId { get; set; }
+        public GetDynamicFormDataList(List<long?> dyamicFormIds, long? dynamicFormDataGridId)
+        {
+            this.DyamicFormIds = dyamicFormIds;
+            DynamicFormDataGridId = dynamicFormDataGridId;
+        }
+    }
+    
     public class DeleteDynamicFormSectionAttributeSecurity : DynamicFormSectionAttributeSecurity, IRequest<long>
     {
         public long? Id { get; set; }
@@ -896,6 +907,15 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class GetDynamicFormDataAuditMultipleList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
+    {
+        public List<Guid?> SessionId { get; private set; }
+        public GetDynamicFormDataAuditMultipleList(List<Guid?> sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    
     public class GetDynamicFormFormulaMathFunList : PagedRequest, IRequest<List<DynamicFormFormulaMathFun>>
     {
 

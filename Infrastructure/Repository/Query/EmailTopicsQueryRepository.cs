@@ -53,6 +53,64 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                var query = @"
+            -- Main Email Topic
+            SELECT 
+                TS.ID, TS.TopicName, TS.SessionId, TS.TypeId, TS.Status, TS.Remarks, TS.SeqNo, TS.Follow,
+                TS.OnBehalf, TS.Urgent, TS.OverDue, TS.DueDate, TS.LastUpdateDate AS StartDate, TS.TopicFrom,
+                TS.IsAllowParticipants,
+                CONCAT(EB.FirstName, EB.LastName) AS OnBehalfName
+            FROM EmailTopics TS
+            INNER JOIN Employee E ON TS.TopicFrom = E.UserID
+            LEFT JOIN Employee EB ON TS.OnBehalf = EB.UserID
+            WHERE TS.ID = @ID;
+
+            -- Related Documents
+            SELECT DocumentID, FileName, ContentType, FileSize, FilePath 
+            FROM Documents 
+            WHERE SessionID = (SELECT SessionId FROM EmailTopics WHERE ID = @ID);
+
+            -- TO Recipients
+            SELECT E.FirstName, FT.UserId, FT.TopicId 
+            FROM EmailTopicTo FT 
+            INNER JOIN Employee E ON E.UserID = FT.UserId 
+            WHERE FT.TopicId = @ID;
+
+            -- CC Recipients
+            SELECT E.FirstName, FC.UserId, FC.TopicId 
+            FROM EmailTopicCC FC 
+            INNER JOIN Employee E ON E.UserID = FC.UserId 
+            WHERE FC.TopicId = @ID;
+        ";
+
+                using var connection = CreateConnection();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", id, DbType.Int64);
+
+                using var multi = await connection.QueryMultipleAsync(query, parameters, commandTimeout: 120);
+
+                var topics = (await multi.ReadAsync<EmailTopics>()).ToList();
+
+                if (topics.Any())
+                {
+                    topics[0].documents = (await multi.ReadAsync<Documents>()).ToList();
+                    topics[0].TopicToList = (await multi.ReadAsync<EmailAssignToList>()).ToList();
+                    topics[0].TopicCCList = (await multi.ReadAsync<EmailAssignToList>()).ToList();
+                }
+
+                return topics;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching EmailTopic by ID", ex);
+            }
+        }
+
+        public async Task<List<EmailTopics>> GetByIdAsync_V(long id)
+        {
+            try
+            {
                 var query = @"SELECT CONCAT(EB.FirstName,EB.LastName) AS OnBehalfName,* FROM EmailTopics TS
                             INNER JOIN Employee E ON TS.TopicFrom = E.UserID
                             LEFT JOIN Employee EB ON TS.OnBehalf = EB.UserID

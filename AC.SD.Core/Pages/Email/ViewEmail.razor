@@ -3359,6 +3359,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+    private bool _disposed = false;
+      private List<EmailConversations>? getconid;
     string DrawerView = "Email";
     string DrawerTitle = "Attached Email";
     Dictionary<int, int> replyCounts = new();
@@ -7037,7 +7039,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
-        var getconid = await Mediator.Send(new GetTopConversationList(Tid));       
+        getconid = await Mediator.Send(new GetTopConversationList(Tid));       
         Cid = 0;
         SelectedReplyId = getconid[0].ID.ToString();
         //_discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible));
@@ -7109,7 +7111,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         if(long.Parse(@SelectedGroup) != 0)
         {
-            _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));            
+            //_headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));            
             _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
             _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
@@ -7179,17 +7181,23 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             await OnMenuItemClick("Posts");
 
         }
-        var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
+        // v
+        //var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
 
-        _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
-        if(_headTopic.Count > 0)
-        {
-            _headTopic[0].TopicName = ConversationList[0].Name;
-            _headTopic[0].AddedDate = ConversationList[0].AddedDate;
-            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
-        }
+        // if(getconid != null)
+        // {
+        //     _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
+        //     if(_headTopic.Count > 0)
+        //     {
+        //         _headTopic[0].TopicName = getconid[0].Name;
+        //         _headTopic[0].AddedDate = getconid[0].AddedDate;
+        //         isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+        //     }
+
+        // }
+       
 
 
         isEnabled = true;
@@ -7214,16 +7222,20 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             if (long.Parse(@SelectedGroup) > 0)
             {
                 Tid = long.Parse(@SelectedGroup);
-                var getconid = await Mediator.Send(new GetTopConversationList(Tid));
-
-                if (string.IsNullOrEmpty(getconid[0].UserType) || getconid[0].UserType == "Users")
+                // v
+                //var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+                if (getconid != null)
                 {
-                    isUserGroup = true;
+                    if (string.IsNullOrEmpty(getconid[0].UserType) || getconid[0].UserType == "Users")
+                    {
+                        isUserGroup = true;
+                    }
+                    else
+                    {
+                        isUserGroup = false;
+                    }
                 }
-                else
-                {
-                    isUserGroup = false;
-                }
+              
 
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
@@ -7772,7 +7784,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         RefMasterSearch?.Dispose();
         RefAdminSearch?.Dispose();
     }
-
+    public void Dispose()
+    {
+        _disposed = true;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
+    }
     // public async ValueTask DisposeAsync()
     // {
     //     await DisposeAsyncCore();

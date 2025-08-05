@@ -1105,7 +1105,8 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT * FROM EmailConversations FC WHERE FC.ID = @ID";
+                var query = @"SELECT Name,TopicID,ParticipantId,ReplyId,AddedByUserID,AddedDate,SessionId,IsAllowParticipants,DueDate,OnBehalf,Urgent,LastUpdateUserID,LastUpdateDate,
+UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate  FROM EmailConversations FC WHERE FC.ID = @ID";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", Id, DbType.Int64);
@@ -1126,7 +1127,8 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT TOP 1 * FROM EmailConversations
+                var query = @"SELECT TOP 1 Name,TopicID,ParticipantId,ReplyId,AddedByUserID,AddedDate,SessionId,IsAllowParticipants,DueDate,OnBehalf,Urgent,LastUpdateUserID,LastUpdateDate,
+UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate  FROM EmailConversations
                             WHERE ReplyId = 0 AND TopicID = @TopicId
                             ORDER BY ID ASC";
 
@@ -1150,7 +1152,9 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
-                                FC.ReplyId,FC.FileData,FC.Description,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
+                                FC.ReplyId,
+FC.Description,
+FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
                                 FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
@@ -1194,7 +1198,7 @@ namespace Infrastructure.Repository.Query
             {
                 var query = @"SELECT DISTINCT
                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,                               
-                                FC.ReplyId,FC.FileData,FC.Description,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
+                                FC.ReplyId,FC.Description,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
@@ -1927,6 +1931,40 @@ namespace Infrastructure.Repository.Query
             }
         }
         public async Task<byte[]> GetFileDataAsync(long conversationId)
+        {
+            await using var connection = new SqlConnection(GetConnectionString());
+            await using var command = new SqlCommand("SELECT FileData FROM EmailConversations WHERE ID = @Id", connection)
+            {
+                CommandTimeout = 300 // ⬅️ SET THIS: Timeout in seconds (5 minutes)
+            };
+
+            command.Parameters.Add("@Id", SqlDbType.BigInt).Value = conversationId;
+
+            await connection.OpenAsync();
+
+            await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess | CommandBehavior.SingleRow);
+            if (await reader.ReadAsync())
+            {
+                const int bufferSize = 81920;
+                var buffer = new byte[bufferSize];
+                long fieldOffset = 0;
+                long bytesRead;
+
+                using var ms = new MemoryStream();
+                while ((bytesRead = reader.GetBytes(0, fieldOffset, buffer, 0, buffer.Length)) > 0)
+                {
+                    await ms.WriteAsync(buffer, 0, (int)bytesRead);
+                    fieldOffset += bytesRead;
+                }
+
+                return ms.ToArray();
+            }
+
+            return Array.Empty<byte>();
+        }
+
+
+        public async Task<byte[]> GetFileDataAsync_V(long conversationId)
         {
             // Using streaming for large file data
             using (var connection = new SqlConnection(GetConnectionString()))

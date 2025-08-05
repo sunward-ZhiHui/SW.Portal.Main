@@ -52,7 +52,8 @@
     </Columns>
     <DetailRowTemplate>
         <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-    </DetailRowTemplate>   
+    </DetailRowTemplate>
+
 </DxGrid>
 @code {
     internal List<EmailTopics>? _forumTopicSent;
@@ -96,8 +97,19 @@
         StateHasChanged();
     }
 
+    internal async Task onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
 
-    internal async void onSubViewEmailClick(string RId)
+        //var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        //RTopicId = conversationList[0].TopicID;
+        SubViewSentTopicId?.Invoke(SelectedReplyId);
+
+        StateHasChanged();
+    }
+
+
+    internal async void onSubViewEmailClick_v(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));

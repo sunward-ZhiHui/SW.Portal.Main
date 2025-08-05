@@ -62,7 +62,7 @@
     public ApplicationUser? applicationUser { get; internal set; }
     string SelectedId = "none";
     [Parameter]
-    public Action<string>? RId { get; set; }
+    public Func<string, Task>? RId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;

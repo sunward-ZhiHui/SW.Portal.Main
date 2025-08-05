@@ -39,5 +39,6 @@ namespace Core.Entities
         public long? DynamicFormId { get; set; }
         public bool? IsAllowDelegateUser { get; set; } = false;
         public bool? IsParallelWorkflow { get; set; } = false;
+        public bool? IsAnomalyStatus {  get; set; } = false;
     }
 }

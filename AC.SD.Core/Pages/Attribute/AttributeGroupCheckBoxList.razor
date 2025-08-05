@@ -13,6 +13,7 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
                         <DxMenuItem Text="Add Main" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Add Sub Form" IconCssClass="fa fa-add" Click="@addNewSubForm" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenu>
             </div>
@@ -31,6 +32,9 @@
                 EditModelSaving="TreeList_EditModelSaving"
                 DataItemDeleting="TreeList_DataItemDeleting"
                 PopupEditFormCssClass="pw-800"
+                FocusedRowChanged="OnRowclick"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
                 EditMode="CurrentEditMode"
                 ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
                 TextWrapEnabled="false"
@@ -64,7 +68,7 @@
             @*  <DxTreeListCommandColumn Width="200px"  /> *@
             <DxTreeListDataColumn FieldName="Value" Caption="Name" />
             <DxTreeListDataColumn FieldName="Description" Caption="Description" />
-            <DxTreeListDataColumn FieldName="IsTextBox" Caption="Is TextBox" />
+            <DxTreeListDataColumn FieldName="IsTextBox" Caption="Is Sub Form" />
             <DxTreeListDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="50" />
             <DxTreeListDataColumn FieldName="AddedDate" Caption="Added Date">
                 <CellDisplayTemplate>
@@ -89,7 +93,7 @@
                     <DxTextBox @bind-Text="datas.Value" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => datas.Value)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is TextBox" ColSpanMd="6" Visible="@isMainForm">
+                <DxFormLayoutItem Caption="Is Sub Form" ColSpanMd="6" Visible="@isMainForm">
                     <DxCheckBox @bind-Checked="datas.IsTextBox" />
                     <ValidationMessage For="@(() => datas.IsTextBox)" />
                 </DxFormLayoutItem>
@@ -102,8 +106,24 @@
 
     </DxTreeList>
 </div>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="false"
+         HeaderText="Add Sub Controls"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <AttributeSubFormSetupList @ref="refAttributeSubFormSetupList" RevokeBack="CloseSubFormPopup" Type="GroupCheckBox" AttributeGroupCheckBoxId="@_selectedItems.AttributeGroupCheckBoxId"></AttributeSubFormSetupList>
 
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool EditEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
     bool isMainForm { get; set; } = false;
     bool UsePopupEditForm { get; set; }
     TreeListEditMode CurrentEditMode { get { return UsePopupEditForm ? TreeListEditMode.PopupEditForm : TreeListEditMode.EditForm; } }
@@ -115,6 +135,8 @@
     public AttributeHeader AttributeDetails { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    private AttributeSubFormSetupList refAttributeSubFormSetupList { get; set; }
+    private AttributeGroupCheckBox _selectedItems;
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
@@ -183,7 +205,7 @@
                     ParentId = editablePlant.ParentId,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    IsTextBox=editablePlant.IsTextBox,
+                    IsTextBox = editablePlant.IsTextBox,
                 };
 
                 var result = await Mediator.Send(request);
@@ -248,6 +270,14 @@
 
         }
     }
+    void OnRowclick(TreeListFocusedRowChangedEventArgs e)
+    {
+        //var UniqueId = e.TreeList.GetRowValue(e.VisibleIndex, "AttributeGroupCheckBoxId");
+        //_selectedItems = _attributes.FirstOrDefault(f => f.AttributeGroupCheckBoxId == (long?)UniqueId);
+        _selectedItems = (AttributeGroupCheckBox)e.DataItem;
+        EditEnabled = _selectedItems?.ParentId > 0 && _selectedItems.IsTextBox == true;
+
+    }
     async Task addNew()
     {
         //isMainForm = false;
@@ -272,5 +302,21 @@
         {
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    void addNewSubForm()
+    {
+        AddPopup = true;
+        StateHasChanged();
+    }
+    void CloseSubFormPopup()
+    {
+        AddPopup = false;
+        InvokeAsync(LoadData);
+        StateHasChanged();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        AddPopup = false;
+        StateHasChanged();
     }
 }

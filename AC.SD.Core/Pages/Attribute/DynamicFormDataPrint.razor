@@ -42,28 +42,28 @@
 </script>
 <style scoped>
     /*  table {
-                                                                                                                                                                                                                                                        font-family: arial, sans-serif;
-                                                                                                                                                                                                                                                        border-collapse: collapse;
-                                                                                                                                                                                                                                                        width: 100%;
-                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                        font-family: arial, sans-serif;
+                                                                                                                                                                                                                                                                        border-collapse: collapse;
+                                                                                                                                                                                                                                                                        width: 100%;
+                                                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                                                                                                    th {
-                                                                                                                                                                                                                                                        border: 1px solid;
-                                                                                                                                                                                                                                                        padding: 8px;
-                                                                                                                                                                                                                                                        font-weight: bold;
+                                                                                                                                                                                                                                                                    th {
+                                                                                                                                                                                                                                                                        border: 1px solid;
+                                                                                                                                                                                                                                                                        padding: 8px;
+                                                                                                                                                                                                                                                                        font-weight: bold;
 
 
-                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                    }
 
-                                                                                                                                                                                                                                                    td {
-                                                                                                                                                                                                                                                        border: 1px solid;
-                                                                                                                                                                                                                                                        padding: 8px;
+                                                                                                                                                                                                                                                                    td {
+                                                                                                                                                                                                                                                                        border: 1px solid;
+                                                                                                                                                                                                                                                                        padding: 8px;
 
-                                                                                                                                                                                                                                                    } */
+                                                                                                                                                                                                                                                                    } */
 
     /* tr:nth-child(even) {
-                                                                                                                                                                                                                                                            background-color: #dddddd;
-                                                                                                                                                                                                                                                        } */
+                                                                                                                                                                                                                                                                            background-color: #dddddd;
+                                                                                                                                                                                                                                                                        } */
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -221,9 +221,9 @@
                                 }
                             }
                         }
-                        if (a.ControlType == "CheckBox" )
+                        if (a.ControlType == "CheckBox")
                         {
-                                bool? values = valueData == null ? false : (bool)valueData;
+                            bool? values = valueData == null ? false : (bool)valueData;
                         }
                         if (a.ControlTypeId == 2712)
                         {
@@ -244,15 +244,20 @@
                         }
 
                     }
+                    if (a.ControlType == "GroupCheckBox")
+                    {
+                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+
+                    }
                     if (a.ControlType == "CheckBox")
                     {
 
-                            bool? values = valueData == null ? false : (bool)valueData;
-                            if (values == true)
-                            {
-                                query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
-                            }
-                        
+                        bool? values = valueData == null ? false : (bool)valueData;
+                        if (values == true)
+                        {
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                        }
+
 
 
                     }
@@ -361,9 +366,9 @@
                         }
                         if (a.ControlType == "CheckBox")
                         {
-                            
-                                bool? values = valueData == null ? false : (bool)valueData;
-                            
+
+                            bool? values = valueData == null ? false : (bool)valueData;
+
                         }
                         if (a.ControlTypeId == 2712)
                         {
@@ -384,15 +389,20 @@
                         }
 
                     }
+                    if (a.ControlType == "GroupCheckBox")
+                    {
+                        query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                        
+                    }
                     if (a.ControlType == "CheckBox")
                     {
-                       
-                            bool? values = valueData == null ? false : (bool)valueData;
-                            if (values == true)
-                            {
-                                query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
-                            }
-                        
+
+                        bool? values = valueData == null ? false : (bool)valueData;
+                        if (values == true)
+                        {
+                            query += loadSubFormHtml(a.DynamicFormSectionAttributeId, 0);
+                        }
+
 
                     }
                 });
@@ -431,7 +441,7 @@
                         {
                             var colorCodeExitss = _AttributeHeader.DynamicFormSectionAttrFormulaFunctions.Where(w => w.DynamicFormSectionAttributeId == f.DynamicFormSectionAttributeId).FirstOrDefault();
 
-                            string formatteds = string.Empty; string formatted = string.Empty; 
+                            string formatteds = string.Empty; string formatted = string.Empty;
                             if (colorCodeExitss != null)
                             {
                                 if (colorCodeExitss.AValue > 0)
@@ -798,6 +808,34 @@
                                         }
                                     });
                                     }
+                                }
+                                else if (a.ControlType == "GroupCheckBox")
+                                {
+                                    dataColumnNames.Add(new DropDownOptionsModel() { IsMultiple = a.IsMultiple, DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
+
+                                    var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == a.AttributeId).ToList();
+                                    if (_attributeGroupCheckBoxes.Count() > 0)
+                                    {
+                                        _attributeGroupCheckBoxes.ForEach(z =>
+                                        {
+                                            if (z.IsTextBox == true)
+                                            {
+                                                if (z.SubAttributeHeaders.Count() > 0)
+                                                {
+                                                    AttributeDetails attributeDetails = new AttributeDetails();
+                                                    loadSubHeaders(z.SubAttributeHeaders, a, dataColumnNames, attributeDetails);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + z.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                                //dataColumnNames.Add(new DropDownOptionsModel() { DynamicFormSectionAttributeId = a.DynamicFormSectionAttributeId, ControlType = a.ControlType, Value = nameData, Text = z.Value, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, OrderBy = a.GridDisplaySeqNo });
+
+                                            }
+                                        });
+
+                                    }
+
                                 }
                                 else
                                 {
@@ -1485,38 +1523,35 @@
                                     if (_attributeGroupCheckBoxes.Count() > 0)
                                     {
                                         _attributeGroupCheckBoxes.ForEach(r =>
-                                    {
-                                        var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                                        var NamesA = jsonObj.ContainsKey(nameData);
-                                        if (NamesA == true)
                                         {
+                                            var nameData = s.DynamicFormSectionAttributeId + "_" + s.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
+                                            var NamesA = jsonObj.ContainsKey(nameData);
                                             var itemValueA = jsonObj[nameData];
                                             if (r.IsTextBox == true)
                                             {
-                                                string? valuesA = itemValueA == null ? string.Empty : (string?)itemValueA;
-                                                if (!string.IsNullOrEmpty(valuesA))
-                                                {
-                                                    valuesData += "<li>" + r.Value + "->(" + valuesA + ")" + "</li>";
-                                                }
+                                                loadSubHeadersData(r.SubAttributeHeaders, s, jsonObj, objectData);
                                             }
                                             else
                                             {
-                                                bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
-                                                if (valuesA == true)
+                                                if (NamesA == true)
                                                 {
-                                                    valuesData += "<li>" + r.Value + "</li>";
+                                                    bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
+                                                    if (valuesA == true)
+                                                    {
+                                                        valuesData += "<li>" + r.Value + "</li>";
+                                                    }
                                                 }
                                             }
-                                        }
-                                    });
+
+                                        });
                                         objectData[attrName] = valuesData.TrimEnd(',');
                                     }
-                                    else
-                                    {
-                                        bool? values = itemValue == null ? false : (bool)itemValue;
-                                        objectData[attrName] = values;
-                                        loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
-                                    }
+                                    // else
+                                    // {
+                                    //     bool? values = itemValue == null ? false : (bool)itemValue;
+                                    //     objectData[attrName] = values;
+                                    //     loadSubHeadersData(s.SubAttributeHeaders, s, jsonObj, objectData);
+                                    // }
                                 }
                                 else
                                 {
@@ -1678,15 +1713,65 @@
                     {
                         var values = (JArray)itemValues;
                         List<long?> listDatas = values.ToObject<List<long?>>();
-                        if (d.IsMultiple == true || d.ControlType == "TagBox")
+                        if (d.DataSourceTable == "DynamicGrid")
                         {
-                            var ValueSet = string.Empty;
-                            if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == d.DynamicFormId).FirstOrDefault()?.DropDownOptionsModels;
+
+                            string displayNames = string.Empty;
+
+                            if (listDatas != null && listDatas.Count > 0)
                             {
-                                var listName = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                listDatas.ForEach(l =>
+                                {
+                                    if (collection != null)
+                                    {
+                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                        {
+                                            dynamic eod = v;
+                                            var vv = eod.DynamicFormId;
+                                            string listone = string.Empty;
+                                            if (gridlistss != null && gridlistss.Count() > 0)
+                                            {
+                                                var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                g1.ForEach(q =>
+                                               {
+                                                   var byName = (IDictionary<string, object>)v;
+                                                   if (q.Value != null)
+                                                   {
+                                                       if (byName.ContainsKey(q.Value))
+                                                       {
+                                                           var names = (string)byName[q.Value]?.ToString();
+                                                           listone += names + "|";
+                                                       }
+                                                   }
+                                               });
+                                            }
+                                            eod.DisplayItemsQuery = listone;
+                                            if ((long?)eod.AttributeDetailID == l)
+                                            {
+                                                displayNames += eod.DisplayItemsQuery + ",";
+                                            }
+                                        }
+                                    }
+                                });
                             }
-                            objectData[subAttrName] = ValueSet;
+                            objectData[subAttrName] = displayNames.TrimEnd(',');
+                        }
+                        else
+                        {
+
+                            if (d.IsMultiple == true || d.ControlType == "TagBox")
+                            {
+                                var ValueSet = string.Empty;
+                                if (listDatas != null && listDatas.Count > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                {
+                                    var listName = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                    ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                }
+                                objectData[subAttrName] = ValueSet;
+                            }
                         }
                     }
                     else if (d.ControlType == "ListBox" && d.IsMultiple == false)
@@ -1719,12 +1804,56 @@
                         {
                             long? values = itemValues == null ? null : (long)itemValues;
                             var ValueSet = string.Empty;
-                            if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                            if (d.DataSourceTable == "DynamicGrid")
                             {
-                                var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == d.DynamicFormId).FirstOrDefault()?.DropDownOptionsModels;
+                                var displayNames = string.Empty;
+                                if (collection != null)
+                                {
+                                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                    {
+                                        dynamic eod = v;
+                                        var vv = eod.DynamicFormId;
+                                        var AttributeDetailIds = eod.AttributeDetailID;
+                                        string listone = string.Empty;
+                                        if (gridlistss != null && gridlistss.Count() > 0)
+                                        {
+                                            var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                            g1.ForEach(q =>
+                                       {
+                                           var byName = (IDictionary<string, object>)v;
+                                           if (q.Value != null)
+                                           {
+                                               if (byName.ContainsKey(q.Value))
+                                               {
+                                                   var names = (string)byName[q.Value]?.ToString();
+                                                   listone += names + "|";
+                                               }
+                                           }
+                                       });
+                                        }
+                                        eod.DisplayItemsQuery = listone;
+                                        if ((long?)eod.AttributeDetailID == values)
+                                        {
+                                            displayNames += eod.DisplayItemsQuery;
+                                        }
+                                    }
+                                }
+                                objectData[subAttrName] = displayNames;
                             }
-                            objectData[subAttrName] = ValueSet;
+                            else
+                            {
+                                {
+                                    if (values > 0 && d.SubAttributeDetails != null && d.SubAttributeDetails.Count > 0)
+                                    {
+                                        var listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                        ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                    }
+                                }
+                                objectData[subAttrName] = ValueSet;
+                            }
                         }
                         else if (d.ControlType == "CheckBox")
                         {

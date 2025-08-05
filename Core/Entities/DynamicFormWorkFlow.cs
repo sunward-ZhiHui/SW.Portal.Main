@@ -43,7 +43,9 @@ namespace Core.Entities
         public string? DesignationName { get; set; }
         [NotMapped]
         public string? FullName { get; set; }
+        [DynamicFormWorkFlowMultipleUsersCustomValidation]
         public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
+        public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
         [NotMapped]
         public IEnumerable<long?> SelectUserGroupIDs { get; set; } = new List<long?>();
         [NotMapped]
@@ -62,6 +64,34 @@ namespace Core.Entities
         public string? DynamicFormSectionName { get; set; }
         public int? DynamicFormWorkFlowApprovalCount { get; set; }
         public bool? IsDynamicFormWorkFlowApproval { get; set; } = false;
+        public int? FlowStatusID { get; set; }
+        public bool? IsAnomalyStatus { get; set; } = false;
+        public bool? IsMultipleUser { get; set; } = false;
+    }
+    public class DynamicFormWorkFlowMultipleUser
+    {
+        public long DynamicFormWorkFlowMultipleUserId { get; set; }
+        public long? DynamicFormWorkFlowId { get; set; }
+        public string? Type { get; set; }
+        public long? UserId { get; set; }
+        public long? UserGroupId { get; set; }
+        public long? LevelId { get; set; }
+        public string? UserName { get; set; }
+        [NotMapped]
+        public string? LevelName { get; set; }
+        [NotMapped]
+        public string? NickName { get; set; }
+        [NotMapped]
+        public string? FirstName { get; set; }
+        [NotMapped]
+        public string? LastName { get; set; }
+        [NotMapped]
+        public string? DepartmentName { get; set; }
+        [NotMapped]
+        public string? DesignationName { get; set; }
+        [NotMapped]
+        public string? FullName { get; set; }
+        public long? DynamicFormWorkFlowFormId { get; set; }
     }
     public class DynamicFormWorkFlowSection
     {
@@ -92,6 +122,9 @@ namespace Core.Entities
         public long? DelegateSectionUserId { get; set; }
         public string? DelegateSectionUserName { get; set; }
         public bool? IsParallelWorkflow { get; set; } = false;
+        public bool? IsAnomalyStatus { get; set; } = false;
+        public bool? IsMultipleUser { get; set; } = false;
+        public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
     }
     public class DynamicFormWorkFlowForm
     {
@@ -101,6 +134,7 @@ namespace Core.Entities
         public long? DynamicFormDataId { get; set; }
         [Required(ErrorMessage = "User Name is required")]
         public long? UserId { get; set; }
+        public string? Type { get; set; }
         public DateTime? CompletedDate { get; set; }
         [NotMapped]
         public string? CompletedBy { get; set; }
@@ -131,6 +165,7 @@ namespace Core.Entities
         public int? DynamicFormWorkFlowFormCount { get; set; }
         public bool? DynamicFormWorkFlowApprovalFormCompleted { get; set; } = false;
         public long? DynamicFormId { get; set; }
+        public int Index { get; set; }
         public List<long?> DynamicFormSectionIDs { get; set; } = new List<long?>();
         [DynamicFormWorkFormFlowSectionCustomValidation]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
@@ -144,16 +179,45 @@ namespace Core.Entities
         public long? DelegateWorkFlowFormChangedId { get; set; }
         public Guid? FormSessionId { get; set; }
         public Guid? FormDataSessionId { get; set; }
-        public string? ApprovedStatus {  get; set; }
+        public string? ApprovedStatus { get; set; }
         public bool? IsApproved { get; set; }
         public int? DynamicFormWorkFlowApprovalCount { get; set; }
         public bool? IsDynamicFormWorkFlowApproval { get; set; } = false;
+        public bool? IsAnomalyStatus { get; set; } = false;
+        public bool? IsMultipleUser { get; set; } = false;
+        public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
+        [DynamicFormWorkFlowFormMultipleUsersCustomValidation]
+        public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
     }
     public class DynamicFormDataUploadByPermission
     {
         public long? DynamicFormSectionId { get; set; }
         public bool? IsVisible { get; set; } = false;
         public bool? IsReadonly { get; set; } = false;
+    }
+    public class DynamicFormWorkFlowFormMultipleUser
+    {
+        public long DynamicFormWorkFlowFormMultipleUserId { get; set; }
+        public long? DynamicFormWorkFlowFormId { get; set; }
+        public string? Type { get; set; }
+        public long? UserId { get; set; }
+        public long? UserGroupId { get; set; }
+        public long? LevelId { get; set; }
+        public string? UserName { get; set; }
+        [NotMapped]
+        public string? LevelName { get; set; }
+        [NotMapped]
+        public string? NickName { get; set; }
+        [NotMapped]
+        public string? FirstName { get; set; }
+        [NotMapped]
+        public string? LastName { get; set; }
+        [NotMapped]
+        public string? DepartmentName { get; set; }
+        [NotMapped]
+        public string? DesignationName { get; set; }
+        [NotMapped]
+        public string? FullName { get; set; }
     }
     public class DynamicFormDataAll
     {
@@ -168,8 +232,8 @@ namespace Core.Entities
         public List<DynamicFormWorkFlow> DynamicFormWorkFlow { get; set; } = new List<DynamicFormWorkFlow>();
         public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; } = new List<DynamicFormWorkFlowSection>();
         public List<DynamicFormWorkFlowApproval> DynamicFormWorkFlowApproval { get; set; } = new List<DynamicFormWorkFlowApproval>();
-
-
+        public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUser { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
+        public List<DynamicFormWorkFlowFormMultipleUser> DynamicFormWorkFlowFormMultipleUser { get; set; } = new List<DynamicFormWorkFlowFormMultipleUser>();
     }
     public class DynamicFormWorkFlowFormDelegate
     {

@@ -18,18 +18,34 @@
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Auto">
-            <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewWorkFlows" Enabled="@AddNewEnabledApproval" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditApproval" Enabled="@AddEditEnabledApproval" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteApproval" Enabled="@DeleteEnabledApproval" />
-                <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@ApprovalEnabledApproval" />
-                <DxMenuItem Text="Delegate User" IconCssClass="fa fa-link" Click="@addDelegate" Enabled="@DelegateEnabledApproval" />
-            </Items>
-        </DxMenu>
+        @if (!IsMultipleUserExits)
+        {
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewWorkFlows" Enabled="@AddNewEnabledApproval" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditApproval" Enabled="@AddEditEnabledApproval" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteApproval" Enabled="@DeleteEnabledApproval" />
+                    <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@ApprovalEnabledApproval" />
+                    <DxMenuItem Text="Delegate User" IconCssClass="fa fa-link" Click="@addDelegate" Enabled="@DelegateEnabledApproval" />
+                </Items>
+            </DxMenu>
+        }
+        else
+        {
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewWorkFlows" Enabled="@AddNewEnabledApproval" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditApproval" Enabled="@AddEditEnabledApproval" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteApproval" Enabled="@DeleteEnabledApproval" />
+                    <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@ApprovalEnabledApproval" />
 
+                </Items>
+            </DxMenu>
+        }
     </div>
 </div>
 <DxGrid @ref="SMWorkFlowGrids" Data="_dynamicFormWorkFlowFormListItems"
@@ -49,17 +65,54 @@
         RowClick="OnRowApprovalClick"
         EditModelSaving="@OnEditModelApprovalSaving"
         CustomizeEditModel="Grid_CustomizeApprovalEditModel"
-        style="padding:10px;height: calc(100vh - 500px);"
+        style="padding:10px;height: calc(100vh - 300px);"
         AutoExpandAllGroupRows="true"
         RowDoubleClick="OnRowApprovalDoubleClick"
         SelectionMode="GridSelectionMode.Single">
     <Columns>
+        <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anonymous" MinWidth="30" />
+        @if (!IsAnomalyStatus)
+        {
+            <DxGridDataColumn FieldName="IsMultipleUser" Caption="Is Multiple User" MinWidth="30" />
+        }
         <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
-        <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
+        <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="@(IsMultipleUserExits == true ? "Is Allow Update Delegate" : "Is Allow Update")" MinWidth="30" />
         <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
         <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
-        <DxGridDataColumn FieldName="ActualUserName" Caption="Assigned User" />
-        <DxGridDataColumn FieldName="DelegateSectionUserName" Caption="Delegate User" />
+        <DxGridDataColumn FieldName="ActualUserName" Caption="Assigned User">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormWorkFlowForm)context.DataItem;
+                    if (item.IsAnomalyStatus == false && item.IsMultipleUser == false)
+                    {
+                        if (item.UserId > 0)
+                        {
+                            <span>@item.ActualUserName</span>
+                        }
+                        else
+                        {
+                            <span style="color:red;">User Not Assigned</span>
+                        }
+                    }
+                    else
+                    {
+                        if (item.IsMultipleUser == true && (item.DynamicFormWorkFlowMultipleUsers == null || item.DynamicFormWorkFlowMultipleUsers.Count == 0))
+                        {
+                            <span style="color:red;">Users Not Assigned</span>
+                        }
+                        else
+                        {
+                            <i class="fa fa-users" aria-hidden="true" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormWorkFlowId}") style="cursor:pointer;padding:5px;margin-right:5px;color:black" onclick="@(() => openFormGridList(item))"></i>
+
+                        }
+                    }
+                }
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        @if (!IsMultipleUserExits)
+        {
+            <DxGridDataColumn FieldName="DelegateSectionUserName" Caption="Delegate User" />
+        }
         <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
         <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
         <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
@@ -71,25 +124,58 @@
             var types = (DynamicFormWorkFlowForm)EditFormContext.EditModel;
         }
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Users" ColSpanMd="6">
-                <DxComboBox Data="_usersAllList"
-                            @bind-Value="types.UserId"
-                            NullText="Select User..."
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            ValueFieldName="UserID"
-                            TextFieldName="FirstName"
-                            SearchMode="ListSearchMode.AutoSearch"
-                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            EditFormat="{0}-{1}-{3}"
-                            ListRenderMode="ListRenderMode.Virtual">
-                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
-                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
-                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                </DxComboBox>
-                <ValidationMessage For="@(() => types.UserId)" />
+            <DxFormLayoutItem Caption="Is Anonymous" ColSpanMd="6">
+                <DxCheckBox Enabled="false" Checked="types.IsAnomalyStatus" CheckedExpression="@(() => types.IsAnomalyStatus)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(types, value))"></DxCheckBox>
+                <ValidationMessage For="@(() => types.IsAnomalyStatus)" />
             </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Is Multiple User" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                <DxCheckBox Enabled="false" Checked="types.IsMultipleUser" CheckedExpression="@(() => types.IsMultipleUser)" CheckedChanged="@((bool? value) => OnIsMultipleUserValueChanged(types, value))"></DxCheckBox>
+            </DxFormLayoutItem>
+            @if (types.IsMultipleUser == true)
+            {
+                <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                    <DxTagBox Data="_usersAllList"
+                              @bind-Values="types.SelectUserIDs"
+                              NullText="Select To..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="FirstName"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              EditFormat="{0}-{1}-{3}"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.SelectUserIDs)" />
+                </DxFormLayoutItem>
+            }
+            else
+            {
+                <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="IsAnomalyStatusEnabled">
+                    <DxComboBox Data="_usersAllList"
+                                @bind-Value="types.UserId"
+                                NullText="Select User..."
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueFieldName="UserID"
+                                TextFieldName="FirstName"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                EditFormat="{0}-{1}-{3}"
+                                ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.UserId)" />
+                </DxFormLayoutItem>
+            }
+
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxTagBox Data="_dynamicFormSectionData"
                           @bind-Values="types.SelectDynamicFormSectionIDs"
@@ -109,9 +195,19 @@
                 <DxSpinEdit @bind-Value="@types.SequenceNo" NullText="Type a Sequence No 1,2,3,..." MinValue="1" CssClass="cw-320" InputId="seNullableValue" />
                 <ValidationMessage For="@(() => types.SequenceNo)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
-                <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
-            </DxFormLayoutItem>
+            @if (types.IsMultipleUser == true)
+            {
+                <DxFormLayoutItem Caption="Is Allow Update" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                </DxFormLayoutItem>
+            }
+            else
+            {
+                <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                </DxFormLayoutItem>
+            }
+
             <DxFormLayoutItem Caption="Is Parallel Workflow" ColSpanMd="6">
                 <DxCheckBox @bind-Checked="types.IsParallelWorkflow"></DxCheckBox>
             </DxFormLayoutItem>
@@ -207,7 +303,47 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsRenameOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedDynamicFormWorkFlowItems?.DynamicFormWorkFlowId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Users"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxGrid Data="@DynamicFormWorkFlowMultipleUsers" ShowGroupPanel="true"
+                ShowGroupedColumns="true"
+                ShowSearchBox="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                KeyFieldName="DynamicFormWorkFlowMultipleUserId"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="10"
+                CssClass="ch-360"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" TextWrapEnabled="false">
+            <Columns>
+                <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="80" />
+                <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+                <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="100" />
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsRenameOpen = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
+    bool IsRenameOpen { get; set; } = false;
+    bool IsAnomalyStatusEnabled { get; set; } = true; bool IsAnomalyStatusVisible { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     IGrid? SMWorkFlowGrids { get; set; }
     bool updateApprovepopup { get; set; } = false;
@@ -239,14 +375,14 @@
     DynamicFormWorkFlowFormDelegate dynamicFormApprovedChanged = new DynamicFormWorkFlowFormDelegate();
     private List<DynamicFormSection>? _dynamicFormSectionAllData; private List<DynamicFormSection>? _dynamicFormSectionData;
     private List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormList;
-    public List<long?> dynamicFormSectionIds = new List<long?>();
+    public List<long?> dynamicFormSectionIds = new List<long?>(); public List<long?> UserIds = new List<long?>();
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
     string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
     string MessageHeader = "Error";
-    string MessageBody = "";
+    string MessageBody = ""; bool IsMultipleUserExits { get; set; } = false; bool IsAnomalyStatus { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
 
@@ -259,47 +395,65 @@
     {
         AddNewEnabledApproval = false; DeleteEnabledApproval = false; DelegateEnabledApproval = false; AddEditEnabledApproval = false; ApprovalEnabledApproval = false;
         _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
-        EditEnabledApproval = false; dynamicFormSectionIds = new List<long?>();
+        EditEnabledApproval = false; dynamicFormSectionIds = new List<long?>(); UserIds = new List<long?>(); IsAnomalyStatus = false; IsMultipleUserExits = false;
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(dynamicFormId, _dynamicformData?.DynamicFormDataId));
         if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count() > 0)
         {
             ApprovalEnabledApproval = true;
             dynamicFormSectionIds = _dynamicFormWorkFlowFormList.Select(a => a.DynamicFormSectionId).Distinct().ToList();
+            IsMultipleUserExits = _dynamicFormWorkFlowFormList.Any(w => w.IsMultipleUser == true);
+            IsAnomalyStatus = _dynamicFormWorkFlowFormList.Any(w => w.IsAnomalyStatus == true);
             _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
             var dynamicFormWorkFlowIds = _dynamicFormWorkFlowFormList.Select(z => z.DynamicFormWorkFlowId).Distinct().ToList();
             if (dynamicFormWorkFlowIds != null && dynamicFormWorkFlowIds.Count() > 0)
             {
+                int i = 1;
                 dynamicFormWorkFlowIds.ForEach(e =>
                 {
                     DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
                     dynamicFormWorkFlowForm.DynamicFormId = dynamicFormId;
                     dynamicFormWorkFlowForm.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
                     var listsItems = _dynamicFormWorkFlowFormList.Where(z => z.DynamicFormWorkFlowId == e).ToList();
+                    var listData = listsItems.FirstOrDefault();
+                    bool isAdd = listData.IsAnomalyStatus == true || (!listData.IsMultipleUser.Value && listData.UserId > 0) || (listData.IsMultipleUser.Value && listData.DynamicFormWorkFlowMultipleUsers?.Count() > 0);
+
+                    //if (isAdd)
+                    //{
+                    dynamicFormWorkFlowForm.Index = i;
                     dynamicFormWorkFlowForm.DynamicFormSectionIDs = listsItems.Select(e => e.DynamicFormSectionId).ToList();
                     dynamicFormWorkFlowForm.SelectDynamicFormSectionIDs = listsItems.Select(e => (long)e.DynamicFormSectionId).ToList();
                     dynamicFormWorkFlowForm.SectionName = string.Join(",", listsItems.Select(aa => aa.SectionName).ToList());
-                    dynamicFormWorkFlowForm.DynamicFormWorkFlowId = listsItems[0].DynamicFormWorkFlowId;
-                    dynamicFormWorkFlowForm.SequenceNo = listsItems[0].SequenceNo;
-                    dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listsItems[0].DynamicFormWorkFlowUser;
-                    dynamicFormWorkFlowForm.CompletedDate = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedDate : null;
-                    dynamicFormWorkFlowForm.CompletedBy = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedBy : null;
-                    dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
-                    dynamicFormWorkFlowForm.UserId = listsItems[0].UserId;
-                    dynamicFormWorkFlowForm.IsAllowDelegateUser = listsItems[0].IsAllowDelegateUser;
-                    dynamicFormWorkFlowForm.IsParallelWorkflow = listsItems[0].IsParallelWorkflow;
-                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
-                    dynamicFormWorkFlowForm.DelegateSectionUserId = listsItems[0].DelegateSectionUserId;
-                    dynamicFormWorkFlowForm.DelegateSectionUserName = listsItems[0].DelegateSectionUserName;
-                    dynamicFormWorkFlowForm.ActualUserId = listsItems[0].ActualUserId;
-                    dynamicFormWorkFlowForm.ActualUserName = listsItems[0].ActualUserName;
-                    dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted = listsItems[0].DynamicFormWorkFlowApprovalFormCompleted;
-                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormTotalCount = listsItems[0].DynamicFormWorkFlowFormTotalCount;
-                    dynamicFormWorkFlowForm.IsDynamicFormWorkFlowApproval = listsItems[0].DynamicFormWorkFlowFormTotalCount > 0 ? true : false;
-                    dynamicFormWorkFlowForm.CurrentApprovalUserId = listsItems[0].CurrentApprovalUserId;
-                    dynamicFormWorkFlowForm.CurrentApprovalUserName = listsItems[0].CurrentApprovalUserName;
-                    dynamicFormWorkFlowForm.ApprovedStatus = listsItems[0].ApprovedStatus;
-                    dynamicFormWorkFlowForm.IsApproved = listsItems[0].IsApproved;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowId = listData.DynamicFormWorkFlowId;
+                    dynamicFormWorkFlowForm.SequenceNo = listData.SequenceNo;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listData.DynamicFormWorkFlowUser;
+                    dynamicFormWorkFlowForm.CompletedDate = listData.FlowStatusID == 1 ? listData.CompletedDate : null;
+                    dynamicFormWorkFlowForm.CompletedBy = listData.FlowStatusID == 1 ? listData.CompletedBy : null;
+                    dynamicFormWorkFlowForm.FlowStatusID = listData.FlowStatusID;
+                    dynamicFormWorkFlowForm.UserId = listData.UserId;
+                    dynamicFormWorkFlowForm.IsAllowDelegateUser = listData.IsAllowDelegateUser;
+                    dynamicFormWorkFlowForm.IsParallelWorkflow = listData.IsParallelWorkflow;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listData.DynamicFormWorkFlowFormId;
+                    dynamicFormWorkFlowForm.DelegateSectionUserId = listData.DelegateSectionUserId;
+                    dynamicFormWorkFlowForm.DelegateSectionUserName = listData.DelegateSectionUserName;
+                    dynamicFormWorkFlowForm.ActualUserId = listData.ActualUserId;
+                    dynamicFormWorkFlowForm.ActualUserName = listData.IsAnomalyStatus == true ? "-" : listData.ActualUserName;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted = listData.DynamicFormWorkFlowApprovalFormCompleted;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormTotalCount = listData.DynamicFormWorkFlowFormTotalCount;
+                    dynamicFormWorkFlowForm.IsDynamicFormWorkFlowApproval = listData.DynamicFormWorkFlowFormTotalCount > 0 ? true : false;
+                    dynamicFormWorkFlowForm.CurrentApprovalUserId = listData.CurrentApprovalUserId;
+                    dynamicFormWorkFlowForm.CurrentApprovalUserName = listData.CurrentApprovalUserName;
+                    dynamicFormWorkFlowForm.ApprovedStatus = listData.ApprovedStatus;
+                    dynamicFormWorkFlowForm.IsApproved = listData.IsApproved;
+                    dynamicFormWorkFlowForm.IsAnomalyStatus = listData.IsAnomalyStatus;
+                    dynamicFormWorkFlowForm.IsMultipleUser = listData.IsMultipleUser;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowMultipleUsers = listData.DynamicFormWorkFlowMultipleUsers;
+                    if (listData.DynamicFormWorkFlowMultipleUsers != null)
+                    {
+                        UserIds.AddRange(listData.DynamicFormWorkFlowMultipleUsers.Select(a => a.UserId).ToList());
+                    }
                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
+                    i++;
+                    //}
                 });
             }
 
@@ -310,10 +464,51 @@
             {
                 if (iIsAllowDelegateUserss > 0)
                 {
-                    var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-                    if (exits > 0)
+                    if (IsMultipleUserExits == true)
                     {
-                        EditEnabledApproval = true;
+                        if (UserIds.Count() > 0)
+                        {
+                            if (UserIds.Contains(applicationUser.UserID))
+                            {
+                                EditEnabledApproval = true;
+                                if (_dynamicformData?.DynamicFormDataId > 0)
+                                {
+                                    AddNewEnabledApproval = true;
+                                    if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                        if (exits > 0)
+                        {
+                            EditEnabledApproval = true;
+                            if (_dynamicformData?.DynamicFormDataId > 0)
+                            {
+                                AddNewEnabledApproval = true;
+                                if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
+                                {
+
+                                }
+                                else
+                                {
+                                    DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                                }
+
+                            }
+                        }
+                    }
+                    if (IsAnomalyStatus == true)
+                    {
                         if (_dynamicformData?.DynamicFormDataId > 0)
                         {
                             AddNewEnabledApproval = true;
@@ -325,13 +520,43 @@
                             {
                                 DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
                             }
-
                         }
                     }
                 }
             }
         }
         StateHasChanged();
+    }
+    void openFormGridList(DynamicFormWorkFlowForm dynamicFormWorkFlow)
+    {
+        IsRenameOpen = true;
+        DynamicFormWorkFlowMultipleUsers = dynamicFormWorkFlow.DynamicFormWorkFlowMultipleUsers;
+    }
+    void OnTemplateDataSourceGroupValueChanged(DynamicFormWorkFlowForm types, bool? radioValue)
+    {
+        types.IsAnomalyStatus = radioValue;
+        IsAnomalyStatusEnabled = false;
+        if (types.IsAnomalyStatus == true)
+        {
+            types.UserId = 0;
+        }
+        else
+        {
+            IsAnomalyStatusEnabled = true;
+            types.UserId = null;
+        }
+    }
+    void OnIsMultipleUserValueChanged(DynamicFormWorkFlowForm types, bool? radioValue)
+    {
+        types.IsMultipleUser = radioValue;
+        if (radioValue == true)
+        {
+            types.UserId = 0;
+        }
+        else
+        {
+            types.UserId = null;
+        }
     }
     void addNewWorkFlows()
     {
@@ -363,13 +588,14 @@
         {
 
             var request = new DeleteDynamicFormWorkFlowForm(_selectedDynamicFormWorkFlowItems);
-            await Mediator.Send(request);
-            if (request.DynamicFormWorkFlowId > 0)
+            var result = await Mediator.Send(request);
+            if (result.DynamicFormWorkFlowId > 0)
             {
                 Blukdeletepopup = false;
                 toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 SMWorkFlowGrids.SetFocusedRowIndex(0);
                 await loadDatas();
+                StateHasChanged();
             }
         }
         catch (Exception eq)
@@ -377,10 +603,6 @@
             DeleteerrorMessage = eq.Message;
             PopupVisible = true;
         }
-
-        await loadDatas();
-
-
     }
     async Task OnEditModelApprovalSaving(GridEditModelSavingEventArgs e)
     {
@@ -424,17 +646,57 @@
             {
                 if (iIsAllowDelegateUserss > 0)
                 {
-                    var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-                    if (exits > 0)
+                    if (IsMultipleUserExits == true)
                     {
-                        EditEnabledApproval = true;
-                        if (_dynamicformData?.DynamicFormDataId > 0)
+                        if (UserIds.Count() > 0)
                         {
-                            AddNewEnabledApproval = true;
-                            if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 0)
+                            if (UserIds.Contains(applicationUser.UserID))
                             {
-                                DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                                EditEnabledApproval = true;
+                                if (_dynamicformData?.DynamicFormDataId > 0)
+                                {
+                                    AddNewEnabledApproval = true;
+                                    if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                                    }
+                                }
                             }
+                        }
+                    }
+                    else
+                    {
+                        var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                        if (exits > 0)
+                        {
+                            EditEnabledApproval = true;
+                            if (_dynamicformData?.DynamicFormDataId > 0)
+                            {
+                                AddNewEnabledApproval = true;
+                                if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 0)
+                                {
+                                    DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (IsAnomalyStatus == true)
+                {
+                    if (_dynamicformData?.DynamicFormDataId > 0)
+                    {
+                        AddNewEnabledApproval = true;
+                        if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
+                        {
+
+                        }
+                        else
+                        {
+                            DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
                         }
                     }
                 }
@@ -453,15 +715,44 @@
         var navitems = (DynamicFormWorkFlowForm)e.EditModel;
         if (e.IsNew)
         {
+            navitems.Type = "User";
+            IsAnomalyStatusEnabled = true; IsAnomalyStatusVisible = false;
             navitems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
             navitems.DynamicFormId = dynamicFormId;
             if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
             {
                 _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !dynamicFormSectionIds.Contains(w.DynamicFormSectionId)).ToList();
             }
+            if (_dynamicFormWorkFlowFormListItems != null && _dynamicFormWorkFlowFormListItems.Count() > 0)
+            {
+                var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.IsAnomalyStatus == true).FirstOrDefault();
+                if (exits != null)
+                {
+                    IsAnomalyStatusEnabled = false; navitems.IsAnomalyStatus = true; navitems.UserId = 0; IsAnomalyStatusVisible = true;
+                }
+                navitems.IsAllowDelegateUser = _dynamicFormWorkFlowFormListItems.Any(w => w.IsAllowDelegateUser == true);
+                navitems.IsParallelWorkflow = _dynamicFormWorkFlowFormListItems.Any(w => w.IsParallelWorkflow == true);
+            }
+            if (IsMultipleUserExits == true)
+            {
+                OnIsMultipleUserValueChanged(navitems, true);
+            }
+
         }
         else
         {
+            navitems.Type = "User";
+            IsAnomalyStatusEnabled = true; IsAnomalyStatusVisible = false;
+            if (navitems.IsAnomalyStatus == true)
+            {
+                navitems.UserId = 0;
+                IsAnomalyStatusEnabled = false;
+            }
+            if (navitems.IsMultipleUser == true)
+            {
+                navitems.SelectUserIDs = navitems.DynamicFormWorkFlowMultipleUsers != null ? navitems.DynamicFormWorkFlowMultipleUsers.Select(s => s.UserId).Distinct().ToList() : new List<long?>();
+                navitems.UserId = 0;
+            }
             if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
             {
                 List<long?> datds = dynamicFormSectionIds.Except(navitems.DynamicFormSectionIDs).ToList();
@@ -480,6 +771,7 @@
             DynamicFormWorkFlowItems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
             DynamicFormWorkFlowItems.DynamicFormWorkFlowFormId = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
             DynamicFormWorkFlowItems.DynamicFormWorkFlowId = (long)_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId;
+            DynamicFormWorkFlowItems.FlowStatusID = _selectedDynamicFormWorkFlowItems.FlowStatusID;
             // if (_selectedDynamicFormWorkFlowItems.IsAllowDelegateUser == true)
             // {
             //     if (_selectedDynamicFormWorkFlowItems.ActualUserId == applicationUser.UserID)
@@ -487,10 +779,24 @@
             //         DynamicFormWorkFlowItems.IsAllowDelegateUser = true;
             //     }
             // }
-            DynamicFormWorkFlowItems.IsNextFlow = true;
-            if (sortbyy != null && sortbyy.FlowStatusID == 1)
+            DynamicFormWorkFlowItems.IsNextFlow = false;
+            if (sortbyy != null)
             {
-                DynamicFormWorkFlowItems.IsNextFlow = false;
+                if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
+                {
+
+                }
+                else
+                {
+                    if (sortbyy.FlowStatusID == 1)
+                    {
+                        DynamicFormWorkFlowItems.IsNextFlow = true;
+                    }
+                }
+            }
+            else
+            {
+                DynamicFormWorkFlowItems.IsNextFlow = true;
             }
             SectionApprovalPopup = true;
         }
@@ -576,3 +882,5 @@
         //RevokeBack?.Invoke();
     }
 }
+
+

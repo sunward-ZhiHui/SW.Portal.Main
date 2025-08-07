@@ -440,7 +440,7 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
-    width: 107px;
+    width: 111px;
     transition: background-color 0.3s ease;
     margin: 10px;
     }
@@ -7114,7 +7114,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             //_headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));            
             _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
             _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
-            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+            if(_headTopic != null)
+            {
+                isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+            }
+            
 
             isEnabled = true;
             isTodoEnabled = false;

@@ -124,6 +124,7 @@ namespace Core.Entities
         public bool? IsParallelWorkflow { get; set; } = false;
         public bool? IsAnomalyStatus { get; set; } = false;
         public bool? IsMultipleUser { get; set; } = false;
+        public int? FlowStatusID { get; set; }
         public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
     }
     public class DynamicFormWorkFlowForm

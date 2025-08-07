@@ -245,10 +245,24 @@
         {
             if (SelectedItems.DynamicFormDataId > 0)
             {
-                if (SelectedItems.IsNextFlow == false)
+                if (SelectedItems.IsAllowDelegateUser == true)
                 {
-                   AddEnabled = false;
+                    if (SelectedItems.IsNextFlow == false)
+                    {
+                        AddEnabled = false;
+                    }
                 }
+                else
+                {
+                    if (SelectedItems.IsNextFlow == false)
+                    {
+                        AddEnabled = false;
+                    }
+                }
+            }
+            else
+            {
+                 AddEnabled = false;                
             }
             if (SelectedItems.DynamicFormWorkFlowId > 0)
             {

@@ -673,7 +673,10 @@
             Data.TemplateUploadOrReserveNo = "New Upload";
             Data.TemplateUploadType = "Files";
             isFilesUpload = true; fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
-            _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, _applicationUser.UserID, _dynamicformData.DynamicFormDataId));
+            if (_dynamicformData != null)
+            {
+                _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, _applicationUser.UserID, _dynamicformData.DynamicFormDataId));
+            }
             fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
 
             if (fileProfileTypeDocumentsAll != null && fileProfileTypeDocumentsAll.Count() > 0)

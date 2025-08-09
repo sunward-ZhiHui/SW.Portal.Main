@@ -436,7 +436,7 @@ namespace Infrastructure.Repository.Query
                     {
                         //var userRole = await GetDocumentUserRoleByUserIDExitsAsync(value.SwProfileTypeId, null);
                         var parameters = new DynamicParameters();
-                        parameters.Add("FilterProfileTypeID", value.FilterProfileTypeId);
+                        parameters.Add("FilterProfileTypeID", value.SwProfileTypeId);
                         parameters.Add("FileName", value.FileName, DbType.String);
                         parameters.Add("ContentType", value.ContentType, DbType.String);
                         parameters.Add("FileSize", value.FileSize);

@@ -46,5 +46,6 @@ namespace Core.Entities
         [NotMapped]
         public string? NewProfileNo { get; set; }
         public Guid? UniqueSessionId { get; set; }
+        public List<Guid?> SessionIds { get; set; } = new List<Guid?>();
     }
 }

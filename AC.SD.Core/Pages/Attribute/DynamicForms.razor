@@ -62,7 +62,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                border-collapse: collapse;*/
+                                                                                                                                                                                                    border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -250,7 +250,6 @@
                                     </DxMenuItem>
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
@@ -298,7 +297,6 @@
                                     </DxMenuItem>
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
@@ -336,10 +334,9 @@
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
@@ -373,10 +370,9 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
@@ -427,15 +423,13 @@
                                     </div>
                                     @if (isPrint == false)
                                     {
-                                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
+                                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                                         {
-                                            var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
-                                            if (_dynamicSecAttach != null)
-                                            {
+                                           
                                                 <div style="margin-left:auto;">
-                                                    <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
+                                                    <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick())"></i>
                                                 </div>
-                                            }
+                                            
                                         }
                                     }
                                 </HeaderContentTemplate>
@@ -799,7 +793,7 @@
          ShowCloseButton="true"
          Closed="EulaPopupClosed"
          ShowFooter="false"
-         Width="1000px">
+         Width="1500px">
     <BodyContentTemplate>
         <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" DynamicFormDataUploadByPermissions="@DynamicFormDataUploadByPermissions" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
@@ -1065,6 +1059,24 @@
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => dynamicFormSectionAttrFormulaEnabled = false) />
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@WithWorkFlowStartPopup"
+         ShowFooter="true"
+         HeaderText="WorkFlow"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to start the flow?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="SubmitFormExternallyWorkFlowSubmitNo" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => SubmitFormExternallyWorkFlowSubmitYes())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     bool dynamicFormSectionAttrFormulaEnabled { get; set; } = false;
     DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
@@ -1152,7 +1164,7 @@
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSection;
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlow;
     private List<int?> _sequenceNoList = new List<int?>();
-    bool isWorkflowEnabled { get; set; } = false;
+    bool isWorkflowEnabled { get; set; } = false; bool WithWorkFlowStartPopup { get; set; } = false;
     string? randomNum { get; set; }
     public List<DynamicFormSection> _dynamicFormSectionList { get; set; }
     public List<Type?> DataClassTypeList = new List<Type?>(); public List<string?> DataClassObjectNameList = new List<string?>();
@@ -1580,15 +1592,53 @@
                                 var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).OrderBy(x => x.SequenceNo).ToList();
                                 if (_sequenceNoList.Count() > 0)
                                 {
+
                                     var IsParallelWorkflowCount = _dynamicFormWorkFlowSection.Where(w => w.IsParallelWorkflow == true).Count();
                                     if (IsParallelWorkflowCount > 0)
                                     {
                                         foreach (var itemss in _sequenceNoList)
                                         {
-                                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss && w.IsParallelWorkflow == true).ToList();
+                                            if (notdata != null && notdata.Count > 0)
+                                            {
+                                                notdata.ForEach(n =>
+                                                {
+                                                    bool shoulEnable=false;
+                                                    if (n.IsMultipleUser == true  && n.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    {
+                                                        shoulEnable = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (n.UserId == applicationUser.UserID)
+                                                        {
+                                                            shoulEnable = true;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (n.IsAnomalyStatus == true)
+                                                            {
+                                                                shoulEnable = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if(shoulEnable==true)
+                                                    {
+                                                     _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
+                                                    }
+                                                });
+                                               
+
+                                            }
+                                        }
+                                        foreach (var itemss in _sequenceNoList)
+                                        {
+                                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss && w.IsParallelWorkflow == false).ToList();
                                             if (notdata != null && notdata.Count > 0)
                                             {
                                                 _dynamicFormWorkFlowSectionNoWorkFlow.AddRange(notdata);
+                                                break;
+
                                             }
                                         }
                                     }
@@ -1623,23 +1673,18 @@
                                         isSaveEnabled = true;
                                     }
                                     var IsParallelWorkflowCount = notCompleted.Where(w => w.IsParallelWorkflow == true).Count();
-                                    var IsMultipleUserCount = notCompleted.Where(w => w.IsMultipleUser == true).Count();
                                     if (IsParallelWorkflowCount > 0)
                                     {
                                         bool shouldEnableWorkflow = false;
-
-                                        if (IsMultipleUserCount > 0)
+                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                                        if (exitss!=null && exitss?.IsMultipleUser == true && exitss?.IsWorkFlowDone==0 && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                         {
-                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
-                                            if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
-                                            {
-                                                shouldEnableWorkflow = true;
-                                            }
+                                            shouldEnableWorkflow = true;
                                         }
                                         else
                                         {
-                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                                            if (exitss != null)
+                                            var exitsUser = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                            if (exitsUser != null)
                                             {
                                                 shouldEnableWorkflow = true;
                                             }
@@ -1659,7 +1704,7 @@
                                             isWorkflowEnabled = true;
                                             isSaveEnabled = true;
 
-                                            if (_dynamicformData != null && isApproval == true)
+                                            if (_dynamicformData != null)
                                             {
                                                 IsUploadEnabled = true;
                                             }
@@ -1669,44 +1714,42 @@
                                     else
                                     {
                                         bool shouldEnableWorkflow = false;
-
-                                        if (IsMultipleUserCount > 0)
+                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                                        if (exitss != null)
                                         {
-                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
-                                            if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
-                                            {
-                                                shouldEnableWorkflow = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                                            if (exitss != null)
+                                            if (exitss?.IsMultipleUser == true && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                             {
                                                 shouldEnableWorkflow = true;
                                             }
                                             else
                                             {
-                                                var isAnomalous = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
-                                                if (isAnomalous != null)
+                                                var exitsUser = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                                if (exitsUser != null)
                                                 {
                                                     shouldEnableWorkflow = true;
                                                 }
+                                                else
+                                                {
+                                                    var isAnomalous = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
+                                                    if (isAnomalous != null)
+                                                    {
+                                                        shouldEnableWorkflow = true;
+                                                    }
+                                                }
                                             }
-                                        }
 
-                                        // Apply common actions if eligible
-                                        if (shouldEnableWorkflow)
-                                        {
-                                            isWorkflowEnabled = true;
-                                            isSaveEnabled = true;
-
-                                            if (_dynamicformData != null && isApproval == true)
+                                            // Apply common actions if eligible
+                                            if (shouldEnableWorkflow)
                                             {
-                                                IsUploadEnabled = true;
+                                                isWorkflowEnabled = true;
+                                                isSaveEnabled = true;
+
+                                                if (_dynamicformData != null)
+                                                {
+                                                    IsUploadEnabled = true;
+                                                }
                                             }
                                         }
-
                                     }
                                 }
 
@@ -1754,30 +1797,130 @@
                         {
                             if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count() > 0)
                             {
+                                _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
                                 _sequenceNoList = _dynamicFormWorkFlowFormList.Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
                                 if (_sequenceNoList.Count() > 0)
                                 {
-                                    _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
-                                    foreach (var itemss in _sequenceNoList)
+                                    var IsParallelWorkflowCount = _dynamicFormWorkFlowFormList.Where(w => w.IsParallelWorkflow == true).Count();
+                                    if (IsParallelWorkflowCount > 0)
                                     {
-                                        var notdata = _dynamicFormWorkFlowFormList.Where(w => w.SequenceNo == itemss).ToList();
-                                        if (notdata != null && notdata.Count > 0)
+                                        foreach (var itemss in _sequenceNoList)
                                         {
-                                            notdata.ForEach(n =>
+                                            var notdata = _dynamicFormWorkFlowFormList.Where(w => w.SequenceNo == itemss && w.IsParallelWorkflow == true).ToList();
+                                            if (notdata != null && notdata.Count > 0)
                                             {
-                                                DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
-                                                dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
-                                                dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
-                                                dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
-                                                dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
-                                                dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
-                                                dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
-                                                _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
-                                            });
-                                            break;
+                                                notdata.ForEach(n =>
+                                                {
+                                                    bool shoulEnabled=false;
+                                                    if (n.IsMultipleUser == true && n.DynamicFormWorkFlowMultipleUsers!=null && n.DynamicFormWorkFlowMultipleUsers.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    {
+                                                        shoulEnabled=true;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (n.UserId == applicationUser.UserID)
+                                                        {
+                                                            shoulEnabled=true;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (n.IsAnomalyStatus == true)
+                                                            {
+                                                                shoulEnabled=true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if(shoulEnabled)
+                                                    {
+                                                        DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
+                                                        dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
+                                                        dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
+                                                        dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                        dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
+                                                        dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
+                                                        dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
+                                                        dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
+                                                        dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                        dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                        _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+                                                    }
+
+                                                });
+                                                isWorkflowEnabled = true;
+                                            }
+                                        }
+                                        foreach (var itemss in _sequenceNoList)
+                                        {
+                                            var notdata = _dynamicFormWorkFlowFormList.Where(w => w.SequenceNo == itemss && w.IsParallelWorkflow == false).ToList();
+                                            if (notdata != null && notdata.Count > 0)
+                                            {
+                                                notdata.ForEach(n =>
+                                                {
+                                                    DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
+                                                    dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
+                                                    dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                    dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
+                                                    dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
+                                                    dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
+                                                    dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
+                                                    dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                    _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+
+                                                });
+                                                isWorkflowEnabled = true;
+                                                break;
+
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach (var itemss in _sequenceNoList)
+                                        {
+                                            var notdata = _dynamicFormWorkFlowFormList.Where(w => w.SequenceNo == itemss).ToList();
+                                            if (notdata != null && notdata.Count > 0)
+                                            {
+                                                notdata.ForEach(n =>
+                                                {
+                                                    DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
+                                                    dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
+                                                    dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                    dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
+                                                    dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
+                                                    dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
+                                                    dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
+                                                    dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                    _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+
+                                                });
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+                            }
+                        }
+                        if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
+                        {
+                            isSaveEnabled = true;
+                            if (_dynamicformData != null)
+                            {
+                                IsUploadEnabled = true;
+                            }
+                        }
+                        else
+                        {
+                            if (_dynamicformData == null)
+                            {
+                                isSaveEnabled = true; isWorkflowEnabled = true;
+                            }
+                            else
+                            {
+                                isSaveEnabled = true; IsUploadEnabled = true; isWorkflowEnabled = true;
                             }
                         }
                         _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
@@ -2507,7 +2650,7 @@
         imageUploadPopup = false;
         createAuditpopup = false;
         lockpopup = false;
-        IsSectionLockOpen = false;
+        IsSectionLockOpen = false; WithWorkFlowStartPopup = false;
         StateHasChanged();
     }
     async Task bulkSectionLock()
@@ -3574,7 +3717,28 @@
             await this.HandleFormValidApprovalSubmit();
         }
     }
+    async Task SubmitFormExternallyWithWorkFlow()
+    {
+        if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
+        {
+            WithWorkFlowStartPopup = true;
+        }
+        else
+        {
+            await SubmitFormExternally();
+        }
+    }
+    async Task SubmitFormExternallyWorkFlowSubmitNo()
+    {
+        await SubmitFormExternally();
 
+    }
+    async Task SubmitFormExternallyWorkFlowSubmitYes()
+    {
+        await SubmitFormExternally();
+        await Task.Delay(2000);
+        await addWorlflowAdd();
+    }
     private async Task SubmitFormExternally()
     {
         IsSendApproval = false;
@@ -3818,7 +3982,7 @@
                             isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
                         }
                         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        loading = false;
+                        loading = false; WithWorkFlowStartPopup = false;
                         //await onApproved();
                     }
                     StateHasChanged();
@@ -3870,7 +4034,7 @@
                             Datas.ProfileNo = result.ProfileNo;
                             isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
                         }
-                        loading = false;
+                        loading = false; WithWorkFlowStartPopup = false;
                         // await onApproved();
                     }
                     loading = false;
@@ -4075,6 +4239,7 @@
     {
         var _DynamicFormDataUploadByPermission = DynamicFormDataUploadByPermissions;
         PopupUpload = true;
+        StateHasChanged();
     }
     void BackUpload()
     {
@@ -4117,78 +4282,68 @@
 
         if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0 && _dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
         {
-            var isMultipleUser = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.IsMultipleUser == true);
-            var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.IsAnomalyStatus == true);
-            if (isMultipleUser != null)
+            bool exitsEnabled = false;
+            foreach (var item in _dynamicFormWorkFlowSectionNoWorkFlow)
             {
-                var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId);
-                if (dynamicFormWorkFlowSectionId != null)
+                List<DynamicFormWorkFlowSection> ItemData = new List<DynamicFormWorkFlowSection>();
+                ItemData.Add(item);
+                bool shouldEnableWorkflow = false;
+                if (item.IsParallelWorkflow == true)
                 {
-                    if (dynamicFormWorkFlowSectionId?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
-                    {
-                        var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(dynamicFormWorkFlowSectionId.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
-                        if (resultData == null)
-                        {
-                            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
-                            if (response != null)
-                            {
-                                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
-                                isVisibleButton = false;
-                                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
-                                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
-                                await loadDynamicForm();
-                                StateHasChanged();
-                            }
-
-                        }
-                        else
-                        {
-                            toastService.ShowToast("Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (isAna != null)
-                {
-                    var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
-                    if (response != null)
-                    {
-                        wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
-                        isVisibleButton = false;
-                        IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
-                        toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await loadDynamicForm();
-                        StateHasChanged();
-                    }
+                    shouldEnableWorkflow = true;
                 }
                 else
                 {
-                    var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.UserId == applicationUser.UserID);
-                    if (dynamicFormWorkFlowSectionId != null)
+                    var exitss = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                    if (exitss?.IsMultipleUser == true && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                     {
-                        var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(dynamicFormWorkFlowSectionId.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
-                        if (resultData == null)
+                        shouldEnableWorkflow = true;
+                    }
+                    else
+                    {
+                        var exitsUser = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                        if (exitsUser != null)
                         {
-                            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
-                            if (response != null)
-                            {
-                                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
-                                isVisibleButton = false;
-                                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
-                                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
-                                await loadDynamicForm();
-                                StateHasChanged();
-                            }
-
+                            shouldEnableWorkflow = true;
                         }
                         else
                         {
-                            toastService.ShowToast("Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                            var isAnomalous = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
+                            if (isAnomalous != null)
+                            {
+                                shouldEnableWorkflow = true;
+                            }
                         }
                     }
                 }
+                if (shouldEnableWorkflow)
+                {
+                    var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(item.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
+                    if (resultData == null)
+                    {
+
+                        var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(ItemData, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+                        if (response != null)
+                        {
+                            exitsEnabled = true;
+                        }
+                    }
+                    else
+                    {
+                        toastService.ShowToast(item.SequenceNo + "-Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                    }
+                }
+            }
+
+            if (exitsEnabled == true)
+            {
+                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
+                isVisibleButton = false;
+                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
+                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await loadDynamicForm();
+                StateHasChanged();
+
             }
         }
         else
@@ -4211,16 +4366,17 @@
             StateHasChanged();
         }
     }
-    async Task OnSectionUploadInfoClick(DynamicFormSection dynamicFormSection1)
+    void OnSectionUploadInfoClick()
     {
-        if (dynamicFormSection1 != null)
-        {
-            if (dynamicFormSection1.DynamicFormDataUploadId > 0 && dynamicFormSection1.UploadSessionID != null && dynamicFormSection1.FileProfileSessionID != null && dynamicFormSection1.IsFileExits == "Yes")
-            {
-                var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + dynamicFormSection1.FileProfileSessionID + "/" + dynamicFormSection1.UploadSessionID;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
-            }
-        }
+        addUploadDocument();
+        // if (dynamicFormSection1 != null)
+        // {
+        //     if (dynamicFormSection1.DynamicFormDataUploadId > 0 && dynamicFormSection1.UploadSessionID != null && dynamicFormSection1.FileProfileSessionID != null && dynamicFormSection1.IsFileExits == "Yes")
+        //     {
+        //         var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + dynamicFormSection1.FileProfileSessionID + "/" + dynamicFormSection1.UploadSessionID;
+        //         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        //     }
+        // }
     }
     void OnSectionInfoClick(DynamicFormSection dynamicFormSection)
     {
@@ -5436,30 +5592,71 @@
             {
                 if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
                 {
-                    var IsMultipleUserCount = _dynamicFormWorkFlowSectionNoWorkFlow.Where(w => w.IsMultipleUser == true).Count();
-                    if (IsMultipleUserCount > 0)
+                    var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
+                    if (exitss != null)
                     {
-                        var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
-                        if (exitss != null)
+                        if (exitss.IsWorkFlowDone == 0)
                         {
-                            if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                            if (exitss.IsMultipleUser == true)
                             {
-                                if (isVisible != false)
+                                if (exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                 {
-                                    isVisible = true;
+                                    if (isVisible != false)
+                                    {
+                                        isVisible = true;
+                                    }
+                                    if (isReadonly == false)
+                                    {
+                                        isReadonly = true;
+                                    }
                                 }
-                                if (isReadonly == false)
+                                else
                                 {
-                                    isReadonly = true;
+                                    if (isVisible != false)
+                                    {
+                                        isVisible = true;
+                                    }
+                                    isReadonly = false;
                                 }
                             }
                             else
                             {
-                                if (isVisible != false)
+                                var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.IsAnomalyStatus == true);
+                                if (isAna != null)
                                 {
-                                    isVisible = true;
+                                    if (isVisible != false)
+                                    {
+                                        isVisible = true;
+                                    }
+                                    if (isReadonly == false)
+                                    {
+                                        isReadonly = true;
+                                    }
                                 }
-                                isReadonly = false;
+                                else
+                                {
+                                    var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                                    if (userExits != null)
+                                    {
+
+                                        if (isVisible != false)
+                                        {
+                                            isVisible = true;
+                                        }
+                                        if (isReadonly == false)
+                                        {
+                                            isReadonly = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (isVisible != false)
+                                        {
+                                            isVisible = true;
+                                        }
+                                        isReadonly = false;
+                                    }
+                                }
                             }
                         }
                         else
@@ -5473,42 +5670,11 @@
                     }
                     else
                     {
-                        var isAna = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.IsAnomalyStatus == true);
-                        if (isAna != null)
+                        if (isVisible != false)
                         {
-                            if (isVisible != false)
-                            {
-                                isVisible = true;
-                            }
-                            if (isReadonly == false)
-                            {
-                                isReadonly = true;
-                            }
+                            isVisible = true;
                         }
-                        else
-                        {
-                            var exitsUserDatas = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(q => q.DynamicFormSectionId == a.DynamicFormSectionId && q.UserId == applicationUser.UserID);
-                            if (exitsUserDatas != null)
-                            {
-
-                                if (isVisible != false)
-                                {
-                                    isVisible = true;
-                                }
-                                if (isReadonly == false)
-                                {
-                                    isReadonly = true;
-                                }
-                            }
-                            else
-                            {
-                                if (isVisible != false)
-                                {
-                                    isVisible = true;
-                                }
-                                isReadonly = false;
-                            }
-                        }
+                        isReadonly = false;
                     }
                 }
                 else
@@ -5588,6 +5754,26 @@
                 isVisible = true;
             }
         }
+        if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
+        {
+            var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
+            if (exitss == null)
+            {
+                isReadonly = false;
+            }
+        }
+        else
+        {
+            var exits = _dynamicFormWorkFlowFormList.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.FlowStatusID == 1);
+            if (exits != null)
+            {
+                isReadonly = false;
+            }
+            else
+            {
+                isReadonly = true;
+            }
+        }
         var exi = DynamicFormDataUploadByPermissions.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
         if (exi == null)
         {
@@ -5619,7 +5805,29 @@
         b.OpenElement(i + 1, "div");
         if (isWorkSection != null)
         {
-            b.AddAttribute(i + 1, "style", "color:red;");
+            if (isWorkSection.IsAnomalyStatus == true)
+            {
+                b.AddAttribute(i + 1, "style", "color:red;");
+            }
+            else
+            {
+                if (isWorkSection.IsParallelWorkflow == true)
+                {
+                    b.AddAttribute(i + 1, "style", "color:red;");
+                }
+                if (isWorkSection.UserId == applicationUser.UserID)
+                {
+                    b.AddAttribute(i + 1, "style", "color:red;");
+                }
+                if (isWorkSection.IsMultipleUser == true && isWorkSection.DynamicFormWorkFlowMultipleUsers.Count() > 0)
+                {
+                    var exits = isWorkSection.DynamicFormWorkFlowMultipleUsers.Where(w => w.UserId == applicationUser.UserID).Count();
+                    if (exits > 0)
+                    {
+                        b.AddAttribute(i + 1, "style", "color:red;");
+                    }
+                }
+            }
         }
         b.AddContent(i + 1, (a.SortOrderBy + ". " + a.SectionName));
 
@@ -5630,19 +5838,15 @@
         {
             if (isUploadReadonly == true)
             {
-                if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+                if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                 {
-                    var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == a.DynamicFormSectionId);
-                    if (_dynamicSecAttach != null)
-                    {
-                        b.OpenElement(i + 1, "i");
-                        b.AddAttribute(i + 1, "class", "fa fa-paperclip");
-                        b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                        b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick(_dynamicSecAttach)));
-                        b.AddAttribute(i + 1, "title", _dynamicSecAttach.FileName);
-                        b.AddAttribute(i + 1, "aria-hidden", true);
-                        b.CloseElement();
-                    }
+                    b.OpenElement(i + 1, "i");
+                    b.AddAttribute(i + 1, "class", "fa fa-paperclip");
+                    b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                    b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick()));
+                    b.AddAttribute(i + 1, "aria-hidden", true);
+                    b.CloseElement();
+                    
                 }
             }
             if (!string.IsNullOrEmpty(a.Instruction))

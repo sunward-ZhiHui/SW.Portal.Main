@@ -77,6 +77,7 @@ namespace Core.Entities
         [NotMapped]
         public Guid? UniqueSessionId { get; set; }
         public long? LinkFileProfileTypeDocumentID { get; set; }
+        public int? IndexNo {  get; set; }    
     }
     public class DynamicFormSectionSortOrder
     {

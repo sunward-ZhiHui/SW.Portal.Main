@@ -1433,7 +1433,7 @@ namespace Infrastructure.Service
             int page = 0;
             while (true)
             {
-                var nquery = context.Context.PostedSalesShipmentLines.Where(p => p.Posting_Date <= navpostedShipment.FromPostingDate && p.Posting_Date >= navpostedShipment.ToPostingDate && p.Type == "Item").Skip(page * pageSize).Take(pageSize);
+                var nquery = context.Context.PostedSalesShipmentLines.Where(p => p.Posting_Date >= navpostedShipment.FromPostingDate && p.Posting_Date <= navpostedShipment.ToPostingDate && p.Type == "Item").Skip(page * pageSize).Take(pageSize);
                 //var nquery = context.Context.PostedSalesShipmentLines.Where(p => p.Type == "Item").Skip(page * pageSize).Take(pageSize);
                 DataServiceQuery<NAV.PostedSalesShipmentLines> query = (DataServiceQuery<NAV.PostedSalesShipmentLines>)nquery;
                 TaskFactory<IEnumerable<NAV.PostedSalesShipmentLines>> taskFactory = new TaskFactory<IEnumerable<NAV.PostedSalesShipmentLines>>();

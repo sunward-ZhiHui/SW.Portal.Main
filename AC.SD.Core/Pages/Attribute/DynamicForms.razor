@@ -423,15 +423,13 @@
                                     </div>
                                     @if (isPrint == false)
                                     {
-                                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
+                                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                                         {
-                                            var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
-                                            if (_dynamicSecAttach != null)
-                                            {
+                                           
                                                 <div style="margin-left:auto;">
-                                                    <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
+                                                    <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick())"></i>
                                                 </div>
-                                            }
+                                            
                                         }
                                     }
                                 </HeaderContentTemplate>
@@ -795,7 +793,7 @@
          ShowCloseButton="true"
          Closed="EulaPopupClosed"
          ShowFooter="false"
-         Width="1000px">
+         Width="1500px">
     <BodyContentTemplate>
         <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" DynamicFormDataUploadByPermissions="@DynamicFormDataUploadByPermissions" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
@@ -1603,7 +1601,34 @@
                                             var notdata = notCompleted.Where(w => w.SequenceNo == itemss && w.IsParallelWorkflow == true).ToList();
                                             if (notdata != null && notdata.Count > 0)
                                             {
-                                                _dynamicFormWorkFlowSectionNoWorkFlow.AddRange(notdata);
+                                                notdata.ForEach(n =>
+                                                {
+                                                    bool shoulEnable=false;
+                                                    if (n.IsMultipleUser == true  && n.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    {
+                                                        shoulEnable = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (n.UserId == applicationUser.UserID)
+                                                        {
+                                                            shoulEnable = true;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (n.IsAnomalyStatus == true)
+                                                            {
+                                                                shoulEnable = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if(shoulEnable==true)
+                                                    {
+                                                     _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
+                                                    }
+                                                });
+                                               
+
                                             }
                                         }
                                         foreach (var itemss in _sequenceNoList)
@@ -1652,7 +1677,7 @@
                                     {
                                         bool shouldEnableWorkflow = false;
                                         var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
-                                        if (exitss?.IsMultipleUser == true && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                        if (exitss!=null && exitss?.IsMultipleUser == true && exitss?.IsWorkFlowDone==0 && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                         {
                                             shouldEnableWorkflow = true;
                                         }
@@ -1786,17 +1811,39 @@
                                             {
                                                 notdata.ForEach(n =>
                                                 {
-                                                    DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
-                                                    dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
-                                                    dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
-                                                    dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
-                                                    dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
-                                                    dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
-                                                    dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
-                                                    dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
-                                                    dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
-                                                    dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
-                                                    _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+                                                    bool shoulEnabled=false;
+                                                    if (n.IsMultipleUser == true && n.DynamicFormWorkFlowMultipleUsers!=null && n.DynamicFormWorkFlowMultipleUsers.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    {
+                                                        shoulEnabled=true;
+                                                    }
+                                                    else
+                                                    {
+                                                        if (n.UserId == applicationUser.UserID)
+                                                        {
+                                                            shoulEnabled=true;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (n.IsAnomalyStatus == true)
+                                                            {
+                                                                shoulEnabled=true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if(shoulEnabled)
+                                                    {
+                                                        DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
+                                                        dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
+                                                        dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
+                                                        dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                        dynamicFormWorkFlowSectionDatas.IsAnomalyStatus = n.IsAnomalyStatus;
+                                                        dynamicFormWorkFlowSectionDatas.IsMultipleUser = n.IsMultipleUser;
+                                                        dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
+                                                        dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
+                                                        dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                        dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                        _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+                                                    }
 
                                                 });
                                                 isWorkflowEnabled = true;
@@ -4192,6 +4239,7 @@
     {
         var _DynamicFormDataUploadByPermission = DynamicFormDataUploadByPermissions;
         PopupUpload = true;
+        StateHasChanged();
     }
     void BackUpload()
     {
@@ -4318,16 +4366,17 @@
             StateHasChanged();
         }
     }
-    async Task OnSectionUploadInfoClick(DynamicFormSection dynamicFormSection1)
+    void OnSectionUploadInfoClick()
     {
-        if (dynamicFormSection1 != null)
-        {
-            if (dynamicFormSection1.DynamicFormDataUploadId > 0 && dynamicFormSection1.UploadSessionID != null && dynamicFormSection1.FileProfileSessionID != null && dynamicFormSection1.IsFileExits == "Yes")
-            {
-                var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + dynamicFormSection1.FileProfileSessionID + "/" + dynamicFormSection1.UploadSessionID;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
-            }
-        }
+        addUploadDocument();
+        // if (dynamicFormSection1 != null)
+        // {
+        //     if (dynamicFormSection1.DynamicFormDataUploadId > 0 && dynamicFormSection1.UploadSessionID != null && dynamicFormSection1.FileProfileSessionID != null && dynamicFormSection1.IsFileExits == "Yes")
+        //     {
+        //         var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + dynamicFormSection1.FileProfileSessionID + "/" + dynamicFormSection1.UploadSessionID;
+        //         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        //     }
+        // }
     }
     void OnSectionInfoClick(DynamicFormSection dynamicFormSection)
     {
@@ -5789,19 +5838,15 @@
         {
             if (isUploadReadonly == true)
             {
-                if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+                if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                 {
-                    var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == a.DynamicFormSectionId);
-                    if (_dynamicSecAttach != null)
-                    {
-                        b.OpenElement(i + 1, "i");
-                        b.AddAttribute(i + 1, "class", "fa fa-paperclip");
-                        b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                        b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick(_dynamicSecAttach)));
-                        b.AddAttribute(i + 1, "title", _dynamicSecAttach.FileName);
-                        b.AddAttribute(i + 1, "aria-hidden", true);
-                        b.CloseElement();
-                    }
+                    b.OpenElement(i + 1, "i");
+                    b.AddAttribute(i + 1, "class", "fa fa-paperclip");
+                    b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                    b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick()));
+                    b.AddAttribute(i + 1, "aria-hidden", true);
+                    b.CloseElement();
+                    
                 }
             }
             if (!string.IsNullOrEmpty(a.Instruction))

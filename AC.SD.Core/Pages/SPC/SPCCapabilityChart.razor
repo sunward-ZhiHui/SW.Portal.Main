@@ -1,0 +1,84 @@
+﻿@page "/capability-chart"
+@using System.Linq
+@using System.Drawing
+@using DevExpress.Blazor
+
+@code {
+    public class CapabilityData
+    {
+        public double BinCenter { get; set; }
+        public double Frequency { get; set; }
+        public double NormalCurve { get; set; }
+    }
+
+    List<CapabilityData> chartData = new();
+    double LSL = 65, USL = 85;
+    double Mean = 75;
+    double Sigma = 3;
+
+    protected override void OnInitialized()
+    {
+        GenerateChartData();
+    }
+
+    void GenerateChartData()
+    {
+        chartData.Clear();
+        var rand = new Random();
+        for (int i = 60; i <= 90; i++)
+        {
+            double bin = i;
+            double freq = rand.Next(5, 25);
+            double norm = 100 * Math.Exp(-0.5 * Math.Pow((bin - Mean) / Sigma, 2)) / (Sigma * Math.Sqrt(2 * Math.PI));
+            chartData.Add(new CapabilityData
+            {
+                BinCenter = bin,
+                Frequency = freq,
+                NormalCurve = norm
+            });
+        }
+    }
+}
+<h3>Capability Analysis Chart</h3>
+
+<DxChart Data="@chartData" Width="1000px" Height="500px">
+    <DxChartTitle Text="Capability Chart" />
+
+    <DxChartBarSeries T="CapabilityData"
+                      TArgument="double"
+                      TValue="double"
+                      Name="Histogram"
+                      ArgumentField="c => c.BinCenter"
+                      ValueField="c => c.Frequency" />
+
+    <DxChartLineSeries T="CapabilityData"
+                       TArgument="double"
+                       TValue="double"
+                       Name="Normal Curve"
+                       ArgumentField="c => c.BinCenter"
+                       ValueField="c => c.NormalCurve" />
+
+    <DxChartValueAxis>
+        <DxChartAxisTitle Text="Frequency" />
+
+        <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"LSL = {LSL}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"USL = {USL}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="@Mean" Color="Color.Blue" Width="2">
+            <DxChartConstantLineLabel Text="@($"Avg = {Mean:F1}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="@((Mean - 3 * Sigma))" Color="Color.Black" DashStyle="ChartDashStyle.Dash">
+            <DxChartConstantLineLabel Text="@($"-3σ = {(Mean - 3 * Sigma):F1}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="@((Mean + 3 * Sigma))" Color="Color.Black" DashStyle="ChartDashStyle.Dash">
+            <DxChartConstantLineLabel Text="@($"+3σ = {(Mean + 3 * Sigma):F1}")" Position="RelativePosition.Outside" />
+        </DxChartConstantLine>
+    </DxChartValueAxis>
+</DxChart>

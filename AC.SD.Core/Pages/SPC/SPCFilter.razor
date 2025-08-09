@@ -1,0 +1,408 @@
+﻿@page "/spcfilterpage"
+@using System.Drawing
+@inject ChartService chartService
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Select Table -->
+        <DxComboBox T="string"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    Data="@tableList"
+                    Value="@selectedTable"
+                    ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+                    NullText="Select Table" />
+    </div>
+    <div class="col-md-8">
+        @if (columnList?.Count > 0)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Select X Axis -->
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@columnList"
+                                Value="@xField"
+                                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                                NullText="Select X-Axis" />
+                </div>
+                <div class="col-md-4">
+                    <!-- Select Y Axis -->
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@columnList"
+                                Value="@yField"
+                                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                                NullText="Select Y-Axis" />
+                </div>
+                <div class="col-md-4">
+                    <!-- Select Date Column -->
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@dateColumnList"
+                                Value="@dateField"
+                                ValueChanged="@((string? newValue) => { dateField = newValue; CheckAxesSelected(); })"
+                                NullText="Select Date Column" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row mb-2">
+    <!-- Spec limits -->
+    <div class="col-md-2">
+        <label>LSL Value</label>
+        <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+    </div>
+    <div class="col-md-2">
+        <label>USL Value</label>
+        <DxSpinEdit @bind-Value="USL" NullText="USL" />
+    </div>
+    <div class="col-md-2">
+        <label>Start Date:</label>
+        <DxDateEdit @bind-Date="startDate"
+                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+    </div>
+    <div class="col-md-2">
+        <label>End Date:</label>
+        <DxDateEdit @bind-Date="endDate"
+                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+    </div>
+    <div class="col-md-3 align-self-end">
+        <DxButton Text="Apply Date Filter" Click="ApplyDateFilter" />
+    </div>
+</div>
+
+<!-- Chart Spec + Labels -->
+@if (processedData?.Count > 0)
+{
+    <DxChart Data="processedData" Width="100%" Height="500px">
+        <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                       Position="RelativePosition.Outside"
+                       VerticalAlignment="VerticalEdge.Top"
+                       Orientation="Orientation.Horizontal" />
+
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Auto">
+            <DxChartAxisTitle Text="@xAxisLabel" />
+
+            <!-- Spec + Control limits -->
+            <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+                <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@UCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@LCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+            </DxChartConstantLine>
+        </DxChartArgumentAxis>
+
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="@yAxisLabel" />
+        </DxChartValueAxis>
+
+        <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+        <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                                  ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+        <DxChartBarSeries T="CapabilityData"
+                          TArgument="string"
+                          TValue="int"
+                          Name="Frequency"
+                          ArgumentField="c => c.Label"
+                          ValueField="c => c.Frequency" />
+
+        <DxChartLineSeries T="CapabilityData"
+                           TArgument="string"
+                           TValue="double"
+                           Name="Normal Curve"
+                           ArgumentField="c => c.Label"
+                           ValueField="c => c.NormalizedCurve"
+                           Color="Color.Orange" />
+    </DxChart>
+}
+
+@code {
+    DateTime? startDate = DateTime.Today;
+    DateTime? endDate = DateTime.Today.AddDays(7);
+    DateTime? minDate;
+    DateTime? maxDate;
+
+    List<string> tableList = new();
+    List<string> columnList = new();
+    List<string> numericColumnList = new();
+    List<dynamic> tableRawData = new();
+    List<string> dynamicColumns = new();
+
+    string selectedTable, xField, yField, dateField;
+    string chartTitle = "SPC Capability Chart";
+    string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
+
+    double avg, UCL, LCL;
+    double LSL = 99.76;
+    double USL = 100.025;
+
+    List<string> dateColumnList = new();
+    List<CapabilityData> processedData = new();
+
+    // Holds selected points with both numeric + original string values
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPointsWithDates = new();
+
+    public class CapabilityData
+    {
+        public string Label { get; set; } // X-axis label for display
+        public double XNumeric { get; set; } // numeric version for calculations
+        public int Frequency { get; set; }
+        public double NormalizedCurve { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    private Dictionary<string, int> stringValueMap = new();
+    private double GetNumericValue(string value)
+    {
+        if (double.TryParse(value, out var num))
+            return num;
+        if (!stringValueMap.ContainsKey(value))
+            stringValueMap[value] = stringValueMap.Count + 1;
+        return stringValueMap[value];
+    }
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> ConvertRawDataToPoints()
+    {
+        var result = new List<(double, double, DateTime, string, string)>();
+
+        if (string.IsNullOrEmpty(xField) || string.IsNullOrEmpty(yField) || string.IsNullOrEmpty(dateField))
+            return result;
+
+        foreach (var row in tableRawData)
+        {
+            var dict = (IDictionary<string, object>)row;
+
+            // Ensure fields exist
+            if (!dict.ContainsKey(xField) || !dict.ContainsKey(yField) || !dict.ContainsKey(dateField))
+                continue;
+
+            var xObj = dict[xField]?.ToString();
+            var yObj = dict[yField]?.ToString();
+            var dateObj = dict[dateField]?.ToString();
+
+            // Skip if string is null/empty/whitespace
+            if (string.IsNullOrWhiteSpace(xObj) || string.IsNullOrWhiteSpace(yObj))
+                continue;
+
+            // Parse date
+            if (!DateTime.TryParse(dateObj, out var dateVal))
+                continue;
+
+            // Parse numbers
+            double xNum = GetNumericValue(xObj);
+            double yNum = GetNumericValue(yObj);
+
+            // Skip invalid numeric values
+            if (double.IsNaN(xNum) || double.IsInfinity(xNum) ||
+                double.IsNaN(yNum) || double.IsInfinity(yNum))
+                continue;
+
+            // ✅ Only valid data reaches here
+            result.Add((xNum, yNum, dateVal, xObj, yObj));
+        }
+
+        return result;
+    }
+
+
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> ConvertRawDataToPoints_()
+    {
+        var result = new List<(double, double, DateTime, string, string)>();
+
+        if (string.IsNullOrEmpty(xField) || string.IsNullOrEmpty(yField) || string.IsNullOrEmpty(dateField))
+            return result;
+
+        foreach (var row in tableRawData)
+        {
+            var dict = (IDictionary<string, object>)row;
+            if (!dict.ContainsKey(xField) || !dict.ContainsKey(yField) || !dict.ContainsKey(dateField))
+                continue;
+
+            var xObj = dict[xField]?.ToString();
+            var yObj = dict[yField]?.ToString();
+            var dateObj = dict[dateField]?.ToString();
+
+            if (string.IsNullOrWhiteSpace(xObj) || string.IsNullOrWhiteSpace(yObj))
+                continue;
+
+            if (!DateTime.TryParse(dateObj, out var dateVal))
+                continue;
+
+            double xNum = GetNumericValue(xObj);
+            double yNum = GetNumericValue(yObj);
+
+            result.Add((xNum, yNum, dateVal, xObj, yObj));
+        }
+
+        return result;
+    }
+
+    private async Task OnTableChanged(string table)
+    {
+        selectedTable = table;
+        columnList = await chartService.GetColumnListAsync(table);
+        numericColumnList = await chartService.GetNumericColumnsAsync(table);
+        dateColumnList = await chartService.GetColumnListAsync(table);
+        tableRawData = await chartService.GetDynamicRawTableDataAsync(table);
+        dynamicColumns = columnList;
+    }
+
+    private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+        if (dataPoints.Any())
+        {
+            minDate = dataPoints.Min(p => p.Date);
+            maxDate = dataPoints.Max(p => p.Date);
+            startDate = DateTime.Today;
+            endDate = DateTime.Today.AddDays(7) > maxDate ? maxDate : DateTime.Today.AddDays(7);
+            selectedPointsWithDates = dataPoints;
+            LoadChart(dataPoints);
+        }
+    }
+
+    private void ApplyDateFilter()
+    {
+        if (startDate == null || endDate == null) return;
+
+        var filtered = selectedPointsWithDates
+            .Where(p => p.Date >= startDate && p.Date <= endDate)
+            .ToList();
+
+        LoadChart(filtered);
+    }
+    private void LoadChart(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
+    {
+        processedData.Clear();
+        avg = UCL = LCL = 0;
+
+        if (selectedPoints.Count < 2)
+        {
+            return; // not enough data to calculate
+        }
+
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+        avg = yValues.Average();
+
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+
+        if (double.IsNaN(sigma) || double.IsInfinity(sigma) || sigma == 0)
+        {
+            return; // skip calculation to avoid Infinity
+        }
+
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        processedData = selectedPoints
+            .GroupBy(p => new { p.X, p.XLabel })
+            .Select(g => new CapabilityData
+            {
+                Label = g.Key.XLabel,
+                XNumeric = g.Key.X,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.XNumeric)
+            .ToList();
+
+        var maxFreq = processedData.Max(p => p.Frequency);
+
+        var pdfValues = processedData.Select(p =>
+        {
+            var z = (p.XNumeric - avg) / sigma;
+            var pdf = (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                      Math.Exp(-0.5 * z * z);
+
+            if (double.IsNaN(pdf) || double.IsInfinity(pdf))
+                pdf = 0;
+
+            return (p.Label, PDF: pdf);
+        }).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxPdf == 0 ? 0 : maxFreq / maxPdf;
+
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(v => v.Label == item.Label).PDF;
+            item.NormalizedCurve = double.IsNaN(pdf * scaleFactor) || double.IsInfinity(pdf * scaleFactor)
+                ? 0
+                : pdf * scaleFactor;
+        }
+    }
+
+    private void LoadChart_V(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
+    {
+        if (!selectedPoints.Any())
+        {
+            processedData.Clear();
+            avg = UCL = LCL = 0;
+            return;
+        }
+
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+        avg = yValues.Average();
+
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Prepare bar data
+        processedData = selectedPoints
+            .GroupBy(p => new { p.X, p.XLabel })
+            .Select(g => new CapabilityData
+            {
+                Label = g.Key.XLabel,  // string for axis
+                XNumeric = g.Key.X,    // numeric for math
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.XNumeric)
+            .ToList();
+
+        // Normal curve calculation
+        var maxFreq = processedData.Max(p => p.Frequency);
+        var pdfValues = processedData.Select(p =>
+            (p.Label,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((p.XNumeric - avg) / sigma, 2))
+            )).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(v => v.Label == item.Label).PDF;
+            item.NormalizedCurve = pdf * scaleFactor;
+        }
+    }
+
+
+}

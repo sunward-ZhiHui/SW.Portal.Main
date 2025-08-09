@@ -1,0 +1,114 @@
+﻿@page "/spc-static-chart"
+@using System.Drawing
+@using DevExpress.Blazor
+
+<h3>Batch Yield X Chart</h3>
+
+<DxChart Width="100%" Height="500px" Data="@yieldData">
+    <DxChartTitle Text="Batch Yield X Chart" />
+    <DxChartLegend Visible="false" />
+
+    <!-- X Axis -->
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.String">
+        <DxChartAxisTitle Text="Batch Number" />
+    </DxChartArgumentAxis>
+
+    <!-- Y Axis -->
+    <DxChartValueAxis>
+        <DxChartAxisTitle Text="Yield (%)" />
+
+        <DxChartConstantLine Value="102.0" Color="Color.Magenta" Width="2">
+            <DxChartConstantLineLabel Text="USL = 102.00" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="99.25" Color="Color.Red" DashStyle="ChartDashStyle.Dash">
+            <DxChartConstantLineLabel Text="UCL = 99.65" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="99.00" Color="Color.Red" Width="3" DashStyle="ChartDashStyle.Dot">
+            <DxChartConstantLineLabel Text="" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="98.60" Color="Color.Green" Width="3" DashStyle="ChartDashStyle.Solid">
+            <DxChartConstantLineLabel Text="Avg = 98.60" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="98.20" Color="Color.Red" Width="3" DashStyle="ChartDashStyle.Dot">
+            <DxChartConstantLineLabel Text="" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="98.00" Color="Color.Blue" Width="3" DashStyle="ChartDashStyle.Dash">
+            <DxChartConstantLineLabel Text="LSL = 98.00" />
+        </DxChartConstantLine>
+
+        <DxChartConstantLine Value="97.54" Color="Color.Red" Width="3" DashStyle="ChartDashStyle.Dash">
+            <DxChartConstantLineLabel Text="LCL = 97.54" />
+        </DxChartConstantLine>
+    </DxChartValueAxis>
+
+    <!-- Main Line (Black) -->
+    <DxChartLineSeries T="YieldPoint" TArgument="string" TValue="double" Data="@yieldData"
+                       ArgumentField="@(p => p.BatchNo)"
+                       ValueField="@(p => p.Yield)"
+                       Name="Yield"
+                       Color="Color.Black" />
+
+    <!-- Colored Scatter Markers -->
+    <DxChartScatterSeries T="YieldPoint" TArgument="string" TValue="double" Data="@inSpecPoints"
+                          ArgumentField="@(p => p.BatchNo)"
+                          ValueField="@(p => p.Yield)"
+                          Name="In-Spec"
+                          Color="Color.Blue" />
+
+    <DxChartScatterSeries T="YieldPoint" TArgument="string" TValue="double" Data="@outSpecPoints"
+                          ArgumentField="@(p => p.BatchNo)"
+                          ValueField="@(p => p.Yield)"
+                          Name="Out-of-Spec"
+                          Color="Color.Red" />
+</DxChart>
+
+@code {
+    public class YieldPoint
+    {
+        public string BatchNo { get; set; }
+        public double Yield { get; set; }
+    }
+
+    List<YieldPoint> yieldData = new()
+    {
+        new() { BatchNo = "316-2304", Yield = 98.5 },
+        new() { BatchNo = "316-2305", Yield = 98.8 },
+        new() { BatchNo = "316-2306", Yield = 99.1 },
+        new() { BatchNo = "316-2307", Yield = 98.4 },
+        new() { BatchNo = "316-2308", Yield = 98.9 },
+        new() { BatchNo = "316-2309", Yield = 98.6 },
+        new() { BatchNo = "316-2310", Yield = 97.8 },
+        new() { BatchNo = "316-2311", Yield = 97.6 },
+        new() { BatchNo = "316-2312", Yield = 98.0 },
+        new() { BatchNo = "316-2313", Yield = 98.7 },
+        new() { BatchNo = "316-2314", Yield = 99.2 },
+        new() { BatchNo = "316-2315", Yield = 98.4 },
+        new() { BatchNo = "316-2316", Yield = 98.3 },
+        new() { BatchNo = "316-2317", Yield = 97.9 },
+        new() { BatchNo = "316-2318", Yield = 99.0 },
+        new() { BatchNo = "316-2319", Yield = 98.2 },
+        new() { BatchNo = "316-2320", Yield = 97.5 },
+        new() { BatchNo = "316-2321", Yield = 98.8 },
+        new() { BatchNo = "316-2322", Yield = 98.9 },
+        new() { BatchNo = "316-2323", Yield = 99.3 },
+        new() { BatchNo = "316-2324", Yield = 98.5 },
+        new() { BatchNo = "316-2325", Yield = 98.6 }
+    };
+
+    List<YieldPoint> inSpecPoints = new();
+    List<YieldPoint> outSpecPoints = new();
+
+    protected override void OnInitialized()
+    {
+        double LSL = 98.00;
+        double USL = 102.00;
+
+        inSpecPoints = yieldData.Where(p => p.Yield >= LSL && p.Yield <= USL).ToList();
+        outSpecPoints = yieldData.Where(p => p.Yield < LSL || p.Yield > USL).ToList();
+    }
+}

@@ -1,0 +1,40 @@
+﻿@page "/SPCHome"
+
+
+<div>
+     <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabSecIndex">
+            <div>
+                <DxFormLayoutTabPage Caption="Trending Active" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <SPC_Page1></SPC_Page1>
+                    </div>
+                </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Finished Product" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <SPC_Page2></SPC_Page2>
+                    </div>
+                </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Condition Color Rule" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <SPC_Page3></SPC_Page3>
+                    </div>
+                </DxFormLayoutTabPage>
+            </div>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code
+{
+    int ActiveTabSecIndex { get; set; } = 0;
+
+    async Task OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 0)
+        {
+            //Data.Type = "User";
+
+        }    
+        StateHasChanged();
+    }
+}

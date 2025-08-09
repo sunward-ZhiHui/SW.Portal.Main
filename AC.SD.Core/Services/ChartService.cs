@@ -19,6 +19,10 @@ namespace AC.SD.Core.Services
         public Task<List<string>> GetNumericColumnsAsync(string table) => _repo.GetNumericColumnListAsync(table);
         public Task<List<dynamic>> GetDynamicRawTableDataAsync(string table) => _repo.GetDynamicRawTableDataAsync(table);
 
+        public Task<List<dynamic>> GetTableRawDataAsync(string tableName)
+        {
+            return _repo.GetDynamicRawTableDataAsync(tableName);
+        }
 
         public async Task<List<(double X, double Y)>> GetChartDataAsync(string table, string xField, string yField)
         {

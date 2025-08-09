@@ -1,0 +1,133 @@
+﻿@page "/spc-chart"
+@using System.Drawing
+@using System.Globalization
+
+
+<div class="mb-3">
+    <label>LSL: <input @bind="LSL" type="number" step="0.1" class="form-control d-inline-block w-auto mx-2" /></label>
+    <label>USL: <input @bind="USL" type="number" step="0.1" class="form-control d-inline-block w-auto mx-2" /></label>
+    <label>LCL: <input @bind="LCL" type="number" step="0.1" class="form-control d-inline-block w-auto mx-2" /></label>
+    <label>UCL: <input @bind="UCL" type="number" step="0.1" class="form-control d-inline-block w-auto mx-2" /></label>
+    <button class="btn btn-primary mx-2" @onclick="GenerateChart">Apply</button>
+</div>
+
+<DxChart T="ChartPoint" Width="100%" Height="500px">
+    <!-- X Axis -->
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.String" />
+
+    <!-- Y Axis with specification lines -->
+    <DxChartValueAxis>
+        <DxChartConstantLine Value="@LCL" Color="Color.Purple" Width="2">
+            <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@LSL" Color="Color.Orange" Width="2">
+            <DxChartConstantLineLabel  Text="@($"LSL={LSL:F3}")" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@USL" Color="Color.Orange" Width="2">
+            <DxChartConstantLineLabel  Text="@($"USL={USL:F3}")" />
+        </DxChartConstantLine>
+        <DxChartConstantLine Value="@UCL" Color="Color.Red" Width="2">
+            <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")"  />
+        </DxChartConstantLine>
+    </DxChartValueAxis>
+
+    <!-- Trend Line -->
+    <DxChartSplineSeries T="ChartPoint"
+                         TArgument="string"
+                         TValue="double"
+                         Data="@AllPoints"
+                         ArgumentField="p => p.BatchNo"
+                         ValueField="p => p.Value"
+                         Name="Trend"
+                         Color="@Color.Gray" />
+
+    <!-- In Spec -->
+    <DxChartScatterSeries T="ChartPoint"
+                          TArgument="string"
+                          TValue="double"
+                          Data="@BluePoints"
+                          ArgumentField="p => p.BatchNo"
+                          ValueField="p => p.Value"
+                          Name="In Spec"
+                          Color="@Color.Blue" />
+
+    <!-- Near Spec -->
+    <DxChartScatterSeries T="ChartPoint"
+                          TArgument="string"
+                          TValue="double"
+                          Data="@OrangePoints"
+                          ArgumentField="p => p.BatchNo"
+                          ValueField="p => p.Value"
+                          Name="Near Spec"
+                          Color="@Color.Orange" />
+
+    <!-- Out of Spec -->
+    <DxChartScatterSeries T="ChartPoint"
+                          TArgument="string"
+                          TValue="double"
+                          Data="@RedPoints"
+                          ArgumentField="p => p.BatchNo"
+                          ValueField="p => p.Value"
+                          Name="Out of Spec"
+                          Color="@Color.Red" />
+</DxChart>
+
+@code {
+    public class ChartPoint
+    {
+        public string BatchNo { get; set; } = "";
+        public double Value { get; set; }
+    }
+
+    // Dynamic Limits
+    double LCL = 88;
+    double LSL = 83;
+    double USL = 93;
+    double UCL = 98;
+
+    // Series Data
+    List<ChartPoint> AllPoints { get; set; } = new();
+    List<ChartPoint> BluePoints { get; set; } = new();
+    List<ChartPoint> OrangePoints { get; set; } = new();
+    List<ChartPoint> RedPoints { get; set; } = new();
+
+    // Static Sample Raw Data
+    List<(string BatchNo, double Compression)> RawData = new()
+    {
+        ("B1", 98.6),
+        ("B2", 82.5),
+        ("B3", 95.2),
+        ("B4", 90.0),
+        ("B5", 100.2),
+        ("B6", 85.0),
+        ("B7", 87.0),
+        ("B8", 92.0),
+        ("B9", 84.0),
+        ("B10", 80.0)
+    };
+
+    protected override void OnInitialized() => GenerateChart();
+
+    void GenerateChart()
+    {
+        // Clear old data
+        AllPoints.Clear();
+        BluePoints.Clear();
+        OrangePoints.Clear();
+        RedPoints.Clear();
+
+        foreach (var r in RawData)
+        {
+            var point = new ChartPoint { BatchNo = r.BatchNo, Value = r.Compression };
+            AllPoints.Add(point);
+
+            // Dynamic category assignment
+            if (r.Compression < LCL || r.Compression > UCL)
+                RedPoints.Add(point);
+            else if (r.Compression < LSL || r.Compression > USL)
+                OrangePoints.Add(point);
+            else
+                BluePoints.Add(point);
+        }
+    }
+}

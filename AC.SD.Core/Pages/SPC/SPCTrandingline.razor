@@ -1,0 +1,374 @@
+﻿@page "/spcvds"
+@using System.Drawing
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+
+@inject ChartService chartService
+
+<h3>Dynamic SPC Chart Builder</h3>
+
+<!-- Select Table -->
+<DxComboBox T="string"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            Data="@tableList"
+            Value="@selectedTable"
+            ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+            NullText="Select Table" />
+
+@if (columnList?.Count > 0)
+{
+    <!-- Select X Axis (String or Numeric) -->
+    <DxComboBox T="string"
+                Data="@xAxisOptions"
+                Value="@xField"
+                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                NullText="Select X-Axis (Any Type)" />
+
+    <!-- Select Y Axis (Numeric Only) -->
+    <DxComboBox T="string"
+                Data="@yAxisOptions"
+                Value="@yField"
+                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                NullText="Select Y-Axis (Numeric Only)" />
+
+}
+
+<!-- Spec limits -->
+<div class="mb-3">
+    <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+    <DxSpinEdit @bind-Value="USL" NullText="USL" />
+</div>
+
+<div>
+    <DxComboBox T="ChartDashStyle"
+                Data="@dashStyles"
+                @bind-Value="selectedDashStyle"
+                NullText="Select Dash Style"
+                Style="width: 200px" />
+
+
+</div>
+
+<!-- Axis Selection for Spec Lines -->
+@* <DxComboBox T="string"
+            Data="@axisOptions"
+            @bind-Value="specLimitAxis"
+            NullText="Select Axis for Spec Lines" /> *@
+
+
+<!-- Chart Title + Labels -->
+@* <DxTextBox @bind-Text="chartTitle" NullText="Chart Title" />
+<DxTextBox @bind-Text="xAxisLabel" NullText="X Axis Label" />
+<DxTextBox @bind-Text="yAxisLabel" NullText="Y Axis Label" /> *@
+
+@if (processedData?.Count > 0)
+{
+    <DxChart Data="processedData" Width="100%" Height="500px">
+        <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                       Position="RelativePosition.Outside"
+                       VerticalAlignment="VerticalEdge.Top"
+                       Orientation="Orientation.Horizontal" />
+
+        <!-- ✅ X Axis -->
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Auto">
+            <DxChartAxisTitle Text="@xAxisLabel" />
+
+            @if (specLimitAxis == "X-Axis") 
+            {
+                @* Spec + Control limits on X-Axis *@
+                <DxChartConstantLine Value="@LSL" Color="Color.Red" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@USL" Color="Color.Red" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@avg" Color="Color.Black" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@UCL" Color="Color.Blue" DashStyle="@selectedDashStyle" Width="1">
+                    <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@LCL" Color="Color.Blue" DashStyle="@selectedDashStyle" Width="1">
+                    <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+                </DxChartConstantLine>
+
+            }
+        </DxChartArgumentAxis>
+
+        <!-- ✅ Y Axis -->
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="@yAxisLabel" />
+
+            @if (specLimitAxis == "Y-Axis")
+            {
+                @* Spec + Control limits on Y-Axis *@
+                <DxChartConstantLine Value="@LSL" Color="Color.Red" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@USL" Color="Color.Red" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@avg" Color="Color.Black" DashStyle="@selectedDashStyle" Width="2">
+                    <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@UCL" Color="Color.Blue" DashStyle="@selectedDashStyle" Width="1">
+                    <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+                </DxChartConstantLine>
+
+                <DxChartConstantLine Value="@LCL" Color="Color.Blue" DashStyle="@selectedDashStyle" Width="1">
+                    <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+                </DxChartConstantLine>
+
+            }
+        </DxChartValueAxis>
+
+        <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+        <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                                  ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+        <!-- Histogram Bar -->
+        <DxChartBarSeries T="CapabilityData"
+                          TArgument="string"
+                          TValue="int"
+                          Name="Frequency"
+                          ArgumentField="c => c.XLabel"
+                          ValueField="c => c.Frequency" />
+
+        <!-- Normal Curve -->
+        <DxChartLineSeries T="CapabilityData"
+                           TArgument="string"
+                           TValue="double"
+                           Name="Normal Curve"
+                           ArgumentField="c => c.XLabel"
+                           ValueField="c => c.NormalizedCurve"
+                           Color="Color.Orange" />
+
+       @*  <DxChartLineSeries Name="Trading Line"
+                           Data="@tradingLineData"
+                           ArgumentField="@(d => d.XLabel)"
+                           ValueField="@(d => d.Y)"
+                           Color="Color.Green"
+                           DashStyle="ChartDashStyle.DashDot"
+                           Width="5" /> *@
+
+    </DxChart>
+}
+
+<!-- ✅ Popup for selecting rows -->
+<DxPopup @bind-Visible="isPopupVisible"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         CloseOnOutsideClick="false"
+         HeaderText="Table Datas"
+         Width="auto"
+         style="height: calc(100% - 97px) !important;">
+
+    <BodyContentTemplate>
+        <DxGrid Data="@tableRawData"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                PageSize="20"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 10, 20, 100 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                style="height: calc(100vh - 262px);"
+                ShowFilterRow="true"
+                ShowGroupPanel="true"
+                CssClass="w-100">
+            <Columns>
+                <DxGridSelectionColumn Width="50px" AllowSelectAll="true" />
+                @foreach (var col in dynamicColumns)
+                {
+                    <DxGridDataColumn FieldName="@col" Caption="@col" />
+                }
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" Text="Use Selected Rows" Click="OnConfirmSelection" />
+        <DxButton Text="Cancel" Click="() => isPopupVisible = false" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    bool isPopupVisible;
+    private List<CapabilityData> tradingLineData;
+
+    List<string> axisOptions = new() { "X-Axis", "Y-Axis" };
+
+
+    List<string> tableList = new();
+    List<string> columnList = new();
+    List<string> numericColumnList = new();
+
+    List<dynamic> tableRawData = new();
+    List<dynamic> selectedRawData = new();
+    List<string> dynamicColumns = new();
+
+    string selectedTable, xField, yField;
+    string chartTitle = "SPC Capability Chart";
+    string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
+
+    double avg, UCL, LCL; 
+    double USL =0.2;
+    double LSL = 0.6;
+    string specLimitAxis = "Y-Axis"; // Default
+    List<CapabilityData> processedData = new();
+
+
+    private ChartDashStyle selectedDashStyle = ChartDashStyle.Dot;
+    List<ChartDashStyle> dashStyles = Enum.GetValues<ChartDashStyle>().ToList();
+
+    private List<(string Text, ChartDashStyle Value)> dashStyleOptions = new()
+    {
+        ("Solid", ChartDashStyle.Solid),
+        ("Dash", ChartDashStyle.Dash),
+        ("Dot", ChartDashStyle.Dot),
+        ("DashDot", ChartDashStyle.DashDot),
+        ("DashDotDot", ChartDashStyle.DashDotDot)
+    };
+
+    public class CapabilityData
+    {
+        public string XLabel { get; set; }         // string label for X axis
+        public double XNumericSort { get; set; }
+        public double SpecificGravity { get; set; }
+        public int Frequency { get; set; }
+        public double NormalizedCurve { get; set; }
+        public string XValue { get; set; }
+        public double Y { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    List<string> xAxisOptions = new();  // string + numeric
+    List<string> yAxisOptions = new();  // numeric only
+
+
+    private async Task OnTableChanged(string table)
+    {
+        selectedTable = table;
+
+        columnList = await chartService.GetColumnListAsync(table);
+        numericColumnList = await chartService.GetNumericColumnsAsync(table);
+
+        xAxisOptions = columnList;              // allow any column for X
+        yAxisOptions = numericColumnList;       // only numeric for Y
+
+        tableRawData = await chartService.GetDynamicRawTableDataAsync(table);
+        dynamicColumns = columnList;
+    }
+
+
+    private void CheckAxesSelected()
+    {
+        if (!string.IsNullOrEmpty(selectedTable) &&
+            !string.IsNullOrEmpty(xField) &&
+            !string.IsNullOrEmpty(yField))
+        {
+            isPopupVisible = true;
+        }
+    }
+
+    private void OnSelectedDataItemsChanged(IEnumerable<object> selected)
+    {
+        selectedRawData = selected.Cast<dynamic>().ToList();
+    }
+
+    private void OnConfirmSelection()
+    {
+        isPopupVisible = false;
+        if (!selectedRawData.Any()) return;
+
+        // Convert dynamic selection to numeric
+        var selectedPoints = selectedRawData.Select(row =>
+        {
+            var dict = (IDictionary<string, object>)row;
+            string xVal = dict[xField].ToString();
+            double yVal = Convert.ToDouble(dict[yField]);
+            return (xVal, yVal);
+        }).ToList();
+
+        LoadChart(selectedPoints);
+    }
+
+
+    private void LoadChart(List<(string X, double Y)> selectedPoints)
+    {
+        double tradingLineY = 100;
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+        avg = yValues.Average();
+        var n = yValues.Count;
+        var variance = n > 1
+            ? yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1)
+            : 0;
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        processedData = selectedPoints
+            .GroupBy(p => p.X)
+            .Select(g => new CapabilityData
+            {
+                XLabel = g.Key,
+                Frequency = g.Count(),
+                //ValueAvg = g.Average(p => p.Y)
+            })
+            .OrderBy(d => d.XLabel)
+            .ToList();
+
+        // Generate horizontal trading line data
+        tradingLineData = processedData
+            .Select(p => new CapabilityData
+            {
+                XLabel = p.XLabel,
+                Y = tradingLineY
+            }).ToList();
+    }
+
+
+    private void LoadChart_v(List<(string X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+        avg = yValues.Average();
+
+        var n = yValues.Count;
+        var variance = n > 1
+            ? yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1)
+            : 0;
+        var sigma = Math.Sqrt(variance);
+
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Build histogram: Frequency per unique X string value
+        processedData = selectedPoints
+            .GroupBy(p => p.X)
+            .Select(g => new CapabilityData
+            {
+                XLabel = g.Key,
+                Frequency = g.Count(),
+                NormalizedCurve = g.Average(p => p.Y)  // optional: average of Y values per group
+            })
+            .OrderBy(d => d.XLabel) // optionally sort alphabetically
+            .ToList();
+
+        // ⚠ Skip normal distribution overlay for string-based X axis
+    }
+
+
+}

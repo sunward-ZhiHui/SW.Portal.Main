@@ -1,16 +1,18 @@
 using AC.SD.Core.Configuration;
-using Infrastructure;
-using Application;
-using Blazored.Toast;
-using AC.ShippingDocument.Reporting;
-using Core.Services;
-using SW.Portal.Solutions.Models;
 using AC.SD.Core.Services;
+using AC.ShippingDocument.Reporting;
+using Application;
 using Blazored.SessionStorage;
-using SW.Portal.Solutions.Services;
+using Blazored.Toast;
+using Core.Services;
 using DevExpress.Blazor.RichEdit.SpellCheck;
+using Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
+using SW.Portal.Solutions.Models;
+using SW.Portal.Solutions.Services;
 using System.Reflection;
+using System.Text.Json.Serialization;
 namespace SW.Portal.Solutions.ServerSide
 {
     partial class Startup
@@ -77,6 +79,17 @@ namespace SW.Portal.Solutions.ServerSide
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
             services.AddScoped<DataRefreshService>();
+            
+            services.AddServerSideBlazor()
+                .AddHubOptions(o =>
+                {
+                    o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // optional
+                });
+            services.Configure<JsonOptions>(options =>
+            {
+                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
+            });
+
             services.AddDevExpressBlazor(opts => {
                 opts.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
             }).AddSpellCheck(opts => {

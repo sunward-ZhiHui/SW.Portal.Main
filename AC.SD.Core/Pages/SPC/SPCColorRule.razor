@@ -1,0 +1,736 @@
+﻿@page "/spc-color-rules"
+@using System.Globalization
+@using System.Drawing
+@using DevExpress.Blazor
+@inject ChartService chartService
+
+<h3 style="text-align: center;">SPC Chart Builder Condition Color Rule</h3>
+
+<!-- Select Table -->
+<DxComboBox T="string"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            Data="@tableList"
+            Value="@selectedTable"
+            ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+            NullText="Select Table" />
+
+@if (columnList?.Count > 0)
+{
+    <!-- Select X Axis -->
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@xField"
+                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                NullText="Select X-Axis (Numeric Only)" />
+
+    <!-- Select Y Axis -->
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@yField"
+                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                NullText="Select Y-Axis (Numeric Only)" />
+}
+
+<!-- Spec limits -->
+<div class="mb-3">
+    <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+    <DxSpinEdit @bind-Value="USL" NullText="USL" />
+</div>
+
+<!-- Axis Selection for Spec Lines -->
+<DxComboBox T="string"
+            Data="@axisOptions"
+            @bind-Value="specLimitAxis"
+            NullText="Select Axis for Spec Lines" />
+
+
+<!-- Chart Title + Labels -->
+<DxTextBox @bind-Text="chartTitle" NullText="Chart Title" />
+<DxTextBox @bind-Text="xAxisLabel" NullText="X Axis Label" />
+<DxTextBox @bind-Text="yAxisLabel" NullText="Y Axis Label" />
+
+@if (processedData?.Count > 0)
+{
+    <DxChart Data="processedData" Width="100%" Height="500px">
+        <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                       Position="RelativePosition.Outside"
+                       VerticalAlignment="VerticalEdge.Top"
+                       Orientation="Orientation.Horizontal" />
+
+        <!-- ✅ X Axis -->
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+            <DxChartAxisTitle Text="@xAxisLabel" />
+
+            @if (specLimitAxis == "X-Axis")
+            {
+                @* Spec + Control limits on X-Axis *@
+                <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+                    <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+                    <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+                    <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@UCL" Color="Color.Blue" Width="1">
+                    <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@LCL" Color="Color.Blue" Width="1">
+                    <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+                </DxChartConstantLine>
+            }
+        </DxChartArgumentAxis>
+
+        <!-- ✅ Y Axis -->
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="@yAxisLabel" />
+
+            @if (specLimitAxis == "Y-Axis")
+            {
+                @* Spec + Control limits on Y-Axis *@
+                <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+                    <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+                    <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+                    <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@UCL" Color="Color.Blue" Width="1">
+                    <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+                </DxChartConstantLine>
+                <DxChartConstantLine Value="@LCL" Color="Color.Blue" Width="1">
+                    <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+                </DxChartConstantLine>
+            }
+        </DxChartValueAxis>
+
+        <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+        <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                                  ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+
+
+        @if (scatterColorSeries?.Count > 0)
+        {
+            @foreach (var series in scatterColorSeries)
+            {
+                <DxChartScatterSeries T="CapabilityData"
+                                      TArgument="double"
+                                      TValue="double"
+                                      Name="@series.SeriesName"
+                                      Data="@series.Data"
+                                      ArgumentField="point => point.SpecificGravity"
+                                      ValueField="point => point.Value"
+                                      Color="@series.SeriesColor" />
+            }
+        }
+
+        <!-- Histogram Bar -->
+        @* <DxChartBarSeries T="CapabilityData"
+                          TArgument="double"
+                          TValue="int"
+                          Name="Frequency"
+                          ArgumentField="c => c.SpecificGravity"
+                          ValueField="c => c.Frequency" /> *@
+
+        <!-- Normal Curve -->
+        <DxChartLineSeries T="CapabilityData"
+                           TArgument="double"
+                           TValue="double"
+                           Name="Normal Curve"
+                           ArgumentField="c => c.SpecificGravity"
+                           ValueField="c => c.NormalizedCurve"
+                           Color="Color.Orange" />
+    </DxChart>
+}
+
+
+
+
+
+<h4>Conditional Formatting Rules</h4>
+@foreach (var rule in Rules)
+{
+    <div class="mb-2 d-flex align-items-center">
+        <label class="me-2">Min:</label>
+        <InputNumber @bind-Value="rule.Min" class="form-control me-2" />
+
+        <label class="me-2">Max:</label>
+        <InputNumber @bind-Value="rule.Max" class="form-control me-2" />
+
+        <label class="me-2">Operator:</label>
+        <select @bind="rule.Operator" class="form-select me-2">
+            @foreach (ComparisonOperator op in Enum.GetValues(typeof(ComparisonOperator)))
+            {
+                <option value="@op">@GetOperatorSymbol(op)</option>
+            }
+        </select>
+
+        <label class="me-2">Color:</label>
+        <input type="color" @bind="rule.ColorHex" class="form-control-color me-2" />
+
+        <button class="btn btn-danger btn-sm" @onclick="@(() => RemoveRule(rule))">✕</button>
+    </div>
+}
+
+<button class="btn btn-sm btn-primary mt-2" @onclick="AddRule">Add Rule</button>
+
+<button class="btn btn-success mt-3" @onclick="GenerateChart">Generate Chart</button>
+
+@* <button class="btn btn-sm btn-success ms-2" @onclick="RenderChart">Render Chart</button> *@
+
+
+@* <DxChart Width="100%" Height="500px">
+    <DxChartTitle Text="Dynamic Colored Line Chart" />
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric" />
+    <DxChartValueAxis />
+
+    @foreach (var group in colorGroups)
+    {
+        <DxChartLineSeries T="CapabilityData"
+                           Name="@($"Range {group.Key}")"
+                           Data="@group.Value"
+                           ArgumentField="p => p.SpecificGravity"
+                           ValueField="p => p.Value"
+                           Color="@group.Key"/>
+    }
+</DxChart> *@
+
+@if (colorGroups.Count == 0)
+{
+    <DxChart T="CapabilityData" Width="100%" Height="500px">
+        <DxChartTitle Text="SPC Chart - Default" />
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric" />
+        <DxChartValueAxis />
+
+        <DxChartSplineSeries T="CapabilityData"
+                             TArgument="double"
+                             TValue="double"
+                             Name="Default Series"
+                             Data="@selectedChartData"
+                             ArgumentField="p => p.SpecificGravity"
+                             ValueField="p => p.Value">
+            <DxChartSeriesLabel Visible="true"/>
+        </DxChartSplineSeries>
+    </DxChart>
+}
+else
+{
+    <DxChart T="CapabilityData" Width="100%" Height="500px">
+        <DxChartTitle Text="SPC Chart with Conditional Line Colors" />
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric" />
+        <DxChartValueAxis />
+
+        @foreach (var group in colorGroups)
+        {
+            var rule = Rules.FirstOrDefault(r => r.ColorHex == group.Key);
+            var legendLabel = rule is not null ? $"{rule.Min} - {rule.Max}" : group.Key;
+
+            <DxChartLineSeries T="CapabilityData"
+                               TArgument="double"
+                               TValue="double"
+                               Name="@legendLabel"
+                               Data="@group.Value"
+                               ArgumentField="p => p.SpecificGravity"
+                               ValueField="p => p.Value"
+                               Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)">
+                <DxChartSeriesLabel Visible="true" />
+            </DxChartLineSeries>
+        }
+    </DxChart>
+}
+
+
+@* @if (colorGroups.Count > 0)
+{
+    <DxChart T="CapabilityData" Width="100%" Height="500px">
+        <DxChartTitle Text="SPC Chart with Conditional Line Colors" />
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric" />
+        <DxChartValueAxis />
+
+        @foreach (var group in colorGroups)
+        {
+            var rule = Rules.FirstOrDefault(r => r.ColorHex == group.Key);
+            var legendLabel = rule is not null ? $"{rule.Min} - {rule.Max}" : group.Key;
+
+            <DxChartLineSeries T="CapabilityData"
+                               TArgument="double"
+                               TValue="double"
+                               Name="@legendLabel"
+                               Data="@group.Value"
+                               ArgumentField="p => p.SpecificGravity"
+                               ValueField="p => p.Value"
+                               Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)" />
+        }
+
+        @foreach (var group in colorGroups)
+        {
+            var rule = Rules.FirstOrDefault(r => r.ColorHex == group.Key);
+            var legendLabel = rule is not null ? $"{rule.Min} - {rule.Max}" : group.Key;
+
+            <DxChartLineSeries T="CapabilityData"
+                               TArgument="double"
+                               TValue="double"
+                               Name="@legendLabel"
+                               Data="@group.Value"
+                               ArgumentField="p => p.SpecificGravity"
+                               ValueField="p => p.Value"
+                               Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)">
+               <DxChartSeriesLabel Visible="true" />
+            </DxChartLineSeries>
+        }
+
+
+    </DxChart>
+} *@
+
+
+
+@* 
+
+@if (selectedChartData?.Count > 0)
+{
+    <DxChart Width="100%" Height="500px" Data="@selectedChartData">
+        <DxChartTitle Text="SPC Scatter Chart - Selected Points" />
+
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
+            <DxChartAxisTitle Text="Specific Gravity (X)" />
+        </DxChartArgumentAxis>
+
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="Measurement Value (Y)" />
+        </DxChartValueAxis>   
+
+
+            <DxChartSplineSeries T="CapabilityData"
+                     TArgument="double"
+                     TValue="double"
+                     Name="Selected Data Spline"
+                     Data="@selectedChartData"
+                     ArgumentField="point => point.SpecificGravity"
+                     ValueField="point => point.Value"
+                     Color="Color.Blue"/>
+
+
+
+    </DxChart>
+}
+
+
+
+ *@
+
+
+
+<!-- ✅ Popup for selecting rows -->
+<DxPopup @bind-Visible="isPopupVisible"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         CloseOnOutsideClick="false"
+         HeaderText="Table Datas"
+         Width="auto"
+         style="height: calc(100% - 97px) !important;">
+
+    <BodyContentTemplate>
+        <DxGrid Data="@tableRawData"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                PageSize="20"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 10, 20, 100 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                style="height: calc(100vh - 262px);"
+                ShowFilterRow="true"
+                ShowGroupPanel="true"
+                CssClass="w-100">
+            <Columns>
+                <DxGridSelectionColumn Width="50px" AllowSelectAll="true" />
+                @foreach (var col in dynamicColumns)
+                {
+                    <DxGridDataColumn FieldName="@col" Caption="@col" />
+                }
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" Text="Use Selected Rows" Click="OnConfirmSelection" />
+        <DxButton Text="Cancel" Click="() => isPopupVisible = false" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    bool isPopupVisible;
+
+    List<string> axisOptions = new() { "X-Axis", "Y-Axis" };
+
+
+    List<string> tableList = new();
+    List<string> columnList = new();
+    List<string> numericColumnList = new();
+
+    List<dynamic> tableRawData = new();
+    List<dynamic> selectedRawData = new();
+    List<string> dynamicColumns = new();
+
+    string selectedTable, xField, yField;
+    string chartTitle = "SPC Capability Chart";
+    string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
+
+    double avg, UCL, LCL, LSL, USL;
+    string specLimitAxis = "Y-Axis"; // Default
+    List<CapabilityData> processedData = new();
+
+    public class CapabilityData
+    {
+        public double SpecificGravity { get; set; }
+        public int Frequency { get; set; }
+        public double NormalizedCurve { get; set; }
+        public double Value { get; set; }           // Y-Axis
+        public Color PointColor { get; set; }
+    }
+
+    public class ScatterSeriesGroup
+    {
+        public string SeriesName { get; set; }
+        public Color SeriesColor { get; set; }
+        public List<CapabilityData> Data { get; set; } = new();
+    }
+
+    public enum ComparisonOperator
+    {
+        GreaterThan,
+        GreaterThanOrEqual,
+        LessThan,
+        LessThanOrEqual,
+        Equal,
+        Between // Special case for Min-Max range
+    }
+
+    public class ConditionalFormatRule
+    {
+        public double Min { get; set; }
+        public double Max { get; set; }
+        public string ColorHex { get; set; } = "#000000";
+        public ComparisonOperator Operator { get; set; } = ComparisonOperator.Between;
+    }
+
+    private List<ConditionalFormatRule> Rules = new();
+
+    private void AddRule()
+    {
+        Rules.Add(new ConditionalFormatRule());
+    }
+
+    private void RemoveRule(ConditionalFormatRule rule)
+    {
+        Rules.Remove(rule);
+    }
+
+    private string GetOperatorSymbol(ComparisonOperator op) => op switch
+    {
+        ComparisonOperator.GreaterThan => ">",
+        ComparisonOperator.GreaterThanOrEqual => ">=",
+        ComparisonOperator.LessThan => "<",
+        ComparisonOperator.LessThanOrEqual => "<=",
+        ComparisonOperator.Equal => "=",
+        ComparisonOperator.Between => "Between",
+        _ => "?"
+    };
+
+
+    // private List<ConditionalFormatRule> Rules = new()
+    // {
+    //     new ConditionalFormatRule { Min = 0.0, Max = 1.1, ColorHex = "#FF0000" },
+    //     new ConditionalFormatRule { Min = 1.1, Max = 1.3, ColorHex = "#FFA500" },
+    //     new ConditionalFormatRule { Min = 1.3, Max = 2.0, ColorHex = "#00FF00" }
+    // };
+
+    // private void AddRule() => Rules.Add(new ConditionalFormatRule());
+
+
+    private List<ScatterSeriesGroup> scatterColorSeries = new(); // Final grouped result
+    private List<CapabilityData> selectedChartData = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    private async Task OnTableChanged(string table)
+    {
+        selectedTable = table;
+
+        // Load columns for combo
+        columnList = await chartService.GetColumnListAsync(table);
+
+        // Filter numeric columns for selection
+        numericColumnList = await chartService.GetNumericColumnsAsync(table);
+
+        // Load entire raw data for popup selection
+        tableRawData = await chartService.GetDynamicRawTableDataAsync(table);
+
+        // Also prepare DxGrid column list
+        dynamicColumns = columnList;
+    }
+
+    private void CheckAxesSelected()
+    {
+        if (!string.IsNullOrEmpty(selectedTable) &&
+            !string.IsNullOrEmpty(xField) &&
+            !string.IsNullOrEmpty(yField))
+        {
+            isPopupVisible = true;
+        }
+    }
+
+    private void OnSelectedDataItemsChanged(IEnumerable<object> selected)
+    {
+        selectedRawData = selected.Cast<dynamic>().ToList();
+    }
+    private List<(double X, double Y)> selectedPoints = new();
+
+    private void OnConfirmSelection()
+    {
+        isPopupVisible = false;
+        if (!selectedRawData.Any()) return;
+
+        // Convert dynamic selection to numeric
+        selectedPoints = selectedRawData.Select(row =>
+        {
+            var dict = (IDictionary<string, object>)row;
+            double xVal = Convert.ToDouble(dict[xField]);
+            double yVal = Convert.ToDouble(dict[yField]);
+            return (xVal, yVal);
+        }).ToList();
+
+
+        LoadChart(selectedPoints);
+    }
+    private Color GetPointColor(double y)
+    {
+        if (y < LSL) return Color.Red;
+        else if (y > USL) return Color.Red;
+        else if (y >= LSL && y <= USL) return Color.Green;
+        else return Color.Gray;
+    }
+    private (string Label, Color Color) GetColorCategory(double y)
+    {
+        if (y < LSL) return ("Below LSL", Color.Red);
+        if (y > USL) return ("Above USL", Color.Orange);
+        return ("Within Spec", Color.Green);
+    }
+
+    private Dictionary<string, List<CapabilityData>> colorGroups = new();
+
+    private void ApplyConditionalRules(List<(double X, double Y)> selectedPoints)
+    {
+        colorGroups.Clear();
+
+        var allPoints = selectedPoints
+            .OrderBy(p => p.X)
+            .Select(p => new CapabilityData { SpecificGravity = p.X, Value = p.Y })
+            .ToList();
+
+        foreach (var rule in Rules)
+        {
+            var key = rule.ColorHex;
+            if (!colorGroups.ContainsKey(key))
+                colorGroups[key] = new List<CapabilityData>();
+
+            colorGroups[key].AddRange(allPoints.Where(p => p.Value >= rule.Min && p.Value <= rule.Max));
+        }
+    }
+    private void GenerateChart()
+    {
+        // This should use your existing `selectedPoints` list — however you define it
+        if (selectedPoints != null && selectedPoints.Any())
+        {
+            LoadChart(selectedPoints);
+        }
+    }
+
+    private void LoadChart(List<(double X, double Y)> selectedPoints)
+    {
+        colorGroups.Clear();
+
+        selectedChartData = selectedPoints
+            .OrderByDescending(p => p.X)
+            .Select(p => new CapabilityData { SpecificGravity = p.X, Value = p.Y })
+            .ToList();
+
+        // If no rules, don't create groups — fallback to default rendering
+        if (Rules == null || Rules.Count == 0)
+            return;
+
+        foreach (var rule in Rules)
+        {
+            string key = rule.ColorHex;
+
+            if (!colorGroups.ContainsKey(key))
+                colorGroups[key] = new List<CapabilityData>();
+
+            colorGroups[key].AddRange(selectedChartData
+                .Where(p => MatchesRule(p.Value, rule)));
+        }
+    }
+
+
+
+    private bool MatchesRule(double value, ConditionalFormatRule rule)
+    {
+        return rule.Operator switch
+        {
+            ComparisonOperator.GreaterThan => value > rule.Min,
+            ComparisonOperator.GreaterThanOrEqual => value >= rule.Min,
+            ComparisonOperator.LessThan => value < rule.Max,
+            ComparisonOperator.LessThanOrEqual => value <= rule.Max,
+            ComparisonOperator.Equal => Math.Abs(value - rule.Min) < 0.0001,
+            ComparisonOperator.Between => value >= rule.Min && value <= rule.Max,
+            _ => false
+        };
+    }
+
+  
+
+
+
+    private void LoadChart__V(List<(double X, double Y)> selectedPoints)
+    {
+        // selectedChartData = selectedPoints.Select(p => new CapabilityData
+        // {
+        //     SpecificGravity = p.X,
+        //     Value = p.Y
+        // }).ToList();
+
+
+        // selectedChartData = selectedPoints.OrderBy(p => p.X)
+        //     .Select(p => new CapabilityData
+        //     {
+        //         SpecificGravity = p.X,
+        //         Value = p.Y
+        //     }).ToList();
+
+
+
+        colorGroups.Clear();
+
+        var allPoints = selectedPoints
+            .OrderBy(p => p.X)
+            .Select(p => new CapabilityData { SpecificGravity = p.X, Value = p.Y })
+            .ToList();
+
+        foreach (var rule in Rules)
+        {
+            var key = rule.ColorHex;
+            if (!colorGroups.ContainsKey(key))
+                colorGroups[key] = new List<CapabilityData>();
+
+            colorGroups[key].AddRange(allPoints.Where(p => p.Value >= rule.Min && p.Value <= rule.Max));
+        }
+
+
+
+    }
+
+
+    private void LoadChart_v(List<(double X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+
+        // Sample standard deviation (n-1)
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Histogram bins
+        processedData = yValues
+            .GroupBy(v => Math.Round(v, 3))
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Value = g.Count(),
+                PointColor = GetPointColor(g.Count()),
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+
+        // Normal distribution overlay
+        var maxFreq = processedData.Max(p => p.Frequency);
+        var pdfValues = processedData.Select(p =>
+            (SG: p.SpecificGravity,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
+            )).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(v => Math.Abs(v.SG - item.SpecificGravity) < 0.0001).PDF;
+            item.NormalizedCurve = pdf * scaleFactor;
+        }
+
+        scatterColorSeries.Clear();
+
+        foreach (var point in selectedPoints)
+        {
+            var data = new CapabilityData
+            {
+                SpecificGravity = point.X,
+                Value = point.Y
+            };
+
+            string label;
+            Color color;
+
+            if (point.Y < LSL)
+            {
+                label = "Below LSL";
+                color = Color.Red;
+            }
+            else if (point.Y > USL)
+            {
+                label = "Above USL";
+                color = Color.Orange;
+            }
+            else
+            {
+                label = "Within Spec";
+                color = Color.Green;
+            }
+
+            // Find or create the group
+            var group = scatterColorSeries.FirstOrDefault(g => g.SeriesName == label);
+            if (group == null)
+            {
+                group = new ScatterSeriesGroup
+                {
+                    SeriesName = label,
+                    SeriesColor = color
+                };
+                scatterColorSeries.Add(group);
+            }
+
+            group.Data.Add(data);
+        }
+
+        StateHasChanged(); // To trigger chart re-rendering
+
+    }
+}

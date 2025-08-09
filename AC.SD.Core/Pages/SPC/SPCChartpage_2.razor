@@ -1,0 +1,242 @@
+﻿@page "/spc-dynamic-chart"
+@using System.Dynamic
+@inject ChartService chartService
+@using System.Drawing
+
+<h3>Dynamic SPC Chart</h3>
+
+<!-- Table Dropdown -->
+<DxComboBox T="string"
+            SearchMode="ListSearchMode.AutoSearch"
+            SearchFilterCondition="ListSearchFilterCondition.Contains"
+            Data="@tableList"
+            Value="@selectedTable"
+            ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+            NullText="Select Table" />
+
+@if (numericColumnList?.Count > 0)
+{
+    <!-- X and Y Dropdowns -->
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@xField"
+                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                NullText="Select X-Axis (Numeric Only)" />
+
+    <DxComboBox T="string"
+                Data="@numericColumnList"
+                Value="@yField"
+                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                NullText="Select Y-Axis (Numeric Only)" />
+}
+
+<!-- Spec limits -->
+<div class="mt-3 mb-3">
+    <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+    <DxSpinEdit @bind-Value="USL" NullText="USL" />
+</div>
+
+<!-- Chart -->
+@if (chartPoints.Count > 0)
+{
+    <DxChart T="ChartPoint" Width="100%" Height="400px">
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Auto" />
+        <DxChartValueAxis>
+            <DxChartConstantLine Value="@LSL" Color="Color.Orange" Width="2">
+                <DxChartConstantLineLabel Text="LSL" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@USL" Color="Color.Orange" Width="2">
+                <DxChartConstantLineLabel Text="USL" />
+            </DxChartConstantLine>
+        </DxChartValueAxis>
+
+        <DxChartLineSeries T="ChartPoint"
+                           TArgument="double"
+                           TValue="double"
+                           Data="@chartPoints"
+                           ArgumentField="p => p.X"
+                           ValueField="p => p.Y"
+                           Name="Trend Line"
+                           Color="Color.Gray" />
+
+        <DxChartScatterSeries T="ChartPoint"
+                              TArgument="double"
+                              TValue="double"
+                              Data="@bluePoints"
+                              ArgumentField="p => p.X"
+                              ValueField="p => p.Y"
+                              Name="In Spec"
+                              Color="Color.Blue" />
+
+        <DxChartScatterSeries T="ChartPoint"
+                              TArgument="double"
+                              TValue="double"
+                              Data="@orangePoints"
+                              ArgumentField="p => p.X"
+                              ValueField="p => p.Y"
+                              Name="Near Spec"
+                              Color="Color.Orange" />
+
+        <DxChartScatterSeries T="ChartPoint"
+                              TArgument="double"
+                              TValue="double"
+                              Data="@redPoints"
+                              ArgumentField="p => p.X"
+                              ValueField="p => p.Y"
+                              Name="Out of Spec"
+                              Color="Color.Red" />
+    </DxChart>
+}
+
+<!-- Optional: Manual trigger -->
+<DxButton RenderStyle="ButtonRenderStyle.Primary"
+          Click="@GenerateChart"
+          Enabled="@IsGenerateEnabled">
+    Generate Chart
+</DxButton>
+
+<!-- Popup -->
+<DxPopup @bind-Visible="isPopupVisible"
+         ShowCloseButton="true"
+         ShowFooter="true"
+         CloseOnOutsideClick="false"
+         HeaderText="Table Datas"
+         Width="auto"
+         style="height: calc(100% - 97px) !important;">
+
+    <BodyContentTemplate>
+        <DxGrid Data="@tableRawData"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                PageSize="20"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 10, 20, 100 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                style="height: calc(100vh - 262px);"
+                ShowFilterRow="true"
+                ShowGroupPanel="true"
+                CssClass="w-100">
+            <Columns>
+                <DxGridSelectionColumn Width="50px" AllowSelectAll="true" />
+                @foreach (var col in dynamicColumns)
+                {
+                    <DxGridDataColumn FieldName="@col" Caption="@col" />
+                }
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate>
+        <DxButton style="margin-right: 10px;" Text="Use Selected Rows" Click="OnConfirmSelection" />
+        <DxButton Text="Cancel" Click="() => isPopupVisible = false" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    // State
+    List<string> tableList = new();
+    string? selectedTable;
+
+    List<string> numericColumnList = new();
+    string? xField;
+    string? yField;
+
+    double LSL = 10;
+    double USL = 90;
+
+    List<ChartPoint> chartPoints = new();
+    List<ChartPoint> redPoints = new();
+    List<ChartPoint> orangePoints = new();
+    List<ChartPoint> bluePoints = new();
+
+    bool isPopupVisible = false;
+    List<dynamic> tableRawData = new();
+    List<string> dynamicColumns = new();
+    List<dynamic> selectedRawData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    async Task OnTableChanged(string? newValue)
+    {
+        selectedTable = newValue;
+        numericColumnList = string.IsNullOrEmpty(selectedTable)
+            ? new()
+            : await chartService.GetNumericColumnsAsync(selectedTable);
+        xField = yField = null;
+        chartPoints.Clear();
+        redPoints.Clear();
+        orangePoints.Clear();
+        bluePoints.Clear();
+        StateHasChanged();
+    }
+
+    async Task CheckAxesSelected()
+    {
+        if (!string.IsNullOrWhiteSpace(selectedTable) &&
+            !string.IsNullOrWhiteSpace(xField) &&
+            !string.IsNullOrWhiteSpace(yField))
+        {           
+            tableRawData = await chartService.GetTableRawDataAsync(selectedTable!);
+            if (tableRawData.FirstOrDefault() is IDictionary<string, object> firstRow)
+            {
+                dynamicColumns = firstRow.Keys.ToList();
+            }
+
+            selectedRawData.Clear();
+            isPopupVisible = true;
+            StateHasChanged();
+        }
+    }
+
+    void OnSelectedDataItemsChanged(IEnumerable<object> selected)
+    {
+        selectedRawData = selected.Cast<dynamic>().ToList();
+    }
+
+    void OnConfirmSelection()
+    {
+        isPopupVisible = false;
+        if (!selectedRawData.Any()) return;
+
+        var selectedPoints = selectedRawData.Select(row =>
+        {
+            var dict = (IDictionary<string, object>)row;
+            double xVal = Convert.ToDouble(dict[xField!]);
+            double yVal = Convert.ToDouble(dict[yField!]);
+            return (xVal, yVal);
+        }).ToList();
+
+        LoadChart(selectedPoints);
+    }
+
+    void LoadChart(List<(double X, double Y)> selectedPoints)
+    {
+        chartPoints = selectedPoints.Select(p => new ChartPoint { X = p.X, Y = p.Y }).ToList();
+
+        redPoints = chartPoints.Where(p => p.Y < LSL || p.Y > USL).ToList();
+        orangePoints = chartPoints
+            .Where(p => (p.Y >= LSL && p.Y < LSL + 2) || (p.Y <= USL && p.Y > USL - 2))
+            .Except(redPoints).ToList();
+        bluePoints = chartPoints.Except(redPoints).Except(orangePoints).ToList();
+    }
+
+    async Task GenerateChart()
+    {
+        await CheckAxesSelected(); // popup triggers
+    }
+
+    bool IsGenerateEnabled =>
+        !string.IsNullOrWhiteSpace(selectedTable)
+        && !string.IsNullOrWhiteSpace(xField)
+        && !string.IsNullOrWhiteSpace(yField);
+
+    public class ChartPoint
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+}

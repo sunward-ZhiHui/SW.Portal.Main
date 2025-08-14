@@ -1,8 +1,8 @@
-﻿@page "/spctest"
+﻿@page "/spctestdynamic"
 @using System.Drawing
 @inject ChartService chartService
 
-<h3 style="text-align: center;">SPC Chart Builder Trending Active</h3>
+<h3 style="text-align: center;">SPC Chart Builder Finished Product</h3>
 <DxComboBox T="string"
             SearchMode="ListSearchMode.AutoSearch"
             SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -56,8 +56,6 @@
 
         <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Numeric">
             <DxChartAxisTitle Text="@xAxisLabel" />
-
-            <!-- Spec + Control limits -->
             <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
                 <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
             </DxChartConstantLine>
@@ -83,6 +81,7 @@
         <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
                                   ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
 
+        <!-- Bar: Histogram -->
         <DxChartBarSeries T="CapabilityData"
                           TArgument="double"
                           TValue="int"
@@ -90,6 +89,7 @@
                           ArgumentField="c => c.SpecificGravity"
                           ValueField="c => c.Frequency" />
 
+        <!-- Line: Normal Curve -->
         <DxChartLineSeries T="CapabilityData"
                            TArgument="double"
                            TValue="double"
@@ -97,19 +97,44 @@
                            ArgumentField="c => c.SpecificGravity"
                            ValueField="c => c.NormalizedCurve"
                            Color="Color.Orange" />
+
+        <!-- Spline: Raw Value Trend -->
+        <DxChartSplineSeries T="CapabilityData"
+                             TArgument="double"
+                             TValue="double"
+                             Name="Spline Raw"
+                             ArgumentField="c => c.SpecificGravity"
+                             ValueField="c => c.OriginalValue"
+                             Color="Color.Blue" />
+
+        <!-- Scatter: Raw Values with PointColor -->
+        @foreach (var group in coloredScatterGroups)
+        {
+            <DxChartScatterSeries T="CapabilityData"
+                                  Data="@group.Value"
+                                  TArgument="double"
+                                  TValue="double"
+                                  Name="@group.Key"
+                                  ArgumentField="d => d.SpecificGravity"
+                                  ValueField="d => d.OriginalValue"
+                                  Color="@GetColorFromName(group.Key)" />
+        }
+
+
     </DxChart>
+
 }
 
 <!-- ✅ Popup for selecting rows -->
 <DxPopup @bind-Visible="isPopupVisible" ShowCloseButton="true" ShowFooter="true" CloseOnOutsideClick="false" HeaderText="Table Datas" Width="auto" style="height: calc(100% - 97px) !important;">
-    
+
     <BodyContentTemplate>
         <DxGrid Data="@tableRawData"
-                ShowSearchBox="true"                
-            AutoExpandAllGroupRows="true"
+                ShowSearchBox="true"
+                AutoExpandAllGroupRows="true"
                 VirtualScrollingEnabled="true"
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 SelectionMode="GridSelectionMode.Multiple"
                 SelectedDataItemsChanged="OnSelectedDataItemsChanged"
                 CustomizeElement="Grid_CustomizeElement"
@@ -130,7 +155,7 @@
                 }
             </Columns>
         </DxGrid>
-       
+
     </BodyContentTemplate>
 
     <FooterContentTemplate Context="Context">
@@ -155,17 +180,20 @@
     string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
 
     double avg, UCL, LCL;
-    double LSL = 99.76; 
+    double LSL = 99.76;
     double USL = 100.025;
     List<CapabilityData> processedData = new();
 
 
     public class CapabilityData
     {
-        public double SpecificGravity { get; set; }
-        public int Frequency { get; set; }
-        public double NormalizedCurve { get; set; }
+        public double SpecificGravity { get; set; }  // X Axis
+        public int Frequency { get; set; }           // Histogram (Bar)
+        public double NormalizedCurve { get; set; }  // Normal Curve (Line)
+        public double OriginalValue { get; set; }    // Raw Y value for Scatter/Spline
+        public string PointColor { get; set; }       // For conditional coloring
     }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -210,9 +238,6 @@
         }
     }
 
-
-
-
     private void OnSelectedDataItemsChanged(IEnumerable<object> selected)
     {
         selectedRawData = selected.Cast<dynamic>().ToList();
@@ -236,6 +261,47 @@
     }
 
     private void LoadChart(List<(double X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Histogram (rounded for binning)
+        var grouped = yValues.GroupBy(v => Math.Round(v, 3))
+                             .ToDictionary(g => g.Key, g => g.Count());
+
+        // Normalized curve
+        var pdfValues = grouped.Keys.Select(k =>
+            (SG: k,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((k - avg) / sigma, 2))
+            )).ToList();
+
+        var maxFreq = grouped.Max(g => g.Value);
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        processedData = selectedPoints.Select(p => new CapabilityData
+        {
+            SpecificGravity = Math.Round(p.Y, 3),
+            Frequency = grouped.ContainsKey(Math.Round(p.Y, 3)) ? grouped[Math.Round(p.Y, 3)] : 1,
+            NormalizedCurve = pdfValues.First(v => Math.Abs(v.SG - Math.Round(p.Y, 3)) < 0.0001).PDF * scaleFactor,
+            OriginalValue = p.Y,
+            PointColor = p.Y < LSL ? "Red" : p.Y > USL ? "Orange" : "Green"
+        }).OrderBy(d => d.SpecificGravity).ToList();
+
+
+        coloredScatterGroups = processedData.GroupBy(d => d.PointColor).ToDictionary(g => g.Key, g => g.ToList());
+
+
+    }
+
+    private void LoadChartold1(List<(double X, double Y)> selectedPoints)
     {
         var yValues = selectedPoints.Select(d => d.Y).ToList();
 
@@ -329,4 +395,19 @@
             e.CssClass = "header-bold";
         }
     }
+    Dictionary<string, List<CapabilityData>> coloredScatterGroups = new();
+
+    Color GetColorFromName(string colorName)
+    {
+        return colorName.ToLower() switch
+        {
+            "red" => Color.Red,
+            "green" => Color.Green,
+            "orange" => Color.Orange,
+            "blue" => Color.Blue,
+            "yellow" => Color.Yellow,
+            _ => Color.Gray
+        };
+    }
+
 }

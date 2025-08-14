@@ -1,0 +1,57 @@
+﻿@page "/spc-parameter-trend"
+@using System.Drawing
+@inject IJSRuntime JS
+
+<h3>SPC Parameter Trend - Mendicof Syrup</h3>
+
+<DxChart Data="@batchData" Width="1000px" Height="600px">
+    <DxChartArgumentAxis ArgumentType="ChartAxisDataType.String" />
+    <DxChartValueAxis>
+        <DxChartAxisTitle Text="Parameter Value" />
+    </DxChartValueAxis>
+
+    <DxChartLineSeries T="BatchTrendData" TArgument="string" TValue="double"
+                       Name="pH"
+                       ArgumentField="x => x.BatchNo"
+                       ValueField="x => x.pH" />
+    <DxChartLineSeries T="BatchTrendData" TArgument="string" TValue="double"
+                       Name="Viscosity"
+                       ArgumentField="x => x.BatchNo"
+                       ValueField="x => x.Viscosity" />
+    <DxChartLineSeries T="BatchTrendData" TArgument="string" TValue="double"
+                       Name="Specific Gravity"
+                       ArgumentField="x => x.BatchNo"
+                       ValueField="x => x.SpecificGravity" />
+    <DxChartLineSeries T="BatchTrendData" TArgument="string" TValue="double"
+                       Name="Batch Yield (%)"
+                       ArgumentField="x => x.BatchNo"
+                       ValueField="x => x.BatchYield" />
+
+    <DxChartLegend Position="RelativePosition.Outside" />
+</DxChart>
+
+@code {
+    public class BatchTrendData
+    {
+        public string BatchNo { get; set; }
+        public double pH { get; set; }
+        public double Viscosity { get; set; }
+        public double SpecificGravity { get; set; }
+        public double BatchYield { get; set; }
+    }
+
+    List<BatchTrendData> batchData = new()
+    {
+        new() { BatchNo = "316-23044", pH = 3.78, Viscosity = 26.2, SpecificGravity = 1.254, BatchYield = 98.09 },
+        new() { BatchNo = "316-23045", pH = 3.76, Viscosity = 26.5, SpecificGravity = 1.256, BatchYield = 98.95 },
+        new() { BatchNo = "316-23046", pH = 3.71, Viscosity = 28.3, SpecificGravity = 1.255, BatchYield = 98.65 },
+        new() { BatchNo = "316-23047", pH = 3.73, Viscosity = 28.9, SpecificGravity = 1.254, BatchYield = 98.99 },
+        new() { BatchNo = "316-23048", pH = 3.62, Viscosity = 19.5, SpecificGravity = 1.249, BatchYield = 99.03 },
+        new() { BatchNo = "316-23049", pH = 3.64, Viscosity = 29.2, SpecificGravity = 1.255, BatchYield = 99.04 },
+        new() { BatchNo = "316-23050", pH = 3.66, Viscosity = 24.2, SpecificGravity = 1.255, BatchYield = 98.95 },
+        new() { BatchNo = "316-23051", pH = 3.80, Viscosity = 29.7, SpecificGravity = 1.254, BatchYield = 98.99 },
+        new() { BatchNo = "316-23052", pH = 3.83, Viscosity = 29.0, SpecificGravity = 1.254, BatchYield = 99.35 },
+        new() { BatchNo = "316-23053", pH = 3.74, Viscosity = 29.5, SpecificGravity = 1.259, BatchYield = 98.89 },
+        // add more rows similarly...
+    };
+}

@@ -1,0 +1,502 @@
+﻿@using System.Drawing
+@inject ChartService chartService
+
+@* <h3 style="text-align: center;">SPC Chart Builder Finished Product</h3> *@
+<div class="row mb-2 mt-4">
+    <div class="col-md-4">
+        <label> Select Table </label>
+        <DxComboBox T="string"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    Data="@tableList"
+                    Value="@selectedTable"
+                    ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+                    NullText="Select Table" />
+    </div>
+    <div class="col-md-8">
+        @if (columnList?.Count > 0)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <label> Select X Axis </label>
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@columnList"
+                                Value="@xField"
+                                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                                NullText="Select X-Axis" />
+                </div>
+                <div class="col-md-4">
+                    <label> Select Y Axis </label>
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@columnList"
+                                Value="@yField"
+                                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                                NullText="Select Y-Axis" />
+                </div>
+                <div class="col-md-4">
+                    <label> Select Date Column </label>
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@dateColumnList"
+                                Value="@dateField"
+                                ValueChanged="@((string? newValue) => { dateField = newValue; CheckAxesSelected(); })"
+                                NullText="Select Date Column" />
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+<div class="row mb-2 mt-4">
+
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-6">
+                <label>LSL Value</label>
+                <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+            </div>
+            <div class="col-md-6">
+                <label>USL Value</label>
+                <DxSpinEdit @bind-Value="USL" NullText="USL" />
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-4">
+                <label>Chart Title</label>
+                <DxTextBox @bind-Text="chartTitle" NullText="Chart Title" />
+            </div>
+            <div class="col-md-4">
+                <label>X Axis</label>
+                <DxTextBox @bind-Text="xAxisLabel" NullText="X Axis Label" />
+            </div>
+            <div class="col-md-4">
+                <label>Y Axis</label>
+                <DxTextBox @bind-Text="yAxisLabel" NullText="Y Axis Label" />
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row mb-2 mt-4">    
+    <div class="col-md-2">
+        <label>Start Date:</label>
+        <DxDateEdit @bind-Date="startDate"
+                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+    </div>
+    <div class="col-md-2">
+        <label>End Date:</label>
+        <DxDateEdit @bind-Date="endDate"
+                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+    </div>
+    <div class="col-md-3 align-self-end">
+        <DxButton Text="Apply Date Filter" Click="ApplyDateFilter" />
+    </div>
+</div>
+
+<!-- Chart Spec + Labels -->
+@if (processedData?.Count > 0)
+{
+    <DxChart Data="processedData" Width="100%" Height="500px">
+        <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Right"
+                       Position="RelativePosition.Outside"
+                       VerticalAlignment="VerticalEdge.Top"
+                       Orientation="Orientation.Horizontal" />
+
+        <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Auto">
+            <DxChartAxisTitle Text="@xAxisLabel" />
+            <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"LSL={LSL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@USL" Color="Color.Red" Width="2">
+                <DxChartConstantLineLabel Text="@($"USL={USL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@avg" Color="Color.Black" Width="2">
+                <DxChartConstantLineLabel Text="@($"Avg={avg:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@UCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"UCL={UCL:F3}")" />
+            </DxChartConstantLine>
+            <DxChartConstantLine Value="@LCL" Color="Color.Blue" Width="1">
+                <DxChartConstantLineLabel Text="@($"LCL={LCL:F3}")" />
+            </DxChartConstantLine>
+        </DxChartArgumentAxis>
+
+        <DxChartValueAxis>
+            <DxChartAxisTitle Text="@yAxisLabel" />
+        </DxChartValueAxis>
+
+        <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
+        <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
+                                  ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
+
+        <!-- Bar: Histogram -->
+        <DxChartBarSeries T="CapabilityData"
+                          TArgument="double"
+                          TValue="int"
+                          Name="Frequency"
+                          ArgumentField="c => c.SpecificGravity"
+                          ValueField="c => c.Frequency" />
+
+        <!-- Line: Normal Curve -->
+        <DxChartLineSeries T="CapabilityData"
+                           TArgument="double"
+                           TValue="double"
+                           Name="Normal Curve"
+                           ArgumentField="c => c.SpecificGravity"
+                           ValueField="c => c.NormalizedCurve"
+                           Color="Color.Orange" />
+
+        <!-- Spline: Raw Value Trend -->
+        <DxChartSplineSeries T="CapabilityData"
+                             TArgument="double"
+                             TValue="double"
+                             Name="Spline Raw"
+                             ArgumentField="c => c.SpecificGravity"
+                             ValueField="c => c.OriginalValue"
+                             Color="Color.Blue" />
+
+        <!-- Scatter: Raw Values with PointColor -->
+        @foreach (var group in coloredScatterGroups)
+        {
+            <DxChartScatterSeries T="CapabilityData"
+                                  Data="@group.Value"
+                                  TArgument="double"
+                                  TValue="double"
+                                  Name="@group.Key"
+                                  ArgumentField="d => d.SpecificGravity"
+                                  ValueField="d => d.OriginalValue"
+                                  Color="@GetColorFromName(group.Key)" />
+        }
+
+
+    </DxChart>
+
+}
+
+@code {
+    bool isPopupVisible;
+
+    List<string> tableList = new();
+    List<string> columnList = new();
+    List<string> numericColumnList = new();
+
+    List<dynamic> tableRawData = new();
+    List<dynamic> selectedRawData = new();
+    List<string> dynamicColumns = new();
+
+    string selectedTable, xField, yField;
+    string chartTitle = "SPC Capability Chart";
+    string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
+
+    double avg, UCL, LCL;
+    double LSL = 99.76;
+    double USL = 100.025;
+    List<CapabilityData> processedData = new();
+
+
+
+    string dateField;
+    List<string> dateColumnList = new();
+    DateTime? startDate = DateTime.Today;
+    DateTime? endDate = DateTime.Today.AddDays(7);
+    DateTime? minDate;
+    DateTime? maxDate;
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPointsWithDates = new();
+
+
+    public class CapabilityData
+    {
+        public double SpecificGravity { get; set; }  // X Axis
+        public int Frequency { get; set; }           // Histogram (Bar)
+        public double NormalizedCurve { get; set; }  // Normal Curve (Line)
+        public double OriginalValue { get; set; }    // Raw Y value for Scatter/Spline
+        public string PointColor { get; set; }       // For conditional coloring
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        tableList = await chartService.GetTableListAsync();
+    }
+
+    private async Task OnTableChanged(string table)
+    {
+        selectedTable = table;
+
+        // Load columns for combo
+        columnList = await chartService.GetColumnListAsync(table);
+
+        // Filter numeric columns for selection
+        numericColumnList = await chartService.GetNumericColumnsAsync(table);
+
+        // Dates: any column with type Date/DateTime
+        dateColumnList = await chartService.GetColumnListAsync(table);
+
+        // Load entire raw data for popup selection
+        tableRawData = await chartService.GetDynamicRawTableDataAsync(table);
+
+        // Also prepare DxGrid column list
+        dynamicColumns = columnList;
+    }
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> ConvertRawDataToPoints()
+    {
+        var result = new List<(double, double, DateTime, string, string)>();
+
+        if (string.IsNullOrEmpty(xField) || string.IsNullOrEmpty(yField) || string.IsNullOrEmpty(dateField))
+            return result;
+
+        foreach (var row in tableRawData)
+        {
+            var dict = (IDictionary<string, object>)row;
+
+            // Ensure all required fields exist
+            if (!dict.ContainsKey(xField) || !dict.ContainsKey(yField) || !dict.ContainsKey(dateField))
+                continue;
+
+            var xObj = dict[xField];
+            var yObj = dict[yField];
+            var dateObj = dict[dateField];
+
+            // Skip if X or Y is null or empty
+            if (xObj == null || yObj == null || string.IsNullOrWhiteSpace(xObj.ToString()) || string.IsNullOrWhiteSpace(yObj.ToString()))
+                continue;
+
+            // Parse date
+            if (!DateTime.TryParse(dateObj?.ToString(), out var dateVal))
+                continue;
+
+            // Convert to numeric (for chart plotting)
+            double xNum = GetNumericValue(xObj.ToString());
+            double yNum = GetNumericValue(yObj.ToString());
+
+            result.Add((xNum, yNum, dateVal, xObj.ToString(), yObj.ToString()));
+        }
+
+        return result;
+    }
+    private Dictionary<string, int> stringValueMap = new();
+
+    private double GetNumericValue(string value)
+    {
+        if (double.TryParse(value, out var num))
+            return num;
+
+        if (!stringValueMap.ContainsKey(value))
+            stringValueMap[value] = stringValueMap.Count + 1;
+
+        return stringValueMap[value];
+    }
+
+
+    private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+
+        if (dataPoints.Any())
+        {
+            minDate = dataPoints.Min(p => p.Date);
+            maxDate = dataPoints.Max(p => p.Date);
+            startDate = DateTime.Today;
+            endDate = DateTime.Today.AddDays(7) > maxDate ? maxDate : DateTime.Today.AddDays(7);
+
+            selectedPointsWithDates = dataPoints;
+
+            LoadChart(dataPoints.Select(p => (p.X, p.Y)).ToList());
+        }
+    }
+    private void ApplyDateFilter()
+    {
+        if (startDate == null || endDate == null) return;
+
+        var filtered = selectedPointsWithDates
+            .Where(p => p.Date >= startDate && p.Date <= endDate)
+            .Select(p => (p.X, p.Y))
+            .ToList();
+
+        LoadChart(filtered);
+    }
+
+    private void OnSelectedDataItemsChanged(IEnumerable<object> selected)
+    {
+        selectedRawData = selected.Cast<dynamic>().ToList();
+    }
+
+    private void OnConfirmSelection()
+    {
+        isPopupVisible = false;
+        if (!selectedRawData.Any()) return;
+
+        // Convert dynamic selection to numeric
+        var selectedPoints = selectedRawData.Select(row =>
+        {
+            var dict = (IDictionary<string, object>)row;
+            double xVal = Convert.ToDouble(dict[xField]);
+            double yVal = Convert.ToDouble(dict[yField]);
+            return (xVal, yVal);
+        }).ToList();
+
+        LoadChart(selectedPoints);
+    }
+
+    private void LoadChart(List<(double X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Histogram (rounded for binning)
+        var grouped = yValues.GroupBy(v => Math.Round(v, 3))
+                             .ToDictionary(g => g.Key, g => g.Count());
+
+        // Normalized curve
+        var pdfValues = grouped.Keys.Select(k =>
+            (SG: k,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((k - avg) / sigma, 2))
+            )).ToList();
+
+        var maxFreq = grouped.Max(g => g.Value);
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        processedData = selectedPoints.Select(p => new CapabilityData
+        {
+            SpecificGravity = Math.Round(p.Y, 3),
+            Frequency = grouped.ContainsKey(Math.Round(p.Y, 3)) ? grouped[Math.Round(p.Y, 3)] : 1,
+            NormalizedCurve = pdfValues.First(v => Math.Abs(v.SG - Math.Round(p.Y, 3)) < 0.0001).PDF * scaleFactor,
+            OriginalValue = p.Y,
+            PointColor = p.Y < LSL ? "Red" : p.Y > USL ? "Orange" : "Green"
+        }).OrderBy(d => d.SpecificGravity).ToList();
+
+
+        coloredScatterGroups = processedData.GroupBy(d => d.PointColor).ToDictionary(g => g.Key, g => g.ToList());
+
+
+    }
+
+    private void LoadChartold1(List<(double X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+
+        // Sample standard deviation (n-1)
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Histogram bins
+        processedData = yValues
+            .GroupBy(v => Math.Round(v, 3))
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+
+        // Normal distribution overlay
+        var maxFreq = processedData.Max(p => p.Frequency);
+        var pdfValues = processedData.Select(p =>
+            (SG: p.SpecificGravity,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
+            )).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(v => Math.Abs(v.SG - item.SpecificGravity) < 0.0001).PDF;
+            item.NormalizedCurve = pdf * scaleFactor;
+        }
+    }
+
+    private void LoadChartold(List<(double X, double Y)> selectedPoints)
+    {
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+
+        avg = yValues.Average();
+        var variance = yValues.Average(v => Math.Pow(v - avg, 2));
+        var sigma = Math.Sqrt(variance);
+        UCL = avg + 3 * sigma;
+        LCL = avg - 3 * sigma;
+
+        // Histogram bins
+        processedData = yValues
+            .GroupBy(v => Math.Round(v, 3))
+            .Select(g => new CapabilityData
+            {
+                SpecificGravity = g.Key,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.SpecificGravity)
+            .ToList();
+
+        // Normal distribution overlay
+        var maxFreq = processedData.Max(p => p.Frequency);
+        var pdfValues = processedData.Select(p =>
+            (SG: p.SpecificGravity,
+             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
+                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
+            )).ToList();
+
+        var maxPdf = pdfValues.Max(p => p.PDF);
+        var scaleFactor = maxFreq / maxPdf;
+
+        foreach (var item in processedData)
+        {
+            var pdf = pdfValues.First(v => Math.Abs(v.SG - item.SpecificGravity) < 0.0001).PDF;
+            item.NormalizedCurve = pdf * scaleFactor;
+        }
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: #E6E6E6;";
+            e.CssClass = "header-bold";
+        }
+    }
+    Dictionary<string, List<CapabilityData>> coloredScatterGroups = new();
+
+    Color GetColorFromName(string colorName)
+    {
+        return colorName.ToLower() switch
+        {
+            "red" => Color.Red,
+            "green" => Color.Green,
+            "orange" => Color.Orange,
+            "blue" => Color.Blue,
+            "yellow" => Color.Yellow,
+            _ => Color.Gray
+        };
+    }
+
+}

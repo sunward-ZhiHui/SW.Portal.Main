@@ -60,7 +60,11 @@ namespace Core.Entities
         public string? Status { get; set; }
         public string? FullName { get; set; }
         public string? QcRefNo { get; set; }
-        public long? AttributeGroupCheckBoxId { get; set; }   
+        public long? AttributeGroupCheckBoxId { get; set; }
+        public string? ProfileNo { get; set; }
+        public string? EffectiveDate { get; set; }
+        public string? ReviewDate { get; set; }
+        public string? VersionNo { get; set; }
 
     }
     public class DataSourceAttributeDetails

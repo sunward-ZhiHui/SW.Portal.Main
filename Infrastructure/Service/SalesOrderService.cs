@@ -916,7 +916,125 @@ namespace Infrastructure.Service
                 throw ex;
             }
         }
+        public async Task<List<SoCustomer>> NavSoCustomerAsync(string company, long companyid, List<SoCustomer> navvendors)
+        {
+            try
+            {
+                List<SoCustomer> navVendorList = new List<SoCustomer>();
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.Customer.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.Customer> query = (DataServiceQuery<NAV.Customer>)nquery;
 
+                    TaskFactory<IEnumerable<NAV.Customer>> taskFactory = new TaskFactory<IEnumerable<NAV.Customer>>();
+                    IEnumerable<NAV.Customer> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        var exitsData = navVendorList.Where(f => f.ShipCode == b.No && f.CompanyId == companyid).Count();
+                        if (exitsData == 0)
+                        {
+                            var exits = navvendors.Where(f => f.ShipCode == b.No && f.CompanyId == companyid).FirstOrDefault();
+                            if (exits == null)
+                            {
+                                navVendorList.Add(new SoCustomer
+                                {
+                                    ShipCode = b.No,
+                                    CustomerName = b.Name,
+                                    Address1 = b.Address,
+                                    Address2 = b.Address_2,
+                                    PostCode = b.Post_Code,
+                                    City = b.City,
+                                    StateCode = b.Location_Code,
+                                    CompanyId = companyid,
+                                    Type = "Customer"
+                                });
+                            }
+                            else
+                            {
+                                navVendorList.Add(exits);
+                            }
+                        }
+                    });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
+                return navVendorList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<List<Navcustomer>> NavcustomerAsync(string company, long companyid, List<Navcustomer> navvendors)
+        {
+            try
+            {
+                List<Navcustomer> navVendorList = new List<Navcustomer>();
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.Customer.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.Customer> query = (DataServiceQuery<NAV.Customer>)nquery;
+
+                    TaskFactory<IEnumerable<NAV.Customer>> taskFactory = new TaskFactory<IEnumerable<NAV.Customer>>();
+                    IEnumerable<NAV.Customer> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        var exitsData = navVendorList.Where(f => f.Code == b.No && f.CompanyId == companyid).Count();
+                        if (exitsData == 0)
+                        {
+                            var exits = navvendors.Where(f => f.Code == b.No && f.CompanyId == companyid).FirstOrDefault();
+                            if (exits == null)
+                            {
+                                navVendorList.Add(new Navcustomer
+                                {
+                                    Code = b.No,
+                                    Name = b.Name,
+                                    Address = b.Address,
+                                    Address2 = b.Address_2,
+                                    PostCode = b.Post_Code,
+                                    City = b.City,
+                                    LocationCode = b.Location_Code,
+                                    County=b.County,
+                                    PhoneNo=b.Phone_No,
+                                    CountryRegionCode=b.Country_Region_Code,
+                                    Contact=b.Contact,
+                                    SalespersonCode=b.Salesperson_Code,
+                                    CustomerPostingGroup=b.Customer_Posting_Group,
+                                    GenBusPostingGroup=b.Gen_Bus_Posting_Group,
+                                    VatbusPostingGroup=b.VAT_Bus_Posting_Group,
+                                    CurrencyCode=b.Currency_Code,
+
+                                    CompanyId = companyid,
+                                });
+                            }
+                            else
+                            {
+                                navVendorList.Add(exits);
+                            }
+                        }
+                    });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
+                return navVendorList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public async Task<List<Core.Entities.RawMatPurch>> GetRawMatPurchAsync(string company, long companyid, List<Core.Entities.RawMatPurch> rawMatPurches, List<Navitems> navitems)
         {

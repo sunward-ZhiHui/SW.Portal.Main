@@ -147,6 +147,35 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("InsertOrUpdateNavCustomer")]
+        public async Task<ActionResult<Services.ResponseModel<List<Navcustomer>>>> InsertOrUpdateNavCustomer()
+        {
+            var response = new Services.ResponseModel<Navcustomer>();
+            List<Navcustomer> NavVendors = new List<Navcustomer>();
+            var plantDatas = await GetPlatDatas();
+            if (plantDatas != null && plantDatas.Count() > 0)
+            {
+                foreach (var item in plantDatas)
+                {
+                    await _mediator.Send(new InsertOrUpdateNavCustomer(item.PlantID));
+                }
+            }
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = NavVendors;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = NavVendors;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
         [HttpGet("InsertOrUpdateNavItems")]
         public async Task<ActionResult<Services.ResponseModel<List<Navitems>>>> InsertOrUpdateNavItems()
         {

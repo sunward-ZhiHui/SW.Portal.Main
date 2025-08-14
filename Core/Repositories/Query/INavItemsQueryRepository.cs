@@ -42,6 +42,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<FinishedProdOrderLineOptStatus>> GetFinishedProdOrderLineOptStatus();
         Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type,long? CompanyId);
         Task<SoCustomer> GetNavVendorList(long? CompanyId);
+        Task<Navcustomer> GetNavcustomerList(long? CompanyId);
         Task<RawMatPurch> GetRawMatPurchList(long? CompanyId);
         Task<ReleaseProdOrderLine> GetReleaseProdOrderLineList(long? CompanyId);
         Task<AllProdOrderLine> GetAllProdOrderLineList(long? CompanyId);

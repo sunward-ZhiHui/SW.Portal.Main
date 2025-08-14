@@ -52,55 +52,46 @@ namespace Infrastructure.Repository.Query
                 {
                     i++;
                     query += GetNavItemsDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Employee"))
                 {
                     i++;
                     query += GetEmployeeDataSource(CompanyId, plantCode, plantIds);
-                    // dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Division"))
                 {
                     i++;
                     query += GetDivisionDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Department"))
                 {
                     i++;
                     query += GetDepartmentDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Designation"))
                 {
                     i++;
                     query += GetDesignationDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Section"))
                 {
                     i++;
                     query += GetSectionDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("SubSection"))
                 {
                     i++;
                     query += GetSubSectionDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("ItemBatchInfo"))
                 {
                     i++;
                     query += GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("FinishedProdOrderLine"))
                 {
                     i++;
                     query += GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Vendor"))
                 {
@@ -128,7 +119,6 @@ namespace Infrastructure.Repository.Query
                 {
                     i++;
                     query += GetSoCustomerDataSource(soCustomerList);
-                    //dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
                 }
                 var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
                 var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
@@ -136,26 +126,22 @@ namespace Infrastructure.Repository.Query
                 {
                     i++;
                     query += GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
                 }
 
                 if (dataSourceTableIds.Contains("ApplicationMaster") && applicationMasterIds.Count > 0)
                 {
                     i++;
                     query += GetApplicationMasterDataSource(applicationMasterIds);
-                    //dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
                 }
                 if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
                 {
                     i++;
                     query += GetApplicationMasterParentDataSource(applicationMasterParentIds);
-                    //dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
                 }
                 if (dataSourceTableIds.Contains("Site"))
                 {
                     i++;
                     query += GetSiteDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Zone"))
                 {
@@ -167,19 +153,21 @@ namespace Infrastructure.Repository.Query
                 {
                     i++;
                     query += GetLocationDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Area"))
                 {
                     i++;
                     query += GetAreaDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("SpecificArea"))
                 {
                     i++;
                     query += GetSpecificAreaDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("SOP"))
+                {
+                    i++;
+                    query += GetSOPDropdownView();
                 }
                 if (!string.IsNullOrEmpty(query))
                 {
@@ -188,42 +176,11 @@ namespace Infrastructure.Repository.Query
                         dataSourceDropDownList.AddRange(await GetAllDataSource(query, i));
                     }
                 }
+                
             }
             else
             {
                 dataSourceDropDownList.AddRange(plantsData);
-                //dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
-                //dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
-                //var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
-                //var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
-                //if (soCustomerList.Count() > 0)
-                //{
-                //    dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
-                //}
-                //var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
-                //var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
-                //if (rawMatItemList.Count() > 0)
-                //{
-                //    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
-                //}
-                //if (applicationMasterIds.Count > 0)
-                //{
-                //    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
-                //}
-                //if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
-                //{
-                //    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
-                //}
             }
             return dataSourceDropDownList;
         }
@@ -244,6 +201,20 @@ namespace Infrastructure.Repository.Query
                     //attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
                 }
                 return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetSOPDropdownView()
+        {
+            //var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "SELECT CONCAT('SOP_',DataId) as AttributeDetailNameId,'SOP' as DropDownTypeId, DataId as AttributeDetailID,ProfileNo, SOPNo as AttributeDetailName,Description,VersionNo,FORMAT(EffectiveDate, 'dd-MMM-yyyy') as EffectiveDate,FORMAT(ReviewDate, 'dd-MMM-yyyy')  as ReviewDate FROM [VMSUNPRT02].[SW_Int_LIVE].[dbo].[SOPDropdownView];\n\r";
+                return query;
             }
             catch (Exception exp)
             {

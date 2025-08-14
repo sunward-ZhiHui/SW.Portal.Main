@@ -363,6 +363,22 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertOrUpdateNavCustomerHandler : IRequestHandler<InsertOrUpdateNavCustomer, Navcustomer>
+    {
+
+
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateNavCustomerHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<Navcustomer> Handle(InsertOrUpdateNavCustomer request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetNavcustomerList(request.CompanyId);
+
+        }
+    }
     public class GetRawMatPurchListHandler : IRequestHandler<GetRawMatPurchList, RawMatPurch>
     {
         private readonly INavItemsQueryRepository _queryRepository;

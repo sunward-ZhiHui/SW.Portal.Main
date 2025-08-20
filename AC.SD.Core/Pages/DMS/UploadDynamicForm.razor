@@ -2833,6 +2833,7 @@
                     var imgBase64Str = Convert.ToBase64String(imageArray);
                     DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
                     dynamicFormDataAttrUpload.DynamicFormSectionAttributeId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId;
+                    dynamicFormDataAttrUpload.DynamicFormSectionAttributeSessionId = dynamicFormSectionAttribute.SessionId;
                     dynamicFormDataAttrUpload.SessionId = new Guid(file.Guid);
                     dynamicFormDataAttrUpload.ImageType = file.Type;
                     dynamicFormDataAttrUpload.FileName = file.Name;

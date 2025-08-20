@@ -23,6 +23,8 @@ namespace Core.Entities
         public string? UploadedUser { get; set; }
         public string? DisplayName { get; set; }
         public int? UniqueId { get; set; }
+        public string? FilePath { get; set; }
+        public Guid? DynamicFormSectionAttributeSessionId { get; set; } 
     }
     public class CarouselData
     {

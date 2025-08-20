@@ -14,6 +14,7 @@ using Google.Cloud.Firestore.V1;
 using Google.Protobuf.WellKnownTypes;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Edm.Library;
 using Microsoft.Data.Edm.Values;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -51,10 +52,12 @@ namespace Infrastructure.Repository.Query
     public class DynamicFormQueryRepository : QueryRepository<DynamicForm>, IDynamicFormQueryRepository
     {
         private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
-        public DynamicFormQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public DynamicFormQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository, IWebHostEnvironment host)
             : base(configuration)
         {
             _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
+            _hostingEnvironment = host;
         }
 
         public async Task<DynamicForm> Delete(DynamicForm dynamicForm)
@@ -8573,7 +8576,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 parameters.Add("DynamicFormDataId", DynamicFormDataId);
                 var query = "select t1.*,t2.DisplayName,CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  '' ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName , (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) as UploadedUser\r\nfrom DynamicFormDataAttrUpload t1 " +
                     "JOIN DynamicFormSectionAttribute t2 ON t2.DynamicFormSectionAttributeID=t1.DynamicFormSectionAttributeID AND (t1.IsDeleted is null OR t1.IsDeleted=0) " +
-                    "JOIN Employee t3 ON t3.UserID=t1.UploadedUserID Where t1.DynamicFormDataId=@DynamicFormDataId AND t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;";
+                    "JOIN Employee t3 ON t3.UserID=t1.UploadedUserID Where t1.ImageData is null AND t1.FilePath is not null AND  t1.DynamicFormDataId=@DynamicFormDataId AND t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormDataAttrUpload>(query, parameters)).ToList();
@@ -8595,13 +8598,21 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                     {
                         if (value != null && value.Count() > 0)
                         {
+                            var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "DynamicFormDocs", value.FirstOrDefault()?.DynamicFormSectionAttributeSessionId.ToString());
+                            if (!Directory.Exists(serverPaths))
+                            {
+                                Directory.CreateDirectory(serverPaths);
+                            }
+                            int bufferSize = 81920;
                             foreach (var item in value)
                             {
                                 var query = string.Empty;
                                 var parameters = new DynamicParameters();
+                                string extension = item.FileName.Contains(".") ? item.FileName[(item.FileName.LastIndexOf('.') + 1)..] : string.Empty;
+                                var filePath = serverPaths + @"\" + item.SessionId + "." + extension;
                                 parameters.Add("DynamicFormSectionAttributeId", item.DynamicFormSectionAttributeId);
                                 parameters.Add("DynamicFormDataId", item.DynamicFormDataId);
-                                parameters.Add("ImageData", item.ImageData, DbType.Binary);
+                                parameters.Add("ImageData", null, DbType.Binary);
                                 parameters.Add("UploadedUserId", item.UploadedUserId);
                                 parameters.Add("ImageType", item.ImageType, DbType.String);
                                 parameters.Add("FileSize", item.FileSize, DbType.Decimal);
@@ -8609,9 +8620,13 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                                 parameters.Add("FileSizes", item.FileSizes, DbType.String);
                                 parameters.Add("FileName", item.FileName, DbType.String);
                                 parameters.Add("SessionId", item.SessionId, DbType.Guid);
-                                query += "INSERT INTO [DynamicFormDataAttrUpload](FileName,DynamicFormDataId,ImageData,UploadedUserId,ImageType,DynamicFormSectionAttributeId,FileSize,UploadDate,FileSizes,SessionId) OUTPUT INSERTED.DynamicFormDataAttrUploadId " +
-                                "VALUES (@FileName,@DynamicFormDataId,@ImageData,@UploadedUserId,@ImageType,@DynamicFormSectionAttributeId,@FileSize,@UploadDate,@FileSizes,@SessionId);\r\n";
+                                item.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                                parameters.Add("FilePath", item.FilePath, DbType.String);
+                                query += "INSERT INTO [DynamicFormDataAttrUpload](FilePath,FileName,DynamicFormDataId,ImageData,UploadedUserId,ImageType,DynamicFormSectionAttributeId,FileSize,UploadDate,FileSizes,SessionId) OUTPUT INSERTED.DynamicFormDataAttrUploadId " +
+                                "VALUES (@FilePath,@FileName,@DynamicFormDataId,@ImageData,@UploadedUserId,@ImageType,@DynamicFormSectionAttributeId,@FileSize,@UploadDate,@FileSizes,@SessionId);\r\n";
                                 var result = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                                using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, useAsync: true);
+                                await fs.WriteAsync(item.ImageData.AsMemory(0, item.ImageData.Length));
                                 dynamicFormDataAttrUpload.DynamicFormDataAttrUploadId = result;
                             }
                         }
@@ -8638,6 +8653,14 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
 
                     try
                     {
+                        if (!string.IsNullOrEmpty(dynamicFormDataAttrUpload.FilePath))
+                        {
+                            var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", dynamicFormDataAttrUpload.FilePath);
+                            if (File.Exists(serverPaths))
+                            {
+                                File.Delete(serverPaths);
+                            }
+                        }
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormDataAttrUploadId", dynamicFormDataAttrUpload.DynamicFormDataAttrUploadId);
                         var query = "Delete from DynamicFormDataAttrUpload where DynamicFormDataAttrUploadId=@DynamicFormDataAttrUploadId;";

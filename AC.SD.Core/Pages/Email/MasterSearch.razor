@@ -815,6 +815,25 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     }
 
 
+    protected override void OnInitialized()
+    {
+        // Initialize once
+        LikeListSubject = new List<DropDownModelSubject>()
+        {
+            new DropDownModelSubject() { Value = "=", Text = "Equal(=)" },
+            new DropDownModelSubject() { Value = "<>", Text = "Not Equal(!=)" },
+            new DropDownModelSubject() { Value = "contains", Text = "Contains" }
+        };
+
+        LikeList = new List<DropDownModel>()
+        {
+            new DropDownModel() { Value = "=", Text = "Equal(=)" },
+            new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" }
+        };
+    }
+
+
+
     protected override async Task OnParametersSetAsync()
     {
 
@@ -857,9 +876,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
         //NavigationManager.LocationChanged += OnLocationChanged;
+        LikeList.Clear();
         LikeList.Add(new DropDownModel(){ Value = "=" ,Text ="Equal(=)"});
         LikeList.Add(new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" });
 
+        LikeListSubject.Clear();
         LikeListSubject.Add(new DropDownModelSubject() { Value = "=", Text = "Equal(=)" });
         LikeListSubject.Add(new DropDownModelSubject() { Value = "<>", Text = "Not Equal(!=)" });
         LikeListSubject.Add(new DropDownModelSubject() { Value = "contains", Text = "Contains" });

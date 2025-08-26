@@ -20,11 +20,13 @@ namespace Infrastructure.Repository.Query
     {
         private readonly ISalesOrderService _salesOrderService;
         private readonly IPlantQueryRepository _plantQueryRepository;
-        public SalesDeliverOrderQueryRepository(IConfiguration configuration, ISalesOrderService salesOrderService, IPlantQueryRepository plantQueryRepository)
+        private readonly INavItemsQueryRepository _avItemsQueryRepository;
+        public SalesDeliverOrderQueryRepository(IConfiguration configuration, ISalesOrderService salesOrderService, IPlantQueryRepository plantQueryRepository, INavItemsQueryRepository avItemsQueryRepository)
             : base(configuration)
         {
             _salesOrderService = salesOrderService;
             _plantQueryRepository = plantQueryRepository;
+            _avItemsQueryRepository = avItemsQueryRepository;
         }
         public async Task<IReadOnlyList<NavpostedShipment>> GetAllByAsync(NavpostedShipment navpostedShipment)
         {
@@ -114,6 +116,7 @@ namespace Infrastructure.Repository.Query
         {
             if (navpostedShipment.CompanyId > 0)
             {
+                var re = await _avItemsQueryRepository.GetNavcustomerList(navpostedShipment.CompanyId);
                 var plantData = await _plantQueryRepository.GetByIdAsync(navpostedShipment.CompanyId.GetValueOrDefault(0));
                 var resultData = await GetNavpostedShipmentAsync(navpostedShipment.CompanyId);
                 var navCustomer = await GetNavcustomerAsync(navpostedShipment.CompanyId);

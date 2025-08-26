@@ -4,8 +4,10 @@
 @inject IMediator Mediator
 @using Application.Queries;
 @inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@using global::Core.Entities.Views;
 @implements IAsyncDisposable
-
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -97,9 +99,10 @@
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     bool PopupVisible { get; set; } = false;
-    DxPopup? popup;
+    DxPopup? popup; public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData(DynamicFormSectionId);
     }
     public async Task loadData(long? dynamicFormSectionId)
@@ -154,7 +157,7 @@
             }
             if (Ids != null && Ids.Count>0)
             {
-                var request = new DeleteDynamicFormSectionSecurity(DynamicFormSectionId,Ids);
+                var request = new DeleteDynamicFormSectionSecurity(DynamicFormSectionId,Ids,applicationUser.UserID);
                 await Mediator.Send(request);
                 Blukdeletepopup = false;
                 toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

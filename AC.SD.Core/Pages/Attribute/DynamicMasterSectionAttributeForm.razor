@@ -155,8 +155,8 @@
                                 Enabled="isFormCountUsed"
                                 ShowValidationIcon="true"
                                 Value="@types.AttributeId"
-                                ValueExpression="@(() => types.AttributeId )"
-                                ValueChanged="@((long? selectName) => SelectedItemChanged(selectName,types))">
+                                ValueExpression="@(() => types.AttributeId)"
+                                ValueChanged="@((long? selectName) => SelectedItemChanged(selectName, types))">
                         <Columns>
                             @*  <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
                             Caption="Field Name"
@@ -183,7 +183,7 @@
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Dynamic Form GridDropdown" ColSpanMd="6" Visible="@IsDynamicFormGridDropdownEnabled">
-                    <DxCheckBox Checked="@types.IsDynamicFormGridDropdown" CheckedExpression="@(() => types.IsDynamicFormGridDropdown)" CheckedChanged="@((bool value) => OnTemplateDataSourceGroupValueChanged(value,types))" Enabled="isFormCountUsed"></DxCheckBox>
+                    <DxCheckBox Checked="@types.IsDynamicFormGridDropdown" CheckedExpression="@(() => types.IsDynamicFormGridDropdown)" CheckedChanged="@((bool value) => OnTemplateDataSourceGroupValueChanged(value, types))" Enabled="isFormCountUsed"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is DropDown Multiple" ColSpanMd="6" Visible="@types.IsDynamicFormGridDropdown">
                     <DxCheckBox @bind-Checked="types.IsDynamicFormGridDropdownMultiple" Enabled="isFormCountUsed"></DxCheckBox>
@@ -199,8 +199,8 @@
                                 Enabled="isFormCountUsed"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Value="@types.GridDropDownDynamicFormID"
-                                ValueExpression="@(() => types.GridDropDownDynamicFormID )"
-                                ValueChanged="@((long? plant) => onChangedDynamicForm(plant,types))"
+                                ValueExpression="@(() => types.GridDropDownDynamicFormID)"
+                                ValueChanged="@((long? plant) => onChangedDynamicForm(plant, types))"
                                 ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
@@ -227,8 +227,8 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               Enabled="isFormCountUsed"
                               Values="types.ApplicationMasterIdsListIds"
-                              ValuesExpression="@(() => types.ApplicationMasterIdsListIds )"
-                              ValuesChanged="@((IEnumerable<long?> values) => onChangedApplicationMaster(values,types))"
+                              ValuesExpression="@(() => types.ApplicationMasterIdsListIds)"
+                              ValuesChanged="@((IEnumerable<long?> values) => onChangedApplicationMaster(values, types))"
                               ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterName)"
                                             Caption="Name" Width="100px" />
@@ -277,8 +277,8 @@
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
                                   Value="@types.RadioLayout"
-                                  ValueExpression="@(() => types.RadioLayout )"
-                                  ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value,types))"
+                                  ValueExpression="@(() => types.RadioLayout)"
+                                  ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value, types))"
                                   Layout="RadioGroupLayout.Horizontal"
                                   Enabled="IsRadioLayoutEnabled"
                                   CssClass="dx-demo-radio-group" />
@@ -385,8 +385,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByAtrributeOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderAttributeBy()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSortOrderByAtrributeOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateSortOrderAttributeBy()) />
 
 
     </FooterContentTemplate>
@@ -456,6 +456,8 @@
     public Action? RevokeBack { get; set; }
     [Parameter]
     public DynamicFormSection Items { get; set; }
+    [Parameter]
+    public bool? IsAuditTrail { get; set; } = false;
     public bool? IsDynamicSubForm { get; set; } = false;
     public bool AddControlSectionEnabled { get; set; } = false; public bool AddControlSectionPopup { get; set; } = false;
     public long? DynamicFormSectionId { get; set; }
@@ -959,41 +961,44 @@
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
-                {
-                    DisplayName = editModel.DisplayName,
-                    DynamicFormSectionId = DynamicFormSectionId,
-                    AttributeId = editModel.AttributeId,
-                    SessionId = Guid.NewGuid(),
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ColSpan = IsColSpan,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = DateTime.Now,
-                    IsMultiple = isMultipleFlag,
-                    IsRequired = editModel.IsRequired,
-                    RequiredMessage = editModel.RequiredMessage,
-                    IsSpinEditType = IsSpinEditType,
-                    IsDisplayTableHeader = editModel.IsDisplayTableHeader,
-                    FormToolTips = editModel.FormToolTips,
-                    IsVisible = editModel.IsVisible = true,
-                    RadioLayout = IsRadioLayout,
-                    IsRadioCheckRemarks = IsRadioCheckRemarks,
-                    RemarksLabelName = RemarksLabelName,
-                    IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
-                    PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
-                    PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
-                    IsSetDefaultValue = _isSetDefaultValue,
-                    IsDefaultReadOnly = _isDefaultReadOnly,
-                    ApplicationMasterId = applicationMasterId,
-                    ApplicationMasterIdsListIds = applicationMasterIdsListIds,
-                    IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
-                    IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
-                    GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
-                    IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
-                    IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
-                };
+            {
+                DynamicFormId = Items.DynamicFormId,
+                DisplayName = editModel.DisplayName,
+                DynamicFormSectionId = DynamicFormSectionId,
+                AttributeId = editModel.AttributeId,
+                SessionId = Guid.NewGuid(),
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ColSpan = IsColSpan,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = DateTime.Now,
+                IsMultiple = isMultipleFlag,
+                IsRequired = editModel.IsRequired,
+                RequiredMessage = editModel.RequiredMessage,
+                IsSpinEditType = IsSpinEditType,
+                IsDisplayTableHeader = editModel.IsDisplayTableHeader,
+                FormToolTips = editModel.FormToolTips,
+                IsVisible = editModel.IsVisible = true,
+                RadioLayout = IsRadioLayout,
+                IsRadioCheckRemarks = IsRadioCheckRemarks,
+                RemarksLabelName = RemarksLabelName,
+                IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
+                PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                IsSetDefaultValue = _isSetDefaultValue,
+                IsDefaultReadOnly = _isDefaultReadOnly,
+                ApplicationMasterId = applicationMasterId,
+                ApplicationMasterIdsListIds = applicationMasterIdsListIds,
+                IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
+                IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
+                GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
+                IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
+                IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
+                DataSourceTable = editModel.DataSourceTable,
+                IsAuditTrail = IsAuditTrail,
+            };
 
             try
             {
@@ -1014,43 +1019,46 @@
         else
         {
             var UpdateReq = new InsertOrUpdateDynamicFormSectionAttribute
-                {
-                    DynamicFormSectionAttributeId = editModel.DynamicFormSectionAttributeId,
-                    DisplayName = editModel.DisplayName,
-                    AttributeId = editModel.AttributeId,
-                    DynamicFormSectionId = DynamicFormSectionId,
-                    SessionId = editModel.SessionId,
-                    SortOrderBy = editModel.SortOrderBy,
-                    AddedByUserID = editModel.AddedByUserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ColSpan = IsColSpan,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = editModel.AddedDate,
-                    IsMultiple = isMultipleFlag,
-                    IsRequired = editModel.IsRequired,
-                    RequiredMessage = editModel.RequiredMessage,
-                    IsSpinEditType = IsSpinEditType,
-                    IsDisplayTableHeader = editModel.IsDisplayTableHeader,
-                    FormToolTips = editModel.FormToolTips,
-                    IsVisible = editModel.IsVisible,
-                    RadioLayout = IsRadioLayout,
-                    IsRadioCheckRemarks = IsRadioCheckRemarks,
-                    RemarksLabelName = RemarksLabelName,
-                    IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
-                    PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
-                    PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
-                    IsSetDefaultValue = _isSetDefaultValue,
-                    IsDefaultReadOnly = _isDefaultReadOnly,
-                    ApplicationMasterId = applicationMasterId,
-                    ApplicationMasterIdsListIds = applicationMasterIdsListIds,
-                    IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
-                    IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
-                    GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
-                    IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
-                    IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
-                };
+            {
+                DynamicFormId = Items.DynamicFormId,
+                DynamicFormSectionAttributeId = editModel.DynamicFormSectionAttributeId,
+                DisplayName = editModel.DisplayName,
+                AttributeId = editModel.AttributeId,
+                DynamicFormSectionId = DynamicFormSectionId,
+                SessionId = editModel.SessionId,
+                SortOrderBy = editModel.SortOrderBy,
+                AddedByUserID = editModel.AddedByUserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ColSpan = IsColSpan,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = editModel.AddedDate,
+                IsMultiple = isMultipleFlag,
+                IsRequired = editModel.IsRequired,
+                RequiredMessage = editModel.RequiredMessage,
+                IsSpinEditType = IsSpinEditType,
+                IsDisplayTableHeader = editModel.IsDisplayTableHeader,
+                FormToolTips = editModel.FormToolTips,
+                IsVisible = editModel.IsVisible,
+                RadioLayout = IsRadioLayout,
+                IsRadioCheckRemarks = IsRadioCheckRemarks,
+                RemarksLabelName = RemarksLabelName,
+                IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
+                PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                IsSetDefaultValue = _isSetDefaultValue,
+                IsDefaultReadOnly = _isDefaultReadOnly,
+                ApplicationMasterId = applicationMasterId,
+                ApplicationMasterIdsListIds = applicationMasterIdsListIds,
+                IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
+                IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
+                GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
+                IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
+                IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
+                DataSourceTable = editModel.DataSourceTable,
+                IsAuditTrail = IsAuditTrail,
+            };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();

@@ -166,7 +166,7 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
         </TotalSummary>
         <DetailRowTemplate>
-            <DynamicMasterSectionAttributeForm Items="(DynamicFormSection)context.DataItem" />
+            <DynamicMasterSectionAttributeForm Items="(DynamicFormSection)context.DataItem" IsAuditTrail="@IsAuditTrail" />
         </DetailRowTemplate>
     </DxGrid>
 </DxLoadingPanel>
@@ -210,8 +210,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateSortOrderBy()) />
 
 
     </FooterContentTemplate>
@@ -282,7 +282,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsFileProfileTypeFilterDocOpen = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -303,6 +303,8 @@
     private AddGridSequence refAddGridSequence;
     [Parameter]
     public long? dynamicFormId { get; set; }
+    [Parameter]
+    public bool? IsAuditTrail { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -417,22 +419,23 @@
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSection
-                {
-                    SectionName = editModel.SectionName,
-                    DynamicFormId = dynamicFormId,
-                    SessionId = Guid.NewGuid(),
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = DateTime.Now,
-                    IsReadOnly = editModel.IsReadOnly == true ? true : false,
-                    IsVisible = editModel.IsVisible == true ? true : false,
-                    IsReadWrite = editModel.IsReadWrite == true ? true : false,
-                    Instruction = editModel.Instruction,
-                    SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
-                    IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
-                };
+            {
+                SectionName = editModel.SectionName,
+                DynamicFormId = dynamicFormId,
+                SessionId = Guid.NewGuid(),
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = DateTime.Now,
+                IsReadOnly = editModel.IsReadOnly == true ? true : false,
+                IsVisible = editModel.IsVisible == true ? true : false,
+                IsReadWrite = editModel.IsReadWrite == true ? true : false,
+                Instruction = editModel.Instruction,
+                SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
+                IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
+                IsAuditTrail = IsAuditTrail,
+            };
 
             try
             {
@@ -454,25 +457,25 @@
         else
         {
             var UpdateReq = new InsertOrUpdateDynamicFormSection
-                {
-                    DynamicFormSectionId = editModel.DynamicFormSectionId,
-                    SectionName = editModel.SectionName,
-                    DynamicFormId = dynamicFormId,
-                    SessionId = editModel.SessionId,
-                    SortOrderBy = editModel.SortOrderBy,
-                    AddedByUserID = editModel.AddedByUserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = editModel.AddedDate,
-                    IsReadOnly = editModel.IsReadOnly,
-                    IsVisible = editModel.IsVisible,
-                    IsReadWrite = editModel.IsReadWrite,
-                    Instruction = editModel.Instruction,
-                    SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
-                    IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
-
-                };
+            {
+                DynamicFormSectionId = editModel.DynamicFormSectionId,
+                SectionName = editModel.SectionName,
+                DynamicFormId = dynamicFormId,
+                SessionId = editModel.SessionId,
+                SortOrderBy = editModel.SortOrderBy,
+                AddedByUserID = editModel.AddedByUserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                AddedDate = editModel.AddedDate,
+                IsReadOnly = editModel.IsReadOnly,
+                IsVisible = editModel.IsVisible,
+                IsReadWrite = editModel.IsReadWrite,
+                Instruction = editModel.Instruction,
+                SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
+                IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
+                IsAuditTrail = IsAuditTrail,
+            };
             var result = await Mediator.Send(UpdateReq);
             await addAttributes(result.DynamicFormSectionId, editModel.AttributeIds);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

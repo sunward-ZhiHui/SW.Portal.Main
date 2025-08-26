@@ -271,19 +271,20 @@
                 s.UniqueId = i;
                 _DynamicFormDataAttrUploadListItems.Add(s);
                 // carouselData.Source = ResizeImage(s);
-                if (s.ImageData != null)
-                {
+                //if (s.ImageData != null)
+                //{
                     if ((!string.IsNullOrEmpty(s.ImageType)))
                     {
                         var type = s.ImageType.Split("/")[0].ToLower();
-                        carouselData.Source = "data:" + s.ImageType + ";base64," + Convert.ToBase64String(s.ImageData);
+                        carouselData.Source = NavigationManager.BaseUri + @"AppUpload\" + s.FilePath;
+                        // carouselData.Source = "data:" + s.ImageType + ";base64," + Convert.ToBase64String(s.ImageData);
                         carouselData.AlternateText = s.FileName;
                         carouselData.Type = type;
                         carouselData.FileType = s.ImageType;
                         carouselData.Index = (i - 1);
                         carouselDatas.Add(carouselData);
                     }
-                }
+               // }
                 i++;
             });
             videoRefs = new ElementReference[carouselDatas.Count];
@@ -365,11 +366,11 @@
     void addViewVideo()
     {
         videoUrl = "";
-        if (_selectedItems != null && _selectedItems.ImageData != null)
+        if (_selectedItems != null && !string.IsNullOrEmpty(_selectedItems.FilePath))
         {
-            string base64 = Convert.ToBase64String(_selectedItems.ImageData);
-            videoUrl = $"data:video/mp4;base64,{base64}";
-
+           // string base64 = Convert.ToBase64String(_selectedItems.ImageData);
+            //videoUrl = $"data:video/mp4;base64,{base64}";
+            videoUrl = NavigationManager.BaseUri + @"AppUpload\" + _selectedItems.FilePath;
             Videopopup = true;
         }
     }

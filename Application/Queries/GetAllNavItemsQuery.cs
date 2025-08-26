@@ -194,6 +194,15 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class InsertOrUpdateNavCustomer : PagedRequest, IRequest<Navcustomer>
+    {
+        public long? CompanyId { get; set; }
+        public InsertOrUpdateNavCustomer(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
+    
     public class GetRawMatPurchList : PagedRequest, IRequest<RawMatPurch>
     {
         public long? CompanyId { get; set; }

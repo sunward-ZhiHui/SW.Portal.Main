@@ -163,10 +163,10 @@
 
                         <ValidationMessage For="@(() => Data.VersionNo)" />
                     </DxFormLayoutItem>
-                    @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Is Multiple Upload" ColSpanMd="6">
+                    @*   <DxFormLayoutItem Caption="Is Enable Audit Trail" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsAuditTrail"></DxCheckBox>
+                    </DxFormLayoutItem> *@
+                    @*<DxFormLayoutItem Caption="Is Multiple Upload" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsMultipleUpload"></DxCheckBox>
                     </DxFormLayoutItem> *@
                 </DxFormLayout>
@@ -176,7 +176,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.Default" TabClick=@OnTabClick>
                             <DxFormLayoutTabPage Caption="Section Entry">
-                                <DynamicMasterSectionForm @ref="refDynamicMasterSectionForm" dynamicFormId="@dynamicFormId" RevokeBack="BackPermissionPopUp"></DynamicMasterSectionForm>
+                                <DynamicMasterSectionForm @ref="refDynamicMasterSectionForm" IsAuditTrail="@_dynamicFormData?.IsAuditTrail" dynamicFormId="@dynamicFormId" RevokeBack="BackPermissionPopUp"></DynamicMasterSectionForm>
                             </DxFormLayoutTabPage>
                             <DxFormLayoutTabPage Caption="Approval Level Entry" Visible=IsApprovalEnabled>
                                 <DynamicFormApprovals @ref="refDynamicFormApproval" dynamicFormId="@dynamicFormId"></DynamicFormApprovals>
@@ -447,7 +447,7 @@
         Data.ScreenID = null;
         Data.Name = null;
         Data.SessionId = null;
-        Data.IsGridForm = false;
+        Data.IsGridForm = false;Data.IsAuditTrail = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
         Data.IsApproval = false; Data.SopNo = null; Data.VersionNo = null;
         Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
@@ -470,7 +470,7 @@
                 Data.Name = dynamicFormData.Name;
                 Data.SessionId = dynamicFormData.SessionId;
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
-                Data.IsUpload = true;
+                Data.IsUpload = true; Data.IsAuditTrail = dynamicFormData.IsAuditTrail;
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;
@@ -675,6 +675,7 @@
                 IsGridForm = Data.IsGridForm,
                 VersionNo = Data.VersionNo,
                 SopNo = Data.SopNo,
+                IsAuditTrail=Data.IsAuditTrail,
                 FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
             };
 
@@ -702,6 +703,7 @@
                 IsGridForm = Data.IsGridForm,
                 VersionNo = Data.VersionNo,
                 SopNo = Data.SopNo,
+                IsAuditTrail = Data.IsAuditTrail,
                 FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
             };
             var result = await Mediator.Send(createReq);

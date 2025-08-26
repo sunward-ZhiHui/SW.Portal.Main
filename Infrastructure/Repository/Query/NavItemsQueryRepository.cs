@@ -1177,6 +1177,44 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<SoCustomer>> GetNavSoCustomerAsync(long? CompanyId)
+        {
+            List<SoCustomer> NavprodOrderLineList = new List<SoCustomer>();
+            try
+            {
+                var query = "select  * from SoCustomer where  Type='Customer' AND  CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<SoCustomer>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<SoCustomer>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<Navcustomer>> GetNavcustomerAsync(long? CompanyId)
+        {
+            List<Navcustomer> NavprodOrderLineList = new List<Navcustomer>();
+            try
+            {
+                var query = "select  * from Navcustomer where   CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<Navcustomer>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<Navcustomer>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<SoCustomer> GetNavVendorList(long? CompanyId)
         {
             try
@@ -1195,9 +1233,95 @@ namespace Infrastructure.Repository.Query
                             await InsertOrUpdateNavVendor(s);
                         }
                     }
+
                 }
                 navVendor.SoCustomerId = 1;
                 return navVendor;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Navcustomer> GetNavcustomerList(long? CompanyId)
+        {
+            try
+            {
+                Navcustomer navVendor = new Navcustomer();
+                var VendorDataData = await GetNavcustomerAsync(CompanyId);
+                var SoCustomerDataData = await GetNavSoCustomerAsync(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    List<Navcustomer> VendorDataDatas = VendorDataData != null ? VendorDataData.ToList() : new List<Navcustomer>();
+                    var lst = await _salesOrderService.NavcustomerAsync(plantData.NavCompanyName, plantData.PlantID, VendorDataDatas);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            await InsertOrUpdateNavCustomer(s);
+                        }
+                    }
+                    List<SoCustomer> SoCustomerDataDatas = SoCustomerDataData != null ? SoCustomerDataData.ToList() : new List<SoCustomer>();
+                    var lsts = await _salesOrderService.NavSoCustomerAsync(plantData.NavCompanyName, plantData.PlantID, SoCustomerDataDatas);
+                    if (lsts != null && lsts.Count > 0)
+                    {
+                        foreach (var s in lsts)
+                        {
+                            await InsertOrUpdateNavVendor(s);
+                        }
+                    }
+                }
+                navVendor.CustomerId = 1;
+                return navVendor;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertOrUpdateNavCustomer(Navcustomer finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("CustomerId", finishedProdOrderLine.CustomerId);
+                    parameters.Add("Code", finishedProdOrderLine.Code, DbType.String);
+                    parameters.Add("Name", finishedProdOrderLine.Name, DbType.String);
+                    parameters.Add("Address", finishedProdOrderLine.Address, DbType.String);
+                    parameters.Add("Address2", finishedProdOrderLine.Address2, DbType.String);
+                    parameters.Add("PostCode", finishedProdOrderLine.PostCode, DbType.String);
+                    parameters.Add("City", finishedProdOrderLine.City, DbType.String);
+                    parameters.Add("LocationCode", finishedProdOrderLine.LocationCode, DbType.String);
+                    parameters.Add("County", finishedProdOrderLine.County, DbType.String);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    parameters.Add("CurrencyCode", finishedProdOrderLine.CurrencyCode, DbType.String);
+                    parameters.Add("CountryRegionCode", finishedProdOrderLine.CountryRegionCode, DbType.String);
+                    parameters.Add("Contact", finishedProdOrderLine.Contact, DbType.String);
+                    parameters.Add("SalespersonCode", finishedProdOrderLine.SalespersonCode, DbType.String);
+                    parameters.Add("CustomerPostingGroup", finishedProdOrderLine.CustomerPostingGroup, DbType.String);
+                    parameters.Add("GenBusPostingGroup", finishedProdOrderLine.GenBusPostingGroup, DbType.String);
+                    parameters.Add("LastSyncDate", DateTime.Now, DbType.DateTime);
+                    var lastInsertedRecordId = finishedProdOrderLine.CustomerId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  Navcustomer SET LastSyncDate=@LastSyncDate,GenBusPostingGroup=@GenBusPostingGroup,CustomerPostingGroup=@CustomerPostingGroup,SalespersonCode=@SalespersonCode,Contact=@Contact,CountryRegionCode=@CountryRegionCode, CurrencyCode=@CurrencyCode,Code=@Code,Name=@Name,Address=@Address,Address2=@Address2,PostCode=@PostCode,City=@City," +
+                            "LocationCode=@LocationCode,County=@County,CompanyId=@CompanyId  WHERE CustomerId =@CustomerId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [Navcustomer](LastSyncDate,GenBusPostingGroup,CustomerPostingGroup,SalespersonCode,Contact,CountryRegionCode,CurrencyCode,Code,Name,Address,Address2,PostCode,City,LocationCode,County,CompanyId) " +
+                            "OUTPUT INSERTED.CustomerId VALUES " +
+                            "(@LastSyncDate,@GenBusPostingGroup,@CustomerPostingGroup,@SalespersonCode,@Contact,@CountryRegionCode,@CurrencyCode,@Code,@Name,@Address,@Address2,@PostCode,@City,@LocationCode,@County,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return lastInsertedRecordId;
+
+                }
+
             }
             catch (Exception exp)
             {
@@ -1221,18 +1345,19 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("StateCode", finishedProdOrderLine.StateCode, DbType.String);
                     parameters.Add("Type", finishedProdOrderLine.Type, DbType.String);
                     parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    parameters.Add("Channel", finishedProdOrderLine.Channel,DbType.String);
                     var lastInsertedRecordId = finishedProdOrderLine.SoCustomerId;
                     if (lastInsertedRecordId > 0)
                     {
-                        var query1 = "Update  SoCustomer SET ShipCode=@ShipCode,CustomerName=@CustomerName,Address1=@Address1,Address2=@Address2,PostCode=@PostCode,City=@City," +
+                        var query1 = "Update  SoCustomer SET Channel=@Channel,ShipCode=@ShipCode,CustomerName=@CustomerName,Address1=@Address1,Address2=@Address2,PostCode=@PostCode,City=@City," +
                             "StateCode=@StateCode,Type=@Type,CompanyId=@CompanyId  WHERE SoCustomerId =@SoCustomerId;";
                         var rowsAffected = await connection.ExecuteAsync(query1, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO [SoCustomer](ShipCode,CustomerName,Address1,Address2,PostCode,City,StateCode,Type,CompanyId) " +
+                        var query = "INSERT INTO [SoCustomer](Channel,ShipCode,CustomerName,Address1,Address2,PostCode,City,StateCode,Type,CompanyId) " +
                             "OUTPUT INSERTED.SoCustomerId VALUES " +
-                            "(@ShipCode,@CustomerName,@Address1,@Address2,@PostCode,@City,@StateCode,@Type,@CompanyId)";
+                            "(@Channel,@ShipCode,@CustomerName,@Address1,@Address2,@PostCode,@City,@StateCode,@Type,@CompanyId)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;
@@ -1552,7 +1677,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<NavPackingMethodModel>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<NavPackingMethodModel>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

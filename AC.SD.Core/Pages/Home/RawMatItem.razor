@@ -280,6 +280,46 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormNavCustomer" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm id="@NavCustomerId" @ref="NavCustomerForm" EditContext="this._editNavCustomerContext" OnValidSubmit="@HandleNavCustomerValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="NavCustomer-Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@navCustomerFromModel.CompanyId" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => navCustomerFromModel.CompanyId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </div>
+</EditForm>
+
+
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormRawMatPurch" />
                     </Items>
                 </DxMenu>
@@ -391,7 +431,7 @@
     </div>
 </EditForm>
 @code {
-    internal string NavVendorId = "myForm";
+    internal string NavVendorId = "myForm"; internal string NavCustomerId = "myForm"; internal EditForm? NavCustomerForm;
     internal string ReleaseProdOrderLineFormID = "ReleaseProdOrderLineFormID"; internal EditForm? ReleaseProdOrderLineForm; internal EditForm? AllProdOrderLineForm;
     internal string AllProdOrderLineFormID = "AllProdOrderLineFormID"; internal EditForm? NavVendorForm; internal EditForm? RawMatPurchForm; internal string RawMatPurchFormID = "RawMatPurchFormID";
     internal string MyID = "myForm"; internal string MyItemID = "MyItemID"; internal string NavprodOrderLineId = "NavprodOrderLineForm";
@@ -401,7 +441,7 @@
     internal EditForm? myItemForm;
     private List<ViewPlants>? _plantItems;
     public ApplicationUser applicationUser { get; private set; }
-    EditContext? _editContext; EditContext? _editNavVendorContext; EditContext? _editRawMatPurchContext;
+    EditContext? _editContext; EditContext? _editNavVendorContext; EditContext? _editRawMatPurchContext; EditContext? _editNavCustomerContext;
     EditContext? _editItemBatchContext; EditContext? _editNavprodOrderLineContext;
     EditContext? _editItemContext; EditContext? _editFinishedProdOrderLineContext; EditContext? _editReleaseProdOrderLineContext; EditContext? _editAllProdOrderLineContext;
     IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
@@ -414,7 +454,7 @@
     string? NavCompanyName { get; set; }
     string? NavItemBatchCompanyName { get; set; }
     DataItemModel? DataItem = new DataItemModel(); 
-    NavVendorFromModel navVendorFromModel = new NavVendorFromModel();
+    NavVendorFromModel navVendorFromModel = new NavVendorFromModel(); NavCustomerFromModel navCustomerFromModel = new NavCustomerFromModel();
     ReleaseProdOrderLineModelData ReleaseProdOrderLineModel = new ReleaseProdOrderLineModelData();
     AllProdOrderLineData AllProdOrderLineModelData = new AllProdOrderLineData();
     public class Model
@@ -449,6 +489,11 @@
         [Required(ErrorMessage = "Company Name is required")]
         public long? CompanyId { get; set; }
     }
+    public class NavCustomerFromModel
+    {
+        [Required(ErrorMessage = "Company Name is required")]
+        public long? CompanyId { get; set; }
+    }
     public class RawMatPurchModel
     {
         [Required(ErrorMessage = "Company Name is required")]
@@ -468,6 +513,7 @@
     {
         _editContext = new EditContext(Data); 
         _editNavVendorContext = new EditContext(navVendorFromModel); 
+        _editNavCustomerContext = new EditContext(navCustomerFromModel);
         _editRawMatPurchContext = new EditContext(RawMatPurchModelData);
         _editItemContext = new EditContext(DataItem); 
         _editNavprodOrderLineContext = new EditContext(navprodOrderLine); 
@@ -575,6 +621,20 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new InsertOrUpdateNavVendor(navVendorFromModel.CompanyId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task SubmitFormNavCustomer()
+    {
+        if (_editNavCustomerContext.Validate())
+        {
+
+            await this.HandleNavCustomerValidSubmit();
+        }
+    }
+    async Task HandleNavCustomerValidSubmit()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var result = await Mediator.Send(new InsertOrUpdateNavCustomer(navCustomerFromModel.CompanyId));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     private async Task SubmitFormRawMatPurch()

@@ -1023,6 +1023,7 @@ namespace Infrastructure.Repository.Query
                     dynamicFormSectionAttributeSecurity = results.Read<DynamicFormSectionAttributeSecurity>().ToList();
                     applicationMasters = results.Read<ApplicationMaster>().ToList();
                     applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
+
                     dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
                     DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
@@ -1130,7 +1131,7 @@ namespace Infrastructure.Repository.Query
                             }
                         }
                     }
-                     AttributeDetailsAdds attributeGroupResultDetails = new AttributeDetailsAdds();
+                    AttributeDetailsAdds attributeGroupResultDetails = new AttributeDetailsAdds();
                     if (AttributeGroupCheckBoxIds != null && AttributeGroupCheckBoxIds.Count > 0)
                     {
                         var AttributeGroupCheckBoxIdList = attributeHeaderListModel.AttributeGroupCheckBoxes.Where(q => AttributeGroupCheckBoxIds.Contains(q.AttributeId) && q.IsTextBox == true).Select(k => k.AttributeGroupCheckBoxId).Distinct().ToList();

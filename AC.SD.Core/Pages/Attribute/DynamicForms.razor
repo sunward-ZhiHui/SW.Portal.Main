@@ -62,7 +62,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                                                    border-collapse: collapse;*/
+                                                                                                                                                                                                                                    border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -425,11 +425,11 @@
                                     {
                                         if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                                         {
-                                           
-                                                <div style="margin-left:auto;">
-                                                    <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick())"></i>
-                                                </div>
-                                            
+
+                                            <div style="margin-left:auto;">
+                                                <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick())"></i>
+                                            </div>
+
                                         }
                                     }
                                 </HeaderContentTemplate>
@@ -1066,18 +1066,135 @@
          CloseOnOutsideClick="false"
          CloseOnEscape="false"
          Closed="EulaPopupLockClosed"
-         Width="300px">
+         Width="1500px">
     <BodyContentTemplate>
         <p>
             Do you want to start the flow?
         </p>
+        <DxGrid Data="@_dynamicFormWorkFlowSectionNoWorkFlowSection"
+                KeyFieldName="DynamicFormWorkFlowFormId"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSize="20"
+                style="height: calc(100vh - 720px);"
+                CssClass="w-100"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                CustomizeElement="Grid_CustomizeElement"
+                FocusedRowChanged="OnRowApprovalClick1"
+                AutoExpandAllGroupRows="true"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                VirtualScrollingEnabled="true">
+            <Columns>
+                <DxGridCommandColumn MinWidth="100" Context="Context1">
+                    <HeaderTemplate>
+                        <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
+                    </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DynamicFormWorkFlowSection)Context1.DataItem;
+                            <DxCheckBox @bind-Checked="item.Checked"></DxCheckBox>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridCommandColumn>
+                <DxGridDataColumn FieldName="IsAnomalyStatus" Caption="Is Anonymous" MinWidth="30" />
+                <DxGridDataColumn FieldName="IsMultipleUser" Caption="Is Multiple User" MinWidth="30" />
+
+                <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
+                <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Update Delegate" MinWidth="30" />
+                <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
+                <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
+                <DxGridDataColumn FieldName="ActualUserName" Caption="Assigned User" Context="Context2">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DynamicFormWorkFlowSection)Context2.DataItem;
+                            if (item.IsAnomalyStatus == true)
+                            {
+                                // Optionally handle anomaly case if needed.
+                                <span style="color:blue;">Anomaly</span>
+                            }
+                            else if (item.IsMultipleUser == false)
+                            {
+                                if (item.UserId > 0)
+                                {
+                                    <span>@item.ActualUserName</span>
+                                }
+                                else
+                                {
+                                    <span style="color:red;">User Not Assigned</span>
+                                }
+                            }
+                            else if (item.IsMultipleUser == true)
+                            {
+                                if (item.DynamicFormWorkFlowMultipleUsers == null || item.DynamicFormWorkFlowMultipleUsers.Count == 0)
+                                {
+                                    <span style="color:red;">Users Not Assigned</span>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-users" aria-hidden="true" id=@($"flyout-overview-target-container-RenameFilenames-{item.DynamicFormWorkFlowId}")
+                                       style="cursor:pointer;padding:5px;margin-right:5px;color:black" @onclick="@(() => openFormGridLists(item))">
+                                    </i>
+                                }
+                            }
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="DelegateSectionUserName" Caption="Delegate User" />
+                <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
+                <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
+                <DxGridDataColumn FieldName="CurrentApprovalUserName" Caption="Current Approver" />
+            </Columns>
+        </DxGrid>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="SubmitFormExternallyWorkFlowSubmitNo" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => SubmitFormExternallyWorkFlowSubmitYes())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsRenameOpens
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilenames-{_selectedDynamicFormWorkFlowItems?.DynamicFormWorkFlowId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Users"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxGrid Data="@DynamicFormWorkFlowMultipleUsers" ShowGroupPanel="true"
+                ShowGroupedColumns="true"
+                ShowSearchBox="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                KeyFieldName="DynamicFormWorkFlowMultipleUserId"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="10"
+                CssClass="ch-360"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" TextWrapEnabled="false">
+            <Columns>
+                <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="80" />
+                <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+                <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="100" />
+            </Columns>
+        </DxGrid>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsRenameOpens = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    bool IsRenameOpens { get; set; } = false; public DynamicFormWorkFlowSection _selectedDynamicFormWorkFlowItems { get; set; }
+    public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
+    bool CheckedAll { get; set; } = false;
     bool dynamicFormSectionAttrFormulaEnabled { get; set; } = false;
     DynamicFormSectionAttrFormulaFunction dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction();
     bool imageUploadPopup { get; set; } = false;
@@ -1162,7 +1279,7 @@
     public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
     public string? isButtonClick { get; set; }
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSection;
-    private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlow;
+    private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlow; private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSection; private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSectionItems;
     private List<int?> _sequenceNoList = new List<int?>();
     bool isWorkflowEnabled { get; set; } = false; bool WithWorkFlowStartPopup { get; set; } = false;
     string? randomNum { get; set; }
@@ -1208,6 +1325,26 @@
         }
         AddMenuEnabled();
     }
+    void OnRowApprovalClick1(GridFocusedRowChangedEventArgs args)
+    {
+        _selectedDynamicFormWorkFlowItems = (DynamicFormWorkFlowSection)args.DataItem;
+    }
+    void OnCheckedAllValueChanged(bool radioValue)
+    {
+        CheckedAll = radioValue;
+        if (_dynamicFormWorkFlowSectionNoWorkFlowSection != null && _dynamicFormWorkFlowSectionNoWorkFlowSection.Count() > 0)
+        {
+            _dynamicFormWorkFlowSectionNoWorkFlowSection.ForEach(s =>
+            {
+                s.Checked = radioValue;
+            });
+        }
+    }
+    void openFormGridLists(DynamicFormWorkFlowSection dynamicFormWorkFlow)
+    {
+        IsRenameOpens = true;
+        DynamicFormWorkFlowMultipleUsers = dynamicFormWorkFlow.DynamicFormWorkFlowMultipleUsers;
+    }
     void onClickWorkFlowApprove()
     {
         dynamicFormWorkFlowApprovedForm.DynamicFormWorkFlowApprovedFormID = _dynamicFormWorkFlowApprovedFormOne.DynamicFormWorkFlowApprovedFormID;
@@ -1217,6 +1354,13 @@
         ApproveRejectWokFlowName = "Approve";
         IsWokFlowDescriptionOpen = true;
         IsDescriptionOpen = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
     }
     void onClickWorkFlowReject()
     {
@@ -1467,7 +1611,7 @@
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
         _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = Application.Common.Helper.Helper.FormatDateTime(DateTime.Now); _dynamicFormWorkFlowApprovedFormList = new List<DynamicFormWorkFlowApprovedForm>();
         _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>(); _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
-        _attributeFilterDetailsList = new List<AttributeFilterDetails>();
+        _attributeFilterDetailsList = new List<AttributeFilterDetails>(); _dynamicFormWorkFlowSectionNoWorkFlowSectionItems = new List<DynamicFormWorkFlowSection>();
         if (_userEmployee != null)
         {
             _longInCompany = _userEmployee.CompanyName;
@@ -1603,31 +1747,35 @@
                                             {
                                                 notdata.ForEach(n =>
                                                 {
-                                                    bool shoulEnable=false;
-                                                    if (n.IsMultipleUser == true  && n.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    if (n.FlowStatusID == 0)
                                                     {
-                                                        shoulEnable = true;
+                                                        _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
                                                     }
-                                                    else
-                                                    {
-                                                        if (n.UserId == applicationUser.UserID)
-                                                        {
-                                                            shoulEnable = true;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (n.IsAnomalyStatus == true)
-                                                            {
-                                                                shoulEnable = true;
-                                                            }
-                                                        }
-                                                    }
-                                                    if(shoulEnable==true)
-                                                    {
-                                                     _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
-                                                    }
+                                                    // bool shoulEnable = false;
+                                                    // if (n.IsMultipleUser == true && n.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    // {
+                                                    //     shoulEnable = true;
+                                                    // }
+                                                    // else
+                                                    // {
+                                                    //     if (n.UserId == applicationUser.UserID)
+                                                    //     {
+                                                    //         shoulEnable = true;
+                                                    //     }
+                                                    //     else
+                                                    //     {
+                                                    //         if (n.IsAnomalyStatus == true)
+                                                    //         {
+                                                    //             shoulEnable = true;
+                                                    //         }
+                                                    //     }
+                                                    // }
+                                                    // if (shoulEnable == true)
+                                                    // {
+                                                    //     _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
+                                                    // }
                                                 });
-                                               
+
 
                                             }
                                         }
@@ -1677,7 +1825,7 @@
                                     {
                                         bool shouldEnableWorkflow = false;
                                         var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0);
-                                        if (exitss!=null && exitss?.IsMultipleUser == true && exitss?.IsWorkFlowDone==0 && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                        if (exitss != null && exitss?.IsMultipleUser == true && exitss?.IsWorkFlowDone == 0 && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
                                         {
                                             shouldEnableWorkflow = true;
                                         }
@@ -1811,26 +1959,26 @@
                                             {
                                                 notdata.ForEach(n =>
                                                 {
-                                                    bool shoulEnabled=false;
-                                                    if (n.IsMultipleUser == true && n.DynamicFormWorkFlowMultipleUsers!=null && n.DynamicFormWorkFlowMultipleUsers.Any(q => q.UserId == applicationUser.UserID) == true)
+                                                    bool shoulEnabled = false;
+                                                    if (n.IsMultipleUser == true && n.DynamicFormWorkFlowMultipleUsers != null && n.DynamicFormWorkFlowMultipleUsers.Any(q => q.UserId == applicationUser.UserID) == true)
                                                     {
-                                                        shoulEnabled=true;
+                                                        shoulEnabled = true;
                                                     }
                                                     else
                                                     {
                                                         if (n.UserId == applicationUser.UserID)
                                                         {
-                                                            shoulEnabled=true;
+                                                            shoulEnabled = true;
                                                         }
                                                         else
                                                         {
                                                             if (n.IsAnomalyStatus == true)
                                                             {
-                                                                shoulEnabled=true;
+                                                                shoulEnabled = true;
                                                             }
                                                         }
                                                     }
-                                                    if(shoulEnabled)
+                                                    if (shoulEnabled)
                                                     {
                                                         DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
                                                         dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
@@ -1841,7 +1989,12 @@
                                                         dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
                                                         dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
                                                         dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                        dynamicFormWorkFlowSectionDatas.SequenceNo = n.SequenceNo;
+                                                        dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowFormId = n.DynamicFormWorkFlowId;
                                                         dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                        dynamicFormWorkFlowSectionDatas.CurrentApprovalUserName = n.CurrentApprovalUserName;
+                                                        dynamicFormWorkFlowSectionDatas.IsDynamicFormWorkFlowApproval = n.IsDynamicFormWorkFlowApproval;
+                                                        dynamicFormWorkFlowSectionDatas.ApprovedStatus = n.ApprovedStatus;
                                                         _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
                                                     }
 
@@ -1865,7 +2018,12 @@
                                                     dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
                                                     dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
                                                     dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                    dynamicFormWorkFlowSectionDatas.SequenceNo = n.SequenceNo;
                                                     dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowFormId = n.DynamicFormWorkFlowId;
+                                                    dynamicFormWorkFlowSectionDatas.CurrentApprovalUserName = n.CurrentApprovalUserName;
+                                                    dynamicFormWorkFlowSectionDatas.IsDynamicFormWorkFlowApproval = n.IsDynamicFormWorkFlowApproval;
+                                                    dynamicFormWorkFlowSectionDatas.ApprovedStatus = n.ApprovedStatus;
                                                     _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
 
                                                 });
@@ -1893,7 +2051,12 @@
                                                     dynamicFormWorkFlowSectionDatas.IsParallelWorkflow = n.IsParallelWorkflow;
                                                     dynamicFormWorkFlowSectionDatas.IsAllowDelegateUser = n.IsAllowDelegateUser;
                                                     dynamicFormWorkFlowSectionDatas.IsWorkFlowDone = 0;
+                                                    dynamicFormWorkFlowSectionDatas.SequenceNo = n.SequenceNo;
                                                     dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowMultipleUsers = n.DynamicFormWorkFlowMultipleUsers;
+                                                    dynamicFormWorkFlowSectionDatas.DynamicFormWorkFlowFormId = n.DynamicFormWorkFlowId;
+                                                    dynamicFormWorkFlowSectionDatas.CurrentApprovalUserName = n.CurrentApprovalUserName;
+                                                    dynamicFormWorkFlowSectionDatas.IsDynamicFormWorkFlowApproval = n.IsDynamicFormWorkFlowApproval;
+                                                    dynamicFormWorkFlowSectionDatas.ApprovedStatus = n.ApprovedStatus;
                                                     _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
 
                                                 });
@@ -1906,7 +2069,7 @@
                         }
                         if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
                         {
-                            isSaveEnabled = true;
+                            isSaveEnabled = true; isWorkflowEnabled = true;
                             if (_dynamicformData != null)
                             {
                                 IsUploadEnabled = true;
@@ -1964,6 +2127,43 @@
                         //         isWorkflowEnabled = true;
                         //     }
                         // }
+                        List<DynamicFormWorkFlowSection> _dynamicFormWorkFlowSectionNoWorkFlowSections = new List<DynamicFormWorkFlowSection>();
+                        if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
+                        {
+                            _dynamicFormWorkFlowSectionNoWorkFlowSections = new List<DynamicFormWorkFlowSection>();
+                            _dynamicFormWorkFlowSectionNoWorkFlow.ForEach(item =>
+                            {
+                                bool shouldEnableWorkflow = false;
+                                if (item.IsWorkFlowDone == 0)
+                                {
+                                    if (item?.IsMultipleUser == true && item?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                    {
+                                        shouldEnableWorkflow = true;
+                                    }
+                                    else
+                                    {
+                                        if (item.UserId == applicationUser.UserID)
+                                        {
+                                            shouldEnableWorkflow = true;
+                                        }
+                                        else
+                                        {
+                                            if (item.IsAnomalyStatus == true)
+                                            {
+                                                shouldEnableWorkflow = true;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (shouldEnableWorkflow)
+                                {
+                                    _dynamicFormWorkFlowSectionNoWorkFlowSections.Add(item);
+                                }
+
+                            });
+                        }
+                        _dynamicFormWorkFlowSectionNoWorkFlowSectionItems.AddRange(_dynamicFormWorkFlowSectionNoWorkFlowSections);
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
                         _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true, true, false));
                         _DynamicFormSectionIds = _AttributeHeader.DynamicFormSectionAttributeSections.Select(s => s.DynamicFormSectionId).Distinct().ToList();
@@ -3721,7 +3921,33 @@
     {
         if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
         {
-            WithWorkFlowStartPopup = true;
+            if (_editContext.Validate() && _editContexts.Validate())
+            {
+                var _dynamicFormWorkFlowFormListItems = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform?.ID, _dynamicformData?.DynamicFormDataId));
+                _dynamicFormWorkFlowFormListItems = _dynamicFormWorkFlowFormListItems != null ? _dynamicFormWorkFlowFormListItems : new List<DynamicFormWorkFlowForm>();
+                _dynamicFormWorkFlowSectionNoWorkFlowSection = new List<DynamicFormWorkFlowSection>();
+                if (_dynamicFormWorkFlowSectionNoWorkFlowSectionItems != null && _dynamicFormWorkFlowSectionNoWorkFlowSectionItems.Count() > 0)
+                {
+                    var seQlist = _dynamicFormWorkFlowSectionNoWorkFlowSectionItems.Select(s => s.SequenceNo).Distinct().ToList();
+                    if (seQlist != null && seQlist.Count() > 0)
+                    {
+
+                        seQlist.ForEach(q =>
+                        {
+                            var seNo = _dynamicFormWorkFlowFormListItems.Where(w => w.SequenceNo == q).FirstOrDefault();
+                            var name = _dynamicFormWorkFlowSectionNoWorkFlowSectionItems.Where(w => w.SequenceNo == q).Select(a => a.SectionName).ToList();
+                            var n1 = _dynamicFormWorkFlowSectionNoWorkFlowSectionItems.Where(w => w.SequenceNo == q).FirstOrDefault();
+                            n1.CurrentApprovalUserName = seNo?.CurrentApprovalUserName;
+                            n1.ApprovedStatus = seNo?.ApprovedStatus;
+                            n1.IsDynamicFormWorkFlowApproval = seNo?.DynamicFormWorkFlowFormTotalCount > 0 ? true : false;
+                            n1.SectionName = string.Join(',', name);
+                            _dynamicFormWorkFlowSectionNoWorkFlowSection.Add(n1);
+                        });
+                    }
+                    WithWorkFlowStartPopup = true;
+                    StateHasChanged();
+                }
+            }
         }
         else
         {
@@ -3735,9 +3961,22 @@
     }
     async Task SubmitFormExternallyWorkFlowSubmitYes()
     {
-        await SubmitFormExternally();
-        await Task.Delay(2000);
-        await addWorlflowAdd();
+
+        if (_dynamicFormWorkFlowSectionNoWorkFlowSection != null && _dynamicFormWorkFlowSectionNoWorkFlowSection.Count() > 0)
+        {
+            var isChecked = _dynamicFormWorkFlowSectionNoWorkFlowSection.Where(w => w.Checked == true).ToList();
+
+            if (isChecked.Count() > 0)
+            {
+                await SubmitFormExternally();
+                await Task.Delay(2000);
+                await addWorlflowAdd();
+            }
+            else
+            {
+                toastService.ShowToast("Workflow Seqno must select", AC.SD.Core.Services.ToastLevel.Warning);
+            }
+        }
     }
     private async Task SubmitFormExternally()
     {
@@ -4283,67 +4522,79 @@
         if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0 && _dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
         {
             bool exitsEnabled = false;
-            foreach (var item in _dynamicFormWorkFlowSectionNoWorkFlow)
+            if (_dynamicFormWorkFlowSectionNoWorkFlowSection != null && _dynamicFormWorkFlowSectionNoWorkFlowSection.Count() > 0)
             {
-                List<DynamicFormWorkFlowSection> ItemData = new List<DynamicFormWorkFlowSection>();
-                ItemData.Add(item);
-                bool shouldEnableWorkflow = false;
-                if (item.IsParallelWorkflow == true)
+                var isChecked = _dynamicFormWorkFlowSectionNoWorkFlowSection.Where(w => w.Checked == true).ToList();
+
+                if (isChecked.Count() > 0)
                 {
-                    shouldEnableWorkflow = true;
-                }
-                else
-                {
-                    var exitss = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0);
-                    if (exitss?.IsMultipleUser == true && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                    foreach (var item in _dynamicFormWorkFlowSectionNoWorkFlow)
                     {
-                        shouldEnableWorkflow = true;
-                    }
-                    else
-                    {
-                        var exitsUser = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                        if (exitsUser != null)
+                        var exitsItems = isChecked.Where(w => w.SequenceNo == item.SequenceNo).FirstOrDefault();
+                        if (exitsItems != null)
                         {
-                            shouldEnableWorkflow = true;
-                        }
-                        else
-                        {
-                            var isAnomalous = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
-                            if (isAnomalous != null)
+                            List<DynamicFormWorkFlowSection> ItemData = new List<DynamicFormWorkFlowSection>();
+                            ItemData.Add(item);
+                            bool shouldEnableWorkflow = false;
+                            if (item.IsParallelWorkflow == true)
                             {
                                 shouldEnableWorkflow = true;
                             }
+                            else
+                            {
+                                var exitss = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0);
+                                if (exitss?.IsMultipleUser == true && exitss?.DynamicFormWorkFlowMultipleUsers?.Any(q => q.UserId == applicationUser.UserID) == true)
+                                {
+                                    shouldEnableWorkflow = true;
+                                }
+                                else
+                                {
+                                    var exitsUser = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                    if (exitsUser != null)
+                                    {
+                                        shouldEnableWorkflow = true;
+                                    }
+                                    else
+                                    {
+                                        var isAnomalous = ItemData.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.IsAnomalyStatus == true);
+                                        if (isAnomalous != null)
+                                        {
+                                            shouldEnableWorkflow = true;
+                                        }
+                                    }
+                                }
+                            }
+                            if (shouldEnableWorkflow)
+                            {
+                                var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(item.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
+                                if (resultData == null)
+                                {
+
+                                    var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(ItemData, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+                                    if (response != null)
+                                    {
+                                        exitsEnabled = true;
+                                    }
+                                }
+                                else
+                                {
+                                    toastService.ShowToast(item.SequenceNo + "-Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                                }
+                            }
                         }
                     }
-                }
-                if (shouldEnableWorkflow)
-                {
-                    var resultData = await Mediator.Send(new GetDynamicFormWorkFlowFormExits(item.DynamicFormWorkFlowSectionId, applicationUser.UserID, dynamicFormData.DynamicFormDataId));
-                    if (resultData == null)
-                    {
 
-                        var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(ItemData, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
-                        if (response != null)
-                        {
-                            exitsEnabled = true;
-                        }
-                    }
-                    else
+                    if (exitsEnabled == true)
                     {
-                        toastService.ShowToast(item.SequenceNo + "-Workflow Already Completed", AC.SD.Core.Services.ToastLevel.Error);
+                        wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
+                        isVisibleButton = false;
+                        IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
+                        toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadDynamicForm();
+                        StateHasChanged();
+
                     }
                 }
-            }
-
-            if (exitsEnabled == true)
-            {
-                wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
-                isVisibleButton = false;
-                IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
-                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await loadDynamicForm();
-                StateHasChanged();
-
             }
         }
         else
@@ -4713,6 +4964,7 @@
                     var imgBase64Str = Convert.ToBase64String(imageArray);
                     DynamicFormDataAttrUpload dynamicFormDataAttrUpload = new DynamicFormDataAttrUpload();
                     dynamicFormDataAttrUpload.DynamicFormSectionAttributeId = dynamicFormSectionAttribute.DynamicFormSectionAttributeId;
+                    dynamicFormDataAttrUpload.DynamicFormSectionAttributeSessionId = dynamicFormSectionAttribute.SessionId;
                     dynamicFormDataAttrUpload.SessionId = new Guid(file.Guid);
                     dynamicFormDataAttrUpload.ImageType = file.Type;
                     dynamicFormDataAttrUpload.FileName = file.Name;
@@ -5811,10 +6063,10 @@
             }
             else
             {
-                if (isWorkSection.IsParallelWorkflow == true)
-                {
-                    b.AddAttribute(i + 1, "style", "color:red;");
-                }
+                // if (isWorkSection.IsParallelWorkflow == true)
+                // {
+                //     b.AddAttribute(i + 1, "style", "color:red;");
+                // }
                 if (isWorkSection.UserId == applicationUser.UserID)
                 {
                     b.AddAttribute(i + 1, "style", "color:red;");
@@ -5846,7 +6098,7 @@
                     b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick()));
                     b.AddAttribute(i + 1, "aria-hidden", true);
                     b.CloseElement();
-                    
+
                 }
             }
             if (!string.IsNullOrEmpty(a.Instruction))
@@ -6802,13 +7054,16 @@
                                  layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                                  layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                                  layoutItemBuilders.CloseComponent();
-                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                 layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                 layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                 layoutItemBuilders.CloseComponent();
+                                 if (s.DataSourceTable != "SOP")
+                                 {
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                                     layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                                     layoutItemBuilders.CloseComponent();
+                                 }
                                  if (s.DropDownTypeId == "Data Source")
                                  {
-                                     if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                     if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                      {
                                      }
                                      else
@@ -6845,6 +7100,29 @@
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                                      layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                                     layoutItemBuilders.CloseComponent();
+                                 }
+                                 if (s.DataSourceTable == "SOP")
+                                 {
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                                     layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                                     layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                                     layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                                     layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                                     layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                                      layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "Employee")
@@ -7158,13 +7436,16 @@
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                                     layoutItemBuilders.CloseComponent();
-                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                    layoutItemBuilders.CloseComponent();
+                                    if (s.DataSourceTable != "SOP")
+                                    {
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                                        layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                                        layoutItemBuilders.CloseComponent();
+                                    }
                                     if (s.DropDownTypeId == "Data Source")
                                     {
-                                        if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                        if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                         {
                                         }
                                         else
@@ -7201,6 +7482,29 @@
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                                        layoutItemBuilders.CloseComponent();
+                                    }
+                                    if (s.DataSourceTable == "SOP")
+                                    {
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                                        layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                                        layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                        layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                                        layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                        layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                                        layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                        layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                                        layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                                         layoutItemBuilders.CloseComponent();
                                     }
                                     if (s.DataSourceTable == "Employee")
@@ -7416,13 +7720,16 @@
                         layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                         layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                         layoutItemBuilders.CloseComponent();
-                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                        layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                        if (s.DataSourceTable != "SOP")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                        }
                         layoutItemBuilders.CloseComponent();
                         if (s.DropDownTypeId == "Data Source")
                         {
-                            if (s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else
@@ -7459,6 +7766,29 @@
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                             layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "SOP")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                            layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                            layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                            layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                             layoutItemBuilders.CloseComponent();
                         }
                         if (s.DataSourceTable == "Employee")
@@ -7705,13 +8035,16 @@
                                layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
                                layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
                                layoutItemBuilders1.CloseComponent();
-                               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                               layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
-                               layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
-                               layoutItemBuilders1.CloseComponent();
+                               if (ff.DataSourceTable != "SOP")
+                               {
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
+                                   layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
+                                   layoutItemBuilders1.CloseComponent();
+                               }
                                if (s.DropDownTypeId == "Data Source")
                                {
-                                   if (ff.DataSourceTable == "AllProdOrderLine" || ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                   if (ff.DataSourceTable == "SOP" || ff.DataSourceTable == "AllProdOrderLine" || ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                    {
                                    }
                                    else
@@ -7748,6 +8081,29 @@
                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                    layoutItemBuilders1.AddAttribute(6, "FieldName", "AreaName");
                                    layoutItemBuilders1.AddAttribute(6, "Caption", "Area");
+                                   layoutItemBuilders1.CloseComponent();
+                               }
+                               if (ff.DataSourceTable == "SOP")
+                               {
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(7, "FieldName", "ProfileNo");
+                                   layoutItemBuilders1.AddAttribute(7, "Caption", "Profile No");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(8, "FieldName", "Description");
+                                   layoutItemBuilders1.AddAttribute(8, "Caption", "Description");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                                   layoutItemBuilders1.AddAttribute(9, "FieldName", "VersionNo");
+                                   layoutItemBuilders1.AddAttribute(9, "Caption", "VersionNo");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                                   layoutItemBuilders1.AddAttribute(10, "FieldName", "EffectiveDate");
+                                   layoutItemBuilders1.AddAttribute(10, "Caption", "Effective Date");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                                   layoutItemBuilders1.AddAttribute(11, "FieldName", "ReviewDate");
+                                   layoutItemBuilders1.AddAttribute(11, "Caption", "Review Date");
                                    layoutItemBuilders1.CloseComponent();
                                }
                                if (ff.DataSourceTable == "Employee")
@@ -8551,13 +8907,16 @@
                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                     layoutItemBuilders.CloseComponent();
-                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                    layoutItemBuilders.CloseComponent();
+                    if (q.DataSourceTable != "SOP")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders.CloseComponent();
+                    }
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -8594,6 +8953,29 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SOP")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                        layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                        layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                        layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "Employee")
@@ -8885,13 +9267,16 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                layoutItemBuilders.CloseComponent();
+                if (q.DataSourceTable != "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -8928,6 +9313,29 @@
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                     layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                    layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                    layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Employee")
@@ -9094,13 +9502,16 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                layoutItemBuilders.CloseComponent();
+                if (q.DataSourceTable != "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -9137,6 +9548,29 @@
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                     layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                    layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                    layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Employee")
@@ -12797,13 +13231,16 @@
                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                     layoutItemBuilders.CloseComponent();
-                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                    layoutItemBuilders.CloseComponent();
+                    if (q.DataSourceTable != "SOP")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders.CloseComponent();
+                    }
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -12840,6 +13277,29 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SOP")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                        layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                        layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                        layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "Employee")
@@ -13131,13 +13591,16 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                layoutItemBuilders.CloseComponent();
+                if (q.DataSourceTable != "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -13174,6 +13637,29 @@
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                     layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                    layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                    layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Employee")
@@ -13340,13 +13826,16 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                layoutItemBuilders.CloseComponent();
+                if (q.DataSourceTable != "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -13383,6 +13872,29 @@
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                     layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "SOP")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(7, "FieldName", "ProfileNo");
+                    layoutItemBuilders.AddAttribute(7, "Caption", "Profile No");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                    layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(9, "FieldName", "VersionNo");
+                    layoutItemBuilders.AddAttribute(9, "Caption", "VersionNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(10, "FieldName", "EffectiveDate");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Effective Date");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Employee")
@@ -13525,103 +14037,6 @@
                 }
             });
     }
-    //RenderFragment RenderComplaintItem(AttributeGroupCheckBox item, DynamicFormSectionAttribute a,int indent, bool? isVisible = true) => builder =>
-
-    // void loadGroupCheckBox(DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j)
-    // {
-    //     var attrParent = attributeGroupCheckBoxes.Where(w => w.ParentId == null).ToList();
-    //     int index = 1;
-    //     attrParent.ForEach(s =>
-    //     {
-    //         string numbering = index.ToString();
-    //         string key = s.AttributeGroupCheckBoxId.ToString();
-
-    //         if (!ExpandStates.ContainsKey(key))
-    //             ExpandStates[key] = true; default expanded
-
-    //         var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{s.AttributeGroupCheckBoxId}_GroupCheckBox";
-    //         var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
-    //         if (propertyCheck != null)
-    //         {
-    //             int p = 20;
-    //             var valueDataAppMaster = propertyCheck.GetValue(Data);
-    //             var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
-    //             var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
-
-    //             editor.OpenElement(j + 1, "div");
-    //             editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
-
-    //             Checkbox
-    //             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-    //             editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
-    //             editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
-    //             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
-    //             editor.CloseComponent();
-
-    //             Label with toggle click
-    //             editor.OpenElement(j + 1, "label");
-    //             editor.AddAttribute(j + 1, "style", "cursor:pointer;");
-    //             editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
-    //             editor.AddContent(j + 1, $"{numbering}. {s.Value}");
-    //             editor.CloseElement();
-
-    //             editor.CloseElement();
-
-    //             if (ExpandStates[key])
-    //                 loadGroupCheckBoxNested(s, a, attributeGroupCheckBoxes, editor, j, p, numbering);
-    //         }
-
-    //         index++;
-    //     });
-    // }
-
-    // void loadGroupCheckBoxNested(AttributeGroupCheckBox parent, DynamicFormSectionAttribute a, List<AttributeGroupCheckBox> attributeGroupCheckBoxes, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder editor, int j, int p, string parentNumbering)
-    // {
-    //     var children = attributeGroupCheckBoxes.Where(w => w.ParentId == parent.AttributeGroupCheckBoxId).ToList();
-    //     int childIndex = 1;
-
-    //     children.ForEach(child =>
-    //     {
-    //         string numbering = $"{parentNumbering}.{childIndex}";
-    //         string key = child.AttributeGroupCheckBoxId.ToString();
-
-    //         if (!ExpandStates.ContainsKey(key))
-    //             ExpandStates[key] = true; default expanded
-
-    //         var appendAppMaster = $"{a.DynamicFormSectionAttributeId}_{a.AttributeId}_{child.AttributeGroupCheckBoxId}_GroupCheckBox";
-    //         var propertyCheck = Data.GetType().GetProperty(appendAppMaster);
-    //         if (propertyCheck != null)
-    //         {
-    //             var valueDataAppMaster = propertyCheck.GetValue(Data);
-    //             var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
-    //             var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(a.DataType), accesspropertyAppMaster);
-
-    //             editor.OpenElement(j + 1, "div");
-    //             editor.AddAttribute(j + 1, "style", $"padding-left:{p}px;");
-    //             editor.AddAttribute(j + 1, "class", "d-flex align-items-center gap-2");
-
-    //             editor.OpenComponent<DxCheckBox<bool?>>(j + 1);
-    //             editor.AddAttribute(j + 1, "Checked", valueDataAppMaster ?? false);
-    //             editor.AddAttribute(j + 1, "CheckedExpression", lambdapropertyAppMaster);
-    //             editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertyCheck.SetValue(Data, str); }));
-    //             editor.CloseComponent();
-
-    //             Label with toggle click
-    //             editor.OpenElement(j + 1, "label");
-    //             editor.AddAttribute(j + 1, "style", "cursor:pointer;");
-    //             editor.AddAttribute(j + 1, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => ToggleExpand(key)));
-    //             editor.AddContent(j + 1, $"{numbering}. {child.Value}");
-    //             editor.CloseElement();
-
-    //             editor.CloseElement();
-
-    //             if (ExpandStates[key])
-    //                 loadGroupCheckBoxNested(child, a, attributeGroupCheckBoxes, editor, j, p + 20, numbering);
-    //         }
-
-    //         childIndex++;
-    //     });
-    // }
 
 }
 

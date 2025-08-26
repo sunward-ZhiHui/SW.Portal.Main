@@ -540,7 +540,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteDynamicFormSectionSecurity request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids,request.UserId);
         }
     }
     public class DeleteDynamicFormDataAssignUserHandler : IRequestHandler<DeleteDynamicFormDataAssignUser, long>

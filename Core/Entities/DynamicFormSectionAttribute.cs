@@ -69,6 +69,7 @@ namespace Core.Entities
         public List<AttributeDetails> SubAttributeDetails { get; set; } = new List<AttributeDetails>();
         public long? PlantDropDownWithOtherDataSourceId { get; set; }
         public string? PlantDropDownWithOtherDataSourceTable { get; set; }
+        public List<string> PlantDropDownWithOtherDataSourceTables { get; set; }=new List<string>();
         public string? PlantDropDownWithOtherDataSourceLabelName { get; set; }
         public bool IsPlantLoadDependency { get; set; } = false;
         public string? PlantDropDownWithOtherDataSourceIds { get; set; }
@@ -76,6 +77,7 @@ namespace Core.Entities
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
         public bool IsSetDefaultValue { get; set; } = false;
         public bool IsDefaultReadOnly { get; set; } = false;
+        public bool? IsAuditTrail { get; set; } = false;
         public List<DynamicFormSectionAttributeSecurity> DynamicFormSectionAttributeSecurity { get; set; } = new List<DynamicFormSectionAttributeSecurity>();
         public string? FilterDataSourceTableName { get; set; }
         public string? FilterDataSourceDisplayName { get; set; }

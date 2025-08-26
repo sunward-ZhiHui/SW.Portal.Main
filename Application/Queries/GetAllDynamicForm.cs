@@ -304,10 +304,12 @@ namespace Application.Queries
     {
         public long? Id { get; set; }
         public List<long?> Ids { get; set; }
-        public DeleteDynamicFormSectionSecurity(long? id, List<long?> ids)
+        public long? UserId { get; set; }
+        public DeleteDynamicFormSectionSecurity(long? id, List<long?> ids, long? userId)
         {
             this.Id = id;
             this.Ids = ids;
+            UserId = userId;
         }
     }
     public class DeleteDynamicFormDataAssignUser : DynamicFormDataAssignUser, IRequest<long>

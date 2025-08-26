@@ -1023,261 +1023,237 @@ namespace Infrastructure.Repository.Query
                     dynamicFormSectionAttributeSecurity = results.Read<DynamicFormSectionAttributeSecurity>().ToList();
                     applicationMasters = results.Read<ApplicationMaster>().ToList();
                     applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
+
                     dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
                     attributeHeaderListModel.ApplicationMasterParent = applicationMasterParent;
                     DynamicFormSectionAttrFormulaFunctionList = results.Read<DynamicFormSectionAttrFormulaFunction>().ToList();
                     AttributeDetailsList = results.Read<AttributeDetails>().ToList();
                     attributeHeaderListModel.AttributeGroupCheckBoxes = results.Read<AttributeGroupCheckBox>().ToList();
                 }
-                if (attributeHeaderListModel.ApplicationMasterParent?.Any() == true)
+                if (attributeHeaderListModel.ApplicationMasterParent != null && attributeHeaderListModel.ApplicationMasterParent.Count() > 0)
                 {
-                    var parents = attributeHeaderListModel.ApplicationMasterParent
-                        .OrderBy(o => o.ParentId)
-                        .ToList();
-
-                    // Dictionary for fast parent lookup
-                    var lookup = parents.ToDictionary(p => p.ApplicationMasterParentCodeId);
-
-                    foreach (var z in parents)
+                    attributeHeaderListModel.ApplicationMasterParent = attributeHeaderListModel.ApplicationMasterParent.OrderBy(o => o.ParentId).ToList();
+                    attributeHeaderListModel.ApplicationMasterParent.ForEach(z =>
                     {
                         if (z.ParentId == null)
                         {
                             z.DummyNo = 1;
                         }
-                        else if (lookup.TryGetValue(z.ParentId.Value, out var parent))
+                        else
                         {
-                            z.DummyNo = parent.DummyNo + 1;
+                            var exits = attributeHeaderListModel.ApplicationMasterParent.Where(w => w.ApplicationMasterParentCodeId == z.ParentId).FirstOrDefault();
+                            if (exits != null)
+                            {
+                                z.DummyNo = exits.DummyNo + 1;
+                            }
                         }
-                    }
-
-                    attributeHeaderListModel.ApplicationMasterParent = parents;
+                    });
                 }
-                AttributeDetailsAdds attributeResultDetails = new AttributeDetailsAdds();
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
-                    // Prep: Get plantCode
-                    var plantCode = attributeHeaderListModel.Plant?
-                        .FirstOrDefault(f => f.PlantID == dynamicForm.CompanyId && f.PlantCode != null)?
-                        .PlantCode?.ToLower();
-
-                    // Prepare sets for quick lookup
-                    var dynamicFormSectionAttributes = attributeHeaderListModel.DynamicFormSectionAttribute;
-                    var dynamicFormSectionAttrIds = dynamicFormSectionAttributes
-                        .Select(a => (long?)a.DynamicFormSectionAttributeId)
-                        .Distinct()
-                        .ToHashSet();
-
-                    var groupCheckBoxAttrIds = dynamicFormSectionAttributes
-                        .Where(a => a.ControlTypeId == 2715)
-                        .Select(a => a.AttributeId)
-                        .Distinct()
-                        .ToHashSet();
-
-                    // Filter AttributeGroupCheckBoxes
-                    attributeHeaderListModel.AttributeGroupCheckBoxes = attributeHeaderListModel
-                        .AttributeGroupCheckBoxes?
-                        .Where(w => groupCheckBoxAttrIds.Contains(w.AttributeId))
-                        .ToList() ?? new List<AttributeGroupCheckBox>();
-
-                    // Prepare DynamicFormIds
-                    var dynamicFormIds = new HashSet<long?>(dynamicFormSectionAttributes
-                        .Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormGridDropDownId > 0)
-                        .Select(a => a.DynamicFormGridDropDownId));
-
-                    var appMasterDynamicFormIds = dynamicFormSectionAttributes
-                        .Where(a => new[] { "ApplicationMasterParent", "ApplicationMaster" }.Contains(a.DataSourceTable)
-                                    && a.IsDynamicFormGridDropdown == true
-                                    && a.GridDropDownDynamicFormID > 0)
-                        .Select(a => a.GridDropDownDynamicFormID);
-
-                    dynamicFormIds.UnionWith(appMasterDynamicFormIds);
-
-                    // Get Attribute Details (Main)
-                    var attrIds = dynamicFormSectionAttributes
-                        .Where(a => a.AttributeId > 0)
-                        .Select(a => a.AttributeId)
-                        .Distinct()
-                        .ToList();
-
-                    var attrSubFormIds = dynamicFormSectionAttributes
-                        .Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710)
-                        .Select(a => a.AttributeId.Value)
-                        .Distinct()
-                        .ToList();
-
-                    var attrResult = await GetAttributeDetails(AttributeDetailsList, attrIds, attrSubFormIds,
-                        "Main", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
-                    attributeResultDetails = attrResult;
-                    // Attach details
-                    attributeHeaderListModel.AttributeDetails = attrResult.AttributeDetails?
-                        .Where(w => attrIds.Contains(w.AttributeID))
-                        .ToList() ?? new List<AttributeDetails>();
-
-                    // Merge any DynamicGrid form IDs from AttributeHeader
-                    dynamicFormIds.UnionWith(attrResult.AttributeHeader
-                        .Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0)
-                        .Select(a => a.DynamicFormId));
-
-                    // Get Attribute Details (Sub)
-                    if (attributeHeaderListModel.AttributeDetails.Any())
+                    var AttributeGroupCheckBoxIds = new List<long?>();
+                    string? plantCode = null;
+                    if (attributeHeaderListModel.Plant != null && attributeHeaderListModel.Plant.Count > 0 && dynamicForm.CompanyId > 0)
                     {
-                        var attrDetailIds = attributeHeaderListModel.AttributeDetails
-                            .Select(s => s.AttributeDetailID)
-                            .ToList();
-
-                        var subResult = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), attrDetailIds,
-                            "Sub", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
-
-                        foreach (var detail in attributeHeaderListModel.AttributeDetails)
-                        {
-                            detail.SubAttributeHeaders = subResult.AttributeHeader
-                                .Where(q => q.SubAttributeDetailId == detail.AttributeDetailID)
-                                .ToList();
-                        }
-
-                        dynamicFormIds.UnionWith(subResult.AttributeHeader
-                            .Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0)
-                            .Select(a => a.DynamicFormId));
+                        plantCode = attributeHeaderListModel.Plant.FirstOrDefault(f => f.PlantCode != null && f.PlantID == dynamicForm.CompanyId)?.PlantCode;
+                        plantCode = plantCode != null ? plantCode.ToLower() : null;
                     }
+                    List<long?> DynamicFormSectionAttributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Select(a => (long?)a.DynamicFormSectionAttributeId).Distinct().ToList();
+                    AttributeGroupCheckBoxIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.ControlTypeId == 2715).Select(a => a.AttributeId).Distinct().ToList();
 
-                    // Get Attribute Details (GroupCheckBox)
-                    if (groupCheckBoxAttrIds.Any())
+                    attributeHeaderListModel.AttributeGroupCheckBoxes = attributeHeaderListModel.AttributeGroupCheckBoxes.Where(w => AttributeGroupCheckBoxIds.Contains(w.AttributeId)).ToList();
+
+                    attributeHeaderListModel.DynamicFormSectionAttrFormulaFunctions = DynamicFormSectionAttrFormulaFunctionList.Where(w => DynamicFormSectionAttributeIds.Contains(w.DynamicFormSectionAttributeId)).ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttributeSections = dynamicFormSectionAttributeSection.Where(q => DynamicFormSectionAttributeIds.Contains(q.DynamicFormSectionAttributeId)).ToList();
+                    List<string?> appMasterNames = new List<string?>() { "ApplicationMasterParent", "ApplicationMaster" };
+                    List<long?> DynamicGridFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => appMasterNames.Contains(a.DataSourceTable) && a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0).Select(z => z.GridDropDownDynamicFormID).Distinct().ToList();
+                    List<long?> DynamicFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormGridDropDownId > 0).Select(a => a.DynamicFormGridDropDownId).Distinct().ToList();
+                    if (DynamicGridFormIds != null && DynamicGridFormIds.Count > 0)
                     {
-                        var textBoxGroupCheckBoxIds = attributeHeaderListModel.AttributeGroupCheckBoxes
-                            .Where(q => groupCheckBoxAttrIds.Contains(q.AttributeId) && q.IsTextBox == true)
-                            .Select(k => k.AttributeGroupCheckBoxId)
-                            .Distinct()
-                            .ToList();
-
-                        var groupResult = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), textBoxGroupCheckBoxIds,
-                            "GroupCheckBox", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
-
-                        dynamicFormIds.UnionWith(groupResult.AttributeHeader
-                            .Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0)
-                            .Select(a => a.DynamicFormId));
-
-                        foreach (var checkBox in attributeHeaderListModel.AttributeGroupCheckBoxes)
+                        if (DynamicFormIds == null)
                         {
-                            checkBox.SubAttributeHeaders = groupResult.AttributeHeader
-                                .Where(x => x.AttributeGroupCheckBoxId == checkBox.AttributeGroupCheckBoxId)
-                                .ToList();
+                            DynamicFormIds = new List<long?>();
+                        }
+                        DynamicFormIds.AddRange(DynamicGridFormIds);
+                        //var DropDownOptionsFromGridListModel = await GetDynamicFormGridModelAsync(DynamicGridFormIds, UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, false);
+                    }
+                    /*if (DynamicFormIds != null && DynamicFormIds.Count > 0)
+                    {
+                        DynamicFormIds = DynamicFormIds.Distinct().ToList();
+                        attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(DynamicFormIds, UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, false);
+                    }*/
+                    List<string?> dataSourceTableIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.DataSourceTable != null && a.DropDownTypeId == "Data Source").Select(a => a.DataSourceTable).Distinct().ToList();
+                    List<long?> applicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
+                    AttributeDetailsAdds attributeResultDetails = new AttributeDetailsAdds();
+                    attributeHeaderListModel.AttributeDetails = new List<AttributeDetails>();
+                    // if (IsSubFormLoad == true)
+                    // {
+                    List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).Distinct().ToList();
+                    List<long> attributeSubFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0 && a.ControlTypeId == 2710).Select(a => a.AttributeId.Value).Distinct().ToList();
+                    attributeResultDetails = await GetAttributeDetails(AttributeDetailsList, attributeIds, attributeSubFormIds, "Main", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
+                    var attributeDetails = attributeResultDetails.AttributeDetails;
+                    if (attributeResultDetails.AttributeHeader.Count() > 0)
+                    {
+                        if (DynamicFormIds == null)
+                        {
+                            DynamicFormIds = new List<long?>();
+                        }
+                        var r1 = attributeResultDetails.AttributeHeader.Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0).Select(x => x.DynamicFormId).ToList();
+                        if (r1 != null && r1.Count() > 0)
+                        {
+                            DynamicFormIds.AddRange(r1);
                         }
                     }
-
-                    // Load DropDown options if needed
-                    if (dynamicFormIds.Any())
+                    attributeHeaderListModel.AttributeDetails = attributeDetails != null && attributeDetails.Count > 0 ? attributeDetails.Where(w => attributeIds.Contains(w.AttributeID)).ToList() : new List<AttributeDetails>();
+                    var AttributeDetailsIds = attributeHeaderListModel.AttributeDetails.Select(s => s.AttributeDetailID).ToList();
+                    List<long?> applicationMasterSubIds = new List<long?>();
+                    if (AttributeDetailsIds.Count() > 0)
                     {
-                        attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(
-                            dynamicFormIds.ToList(), UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, false);
+                        var attributeSubResultDetails = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), AttributeDetailsIds, "Sub", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
+
+                        if (attributeHeaderListModel.AttributeDetails != null && attributeHeaderListModel.AttributeDetails.Count > 0)
+                        {
+                            attributeHeaderListModel.AttributeDetails.ForEach(z =>
+                            {
+                                z.SubAttributeHeaders = attributeSubResultDetails.AttributeHeader.Where(q => q.SubAttributeDetailId == z.AttributeDetailID).ToList();
+                            });
+                        }
+                        if (attributeSubResultDetails.AttributeHeader.Count() > 0)
+                        {
+                            if (DynamicFormIds == null)
+                            {
+                                DynamicFormIds = new List<long?>();
+                            }
+                            var r1 = attributeSubResultDetails.AttributeHeader.Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0).Select(x => x.DynamicFormId).ToList();
+                            if (r1 != null && r1.Count() > 0)
+                            {
+                                DynamicFormIds.AddRange(r1);
+                            }
+                        }
                     }
-
-                    // Load data source list
-                    var dataSourceTables = dynamicFormSectionAttributes
-                        .Where(a => a.DataSourceTable != null && a.DropDownTypeId == "Data Source")
-                        .Select(a => a.DataSourceTable)
-                        .Distinct()
-                        .ToList();
-
-                    var dataSourceList = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(
-                        dynamicForm.CompanyId, dataSourceTables, plantCode, new List<long?>(), new List<long?>());
-
+                    AttributeDetailsAdds attributeGroupResultDetails = new AttributeDetailsAdds();
+                    if (AttributeGroupCheckBoxIds != null && AttributeGroupCheckBoxIds.Count > 0)
+                    {
+                        var AttributeGroupCheckBoxIdList = attributeHeaderListModel.AttributeGroupCheckBoxes.Where(q => AttributeGroupCheckBoxIds.Contains(q.AttributeId) && q.IsTextBox == true).Select(k => k.AttributeGroupCheckBoxId).Distinct().ToList();
+                        attributeGroupResultDetails = await GetAttributeDetails(AttributeDetailsList, new List<long?>(), AttributeGroupCheckBoxIdList, "GroupCheckBox", dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, isNoDelete);
+                        if (attributeGroupResultDetails.AttributeHeader.Count() > 0)
+                        {
+                            if (DynamicFormIds == null)
+                            {
+                                DynamicFormIds = new List<long?>();
+                            }
+                            var r1 = attributeGroupResultDetails.AttributeHeader.Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormId > 0).Select(x => x.DynamicFormId).ToList();
+                            if (r1 != null && r1.Count() > 0)
+                            {
+                                DynamicFormIds.AddRange(r1);
+                            }
+                        }
+                    }
+                    if (DynamicFormIds != null && DynamicFormIds.Count > 0)
+                    {
+                        DynamicFormIds = DynamicFormIds.Distinct().ToList();
+                        attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(DynamicFormIds, UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, false);
+                    }
+                    // }
+                    var dataSourceList = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(dynamicForm.CompanyId, dataSourceTableIds, plantCode, applicationMasterIds, ApplicationMasterParentIds);
                     attributeHeaderListModel.AttributeDetails.AddRange(dataSourceList);
-
-                    foreach (var s in attributeHeaderListModel.DynamicFormSectionAttribute)
+                    if (attributeHeaderListModel.AttributeGroupCheckBoxes != null && attributeHeaderListModel.AttributeGroupCheckBoxes.Count() > 0)
                     {
-                        // Security assignments
-                        s.DynamicFormSectionAttributeSecurity = GetSecurityList(dynamicFormSectionAttributeSecurity, s.DynamicFormSectionAttributeId);
-
-                        // Normalize names
-                        s.AttributeName = CapitalizeFirstLetter(s.AttributeName);
-                        s.DynamicAttributeName = $"{s.DynamicFormSectionAttributeId}_{s.AttributeName}";
-
-                        // Data loading
-                        if (s.DataSourceTable == "DynamicGrid")
-                            s.DynamicGridDynamicFormData = GetDynamicGridData(attributeHeaderListModel, s.DynamicFormGridDropDownId);
-
-                        if (s.IsPlantLoadDependency == true && !string.IsNullOrEmpty(s.PlantDropDownWithOtherDataSourceIds))
-                            s.AttributeHeaderDataSource = GetDataSource(attributeHeaderListModel, s.PlantDropDownWithOtherDataSourceIds);
-
-                        if (s.DataSourceTable == "ApplicationMaster" && !string.IsNullOrEmpty(s.ApplicationMasterIds))
-                            s.ApplicationMaster = GetApplicationMasters(applicationMasters, s.ApplicationMasterIds);
-
-                        if (s.DataSourceTable == "ApplicationMasterParent" && !string.IsNullOrEmpty(s.ApplicationMasterIds))
-                            s.ApplicationMasterParents = GetApplicationMasterParents(applicationMasterParent, s.ApplicationMasterIds);
-
-                        // Control type to data type mapping
-                        s.DataType = GetDataType(s);
-
-                        // Special handling for CheckBox
-                        if (s.ControlType == "CheckBox")
-                            s.SubAttributeHeaders = attributeResultDetails.AttributeHeader.Where(x => x.SubAttributeId == s.AttributeId).ToList();
-                    }
-
-                    // ----------------------
-                    // Helper methods
-                    // ----------------------
-                    List<DynamicFormSectionAttributeSecurity> GetSecurityList(
-                        List<DynamicFormSectionAttributeSecurity> securityList, long id)
-                    {
-                        return (securityList != null && securityList.Count > 0)
-                            ? securityList.Where(d => d.DynamicFormSectionAttributeId == id).ToList()
-                            : new List<DynamicFormSectionAttributeSecurity>();
-                    }
-
-                    string CapitalizeFirstLetter(string text)
-                    {
-                        if (string.IsNullOrEmpty(text)) return string.Empty;
-                        return char.ToUpper(text[0]) + text.Substring(1);
-                    }
-
-                    List<DynamicFormData> GetDynamicGridData(AttributeHeaderListModel model, long? dropDownId)
-                    {
-                        return model.DropDownOptionsGridListModel.DynamicFormData
-                            .Where(x => x.DynamicFormId == dropDownId)
-                            .ToList();
-                    }
-
-                    List<AttributeHeaderDataSource> GetDataSource(AttributeHeaderListModel model, string ids)
-                    {
-                        var parsedIds = ParseIds(ids);
-                        return model.AttributeHeaderDataSource
-                            .Where(z => z.DataSourceTable != null && parsedIds.Contains(z.AttributeHeaderDataSourceId))
-                            .ToList();
-                    }
-
-                    List<ApplicationMaster> GetApplicationMasters(List<ApplicationMaster> source, string ids)
-                    {
-                        var parsedIds = ParseIds(ids);
-                        return source.Where(z => z.ApplicationMasterId > 0 && parsedIds.Contains(z.ApplicationMasterId)).ToList();
-                    }
-
-                    List<ApplicationMasterParent> GetApplicationMasterParents(List<ApplicationMasterParent> source, string ids)
-                    {
-                        var parsedIds = ParseIds(ids);
-                        return source.Where(z => z.ApplicationMasterParentCodeId > 0 && parsedIds.Contains(z.ApplicationMasterParentCodeId)).ToList();
-                    }
-
-                    HashSet<long?> ParseIds(string csv)
-                    {
-                        return csv.Split(",").Select(x => (long?)long.Parse(x)).ToHashSet();
-                    }
-
-                    Type GetDataType(DynamicFormSectionAttribute s)
-                    {
-                        return s.ControlType switch
+                        attributeHeaderListModel.AttributeGroupCheckBoxes.ForEach(z =>
                         {
-                            "TextBox" or "Memo" => typeof(string),
-                            "ComboBox" or "Radio" or "RadioGroup" => typeof(long?),
-                            "DateEdit" => typeof(DateTime?),
-                            "TimeEdit" => typeof(TimeSpan?),
-                            "SpinEdit" => s.IsSpinEditType == "decimal" ? typeof(decimal?) : typeof(int?),
-                            "CheckBox" or "GroupCheckBox" => typeof(bool?),
-                            "TagBox" => typeof(IEnumerable<long?>),
-                            "ListBox" => s.IsMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?),
-                            _ => typeof(string)
-                        };
+                            z.SubAttributeHeaders = attributeGroupResultDetails.AttributeHeader.Where(x => x.AttributeGroupCheckBoxId == z.AttributeGroupCheckBoxId).ToList();
+                        });
                     }
+                    attributeHeaderListModel.DynamicFormSectionAttribute.ForEach(s =>
+                    {
+                        s.DynamicFormSectionAttributeSecurity = dynamicFormSectionAttributeSecurity != null && dynamicFormSectionAttributeSecurity.Count > 0 ? dynamicFormSectionAttributeSecurity.Where(d => d.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList() : new List<DynamicFormSectionAttributeSecurity>();
+                        s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
+                        s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
+                        if (s.DataSourceTable == "DynamicGrid")
+                        {
+                            s.DynamicGridDynamicFormData = attributeHeaderListModel.DropDownOptionsGridListModel.DynamicFormData.Where(x => x.DynamicFormId == s.DynamicFormGridDropDownId).ToList();
+                        }
+                        if (s.IsPlantLoadDependency == true && !string.IsNullOrEmpty(s.PlantDropDownWithOtherDataSourceIds))
+                        {
+                            var PlantDropDownWithOtherDataSourceListIds = s.PlantDropDownWithOtherDataSourceIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (PlantDropDownWithOtherDataSourceListIds.Count > 0)
+                            {
+                                s.AttributeHeaderDataSource = attributeHeaderListModel.AttributeHeaderDataSource.Where(z => z.DataSourceTable != null && PlantDropDownWithOtherDataSourceListIds.Contains(z.AttributeHeaderDataSourceId)).ToList();
+                            }
+                        }
+                        if (s.DataSourceTable == "ApplicationMaster" && !string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (applicationMasterIds.Count > 0)
+                            {
+                                s.ApplicationMaster = applicationMasters.Where(z => z.ApplicationMasterId > 0 && applicationMasterIds.Contains(z.ApplicationMasterId)).ToList();
+                            }
+                        }
+                        if (s.DataSourceTable == "ApplicationMasterParent" && !string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (applicationMasterIds.Count > 0)
+                            {
+                                s.ApplicationMasterParents = applicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId)).ToList();
+                            }
+                        }
+                        if (s.ControlType == "TextBox" || s.ControlType == "Memo")
+                        {
+                            s.DataType = typeof(string);
+                        }
+                        else if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                        {
 
+                            s.DataType = typeof(long?);
+                        }
+                        else if (s.ControlType == "DateEdit")
+                        {
+                            s.DataType = typeof(DateTime?);
+                        }
+                        else if (s.ControlType == "TimeEdit")
+                        {
+                            s.DataType = typeof(TimeSpan?);
+                        }
+                        else if (s.ControlType == "SpinEdit")
+                        {
+                            if (s.IsSpinEditType == "decimal")
+                            {
+                                s.DataType = typeof(decimal?);
+                            }
+                            else
+                            {
+                                s.DataType = typeof(int?);
+                            }
+                        }
+                        else if (s.ControlType == "CheckBox")
+                        {
+                            s.SubAttributeHeaders = attributeResultDetails.AttributeHeader.Where(x => x.SubAttributeId == s.AttributeId).ToList();
+                            s.DataType = typeof(bool?);
+                        }
+                        else if (s.ControlType == "GroupCheckBox")
+                        {
+                            s.DataType = typeof(bool?);
+                        }
+                        else if (s.ControlType == "TagBox")
+                        {
+                            s.DataType = typeof(IEnumerable<long?>);
+                        }
+                        else if (s.ControlType == "ListBox")
+                        {
+                            if (s.IsMultiple == true)
+                            {
+                                s.DataType = typeof(IEnumerable<long?>);
+                            }
+                            else
+                            {
+                                s.DataType = typeof(long?);
+                            }
+                        }
+                        else
+                        {
+                            s.DataType = typeof(string);
+                        }
+                    });
 
                 }
                 return attributeHeaderListModel;

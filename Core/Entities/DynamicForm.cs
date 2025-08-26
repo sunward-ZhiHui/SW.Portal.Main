@@ -53,6 +53,7 @@ namespace Core.Entities
         public int? SortBy { get; set; }
         public string? SopNo { get; set; }
         public string? VersionNo { get; set; }
+        public bool? IsAuditTrail {  get; set; }= false;
     }
     public class AddTempSectionAttribute
     {

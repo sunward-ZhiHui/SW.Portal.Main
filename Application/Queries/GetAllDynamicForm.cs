@@ -518,7 +518,7 @@ namespace Application.Queries
             DynamicFormDataGridId = dynamicFormDataGridId;
         }
     }
-    
+
     public class DeleteDynamicFormSectionAttributeSecurity : DynamicFormSectionAttributeSecurity, IRequest<long>
     {
         public long? Id { get; set; }
@@ -917,7 +917,7 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
-    
+
     public class GetDynamicFormFormulaMathFunList : PagedRequest, IRequest<List<DynamicFormFormulaMathFun>>
     {
 
@@ -1024,6 +1024,28 @@ namespace Application.Queries
             this.DynamicFormId = dynamicFormId;
         }
     }
+
+    public class GetDynamicFormAuditList : PagedRequest, IRequest<List<DynamicFormAudit>>
+    {
+        public long? DynamicFormId { get; set; }
+        public Guid? SessionId { get; set; }
+        public GetDynamicFormAuditList(long? dynamicFormId, Guid? sessionId)
+        {
+            this.DynamicFormId = dynamicFormId;
+            SessionId = sessionId;
+        }
+    }
+    public class GetDynamicFormAuditDynamicFormSectionList : PagedRequest, IRequest<List<DynamicFormAudit>>
+    {
+        public List<Guid?> SessionIds { get; set; }
+        public string? FormType {  get; set; }
+        public GetDynamicFormAuditDynamicFormSectionList(List<Guid?> dynamicFormId, string? formType)
+        {
+            this.SessionIds = dynamicFormId;
+            FormType = formType;
+        }
+    }
+
     public class GetDynamicFormDataTableSync : PagedRequest, IRequest<DynamicForm>
     {
         public List<DropDownOptionsModel> DropDownOptionsModel { get; set; }

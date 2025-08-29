@@ -21,5 +21,10 @@ namespace Core.Entities
         public DateTime? AuditDate { get; set; }
         public bool? IsDeleted { get; set; }=false;
         public string? ColumnName { get; set; }
+        public string? AuditUser {  get; set; }
+        public string? DynamicFormName { get; set; }
+        public int? Index { get; set; }
+        public string? DisplayName {  get; set; }
+        public bool? IsFormDeleted { get; set; } = false;
     }
 }

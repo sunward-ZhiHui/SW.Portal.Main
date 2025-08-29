@@ -25,6 +25,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteAsync(AttributeHeader attributeHeader);
         AttributeHeader GetAllAttributeNameCheckValidation(AttributeHeader attributeHeader);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicForm(long? dynamicFormSectionId, long? attributeID);
+        Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicFormList(long? dynamicFormSectionId, List<long?> attributeID);
         Task<AttributeHeader> GetAllBySessionAttributeName(Guid? SessionId);
         Task<AttributeHeader> UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);

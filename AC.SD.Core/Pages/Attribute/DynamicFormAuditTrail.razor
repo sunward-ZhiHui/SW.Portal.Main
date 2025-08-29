@@ -1,0 +1,176 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using System.Text.RegularExpressions
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisibleApproval"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid7" Data="@_dynamicFormApprovalData"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="Index"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            FocusedRowChanged="OnRowApprovalClick"
+            AllowSelectRowByClick="true"
+            style="height: calc(100vh - 220px);"
+            CustomizeElement="Grid_CustomizeApprovalElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            VirtualScrollingEnabled="true"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+            <DxGridDataColumn FieldName="Index" Caption="No" MinWidth="10" />
+            <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="FormType" Caption="Form Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditUser" Caption="Audit User" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditDate" Caption="Audit Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormAudit)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDate.HasValue && item.AuditDate != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDate?.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <DetailRowTemplate>
+            <DynamicFormAuditFormListItems Items="(DynamicFormAudit)context.DataItem" />
+        </DetailRowTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Index" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    [Parameter]
+    public long? dynamicFormId { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    bool PanelVisibleApproval { get; set; }
+    bool IsEnabled { get; set; } = false;
+    private List<DynamicFormAudit>? _dynamicFormApprovalData;
+    IGrid? Grid7 { get; set; }
+    private DynamicFormAudit _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    public static string AddSpacesToPascalCase(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        // Insert space before each capital letter, except the first
+        return Regex.Replace(input, "(?<!^)([A-Z])", " $1");
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisibleApproval = true; IsEnabled = false; _dynamicFormApprovalData = new List<DynamicFormAudit>();
+            if (dynamicFormId > 0)
+            {
+                var _dynamicFormApprovalDatas = await Mediator.Send(new GetDynamicFormAuditList(dynamicFormId, null));
+                if (_dynamicFormApprovalDatas != null && _dynamicFormApprovalDatas.Count() > 0)
+                {
+                    List<Guid?> sesIds = _dynamicFormApprovalDatas.Select(s => s.SessionId).Distinct().ToList();
+                    int i = 0;
+                    foreach (var index in sesIds)
+                    {
+                        var dynamicFormAudit = _dynamicFormApprovalDatas.FirstOrDefault(f => f.SessionId == index);
+                        if (dynamicFormAudit != null)
+                        {
+                            dynamicFormAudit.Index = i + 1;
+                            dynamicFormAudit.FormType = AddSpacesToPascalCase(dynamicFormAudit.FormType);
+                            _dynamicFormApprovalData.Add(dynamicFormAudit);
+                            i++;
+                        }
+                    }
+                }
+            }
+            PanelVisibleApproval = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowApprovalClick(GridFocusedRowChangedEventArgs args)
+    {
+        if (args.DataItem != null)
+        {
+            _selectedItems = (DynamicFormAudit)args.DataItem;
+        }
+
+        StateHasChanged();
+    }
+
+    public void ClearData()
+    {
+        _dynamicFormApprovalData?.Clear();
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        ClearData();
+    }
+}

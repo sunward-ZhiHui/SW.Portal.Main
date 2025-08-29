@@ -1412,7 +1412,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             LEFT JOIN (
                 SELECT DISTINCT EmailConversationsId FROM EmailCopyLink
             ) ECL ON ECL.EmailConversationsId = FC.ID
-            WHERE FC.ReplyId = @ReplyId
+            WHERE FC.ReplyId = @ReplyId AND (FC.TransferId = @UserId OR FC.TransferId IS NULL OR FC.TransferId = -1 OR FC.TransferId =0)
             ORDER BY FC.AddedDate DESC
             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
@@ -2601,10 +2601,11 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                             parameters.Add("UserType", forumConversations.UserType, DbType.String);
                             parameters.Add("IsDueDate", forumConversations.IsDueDate);
+                            parameters.Add("TransferId", forumConversations.TransferId);
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 
-                            var query = "INSERT INTO EmailConversations(Description,IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@Description,@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
+                            var query = "INSERT INTO EmailConversations(Description,IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate,TransferId) OUTPUT INSERTED.ID VALUES (@Description,@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate,@TransferId)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

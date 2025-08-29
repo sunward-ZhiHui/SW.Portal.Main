@@ -143,6 +143,8 @@ namespace Core.Entities
         public bool IsRepliesLoading { get; set; } = false;
         [NotMapped]
         public bool EmailTransfer { get; set; } = false;
+        [NotMapped]
+        public int TransferId { get; set; } 
     }
     public class EmailDocumentModel
     {        

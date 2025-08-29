@@ -428,7 +428,8 @@ namespace SW.Portal.Solutions.Controllers
                         UserType = emailConversations.UserType,
                         IsDueDate = emailConversations.IsDueDate,
                         EmailTransfer = emailConversations.EmailTransfer,
-                        
+                        TransferId = emailConversations.TransferId,
+
                     };
 
                     var res = await _mediator.Send(createReq);

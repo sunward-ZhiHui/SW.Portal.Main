@@ -710,11 +710,28 @@ namespace Application.Handlers.QueryHandlers
 
                 }
             }
-            
-            
-          
+            else
+            {
+                var conversationAssignTo = new EmailConversationAssignTo();
+                conversationAssignTo.ConversationId = req;
+                conversationAssignTo.ReplyId = request.ReplyId;
+                conversationAssignTo.PlistIdss = request.PlistIdss;
+                conversationAssignTo.AllowPlistids = request.AllowPlistids;
+                conversationAssignTo.TopicId = request.TopicID;
+                conversationAssignTo.StatusCodeID = request.StatusCodeID;
+                conversationAssignTo.AddedByUserID = request.AddedByUserID;
+                conversationAssignTo.SessionId = request.SessionId;
+                conversationAssignTo.AddedDate = request.AddedDate;
+                conversationAssignTo.AssigntoIds = request.AssigntoIdss;
+                conversationAssignTo.AssignccIds = request.AssignccIdss;
+                conversationAssignTo.ConIds = request.ConIds;
+                var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
+            }
 
-            return req;
+
+
+
+                return req;
         }
     }
     public class EditEmailConversationHandler : IRequestHandler<EditEmailConversation, long>

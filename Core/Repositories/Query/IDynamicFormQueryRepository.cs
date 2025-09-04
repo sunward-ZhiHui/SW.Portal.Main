@@ -148,6 +148,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit);
         Task<DynamicFormData> GetDynamicFormDataOneByDataIdAsync(long? Id);
         Task<DynamicForm> GetDynamicFormDataTableSync(List<DropDownOptionsModel> dropDownOptionsModels, List<object> _dynamicformObjectDataList, AttributeHeaderListModel attributeHeaderListModel, DynamicForm dynamicForm);
+        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditList(long? dynamicFormId,Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditDynamicFormSectionList(List<Guid?> sessionIds,string? FormType);
     }
 
 }

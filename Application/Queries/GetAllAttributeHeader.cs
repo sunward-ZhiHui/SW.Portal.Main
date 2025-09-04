@@ -52,6 +52,16 @@ namespace Application.Queries
         }
     }
 
+    public class GetAllAttributeNameNotInDynamicFormList : PagedRequest, IRequest<List<AttributeHeader>>
+    {
+        public List<long?> AttributeID { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public GetAllAttributeNameNotInDynamicFormList(long? dynamicFormSectionId, List<long?> attributeID)
+        {
+            this.DynamicFormSectionId = dynamicFormSectionId;
+            this.AttributeID = attributeID;
+        }
+    }
     public class CreateAttributeHeader : AttributeHeader, IRequest<long>
     {
     }
@@ -72,13 +82,13 @@ namespace Application.Queries
             this.AttributeHeader = attributeHeader;
         }
     }
-    
-        public class GetAllAttributeNameById : PagedRequest, IRequest<AttributeHeaderListModel>
+
+    public class GetAllAttributeNameById : PagedRequest, IRequest<AttributeHeaderListModel>
     {
 
         public List<long?> DynamicFormIds { get; set; }
         public long? UserId { get; set; }
-       
+
         public GetAllAttributeNameById(List<long?> dynamicFormIds, long? userId)
         {
             this.DynamicFormIds = dynamicFormIds;

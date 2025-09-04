@@ -323,6 +323,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicFormList(long? dynamicFormSectionId, List<long?> attributeID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@attributeID", attributeID);
+                var query = "SELECT tt1.* from (select t1.*,t2.CodeValue as ControlTypes,(case when t1.IsFilterDataSource=1 then  'Filter Data Source' ELSE t1.DropDownTypeID END) as DropDownTypeIDs,(case when t1.DynamicFormID>0 then  t5.Name ELSE (case when t1.IsFilterDataSource=1 then  tt4.DisplayName ELSE t4.DisplayName END) END) as DataSourceDisplayName,\r\n(case when t1.IsFilterDataSource=1 then  tt4.TableName ELSE t4.DataSourceTable END) as DataSourceTable\r\n from AttributeHeader t1  JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t4 ON t4.AttributeHeaderDataSourceID=t1.DataSourceId LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterId=t1.FilterDataSocurceID LEFT JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormID WHERE \r\n" +
+                    "(t5.IsDeleted=0 OR t5.IsDeleted IS NULL) AND \r\n" +
+                    "t1.AttributeID IN @attributeID ) tt1 Where (tt1.IsDeleted=0 OR tt1.IsDeleted IS NULL) AND (tt1.IsSubForm =0 or tt1.IsSubForm is null)";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public AttributeHeader GetAllAttributeNameCheckValidation(AttributeHeader attributeHeader)
         {
             try

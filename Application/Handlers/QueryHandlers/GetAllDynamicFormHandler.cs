@@ -540,7 +540,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteDynamicFormSectionSecurity request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids,request.UserId);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids, request.UserId);
         }
     }
     public class DeleteDynamicFormDataAssignUserHandler : IRequestHandler<DeleteDynamicFormDataAssignUser, long>
@@ -841,7 +841,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataList(request.DyamicFormIds,request.DynamicFormDataGridId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataList(request.DyamicFormIds, request.DynamicFormDataGridId);
         }
 
 
@@ -1572,7 +1572,7 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
-    
+
     public class GetDynamicFormDataAuditBySessionMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditBySessionMultipleList, List<DynamicFormDataAudit>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -1772,6 +1772,34 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DynamicForm> Handle(GetDynamicFormDataTableSync request, CancellationToken cancellationToken)
         {
             return await _dynamicFormQueryRepository.GetDynamicFormDataTableSync(request.DropDownOptionsModel, request.DynamicformObjectDataList, request.AttributeHeader, request.DynamicForm);
+        }
+
+
+    }
+    public class GetDynamicFormAuditListHandler : IRequestHandler<GetDynamicFormAuditList, List<DynamicFormAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormAuditListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormAudit>> Handle(GetDynamicFormAuditList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormAudit>)await _dynamicFormQueryRepository.GetDynamicFormAuditList(request.DynamicFormId, request.SessionId);
+        }
+
+
+    }
+    public class GetDynamicFormAuditDynamicFormSectionListHandler : IRequestHandler<GetDynamicFormAuditDynamicFormSectionList, List<DynamicFormAudit>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormAuditDynamicFormSectionListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormAudit>> Handle(GetDynamicFormAuditDynamicFormSectionList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormAudit>)await _dynamicFormQueryRepository.GetDynamicFormAuditDynamicFormSectionList(request.SessionIds,request.FormType);
         }
 
 

@@ -43,7 +43,7 @@
                         <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
-                        @* <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                        <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-link" Click="@OpenAuditTrail" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                             <Items>
                                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
@@ -314,8 +314,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@OpenAuditTrailPopUp"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Odata Attribute"
+         Closed="EulaPopupClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormAuditTrail @ref="refDynamicFormAuditTrail" SessionId="_dynamicFormData?.SessionID" dynamicFormId="@_dynamicFormData?.ID"></DynamicFormAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private bool OpenAuditTrailPopUp { get; set; } = false;
     private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
+    private DynamicFormAuditTrail refDynamicFormAuditTrail { get; set; }
     bool OdataAttrListpopup { get; set; } = false;
     private IDisposable? DynamicFormPage7; private DynamicFormReports refDynamicFormReports;
     bool EditEnabled { get; set; } = false;
@@ -381,7 +396,10 @@
 
         return ValueTask.CompletedTask;
     }
-
+    void OpenAuditTrail()
+    {
+        OpenAuditTrailPopUp = true;
+    }
     void SelectedPlantChanged(long? country)
     {
         Data.CompanyId = null;
@@ -617,7 +635,7 @@
     {
         Blukdeletepopup = false;
         DynamicFormReportsBypopup = false;
-        OdataAttrListpopup = false;
+        OdataAttrListpopup = false; OpenAuditTrailPopUp = false;
     }
     async Task bulkDelete(DynamicForm dynamicForm)
     {

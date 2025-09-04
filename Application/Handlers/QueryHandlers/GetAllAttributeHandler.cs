@@ -59,6 +59,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeNameNotInDynamicForm(request.DynamicFormSectionId, request.AttributeID);
         }
     }
+    public class GetAllAttributeNameNotInDynamicFormListHandler : IRequestHandler<GetAllAttributeNameNotInDynamicFormList, List<AttributeHeader>>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeNameNotInDynamicFormListHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameNotInDynamicFormList request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeNameNotInDynamicFormList(request.DynamicFormSectionId, request.AttributeID);
+        }
+    }
     public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, long>
     {
 

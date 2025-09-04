@@ -551,14 +551,21 @@
         {
             _selectedDynamicFormWorkFlowItems = (DynamicFormWorkFlowForm)args.DataItem;
             var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems?.Select(s => s.IsAllowDelegateUser == true).Count();
-
+            if (_dynamicformData?.DynamicFormDataId > 0)
+            {
+                AddNewEnabledApproval = true;
+            }
             if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
             {
                 if (_dynamicformData?.DynamicFormDataId > 0)
                 {
+                    //AddNewEnabledApproval = true;
                     if (iIsAllowDelegateUserss > 0)
                     {
-                        AddNewEnabledApproval = true;
+                        if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 0)
+                        {
+                           // AddNewEnabledApproval = true;
+                        }
                     }
                     if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 1)
                     {

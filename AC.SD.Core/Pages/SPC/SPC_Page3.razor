@@ -4,106 +4,187 @@
 @inject ChartService chartService
 
 @* <h3 style="text-align: center;">SPC Chart Builder Condition Color Rule</h3>*@
-<div class="row mb-2 mt-4">
-    <div class="col-md-4">
-        <label>Select Table</label>
-        <DxComboBox T="string"
-                    SearchMode="ListSearchMode.AutoSearch"
-                    SearchFilterCondition="ListSearchFilterCondition.Contains"
-                    Data="@tableList"
-                    Value="@selectedTable"
-                    ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
-                    NullText="Select Table" />
-    </div>
-    <div class="col-md-8">
-        @if (columnList?.Count > 0)
-        {
-            <div class="row">
-                <div class="col-md-4">
-                    <label> Select X Axis </label>
-                    <DxComboBox T="string"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                Data="@columnList"
-                                Value="@xField"
-                                ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
-                                NullText="Select X-Axis" />
-                </div>
-                <div class="col-md-4">
-                    <label>Select Y Axis</label>
-                    <DxComboBox T="string"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                Data="@columnList"
-                                Value="@yField"
-                                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
-                                NullText="Select Y-Axis" />
-                </div>
-                <div class="col-md-4">
-                    <label>Select Date Column</label>
-                    <DxComboBox T="string"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                Data="@dateColumnList"
-                                Value="@dateField"
-                                ValueChanged="@((string? newValue) => { dateField = newValue; CheckAxesSelected(); })"
-                                NullText="Select Date Column" />
-                </div>
-            </div>
+
+<style scoped>
+    .accordion {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+
+    .accordion-header {
+        padding: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        background: #f1f1f1;
+        transition: background 0.3s;
+    }
+
+        .accordion-header:hover {
+            background: #e5e5e5;
         }
+
+    .accordion-content {
+        padding: 12px;
+        background: #fafafa;
+        border-top: 1px solid #ccc;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+</style>
+<div class="accordion">
+    <div class="accordion-header" @onclick="ToggleAccordion">
+        <span>@(isOpen ? "▼ " : "► ") Condition Color Rule</span>
     </div>
 
+    @if (isOpen)
+    {
+        <div style="padding:10px;">
+            <div class="row mb-2 mt-4">
+                <div class="col-md-4">
+                    <label>Select Table</label>
+                    <DxComboBox T="string"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                Data="@tableList"
+                                Value="@selectedTable"
+                                ValueChanged="@((string? newValue) => OnTableChanged(newValue))"
+                                NullText="Select Table" />
+                </div>
+                <div class="col-md-8">
+                    @if (columnList?.Count > 0)
+                    {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label> Select X Axis </label>
+                                <DxComboBox T="string"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            Data="@columnList"
+                                            Value="@xField"
+                                            ValueChanged="@((string? newValue) => { xField = newValue; CheckAxesSelected(); })"
+                                            NullText="Select X-Axis" />
+                            </div>
+                            <div class="col-md-4">
+                                <label>Select Y Axis</label>
+                                <DxComboBox T="string"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            Data="@columnList"
+                                            Value="@yField"
+                                            ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                                            NullText="Select Y-Axis" />
+                            </div>
+                            <div class="col-md-4">
+                                <label>Select Date Column</label>
+                                <DxComboBox T="string"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            Data="@dateColumnList"
+                                            Value="@dateField"
+                                            ValueChanged="@((string? newValue) => { dateField = newValue; CheckAxesSelected(); })"
+                                            NullText="Select Date Column" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+            <div class="row mb-2 mt-4">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>LSL Value</label>
+                            <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>USL Value</label>
+                            <DxSpinEdit @bind-Value="USL" NullText="USL" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>UCL Value</label>
+                            <DxSpinEdit @bind-Value="UCL" NullText="UCL" />
+                        </div>
+                        <div class="col-md-3">
+                        <label>LCL Value</label>
+                        <DxSpinEdit @bind-Value="LCL" NullText="LCL" />
+                    </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Sigma 1</label>
+                            <DxSpinEdit @bind-Value="Sig1" NullText="Sigma -1" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Sigma 2</label>
+                            <DxSpinEdit @bind-Value="Sig2" NullText="Sigma -2" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Sigma 3</label>
+                            <DxSpinEdit @bind-Value="Sig3" NullText="Sigma -3" />
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+            <div class="row mb-2 mt-4">
+
+                @* <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>LSL Value</label>
+                        <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>USL Value</label>
+                        <DxSpinEdit @bind-Value="USL" NullText="USL" />
+                    </div>
+                </div>
+
+            </div> *@
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Chart Title</label>
+                            <DxTextBox @bind-Text="chartTitle" NullText="Chart Title" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>X Axis</label>
+                            <DxTextBox @bind-Text="xAxisLabel" NullText="X Axis Label" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Y Axis</label>
+                            <DxTextBox @bind-Text="yAxisLabel" NullText="Y Axis Label" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row mb-2 mt-4">
+                <div class="col-md-2">
+                    <label>Start Date:</label>
+                    <DxDateEdit @bind-Date="startDate"
+                                MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                                MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+                </div>
+                <div class="col-md-2">
+                    <label>End Date:</label>
+                    <DxDateEdit @bind-Date="endDate"
+                                MinDate="minDate ?? DateTime.Today.AddYears(-10)"
+                                MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <DxButton Text="Apply Date Filter" Click="ApplyDateFilter" />
+                </div>
+            </div>
+        </div>       
+
+    }
 </div>
-<div class="row mb-2 mt-4">
 
-    <div class="col-md-4">
-        <div class="row">
-            <div class="col-md-6">
-                <label>LSL Value</label>
-                <DxSpinEdit @bind-Value="LSL" NullText="LSL" />
-            </div>
-            <div class="col-md-6">
-                <label>USL Value</label>
-                <DxSpinEdit @bind-Value="USL" NullText="USL" />
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-8">
-        <div class="row">
-            <div class="col-md-4">
-                <label>Chart Title</label>
-                <DxTextBox @bind-Text="chartTitle" NullText="Chart Title" />
-            </div>
-            <div class="col-md-4">
-                <label>X Axis</label>
-                <DxTextBox @bind-Text="xAxisLabel" NullText="X Axis Label" />
-            </div>
-            <div class="col-md-4">
-                <label>Y Axis</label>
-                <DxTextBox @bind-Text="yAxisLabel" NullText="Y Axis Label" />
-            </div>
-        </div>
-    </div>
-
-</div>
-<div class="row mb-2 mt-4">
-    <div class="col-md-2">
-        <label>Start Date:</label>
-        <DxDateEdit @bind-Date="startDate"
-                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
-                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
-    </div>
-    <div class="col-md-2">
-        <label>End Date:</label>
-        <DxDateEdit @bind-Date="endDate"
-                    MinDate="minDate ?? DateTime.Today.AddYears(-10)"
-                    MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
-    </div>
-    <div class="col-md-3 align-self-end">
-        <DxButton Text="Apply Date Filter" Click="ApplyDateFilter" />
-    </div>
-</div>
 
 
 <h4>Conditional Formatting Rules</h4>
@@ -137,6 +218,10 @@
 
 <DxChart T="CapabilityData" Width="100%" Height="500px">
     <DxChartTitle Text="@($"{chartTitle} | Avg={avg:F3}, UCL={UCL:F3}, LCL={LCL:F3}")" />
+     <DxChartLegend Orientation="Orientation.Vertical"
+                   HorizontalAlignment="HorizontalAlignment.Right"
+                   Position="RelativePosition.Outside" Visible="false">
+                   </DxChartLegend>
     <DxChartArgumentAxis ArgumentType="ChartAxisDataType.Auto" />
     <DxChartValueAxis>
         <DxChartConstantLine Value="@LSL" Color="Color.Red" Width="3" DashStyle="ChartDashStyle.Dash">
@@ -157,44 +242,123 @@
     </DxChartValueAxis>
 
 
-    @if (colorGroups.Count == 0)
+    @foreach (var segment in SegmentedData)
     {
         <DxChartSplineSeries T="CapabilityData"
                              TArgument="string"
                              TValue="double"
-                             Name="Default Series"
-                             Data="@selectedChartData"
+                             Data="@segment.Points"
                              ArgumentField="p => p.XLabel"
-                             ValueField="p => p.Value">
+                             ValueField="p => p.Value"
+                             Color="@System.Drawing.ColorTranslator.FromHtml(segment.ColorHex)">
             <DxChartSeriesLabel Visible="true" />
         </DxChartSplineSeries>
+    }
+
+
+
+  @*   <!-- Main continuous line (always black) -->
+    <DxChartSplineSeries T="CapabilityData"
+                         TArgument="string"
+                         TValue="double"
+                         Data="@selectedChartData"
+                         ArgumentField="p => p.XLabel"
+                         ValueField="p => p.Value"
+                         Color="Color.Black">
+        <DxChartSeriesLabel Visible="true" /> 
+    </DxChartSplineSeries>
+
+    <!-- Overlay points with conditional colors -->
+    @foreach (var point in selectedChartData)
+    {
+        <DxChartScatterSeries T="CapabilityData"
+                              TArgument="string"
+                              TValue="double"
+                              Data="new List<CapabilityData> { point }"
+                              ArgumentField="p => p.XLabel"
+                              ValueField="p => p.Value"
+                              Color="@System.Drawing.ColorTranslator.FromHtml(point.PointColorHex)">
+            <DxChartSeriesPoint Size="8" />
+        </DxChartScatterSeries>
+    } *@
+
+@* 
+    @foreach (var group in selectedChartData.GroupBy(d => d.PointColorHex))
+    {
+        <DxChartSplineSeries T="CapabilityData"
+                             TArgument="string"
+                             TValue="double"
+                             Data="@group.ToList()"
+                             ArgumentField="p => p.XLabel"
+                             ValueField="p => p.Value"
+                             Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)"
+                             Name="@($"Range {group.Key}")">
+            <DxChartSeriesLabel Visible="true" />
+        </DxChartSplineSeries>
+    } *@
+
+
+    @if (colorGroups.Count == 0)
+    {
+       @*  <DxChartSplineSeries T="CapabilityData"
+                             TArgument="string"
+                             TValue="double"
+                             Name="SPC Data"
+                             Data="@selectedChartData"
+                             ArgumentField="p => p.XLabel"
+                             ValueField="p => p.Value"
+                             >
+           
+            <DxChartSeriesLabel Visible="true" />
+        </DxChartSplineSeries> *@
+
 
     }
     else
     {
-        @foreach (var group in colorGroups)
+
+       @*  @foreach (var group in selectedChartData.GroupBy(d => d.PointColorHex))
         {
-            var rule = Rules.FirstOrDefault(r => r.ColorHex == group.Key);
-            var legendLabel = rule is not null ? $"{rule.Min} - {rule.Max}" : group.Key;
-
-            <DxChartLineSeries T="CapabilityData"
-                               TArgument="string"
-                               TValue="double"
-                               Name="@legendLabel"
-                               Data="@group.Value"
-                               ArgumentField="p => p.XLabel"
-                               ValueField="p => p.Value"
-                               Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)">
-                <DxChartSeriesLabel Visible="true" />
-            </DxChartLineSeries>
-
+            <DxChartSplineSeries T="CapabilityData"
+                                 TArgument="string"
+                                 TValue="double"
+                                 Data="@group.ToList()"
+                                 ArgumentField="p => p.XLabel"
+                                 ValueField="p => p.Value"
+                                 Color="@System.Drawing.ColorTranslator.FromHtml(group.Key)">
+                <DxChartSeriesLabel Visible="false" />
+            </DxChartSplineSeries>
         }
+ *@
+
+
+       @*  @foreach (var segment in SegmentedData)
+        {
+            <DxChartSplineSeries T="CapabilityData"
+                                 TArgument="string"
+                                 TValue="double"
+                                 Data="@segment.Data"                                 
+                                 ArgumentField="p => p.XLabel"
+                                 ValueField="p => p.Value"
+                                 Color="@System.Drawing.ColorTranslator.FromHtml(segment.Color)">
+                <DxChartSeriesLabel Visible="false" />
+            </DxChartSplineSeries>
+        } *@
+
     }
 </DxChart>
 
 
 
 @code {
+
+    bool isOpen = false;
+
+    void ToggleAccordion()
+    {
+        isOpen = !isOpen;
+    }
+
     bool isPopupVisible;
 
     List<string> axisOptions = new() { "X-Axis", "Y-Axis" };
@@ -213,6 +377,7 @@
     string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
 
     double avg, UCL, LCL, LSL, USL;
+    double Sig1 = 0, Sig2 = 0, Sig3 = 0;
     string specLimitAxis = "Y-Axis"; // Default
     List<CapabilityData> processedData = new();
 
@@ -226,6 +391,18 @@
     DateTime? maxDate;
     List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPointsWithDates = new();
 
+    public class ChartSegment
+    {
+        public List<CapabilityData> Data { get; set; } = new();
+        public string Color { get; set; }   // changed from string → Color
+        public string ColorHex { get; set; }
+        public List<CapabilityData> Points { get; set; } = new();
+    }
+
+
+    public List<ChartSegment> SegmentedData { get; set; } = new();
+    List<CapabilityData> allData;      // full data (never touched)
+
     public class CapabilityData
     {
         public string XLabel { get; set; }    // <-- String X axis label
@@ -234,6 +411,43 @@
         public double NormalizedCurve { get; set; }
         public double Value { get; set; }     // Y-Axis
         public Color PointColor { get; set; }
+        public string PointColorHex { get; set; } = "#000000";
+    }
+    private void BuildSegments(List<CapabilityData> allPoints)
+    {
+        SegmentedData.Clear();
+
+        if (allPoints.Count == 0)
+            return;
+
+        string currentColor = allPoints[0].PointColorHex ?? "#000000";
+        var currentSegment = new ChartSegment { ColorHex = currentColor };
+        currentSegment.Points.Add(allPoints[0]);
+
+        for (int i = 1; i < allPoints.Count; i++)
+        {
+            var pt = allPoints[i];
+            var color = pt.PointColorHex ?? "#000000";
+
+            if (color != currentColor)
+            {
+                // duplicate boundary point for continuity
+                currentSegment.Points.Add(pt);
+
+                SegmentedData.Add(currentSegment);
+
+                // start new segment
+                currentColor = color;
+                currentSegment = new ChartSegment { ColorHex = color };
+                currentSegment.Points.Add(pt);
+            }
+            else
+            {
+                currentSegment.Points.Add(pt);
+            }
+        }
+
+        SegmentedData.Add(currentSegment);
     }
 
     public class ScatterSeriesGroup
@@ -392,18 +606,21 @@
         }
     }
 
+
     private void ApplyDateFilter()
     {
         if (startDate == null || endDate == null) return;
+
 
         var filtered = selectedPointsWithDates
             .Where(p => p.Date >= startDate && p.Date <= endDate)
             .ToList();
 
         LoadChartWithLabels(filtered);
+       
     }
 
-    private void LoadChartWithLabels(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> points)
+    private void LoadChartWithLabels__V(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> points)
     {
         if (points == null || points.Count == 0)
             return;
@@ -441,9 +658,78 @@
             }
         }
 
+        // Build SegmentedData
+        SegmentedData.Clear();
+
+        if (colorGroups.Count == 0)
+        {
+            // No rules → one segment with all data
+            SegmentedData.Add(new ChartSegment
+            {
+                Color = "#000000", // default black (or choose)
+                Data = selectedChartData
+            });
+        }
+        else
+        {
+            foreach (var kvp in colorGroups)
+            {
+                SegmentedData.Add(new ChartSegment
+                {
+                    Color = kvp.Key,        // hex from rule
+                    Data = kvp.Value.OrderBy(p => p.XLabel).ToList()
+                });
+            }
+        }
+
+
         StateHasChanged();
     }
 
+    private void LoadChartWithLabels(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> points)
+    {
+        if (points == null || points.Count == 0)
+            return;
+
+        selectedChartData = points
+            .OrderBy(p => p.XLabel)
+            .Select(p =>
+            {
+                var data = new CapabilityData
+                {
+                    XLabel = p.XLabel,
+                    SpecificGravity = p.X,
+                    Value = p.Y
+                };
+
+                // 🎨 Apply rules → assign PointColorHex
+                foreach (var rule in Rules)
+                {
+                    if (MatchesRule(data.Value, rule))
+                    {
+                        data.PointColorHex = rule.ColorHex;
+                        break;
+                    }
+                }
+
+                return data;
+            })
+            .ToList();
+
+        // 📌 Build Segments for colored line rendering
+        BuildSegments(selectedChartData);
+
+        // Stats
+        var yValues = selectedChartData.Select(d => d.Value).ToList();
+        avg = yValues.Average();
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+        UCL = yValues.Max();
+        LCL = yValues.Min();
+
+        StateHasChanged();
+    }
 
     private void OnSelectedDataItemsChanged(IEnumerable<object> selected)
     {
@@ -516,50 +802,38 @@
         if (selectedPoints == null || selectedPoints.Count == 0)
             return;
 
-        // Sort by X for proper line plotting
         selectedChartData = selectedPointsWithDates
-     .OrderBy(p => p.XLabel)  // Sort alphabetically or keep order
-     .Select(p => new CapabilityData
-     {
-         XLabel = p.XLabel,   // <-- use label
-         Value = p.Y
-     })
-     .ToList();
+            .OrderBy(p => p.XLabel)
+            .Select(p =>
+            {
+                var data = new CapabilityData
+                {
+                    XLabel = p.XLabel,
+                    Value = p.Y
+                };
 
+                // 🎨 Apply rules to this point
+                foreach (var rule in Rules)
+                {
+                    if (MatchesRule(data.Value, rule))
+                    {
+                        data.PointColorHex = rule.ColorHex;
+                        break;
+                    }
+                }
 
-        // 📌 Calculate statistics
-        var yValues = selectedPoints.Select(p => p.Y).ToList();
+                return data;
+            })
+            .ToList();
+
+        var yValues = selectedChartData.Select(d => d.Value).ToList();
         avg = yValues.Average();
-
-        var n = yValues.Count;
-        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
-        var sigma = Math.Sqrt(variance);
-
-        //UCL = avg + 3 * sigma;
-        //LCL = avg - 3 * sigma;
-
         UCL = yValues.Max();
         LCL = yValues.Min();
 
-        // 📌 Clear color groups
-        colorGroups.Clear();
-
-        if (Rules != null && Rules.Count > 0)
-        {
-            foreach (var rule in Rules)
-            {
-                string key = rule.ColorHex;
-
-                if (!colorGroups.ContainsKey(key))
-                    colorGroups[key] = new List<CapabilityData>();
-
-                colorGroups[key].AddRange(selectedChartData
-                    .Where(p => MatchesRule(p.Value, rule)));
-            }
-        }
-
-        StateHasChanged(); // trigger UI update
+        StateHasChanged();
     }
+
 
     private void LoadChart_VK(List<(double X, double Y)> selectedPoints)
     {

@@ -45,5 +45,6 @@ namespace Core.Entities
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         public string? FormName { get; set; }
         public string? SectionName { get; set; }
+        public long? DynamicFormId {  get; set; }
     }
 }

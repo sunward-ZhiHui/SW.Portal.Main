@@ -136,8 +136,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateSortOrderBy()) />
 
 
     </FooterContentTemplate>
@@ -238,11 +238,15 @@
         if (e.IsNew)
         {
             var createReq = new InsertDynamicFormWorkFlowApproval
-                {
-                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
-                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
-                    UserId = editModel.UserId,
-                };
+            {
+                AuditUserId = _applicationUser.UserID,
+                DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
+                UserId = editModel.UserId,
+                DynamicFormId = SelectedItems.DynamicFormId,
+                SequenceNo = SelectedItems.SequenceNo,
+                UserName = _usersAllList?.Any() == true ? _usersAllList.Where(w => editModel.UserId == w.UserID).FirstOrDefault()?.FirstName : null,
+            };
             try
             {
                 var result = await Mediator.Send(createReq);
@@ -262,11 +266,17 @@
         else
         {
             var UpdateReq = new InsertDynamicFormWorkFlowApproval
-                {
-                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
-                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
-                    UserId = editModel.UserId,
-                };
+            {
+                AuditUserId = _applicationUser.UserID,
+                DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
+                UserId = editModel.UserId,
+                UserName = _usersAllList?.Any() == true ? _usersAllList.Where(w => editModel.UserId == w.UserID).FirstOrDefault()?.FirstName : null,
+                PreUserId = editModel.PreUserId,
+                PreUserName=editModel.PreUserName,
+                DynamicFormId = SelectedItems.DynamicFormId,
+                SequenceNo = SelectedItems.SequenceNo,
+            };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
@@ -290,6 +300,8 @@
         {
             if (_usersAllList != null && _usersAllList.Count() > 0)
             {
+                navitems.PreUserId = navitems.UserId;
+                navitems.PreUserName = navitems.UserName;
                 var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Where(w => w.UserId != navitems.UserId).Select(s => s.UserId).ToList() : new List<long?>();
                 _usersList = _usersAllList.Where(w => !userIds.Contains(w.UserID)).ToList();
             }
@@ -319,6 +331,9 @@
         {
             if (_selectedItems != null)
             {
+                _selectedItems.DynamicFormId = SelectedItems.DynamicFormId;
+                _selectedItems.SequenceNo = SelectedItems.SequenceNo;
+                _selectedItems.AuditUserId = _applicationUser.UserID;
                 var request = new DeleteDynamicFormWorkFlowApproval(_selectedItems);
                 await Mediator.Send(request);
                 Blukdeletepopup = false;
@@ -385,14 +400,14 @@
         _usersList?.Clear();
         _usersAllList?.Clear();
         _dynamicFormWorkFlowApprovalList?.Clear();
-        _selectedItems=null;
+        _selectedItems = null;
         sortOrderList?.Clear();
         _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearData();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

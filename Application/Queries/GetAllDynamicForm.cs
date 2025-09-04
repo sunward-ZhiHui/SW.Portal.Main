@@ -87,7 +87,14 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-
+    public class GetDynamicFormSectionIds : PagedRequest, IRequest<List<DynamicFormSection>>
+    {
+        public List<long> DynamicFormSectionIds { get; set; }
+        public GetDynamicFormSectionIds(List<long> id)
+        {
+            this.DynamicFormSectionIds = id;
+        }
+    }
     public class InsertOrUpdateDynamicFormSectionAttribute : DynamicFormSectionAttribute, IRequest<DynamicFormSectionAttribute>
     {
 
@@ -105,6 +112,14 @@ namespace Application.Queries
     {
         public long? Id { get; set; }
         public GetDynamicFormSectionAttribute(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetDynamicFormSectionAttributeByIds : PagedRequest, IRequest<List<DynamicFormSectionAttribute>>
+    {
+        public List<long> Id { get; set; }
+        public GetDynamicFormSectionAttributeByIds(List<long> id)
         {
             this.Id = id;
         }
@@ -495,9 +510,11 @@ namespace Application.Queries
     public class InsertDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<DynamicFormSectionAttributeSecurity>
     {
         public DynamicFormSectionAttributeSecurity DynamicFormSectionAttributeSecurity { get; private set; }
-        public InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity dynamicFormSectionAttributeSecurity)
+        public long? UserId { get; set; }
+        public InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity dynamicFormSectionAttributeSecurity, long? userId)
         {
             this.DynamicFormSectionAttributeSecurity = dynamicFormSectionAttributeSecurity;
+            UserId = userId;
         }
     }
     public class GetDynamicFormSectionAttributeSecurityList : PagedRequest, IRequest<List<DynamicFormSectionAttributeSecurity>>
@@ -523,10 +540,13 @@ namespace Application.Queries
     {
         public long? Id { get; set; }
         public List<long?> Ids { get; set; }
-        public DeleteDynamicFormSectionAttributeSecurity(long? id, List<long?> ids)
+        public long? DynamicFormId { get; set; }
+        public DeleteDynamicFormSectionAttributeSecurity(long? id, List<long?> ids, long? dynamicFormId, long? userId)
         {
             this.Id = id;
             this.Ids = ids;
+            DynamicFormId = dynamicFormId;
+            UserId = userId;
         }
     }
     public class GetDynamicFormDataApprovalList : PagedRequest, IRequest<List<DynamicFormData>>
@@ -1038,11 +1058,19 @@ namespace Application.Queries
     public class GetDynamicFormAuditDynamicFormSectionList : PagedRequest, IRequest<List<DynamicFormAudit>>
     {
         public List<Guid?> SessionIds { get; set; }
-        public string? FormType {  get; set; }
+        public string? FormType { get; set; }
         public GetDynamicFormAuditDynamicFormSectionList(List<Guid?> dynamicFormId, string? formType)
         {
             this.SessionIds = dynamicFormId;
             FormType = formType;
+        }
+    }
+    public class GeDynamicFormWorkFlowListIds : PagedRequest, IRequest<List<DynamicFormWorkFlow>>
+    {
+        public List<long?> Ids { get; set; }
+        public GeDynamicFormWorkFlowListIds(List<long?> ids)
+        {
+            this.Ids = ids;
         }
     }
 

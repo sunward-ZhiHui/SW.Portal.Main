@@ -6,12 +6,28 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using DevExpress.Export
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
 @inject NavigationManager NavigationManager
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisibleApproval"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -24,7 +40,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="Index"
+            KeyFieldName="RowIndex"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -40,19 +56,31 @@
             VirtualScrollingEnabled="true"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
-            <DxGridDataColumn FieldName="Index" Caption="No" MinWidth="10" />
-            @*  <DxGridDataColumn FieldName="FormType" Caption="Form Type" MinWidth="50" /> *@
+            
+            @if (Items != null)
+            {
+                if (Items.FormType == "DynamicFormSectionAttributeSecurity" || Items.FormType == "DynamicFormSectionSecurity")
+                {
+                    <DxGridDataColumn FieldName="RowItemIndex" Caption="No" GroupIndex="0"  MinWidth="10" />
+                    <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="50" />
+                }
+                else
+                {
+                    <DxGridDataColumn FieldName="RowIndex" Caption="No" MinWidth="10" />
+                }
+            }
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="10" />
             <DxGridDataColumn FieldName="PreValue" Caption="Pre Value" MinWidth="10" />
             <DxGridDataColumn FieldName="CurrentValue" Caption="Current Value" MinWidth="10" />
             <DxGridDataColumn FieldName="IsFormDeleted" Caption="Is Deleted" MinWidth="10" />
         </Columns>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Index" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="RowIndex" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     [Parameter]
     public DynamicFormAudit Items { get; set; }
     bool PanelVisibleApproval { get; set; }
@@ -61,10 +89,28 @@
     IGrid? Grid7 { get; set; }
     private DynamicFormAudit _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
+    private List<ViewEmployee>? _usersList;
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunctionAll;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        _dynamicFormSectionAttrFormulaMasterFunctionAll = await Mediator.Send(new GetDynamicFormSectionAttrFormulaMasterFunction());
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        fileProfileTypeDocumentsAll = fileProfileTypeDocumentsAll == null ? new List<DocumentsModel>() : fileProfileTypeDocumentsAll;
         await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
     }
     async Task UpdateDataAsync()
     {
@@ -80,6 +126,9 @@
                     var results = await Mediator.Send(new GetDynamicFormAuditDynamicFormSectionList(DynamicFormSections, "DynamicFormSection"));
                     if (results != null && results.Count() > 0)
                     {
+                        List<long?> ids = new List<long?>();
+                        ids.AddRange(results.Where(w => w.ColumnName == "SectionFileProfileTypeId" && w.CurrentValue != null && w.CurrentValue != "").Select(s => Convert.ToInt64(s.CurrentValue)).Cast<long?>().ToList());
+                        ids.AddRange(results.Where(w => w.ColumnName == "SectionFileProfileTypeId" && w.PreValue != null && w.PreValue != "").Select(s => Convert.ToInt64(s.PreValue)).Cast<long?>().ToList());
                         results.ForEach(r =>
                         {
                             r.DisplayName = r.ColumnName;
@@ -94,7 +143,26 @@
                             if (r.ColumnName == "SectionFileProfileTypeId")
                             {
                                 r.DisplayName = "SW Library";
+                                if (!string.IsNullOrEmpty(r.CurrentValue))
+                                {
+                                    long? curId = Convert.ToInt64(r.CurrentValue);
+                                    if (curId > 0)
+                                    {
+                                        var crV = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == curId).FirstOrDefault();
+                                        r.CurrentValue = crV?.Name;
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(r.PreValue))
+                                {
+                                    long? preId = Convert.ToInt64(r.PreValue);
+                                    if (preId > 0)
+                                    {
+                                        var preV = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == preId).FirstOrDefault();
+                                        r.PreValue = preV?.Name;
+                                    }
+                                }
                             }
+                            r.IsFormDeleted = r.IsDeleted;
                         });
                         _dynamicFormApprovalData.AddRange(results);
                     }
@@ -103,11 +171,12 @@
                     if (resultsData != null && resultsData.Count() > 0)
                     {
                         List<long?> ids = new List<long?>();
-                        ids.AddRange(resultsData.Where(w => w.ColumnName == "AttributeID" && w.CurrentValue != null && w.CurrentValue!="").Select(s => Convert.ToInt64(s.CurrentValue)).Cast<long?>().ToList());
+                        ids.AddRange(resultsData.Where(w => w.ColumnName == "AttributeID" && w.CurrentValue != null && w.CurrentValue != "").Select(s => Convert.ToInt64(s.CurrentValue)).Cast<long?>().ToList());
                         ids.AddRange(resultsData.Where(w => w.ColumnName == "AttributeID" && w.PreValue != null && w.PreValue != "").Select(s => Convert.ToInt64(s.PreValue)).Cast<long?>().ToList());
                         var _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicFormList(-1, ids));
                         resultsData.ForEach(r =>
                         {
+                            r.IsFormDeleted = r.IsDeleted;
                             r.DisplayName = r.ColumnName;
                             if (r.ColumnName == "IsDisplayDropDownHeader")
                             {
@@ -142,26 +211,337 @@
                         });
                         _dynamicFormApprovalData.AddRange(resultsData);
                     }
-                    var DynamicFormSectionSecurityData = await Mediator.Send(new GetDynamicFormAuditList(Items.DynamicFormId, null));
-                    if (DynamicFormSectionSecurityData != null && DynamicFormSectionSecurityData.Count()>0)
+                    List<Guid?> DynamicFormSectionSecurityIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormSectionSecurity").Select(s => s.SessionId).Distinct().ToList();
+                    var DynamicFormSectionSecurityData = await Mediator.Send(new GetDynamicFormAuditDynamicFormSectionList(DynamicFormSectionSecurityIds, "DynamicFormSectionSecurity"));
+                    if (DynamicFormSectionSecurityData != null && DynamicFormSectionSecurityData.Count() > 0)
                     {
-                        var datas = DynamicFormSectionSecurityData.Where(w => w.FormType == "DynamicFormSectionSecurity").ToList();
-                        if (datas != null && datas.Count()>0)
+                        DynamicFormSectionSecurityData.ForEach(d =>
                         {
-                            datas.ForEach(d =>
+                            d.DisplayName = d.ColumnName == "UserId" ? "User Name" : d.ColumnName;
+                            if (d.Type == "Add")
                             {
-                                d.IsFormDeleted = d.IsDeleted;
-                                d.DisplayName = d.ColumnName;
-                            });
-                        }
-                        _dynamicFormApprovalData.AddRange(datas);
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Delete")
+                            {
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.PreValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.PreValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.PreValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.PreValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.PreValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.PreValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Update")
+                            {
+                                if ((d.ColumnName == "UserId" || d.ColumnName == "UserGroupId" || d.ColumnName == "LevelId") && !string.IsNullOrEmpty(d.PreValue))
+                                {
+                                    var preValueData = d.PreValue.Split('-'); // no need for null-coalescing, already checked
+                                    string preName = string.Empty;
 
+                                    // Map first part (UserID → FirstName)
+                                    if (_usersList?.Any() == true && preValueData.Length > 0 && long.TryParse(preValueData[0], out long preV) && preV > 0)
+                                    {
+                                        preName = _usersList.FirstOrDefault(f => f.UserID == preV)?.FirstName ?? string.Empty;
+                                    }
+
+                                    // Handle second part (if exists)
+                                    string secondPart = preValueData.Length > 1 ? preValueData[1] : "0";
+                                    string secondPartName = string.Empty;
+                                    if (long.TryParse(secondPart, out long secondPartV) && secondPartV > 0)
+                                    {
+                                        var getType = DynamicFormSectionSecurityData.Where(w => w.ColumnName == "Type").FirstOrDefault();
+                                        if (getType != null)
+                                        {
+                                            if (getType.PreValue == "UserGroup" && _userGroupsList?.Any() == true)
+                                            {
+                                                secondPartName = _userGroupsList.FirstOrDefault(f => f.UserGroupId == secondPartV)?.Name;
+                                            }
+                                            if (getType.PreValue == "Level" && _levelMasterLists?.Any() == true)
+                                            {
+                                                secondPartName = _levelMasterLists.FirstOrDefault(f => f.LevelID == secondPartV)?.Name;
+                                            }
+                                        }
+                                    }
+
+                                    // Decide what PreValue should finally hold
+                                    d.PreValue = !string.IsNullOrEmpty(secondPartName) ? $"{preName} - {secondPartName}" : preName;
+                                }
+
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long curV) && curV > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == curV)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long curV1) && curV1 > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == curV1)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == curV2)?.Name;
+                                }
+
+                            }
+                            if (d.ColumnName == "DynamicFormSectionId")
+                            {
+                                d.DisplayName = "DynamicForm Section";
+                            }
+                            d.IsFormDeleted = d.IsDeleted;
+
+                            _dynamicFormApprovalData.Add(d);
+                        });
+                    }
+                    List<Guid?> DynamicFormSectionAttributeSecurityIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormSectionAttributeSecurity").Select(s => s.SessionId).Distinct().ToList();
+                    var DynamicFormSectionAttributeSecurityData = await Mediator.Send(new GetDynamicFormAuditDynamicFormSectionList(DynamicFormSectionAttributeSecurityIds, "DynamicFormSectionAttributeSecurity"));
+
+                    if (DynamicFormSectionAttributeSecurityData != null && DynamicFormSectionAttributeSecurityData.Count() > 0)
+                    {
+                        DynamicFormSectionAttributeSecurityData.ForEach(d =>
+                        {
+                            d.DisplayName = d.ColumnName == "UserId" ? "User Name" : d.ColumnName;
+                            if (d.Type == "Delete")
+                            {
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.PreValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.PreValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.PreValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.PreValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.PreValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.PreValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Add")
+                            {
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Update")
+                            {
+                                if ((d.ColumnName == "UserId" || d.ColumnName == "UserGroupId" || d.ColumnName == "LevelId") && !string.IsNullOrEmpty(d.PreValue))
+                                {
+                                    var preValueData = d.PreValue.Split('-'); // no need for null-coalescing, already checked
+                                    string preName = string.Empty;
+
+                                    // Map first part (UserID → FirstName)
+                                    if (_usersList?.Any() == true && preValueData.Length > 0 && long.TryParse(preValueData[0], out long preV) && preV > 0)
+                                    {
+                                        preName = _usersList.FirstOrDefault(f => f.UserID == preV)?.FirstName ?? string.Empty;
+                                    }
+
+                                    // Handle second part (if exists)
+                                    string secondPart = preValueData.Length > 1 ? preValueData[1] : "0";
+                                    string secondPartName = string.Empty;
+                                    if (long.TryParse(secondPart, out long secondPartV) && secondPartV > 0)
+                                    {
+                                        var getType = DynamicFormSectionAttributeSecurityData.Where(w => w.ColumnName == "UserType").FirstOrDefault();
+                                        if (getType != null)
+                                        {
+                                            if (getType.PreValue == "UserGroup" && _userGroupsList?.Any() == true)
+                                            {
+                                                secondPartName = _userGroupsList.FirstOrDefault(f => f.UserGroupId == secondPartV)?.Name;
+                                            }
+                                            if (getType.PreValue == "Level" && _levelMasterLists?.Any() == true)
+                                            {
+                                                secondPartName = _levelMasterLists.FirstOrDefault(f => f.LevelID == secondPartV)?.Name;
+                                            }
+                                        }
+                                    }
+
+                                    // Decide what PreValue should finally hold
+                                    d.PreValue = !string.IsNullOrEmpty(secondPartName) ? $"{preName} - {secondPartName}" : preName;
+                                }
+
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long curV) && curV > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == curV)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long curV1) && curV1 > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == curV1)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == curV2)?.Name;
+                                }
+
+                            }
+                            if (d.ColumnName == "DynamicFormSectionAttributeId")
+                            {
+                                d.DisplayName = "DynamicForm Section Attribute";
+                            }
+                            d.IsFormDeleted = d.IsDeleted;
+
+                            _dynamicFormApprovalData.Add(d);
+                        });
+                    }
+                    var listData = _dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormSectionAttributeSection" || w.FormType == "DynamicFormSectionAttrFormula" || w.FormType == "DynamicFormSectionAttrFormulaFunction") && w.DynamicFormSectionAttributeId > 0).ToList();
+
+                    listData.AddRange(_dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicForm" ||  w.FormType == "DynamicFormApproval" || w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormWorkFlowApproval") && (w.ColumnName != "DynamicFormWorkFlowId" && w.ColumnName != "DynamicFormId" && w.ColumnName != "ApprovalUserId" && w.ColumnName != "UserId" && w.ColumnName != "SelectDynamicFormSectionId")).ToList());
+                    if (listData != null && listData.Count() > 0)
+                    {
+                        foreach (var indexData in listData)
+                        {
+                            if (indexData.FormType == "DynamicForm" && indexData.FormType == "DynamicFormSectionAttributeSection" && indexData.ColumnName == "DynamicFormSectionSelectionId" || indexData.ColumnName == "DynamicFormSectionId")
+                            {
+                            }
+                            else
+                            {
+                                indexData.IsFormDeleted = indexData.IsDeleted;
+                                _dynamicFormApprovalData.Add(indexData);
+                            }
+                        }
                     }
                     int i = 0;
-                    foreach (var index in _dynamicFormApprovalData)
+                    if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count() > 0)
                     {
-                        _dynamicFormApprovalData[i].Index = i + 1;
-                        i++;
+                        List<DynamicFormSectionAttribute> resultItems = new List<DynamicFormSectionAttribute>();
+                        var DynamicFormSectionAttributeIds = _dynamicFormApprovalData.Where(d => d.ColumnName == "DynamicFormSectionAttributeId").SelectMany(s => new[] { s.PreValue, s.CurrentValue }).Select(v => long.TryParse(v, out var val) ? (long?)val : null).Where(v => v.HasValue).Select(v => v.Value).Distinct().ToList();
+                        if (DynamicFormSectionAttributeIds?.Any() == true)
+                        {
+                            resultItems = await Mediator.Send(new GetDynamicFormSectionAttributeByIds(DynamicFormSectionAttributeIds));
+                        }
+                        List<DynamicFormSection> _dynamicFormSectionData = new List<DynamicFormSection>();
+                        var DynamicFormSectionIds = _dynamicFormApprovalData.Where(d => d.ColumnName == "DynamicFormSectionId").SelectMany(s => new[] { s.PreValue, s.CurrentValue }).Select(v => long.TryParse(v, out var val) ? (long?)val : null).Where(v => v.HasValue).Select(v => v.Value).Distinct().ToList();
+                        if (DynamicFormSectionIds?.Any() == true)
+                        {
+                            _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSectionIds(DynamicFormSectionIds));
+                        }
+                        foreach (var index in _dynamicFormApprovalData)
+                        {
+                            if (index.ColumnName == "DynamicFormSectionId" && _dynamicFormSectionData?.Any() == true)
+                            {
+                                if (_dynamicFormSectionData?.Any() == true && long.TryParse(index.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    var item = _dynamicFormSectionData.Where(q => q.DynamicFormSectionId == curV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].CurrentValue = $"{item.SectionName}";
+                                    }
+                                }
+                                if (_dynamicFormSectionData?.Any() == true && long.TryParse(index.PreValue, out long preV2) && preV2 > 0)
+                                {
+                                    var item = _dynamicFormSectionData.Where(q => q.DynamicFormSectionId == preV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].PreValue = $"{item.SectionName}";
+                                    }
+                                }
+                            }
+                            if (index.ColumnName == "DynamicFormSectionAttributeId")
+                            {
+                                if (resultItems?.Any() == true && long.TryParse(index.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    var item = resultItems.Where(q => q.DynamicFormSectionAttributeId == curV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].CurrentValue = $"{item.DisplayName} - {item.ControlType}";
+                                    }
+                                }
+                                if (resultItems?.Any() == true && long.TryParse(index.PreValue, out long preV2) && preV2 > 0)
+                                {
+                                    var item = resultItems.Where(q => q.DynamicFormSectionAttributeId == preV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].PreValue = $"{item.DisplayName} - {item.ControlType}";
+                                    }
+                                }
+                            }
+                            if (index.ColumnName == "DynamicFormSectionAttrFormulaMasterFuntionId")
+                            {
+
+                                if (_dynamicFormSectionAttrFormulaMasterFunctionAll?.Any() == true && long.TryParse(index.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    var item = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(q => q.MasterID == curV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].CurrentValue = $"{item.Type}";
+                                    }
+                                }
+                                if (_dynamicFormSectionAttrFormulaMasterFunctionAll?.Any() == true && long.TryParse(index.PreValue, out long preV2) && preV2 > 0)
+                                {
+                                    var item = _dynamicFormSectionAttrFormulaMasterFunctionAll.Where(q => q.MasterID == preV2).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        _dynamicFormApprovalData[i].PreValue = $"{item.Type}";
+                                    }
+                                }
+                            }
+                            if (index.FormType == "DynamicForm" ||  index.FormType == "DynamicFormApproval" || index.FormType == "DynamicFormWorkFlowApproval" || index.FormType == "DynamicFormWorkFlow" || index.FormType == "DynamicFormSectionAttributeSection" || index.FormType == "DynamicFormSectionAttrFormulaFunction" || index.FormType == "DynamicFormSectionAttrFormula")
+                            {
+                                _dynamicFormApprovalData[i].DisplayName = index.ColumnName == "DynamicFormSectionAttrFormulaMasterFuntionId" ? "SpinEdit Type" : (index.ColumnName == "DynamicFormSectionAttributeId" ? "Dynamic Form Section Attribute" : index.ColumnName);
+                            }
+                            _dynamicFormApprovalData[i].RowIndex = i + 1;
+                            i++;
+                        }
+                        var uniqueSess = _dynamicFormApprovalData.Where(w => w.UniqueSessionId != null && (w.FormType == "DynamicFormSectionAttributeSecurity" || w.FormType == "DynamicFormSectionSecurity")).Select(s => s.UniqueSessionId).Distinct().ToList();
+                        if (uniqueSess?.Any() == true)
+                        {
+                            int j = 0;
+                            foreach (var ind in uniqueSess)
+                            {
+                                var k = j + 1;
+                                var datas = _dynamicFormApprovalData.Where(w => w.UniqueSessionId == ind).ToList();
+                                if (datas?.Any() == true)
+                                {
+                                    
+                                    foreach (var ind1 in datas)
+                                    {
+                                        var inx = _dynamicFormApprovalData.IndexOf(ind1);
+                                        _dynamicFormApprovalData[inx].RowItemIndex = k;
+                                        
+                                    }
+                                }
+                                j++;
+                            }
+                        }
                     }
                 }
             }

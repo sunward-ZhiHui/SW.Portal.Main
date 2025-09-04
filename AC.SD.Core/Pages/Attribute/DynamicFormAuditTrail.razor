@@ -40,7 +40,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="Index"
+            KeyFieldName="RowIndex"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -56,9 +56,11 @@
             VirtualScrollingEnabled="true"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
-            <DxGridDataColumn FieldName="Index" Caption="No" MinWidth="10" />
-            <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="50" />
-            <DxGridDataColumn FieldName="FormType" Caption="Form Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="RowIndex" Caption="No" MinWidth="5" />
+            <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="10" />
+            <DxGridDataColumn FieldName="FormDisplayType" Caption="Form Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="DisplayName" Caption="Name" MinWidth="50" />
+
             <DxGridDataColumn FieldName="AuditUser" Caption="Audit User" MinWidth="50" />
             <DxGridDataColumn FieldName="AuditDate" Caption="Audit Date" MinWidth="50">
                 <CellDisplayTemplate>
@@ -78,7 +80,7 @@
             <DynamicFormAuditFormListItems Items="(DynamicFormAudit)context.DataItem" />
         </DetailRowTemplate>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Index" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="RowIndex" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
@@ -124,15 +126,128 @@
                 var _dynamicFormApprovalDatas = await Mediator.Send(new GetDynamicFormAuditList(dynamicFormId, null));
                 if (_dynamicFormApprovalDatas != null && _dynamicFormApprovalDatas.Count() > 0)
                 {
+                    List<DynamicFormSection> _dynamicFormSectionData = new List<DynamicFormSection>();
+                    var DynamicFormSectionIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormSection" && w.DynamicFormSetId > 0).Select(s => (long)s.DynamicFormSetId).Distinct().ToList();
                     List<Guid?> sesIds = _dynamicFormApprovalDatas.Select(s => s.SessionId).Distinct().ToList();
+                    List<DynamicFormSectionAttribute> resultItems = new List<DynamicFormSectionAttribute>();
+                    var DynamicFormSectionAttributeIds = _dynamicFormApprovalDatas.Where(d => d.FormType == "DynamicFormSectionAttribute" && d.DynamicFormSetId > 0).Select(s => (long)s.DynamicFormSetId).Distinct().ToList();
+                    var DynamicFormSectionsIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormSectionSecurity" && w.DynamicFormSectionId > 0).Select(s => (long)s.DynamicFormSectionId).Distinct().ToList();
+                    DynamicFormSectionIds.AddRange(DynamicFormSectionsIds);
+                    if (DynamicFormSectionIds?.Any() == true)
+                    {
+                        _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSectionIds(DynamicFormSectionIds.Distinct().ToList()));
+                    }
+                    var DynamicFormSectionAttributeIdss = _dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicFormSectionAttributeSection" || w.FormType == "DynamicFormSectionAttributeSecurity" || w.FormType == "DynamicFormSectionAttrFormula" || w.FormType == "DynamicFormSectionAttrFormulaFunction") && w.DynamicFormSectionAttributeId > 0).Select(s => (long)s.DynamicFormSectionAttributeId).Distinct().ToList();
+
+                    DynamicFormSectionAttributeIds.AddRange(DynamicFormSectionAttributeIdss);
+                    if (DynamicFormSectionAttributeIds?.Any() == true)
+                    {
+                        resultItems = await Mediator.Send(new GetDynamicFormSectionAttributeByIds(DynamicFormSectionAttributeIds.Distinct().ToList()));
+                    }
+                    List<DynamicFormWorkFlow> DynamicFormWorkFlowItems = new List<DynamicFormWorkFlow>();
+                    var DynamicFormWorkFlowIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormWorkFlow" && w.DynamicFormSetId > 0).Select(s => (long?)s.DynamicFormSetId).Distinct().ToList();
+                    if (DynamicFormWorkFlowIds?.Any() == true)
+                    {
+                        DynamicFormWorkFlowItems = await Mediator.Send(new GeDynamicFormWorkFlowListIds(DynamicFormWorkFlowIds));
+                    }
                     int i = 0;
                     foreach (var index in sesIds)
                     {
                         var dynamicFormAudit = _dynamicFormApprovalDatas.FirstOrDefault(f => f.SessionId == index);
                         if (dynamicFormAudit != null)
                         {
-                            dynamicFormAudit.Index = i + 1;
-                            dynamicFormAudit.FormType = AddSpacesToPascalCase(dynamicFormAudit.FormType);
+                            dynamicFormAudit.FormDisplayType = AddSpacesToPascalCase(dynamicFormAudit.FormType);
+                            if (dynamicFormAudit.FormType == "DynamicFormSectionSecurity")
+                            {
+                                dynamicFormAudit.FormDisplayType = "Section Permission";
+                                if (_dynamicFormSectionData?.Any() == true)
+                                {
+                                    var item = _dynamicFormSectionData.Where(q => q.DynamicFormSectionId == dynamicFormAudit.DynamicFormSectionId).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        dynamicFormAudit.DisplayName = $"{item.SectionName}";
+                                    }
+                                }
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormSection")
+                            {
+                                dynamicFormAudit.FormDisplayType = "Section Entry";
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormWorkFlow")
+                            {
+                                dynamicFormAudit.FormDisplayType = "WorkFlow";
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormApproval")
+                            {
+                                dynamicFormAudit.FormDisplayType = "WorkFlow Approval User";
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormSectionAttribute")
+                            {
+                                dynamicFormAudit.FormDisplayType = "Attribute Form";
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormSectionAttributeSecurity" || dynamicFormAudit.FormType == "DynamicFormSectionAttributeSection" || dynamicFormAudit.FormType == "DynamicFormSectionAttrFormulaFunction" || dynamicFormAudit.FormType == "DynamicFormSectionAttrFormula")
+                            {
+                                if (dynamicFormAudit.FormType == "DynamicFormSectionAttributeSecurity")
+                                {
+                                    dynamicFormAudit.FormDisplayType = "Control Permission Form";
+                                }
+                                if (dynamicFormAudit.FormType == "DynamicFormSectionAttrFormula")
+                                {
+                                    dynamicFormAudit.FormDisplayType = "Formula";
+                                }
+                                if (dynamicFormAudit.FormType == "DynamicFormSectionAttrFormulaFunction")
+                                {
+                                    dynamicFormAudit.FormDisplayType = "Formula Range";
+                                }
+                                if (dynamicFormAudit.FormType == "DynamicFormSectionAttributeSection")
+                                {
+                                    dynamicFormAudit.FormDisplayType = "Control Value";
+                                }
+                                if (resultItems?.Any() == true)
+                                {
+                                    var item = resultItems.Where(q => q.DynamicFormSectionAttributeId == dynamicFormAudit.DynamicFormSectionAttributeId).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        dynamicFormAudit.DisplayName = $"{item.DisplayName} - {item.ControlType}";
+                                    }
+                                }
+                            }
+                            
+                            if (dynamicFormAudit.FormType == "DynamicFormSection" && _dynamicFormSectionData?.Any() == true)
+                            {
+                                var item = _dynamicFormSectionData.Where(q => q.DynamicFormSectionId == dynamicFormAudit.DynamicFormSetId).FirstOrDefault();
+                                if (item != null)
+                                {
+                                    dynamicFormAudit.DisplayName = $"{item.SectionName}";
+                                }
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormSectionAttribute" && resultItems?.Any() == true)
+                            {
+                                var item = resultItems.Where(q => q.DynamicFormSectionAttributeId == dynamicFormAudit.DynamicFormSetId).FirstOrDefault();
+                                if (item != null)
+                                {
+                                    dynamicFormAudit.DisplayName = $"{item.DisplayName} - {item.ControlType}";
+                                }
+                            }
+                            if (dynamicFormAudit.FormType == "DynamicFormWorkFlow")
+                            {
+                                var dynamicFormAudits = _dynamicFormApprovalDatas.FirstOrDefault(f => f.SessionId == index && f.Type == "Delete" && f.ColumnName == "SequenceNo");
+                                if (dynamicFormAudits != null)
+                                {
+                                    dynamicFormAudit.DisplayName = dynamicFormAudits?.PreValue;
+                                }
+                                var dynamicFormAuditData = _dynamicFormApprovalDatas.FirstOrDefault(f => f.SessionId == index && (f.Type == "Add" || f.Type == "Update"));
+                                if (dynamicFormAuditData != null)
+                                {
+                                    var item = DynamicFormWorkFlowItems.Where(q => q.DynamicFormWorkFlowId == dynamicFormAudit.DynamicFormSetId).FirstOrDefault();
+                                    if (item != null)
+                                    {
+                                        dynamicFormAudit.DisplayName = $"{item.SequenceNo}";
+                                    }
+                                }
+                            }
+
+                            dynamicFormAudit.RowIndex = i + 1;
                             _dynamicFormApprovalData.Add(dynamicFormAudit);
                             i++;
                         }

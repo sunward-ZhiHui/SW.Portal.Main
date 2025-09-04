@@ -43,7 +43,7 @@
                         <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
-                        <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-link" Click="@OpenAuditTrail" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-link" Click="@OpenAuditTrail" Enabled="@IsAuditTrailEnabled" />
                         <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                             <Items>
                                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
@@ -73,7 +73,7 @@
                         <DxTextBox @bind-Text="@Data.AddedBy" ShowValidationIcon="true" Enabled=false />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Date" ColSpanMd="6">
-                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled=false />
+                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Mask="dd-MMM-yyyy" Enabled=false />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                         <DxComboBox Data="@_plantItems"
@@ -163,9 +163,9 @@
 
                         <ValidationMessage For="@(() => Data.VersionNo)" />
                     </DxFormLayoutItem>
-                    @*   <DxFormLayoutItem Caption="Is Enable Audit Trail" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@Data.IsAuditTrail"></DxCheckBox>
-                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem Caption="Is Enable Audit Trail" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsAuditTrail"></DxCheckBox>
+                    </DxFormLayoutItem>
                     @*<DxFormLayoutItem Caption="Is Multiple Upload" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsMultipleUpload"></DxCheckBox>
                     </DxFormLayoutItem> *@
@@ -317,7 +317,7 @@
 <DxPopup @bind-Visible="@OpenAuditTrailPopUp"
          ShowFooter="true"
          ShowCloseButton="true"
-         HeaderText="Odata Attribute"
+         HeaderText="Audit Trail"
          Closed="EulaPopupClosed"
          Width="1500px">
     <BodyContentTemplate>
@@ -333,7 +333,7 @@
     private DynamicFormAuditTrail refDynamicFormAuditTrail { get; set; }
     bool OdataAttrListpopup { get; set; } = false;
     private IDisposable? DynamicFormPage7; private DynamicFormReports refDynamicFormReports;
-    bool EditEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool IsAuditTrailEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     private DxTreeView _treeFilterDocView;
@@ -465,10 +465,10 @@
         Data.ScreenID = null;
         Data.Name = null;
         Data.SessionId = null;
-        Data.IsGridForm = false;Data.IsAuditTrail = false;
+        Data.IsGridForm = false; Data.IsAuditTrail = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
         Data.IsApproval = false; Data.SopNo = null; Data.VersionNo = null;
-        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
+        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null; IsAuditTrailEnabled = false;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -486,9 +486,11 @@
                 Data.ModifiedBy = dynamicFormData.ModifiedBy;
                 Data.ScreenID = dynamicFormData.ScreenID;
                 Data.Name = dynamicFormData.Name;
-                Data.SessionId = dynamicFormData.SessionId;
+                Data.SessionID = dynamicFormData.SessionID;
+                Data.SessionId = dynamicFormData.SessionID;
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
                 Data.IsUpload = true; Data.IsAuditTrail = dynamicFormData.IsAuditTrail;
+                IsAuditTrailEnabled = dynamicFormData.IsAuditTrail.GetValueOrDefault(false);
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;
@@ -641,6 +643,7 @@
     {
         try
         {
+            dynamicForm.AuditUserId = applicationUser.UserID;
             var request = new DeleteDynamicForm(dynamicForm);
             await Mediator.Send(request);
             Blukdeletepopup = false;
@@ -682,6 +685,7 @@
                 Name = Data.Name,
                 ScreenID = Data.ScreenID,
                 SessionID = Data.SessionID,
+                SessionId=Data.SessionId,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
                 StatusCodeID = 1,
@@ -693,8 +697,15 @@
                 IsGridForm = Data.IsGridForm,
                 VersionNo = Data.VersionNo,
                 SopNo = Data.SopNo,
-                IsAuditTrail=Data.IsAuditTrail,
+                IsAuditTrail = Data.IsAuditTrail,
                 FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
+                AuditUserId = applicationUser.UserID,
+                CompanyName = _plantItems?.Any() == true && Data.CompanyId > 0 ? _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyId)?.PlantCode : null,
+                AddedBy = Data.AddedBy,
+                AddedByUserID=Data.AddedByUserID,
+                ModifiedBy = applicationUser.UserName,
+                ProfileName = _documentProfileNoList?.Any() == true && Data.ProfileId > 0 ? _documentProfileNoList.FirstOrDefault(f => f.ProfileID == Data.ProfileId)?.Name : null,
+                FileProfileTypeName = fileProfileTypeDocumentsAll?.Any() == true && Data.FileProfileTypeId > 0 ? fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == Data.FileProfileTypeId)?.Name : null,
             };
 
             await Mediator.Send(editReq);
@@ -723,6 +734,7 @@
                 SopNo = Data.SopNo,
                 IsAuditTrail = Data.IsAuditTrail,
                 FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
+                AuditUserId = applicationUser.UserID,
             };
             var result = await Mediator.Send(createReq);
             if (result > 0)

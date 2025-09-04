@@ -101,8 +101,34 @@
         <DxGridDataColumn FieldName="IsDynamicFormWorkFlowApproval" Caption="Is Approval User Exit" MinWidth="40" />
         <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
         <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
-        <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
+        <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" MinWidth="50">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormWorkFlowForm)context.DataItem;
+                    var startDate = string.Empty;
+                    if (item.CompletedDate.HasValue && item.CompletedDate != DateTime.MinValue)
+                    {
+                        startDate = item.CompletedDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                    }
+                }
+                @startDate
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
         <DxGridDataColumn FieldName="CurrentApprovalUserName" Caption="Current Approver" />
+        <DxGridDataColumn FieldName="ApprovedByUser" Caption="Approved By" />
+        <DxGridDataColumn FieldName="ApprovedDate" Caption="Approved Date" MinWidth="50">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormWorkFlowForm)context.DataItem;
+                    var startDate = string.Empty;
+                    if (item.ApprovedDate.HasValue && item.ApprovedDate != DateTime.MinValue)
+                    {
+                        startDate = item.ApprovedDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                    }
+                }
+                @startDate
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -421,6 +447,8 @@
                     dynamicFormWorkFlowForm.IsAnomalyStatus = listData.IsAnomalyStatus;
                     dynamicFormWorkFlowForm.IsMultipleUser = listData.IsMultipleUser;
                     dynamicFormWorkFlowForm.DynamicFormWorkFlowMultipleUsers = listData.DynamicFormWorkFlowMultipleUsers;
+                    dynamicFormWorkFlowForm.ApprovedByUser = listData.ApprovedByUser;
+                    dynamicFormWorkFlowForm.ApprovedDate = listData.ApprovedDate;
                     if (listData.DynamicFormWorkFlowMultipleUsers != null)
                     {
                         UserIds.AddRange(listData.DynamicFormWorkFlowMultipleUsers.Select(a => a.UserId).ToList());

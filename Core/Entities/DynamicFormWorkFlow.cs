@@ -67,6 +67,20 @@ namespace Core.Entities
         public int? FlowStatusID { get; set; }
         public bool? IsAnomalyStatus { get; set; } = false;
         public bool? IsMultipleUser { get; set; } = false;
+        public long? AuditUserId { get; set; }
+        public List<string?> CurSelectDynamicFormSectionName { get; set; } = new List<string?>();
+        public List<string?> CurSelectUserName { get; set; } = new List<string?>();
+        public List<string?> PreSelectDynamicFormSectionName { get; set; } = new List<string?>();
+        public List<string?> PreSelectUserName { get; set; } = new List<string?>();
+        public IEnumerable<long>? PreDynamicFormSectionIDs { get; set; } = new List<long>();
+        public List<long?> PreSelectUserIds { get; set; } = new List<long?>();
+        public List<long?> CurrentSelectUserIds { get; set; } = new List<long?>();
+        public long? ModifiedByUserID { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public long? AddedByUserID { get; set; }
+        public string? AddedBy { get; set; }
+        public string? ModifiedBy { get; set; }
     }
     public class DynamicFormWorkFlowMultipleUser
     {
@@ -129,7 +143,9 @@ namespace Core.Entities
         public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
         public bool? IsDynamicFormWorkFlowApproval { get; set; } = false;
         public string? ApprovedStatus { get; set; }
-        public string? CurrentApprovalUserName {  get; set; }
+        public string? CurrentApprovalUserName { get; set; }
+        public string? ApprovedByUser { get; set; }
+        public DateTime? ApprovedDate { get; set; }
     }
     public class DynamicFormWorkFlowForm
     {
@@ -193,6 +209,8 @@ namespace Core.Entities
         public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
         [DynamicFormWorkFlowFormMultipleUsersCustomValidation]
         public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
+        public string? ApprovedByUser { get; set; }
+        public DateTime? ApprovedDate { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {

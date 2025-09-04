@@ -192,6 +192,8 @@
         }
         if (setSet == true)
         {
+            dynamicFormSectionAttribute.DynamicFormId = SelectedItems.DynamicFormId;
+            dynamicFormSectionAttribute.AuditUserId = applicationUser.UserID;
             var result = await Mediator.Send(new UpdateDynamicFormSectionAttributeAllByCheckBox(dynamicFormSectionAttribute));
             if (result.DynamicFormSectionAttributeId > 0)
             {

@@ -276,7 +276,7 @@
         }
         else
         {
-            loading = true;
+            loading = true; Data.AuditUserId = applicationUser.UserID; Data.DynamicFormId = SelectedItems.DynamicFormId;
             var response = await Mediator.Send(new InsertDynamicFormSectionSecurity(Data));
             if (response.DynamicFormSectionId > 0)
             {

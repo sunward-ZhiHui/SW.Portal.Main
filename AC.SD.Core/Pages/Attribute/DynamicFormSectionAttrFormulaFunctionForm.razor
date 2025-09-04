@@ -77,8 +77,8 @@
                                 Value="@types.DynamicFormSectionAttrFormulaMasterFuntionId"
                                 TextFieldName="Type"
                                 ValueFieldName="MasterID"
-                                ValueExpression="@(() => types.DynamicFormSectionAttrFormulaMasterFuntionId )"
-                                ValueChanged="@((long? plant) => onChangedData(plant,types))" ShowValidationIcon="true" />
+                                ValueExpression="@(() => types.DynamicFormSectionAttrFormulaMasterFuntionId)"
+                                ValueChanged="@((long? plant) => onChangedData(plant, types))" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DynamicFormSectionAttrFormulaMasterFuntionId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="A Value" ColSpanMd="6">
@@ -130,6 +130,10 @@
     public DynamicFormSectionAttribute SelectedItems { get; set; }
     [Parameter]
     public bool? IsCalculate { get; set; } = true;
+    [Parameter]
+    public DynamicFormSection Items { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
     private List<DynamicFormSectionAttrFormulaFunction> _dynamicFormSectionAttrFormulaFunction;
     private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunction;
     private List<DynamicFormSectionAttrFormulaMasterFunction> _dynamicFormSectionAttrFormulaMasterFunctionAll;
@@ -185,16 +189,18 @@
     {
         var navitems = (DynamicFormSectionAttrFormulaFunction)e.EditModel;
         var createReq = new InsertOrUpdateDynamicFormSectionAttrFormulaFunction
-            {
-                AValue = navitems.AValue,
-                BValue = navitems.IsBValueEnabled == false ? null : navitems.BValue,
-                DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId,
-                DynamicFormSectionAttrFormulaMasterFuntionId = navitems.DynamicFormSectionAttrFormulaMasterFuntionId,
-                DynamicFormSectionAttrFormulaFunctionId = navitems.DynamicFormSectionAttrFormulaFunctionId,
-                ColorValue = !string.IsNullOrEmpty(navitems.ColorValue) ? navitems.ColorValue : "#000000",
-                IsBValueEnabled = navitems.IsBValueEnabled,
-                IsCalculate=IsCalculate,
-            };
+        {
+            AuditUserId = applicationUser.UserID,
+            DynamicFormId = Items.DynamicFormId,
+            AValue = navitems.AValue,
+            BValue = navitems.IsBValueEnabled == false ? null : navitems.BValue,
+            DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId,
+            DynamicFormSectionAttrFormulaMasterFuntionId = navitems.DynamicFormSectionAttrFormulaMasterFuntionId,
+            DynamicFormSectionAttrFormulaFunctionId = navitems.DynamicFormSectionAttrFormulaFunctionId,
+            ColorValue = !string.IsNullOrEmpty(navitems.ColorValue) ? navitems.ColorValue : "#000000",
+            IsBValueEnabled = navitems.IsBValueEnabled,
+            IsCalculate = IsCalculate,
+        };
 
         if (e.IsNew)
         {
@@ -339,6 +345,7 @@
 
                     if (item is DynamicFormSectionAttrFormulaFunction selectData)
                     {
+                        selectData.AuditUserId = applicationUser.UserID; selectData.DynamicFormId = Items.DynamicFormId;
                         var request = new DeleteDynamicFormSectionAttrFormulaFunction(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;

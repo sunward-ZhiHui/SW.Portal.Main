@@ -47,5 +47,12 @@ namespace Core.Entities
         public int? ControlTypeId { get; set; }
         public string? DropDownTypeId { get; set; }
         public string? ApplicationMasterIds { get; set; }
+        public long? AuditUserId { get; set; }
+        public IEnumerable<string?> PreShowSectionVisibleDataIds { get; set; } = new List<string?>();
+        public IEnumerable<long?> PreDynamicFormSectionIds { get; set; } = new List<long?>();
+        public List<string?> PreDynamicFormSectionNames { get; set; } = new List<string?>();
+        public List<string?> CurrentDynamicFormSectionNames { get; set; } = new List<string?>();
+        public List<string?> PreShowSectionVisibleDataNames { get; set; } = new List<string?>();
+        public List<string?> CurrentShowSectionVisibleDataNames { get; set; } = new List<string?>();
     }
 }

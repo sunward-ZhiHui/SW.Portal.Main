@@ -54,6 +54,7 @@ namespace Core.Entities
         public string? SopNo { get; set; }
         public string? VersionNo { get; set; }
         public bool? IsAuditTrail {  get; set; }= false;
+        public long? AuditUserId { get; set; }
     }
     public class AddTempSectionAttribute
     {

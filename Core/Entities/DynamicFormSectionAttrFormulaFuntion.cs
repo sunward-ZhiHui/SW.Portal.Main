@@ -30,7 +30,10 @@ namespace Core.Entities
         public string? FormulaFunctionName { get; set; }
         public bool? IsCalculate { get; set; } = true;
         public string? FormulaTextBox { get; set; }
+        public long? AuditUserId { get; set; }
+        public long? DynamicFormId { get; set; }
     }
+
     public class DynamicFormSectionAttrFormulaMasterFunction
     {
         [Key]

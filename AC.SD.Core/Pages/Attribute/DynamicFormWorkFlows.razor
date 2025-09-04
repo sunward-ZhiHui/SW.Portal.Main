@@ -475,19 +475,35 @@
         else
         {
             UserEnabled = true; IsAnomalyStatusEnabled = true;
+            long? UserIds = navitems.UserId;
+            if (navitems.IsMultipleUser == true)
+            {
+                navitems.UserId = 0;
+                navitems.PreSelectUserIds = navitems.SelectUserIDs?.Any() == true ? navitems.SelectUserIDs.ToList() : new List<long?>();
+                if (_usersList?.Any() == true)
+                {
+                    navitems.PreSelectUserName = _usersList.Where(u => navitems.PreSelectUserIds.Contains(u.UserID)).Select(s => s.FirstName).ToList();
+                }
+            }
+            if (UserIds > 0)
+            {
+                navitems.PreSelectUserIds = new List<long?>() { UserIds };
+                if (_usersList?.Any() == true)
+                {
+                    navitems.PreSelectUserName = _usersList.Where(u => u.UserID == UserIds).Select(s => s.FirstName).ToList();
+                }
+            }
+            if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
+            {
+                navitems.PreSelectDynamicFormSectionName = _dynamicFormSectionAllData.Where(w => navitems.SelectDynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList();
+                _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !navitems.DynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).ToList();
+            }
             if (navitems.IsAnomalyStatus == true)
             {
                 navitems.UserId = 0;
                 IsAnomalyStatusEnabled = false;
             }
-            if (navitems.IsMultipleUser == true)
-            {
-                navitems.UserId = 0;
-            }
-            if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
-            {
-                _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !navitems.DynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).ToList();
-            }
+            navitems.PreDynamicFormSectionIDs = navitems.SelectDynamicFormSectionIDs;
         }
         StateHasChanged();
     }
@@ -536,7 +552,25 @@
         {
             try
             {
+                editModel.AddedBy = applicationUser.UserName;
+                editModel.AddedByUserID = applicationUser.UserID;
+                editModel.AddedDate = DateTime.Now;
 
+                if (_dynamicFormSectionAllData?.Any() == true && editModel.SelectDynamicFormSectionIDs?.Any() == true)
+                {
+                    editModel.CurSelectDynamicFormSectionName = _dynamicFormSectionAllData.Where(w => editModel.SelectDynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList();
+                }
+                if (editModel.IsAnomalyStatus == false && editModel.IsMultipleUser == false && editModel.UserId > 0 && _usersList?.Any() == true)
+                {
+                    editModel.CurrentSelectUserIds = new List<long?>() { editModel.UserId };
+                    editModel.CurSelectUserName = _usersList.Where(w => w.UserID == editModel.UserId).Select(s => s.FirstName).ToList();
+                }
+                if (editModel.IsAnomalyStatus == false && editModel.IsMultipleUser == true && editModel.SelectUserIDs?.Any() == true && _usersList?.Any() == true)
+                {
+                    editModel.CurrentSelectUserIds = editModel.SelectUserIDs.ToList();
+                    editModel.CurSelectUserName = _usersList.Where(w => editModel.CurrentSelectUserIds.Contains(w.UserID)).Select(s => s.FirstName).ToList();
+                }
+                editModel.AuditUserId = applicationUser.UserID;
                 var result = await Mediator.Send(new InsertDynamicFormWorkFlow(editModel));
                 if (!string.IsNullOrEmpty(result.Type))
                 {
@@ -552,12 +586,36 @@
         }
         else
         {
+            editModel.AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate;
+            editModel.AddedBy = editModel.AddedBy == null ? applicationUser.UserName : editModel.AddedBy;
+            editModel.AddedByUserID = editModel.AddedByUserID == null ? applicationUser.UserID : editModel.AddedByUserID;
+            editModel.ModifiedBy = applicationUser.UserName;
+            editModel.ModifiedByUserID = applicationUser.UserID;
+            editModel.ModifiedDate = DateTime.Now;
+
+
+            if (_dynamicFormSectionAllData?.Any() == true)
+            {
+                editModel.CurSelectDynamicFormSectionName = _dynamicFormSectionAllData.Where(w => editModel.SelectDynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList();
+            }
+            if (editModel.IsAnomalyStatus == false && editModel.IsMultipleUser == false && editModel.UserId > 0 && _usersList?.Any() == true)
+            {
+                editModel.CurrentSelectUserIds = new List<long?>() { editModel.UserId };
+                editModel.CurSelectUserName = _usersList.Where(w => w.UserID == editModel.UserId).Select(s => s.FirstName).ToList();
+            }
+            if (editModel.IsAnomalyStatus == false && editModel.IsMultipleUser == true && editModel.SelectUserIDs?.Any() == true && _usersList?.Any() == true)
+            {
+                editModel.CurrentSelectUserIds = editModel.SelectUserIDs.ToList();
+                editModel.CurSelectUserName = _usersList.Where(w => editModel.CurrentSelectUserIds.Contains(w.UserID)).Select(s => s.FirstName).ToList();
+            }
+            editModel.AuditUserId = applicationUser.UserID;
             if (editModel.IsAnomalyStatus == true)
             {
                 editModel.IsMultipleUser = false;
                 editModel.UserId = null;
                 editModel.SelectUserIDs = new List<long?>();
             }
+
             var result = await Mediator.Send(new InsertDynamicFormWorkFlow(editModel));
             if (!string.IsNullOrEmpty(result.Type))
             {
@@ -650,6 +708,19 @@
     {
         try
         {
+            if (_dynamicFormSectionAllData?.Any() == true && _selectedItems.SelectDynamicFormSectionIDs?.Any() == true)
+            {
+                _selectedItems.CurSelectDynamicFormSectionName = _dynamicFormSectionAllData.Where(w => _selectedItems.SelectDynamicFormSectionIDs.Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList();
+            }
+            if (_selectedItems.IsAnomalyStatus == false && _selectedItems.IsMultipleUser == false && _selectedItems.UserId > 0 && _usersList?.Any() == true)
+            {
+                _selectedItems.CurSelectUserName = _usersList.Where(w => w.UserID == _selectedItems.UserId).Select(s => s.FirstName).ToList();
+            }
+            if (_selectedItems.IsAnomalyStatus == false && _selectedItems.IsMultipleUser == true && _selectedItems.SelectUserIDs?.Any() == true && _usersList?.Any() == true)
+            {
+                _selectedItems.CurSelectUserName = _usersList.Where(w => _selectedItems.SelectUserIDs.Contains(w.UserID)).Select(s => s.FirstName).ToList();
+            }
+            _selectedItems.AuditUserId = applicationUser.UserID;
             var request = new DeleteDynamicFormWorkFlow(_selectedItems);
             await Mediator.Send(request);
             Blukdeletepopup = false;

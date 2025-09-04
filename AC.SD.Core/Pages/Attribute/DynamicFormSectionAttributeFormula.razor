@@ -108,7 +108,7 @@
                                 ValueFieldName="DynamicFormSectionAttributeId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Value="@Data.FormulaDynamicSectionAttributeId"
-                                ValueExpression="@(() => Data.FormulaDynamicSectionAttributeId )"
+                                ValueExpression="@(() => Data.FormulaDynamicSectionAttributeId)"
                                 ValueChanged="@((long? plant) => onChangedDynamicFormSectionAttributeSpinData(plant))"
                                 ShowValidationIcon="true">
                         <Columns>
@@ -156,7 +156,7 @@
                                 ValueFieldName="DynamicFormFormulaMathFunId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Value="@Data.DynamicFormFormulaMathFunId"
-                                ValueExpression="@(() => Data.DynamicFormFormulaMathFunId )"
+                                ValueExpression="@(() => Data.DynamicFormFormulaMathFunId)"
                                 ValueChanged="@((long? plant) => onChangedDynamicFormFormulaMathFun(plant))"
                                 ShowValidationIcon="true">
                         <Columns>
@@ -192,7 +192,7 @@
          Closed="EulaPopupFormulaClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm" IsCalculate="true" SelectedItems="@SelectedItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForm" Items="@Items" applicationUser="@applicationUser" IsCalculate="true" SelectedItems="@SelectedItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />
@@ -288,6 +288,8 @@
     }
     async Task HandleValidSubmit()
     {
+        Data.DynamicFormId = Items.DynamicFormId;
+        Data.AuditUserId = applicationUser.UserID;
         var request = await Mediator.Send(new UpdateFormulaTextBox(Data));
         if (request.DynamicFormSectionAttributeId > 0)
         {

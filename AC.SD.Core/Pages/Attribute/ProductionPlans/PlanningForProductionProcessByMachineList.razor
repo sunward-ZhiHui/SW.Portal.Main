@@ -1,0 +1,238 @@
+﻿@page "/PlanningForProductionProcessByMachineList"
+@using Application.Queries;
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            @bind-SelectedDataItems="@SelectedDataItems"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_dynamicformItems" VirtualScrollingEnabled="true"
+            KeyFieldName="PlanningForProductionProcessByMachineId"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
+
+        <Columns>
+            <DxGridDataColumn FieldName="TypeOfProduction" Caption="Type of Planning" MinWidth="80" />
+            <DxGridDataColumn FieldName="SquenceForPlanning" MinWidth="80" Caption="Squence For Planning" />
+            <DxGridDataColumn FieldName="ProductionPlanningProcess" MinWidth="80" Caption="Production Planning Process" />
+            <DxGridDataColumn FieldName="TypeOfProcess" Caption="Machine or Human related?" MinWidth="80" />
+            <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (PlanningForProductionProcessByMachine)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AutoNumber" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Crt"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" @onclick="@(() => bulkDelete(_selectedItems))" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<PlanningForProductionProcessByMachine> _dynamicformItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private PlanningForProductionProcessByMachine _selectedItems;
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool AttachmentEnabled { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true; EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
+        _dynamicformItems = await Mediator.Send(new GetAllPlanningForProductionProcessByMachineQuery());
+        if (_dynamicformItems != null && _dynamicformItems.Count > 0)
+        {
+            PanelVisible = true;
+            _selectedItems = _dynamicformItems.FirstOrDefault();
+            if (_dynamicformItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true; AttachmentEnabled = true;
+                StateHasChanged();
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlanningForProductionProcessByMachineId");
+        _selectedItems = _dynamicformItems.FirstOrDefault(f => f.PlanningForProductionProcessByMachineId == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true; AttachmentEnabled = true;
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("PlanningForProductionProcessByMachineList/PlanningForProductionProcessByMachineItem");
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("PlanningForProductionProcessByMachineList/PlanningForProductionProcessByMachineItem/" + _selectedItems.SessionId);
+
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete(PlanningForProductionProcessByMachine DynamicFormItem)
+    {
+        try
+        {
+
+            var request = new DeletePlanningForProductionProcessByMachine(DynamicFormItem);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+
+        }
+        catch (Exception eq)
+        {
+
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+        StateHasChanged();
+    }
+    public void clearData()
+    {
+        refUploadDocuments?.DisposeAsync();
+        SelectedDataItems = null;
+        _dynamicformItems?.Clear();
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        clearData();
+        // GC.SuppressFinalize(this);
+    }
+}

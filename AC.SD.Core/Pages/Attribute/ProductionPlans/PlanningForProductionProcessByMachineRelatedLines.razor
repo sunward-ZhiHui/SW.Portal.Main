@@ -1,0 +1,523 @@
+﻿@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Linq.Expressions;
+@using System.Reflection;
+@using System.Dynamic;
+@implements IAsyncDisposable
+@inject AC.SD.Core.Helpers.DataGridDynamicForm _LoadDataGridDynamicForm
+@* @page "/DynamicFormItemGridList/AddDynamicFormItemLine"
+@page "/DynamicFormItemGridList/AddDynamicFormItemLine/{DynamicFormItemids:long}" *@
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="FormItemLineGrid" Data="@_dynamicFormItemLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="PlanningForProductionProcessByMachineRelatedId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" VirtualScrollingEnabled="true"
+            style="height: calc(100vh - 336px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+
+        <Columns>
+            <DxGridDataColumn FieldName="PlanningForProductionProcessByMachineRelatedId" Visible="false" />
+            <DxGridDataColumn FieldName="PlanningForProductionProcessByMachine" Caption="NAV Machine Code" />
+            <DxGridDataColumn FieldName="AssetIDWithModel" Caption="Dropdown for FA" />
+            <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (PlanningForProductionProcessByMachineRelated)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var Line = (PlanningForProductionProcessByMachineRelated)EditFormContext.EditModel;
+                Data = Line;
+            }
+            @CreateEditFormFields()
+        </EditFormTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Crt"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" @onclick="@(() => bulkDelete(_selectedItems))" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments { get; set; }
+    EditContext _editContext;
+    [Parameter]
+    public long? DynamicFormItemids { get; set; }
+    [Parameter]
+    public PlanningForProductionProcessByMachine DynamicFormItemList { get; set; }
+    private List<DynamicFormData>? _dynamicFormData;
+    string Text { get; set; } = "";
+    IGrid? FormItemLineGrid { get; set; }
+    private List<PlanningForProductionProcessByMachineRelated>? _dynamicFormItemLine;
+    bool PanelVisible { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool CancelEnabled { get; set; } = false;
+    private PlanningForProductionProcessByMachineRelated _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    public ApplicationUser? applicationUser { get; private set; }
+    PlanningForProductionProcessByMachineRelated Data = new PlanningForProductionProcessByMachineRelated();
+    bool Blukdeletepopup { get; set; } = false;
+    public long? DynamicFormId { get; set; }
+    private DropDownOptionsGridListModel dropDownOptionsGridListModel { get; set; }
+    private List<ExpandoObject?> _dynamicformObjectDataList { get; set; }
+    bool AttachmentPopUp { get; set; } = false;
+    bool AttachmentEnabled { get; set; } = false;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+    PlanningForProductionProcessByMachineRelatedItem SingleObject = new PlanningForProductionProcessByMachineRelatedItem();
+    private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _dynamicFormItemLine = new List<PlanningForProductionProcessByMachineRelated>();
+        _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(189));
+        await UpdateDataAsync();
+        var result1 = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("FAID"));
+        if (result1 != null && result1.ID > 0)
+        {
+            List<long?> dynamicFormIds = new List<long?>();
+            dynamicFormIds.Add(result1.ID);
+            dropDownOptionsGridListModel = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID, new List<long?>()));
+        }
+        StateHasChanged();
+    }
+    public async Task loadData(long? dynamicFormItemids)
+    {
+        DynamicFormItemids = dynamicFormItemids;
+        await UpdateDataAsync();
+    }
+    public async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true; AddEnabled = false; EditEnabled = false; DeleteEnabled = false; _dynamicFormItemLine = new List<PlanningForProductionProcessByMachineRelated>(); AttachmentEnabled = false;
+            if (DynamicFormItemids > 0)
+            {
+                AddEnabled = true;
+                _dynamicFormItemLine = await Mediator.Send(new GetAllPlanningForProductionProcessByMachineRelatedQuery((long)DynamicFormItemids));
+                if (_dynamicFormItemLine != null && _dynamicFormItemLine.Count > 0)
+                {
+                    PanelVisible = true;
+                    _selectedItems = _dynamicFormItemLine.FirstOrDefault();
+
+                    if (_dynamicFormItemLine != null)
+                    {
+                        EditEnabled = true; AttachmentEnabled = true;
+                        DeleteEnabled = true;
+                        StateHasChanged();
+                    }
+                }
+            }
+            PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlanningForProductionProcessByMachineRelatedId");
+        _selectedItems = _dynamicFormItemLine.FirstOrDefault(f => f.PlanningForProductionProcessByMachineRelatedId == (long?)UniqueId);
+        EditEnabled = true; AttachmentEnabled = true;
+        DeleteEnabled = true;
+
+        StateHasChanged();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (PlanningForProductionProcessByMachineRelated)e.EditModel;
+        if (e.IsNew)
+        {
+            _dynamicformObjectDataList = new List<ExpandoObject>();
+            SingleObject = new PlanningForProductionProcessByMachineRelatedItem();
+        }
+        else
+        {
+
+        }
+    }
+    void OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (PlanningForProductionProcessByMachineRelated)e.DataItem;
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (PlanningForProductionProcessByMachineRelated)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdatePlanningForProductionProcessByMachineRelated
+            {
+                PlanningForProductionProcessByMachineId = DynamicFormItemids,
+                PlanningForProductionProcessByMachineRelatedId = editModel.PlanningForProductionProcessByMachineRelatedId,
+                FixAssetMachineNameRequipmentId = editModel.FixAssetMachineNameRequipmentId,
+                AssetIDWithModelId = editModel.AssetIDWithModelId,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+            };
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+
+        else
+        {
+            var UpdateReq = new InsertOrUpdatePlanningForProductionProcessByMachineRelated
+            {
+                PlanningForProductionProcessByMachineId = DynamicFormItemids,
+                PlanningForProductionProcessByMachineRelatedId = editModel.PlanningForProductionProcessByMachineRelatedId,
+                FixAssetMachineNameRequipmentId = editModel.FixAssetMachineNameRequipmentId,
+                AssetIDWithModelId = editModel.AssetIDWithModelId,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = editModel.SessionId,
+                ModifiedDate=DateTime.Now
+            };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+    }
+    async Task bulkDelete(PlanningForProductionProcessByMachineRelated DynamicFormItemLine)
+    {
+        try
+        {
+            //    var editablePlant = (ViewPlants)e.DataItem;
+            var request = new DeletePlanningForProductionProcessByMachineRelated(DynamicFormItemLine);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+            FormItemLineGrid.SetFocusedRowIndex(0);
+
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+    }
+
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+
+    public void addNew()
+    {
+
+        FormItemLineGrid.StartEditNewRowAsync();
+
+    }
+    async Task addEdit()
+    {
+        await FormItemLineGrid.StartEditDataItemAsync(_selectedItems);
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+    }
+
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+        StateHasChanged();
+    }
+    public void clearData()
+    {
+        refUploadDocuments?.DisposeAsync();
+        _dynamicFormData?.Clear();
+        _dynamicFormItemLine?.Clear();
+        _selectedItems = null;
+        Data = new PlanningForProductionProcessByMachineRelated();
+        dropDownOptionsGridListModel = null;
+        _dynamicformObjectDataList = null;
+        _selectedItems = null;
+    }
+    string? QueryDisplayDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ExpandoObject value)
+        {
+            if (value != null)
+            {
+                dynamic eod = value;
+                returnData = (string)eod.DisplayItemsQuery;
+            }
+        }
+        return returnData.TrimEnd(',');
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        clearData();
+        // GC.SuppressFinalize(this);
+    }
+    void OnGridValueChanged(object? newValue, string AttrName, object Data, object DataGridObject)
+    {
+        long? Id = null;
+
+        if (newValue is ExpandoObject value)
+        {
+            if (value != null)
+            {
+                dynamic eod = value;
+                Id = (long?)eod.AttributeDetailID;
+            }
+        }
+
+        Data.GetType().GetProperty(AttrName).SetValue(Data, Id);
+        DataGridObject.GetType().GetProperty(AttrName).SetValue(DataGridObject, newValue);
+    }
+    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
+    {
+        int i = 0;
+        var propertyList = Data.GetType().GetProperties();
+        formLayoutBuilder.OpenComponent<DxFormLayout>(i);
+
+        formLayoutBuilder.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+        {
+            layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
+            layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
+            layoutItemBuilder.AddAttribute(i + 1, "Expanded", true);
+            layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.None);
+            layoutItemBuilder.AddAttribute(i + 1, "Visible", true);
+            layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+            {
+                b.OpenElement(i + 1, "div");
+                b.AddContent(i + 1, "Machine related");
+                b.CloseElement();
+                b.OpenElement(i + 1, "div");
+                b.AddAttribute(i + 1, "style", "margin-left:auto;");
+                b.CloseElement();
+            }));
+            layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
+            {
+                if (propertyList != null && propertyList.Count() > 0)
+                {
+                    propertyList.ToList().ForEach(s =>
+                    {
+                        var valueData = s.GetValue(Data);
+                        var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
+                        var access = Expression.Property(Expression.Constant(Data), s.Name);
+                        var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
+                        if (s.Name == "FixAssetMachineNameRequipmentId")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "NAV Machine Code");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxComboBox<View_ApplicationMasterDetail, long?>>(j + 1);
+                                editor.AddAttribute(j + 1, "Data", _view_ApplicationMasterDetails);
+                                editor.AddAttribute(j + 1, "TextFieldName", "Value");
+                                editor.AddAttribute(j + 1, "ValueFieldName", "ApplicationMasterDetailID");
+                                editor.AddAttribute(j + 1, "NullText", "Select Fix Asset - Machine Name/equipment");
+                                editor.AddAttribute(j + 1, "Value", valueData);
+                                editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
+                                editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                                editor.AddAttribute(j + 1, "ValueExpression", lambda);
+                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { s.SetValue(Data, str); }));
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.CloseComponent();
+                                editor.OpenComponent<ValidationMessage<long?>>(18);
+                                editor.AddAttribute(j + 1, "For", (Expression<Func<long?>>)(() => Data.FixAssetMachineNameRequipmentId));
+                                editor.CloseComponent();
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                        if (s.Name == "AssetIDWithModelId")
+                        {
+                            var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == s.Name);
+                            var access1 = Expression.Property(Expression.Constant(SingleObject), s.Name);
+                            var Gridlambda = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), access1);
+                            var propertyDependency = SingleObject.GetType().GetProperty(s.Name);
+                            var GridvalueData = propertyDependency.GetValue(SingleObject);
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+
+                            gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : new List<DropDownOptionsModel>();
+                            var collection = dropDownOptionsGridListModel?.ObjectData;
+                            List<ExpandoObject>? _dynamicformObjectDataLists = new List<ExpandoObject>();
+                            if (collection != null)
+                            {
+                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                {
+                                    dynamic eod = v;
+                                    var vv = eod.DynamicFormId;
+                                    var AttributeDetailIds = eod.AttributeDetailID;
+                                    string listone = string.Empty;
+                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                    {
+                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                        g1.ForEach(q =>
+                                    {
+                                        var byName = (IDictionary<string, object>)v;
+                                        var names = (string)byName[q.Value]?.ToString();
+                                        listone += names + "|";
+                                    });
+                                    }
+                                    eod.DisplayItemsQuery = listone;
+                                    _dynamicformObjectDataLists.Add(eod);
+                                    if ((long?)valueData > 0)
+                                    {
+                                        if ((long?)valueData == (long?)AttributeDetailIds)
+                                        {
+                                            SingleObject.GetType().GetProperty(s.Name).SetValue(SingleObject, eod);
+                                        }
+                                    }
+                                }
+
+                            }
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Dropdown for FA");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxDropDownBox>(0);
+                                editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
+                                editor.AddAttribute(2, "NullText", "Select Dropdown for FA..");
+                                editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(4, "QueryDisplayText", QueryDisplayDynamicComboBoxText);
+                                editor.AddAttribute(5, "CssClass", "cw-480");
+                                editor.AddAttribute(9, "DropDownVisible", false);
+                                editor.AddAttribute(6, "Value", GridvalueData);
+                                editor.AddAttribute(10, "ValueExpression", Gridlambda);
+                                editor.AddAttribute(11, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnGridValueChanged(str, s.Name, Data, SingleObject)));
+                                _LoadDataGridDynamicForm.CreateDropDownBodyTemplateGrid(editor, _DropDownBoxGridModel, GridDropBoxData, "DynamicGrid", s.Name, gridlistss, _dynamicformObjectDataLists, new List<AttributeDetails>(), false);
+                                editor.CloseComponent();
+                            })));
+                            itemBuilder.CloseComponent();
+                        }
+                    });
+                }
+            }));
+            layoutItemBuilder.CloseComponent();
+        }));
+        formLayoutBuilder.CloseComponent();
+    };
+}

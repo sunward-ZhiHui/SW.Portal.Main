@@ -253,7 +253,7 @@
 
         <DxChartBarSeries T="CapabilityData"
                           TArgument="string"
-                          TValue="int"
+                          TValue="double"
                           Name="Frequency"
                           ArgumentField="c => c.Label"
                           ValueField="c => c.Frequency" />
@@ -265,7 +265,6 @@
                            ArgumentField="c => c.Label"
                            ValueField="c => c.NormalizedCurve"
                            Color="Color.Orange" />
-
 
 
     </DxChart>
@@ -321,7 +320,7 @@
         public string Label { get; set; } // X-axis label for display
         public double XNumeric { get; set; } // numeric version for calculations
         
-        public int Frequency { get; set; }
+        public double Frequency { get; set; }
         public double NormalizedCurve { get; set; }
     }
 
@@ -348,7 +347,7 @@
 
         // Also prepare DxGrid column list
         dynamicColumns = columnList;
-    }
+    }    
     List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> ConvertRawDataToPoints()
     {
         var result = new List<(double, double, DateTime, string, string)>();
@@ -429,8 +428,66 @@
 
         LoadChart(filtered);
     }
-
     private void LoadChart(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
+    {
+        processedData.Clear();
+
+        if (selectedPoints.Count < 1)
+            return;
+
+        // Keep raw points (no averaging, no grouping)
+        processedData = selectedPoints
+            .Select(p => new CapabilityData
+            {
+                Label = p.XLabel,  // ✅ use date as X label
+                XNumeric = p.X,                        // numeric if needed later
+                Frequency = p.Y,                         // each row is one measurement
+                NormalizedCurve = p.Y                  // use Y value directly
+            })
+            .OrderBy(d => d.Label)  // order by date
+            .ToList();
+
+        // You can still compute limits if needed
+        var yValues = selectedPoints.Select(d => d.Y).ToList();
+        avg = yValues.Average();
+
+        var n = yValues.Count;
+        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+        var sigma = Math.Sqrt(variance);
+
+        if (!double.IsNaN(sigma) && !double.IsInfinity(sigma) && sigma > 0)
+        {
+            UCL = avg + 3 * sigma;
+            LCL = avg - 3 * sigma;
+        }
+    }
+
+    private void LoadChart__(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
+    {
+        processedData.Clear();
+
+        if (selectedPoints.Count < 2)
+            return;        
+       
+          
+            avg = selectedPoints.Average(p => p.Y);
+            UCL = USL; // or leave blank
+            LCL = LSL; // or leave blank
+       
+
+        processedData = selectedPoints
+            .GroupBy(p => new { p.X, p.XLabel })
+            .Select(g => new CapabilityData
+            {
+                Label = g.Key.XLabel,
+                XNumeric = g.Key.X,
+                Frequency = g.Count()
+            })
+            .OrderBy(d => d.XNumeric)
+            .ToList();
+    }
+
+    private void LoadChart_v(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
     {
         processedData.Clear();
         avg = UCL = LCL = 0;

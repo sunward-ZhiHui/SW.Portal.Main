@@ -6707,28 +6707,351 @@ t1.DynamicFormSectionID,
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DynamicFormDataWrokFlow>> GetDynamicFormDataWrokFlowAllList(List<long?> DynamicformDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@DynamicformDataId", DynamicformDataId);
+                var query = "select (case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  '' ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormID,t2.FileProfileTypeId,\r\n(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\nLEFT JOIN Employee t33 ON t33.UserID = t1.LockedUserId JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null)\r\n AND t1.DynamicformDataId in @DynamicformDataId;";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataWrokFlow>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId)
         {
             List<DynamicFormDataWrokFlow> dynamicFormWorkFlowSections = new List<DynamicFormDataWrokFlow>();
+            List<DynamicFormDataWrokFlow> SetdynamicFormWorkFlowSections = new List<DynamicFormDataWrokFlow>();
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
                 parameters.Add("DynamicFormDataId", dynamicFormDataId);
-                var query = "select (case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  ''\r\n ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormID,t2.FileProfileTypeId," +
-                    "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
-                    "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\n" +
-                    "LEFT JOIN Employee t33 ON t33.UserID = t1.LockedUserId JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null)\n\r";
-                query += "\n\rAND t1.DynamicFormDataID in(select a1.DynamicFormDataID from DynamicFormWorkFlowForm a1 where a1.UserID=@UserId UNION select a2.DynamicFormDataID from DynamicFormWorkFlowFormDelegate a11 JOIN DynamicFormWorkFlowForm a2 ON a11.DynamicFormWorkFlowFormID=a2.DynamicFormWorkFlowFormID where a11.UserID=@UserId)\r\n";
-                if (dynamicFormDataId > 0)
-                {
-                    query += "AND t1.DynamicFormDataID=@DynamicFormDataId";
-                }
-                var result = new List<DynamicFormDataWrokFlow>();
+                var query1 = "SELECT \r\n    t1.*,\r\n    COALESCE(t2.UserID, t1.UserID) AS ActualUserId\r\nFROM DynamicFormWorkFlowForm t1\r\nOUTER APPLY (\r\n    SELECT TOP (1) t2.UserID\r\n    FROM DynamicFormWorkFlowFormDelegate t2\r\n    WHERE t1.DynamicFormWorkFlowFormID = t2.DynamicFormWorkFlowFormID\r\n    ORDER BY t2.DynamicFormWorkFlowFormDelegateID ASC\r\n) t2\r\nORDER BY t1.DynamicFormDataId,t1.SequenceNo;\n";
+                query1 += "SELECT \r\n    t1.*,\r\n    COALESCE(t2.UserID, t1.UserID) AS ActualUserId\r\nFROM DynamicFormWorkFlowApprovedForm t1\r\nOUTER APPLY (\r\n    SELECT TOP (1) t2.UserID\r\n    FROM DynamicFormWorkFlowApprovedFormChanged t2\r\n    WHERE t1.DynamicFormWorkFlowApprovedFormID = t2.DynamicFormWorkFlowApprovedFormID\r\n    ORDER BY t2.DynamicFormWorkFlowApprovedFormChangedID ASC\r\n) t2;;\n";
+                query1 += "select * from DynamicFormWorkFlowFormMultipleUser\r\n";
+                query1 += "select * from applicationUser\r\n";
+                query1 += "SELECT t1.*,t2.SectionName from DynamicFormWorkFlowSectionForm t1\r\nLEFT JOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\n";
+                //var query = "select (case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  ''\r\n ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormID,t2.FileProfileTypeId," +
+                //    "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
+                //    "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\n" +
+                //    "LEFT JOIN Employee t33 ON t33.UserID = t1.LockedUserId JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null)\n\r";
+                //query += "\n\rAND t1.DynamicFormDataID in(select a1.DynamicFormDataID from DynamicFormWorkFlowForm a1 where a1.UserID=@UserId UNION select a2.DynamicFormDataID from DynamicFormWorkFlowFormDelegate a11 JOIN DynamicFormWorkFlowForm a2 ON a11.DynamicFormWorkFlowFormID=a2.DynamicFormWorkFlowFormID where a11.UserID=@UserId)\r\n";
+                //if (dynamicFormDataId > 0)
+                //{
+                //    query += "AND t1.DynamicFormDataID=@DynamicFormDataId";
+                //}
+                var result = new List<DynamicFormDataWrokFlow>(); var appUser = new List<ApplicationUser>(); var DynamicFormWorkFlowSectionForm = new List<DynamicFormWorkFlowSectionForm>();
+                var dynamicFormWorkFlowForm = new List<DynamicFormWorkFlowForm>(); var dynamicFormWorkFlowApprovedForm = new List<DynamicFormWorkFlowApprovedForm>(); var dynamicFormWorkFlowFormMultipleUser = new List<DynamicFormWorkFlowFormMultipleUser>();
                 using (var connection = CreateConnection())
                 {
-                    result = (await connection.QueryAsync<DynamicFormDataWrokFlow>(query, parameters)).ToList();
+                    var results = await connection.QueryMultipleAsync(query1, parameters);
+                    dynamicFormWorkFlowForm = results.Read<DynamicFormWorkFlowForm>().ToList();
+                    dynamicFormWorkFlowApprovedForm = results.Read<DynamicFormWorkFlowApprovedForm>().ToList();
+                    dynamicFormWorkFlowFormMultipleUser = results.Read<DynamicFormWorkFlowFormMultipleUser>().ToList();
+                    appUser = results.Read<ApplicationUser>().ToList();
+                    DynamicFormWorkFlowSectionForm = results.Read<DynamicFormWorkFlowSectionForm>().ToList();
+                    // result = (await connection.QueryAsync<DynamicFormDataWrokFlow>(query, parameters)).ToList();
                 }
+                List<long?> AddDynamicFormDataIds = new List<long?>();
+                if (dynamicFormWorkFlowForm?.Any() == true)
+                {
+                    List<long?> DynamicFormDataIds = dynamicFormWorkFlowForm.Select(a => a.DynamicFormDataId).Distinct().ToList();
+                    foreach (var s in DynamicFormDataIds)
+                    {
+
+                        var listDataTotal = dynamicFormWorkFlowForm.Where(w => w.DynamicFormDataId == s).OrderBy(o => o.SequenceNo).ToList();
+                        var listData = dynamicFormWorkFlowForm.Where(w => w.DynamicFormDataId == s).OrderBy(o => o.SequenceNo).ToList();
+                        var completed = listData.Where(f => f.FlowStatusID == 1).Count();
+                        bool isBreak = false;
+                        if (listData?.Any() == true)
+                        {
+                            if (listDataTotal.Count() != completed)
+                            {
+                                var IsParallelWorkflowCount = listData.Where(w => w.IsParallelWorkflow == true).Count(); bool isGoNext = true;
+                                foreach (var l in listData)
+                                {
+                                    if (IsParallelWorkflowCount == 0)
+                                    {
+                                        bool isApproval = false;
+                                        if (isBreak == false)
+                                        {
+                                            if (l.FlowStatusID != 1)
+                                            {
+                                                if (l.IsAnomalyStatus == true)
+                                                {
+                                                    isBreak = true;
+                                                }
+                                                else
+                                                {
+                                                    if (l.IsMultipleUser == true)
+                                                    {
+                                                        var hasMultipleUser = dynamicFormWorkFlowFormMultipleUser.Where(w => w.UserId == userId).ToList();
+                                                        if (hasMultipleUser?.Any() == true && hasMultipleUser.Any(q => q.UserId == userId) == true)
+                                                        {
+                                                            DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                            var ids = hasMultipleUser.Select(r => r.UserId).ToList();
+                                                            var appName = appUser.Where(e => ids.Contains(e.UserID)).Select(q => q.UserName).ToList();
+                                                            SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                            SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                            SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                            SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                            SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                            isBreak = true;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (l.ActualUserId == userId)
+                                                        {
+                                                            DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                            var appName = appUser.Where(e => e.UserID == l.UserId).Select(q => q.UserName).ToList();
+                                                            SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                            SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                            SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                            SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                            SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                            isBreak = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else if (l.FlowStatusID == 1)
+                                            {
+                                                var ApprovalExits = dynamicFormWorkFlowApprovedForm.Where(a => a.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId && a.IsApproved != true).OrderBy(o => o.DynamicFormWorkFlowApprovedFormID).ToList();
+                                                if (ApprovalExits?.Any() == true)
+                                                {
+                                                    isBreak = true; isApproval = true;
+                                                }
+                                            }
+                                        }
+                                        if (isBreak == true)
+                                        {
+                                            if (isApproval == false)
+                                            {
+                                                if (l.IsAnomalyStatus == true)
+                                                {
+
+                                                }
+                                                else
+                                                {
+                                                    AddDynamicFormDataIds.Add(s);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (isGoNext == true)
+                                        {
+
+                                            var ApprovalExits = dynamicFormWorkFlowApprovedForm.Where(a => a.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId && a.IsApproved != true).OrderBy(o => o.DynamicFormWorkFlowApprovedFormID).ToList();
+                                            if (l.IsAnomalyStatus == true)
+                                            {
+                                                if (l.FlowStatusID == 1)
+                                                {
+                                                    if (l.IsParallelWorkflow == true)
+                                                    {
+                                                        if (ApprovalExits?.Any() == true)
+                                                        {
+                                                            isGoNext = true;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (ApprovalExits?.Any() == true)
+                                                        {
+                                                            isGoNext = false;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (l.IsParallelWorkflow == true)
+                                                    {
+                                                        isGoNext = true;
+
+                                                    }
+                                                    else
+                                                    {
+                                                        isGoNext = false;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (l.IsMultipleUser == true)
+                                                {
+                                                    var hasMultipleUser = dynamicFormWorkFlowFormMultipleUser.Where(w => w.UserId == userId).ToList();
+                                                    if (l.FlowStatusID == 1)
+                                                    {
+                                                        if (l.IsParallelWorkflow == true)
+                                                        {
+                                                            if (ApprovalExits?.Any() == true)
+                                                            {
+                                                                isGoNext = false;
+                                                            }
+                                                            else
+                                                            {
+                                                                isGoNext = true;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ApprovalExits?.Any() == true)
+                                                            {
+                                                                isGoNext = false;
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (l.IsParallelWorkflow == true)
+                                                        {
+                                                            if (hasMultipleUser?.Any() == true && hasMultipleUser.Any(q => q.UserId == userId) == true)
+                                                            {
+                                                                DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                                var ids = hasMultipleUser.Select(r => r.UserId).ToList();
+                                                                var appName = appUser.Where(e => ids.Contains(e.UserID)).Select(q => q.UserName).ToList();
+                                                                SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                                SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                                SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                                SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                                SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                                if (ApprovalExits?.Any() == true)
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                                else
+                                                                {
+                                                                    isGoNext = true;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            if (hasMultipleUser?.Any() == true && hasMultipleUser.Any(q => q.UserId == userId) == true)
+                                                            {
+                                                                DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                                var ids = hasMultipleUser.Select(r => r.UserId).ToList();
+                                                                var appName = appUser.Where(e => ids.Contains(e.UserID)).Select(q => q.UserName).ToList();
+                                                                SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                                SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                                SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                                SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                                SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                                if (ApprovalExits?.Any() == true)
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                                else
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (l.FlowStatusID == 1)
+                                                    {
+                                                        if (l.IsParallelWorkflow == true)
+                                                        {
+                                                            if (ApprovalExits?.Any() == true)
+                                                            {
+                                                                isGoNext = false;
+                                                            }
+                                                            else
+                                                            {
+                                                                isGoNext = true;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ApprovalExits?.Any() == true)
+                                                            {
+                                                                isGoNext = false;
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (l.IsParallelWorkflow == true)
+                                                        {
+                                                            if (l.ActualUserId == userId)
+                                                            {
+                                                                DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                                var appName = appUser.Where(e => e.UserID == l.UserId).Select(q => q.UserName).ToList();
+                                                                SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                                SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                                SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                                SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                                SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                                if (ApprovalExits?.Any() == true)
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                                else
+                                                                {
+                                                                    isGoNext = true;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (l.ActualUserId == userId)
+                                                            {
+                                                                DynamicFormDataWrokFlow SetdynamicFormWorkFlowSection = new DynamicFormDataWrokFlow();
+                                                                var appName = appUser.Where(e => e.UserID == l.UserId).Select(q => q.UserName).ToList();
+                                                                SetdynamicFormWorkFlowSection.DynamicFormDataId = s.Value;
+                                                                SetdynamicFormWorkFlowSection.UserNames = string.Join(",", appName);
+                                                                SetdynamicFormWorkFlowSection.DynamicFormWorkFlowFormId = l.DynamicFormWorkFlowFormId;
+                                                                SetdynamicFormWorkFlowSection.SectionName = DynamicFormWorkFlowSectionForm?.Any() == true ? string.Join(",", DynamicFormWorkFlowSectionForm.Where(t => t.DynamicFormWorkFlowFormID == l.DynamicFormWorkFlowFormId).Select(s => s.SectionName).ToList()) : string.Empty;
+                                                                SetdynamicFormWorkFlowSections.Add(SetdynamicFormWorkFlowSection);
+                                                                if (ApprovalExits?.Any() == true)
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                                else
+                                                                {
+                                                                    isGoNext = false;
+                                                                    AddDynamicFormDataIds.Add(s);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                result = await GetDynamicFormDataWrokFlowAllList(AddDynamicFormDataIds.Distinct().ToList());
                 if (result != null && result.Count > 0)
                 {
                     List<long> DynamicFormDataIds = result.Select(a => a.DynamicFormDataId).Distinct().ToList();
@@ -6763,53 +7086,64 @@ t1.DynamicFormSectionID,
                             var notCompleted = results.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
                             var CompletedCount = results.Where(w => w.IsWorkFlowDone > 0).OrderBy(x => x.SequenceNo).Count();
                             var notCompletedCount = notCompleted.Count();
-                            var _sequenceNoList = results.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
-                            if (_sequenceNoList.Count() > 0)
+                            item.StatusName = "Pending";
+                            var setss = SetdynamicFormWorkFlowSections.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).ToList();
+                            if (setss?.Any() == true)
                             {
-                                var IsParallelWorkflows = results.Where(w => w.IsParallelWorkflow == true).Count();
-                                foreach (var itemss in _sequenceNoList)
-                                {
-                                    var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
-                                    if (notdata != null && notdata.Count > 0)
-                                    {
-                                        var dataAdd = notdata.FirstOrDefault(w => w.UserId == userId);
-                                        if (IsParallelWorkflows > 0)
-                                        {
-                                            if (dataAdd != null)
-                                            {
-                                                item.StatusName = "Pending";
-                                                item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
-                                                item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
-                                                item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
-                                                item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
-                                                item.DynamicFormWorkFlowSections = notdata;
-                                                dataAdd.DynamicFormDataId = item.DynamicFormDataId;
-                                                dynamicFormWorkFlowSections.Add(item);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (dataAdd != null)
-                                            {
-                                                item.StatusName = "Pending";
-                                                item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
-                                                item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
-                                                item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
-                                                item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
-                                                item.DynamicFormWorkFlowSections = notdata;
-                                                dataAdd.DynamicFormDataId = item.DynamicFormDataId;
-                                                dynamicFormWorkFlowSections.Add(item);
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
+                                var Names = setss.Where(c => c.UserNames != null).Select(z => z.UserNames).ToList();
+                                var SectionNames = setss.Where(c => c.SectionName != null).Select(z => z.SectionName).ToList();
+                                item.UserNames = string.Join(",", Names);
+                                item.SectionName = string.Join(",", SectionNames);
+                                item.DynamicFormWorkFlowFormIds = setss.Where(z => z.DynamicFormWorkFlowFormId > 0).Select(d => d.DynamicFormWorkFlowFormId).Distinct().ToList();
                             }
-                            if (total == CompletedCount)
-                            {
-                                item.StatusName = "Completed";
-                                dynamicFormWorkFlowSections.Add(item);
-                            }
+                            dynamicFormWorkFlowSections.Add(item);
+                            //var _sequenceNoList = results.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                            //if (_sequenceNoList.Count() > 0)
+                            //{
+                            //    var IsParallelWorkflows = results.Where(w => w.IsParallelWorkflow == true).Count();
+                            //    foreach (var itemss in _sequenceNoList)
+                            //    {
+                            //        var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                            //        if (notdata != null && notdata.Count > 0)
+                            //        {
+                            //            var dataAdd = notdata.FirstOrDefault(w => w.UserId == userId);
+                            //            if (IsParallelWorkflows > 0)
+                            //            {
+                            //                if (dataAdd != null)
+                            //                {
+                            //                    item.StatusName = "Pending";
+                            //                    item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
+                            //                    item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+                            //                    item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
+                            //                    item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
+                            //                    item.DynamicFormWorkFlowSections = notdata;
+                            //                    dataAdd.DynamicFormDataId = item.DynamicFormDataId;
+                            //                    dynamicFormWorkFlowSections.Add(item);
+                            //                }
+                            //            }
+                            //            else
+                            //            {
+                            //                if (dataAdd != null)
+                            //                {
+                            //                    item.StatusName = "Pending";
+                            //                    item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
+                            //                    item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+                            //                    item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
+                            //                    item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
+                            //                    item.DynamicFormWorkFlowSections = notdata;
+                            //                    dataAdd.DynamicFormDataId = item.DynamicFormDataId;
+                            //                    dynamicFormWorkFlowSections.Add(item);
+                            //                }
+                            //                break;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            //if (total == CompletedCount)
+                            //{
+                            //    item.StatusName = "Completed";
+                            //    dynamicFormWorkFlowSections.Add(item);
+                            //}
                         }
                     }
                 }
@@ -8648,8 +8982,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormWorkFlowId", DynamicFormWorkFlowId);
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                var query = "select  t1.*,(case when t1.UserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as UserName from DynamicFormWorkFlowApproval t1 " +
-                    "JOIN Employee t3 ON t1.UserID=t3.UserID where t1.DynamicFormWorkFlowId=@DynamicFormWorkFlowId order by t1.sortby asc;";
+                var query = string.Empty;
                 if (dynamicFormDataId > 0)
                 {
                     query += "select t1.*,(case when t1.UserID>0 Then CONCAT(case when t4.NickName is NULL OR  t4.NickName='' then  ''\r\n ELSE  CONCAT(t4.NickName,' | ') END,t4.FirstName, (case when t4.LastName is Null OR t4.LastName='' then '' ELSE '-' END),t4.LastName) ELSE null END) as UserName,t2.DynamicFormWorkFlowID,CASE WHEN t1.IsApproved=1  THEN 'Approved' WHEN t1.IsApproved =0 THEN 'Rejected' ELSE 'Pending' END AS ApprovedStatus from DynamicFormWorkFlowApprovedForm t1 \r\n" +
@@ -8658,14 +8991,24 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                        "Where t2.DynamicFormWorkFlowFormID=@DynamicFormWorkFlowId AND t2.DynamicFormDataID=@DynamicFormDataID;";
                     query += "select t1.*,(case when t1.UserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as UserName  from DynamicFormWorkFlowApprovedFormChanged t1  JOIN Employee t3 ON t1.UserID=t3.UserID\r\n;";
                 }
+                else
+                {
+                    query = "select  t1.*,(case when t1.UserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as UserName from DynamicFormWorkFlowApproval t1 " +
+                    "JOIN Employee t3 ON t1.UserID=t3.UserID where t1.DynamicFormWorkFlowId=@DynamicFormWorkFlowId order by t1.sortby asc;";
+
+                }
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
-                    dynamicFormWorkFlowApprovals = results.Read<DynamicFormWorkFlowApproval>().ToList();
+
                     if (dynamicFormDataId > 0)
                     {
                         dynamicFormWorkFlowApprovedForms = results.Read<DynamicFormWorkFlowApprovedForm>().ToList();
                         dynamicFormWorkFlowApprovedFormChanged = results.Read<DynamicFormWorkFlowApprovedFormChanged>().ToList();
+                    }
+                    else
+                    {
+                        dynamicFormWorkFlowApprovals = results.Read<DynamicFormWorkFlowApproval>().ToList();
                     }
                 }
                 if (dynamicFormDataId > 0 && dynamicFormWorkFlowApprovedForms != null && dynamicFormWorkFlowApprovedForms.Count() > 0)

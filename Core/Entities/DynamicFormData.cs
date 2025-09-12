@@ -147,6 +147,7 @@ namespace Core.Entities
         public string? UserNames { get; set; }
         public string? StatusName { get; set; }
         public long? DynamicFormDataGridId { get; set; }
+        public long? DynamicFormWorkFlowFormId { get; set; }
         public bool? IsDynamicFormDataGrid { get; set; } = false;
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
@@ -157,6 +158,7 @@ namespace Core.Entities
         public string? LockedUser { get; set; }
         public long? LockedUserId { get; set; }
         public bool? IsLocked { get; set; }
+        public List<long?> DynamicFormWorkFlowFormIds { get; set; }=new List<long?>();
         public List<DynamicFormDataSectionLock> DynamicFormDataSectionLock { get; set; } = new List<DynamicFormDataSectionLock>();
     }
     public class DynamicFormDataResponse

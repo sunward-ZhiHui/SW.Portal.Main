@@ -109,6 +109,7 @@ namespace Core.Entities
         public string? DynamicFormName { get; set; }
         public long? DynamicFormFormulaMathFunId { get; set; }
         public string? MasterName { get; set; }
+        public long? AuditUserId { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

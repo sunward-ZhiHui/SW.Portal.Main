@@ -29,5 +29,13 @@ namespace Core.Entities
         [NotMapped]
         public int? Approved { get; set; }
         public string? FormName { get; set; }
+        public long? AuditUserId { get; set; }
+        public long? PreUserId { get; set; }
+        public string? PreUserName { get; set; }
+        public string? PreDescription { get; set; }
+
+        public DateTime? PreModifiedDate { get; set; }
+        public long? PreModifiedByUserID { get; set; }
+        public string? PreModifiedBy { get; set; }
     }
 }

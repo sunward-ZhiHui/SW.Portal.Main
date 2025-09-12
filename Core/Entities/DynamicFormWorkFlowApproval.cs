@@ -40,5 +40,8 @@ namespace Core.Entities
         public bool? IsAllowDelegateUser { get; set; } = false;
         public bool? IsParallelWorkflow { get; set; } = false;
         public bool? IsAnomalyStatus {  get; set; } = false;
+        public long? AuditUserId { get; set; }
+        public long? PreUserId { get; set; }
+        public string? PreUserName { get; set; }
     }
 }

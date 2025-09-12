@@ -289,6 +289,11 @@
                 navitems.ShowSectionVisibleDataIds = new List<string?>();
                 navitems.DynamicFormSectionIds = new List<long?>();
             }
+            else
+            {
+                navitems.PreShowSectionVisibleDataIds = navitems.ShowSectionVisibleDataIds;
+                navitems.PreDynamicFormSectionIds = navitems.DynamicFormSectionIds;
+            }
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -305,12 +310,20 @@
         if (editModel.DynamicFormSectionIds != null && editModel.ShowSectionVisibleDataIds != null && editModel.DynamicFormSectionIds.Count() > 0 && editModel.ShowSectionVisibleDataIds.Count() > 0)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttributeSectionParent
-                {
-                    DynamicFormSectionAttributeSectionParentId = editModel.DynamicFormSectionAttributeSectionParentId,
-                    DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId,
-                    ShowSectionVisibleDataIds = editModel.ShowSectionVisibleDataIds,
-                    DynamicFormSectionIds = editModel.DynamicFormSectionIds,
-                };
+            {
+                DynamicFormId = Items.DynamicFormId,
+                AuditUserId = applicationUser.UserID,
+                DynamicFormSectionAttributeSectionParentId = editModel.DynamicFormSectionAttributeSectionParentId,
+                DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId,
+                ShowSectionVisibleDataIds = editModel.ShowSectionVisibleDataIds,
+                DynamicFormSectionIds = editModel.DynamicFormSectionIds,
+                PreShowSectionVisibleDataIds = editModel.PreShowSectionVisibleDataIds,
+                PreDynamicFormSectionIds = editModel.PreDynamicFormSectionIds,
+                PreDynamicFormSectionNames = _dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0 ? (_dynamicFormSectionData.Where(w => editModel.PreDynamicFormSectionIds.ToList().Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList()) : new List<string?>(),
+                PreShowSectionVisibleDataNames = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => editModel.PreShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>(),
+                CurrentDynamicFormSectionNames = _dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0 ? (_dynamicFormSectionData.Where(w => editModel.DynamicFormSectionIds.ToList().Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList()) : new List<string?>(),
+                CurrentShowSectionVisibleDataNames = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => editModel.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>(),
+            };
             var result = await Mediator.Send(createReq);
             if (e.IsNew)
             {
@@ -340,6 +353,11 @@
     {
         try
         {
+            _selectedAttributeItems.AuditUserId = applicationUser.UserID;
+            _selectedAttributeItems.DynamicFormId = Items.DynamicFormId;
+            _selectedAttributeItems.CurrentDynamicFormSectionNames = _dynamicFormSectionData != null && _dynamicFormSectionData.Count() > 0 ? (_dynamicFormSectionData.Where(w => _selectedAttributeItems.DynamicFormSectionIds.ToList().Contains(w.DynamicFormSectionId)).Select(s => s.SectionName).ToList()) : new List<string?>();
+            _selectedAttributeItems.CurrentShowSectionVisibleDataNames = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count() > 0 ? (_ShowSectionVisibleAllDataItems.Where(w => _selectedAttributeItems.ShowSectionVisibleDataIds.ToList().Contains(w.AttributeDetailNameId)).Select(s => s.AttributeDetailName).ToList()) : new List<string?>();
+
             var request = new DeleteDynamicFormSectionAttributeParent(_selectedAttributeItems);
             var result = await Mediator.Send(request);
             if (result != null)
@@ -368,9 +386,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearData();
-       //GC.SuppressFinalize(this);
-       
+        //GC.SuppressFinalize(this);
+
     }
 }

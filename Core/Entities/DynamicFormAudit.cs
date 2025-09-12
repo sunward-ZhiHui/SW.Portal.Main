@@ -23,8 +23,13 @@ namespace Core.Entities
         public string? ColumnName { get; set; }
         public string? AuditUser {  get; set; }
         public string? DynamicFormName { get; set; }
-        public int? Index { get; set; }
+        public int? RowIndex { get; set; }
         public string? DisplayName {  get; set; }
         public bool? IsFormDeleted { get; set; } = false;
+        public long? DynamicFormSectionId {  get; set; }
+        public long? DynamicFormSectionAttributeId {  get; set; }
+        public string? FormDisplayType { get; set; }
+        public Guid? UniqueSessionId { get; set; }
+        public int? RowItemIndex { get; set; }
     }
 }

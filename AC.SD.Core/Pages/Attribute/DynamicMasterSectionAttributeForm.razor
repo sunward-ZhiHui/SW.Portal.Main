@@ -133,8 +133,19 @@
             <DxGridDataColumn FieldName="ColSpan" Caption="ColSpan" MinWidth="20" />
             <DxGridDataColumn FieldName="IsDisplayTableHeader" Caption="Is Table Header" MinWidth="20" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
-
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate != null && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate.Value.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -398,7 +409,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttributeSecuritys @ref="refDynamicFormSectionAttributeSecuritys" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
+        <DynamicFormSectionAttributeSecuritys @ref="refDynamicFormSectionAttributeSecuritys" Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
@@ -439,7 +450,7 @@
          Closed="EulaPopupFormulasClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForms" IsCalculate="false" SelectedItems="@_selectedAttributeItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
+        <DynamicFormSectionAttrFormulaFunctionForm @ref="refDynamicFormSectionAttrFormulaFunctionForms" Items="@Items" applicationUser="@applicationUser" IsCalculate="false" SelectedItems="@_selectedAttributeItems" RevokeBack="closeRangeFunctionAdd"></DynamicFormSectionAttrFormulaFunctionForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => closeRangeFunctionAdd())" />
@@ -998,6 +1009,7 @@
                 IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
                 DataSourceTable = editModel.DataSourceTable,
                 IsAuditTrail = IsAuditTrail,
+                AddedBy=applicationUser.UserName,
             };
 
             try
@@ -1058,6 +1070,7 @@
                 IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
                 DataSourceTable = editModel.DataSourceTable,
                 IsAuditTrail = IsAuditTrail,
+                ModifiedBy=applicationUser.UserName,
             };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -1201,6 +1214,8 @@
 
                     if (item is DynamicFormSectionAttribute selectData)
                     {
+                        selectData.AuditUserId = applicationUser.UserID;
+                        selectData.DynamicFormId = Items.DynamicFormId;;
                         var request = new DeleteDynamicFormSectionAttribute(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;

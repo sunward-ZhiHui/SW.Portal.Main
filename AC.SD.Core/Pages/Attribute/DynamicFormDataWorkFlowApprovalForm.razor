@@ -17,7 +17,7 @@
 @implements IAsyncDisposable
 
 @if (SelectedItems.DynamicFormDataId > 0)
-   // @if (SelectedItems.DynamicFormDataId > 0 && EditEnabledApproval == true)
+// @if (SelectedItems.DynamicFormDataId > 0 && EditEnabledApproval == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
@@ -66,7 +66,19 @@
             <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
             <DxGridDataColumn FieldName="DelegateApproveUserName" Caption="Delegate Approver" />
             @* <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" /> *@
-            <DxGridDataColumn FieldName="ApprovedDate" Caption="Date" />
+            <DxGridDataColumn FieldName="ApprovedDate" Caption="Approved Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormWorkFlowApproval)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ApprovedDate.HasValue && item.ApprovedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ApprovedDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             @*  <DxGridDataColumn FieldName="SortBy" Caption="Sort By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
             <CellDisplayTemplate>
             @{
@@ -147,8 +159,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateSortOrderBy()) />
 
 
     </FooterContentTemplate>
@@ -262,7 +274,7 @@
             }
             else
             {
-                 AddEnabled = false;                
+                AddEnabled = false;
             }
             if (SelectedItems.DynamicFormWorkFlowId > 0)
             {
@@ -342,12 +354,12 @@
         if (e.IsNew)
         {
             var createReq = new InsertDynamicFormDataWorkFlowApproval
-                {
-                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
-                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowFormId,
-                    UserId = editModel.UserId,
+            {
+                DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowFormId,
+                UserId = editModel.UserId,
 
-                };
+            };
             try
             {
                 var result = await Mediator.Send(createReq);
@@ -367,11 +379,11 @@
         else
         {
             var UpdateReq = new InsertDynamicFormDataWorkFlowApproval
-                {
-                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
-                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowFormId,
-                    UserId = editModel.UserId,
-                };
+            {
+                DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowFormId,
+                UserId = editModel.UserId,
+            };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
@@ -477,7 +489,7 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void SelectedDataItemsChanged(IReadOnlyList <object> SelectedToItems)
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
     }

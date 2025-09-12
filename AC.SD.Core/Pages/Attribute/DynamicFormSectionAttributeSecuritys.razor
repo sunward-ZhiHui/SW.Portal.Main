@@ -173,7 +173,7 @@
         </DxTabPage>
     </DxTabs>
     <div class="col-md-12">
-        <DynamicFormSectionAttributePermissionList @ref="refDocumentUserRoleListsLevel" DynamicFormSectionAttributeId="@dynamicFormSectionAttributeId"></DynamicFormSectionAttributePermissionList>
+        <DynamicFormSectionAttributePermissionList @ref="refDocumentUserRoleListsLevel" applicationUser="@applicationUser"  Items="@Items" DynamicFormSectionAttributeId="@dynamicFormSectionAttributeId"></DynamicFormSectionAttributePermissionList>
     </div>
 </div>
 @code {
@@ -182,6 +182,8 @@
     public DynamicFormSectionAttribute SelectedItems { get; set; }
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public DynamicFormSection Items { get; set; }
     public long dynamicFormSectionAttributeId { get; set; }
     private bool loading;
     bool Checked { get; set; } = false;
@@ -245,12 +247,12 @@
     }
     void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
     {
-       // ActiveTabSecIndex = 0;
+        // ActiveTabSecIndex = 0;
         StateHasChanged();
     }
     void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-       // ActiveTabSecIndex = 1;
+        // ActiveTabSecIndex = 1;
         StateHasChanged();
     }
     void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
@@ -281,8 +283,8 @@
         }
         else
         {
-            loading = true;
-            var response = await Mediator.Send(new InsertDynamicFormSectionAttributeSecurity(Data));
+            loading = true;Data.DynamicFormId = Items.DynamicFormId;
+            var response = await Mediator.Send(new InsertDynamicFormSectionAttributeSecurity(Data,applicationUser.UserID));
             if (response.DynamicFormSectionAttributeId > 0)
             {
                 Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;

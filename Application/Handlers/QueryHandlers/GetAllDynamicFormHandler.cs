@@ -188,7 +188,20 @@ namespace Application.Handlers.QueryHandlers
 
     }
 
+    public class GetDynamicFormSectionIdsHandler : IRequestHandler<GetDynamicFormSectionIds, List<DynamicFormSection>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionIdsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSection>> Handle(GetDynamicFormSectionIds request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSection>)await _dynamicFormQueryRepository.GetDynamicFormSectionIdsAsync(request.DynamicFormSectionIds);
+        }
 
+
+    }
     public class InsertOrUpdateDynamicFormSectionAttributeHandler : IRequestHandler<InsertOrUpdateDynamicFormSectionAttribute, DynamicFormSectionAttribute>
     {
         private readonly IDynamicFormQueryRepository _queryRepository;
@@ -227,6 +240,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DynamicFormSectionAttribute>> Handle(GetDynamicFormSectionAttribute request, CancellationToken cancellationToken)
         {
             return (List<DynamicFormSectionAttribute>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeAsync(request.Id);
+        }
+
+
+    }
+    public class GetDynamicFormSectionAttributeByIdsHandler : IRequestHandler<GetDynamicFormSectionAttributeByIds, List<DynamicFormSectionAttribute>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeByIdsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttribute>> Handle(GetDynamicFormSectionAttributeByIds request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttribute>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeByIdsAsync(request.Id);
         }
 
 
@@ -813,7 +840,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicFormSectionAttributeSecurity> Handle(InsertDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.InsertDynamicFormSectionAttributeSecurity(request.DynamicFormSectionAttributeSecurity);
+            return await _queryRepository.InsertDynamicFormSectionAttributeSecurity(request.DynamicFormSectionAttributeSecurity,request.UserId);
         }
 
     }
@@ -857,7 +884,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids,request.DynamicFormId,request.UserId);
         }
     }
 
@@ -1803,5 +1830,17 @@ namespace Application.Handlers.QueryHandlers
         }
 
 
+    }
+    public class GeDynamicFormWorkFlowListIdsHandler : IRequestHandler<GeDynamicFormWorkFlowListIds, List<DynamicFormWorkFlow>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GeDynamicFormWorkFlowListIdsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlow>> Handle(GeDynamicFormWorkFlowListIds request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlow>)await _dynamicFormQueryRepository.GeDynamicFormWorkFlowListIds(request.Ids);
+        }
     }
 }

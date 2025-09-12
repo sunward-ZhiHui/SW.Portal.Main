@@ -52,5 +52,7 @@ namespace Core.Entities
         [NotMapped]
         public string? Type { get; set; }
         public string? FormName { get; set; }
+        public long? DynamicFormId { get; set; }
+        public long? AuditUserId { get; set; }
     }
 }

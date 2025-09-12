@@ -116,8 +116,19 @@
             </DxGridDataColumn>
             @*  <DxGridDataColumn FieldName="IsApproved" Caption="Approved" MinWidth="40" /> *@
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
-
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormApproval)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate != null && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate.Value.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -198,8 +209,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateSortOrderBy()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
@@ -222,8 +233,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(() => OnUpdateDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 @code {
@@ -283,6 +294,9 @@
             {
                 isApprovedEnabled = false;
             }
+            navitems.PreDescription = navitems.Description;
+            navitems.PreUserId = navitems.ApprovalUserId;
+            navitems.PreUserName = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == navitems.ApprovalUserId)?.FirstName : null;
         }
         StateHasChanged();
     }
@@ -339,18 +353,22 @@
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormApproval
-                {
-                    ApprovalUserId = editModel.ApprovalUserId,
-                    DynamicFormId = dynamicFormId,
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    SortOrderBy = editModel.SortOrderBy,
-                    IsApproved = editModel.IsApproved,
-                    AddedDate = DateTime.Now,
-                    Description = editModel.Description,
-                };
+            {
+                ApprovalUserId = editModel.ApprovalUserId,
+                DynamicFormId = dynamicFormId,
+                AddedByUserID = applicationUser.UserID,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = 1,
+                SortOrderBy = editModel.SortOrderBy,
+                IsApproved = editModel.IsApproved,
+                AddedDate = DateTime.Now,
+                Description = editModel.Description,
+                AuditUserId = applicationUser.UserID,
+                ApprovalUser = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == editModel.ApprovalUserId)?.FirstName : null,
+                AddedBy = applicationUser.UserName,
+                ModifiedBy = applicationUser.UserName,
+            };
 
             try
             {
@@ -369,20 +387,29 @@
         else
         {
             var UpdateReq = new InsertOrUpdateDynamicFormApproval
-                {
-                    ApprovalUserId = editModel.ApprovalUserId,
-                    IsApproved = editModel.IsApproved,
-                    DynamicFormId = dynamicFormId,
-                    SortOrderBy = editModel.SortOrderBy,
-                    AddedByUserID = editModel.AddedByUserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = editModel.AddedDate,
-                    Description = editModel.Description,
-                    DynamicFormApprovalId = editModel.DynamicFormApprovalId,
-
-                };
+            {
+                ApprovalUserId = editModel.ApprovalUserId,
+                IsApproved = editModel.IsApproved,
+                DynamicFormId = dynamicFormId,
+                SortOrderBy = editModel.SortOrderBy,
+                StatusCodeID = 1,
+                Description = editModel.Description,
+                DynamicFormApprovalId = editModel.DynamicFormApprovalId,
+                AuditUserId = applicationUser.UserID,
+                PreUserId = editModel.PreUserId,
+                PreUserName = editModel.PreUserName,
+                PreDescription = editModel.PreDescription,
+                ApprovalUser = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == editModel.ApprovalUserId)?.FirstName : null,
+                AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+                AddedBy = editModel.AddedBy == null ? applicationUser.UserName : editModel.AddedBy,
+                AddedByUserID = editModel.AddedByUserID == null ? applicationUser.UserID : editModel.AddedByUserID,
+                ModifiedBy = applicationUser.UserName,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                PreModifiedBy = editModel.ModifiedBy,
+                PreModifiedByUserID = editModel.ModifiedByUserID,
+                PreModifiedDate = editModel.ModifiedDate,
+            };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
@@ -515,6 +542,8 @@
 
                     if (item is DynamicFormApproval selectData)
                     {
+                        selectData.AuditUserId = applicationUser.UserID;
+                        selectData.ApprovalUser = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == selectData.ApprovalUserId)?.FirstName : null;
                         var request = new DeleteDynamicFormApproval(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
@@ -585,11 +614,21 @@
         _selectedDescriptionItems = new DynamicFormApproval();
         _selectedDescriptionItems.DynamicFormApprovalId = items.DynamicFormApprovalId;
         _selectedDescriptionItems.Description = items.Description;
+        _selectedDescriptionItems.DynamicFormId = items.DynamicFormId;
+        _selectedDescriptionItems.ApprovalUserId = items.ApprovalUserId;
+        _selectedDescriptionItems.ApprovalUser = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == items.ApprovalUserId)?.FirstName : null;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
         _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
+        _selectedDescriptionItems.ModifiedBy = applicationUser.UserName;
+        _selectedDescriptionItems.PreDescription = items.Description;
+        _selectedDescriptionItems.PreModifiedBy = items.ModifiedBy;
+        _selectedDescriptionItems.PreModifiedDate = items.ModifiedDate;
+        _selectedDescriptionItems.PreModifiedByUserID = items.ModifiedByUserID;
     }
     async Task OnUpdateDescription()
     {
+        _selectedDescriptionItems.AuditUserId = applicationUser.UserID;
+        _selectedDescriptionItems.ApprovalUser = _usersList?.Any() == true ? _usersList.FirstOrDefault(w => w.UserID == _selectedDescriptionItems.ApprovalUserId)?.FirstName : null;
         await Mediator.Send(new GetDynamicFormApprovalUpdateDescriptionField(_selectedDescriptionItems));
         await UpdateDataAsync();
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -599,7 +638,7 @@
     {
         _dynamicFormApprovalData?.Clear();
         _selectedItems = null;
-        _selectlst=null;
+        _selectlst = null;
         sortOrderList?.Clear();
         _selectedDynamicFormSectionItems = new DynamicFormApproval();
         _usersList?.Clear();
@@ -607,8 +646,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearData();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

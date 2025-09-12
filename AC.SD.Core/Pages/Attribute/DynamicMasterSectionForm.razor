@@ -96,8 +96,19 @@
             <DxGridDataColumn FieldName="IsAutoNumberEnabled" Caption="Is AutoNumber" MinWidth="40" />
             <DxGridDataColumn FieldName="SectionFileProfileTypeName" Caption="SW Library Name" MinWidth="40" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
-
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSection)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate!=null && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate.Value.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -435,6 +446,7 @@
                 SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
                 IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
                 IsAuditTrail = IsAuditTrail,
+                AddedBy = applicationUser.UserName,
             };
 
             try
@@ -475,6 +487,7 @@
                 SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
                 IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
                 IsAuditTrail = IsAuditTrail,
+                ModifiedBy = applicationUser.UserName,
             };
             var result = await Mediator.Send(UpdateReq);
             await addAttributes(result.DynamicFormSectionId, editModel.AttributeIds);
@@ -606,7 +619,9 @@
 
                     if (item is DynamicFormSection selectData)
                     {
-
+                        var itemNames = _dynamicFormSectionData.FirstOrDefault(f => f.DynamicFormSectionId == selectData.DynamicFormSectionId);
+                        selectData.UserId = applicationUser.UserID;
+                        selectData.SectionFileProfileTypeId = itemNames?.SectionFileProfileTypeId;
                         var request = new DeleteDynamicFormSection(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;

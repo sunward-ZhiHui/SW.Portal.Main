@@ -91,6 +91,10 @@
     bool DeleteEnabled { get; set; } = false;
     [Parameter]
     public long? DynamicFormSectionAttributeId { get; set; }
+    [Parameter]
+    public DynamicFormSection Items { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
     public List<DynamicFormSectionAttributeSecurity> _documentUserRoleLists { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PanelVisible { get; set; }
@@ -161,7 +165,7 @@
             }
             if (Ids != null && Ids.Count > 0)
             {
-                var request = new DeleteDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeId, Ids);
+                var request = new DeleteDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeId, Ids,Items.DynamicFormId, applicationUser.UserID);
                 await Mediator.Send(request);
                 Blukdeletepopup = false;
                 toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

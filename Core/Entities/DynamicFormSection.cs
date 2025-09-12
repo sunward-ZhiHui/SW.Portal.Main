@@ -79,6 +79,7 @@ namespace Core.Entities
         public long? LinkFileProfileTypeDocumentID { get; set; }
         public int? IndexNo {  get; set; }
         public bool? IsAuditTrail { get; set; } = false;
+        public long? UserId { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

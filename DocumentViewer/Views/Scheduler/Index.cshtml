@@ -1,0 +1,317 @@
+﻿@using DocumentViewer.Controllers
+@model List<ProductionPlanningScheduler>
+@{
+    var priorities = new[] { "Scheduler", "Gantt" };
+}
+
+<div class="form">
+    <div class="dx-fieldset">
+        <div class="dx-field">
+            <div class="dx-field-value">
+                @(Html.DevExtreme().RadioGroup()
+                    .ID("viewSelector")
+                    .Items(priorities)
+                    .Value("Scheduler")
+                    .Layout(Orientation.Horizontal)
+                    .OnValueChanged("onViewChanged")
+                )
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#schedulerContainer").show();
+            $("#ganttContainer").hide();
+    function onViewChanged(e) {
+        // e.value = new selected value
+        if (e.value === "Scheduler") {
+            console.log("Scheduler selected");
+            // Show scheduler, hide gantt
+            $("#schedulerContainer").show();
+            $("#ganttContainer").hide();
+        } else if (e.value === "Gantt") {
+            console.log("Gantt selected");
+            // Show gantt, hide scheduler
+            $("#ganttContainer").show();
+            $("#schedulerContainer").hide();
+        }
+    }
+function onAppointmentFormOpening(e) {
+    const form = e.form;
+
+    // Find & remove All day switch
+    const allDayItem = form.itemOption("allDay");
+    if(allDayItem) {
+        form.itemOption("allDay", "visible", false);
+    }
+
+    // Find & remove Repeat switch (recurrence editor)
+    const recurrenceItem = form.itemOption("recurrenceRule");
+    if(recurrenceItem) {
+        form.itemOption("recurrenceRule", "visible", false);
+    }
+}
+function preventEditPopup(e) {
+    e.cancel = true; // cancel the popup form opening
+}
+</script>
+<div id="schedulerContainer">
+@(Html.DevExtreme().Scheduler()
+    .ID("scheduler")
+    .DataSource(d => d.Mvc()
+        .Controller("SchedulerData")
+        .LoadAction("Get")
+        .UpdateAction("UpdateAppointment")
+        .InsertAction("InsertAppointment")
+        .DeleteAction("DeleteAppointment")
+        .Key("ProductionPlanningSchedulerId")
+    )
+    .TimeZone("America/Los_Angeles")
+    .TextExpr("Text")
+    .StartDateExpr("StartDate")
+    .EndDateExpr("EndDate")
+    .DescriptionExpr("Description")
+    .Views(views => {
+        views.Add()
+            .Name("Vertical Grouping")
+            .Type(SchedulerViewType.TimelineMonth)
+            .GroupOrientation(Orientation.Vertical)
+            .CellDuration(60)
+            .IntervalCount(2);
+
+        views.Add()
+            .Name("Horizontal Grouping")
+            .Type(SchedulerViewType.TimelineMonth)
+            .GroupOrientation(Orientation.Horizontal)
+            .CellDuration(30)
+            .IntervalCount(2);
+    })
+    .CurrentView(SchedulerViewType.TimelineMonth)
+    .CrossScrollingEnabled(true)
+    .ShowAllDayPanel(false)
+    .Editing(e => e
+        .AllowAdding(false)
+        .AllowUpdating(true)
+        .AllowDeleting(false)
+    ).OnAppointmentDblClick("preventEditPopup")
+     .OnAppointmentFormOpening("onAppointmentFormOpening")
+    .CurrentDate(DateTime.Today)
+   // .StartDayHour(9)
+    //.EndDayHour(18)
+    .Groups(new[] { "ProductionPlanningProcess", "PlanningForProductionProcessByMachine" })
+    .Resources(res => {
+        res.Add()
+            .FieldExpr("ProductionPlanningProcess")
+            .AllowMultiple(false)
+            .Label("Production Planning Process")
+            .DataSource(ViewBag.Group1);
+
+        res.Add()
+            .FieldExpr("PlanningForProductionProcessByMachine")
+            .AllowMultiple(false)
+            .Label("NAV Machine Code")
+            .DataSource(ViewBag.Group2);
+    })
+    .ShowCurrentTimeIndicator(true)
+    .Height(925)
+) 
+</div>
+<style scoped>
+ #gantt {
+    height: 700px;
+}
+/* Milestone styling */
+    .milestone-task {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        color: #fff;
+        background-color:#35B86B;
+        max-height: 48px;
+        height: 100%;
+        display: block;
+        overflow: hidden;
+    }
+    .milestone-icon {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+.custom-task-color-0 {
+    background-color: #5C57C9;
+}
+
+.custom-task-color-1 {
+    background-color: #35B86B;
+}
+
+.custom-task-color-2 {
+    background-color: #4796CE;
+}
+
+.custom-task-color-3 {
+    background-color: #CE4776;
+}
+
+.custom-task-color-4 {
+    background-color: #CE5B47;
+}
+
+.custom-task-color-5 {
+    background-color: #F78119;
+}
+
+.custom-task-color-6 {
+    background-color: #9F47CE;
+}
+
+.custom-task {
+    max-height: 48px;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+}
+
+.custom-task-wrapper {
+    padding: 8px;
+    color: #fff;
+}
+
+    .custom-task-wrapper > * {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+.custom-task-img-wrapper {
+    float: left;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 8px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.custom-task-img {
+    width: 32px;
+}
+
+.custom-task-title {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.custom-task-row {
+    font-size: 11px;
+}
+
+.custom-task-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 4px;
+    background: rgba(0, 0, 0, .3);
+}
+
+.dx-gantt .dx-row {
+    height: 63px;
+}
+
+</style>
+<div id="ganttContainer">
+ <div class="widget-container">
+
+    @(Html.DevExtreme().Gantt<ProductionPlanningScheduler>()
+        .ID("gantt")
+        .TaskTitlePosition(GanttTaskTitlePosition.Outside)
+        .ScaleType(GanttScaleType.Days)
+        .Tasks(t => t
+            .DataSource(ds => ds.Array().Data(Model).Key("Id"))
+            .KeyExpr("Id")
+            .TitleExpr("Text")
+            .ParentIdExpr("ParentId")
+            .StartExpr("StartDate")
+            .EndExpr("EndDate")
+            .ProgressExpr("Progress")
+        )
+        .Resources(r => r
+            .DataSource(ds => ds.Array().Data(ViewBag.GroupData1).Key("PlanningForProductionProcessByMachine"))
+            .KeyExpr("PlanningForProductionProcessByMachine")
+            .TextExpr("Text")
+        )
+        .Editing(e => e.Enabled(true))
+        .Columns(columns => {
+            columns.AddFor(m => m.Text)
+                .Caption("Subject")
+                .Width(300);
+            columns.AddFor(m => m.StartDate)
+                .Caption("Start Date");
+            columns.AddFor(m => m.EndDate)
+                .Caption("End Date");
+        })
+       .TaskListWidth(500)
+        .TaskContentTemplate(new JS("getTaskContentTemplate"))
+    )
+</div> 
+</div>
+
+<script>
+    function getImagePath(taskId) {
+        var imgPath = "../../images/employees/";
+        var img = taskId < 10 ? "0" + taskId : taskId;
+        img = imgPath + img + ".png";
+        return img;
+    }
+
+    function getTaskContentTemplate(item, container) {
+      var isMilestone = (new Date(item.taskData.StartDate).getTime() === new Date(item.taskData.EndDate).getTime());
+    //if (isMilestone) {
+        var $milestone = $("<div>")
+                .addClass("milestone-task")
+                .append($("<span>").addClass("milestone-icon").text("♦ "))
+                .append($("<span>").addClass("milestone-title").text(item.taskData.Text));
+                return $milestone;
+    //}
+        // var resource = item.taskResources[0];
+        // var img = getImagePath(item.taskData.ID);
+        // var color = item.taskData.Id % 6;
+        // var taskWidth = item.taskSize.width + "px;";
+        // var $customContainer = $(document.createElement("div"))
+        //     .addClass("custom-task")
+        //     .attr("style", "width:" + taskWidth)
+        //     .addClass("custom-task-color-1");
+        // var $imgWrapper = $(document.createElement("div"))
+        //     .addClass("custom-task-img-wrapper")
+        //     .appendTo($customContainer);
+        // $(document.createElement("img"))
+        //     .addClass("custom-task-img")
+        //     .attr({
+        //         "src": resource ? img : "unknown.png",
+        //         "alt": "imageAlt"
+        //     })
+        //     .appendTo($imgWrapper);
+
+        // var $wrapper = $(document.createElement("div"))
+        //     .addClass("custom-task-wrapper")
+        //     .appendTo($customContainer);
+
+        // $(document.createElement("div"))
+        //     .addClass("custom-task-title")
+        //     .text(item.taskData.Text)
+        //     .appendTo($wrapper);
+        // $(document.createElement("div"))
+        //     .addClass("custom-task-row")
+        //     .text(resource ? resource.text : "")
+        //     .appendTo($wrapper);
+
+        // $(document.createElement("div"))
+        //     .addClass("custom-task-progress")
+        //     .attr("style", "width:" + (parseFloat(item.taskData.Progress)) + "%;")
+        //     .appendTo($customContainer);
+
+        // return $customContainer;
+    }
+</script>
+

@@ -50,7 +50,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,\r\n(select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1\r\nLEFT JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCodeId from NAVItems t1\r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
+                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,\r\n(select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCodeId from NAVItems t1\r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
 
                 using (var connection = CreateConnection())
                 {
@@ -174,9 +174,11 @@ namespace Infrastructure.Repository.Query
                     var query1 = "delete from NavItemCitemList where NavItemId=@ItemId;";
                     await connection.ExecuteAsync(query1, parameters);
                     var query = "UPDATE Navitems SET IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE ItemId = @ItemId;";
-                    query += "IF NOT Exists(select 1 from NavMethodCodeLines where MethodCodeId=@MethodCodeId AND ItemId=@ItemId)\r\nBEGIN\r\n" +
-                        "insert into NavMethodCodeLines (ItemId,MethodCodeId,AddedByUserId,AddedDate,StatusCodeId) values(@ItemId,@MethodCodeId,@ModifiedByUserId,@ModifiedDate,1)\r\nEND;";
-
+                    if (view_NavItems.MethodCodeId > 0 && view_NavItems.ItemId > 0)
+                    {
+                        query += "IF NOT Exists(select 1 from NavMethodCodeLines where MethodCodeId=@MethodCodeId AND ItemId=@ItemId)\r\nBEGIN\r\n" +
+                            "insert into NavMethodCodeLines (ItemId,MethodCodeId,AddedByUserId,AddedDate,StatusCodeId) values(@ItemId,@MethodCodeId,@ModifiedByUserId,@ModifiedDate,1)\r\nEND;";
+                    }
                     if (view_NavItems.NavItemCustomerItemID != null && view_NavItems.NavItemCustomerItemID.ToList().Count > 0)
                     {
                         view_NavItems.NavItemCustomerItemID.ToList().ForEach(item =>

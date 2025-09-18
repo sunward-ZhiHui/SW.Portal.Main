@@ -35,7 +35,7 @@
 
 <div class="accordion">
     <div class="accordion-header" @onclick="ToggleAccordion">
-        <span>@(isOpen ? "▼ " : "► ") Trending Active</span>
+        <span>@(isOpen ? "▼ " : "► ") Sigma Chart</span>
     </div>
 
     @if (isOpen)
@@ -404,8 +404,50 @@
         return stringValueMap[value];
     }
 
-
     private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+        if (!dataPoints.Any())
+        {
+            minDate = null;
+            maxDate = null;
+            selectedPointsWithDates.Clear();
+            processedData.Clear();
+            return;
+        }
+
+        // compute true min/max (use Date to ignore time-of-day)
+        minDate = dataPoints.Min(p => p.Date).Date;
+        maxDate = dataPoints.Max(p => p.Date).Date;
+
+        // safeguard: ensure minDate <= maxDate (shouldn't happen but safe)
+        if (minDate > maxDate)
+        {
+            var tmp = minDate;
+            minDate = maxDate;
+            maxDate = tmp;
+        }
+
+        // default start/end to min/max (or keep existing if inside range)
+        if (startDate == null || startDate < minDate || startDate > maxDate) startDate = minDate;
+        if (endDate == null || endDate > maxDate || endDate < minDate) endDate = maxDate;
+
+        // final sanity: ensure startDate <= endDate
+        if (startDate > endDate)
+        {
+            var tmp = startDate;
+            startDate = endDate;
+            endDate = tmp;
+        }
+
+        // keep your internal list ordered by date for consistent filtering
+        selectedPointsWithDates = dataPoints.OrderBy(p => p.Date).ToList();
+
+        LoadChart(selectedPointsWithDates);
+    }
+
+
+    private void CheckAxesSelected_()
     {
         var dataPoints = ConvertRawDataToPoints();
         if (dataPoints.Any())
@@ -419,6 +461,28 @@
         }
     }
     private void ApplyDateFilter()
+    {
+        if (minDate == null || maxDate == null) return;
+
+        // ensure we have values and they are ordered
+        if (startDate == null) startDate = minDate;
+        if (endDate == null) endDate = maxDate;
+        if (startDate > endDate) // auto-fix if user somehow flipped them
+        {
+            var tmp = startDate;
+            startDate = endDate;
+            endDate = tmp;
+        }
+
+        var filtered = selectedPointsWithDates
+            .Where(p => p.Date.Date >= startDate.Value.Date && p.Date.Date <= endDate.Value.Date)
+            .ToList();
+
+        LoadChart(filtered);
+    }
+
+
+    private void ApplyDateFilter_()
     {
         if (startDate == null || endDate == null) return;
 
@@ -461,104 +525,6 @@
             LCL = avg - 3 * sigma;
         }
     }
-
-    private void LoadChart__(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
-    {
-        processedData.Clear();
-
-        if (selectedPoints.Count < 2)
-            return;        
-       
-          
-            avg = selectedPoints.Average(p => p.Y);
-            UCL = USL; // or leave blank
-            LCL = LSL; // or leave blank
-       
-
-        processedData = selectedPoints
-            .GroupBy(p => new { p.X, p.XLabel })
-            .Select(g => new CapabilityData
-            {
-                Label = g.Key.XLabel,
-                XNumeric = g.Key.X,
-                Frequency = g.Count()
-            })
-            .OrderBy(d => d.XNumeric)
-            .ToList();
-    }
-
-    private void LoadChart_v(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
-    {
-        processedData.Clear();
-        avg = UCL = LCL = 0;
-
-        if (selectedPoints.Count < 2)
-        {
-            return; // not enough data to calculate
-        }
-
-        var yValues = selectedPoints.Select(d => d.Y).ToList();
-        avg = yValues.Average();
-
-        var n = yValues.Count;
-        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
-        var sigma = Math.Sqrt(variance);
-
-        if (double.IsNaN(sigma) || double.IsInfinity(sigma) || sigma == 0)
-        {
-            return; // skip calculation to avoid Infinity
-        }
-
-        UCL = avg + 3 * sigma;
-        LCL = avg - 3 * sigma;
-
-        processedData = selectedPoints
-            .GroupBy(p => new { p.X, p.XLabel })
-            .Select(g => new CapabilityData
-            {
-                Label = g.Key.XLabel,
-                XNumeric = g.Key.X,
-                Frequency = g.Count()
-            })
-            .OrderBy(d => d.XNumeric)
-            .ToList();
-
-        var maxFreq = processedData.Max(p => p.Frequency);
-
-        var pdfValues = processedData.Select(p =>
-        {
-            var z = (p.XNumeric - avg) / sigma;
-            var pdf = (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
-                      Math.Exp(-0.5 * z * z);
-
-            if (double.IsNaN(pdf) || double.IsInfinity(pdf))
-                pdf = 0;
-
-            return (p.Label, PDF: pdf);
-        }).ToList();
-
-        var maxPdf = pdfValues.Max(p => p.PDF);
-        var scaleFactor = maxPdf == 0 ? 0 : maxFreq / maxPdf;
-
-        foreach (var item in processedData)
-        {
-            // Check against system-calculated limits
-            bool exceedsAuto = item.XNumeric > UCL || item.XNumeric < LCL;
-
-            // Check against user-specified limits
-            bool exceedsUser = item.XNumeric > userUCL || item.XNumeric < userLCL;
-
-            if (exceedsAuto || exceedsUser)
-            {
-                Console.WriteLine($"⚠️ Outlier detected: {item.Label}, Value={item.XNumeric}");
-                // here you can highlight, color, or notify
-            }
-        }
-
-    }
-
-
-   
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

@@ -15,9 +15,9 @@
 @using DevExpress.Blazor.Internal
 @using System.Collections.Generic
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/ViewEmail"
-@page "/ViewEmail/{ActiveSessionId}"
-@page "/ViewEmail/{TodoSessionId:guid}/{Page}"
+@page "/DemoViewEmail"
+@page "/DemoViewEmail/{ActiveSessionId}"
+@page "/DemoViewEmail/{TodoSessionId:guid}/{Page}"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -53,8 +53,34 @@
 @inject DataRefreshService RefreshService
 @inject ClipboardService ClipboardService
 @using System.Text.RegularExpressions
+@using System.Drawing;
+@using System.Drawing.Imaging;
 
 <style scoped>
+    p
+    {
+        margin-bottom: 0rem;
+    }
+    .my-editor .dx-htmleditor-content img {       
+        max-width: 800px;
+        height: auto;
+    }
+
+    /* Mention styling */
+    .dx-mention {
+        color: #0d6efd; /* blue like Teams/Slack */
+        font-weight: 500;
+        background: rgba(13, 110, 253, 0.1);
+        padding: 2px 4px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+        /* Ensure inner span (contenteditable=false) doesn't break styling */
+        .dx-mention span {
+            all: unset; /* reset unwanted styles */
+        }
+
     .markasunread_border_top {
     border-top: 1px solid #242424 !important;
 }
@@ -2245,13 +2271,13 @@
                                             ResizeCompleted="OnWindowResizeCompleted"
                                             DragCompleted="OnWindowDragCompleted"                                          
                                             ShowFooter=false
-                                            AllowResize="true"
+                                            AllowResize="true"                                            
                                             Closing="EulaClosing"
                                             Width="max(75vw, 250px)"                                                                       
                                             Height="800"
                                             ShowCloseButton="true"                                                
                                             @ref="dxWindow">
-                                                <BodyTemplate Context="Context">
+                                                <BodyContentTemplate Context="Context">
                                                     
                                                     <div class="dxwinheight" style="padding: 20px; overflow: auto;">
                                                         <DxFormLayout>
@@ -2506,8 +2532,18 @@
                                                                                         </DxFormLayoutItem>
                                                                                     }
                                                                                     <DxFormLayoutItem ColSpanMd="12">
-                                                                                        <div class="">
-                                                                                            <DxRichEdit DocumentLoaded="OnDocumentLoaded" CheckSpelling="true" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" />
+                                                                                        <div class=""> 
+                                                                                            @* <DxRichEdit DocumentLoaded="OnDocumentLoaded" CheckSpelling="true" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" /> *@
+
+                                                                                            <DxHtmlEditor CssClass="my-editor" BindMarkupMode="HtmlEditorBindMarkupMode.OnLostFocus" @bind-Markup="@markupHtml" Height="300px" Width="100%">
+                                                                                                <DxHtmlEditorMentions>
+                                                                                                    <DxHtmlEditorMention Data="@MentionDatas"
+                                                                                                                         DisplayFieldName="@nameof(MentionData.Name)"
+                                                                                                                         SearchFieldNames="@SearchFieldNames" />
+                                                                                                </DxHtmlEditorMentions>
+                                                                                            </DxHtmlEditor>
+                                                                                        
+                                                                                        
                                                                                         </div>
                                                                                     </DxFormLayoutItem>
                                                                                     <DxFormLayoutItem ColSpanMd="12">                                                                                      
@@ -2553,7 +2589,7 @@
                                                             </div>
                                                         </DxFormLayout>
                                                     </div>
-                                                </BodyTemplate>
+                                                </BodyContentTemplate>
                                                 <FooterTextTemplate>
                                                     <DxButton SubmitFormOnClick="true" Text="Post" CssClass="" RenderStyle="ButtonRenderStyle.Primary" />
                                                     <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@context.CloseCallback" />
@@ -3359,8 +3395,117 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+
+    string[] SearchFieldNames = { nameof(MentionData.Name) };
+
+    class MentionData
+    {
+        public string Name { get; set; }
+        public string Team { get; set; }
+        public int UserID { get; set; } 
+    }
+
+    MentionData[] MentionDatas { get; set; }
+
+    DxHtmlEditor htmlEditor;
+    bool _processingMarkup;
+    bool isValid;
+    string markupHtml = "";
+    async void OnMarkupChanged(string newMarkup)
+    {
+        //await JSRuntime.InvokeAsync<string>("showLoading");
+        // markup = newMarkup;
+        // isValid = !string.IsNullOrEmpty(newMarkup);
+
+
+        // // quick assign when re-entry
+        // if (_processingMarkup) { markup = newMarkup; return; }
+
+        // _processingMarkup = true;
+        // try
+        // {
+        //     // Process images/html (example: add max-width or compress)
+        //     var processed = await ProcessImagesAsync(newMarkup);
+
+        //     // only assign if changed to reduce re-renders
+        //     if (processed != newMarkup) markup = processed;
+        //     else markup = newMarkup;
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine("OnMarkupChanged error: " + ex);
+        //     markup = newMarkup; // fallback to avoid blocking editor
+        // }
+        // finally
+        // {
+        //     _processingMarkup = false;
+        //     //await JSRuntime.InvokeAsync<string>("hideLoading");
+        // }
+
+
+    }
+
+    async Task<string> ProcessImagesAsync(string html)
+    {
+        loading = true;
+        var rx = new Regex("src=\"data:image/(?<type>[^;]+);base64,(?<data>[^\"]+)\"", RegexOptions.IgnoreCase);
+        return await Task.Run(() => rx.Replace(html, m =>
+        {
+            var type = m.Groups["type"].Value;
+            var base64 = m.Groups["data"].Value;
+            try
+            {
+                var bytes = Convert.FromBase64String(base64);
+                var compressed = ResizeAndCompressJpeg(bytes, 800, 70L); // max width 800px, 70% quality
+                var newBase64 = Convert.ToBase64String(compressed);
+                return $"src=\"data:image/jpeg;base64,{newBase64}\""; // saving as jpeg
+            }
+            catch
+            {
+                return m.Value; // on error keep original
+            }
+        }));
+    }
+
+    byte[] ResizeAndCompressJpeg(byte[] data, int maxWidth, long quality)
+    {
+        loading = true; 
+
+        using var inStream = new MemoryStream(data);
+        using var img = System.Drawing.Image.FromStream(inStream);
+        var w = Math.Min(maxWidth, img.Width);
+        var h = (int)(img.Height * (w / (double)img.Width));
+        using var bmp = new Bitmap(w, h);
+        using var g = Graphics.FromImage(bmp);
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+        g.DrawImage(img, 0, 0, w, h);
+
+        var codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+        var ep = new EncoderParameters(1);
+        ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+        using var outStream = new MemoryStream();
+        bmp.Save(outStream, codec, ep);
+        return outStream.ToArray();
+    }
+    public static byte[] HexStringToBytes(string hex)
+    {
+        // Remove 0x if it exists
+        if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            hex = hex.Substring(2);
+
+        int length = hex.Length;
+        byte[] bytes = new byte[length / 2];
+        for (int i = 0; i < length; i += 2)
+        {
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        }
+        return bytes;
+    }
+
+
+
     private bool _disposed = false;
-      private List<EmailConversations>? getconid;
+    private List<EmailConversations>? getconid;
     string DrawerView = "Email";
     string DrawerTitle = "Attached Email";
     Dictionary<int, int> replyCounts = new();
@@ -3387,17 +3532,17 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {        
         ecID = emailConversations.ID;
         IsInfoOpen = true;
-        
-         DrawerView = "AttachedEmail";
-         DrawerTitle = "Attached Email";
+
+        DrawerView = "AttachedEmail";
+        DrawerTitle = "Attached Email";
     }
     private void ToggleMainSubject(EmailConversations emailConversations) 
     {        
         ecID = emailConversations.ID;
-         IsInfoOpen = true;
+        IsInfoOpen = true;
 
-         DrawerView = "MainSubject";
-         DrawerTitle = "Main Subject";
+        DrawerView = "MainSubject";
+        DrawerTitle = "Main Subject";
     }
 
     private void onToggleMainInfo(long id)
@@ -3405,9 +3550,9 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         ecID = id;
         IsInfoOpen = false;
         IsInfoOpen = true;
-        
-         DrawerView = "AttachedEmail";
-         DrawerTitle = "Attached Email";
+
+        DrawerView = "AttachedEmail";
+        DrawerTitle = "Attached Email";
         StateHasChanged();
     }
     private void CloseInfo()
@@ -6480,14 +6625,6 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         await JSRuntime.InvokeVoidAsync("open", url, "_blank");
     }
-
-    // [JSInvokable] 
-    // public static async Task ViewDocumentFromJs(string uniqueId)
-    // {
-    //     var url = DocumentViewUrl + "?url=" + uniqueId;
-    //     await OpenDocumentPreview(url); 
-    // }
-
     public async Task onDocDownload(long Id)
     {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible)); 
@@ -6646,7 +6783,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         RefAssignTo?.GetID();
     }
-   
+
     private async Task SubmitIsArchivedAll()
     {
         if (SelectedGroups == null || SelectedGroups.Count == 0)
@@ -7126,7 +7263,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             {
                 isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
             }
-            
+
 
             isEnabled = true;
             isTodoEnabled = false;
@@ -7209,7 +7346,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         //     }
 
         // }
-       
+
 
 
         isEnabled = true;
@@ -7247,7 +7384,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         isUserGroup = false;
                     }
                 }
-              
+
 
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
@@ -7583,7 +7720,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     isLeftMenuvisible = "Library";
                     MyDayFilterText = lsts[0].TopicName;
                     //await Task.Delay(2000); // Delay for 2 seconds
-                     FilterSessionId = lsts[0].SessionId;
+                    FilterSessionId = lsts[0].SessionId;
 
                     _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
@@ -7592,7 +7729,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
                     await LoadData();
                     OnLeftMenuItemClick("Library");
-                    
+
                 }
                 else
                 {
@@ -8081,6 +8218,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     }
     private async Task onreply(long id)
     {
+        markupHtml = string.Empty;        
+   
         // var lsslsls = await Mediator.Send(new OnReplyConversation(id,applicationUser.UserID));
         WindowVisible = true;
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -8116,6 +8255,49 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
                     var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
                     var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+                    // MentionDatas = getplllst
+                    //                 .Where(p => p.UserID != applicationUser.UserID)
+                    //                 .Select(p => new MentionData
+                    //                 {
+                    //                    Name = p.NickName + " | " + p.FirstName + "," + p.LastName,
+                    //                    Team = p.LastName
+                    //                 })
+                    //                 .ToArray();
+
+                    var _topicDocList1 = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
+
+                    var userMentions = getplllst
+                                .Where(p => p.UserID != applicationUser.UserID)
+                                .Select(p => new MentionData
+                                {
+                                    Name = p.FirstName + " " + p.LastName  // or use nickname if needed
+                                });
+
+                    var docMentions = (_topicDocList1 != null && _topicDocList1.Any())
+                                ? _topicDocList1.Select(d => new MentionData
+                                  {
+                                      Name = d.FileName
+                                  })
+                                : Enumerable.Empty<MentionData>();
+
+                    MentionDatas = userMentions.Concat(docMentions).ToArray();
+                                   
+
+                    // MentionDatas = getplllst.Where(p => p.UserID != applicationUser.UserID)
+                    //             .Select(p => new MentionData
+                    //             {                                    
+                    //                 Name = p.FirstName + " | " + p.LastName
+                    //             })
+                    //             // add documents
+                    //             .Union(
+                    //                 _topicDocList.Select(d => new MentionData
+                    //                 {                                        
+                    //                     Name = d.FileName                                        
+                    //                 })
+                    //             )
+                    //             .ToArray();
+
 
 
 
@@ -8485,9 +8667,30 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             await RefTopicAddGroupPList.loadMainTopicParticipentList(long.Parse(@SelectedGroup));
         }
     }
+    private string ConvertHtmlToPlainText(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+            return string.Empty;
+
+        // 1. Remove HTML tags
+        string text = System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+
+        // 2. Decode HTML entities (&nbsp;, &amp;, etc.)
+        text = System.Net.WebUtility.HtmlDecode(text);
+
+        // 3. Trim extra spaces/newlines
+        return text.Trim();
+    }
+    public event EventHandler? SubmitCompleted;
+     [Parameter] public EventCallback OnSubmitChanged { get; set; }
 
     private async Task HandleValidSubmit()
     {
+        SubmitCompleted?.Invoke(this, EventArgs.Empty);
+
+         await OnSubmitChanged.InvokeAsync();
+
+
         if (loading)
         {
             return; // Prevent multiple submissions
@@ -8495,41 +8698,59 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         if(submitCount == 0)
         {
-            loading = true;        
-            //var contentdd = msgContent;
-            //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-            byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);      
+            loading = true;  
+            //await Task.Delay(8000); 
+
+            // if(!isValid)
+            // {
+            //     loading = false;
+            //     return;
+            // }
+
+          
+
+            // byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            // string htmlString = string.Empty;
+            // var len = fileContent.Length;
+            // htmlString = Encoding.UTF8.GetString(fileContent);
+            // if(fileContent.Length == 443)
+            // {
+            //     toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            //     loading = false;
+            //     return;
+            // }    
+
+            // await msgrichEdit.SaveDocumentAsync();
+            // using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+            // byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            // server.LoadDocument(fileContent1);
+            // server.Options.Export.Html.EmbedImages = true;
+            // byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+            // Process images/html (example: add max-width or compress)
+
+           //   string htmlString = string.Empty;
+           //  htmlString = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(markupHtml));
+           //  string plainText = ConvertHtmlToPlainText(markupHtml);
+           //  string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
 
 
-            string htmlString = string.Empty;
-            var len = fileContent.Length;
-            //documentContent = null;            
+
+           //  var processed = await ProcessImagesAsync(markupHtml);
+
+           // byte[] fileContents =  Encoding.UTF8.GetBytes(processed);
+
+            // string plainText = server.Text;
+            // string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
 
 
-            htmlString = Encoding.UTF8.GetString(fileContent);
-            //if (fileContent != null)
-            //{
-            //    // Convert the RTF byte array to HTML string
-            //    htmlString = Rtf.ToHtml(fileContent);
-            //}
-
-            if(fileContent.Length == 443)
-            {
-                toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
-                loading = false;
-                return;
-            }    
-
-            await msgrichEdit.SaveDocumentAsync();
-            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
-            byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-            server.LoadDocument(fileContent1);
-            server.Options.Export.Html.EmbedImages = true;
-            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
-
-
-            string plainText = server.Text;
+            
+            var processed = await ProcessImagesAsync(markupHtml);
+            string htmlString = processed;
+            string plainText = ConvertHtmlToPlainText(processed);
             string shortDescription = plainText.Length > 500 ? plainText.Substring(0, 500) : plainText;
+            byte[] fileContents = Encoding.UTF8.GetBytes(processed);
+
 
             if(Data.Name == null)
             {
@@ -8784,7 +9005,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     closeReply();
                     onloadSession();
 
-                    await msgrichEdit.NewDocumentAsync();
+                    //await msgrichEdit.NewDocumentAsync();
                     await onloadTwoGrid();
 
                     if (RTopicId == 0)
@@ -8798,6 +9019,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
                     WindowVisible = false;
                     loading = false;
+                    
+                    await InvokeAsync(StateHasChanged);
                 }
 
 

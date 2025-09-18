@@ -166,15 +166,16 @@
             <div class="row mb-2 mt-4">
                 <div class="col-md-2">
                     <label>Start Date:</label>
-                    <DxDateEdit @bind-Date="startDate"
-                                MinDate="minDate ?? DateTime.Today.AddYears(-10)"
-                                MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+                    <DxDateEdit @bind-Date="StartDate"
+                                MinDate="@StartPickerMin"
+                                MaxDate="@StartPickerMax" />
+
                 </div>
                 <div class="col-md-2">
                     <label>End Date:</label>
-                    <DxDateEdit @bind-Date="endDate"
-                                MinDate="minDate ?? DateTime.Today.AddYears(-10)"
-                                MaxDate="maxDate ?? DateTime.Today.AddYears(10)" />
+                    <DxDateEdit @bind-Date="EndDate"
+                                MinDate="@EndPickerMin"
+                                MaxDate="@EndPickerMax" />
                 </div>
                 <div class="col-md-3 align-self-end">
                     <DxButton Text="Apply Date Filter" Click="ApplyDateFilter" />
@@ -352,6 +353,54 @@
 
 @code {
 
+
+    // backing + property pair to run validation on set
+    private bool _updatingDates;
+    private DateTime? _startDate;
+    public DateTime? StartDate
+    {
+        get => _startDate;
+        set
+        {
+            if (_startDate == value) return;
+            _startDate = value;
+            if (!_updatingDates)
+            {
+                _updatingDates = true;
+                EnsureDateRangeValid();
+                _updatingDates = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private DateTime? _endDate;
+    public DateTime? EndDate
+    {
+        get => _endDate;
+        set
+        {
+            if (_endDate == value) return;
+            _endDate = value;
+            if (!_updatingDates)
+            {
+                _updatingDates = true;
+                EnsureDateRangeValid();
+                _updatingDates = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    // computed non-nullable picker bounds
+    private DateTime StartPickerMin => minDate ?? DateTime.Today.AddYears(-10);
+    private DateTime StartPickerMax => EndDate ?? maxDate ?? DateTime.Today.AddYears(10);
+
+    private DateTime EndPickerMin => StartDate ?? minDate ?? DateTime.Today.AddYears(-10);
+    private DateTime EndPickerMax => maxDate ?? DateTime.Today.AddYears(10);
+
+
+
     bool isOpen = false;
 
     void ToggleAccordion()
@@ -390,6 +439,21 @@
     DateTime? minDate;
     DateTime? maxDate;
     List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPointsWithDates = new();
+
+    private void OnStartDateChanged(DateTime? newDate)
+    {
+        startDate = newDate;
+        EnsureDateRangeValid();
+    }
+
+    private void OnEndDateChanged(DateTime? newDate)
+    {
+        endDate = newDate;
+        EnsureDateRangeValid();
+    }
+
+
+
 
     public class ChartSegment
     {
@@ -588,8 +652,94 @@
         return stringValueMap[value];
     }
 
-
     private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+
+        if (!dataPoints.Any())
+            return;
+
+        minDate = dataPoints.Min(p => p.Date);
+        maxDate = dataPoints.Max(p => p.Date);
+
+        // sensible defaults: start = minDate, end = min(minDate + 7, maxDate)
+        startDate = minDate;
+        endDate = minDate.Value.AddDays(7) <= maxDate.Value ? minDate.Value.AddDays(7) : maxDate;
+
+        // ensure invariants
+        EnsureDateRangeValid();
+
+        selectedPointsWithDates = dataPoints;
+
+        // load chart using the initial window
+        var initialWindow = dataPoints
+            .Where(p => (!startDate.HasValue || p.Date >= startDate.Value)
+                     && (!endDate.HasValue || p.Date <= endDate.Value))
+            .ToList();
+
+        LoadChartWithLabels(initialWindow);
+    }
+    private void EnsureDateRangeValid()
+    {
+        // clamp to dataset bounds
+        if (minDate.HasValue && StartDate.HasValue && StartDate.Value < minDate.Value)
+            StartDate = minDate;
+        if (maxDate.HasValue && EndDate.HasValue && EndDate.Value > maxDate.Value)
+            EndDate = maxDate;
+
+        // if both present and start > end, fix by keeping start and setting end = start
+        if (StartDate.HasValue && EndDate.HasValue && StartDate.Value > EndDate.Value)
+        {
+            EndDate = StartDate;
+        }
+
+        // default nulls to dataset bounds (optional)
+        if (!StartDate.HasValue && minDate.HasValue) StartDate = minDate;
+        if (!EndDate.HasValue && maxDate.HasValue) EndDate = maxDate;
+    }
+    private void EnsureDateRangeValid_v()
+    {
+        // clamp to dataset bounds if available
+        if (minDate.HasValue && startDate.HasValue && startDate.Value < minDate.Value)
+            startDate = minDate;
+
+        if (maxDate.HasValue && endDate.HasValue && endDate.Value > maxDate.Value)
+            endDate = maxDate;
+
+        // if both present and end < start, fix by swapping (you can choose to set end = start instead)
+        if (startDate.HasValue && endDate.HasValue && endDate.Value < startDate.Value)
+        {
+            // Option A: swap so start <= end
+            var tmp = startDate;
+            startDate = endDate;
+            endDate = tmp;
+
+            // Option B (alternative): set endDate = startDate
+            // endDate = startDate;
+        }
+
+        // final safety clamp again (in case swap created out-of-bounds)
+        if (minDate.HasValue && startDate.HasValue && startDate.Value < minDate.Value)
+            startDate = minDate;
+        if (maxDate.HasValue && endDate.HasValue && endDate.Value > maxDate.Value)
+            endDate = maxDate;
+    }
+    private void ApplyDateFilter()
+    {
+        EnsureDateRangeValid();
+
+        if (!StartDate.HasValue || !EndDate.HasValue)
+            return;
+
+        var filtered = selectedPointsWithDates
+            .Where(p => p.Date.Date >= StartDate.Value.Date   // inclusive start
+                     && p.Date.Date <= EndDate.Value.Date)    // inclusive end
+            .ToList();
+
+        LoadChartWithLabels(filtered);
+    }
+
+    private void CheckAxesSelected_()
     {
         var dataPoints = ConvertRawDataToPoints();
 
@@ -607,7 +757,7 @@
     }
 
 
-    private void ApplyDateFilter()
+    private void ApplyDateFilter_()
     {
         if (startDate == null || endDate == null) return;
 

@@ -261,14 +261,6 @@
             </DxChartValueAxis>
         }
 
-
-
-
-
-        <DxChartValueAxis>
-            <DxChartAxisTitle Text="@yAxisLabel" />
-        </DxChartValueAxis>
-
         <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
         <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
                                   ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
@@ -444,8 +436,70 @@
         return stringValueMap[value];
     }
 
-
     private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+        if (!dataPoints.Any())
+            return;
+
+        // compute data bounds
+        minDate = dataPoints.Min(p => p.Date);
+        maxDate = dataPoints.Max(p => p.Date);
+
+        // Determine default end:
+        // - Prefer Today when it's inside the data range (so user sees "up to today")
+        // - Otherwise use the latest data point (maxDate)
+        DateTime defaultEnd = (minDate.Value <= DateTime.Today && DateTime.Today <= maxDate.Value)
+                              ? DateTime.Today
+                              : maxDate.Value;
+
+        // Default start = 7 days before defaultEnd, clamped to minDate
+        DateTime defaultStart = defaultEnd.AddDays(-7);
+        if (defaultStart < minDate.Value) defaultStart = minDate.Value;
+
+        // Safety: ensure start <= end (fallback to full range start if something odd)
+        if (defaultStart > defaultEnd) defaultStart = minDate.Value;
+
+        startDate = defaultStart;
+        endDate = defaultEnd;
+
+        // Sort and cache points
+        selectedPointsWithDates = dataPoints.OrderBy(p => p.Date).ToList();
+
+        // Load chart with the window (if empty, fall back to whole range)
+        var window = selectedPointsWithDates.Where(p => p.Date >= startDate && p.Date <= endDate).ToList();
+        LoadChart(window.Any() ? window : selectedPointsWithDates);
+    }
+
+    private void ApplyDateFilter()
+    {
+        if (!startDate.HasValue || !endDate.HasValue) return;
+
+        DateTime s = startDate.Value;
+        DateTime e = endDate.Value;
+
+        // Clamp to actual data range if available
+        if (minDate.HasValue && s < minDate.Value) s = minDate.Value;
+        if (maxDate.HasValue && e > maxDate.Value) e = maxDate.Value;
+
+        // If user accidentally swapped them, swap back
+        if (s > e)
+        {
+            var tmp = s;
+            s = e;
+            e = tmp;
+        }
+
+        // Persist any corrected values back to the bound properties
+        startDate = s;
+        endDate = e;
+
+        var filtered = selectedPointsWithDates.Where(p => p.Date >= s && p.Date <= e).ToList();
+        LoadChart(filtered);
+    }
+
+
+    private void CheckAxesSelected_()
     {
         var dataPoints = ConvertRawDataToPoints();
 
@@ -462,7 +516,7 @@
 
         }
     }
-    private void ApplyDateFilter()
+    private void ApplyDateFilter_()
     {
         if (startDate == null || endDate == null) return;
 
@@ -538,89 +592,6 @@
         coloredScatterGroups = processedData
             .GroupBy(d => d.PointColor)
             .ToDictionary(g => g.Key, g => g.ToList());
-    }
-
-
-    private void LoadChartold1(List<(double X, double Y)> selectedPoints)
-    {
-        var yValues = selectedPoints.Select(d => d.Y).ToList();
-
-        avg = yValues.Average();
-
-        // Sample standard deviation (n-1)
-        var n = yValues.Count;
-        var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
-        var sigma = Math.Sqrt(variance);
-
-        UCL = avg + 3 * sigma;
-        LCL = avg - 3 * sigma;
-
-        // Histogram bins
-        processedData = yValues
-            .GroupBy(v => Math.Round(v, 3))
-            .Select(g => new CapabilityData
-            {
-                SpecificGravity = g.Key,
-                Frequency = g.Count()
-            })
-            .OrderBy(d => d.SpecificGravity)
-            .ToList();
-
-        // Normal distribution overlay
-        var maxFreq = processedData.Max(p => p.Frequency);
-        var pdfValues = processedData.Select(p =>
-            (SG: p.SpecificGravity,
-             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
-                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
-            )).ToList();
-
-        var maxPdf = pdfValues.Max(p => p.PDF);
-        var scaleFactor = maxFreq / maxPdf;
-
-        foreach (var item in processedData)
-        {
-            var pdf = pdfValues.First(v => Math.Abs(v.SG - item.SpecificGravity) < 0.0001).PDF;
-            item.NormalizedCurve = pdf * scaleFactor;
-        }
-    }
-
-    private void LoadChartold(List<(double X, double Y)> selectedPoints)
-    {
-        var yValues = selectedPoints.Select(d => d.Y).ToList();
-
-        avg = yValues.Average();
-        var variance = yValues.Average(v => Math.Pow(v - avg, 2));
-        var sigma = Math.Sqrt(variance);
-        UCL = avg + 3 * sigma;
-        LCL = avg - 3 * sigma;
-
-        // Histogram bins
-        processedData = yValues
-            .GroupBy(v => Math.Round(v, 3))
-            .Select(g => new CapabilityData
-            {
-                SpecificGravity = g.Key,
-                Frequency = g.Count()
-            })
-            .OrderBy(d => d.SpecificGravity)
-            .ToList();
-
-        // Normal distribution overlay
-        var maxFreq = processedData.Max(p => p.Frequency);
-        var pdfValues = processedData.Select(p =>
-            (SG: p.SpecificGravity,
-             PDF: (1.0 / (sigma * Math.Sqrt(2 * Math.PI))) *
-                  Math.Exp(-0.5 * Math.Pow((p.SpecificGravity - avg) / sigma, 2))
-            )).ToList();
-
-        var maxPdf = pdfValues.Max(p => p.PDF);
-        var scaleFactor = maxFreq / maxPdf;
-
-        foreach (var item in processedData)
-        {
-            var pdf = pdfValues.First(v => Math.Abs(v.SG - item.SpecificGravity) < 0.0001).PDF;
-            item.NormalizedCurve = pdf * scaleFactor;
-        }
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

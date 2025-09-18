@@ -52,6 +52,7 @@
                       SearchFilterCondition="ListSearchFilterCondition.Contains"
                       TextFieldName="Description"
                       ValueFieldName="DistACID"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                       @bind-Values="@Data.NavItemCustomerItemID" />
             <ValidationMessage For="@(() => Data.NavItemCustomerItemID)" />
         </DxFormLayoutItem>
@@ -83,6 +84,7 @@
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Code"
                         ValueFieldName="GenericCodeId"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         @bind-Value="@Data.GenericCodeId" />
             <ValidationMessage For="@(() => Data.GenericCodeId)" />
         </DxFormLayoutItem>
@@ -93,6 +95,7 @@
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="MethodName"
                         ValueFieldName="MethodCodeID"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         @bind-Value="@Data.MethodCodeId" />
             <ValidationMessage For="@(() => Data.MethodCodeId)" />
         </DxFormLayoutItem>
@@ -103,6 +106,7 @@
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         @bind-Value="@Data.ReplenishmentMethodId" />
             <ValidationMessage For="@(() => Data.ReplenishmentMethodId)" />
         </DxFormLayoutItem>
@@ -113,6 +117,7 @@
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="CodeValue"
                         ValueFieldName="CodeId"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         @bind-Value="@Data.StatusCodeId" />
             <ValidationMessage For="@(() => Data.StatusCodeId)" />
         </DxFormLayoutItem>

@@ -3335,7 +3335,7 @@ t1.DynamicFormSectionID,
                         {
                             if (dynamicFormData.AttributeHeader != null && dynamicFormData.AttributeHeader.DynamicFormSectionAttribute != null)
                             {
-                                string tableName = "DynamicForm_" + result.ScreenID.ToLower();
+                                string tableName = "DynamicFormAttr_" + result.ScreenID.ToLower();
                                 createsql = "create table " + tableName + " (";
                                 string alterSql = string.Empty;
                                 createsql += "[DynamicFormDataItemID] [bigint] IDENTITY(1,1) NOT NULL,[DynamicFormDataID] [bigint] NULL,";
@@ -3532,6 +3532,8 @@ t1.DynamicFormSectionID,
                                     }
 
                                 });
+                                createsql += "CONSTRAINT [PK_" + tableName + "] PRIMARY KEY CLUSTERED \r\n(\r\n\t[DynamicFormDataItemID] ASC\r\n)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]\r\n) ON [PRIMARY]";
+
                             }
                         }
                         return dynamicFormData;

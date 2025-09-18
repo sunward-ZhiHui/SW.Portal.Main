@@ -32,6 +32,9 @@ namespace DocumentViewer.Models
         public DbSet<FileProfileType> FileProfileType { get; set; }
         public DbSet<DocumentViewers> DocumentViewers { get; set; }
         public DbSet<DocumentsVersionTrace> DocumentsVersionTrace{ get; set; }
+        public DbSet<PlanningForProductionProcessByMachine> PlanningForProductionProcessByMachine { get; set; }
+        public DbSet<PlanningForProductionProcessByMachineRelated> PlanningForProductionProcessByMachineRelated { get; set; }
+        public DbSet<ProductionPlanningScheduler> ProductionPlanningScheduler { get; set; }
     }
 }
 

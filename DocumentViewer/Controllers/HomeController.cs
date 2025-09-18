@@ -1,44 +1,50 @@
-﻿using DocumentViewer.Models;
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Web;
+﻿using Azure.Core;
 using DevExpress.AspNetCore.Spreadsheet;
+using DevExpress.ClipboardSource.SpreadsheetML;
+using DevExpress.Data.Filtering.Helpers;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using DevExpress.Export.Xl;
+using DevExpress.Office.Drawing;
 using DevExpress.Spreadsheet;
-using DevExpress.XtraSpreadsheet.Export;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Security.Policy;
-using System.Net.Mime;
-using DocumentViewer.Helpers;
-using Microsoft.AspNetCore.Http.Extensions;
-using DocumentViewer.EntityModels;
-using Microsoft.AspNetCore.Http;
-using DocumentApi.Models;
-using System.Threading;
+using DevExpress.Web.Office;
 using DevExpress.Xpo;
-using System.Net.Http;
+using DevExpress.XtraSpreadsheet.Export;
+using DevExpress.XtraSpreadsheet.Utils;
+using DocumentApi.Models;
+using DocumentViewer.EntityModels;
+using DocumentViewer.Helpers;
+using DocumentViewer.Models;
+using Google.Apis.Auth.OAuth2;
+using HtmlAgilityPack;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.qrcode;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.Extensions.Msal;
 using MsgReader.Outlook;
-using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
-using System.IO.Compression;
-using DevExpress.ClipboardSource.SpreadsheetML;
-using DevExpress.Office.Drawing;
-using DevExpress.Data.Filtering.Helpers;
-using static DevExpress.Utils.HashCodeHelper.Primitives;
-using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using Newtonsoft.Json;
+using System;
 using System.Buffers.Text;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Security.Policy;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web;
+using System.Xml;
+using static DevExpress.Utils.HashCodeHelper.Primitives;
+using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
-using Azure.Core;
-using DevExpress.Web.Office;
-using DevExpress.Export.Xl;
-using iTextSharp.text.pdf;
-using iTextSharp.text;
-using iTextSharp.text.pdf.qrcode;
-using DevExpress.XtraSpreadsheet.Utils;
 
 namespace DocumentViewer.Controllers
 {
@@ -353,6 +359,320 @@ namespace DocumentViewer.Controllers
             int lastIndex = text.LastIndexOf(".");
             return lastIndex > 0 ? text.Substring(0, lastIndex) : text;
         }
+        [HttpPost("NotifyEmailDocument")]
+        public async Task<bool> NotifyEmailDocumentAsync(long? documentId, string? isVersion)
+        {
+            if (documentId > 0)
+            {
+                var currentDocuments = _context.Documents.Where(w => w.DocumentId == documentId).FirstOrDefault();
+                if (currentDocuments != null)
+                {
+                    if (currentDocuments.SourceFrom == "Email")
+                    {
+                        var versiontracking = _context.DocumentsVersionTrace.Where(x => x.DocumentId == documentId).OrderByDescending(x => x.DocumentsVersionTraceId).FirstOrDefault();
+
+                        var userId = (long?)Convert.ToDouble(HttpContext.Session.GetString("user_id"));
+                        var latestDocument = _context.Documents.FirstOrDefault(c => c.SessionId == currentDocuments.SessionId && c.IsLatest == true);
+                        var emailconversation = _context.EmailConversations.Where(p => p.SessionId == currentDocuments.SessionId).FirstOrDefault();
+                        if (emailconversation != null)
+                        {
+
+                            var emplist = _context.Employee.Where(p => p.UserId == userId).FirstOrDefault();
+
+                            var lastRecord = _context.EmailConversations
+                                .Where(e => e.ReplyId == emailconversation.ReplyId)
+                                .OrderByDescending(e => e.ID)
+                                .FirstOrDefault();
+
+                            var lastRecordId = lastRecord?.ID;
+                            var createReq = lastRecord;
+
+                            var assignTo = _context.EmailConversationAssignTo.Where(x => x.ConversationId == lastRecordId).ToList();
+                            var assignCC = _context.EmailConversationAssignCC.Where(x => x.ConversationId == lastRecordId).ToList();
+
+
+                            //string versionNo = versiontracking?.VersionNo?.ToString() ?? "Not yet versioned";
+                            //string description = versiontracking?.Description ?? "No description provided for this version";
+
+
+                            string versionNo;
+                            string description;
+                            string userReplyContent;
+
+                            if (string.Equals(isVersion, "Yes", StringComparison.OrdinalIgnoreCase))
+                            {
+                                versionNo = versiontracking?.VersionNo?.ToString() ?? "Not yet versioned";
+                                description = versiontracking?.Description ?? "No description provided.";
+
+                                 userReplyContent = $"Version {versionNo}: {description}";
+                            }
+                            else
+                            {                                
+
+                                userReplyContent = "The document has been updated without a change in the version number. Please find the revised document below.";
+                            }
+
+
+
+
+                            //string userReplyContent = $"Version {versionNo}: {description}";
+                            string displayName = !string.IsNullOrEmpty(emplist.NickName) ? $"{emplist.FirstName} - {emplist.NickName}" : $"{emplist.FirstName} {emplist.LastName}";
+
+                            string documentName = latestDocument?.FileName ?? "Unknown Document";
+                            //string documentUrl = $"/Documents/View/{latestDocument?.UniqueSessionId}"; // adjust to your routing
+                            string documentUrl = $"https://portal.sunwardpharma.com/FileViewer/login?url={latestDocument?.UniqueSessionId}";
+
+                            string replyText =
+                            $"<strong>Auto Reply Notification</strong><br/><br/>" +
+                            //$"User <strong>{applicationUser.FirstName} {applicationUser.LastName}</strong> " +
+                            $"User <strong>{displayName}</strong> " +
+                            $"has updated the document <strong>{documentName}</strong>.<br/><br/>" +
+                            $"<strong>Message:</strong><br/>" +
+                            $"&nbsp;&nbsp;&nbsp;&nbsp;{userReplyContent}<br/><br/>" +
+                            $"<a href='{documentUrl}' target='_blank' " +
+                            $"style='display:inline-block;padding:8px 14px;background-color:#007bff;color:#fff;" +
+                            $"text-decoration:none;border-radius:5px;'>View Document</a><br/><br/>" +
+                            $"<em>This is an automated reply generated by the system.</em>";
+
+                            //string replyText =
+                            //  $"<strong>Auto Reply Notification</strong><br/><br/>" +
+                            //  $"User <strong>{displayName}</strong> " +
+                            //  $"has updated the document <strong>{documentName}</strong>.<br/><br/>" +
+                            //  $"<strong>Message:</strong><br/>" +
+                            //  $"&nbsp;&nbsp;&nbsp;&nbsp;{userReplyContent}<br/><br/>" +
+                            //  $"<button onclick=\"viewDocumentJs('{latestDocument?.UniqueSessionId}')\" " +
+                            //  $"style='padding:8px 14px;background-color:#007bff;color:#fff;border:none;border-radius:5px;cursor:pointer;'>View Document</button>" +
+                            //  $"<em>This is an automated reply generated by the system.</em>";
+
+
+                            // Convert to byte[]
+                            byte[] replyBytes = System.Text.Encoding.UTF8.GetBytes(replyText);
+
+                            string textContent = "Auto Reply Notification.";
+
+                            string descriptionContent = textContent.Length > 50 ? textContent.Substring(0, 50) : textContent;
+
+                            //byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(textContent);
+
+                            var newConversation = new EmailConversation
+                            {
+                                TopicID = createReq.TopicID,
+                                FileData = replyBytes,
+                                //Message = createReq.Message,      
+                                Description = descriptionContent,
+                                DueDate = createReq.DueDate,
+                                IsAllowParticipants = createReq.IsAllowParticipants,
+                                Urgent = createReq.Urgent,
+                                ParticipantId = userId,
+                                ReplyId = createReq.ReplyId,
+                                StatusCodeID = 1,
+                                AddedByUserID = (int?)userId,
+                                IsMobile = createReq.IsMobile,
+                                AddedDate = DateTime.Now,
+                                Name = createReq.Name,
+                                SessionId = Guid.NewGuid(),
+                                UserType = createReq.UserType,
+                                IsDueDate = createReq.IsDueDate,
+                                TransferID = createReq.TransferID,
+                            };
+
+                            _context.EmailConversations.Add(newConversation);
+                            await _context.SaveChangesAsync();
+
+                            var newConversationId = newConversation.ID;
+
+                            if (lastRecord != null && lastRecord.ParticipantId.HasValue && userId.HasValue && lastRecord.ParticipantId.Value != userId.Value)
+                            {
+                                long currentUserId = userId.Value;
+                                long newParticipantId = lastRecord.ParticipantId.Value;
+
+                                // 1. Remove currentUserId from assignTo list
+                                assignTo = assignTo.Where(x => x.UserId != currentUserId).ToList();
+
+                                // 2. Remove currentUserId from assignCC list
+                                assignCC = assignCC.Where(x => x.UserId != currentUserId).ToList();
+
+                                // 3. Always add lastRecord.ParticipantId into assignTo list
+                                if (!assignTo.Any(x => x.UserId == newParticipantId))
+                                {
+                                    assignTo.Add(new EmailConversationAssignTo
+                                    {
+                                        ConversationId = newConversationId,   // use new conversation ID
+                                        TopicId = lastRecord.TopicID,
+                                        UserId = newParticipantId,
+                                        StatusCodeID = 1,
+                                        AddedByUserID = (int?)currentUserId,
+                                        AddedDate = DateTime.Now,
+                                        SessionId = Guid.NewGuid()
+                                    });
+                                }
+
+
+                                var allAssignments = assignTo.Select(a => new { a.TopicId, a.UserId }).Concat(assignCC.Select(c => new { c.TopicId, c.UserId })).ToList();
+
+                                allAssignments.Add(new { TopicId = lastRecord.TopicID, UserId = userId.Value });
+                                allAssignments = allAssignments.GroupBy(x => x.UserId).Select(g => g.First()).ToList();
+
+
+                                foreach (var assign in assignTo)
+                                {
+                                    _context.EmailConversationAssignTo.Add(new EmailConversationAssignTo
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = assign.TopicId,
+                                        UserId = assign.UserId,
+                                        StatusCodeID = 1,
+                                        AddedByUserID = (int?)userId,
+                                        AddedDate = DateTime.Now,
+                                        SessionId = Guid.NewGuid()
+                                    });
+                                }
+
+
+
+
+                                foreach (var assign in assignCC)
+                                {
+                                    _context.EmailConversationAssignCC.Add(new EmailConversationAssignCC
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = assign.TopicId,
+                                        UserId = assign.UserId,
+                                        StatusCodeID = 1,
+                                        AddedByUserID = (int?)userId,
+                                        AddedDate = DateTime.Now,
+                                        SessionId = Guid.NewGuid()
+                                    });
+                                }
+
+
+
+                                // Insert into EmailNotifications
+                                foreach (var item in allAssignments)
+                                {
+                                    _context.EmailNotifications.Add(new EmailNotifications
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = item.TopicId,
+                                        UserId = item.UserId,
+                                        IsRead = item.UserId == userId ? true : false,
+                                        AddedDate = DateTime.Now,
+                                        AddedByUserID = userId
+                                    });
+                                }
+
+                                await _context.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                var allAssignments = assignTo.Select(a => new { a.TopicId, a.UserId }).Concat(assignCC.Select(c => new { c.TopicId, c.UserId })).ToList();
+
+                                allAssignments.Add(new { TopicId = lastRecord.TopicID, UserId = userId.Value });
+                                allAssignments = allAssignments.GroupBy(x => x.UserId).Select(g => g.First()).ToList();
+
+                                // Original logic when ParticipantId == userId
+                                foreach (var assign in assignTo)
+                                {
+                                    _context.EmailConversationAssignTo.Add(new EmailConversationAssignTo
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = assign.TopicId,
+                                        UserId = assign.UserId,
+                                        StatusCodeID = 1,
+                                        AddedByUserID = (int?)userId,
+                                        AddedDate = DateTime.Now,
+                                        SessionId = Guid.NewGuid()
+                                    });
+                                }
+
+                                foreach (var assign in assignCC)
+                                {
+                                    _context.EmailConversationAssignCC.Add(new EmailConversationAssignCC
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = assign.TopicId,
+                                        UserId = assign.UserId,
+                                        StatusCodeID = 1,
+                                        AddedByUserID = (int?)userId,
+                                        AddedDate = DateTime.Now,
+                                        SessionId = Guid.NewGuid()
+                                    });
+                                }
+
+
+
+
+
+
+                                // Insert into EmailNotifications
+                                foreach (var item in allAssignments)
+                                {
+                                    _context.EmailNotifications.Add(new EmailNotifications
+                                    {
+                                        ConversationId = newConversationId,
+                                        TopicId = item.TopicId,
+                                        UserId = item.UserId,
+                                        IsRead = item.UserId == userId ? true : false,
+                                        AddedDate = DateTime.Now,
+                                        AddedByUserID = userId
+                                    });
+                                }
+
+                                await _context.SaveChangesAsync();
+                            }
+
+
+                            await SendMessage(newConversationId);
+
+
+                            //foreach (var assign in assignTo)
+                            //{
+                            //    _context.EmailConversationAssignTo.Add(new EmailConversationAssignTo
+                            //    {
+                            //        ConversationId = newConversationId,
+                            //        TopicId = assign.TopicId,
+                            //        UserId = assign.UserId,
+                            //        StatusCodeID = 1,
+                            //        AddedByUserID = (int?)userId,
+                            //        AddedDate = DateTime.Now,
+                            //        SessionId = Guid.NewGuid()
+                            //    });
+                            //}
+
+                            //foreach (var assign in assignCC)
+                            //{
+                            //    _context.EmailConversationAssignCC.Add(new EmailConversationAssignCC
+                            //    {
+                            //        ConversationId = newConversationId,
+                            //        TopicId = assign.TopicId,
+                            //        UserId = assign.UserId,
+                            //        StatusCodeID = 1,
+                            //        AddedByUserID = (int?)userId,
+                            //        AddedDate = DateTime.Now,
+                            //        SessionId = Guid.NewGuid()
+                            //    });
+                            //}
+
+                            //var rows = await _context.SaveChangesAsync();
+                            //Console.WriteLine($"Rows written: {rows}");
+
+
+                        }
+
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
         [HttpPost("GetDocumentsVersionTrace")]
         public string GetDocumentsVersionTrace(long? documentId)
         {
@@ -427,7 +747,7 @@ namespace DocumentViewer.Controllers
                         long length = new FileInfo(pathurl).Length;
                         System.IO.File.Copy(pathurl, filepaths);
                         var pathsName = @"Documents\" + FileProfileType?.SessionId + @"\" + sesid + "." + ext;
-                        VersionDataData(currentDocuments, pathsName, length);
+                        await VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
                 if (!string.IsNullOrEmpty(pathurl))
@@ -444,11 +764,11 @@ namespace DocumentViewer.Controllers
                         }
                     }
                 }
-                saveUpdateUserData();
+                await saveUpdateUserData(isVersion);
             }
             return Ok();
         }
-        void VersionDataData(Documents documents, string? newfilePath, long length)
+        async Task VersionDataData(Documents documents, string? newfilePath, long length)
         {
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == documents.DocumentId).FirstOrDefault();
@@ -560,7 +880,7 @@ namespace DocumentViewer.Controllers
             return Ok();
         }
         [HttpPost]
-        public void RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
+        public async Task RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
         {
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
             if (currentDocuments != null)
@@ -591,7 +911,7 @@ namespace DocumentViewer.Controllers
                         long length = new FileInfo(pathurl).Length;
                         System.IO.File.Copy(pathurl, filepaths);
                         var pathsName = @"Documents\" + FileProfileType?.SessionId + @"\" + sesid + "." + ext;
-                        VersionDataData(currentDocuments, pathsName, length);
+                        await VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
 
@@ -602,11 +922,12 @@ namespace DocumentViewer.Controllers
                 {
                     fs.Write(documentContent, 0, documentContent.Length);
                 }
+
                 //spreadsheet.Save();
-                saveUpdateUserData();
+                await saveUpdateUserData(isVersion);
             }
         }
-        void saveUpdateUserData()
+        async Task saveUpdateUserData(string? isVersion)
         {
             var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
             if (documentId > 0)
@@ -630,7 +951,11 @@ namespace DocumentViewer.Controllers
 
                     _context.SaveChanges();
                 }
+
+
             }
+
+            await NotifyEmailDocumentAsync(documentId, isVersion);
         }
         public IActionResult RibbonDownloadXls(SpreadsheetClientState spreadsheetState)
         {
@@ -1010,16 +1335,16 @@ namespace DocumentViewer.Controllers
                         }
                     }
                 }*/
-                documentsModel.Add(documentsModels);
-                var IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? "Yes" : "No";
-                var isDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? "Yes" : "No";
-                if (userId == documentsModel.FirstOrDefault()?.UploadedByUserId)
-                {
-                    IsRead = "Yes"; isDownload = "Yes";
-                }
-                @ViewBag.isDownload = isDownload;
-                HttpContext.Session.SetString("isDownload", isDownload);
-                HttpContext.Session.SetString("isView", IsRead);
+            documentsModel.Add(documentsModels);
+            var IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? "Yes" : "No";
+            var isDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? "Yes" : "No";
+            if (userId == documentsModel.FirstOrDefault()?.UploadedByUserId)
+            {
+                IsRead = "Yes"; isDownload = "Yes";
+            }
+            @ViewBag.isDownload = isDownload;
+            HttpContext.Session.SetString("isDownload", isDownload);
+            HttpContext.Session.SetString("isView", IsRead);
 
             //}
             return documentsModel;
@@ -1100,7 +1425,7 @@ namespace DocumentViewer.Controllers
                     var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
                     if (emailConversationlst != null)
                     {
-                        var topicId = emailConversationlst.TopicId;
+                        var topicId = emailConversationlst.TopicID;
                         if (string.IsNullOrEmpty(emailConversationlst.UserType) || emailConversationlst.UserType == "Users")
                         {
                             var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
@@ -1188,7 +1513,7 @@ namespace DocumentViewer.Controllers
                         attachments.ForEach(a =>
                         {
                             var attachment = a as MsgReader.Outlook.Storage.Message.Attachment;
-                            if (attachment!=null && attachment.ContentId != null && attachment.IsInline == true)
+                            if (attachment != null && attachment.ContentId != null && attachment.IsInline == true)
                             {
                                 var contentId = "cid:" + attachment.ContentId;
                                 if (plainTextBytes.Contains(contentId))
@@ -1338,6 +1663,155 @@ namespace DocumentViewer.Controllers
             dc.EndText();
             dc.RestoreState();
         }
+
+        public async Task<List<Employee>> GetConversationEmployees(long convId)
+        {
+            var toEmployees = from ec in _context.EmailConversationAssignTo
+                              join e in _context.Employee on ec.UserId equals e.UserId
+                              where ec.ConversationId == convId
+                              select e;
+
+            var ccEmployees = from ec in _context.EmailConversationAssignCC
+                              join e in _context.Employee on ec.UserId equals e.UserId
+                              where ec.ConversationId == convId
+                              select e;
+
+            var result = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToListAsync(toEmployees.Union(ccEmployees));
+
+            return result;
+        }
+
+
+        [HttpGet("SendMessage")]
+        public async Task<string> SendMessage(long id)
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+
+            var itm = _context.EmailConversations.Where(w => w.ID == id).FirstOrDefault();
+
+            //var itm = await _mediator.Send(new GetByIdConversation(id));
+
+            //var sid = await _mediator.Send(new GetByIdEmailTopics(itm.TopicID));
+
+            string title = itm.Name;
+
+            byte[] htmlBinaryData = itm.FileData; // Your HTML binary data
+            string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
+
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            // string extractedText = doc.DocumentNode.InnerText.Trim();
+
+            string extractedText = HtmlEntity.DeEntitize(doc.DocumentNode.InnerText.Trim());
+
+            // Remove unwanted line breaks and whitespace
+            extractedText = Regex.Replace(extractedText, @"\s+", " ").Trim();
+
+            string bodymsg = extractedText.Substring(0, Math.Min(20, extractedText.Length));
+
+            var Result = await GetConversationEmployees(id);
+
+            List<string> tokenStringList = new List<string>();
+
+            //var hosturls = baseurl + "ViewEmail/" + sid[0].SessionId;
+            var hosturls = baseurl + "ViewEmail/" + itm.SessionId;
+
+            foreach (var item in Result)
+            {               
+
+                var tokens = _context.UserNotifications.Where(w => w.UserId == item.UserId && w.DeviceType != "IPIR").ToList();
+
+                //var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
+
+                if (tokens.Count > 0)
+                {
+                    foreach (var lst in tokens)
+                    {
+                        await PushNotification(lst.TokenID.ToString(), title, bodymsg, lst.DeviceType == "Mobile" ? "" : hosturls);
+                    }
+                }
+            }
+
+            return "ok";
+        }
+        [HttpGet("PushNotification")]
+        public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
+        {
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+            var projectId = _configuration["FcmNotification:ProjectId"];
+            var oauthToken = await GetAccessTokenAsync(_hostingEnvironment);
+            var iconUrl = baseurl + "_content/AC.SD.Core/images/SWLogo.png";
+
+            var pushNotificationRequest = new
+            {
+                message = new
+                {
+                    token = tokens,
+                    notification = new
+                    {
+                        title = titles,
+                        body = message
+                    },
+                    webpush = new
+                    {
+                        fcm_options = new
+                        {
+                            link = hosturl
+                        }
+                    }
+                }
+            };
+
+            string url = $"https://fcm.googleapis.com/v1/projects/{projectId}/messages:send";
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", oauthToken);
+
+                try
+                {
+                    string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                    var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Log response content for debugging
+                    //Console.WriteLine(responseContent);
+
+                    // Handle UNREGISTERED token
+                    if (!response.IsSuccessStatusCode && responseContent.Contains("UNREGISTERED"))
+                    {
+                        // Optionally log and remove token
+                        Console.WriteLine($"Invalid FCM Token: {tokens}");
+                        return "UNREGISTERED";
+                    }
+
+                    return responseContent; // Return response or analyze as needed
+                }
+                catch (Exception ex)
+                {
+                    // Log exceptions for further analysis
+                    //Console.WriteLine($"Error sending notification: {ex.Message}");
+                    return $"Error: {ex.Message}";
+                }
+            }
+        }
+        private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
+        {
+            string relativePath = _configuration["FcmNotification:FilePath"];
+
+            string path = Path.Combine(env.ContentRootPath, relativePath);
+
+            GoogleCredential credential = await GoogleCredential.FromFileAsync(path, CancellationToken.None);
+
+            credential = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+
+            var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+            return token;
+        }
+
+
     }
 
 }

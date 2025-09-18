@@ -132,11 +132,11 @@
                 // alert(response);
 
                 $("#nameBox").val(""); $("#versionNo").val(""); $("#IsversionYes").val("");
-                GetDocumentsVersionTraceList();
+                GetDocumentsVersionTraceList();               
                 $("#myPopup").dxPopup("hide");
                 if ("@Model.Extensions" == "docx" || "@Model.Extensions" == "doc" || "@Model.Extensions" == "txt") {
                     if (IsversionYes == "Yes") {
-                        DocCommandExcectedByVersionsOn(IsversionYes);
+                        DocCommandExcectedByVersionsOn(IsversionYes);                        
                     }
                 }
                 if ("@Model.Extensions" == "xls" || "@Model.Extensions" == "xlsx") {
@@ -145,6 +145,20 @@
                     }
 
                 }
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+    function CheckDocumentFromEmail()
+    {
+        $.ajax({
+            url: '@Url.Action("NotifyEmailDocument")',
+            data: { documentId: @Model.UniqueId },
+            type: 'POST',
+            success: function (response) {
+               console.log("response:", response);
             },
             error: function (error) {
                 console.log("Error:", error);
@@ -278,6 +292,7 @@
                 contentType: false,  // Let the browser set the correct content type
                 success: function (response) {
                     if (isVersion == "Yes") {
+                        //CheckDocumentFromEmail();
                         alert("Version Upload successful");
                     }
                     else {

@@ -1814,8 +1814,10 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             try
             {
                 var lists = string.Join(',', sessionids.Select(i => $"'{i}'"));
-                var query = "select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID in(" + lists + ")";
-               
+                //var query = "select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID in(" + lists + ")";
+                var query = "SELECT DocumentID, FileName, ContentType, FileSize, FilePath " + "FROM Documents " + "WHERE SessionID IN(" + lists + ") AND IsLatest = 1";
+
+
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<EmailDocumentModel>(query)).ToList();
@@ -2253,7 +2255,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                                         ELSE 'False'
                                     END
                             from EmailConversations FC 
-                                INNER JOIN Documents D on D.SessionID = FC.SessionId
+                                INNER JOIN Documents D on D.SessionID = FC.SessionId AND D.IsLatest = 1
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
                                 LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId and DD.IsLatest = 1
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
@@ -2270,7 +2272,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                                             ELSE 'False'
                                         END
                                 from EmailConversations FC 
-                                INNER JOIN Documents D on D.SessionID = FC.SessionId
+                                INNER JOIN Documents D on D.SessionID = FC.SessionId AND D.IsLatest = 1
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
                                 LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId and DD.IsLatest = 1
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID

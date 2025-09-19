@@ -169,6 +169,11 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetSOPDropdownView();
                 }
+                if (dataSourceTableIds.Contains("NavMethodCode"))
+                {
+                    i++;
+                    query += GetAllNavMethodCodeDataSource(CompanyId, plantCode, plantIds);
+                }
                 if (!string.IsNullOrEmpty(query))
                 {
                     if (!string.IsNullOrEmpty(query))
@@ -177,6 +182,7 @@ namespace Infrastructure.Repository.Query
                     }
                 }
                 
+
             }
             else
             {
@@ -775,6 +781,35 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private string GetAllNavMethodCodeDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            try
+            {
+                var query = string.Empty;
+                query += "SELECT \r\n    CONCAT('NavMethodCode', '_', t1.MethodCodeID) AS AttributeDetailNameId,\r\n    'NavMethodCode' AS DropDownTypeId,\r\n    t1.MethodCodeID AS AttributeDetailID,\r\n    t1.MethodName AS AttributeDetailName,\r\n    t1.MethodDescription AS Description,\r\n    t1.CompanyID AS CompanyId,\r\n    t2.PlantCode AS CompanyName,\r\n    t3.Value AS DefaultBatchSize,\r\n    RTRIM(CAST(CAST(t3.BatchUnitSize AS DECIMAL(18,0)) AS VARCHAR(50))) AS BatchUnitSize,\r\n    t4.AllBatchValues AS AvailableBatchSize\r\nFROM NavMethodCode t1\r\nLEFT JOIN Plant t2 \r\n    ON t1.CompanyId = t2.PlantID\r\nOUTER APPLY (\r\n    SELECT TOP (1) t3.Value, t22.BatchUnitSize\r\n    FROM NavmethodCodeBatch t22\r\n    LEFT JOIN ApplicationMasterDetail t3 \r\n        ON t3.ApplicationMasterDetailID = t22.DefaultBatchSize\r\n    WHERE t22.NavMethodCodeId = t1.MethodCodeID\r\n    ORDER BY t22.MethodCodeBatchId ASC\r\n) t3\r\nOUTER APPLY (\r\n    SELECT STRING_AGG(t33.Value, ', ') AS AllBatchValues\r\n    FROM NavmethodCodeBatch t122\r\n    LEFT JOIN ApplicationMasterDetail t33 \r\n        ON t33.ApplicationMasterDetailID = t122.DefaultBatchSize\r\n    WHERE t122.NavMethodCodeId = t1.MethodCodeID\r\n) t4 \r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where  t2.CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "where  t2.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += "where 1=1;\r\n";
+                }
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private string GetAllProdOrderLineDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             try
@@ -804,7 +839,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+
 
         private string GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
         {
@@ -1395,7 +1430,7 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            if (DataSource == "AllProdOrderLine" ||  DataSource == "ReleaseProdOrderLine" ||  DataSource == "FinishedProdOrderLine" || DataSource == "FinishedProdOrderLineProductionInProgress")
+                            if (DataSource == "AllProdOrderLine" || DataSource == "ReleaseProdOrderLine" || DataSource == "FinishedProdOrderLine" || DataSource == "FinishedProdOrderLineProductionInProgress")
                             {
                                 query += "AND\r";
                             }

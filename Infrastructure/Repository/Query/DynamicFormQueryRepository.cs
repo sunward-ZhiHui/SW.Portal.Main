@@ -3336,6 +3336,10 @@ t1.DynamicFormSectionID,
                             if (dynamicFormData.AttributeHeader != null && dynamicFormData.AttributeHeader.DynamicFormSectionAttribute != null)
                             {
                                 string tableName = "DynamicFormAttr_" + result.ScreenID.ToLower();
+                                var parameters1 = new DynamicParameters();
+                                parameters1.Add("tableName", tableName, DbType.String);
+                                var query = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME =@tableName;";
+                                var TableExits = (await connection.QueryAsync<Table_Schema>(query, parameters1)).ToList();
                                 createsql = "create table " + tableName + " (";
                                 string alterSql = string.Empty;
                                 createsql += "[DynamicFormDataItemID] [bigint] IDENTITY(1,1) NOT NULL,[DynamicFormDataID] [bigint] NULL,";
@@ -3352,6 +3356,11 @@ t1.DynamicFormSectionID,
                                                 var attrNames = a.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
 
                                                 createsql += "[" + attrNames + "] [bigint] NULL,";
+                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrNames.ToLower()).FirstOrDefault();
+                                                if (exits == null)
+                                                {
+                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + attrNames + "] [bigint] NULL;\n";
+                                                }
                                                 /*if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                                 {
                                                     var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -3369,7 +3378,12 @@ t1.DynamicFormSectionID,
                                                 var attrName = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                                                 var attrNames = a.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
                                                 createsql += "[" + attrNames + "] [bigint] NULL,";
-                                                RemoveApplicationMasterParentSingleItem(ab, a, createsql, dynamicFormData.AttributeHeader);
+                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrNames.ToLower()).FirstOrDefault();
+                                                if (exits == null)
+                                                {
+                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + attrNames + "] [bigint] NULL;\n";
+                                                }
+                                                RemoveApplicationMasterParentSingleItem(ab, a, createsql, dynamicFormData.AttributeHeader, tableName, alterSql,TableExits);
                                                 /*if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                                 {
                                                     var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
@@ -3385,6 +3399,11 @@ t1.DynamicFormSectionID,
                                             var attrNames = Regex.Replace(a.DisplayName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                                             var attrName = a.DynamicFormSectionAttributeId + "_" + attrNames.Replace(" ", "_");
                                             createsql += "[" + attrName + "] [bit] NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bit] NULL;\n";
+                                            }
                                         }
                                         if (a.ControlType == "Radio" || a.ControlType == "RadioGroup")
                                         {
@@ -3402,29 +3421,59 @@ t1.DynamicFormSectionID,
                                                             if (w.ControlType == "ComboBox")
                                                             {
                                                                 createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                if (exits == null)
+                                                                {
+                                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [bigint] NULL;\n";
+                                                                }
                                                             }
                                                             else if (w.ControlType == "SpinEdit")
                                                             {
                                                                 if (w.IsAttributeSpinEditType == "decimal")
                                                                 {
                                                                     createsql += "[" + subattrName + "] [decimal](18, 5) NULL,";
+                                                                    var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                    if (exits == null)
+                                                                    {
+                                                                        alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [decimal](18, 5) NULL;\n";
+                                                                    }
                                                                 }
                                                                 else
                                                                 {
                                                                     createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                                    var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                    if (exits == null)
+                                                                    {
+                                                                        alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [bigint] NULL;\n";
+                                                                    }
                                                                 }
                                                             }
                                                             else if (w.ControlType == "DateEdit")
                                                             {
                                                                 createsql += "[" + subattrName + "] [datetime] NULL,";
+                                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                if (exits == null)
+                                                                {
+                                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [datetime] NULL;\n";
+                                                                }
                                                             }
                                                             else if (w.ControlType == "TimeEdit")
                                                             {
                                                                 createsql += "[" + subattrName + "] [time] NULL,";
+                                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                if (exits == null)
+                                                                {
+                                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [time] NULL;\n";
+                                                                }
                                                             }
                                                             else
                                                             {
                                                                 createsql += "[" + subattrName + "] [nvarchar](2000) NULL,";
+                                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                if (exits == null)
+                                                                {
+                                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [nvarchar](2000) NULL;\n";
+                                                                }
                                                             }
                                                             if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
                                                             {
@@ -3433,6 +3482,11 @@ t1.DynamicFormSectionID,
                                                                     var attrNames = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                                                                     var attrName = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + attrNames.Replace(" ", "_");
                                                                     createsql += "[" + attrName + "] [bigint] NULL,";
+                                                                    var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                                    if (exits == null)
+                                                                    {
+                                                                        alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [bigint] NULL;\n";
+                                                                    }
                                                                 });
                                                             }
                                                         });
@@ -3451,29 +3505,59 @@ t1.DynamicFormSectionID,
                                                     if (w.ControlType == "ComboBox")
                                                     {
                                                         createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                        var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                        if (exits == null)
+                                                        {
+                                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [bigint] NULL;\n";
+                                                        }
                                                     }
                                                     else if (w.ControlType == "SpinEdit")
                                                     {
                                                         if (w.IsAttributeSpinEditType == "decimal")
                                                         {
                                                             createsql += "[" + subattrName + "] [decimal](18, 5) NULL,";
+                                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                            if (exits == null)
+                                                            {
+                                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [decimal](18, 5) NULL;\n";
+                                                            }
                                                         }
                                                         else
                                                         {
                                                             createsql += "[" + subattrName + "] [bigint] NULL,";
+                                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                            if (exits == null)
+                                                            {
+                                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [bigint] NULL;\n";
+                                                            }
                                                         }
                                                     }
                                                     else if (w.ControlType == "DateEdit")
                                                     {
                                                         createsql += "[" + subattrName + "] [datetime] NULL,";
+                                                        var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                        if (exits == null)
+                                                        {
+                                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [datetime] NULL;\n";
+                                                        }
                                                     }
                                                     else if (w.ControlType == "TimeEdit")
                                                     {
                                                         createsql += "[" + subattrName + "] [time] NULL,";
+                                                        var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                        if (exits == null)
+                                                        {
+                                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [time] NULL;\n";
+                                                        }
                                                     }
                                                     else
                                                     {
                                                         createsql += "[" + subattrName + "] [nvarchar](2000) NULL,";
+                                                        var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == subattrName.ToLower()).FirstOrDefault();
+                                                        if (exits == null)
+                                                        {
+                                                            alterSql += "ALTER TABLE " + tableName + " ADD [" + subattrName + "] [nvarchar](2000) NULL;\n";
+                                                        }
                                                     }
                                                     if (w.DataSourceTable == "ApplicationMaster" && w.SubApplicationMaster != null && w.SubApplicationMaster.Count() > 0)
                                                     {
@@ -3482,6 +3566,11 @@ t1.DynamicFormSectionID,
                                                             var attrNames = Regex.Replace(ab.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                                                             var attrName = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + attrNames.Replace(" ", "_");
                                                             createsql += "[" + attrName + "] [bigint] NULL,";
+                                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                                            if (exits == null)
+                                                            {
+                                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bigint] NULL;\n";
+                                                            }
                                                         });
                                                     }
                                                 });
@@ -3496,29 +3585,59 @@ t1.DynamicFormSectionID,
                                         if (a.ControlType == "ComboBox")
                                         {
                                             createsql += "[" + attrName + "] [bigint] NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bigint] NULL;\n";
+                                            }
                                         }
                                         else if (a.ControlType == "SpinEdit")
                                         {
                                             if (a.IsSpinEditType == "decimal")
                                             {
                                                 createsql += "[" + attrName + "] [decimal](18, 5) NULL,";
+                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                                if (exits == null)
+                                                {
+                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [decimal](18, 5) NULL;\n";
+                                                }
                                             }
                                             else
                                             {
                                                 createsql += "[" + attrName + "] [bigint] NULL,";
+                                                var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                                if (exits == null)
+                                                {
+                                                    alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bigint] NULL;\n";
+                                                }
                                             }
                                         }
                                         else if (a.ControlType == "DateEdit")
                                         {
                                             createsql += "[" + attrName + "] [datetime] NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [datetime] NULL;\n";
+                                            }
                                         }
                                         else if (a.ControlType == "TimeEdit")
                                         {
                                             createsql += "[" + attrName + "] [time] NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [time] NULL;\n";
+                                            }
                                         }
                                         else
                                         {
                                             createsql += "[" + attrName + "] [nvarchar](2000) NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [nvarchar](2000) NULL;\n";
+                                            }
                                         }
                                     }
                                     if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
@@ -3528,12 +3647,41 @@ t1.DynamicFormSectionID,
                                             var attrNames = Regex.Replace(dd.DataSourceTable, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                                             var attrName = a.DynamicFormSectionAttributeId + "_" + attrNames.Replace(" ", "_");
                                             createsql += "[" + attrName + "] [bigint] NULL,";
+                                            var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrName.ToLower()).FirstOrDefault();
+                                            if (exits == null)
+                                            {
+                                                alterSql += "ALTER TABLE " + tableName + " ADD [" + attrName + "] [bigint] NULL;\n";
+                                            }
                                         });
                                     }
 
                                 });
                                 createsql += "CONSTRAINT [PK_" + tableName + "] PRIMARY KEY CLUSTERED \r\n(\r\n\t[DynamicFormDataItemID] ASC\r\n)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]\r\n) ON [PRIMARY]";
+                                if (TableExits?.Any() == true)
+                                {
 
+                                    if (!string.IsNullOrEmpty(alterSql))
+                                    {
+                                        using (SqlCommand command = new SqlCommand((string)alterSql, (SqlConnection)connection))
+                                        {
+                                            connection.Open();
+                                            await command.ExecuteNonQueryAsync();
+                                            connection.Close();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(createsql))
+                                    {
+                                        using (SqlCommand command = new SqlCommand((string)createsql, (SqlConnection)connection))
+                                        {
+                                            connection.Open();
+                                            await command.ExecuteNonQueryAsync();
+                                            connection.Close();
+                                        }
+                                    }
+                                }
                             }
                         }
                         return dynamicFormData;
@@ -3549,7 +3697,7 @@ t1.DynamicFormSectionID,
                 throw new NotImplementedException();
             }
         }
-        void RemoveApplicationMasterParentSingleItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, string createsql, AttributeHeaderListModel _AttributeHeader)
+        void RemoveApplicationMasterParentSingleItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, string createsql, AttributeHeaderListModel _AttributeHeader, string tableName, string alterSql,List<Table_Schema> TableExits)
         {
             if (applicationMasterParent != null)
             {
@@ -3559,7 +3707,12 @@ t1.DynamicFormSectionID,
                     var attrName = Regex.Replace(listss.ApplicationMasterName, "[^a-zA-Z0-9]+", "", RegexOptions.Compiled);
                     var attrNames = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + attrName.Replace(" ", "_");
                     createsql += "[" + attrNames + "] [bigint] NULL,";
-                    RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, createsql, _AttributeHeader);
+                    var exits = TableExits.Where(w => w.COLUMN_NAME.ToLower() == attrNames.ToLower()).FirstOrDefault();
+                    if (exits == null)
+                    {
+                        alterSql += "ALTER TABLE " + tableName + " ADD [" + attrNames + "] [bigint] NULL;\n";
+                    }
+                    RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, createsql, _AttributeHeader, tableName, alterSql, TableExits);
                 }
             }
         }

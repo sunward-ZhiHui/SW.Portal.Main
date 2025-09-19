@@ -65,6 +65,9 @@ namespace Core.Entities
         public string? EffectiveDate { get; set; }
         public string? ReviewDate { get; set; }
         public string? VersionNo { get; set; }
+        public string? DefaultBatchSize { get; set; }
+        public string? BatchUnitSize { get; set; }
+        public string? AvailableBatchSize { get; set; }
 
     }
     public class DataSourceAttributeDetails

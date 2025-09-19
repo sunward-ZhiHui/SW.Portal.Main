@@ -62,7 +62,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                                                                                    border-collapse: collapse;*/
+                                                                                                                                                                                                                                            border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -1751,7 +1751,7 @@
                                                     {
                                                         _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
                                                     }
-                                                    if(n.FlowStatusID==1 && n.DynamicFormWorkFlowFormTotalCount>0 &&  n.DynamicFormWorkFlowFormTotalCount!=n.DynamicFormWorkFlowFormCount)
+                                                    if (n.FlowStatusID == 1 && n.DynamicFormWorkFlowFormTotalCount > 0 && n.DynamicFormWorkFlowFormTotalCount != n.DynamicFormWorkFlowFormCount)
                                                     {
                                                         _dynamicFormWorkFlowSectionNoWorkFlow.Add(n);
                                                     }
@@ -2065,8 +2065,8 @@
                         }
                         if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
                         {
-                            var isParr=_dynamicFormWorkFlowSectionNoWorkFlow.Where(w=>w.IsParallelWorkflow==true).Count();
-                            if(isParr>0)
+                            var isParr = _dynamicFormWorkFlowSectionNoWorkFlow.Where(w => w.IsParallelWorkflow == true).Count();
+                            if (isParr > 0)
                             {
                                 var _dynamicFormWorkFlowSectionNoWorkFlows = new List<DynamicFormWorkFlowSection>();
                                 var seqList = _dynamicFormWorkFlowSectionNoWorkFlow.OrderBy(o => o.SequenceNo).Select(s => s.SequenceNo).Distinct().ToList();
@@ -2077,7 +2077,7 @@
                                         var appExits = _dynamicFormWorkFlowSectionNoWorkFlow.Where(w => w.SequenceNo == a).ToList();
                                         if (appExits != null && appExits.Count() > 0)
                                         {
-                                            var ex1=appExits.FirstOrDefault();
+                                            var ex1 = appExits.FirstOrDefault();
                                             if (ex1 != null)
                                             {
                                                 if (ex1.DynamicFormWorkFlowFormTotalCount == 0)
@@ -7092,16 +7092,36 @@
                                  }
                                  if (s.DropDownTypeId == "Data Source")
                                  {
-                                     if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                     if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                      {
                                      }
                                      else
                                      {
                                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                          layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                                         layoutItemBuilders.AddAttribute(2, "Caption", "Comapny");
+                                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                                          layoutItemBuilders.CloseComponent();
                                      }
+                                 }
+
+                                 if (s.DataSourceTable == "NavMethodCode")
+                                 {
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                                     layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                                     layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                                     layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                                     layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                                     layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
                                  {
@@ -7181,7 +7201,7 @@
                                      layoutItemBuilders.CloseComponent();
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                                     layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                                     layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                                      layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
@@ -7208,7 +7228,7 @@
                                      layoutItemBuilders.CloseComponent();
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                                     layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                                     layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                                      layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "RawMatPurch")
@@ -7223,7 +7243,7 @@
                                      layoutItemBuilders.CloseComponent();
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                                     layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                                     layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                                      layoutItemBuilders.CloseComponent();
                                  }
 
@@ -7474,7 +7494,7 @@
                                     }
                                     if (s.DropDownTypeId == "Data Source")
                                     {
-                                        if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                        if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                         {
                                         }
                                         else
@@ -7484,6 +7504,25 @@
                                             layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                                             layoutItemBuilders.CloseComponent();
                                         }
+                                    }
+                                    if (s.DataSourceTable == "NavMethodCode")
+                                    {
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                                        layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                                        layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                                        layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                                        layoutItemBuilders.CloseComponent();
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                        layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                                        layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                                        layoutItemBuilders.CloseComponent();
                                     }
                                     if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
                                     {
@@ -7563,7 +7602,7 @@
                                         layoutItemBuilders.CloseComponent();
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                                        layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                                        layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                                         layoutItemBuilders.CloseComponent();
                                     }
                                     if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
@@ -7590,7 +7629,7 @@
                                         layoutItemBuilders.CloseComponent();
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                                        layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                                        layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                                         layoutItemBuilders.CloseComponent();
                                     }
                                     if (s.DataSourceTable == "RawMatPurch")
@@ -7605,7 +7644,7 @@
                                         layoutItemBuilders.CloseComponent();
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                                        layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                                         layoutItemBuilders.CloseComponent();
                                     }
 
@@ -7758,7 +7797,7 @@
                         layoutItemBuilders.CloseComponent();
                         if (s.DropDownTypeId == "Data Source")
                         {
-                            if (s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else
@@ -7768,6 +7807,25 @@
                                 layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                                 layoutItemBuilders.CloseComponent();
                             }
+                        }
+                        if (s.DataSourceTable == "NavMethodCode")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                            layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                            layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                            layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                            layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                            layoutItemBuilders.CloseComponent();
                         }
                         if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
                         {
@@ -7847,7 +7905,7 @@
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                            layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
                         if (s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "AllProdOrderLine")
@@ -7874,7 +7932,7 @@
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                            layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                            layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
                         if (s.DataSourceTable == "RawMatPurch")
@@ -7889,7 +7947,7 @@
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                            layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                            layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
                     }));
@@ -8073,7 +8131,7 @@
                                }
                                if (s.DropDownTypeId == "Data Source")
                                {
-                                   if (ff.DataSourceTable == "SOP" || ff.DataSourceTable == "AllProdOrderLine" || ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                   if (ff.DataSourceTable == "NavMethodCode" || ff.DataSourceTable == "SOP" || ff.DataSourceTable == "AllProdOrderLine" || ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                    {
                                    }
                                    else
@@ -8083,6 +8141,25 @@
                                        layoutItemBuilders1.AddAttribute(2, "Caption", "Company");
                                        layoutItemBuilders1.CloseComponent();
                                    }
+                               }
+                               if (ff.DataSourceTable == "NavMethodCode")
+                               {
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                                   layoutItemBuilders1.AddAttribute(3, "Caption", "Available Batch Size");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                                   layoutItemBuilders1.AddAttribute(4, "Caption", "Default Batch Size");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(5, "FieldName", "BatchUnitSize");
+                                   layoutItemBuilders1.AddAttribute(5, "Caption", "Batch Size Unit");
+                                   layoutItemBuilders1.CloseComponent();
+                                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                                   layoutItemBuilders1.AddAttribute(6, "FieldName", "CompanyName");
+                                   layoutItemBuilders1.AddAttribute(6, "Caption", "Company");
+                                   layoutItemBuilders1.CloseComponent();
                                }
                                if (ff.DataSourceTable == "Zone" || ff.DataSourceTable == "Location" || ff.DataSourceTable == "Area" || ff.DataSourceTable == "SpecificArea")
                                {
@@ -8162,7 +8239,7 @@
                                    layoutItemBuilders1.CloseComponent();
                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                    layoutItemBuilders1.AddAttribute(11, "FieldName", "CompanyName");
-                                   layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
+                                   layoutItemBuilders1.AddAttribute(11, "Caption", "Company");
                                    layoutItemBuilders1.CloseComponent();
                                }
                                if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "AllProdOrderLine")
@@ -8189,7 +8266,7 @@
                                    layoutItemBuilders1.CloseComponent();
                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                    layoutItemBuilders1.AddAttribute(12, "FieldName", "CompanyName");
-                                   layoutItemBuilders1.AddAttribute(12, "Caption", "Comapny");
+                                   layoutItemBuilders1.AddAttribute(12, "Caption", "Company");
                                    layoutItemBuilders1.CloseComponent();
                                }
                                if (ff.DataSourceTable == "RawMatPurch")
@@ -8204,7 +8281,7 @@
                                    layoutItemBuilders1.CloseComponent();
                                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                    layoutItemBuilders1.AddAttribute(10, "FieldName", "CompanyName");
-                                   layoutItemBuilders1.AddAttribute(10, "Caption", "Comapny");
+                                   layoutItemBuilders1.AddAttribute(10, "Caption", "Company");
                                    layoutItemBuilders1.CloseComponent();
                                }
                            }));
@@ -8945,7 +9022,7 @@
                     }
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -8955,6 +9032,25 @@
                             layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
+                    }
+                    if (q.DataSourceTable == "NavMethodCode")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                        layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                     {
@@ -9034,7 +9130,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -9061,7 +9157,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "RawMatPurch")
@@ -9076,7 +9172,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
@@ -9305,7 +9401,7 @@
                 }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -9315,6 +9411,25 @@
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
+                }
+                if (q.DataSourceTable == "NavMethodCode")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                    layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                    layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                    layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                    layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                 {
@@ -9394,7 +9509,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -9421,7 +9536,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "RawMatPurch")
@@ -9436,7 +9551,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
             }));
@@ -9540,7 +9655,7 @@
                 }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -9550,6 +9665,25 @@
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
+                }
+                if (q.DataSourceTable == "NavMethodCode")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                    layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                    layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                    layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                    layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                 {
@@ -9629,7 +9763,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -9656,7 +9790,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "RawMatPurch")
@@ -9671,7 +9805,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
             }));
@@ -12156,7 +12290,7 @@
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders1.AddAttribute(11, "FieldName", "CompanyName");
-                            layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
+                            layoutItemBuilders1.AddAttribute(11, "Caption", "Company");
                             layoutItemBuilders1.CloseComponent();
                         }
                         if (q.DataSourceTable == "RawMatPurch")
@@ -12167,7 +12301,7 @@
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
-                            layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders1.AddAttribute(9, "Caption", "Company");
                             layoutItemBuilders1.CloseComponent();
                         }
                     }));
@@ -12307,7 +12441,7 @@
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders1.AddAttribute(11, "FieldName", "CompanyName");
-                            layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
+                            layoutItemBuilders1.AddAttribute(11, "Caption", "Company");
                             layoutItemBuilders1.CloseComponent();
                         }
                         if (q.DataSourceTable == "RawMatPurch")
@@ -12318,7 +12452,7 @@
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
-                            layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders1.AddAttribute(9, "Caption", "Company");
                             layoutItemBuilders1.CloseComponent();
                         }
                     }));
@@ -12477,7 +12611,7 @@
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                            layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
                         if (q.DataSourceTable == "RawMatPurch")
@@ -12488,7 +12622,7 @@
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
-                            layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
                     }));
@@ -13269,7 +13403,7 @@
                     }
                     if (q.DropDownTypeId == "Data Source")
                     {
-                        if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                        if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                         {
                         }
                         else
@@ -13279,6 +13413,25 @@
                             layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                             layoutItemBuilders.CloseComponent();
                         }
+                    }
+                    if (q.DataSourceTable == "NavMethodCode")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                        layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                     {
@@ -13358,7 +13511,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -13385,7 +13538,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "RawMatPurch")
@@ -13400,7 +13553,7 @@
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                        layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
@@ -13629,7 +13782,7 @@
                 }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -13639,6 +13792,25 @@
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
+                }
+                if (q.DataSourceTable == "NavMethodCode")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                    layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                    layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                    layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                    layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                 {
@@ -13718,7 +13890,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -13745,7 +13917,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "RawMatPurch")
@@ -13760,7 +13932,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
             }));
@@ -13864,7 +14036,7 @@
                 }
                 if (q.DropDownTypeId == "Data Source")
                 {
-                    if (q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                    if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                     {
                     }
                     else
@@ -13874,6 +14046,25 @@
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                         layoutItemBuilders.CloseComponent();
                     }
+                }
+                if (q.DataSourceTable == "NavMethodCode")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "AvailableBatchSize");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Available Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(4, "FieldName", "DefaultBatchSize");
+                    layoutItemBuilders.AddAttribute(4, "Caption", "Default Batch Size");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(5, "FieldName", "BatchUnitSize");
+                    layoutItemBuilders.AddAttribute(5, "Caption", "Batch Size Unit");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(6, "FieldName", "CompanyName");
+                    layoutItemBuilders.AddAttribute(6, "Caption", "Company");
+                    layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                 {
@@ -13953,7 +14144,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(11, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "AllProdOrderLine")
@@ -13980,7 +14171,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(12, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(12, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(12, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
                 if (q.DataSourceTable == "RawMatPurch")
@@ -13995,7 +14186,7 @@
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
-                    layoutItemBuilders.AddAttribute(10, "Caption", "Comapny");
+                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
             }));

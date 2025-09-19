@@ -747,7 +747,7 @@ namespace DocumentViewer.Controllers
                         long length = new FileInfo(pathurl).Length;
                         System.IO.File.Copy(pathurl, filepaths);
                         var pathsName = @"Documents\" + FileProfileType?.SessionId + @"\" + sesid + "." + ext;
-                        await VersionDataData(currentDocuments, pathsName, length);
+                        VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
                 if (!string.IsNullOrEmpty(pathurl))
@@ -768,7 +768,7 @@ namespace DocumentViewer.Controllers
             }
             return Ok();
         }
-        async Task VersionDataData(Documents documents, string? newfilePath, long length)
+        public void VersionDataData(Documents documents, string? newfilePath, long length)
         {
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == documents.DocumentId).FirstOrDefault();
@@ -880,7 +880,7 @@ namespace DocumentViewer.Controllers
             return Ok();
         }
         [HttpPost]
-        public async Task RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
+        public async Task<string> RibbonSaveToFile(SpreadsheetClientState spreadsheetState, long? id, string? isVersion)
         {
             var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
             if (currentDocuments != null)
@@ -911,7 +911,7 @@ namespace DocumentViewer.Controllers
                         long length = new FileInfo(pathurl).Length;
                         System.IO.File.Copy(pathurl, filepaths);
                         var pathsName = @"Documents\" + FileProfileType?.SessionId + @"\" + sesid + "." + ext;
-                        await VersionDataData(currentDocuments, pathsName, length);
+                        VersionDataData(currentDocuments, pathsName, length);
                     }
                 }
 
@@ -924,10 +924,12 @@ namespace DocumentViewer.Controllers
                 }
 
                 //spreadsheet.Save();
-                await saveUpdateUserData(isVersion);
+                await saveUpdateUserData(isVersion);                
             }
+
+            return isVersion ?? "No";
         }
-        async Task saveUpdateUserData(string? isVersion)
+        public async Task<string> saveUpdateUserData(string? isVersion)
         {
             var documentId = (long?)Convert.ToDouble(HttpContext.Session.GetString("DocumentId"));
             if (documentId > 0)
@@ -951,11 +953,10 @@ namespace DocumentViewer.Controllers
 
                     _context.SaveChanges();
                 }
-
-
             }
-
+           
             await NotifyEmailDocumentAsync(documentId, isVersion);
+            return isVersion;
         }
         public IActionResult RibbonDownloadXls(SpreadsheetClientState spreadsheetState)
         {
@@ -1664,6 +1665,11 @@ namespace DocumentViewer.Controllers
             dc.RestoreState();
         }
 
+        //public async Task<EmailConversation?> GetEmailByReplyId(long rid)
+        //{
+        //    return await _context.EmailConversations.FirstOrDefaultAsync(e => e.ID == rid);
+        //}
+
         public async Task<List<Employee>> GetConversationEmployees(long convId)
         {
             var toEmployees = from ec in _context.EmailConversationAssignTo
@@ -1681,6 +1687,22 @@ namespace DocumentViewer.Controllers
 
             return result;
         }
+        public async Task<(EmailConversation? Item, Guid? ReplySessionId)> GetConversationWithReplySessionId(long id)
+        {
+            var result = (from e in _context.EmailConversations
+                          join r in _context.EmailConversations on e.ReplyId equals r.ID into replies
+                          from reply in replies.DefaultIfEmpty()
+                          where e.ID == id
+                          select new
+                          {
+                              Item = e,
+                              ReplySessionId = reply.SessionId
+                          })
+               .FirstOrDefault();
+
+
+            return (result?.Item, result?.ReplySessionId);
+        }
 
 
         [HttpGet("SendMessage")]
@@ -1689,11 +1711,17 @@ namespace DocumentViewer.Controllers
             var serverToken = _configuration["FcmNotification:ServerKey"];
             var baseurl = _configuration["DocumentsUrl:BaseUrl"];
 
-            var itm = _context.EmailConversations.Where(w => w.ID == id).FirstOrDefault();
 
-            //var itm = await _mediator.Send(new GetByIdConversation(id));
 
-            //var sid = await _mediator.Send(new GetByIdEmailTopics(itm.TopicID));
+            var (itm, sessionId) = await GetConversationWithReplySessionId(id);
+
+
+
+            //var itm = _context.EmailConversations.FirstOrDefault(w => w.ID == id);
+            //var sid = _context.EmailConversations.FirstOrDefault(c => c.ID == itm.ReplyId);
+
+            //var itm = _context.EmailConversations.Where(w => w.ID == id).FirstOrDefault();
+                  
 
             string title = itm.Name;
 
@@ -1717,7 +1745,7 @@ namespace DocumentViewer.Controllers
             List<string> tokenStringList = new List<string>();
 
             //var hosturls = baseurl + "ViewEmail/" + sid[0].SessionId;
-            var hosturls = baseurl + "ViewEmail/" + itm.SessionId;
+            var hosturls = baseurl + "ViewEmail/" + sessionId;
 
             foreach (var item in Result)
             {               

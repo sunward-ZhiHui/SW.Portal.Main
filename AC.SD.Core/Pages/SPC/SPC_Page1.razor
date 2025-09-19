@@ -68,13 +68,20 @@
                             </div>
                             <div class="col-md-4">
                                 <label> Select Y Axis </label>
-                                <DxComboBox T="string"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            Data="@columnList"
-                                            Value="@yField"
-                                            ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
-                                            NullText="Select Y-Axis" />
+                                <DxCheckBox @bind-Checked="useYAxis" Text="Enable Y Axis" />
+
+                                @if (useYAxis)
+                                {
+                                    <DxComboBox T="string"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                Data="@columnList"
+                                                Value="@yField"                                               
+                                                ValueChanged="@((string? newValue) => { yField = newValue; CheckAxesSelected(); })"
+                                                NullText="Select Y-Axis" />
+                                }
+
+                               
                             </div>
                             <div class="col-md-4">
                                 <label> Select Date Column </label>
@@ -242,11 +249,6 @@
             }
         </DxChartValueAxis>
 
-
-        <DxChartValueAxis>
-            <DxChartAxisTitle Text="@yAxisLabel" />
-        </DxChartValueAxis>
-
         <DxChartZoomAndPanSettings ArgumentAxisZoomAndPanMode="ChartAxisZoomAndPanMode.Both" />
         <DxChartScrollBarSettings ArgumentAxisScrollBarVisible="true"
                                   ArgumentAxisScrollBarPosition="ChartScrollBarPosition.Bottom" />
@@ -294,7 +296,8 @@
     List<dynamic> selectedRawData = new();
     List<string> dynamicColumns = new();
 
-    string selectedTable, xField, yField;
+    string selectedTable, xField, yField  = null;
+    bool useYAxis = false;
     string chartTitle = "SPC Capability Chart";
     string xAxisLabel = "X Axis", yAxisLabel = "Y Axis";
 
@@ -352,6 +355,49 @@
     {
         var result = new List<(double, double, DateTime, string, string)>();
 
+        if (string.IsNullOrEmpty(xField) || string.IsNullOrEmpty(dateField))
+            return result;
+
+        foreach (var row in tableRawData)
+        {
+            var dict = (IDictionary<string, object>)row;
+
+            if (!dict.ContainsKey(xField) || !dict.ContainsKey(dateField))
+                continue;
+
+            var xObj = dict[xField]?.ToString();
+            var dateObj = dict[dateField]?.ToString();
+
+            if (string.IsNullOrWhiteSpace(xObj))
+                continue;
+
+            if (!DateTime.TryParse(dateObj, out var dateVal))
+                continue;
+
+            double xNum = GetNumericValue(xObj);
+            double yNum = 1; // default count if no Y field selected
+
+            if (!string.IsNullOrEmpty(yField) && dict.ContainsKey(yField))
+            {
+                var yObj = dict[yField]?.ToString();
+                if (!string.IsNullOrWhiteSpace(yObj))
+                    yNum = GetNumericValue(yObj);
+            }
+
+            if (double.IsNaN(xNum) || double.IsInfinity(xNum) ||
+                double.IsNaN(yNum) || double.IsInfinity(yNum))
+                continue;
+
+            result.Add((xNum, yNum, dateVal, xObj, yNum.ToString()));
+        }
+
+        return result;
+    }
+
+    List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> ConvertRawDataToPoints_v()
+    {
+        var result = new List<(double, double, DateTime, string, string)>();
+
         if (string.IsNullOrEmpty(xField) || string.IsNullOrEmpty(yField) || string.IsNullOrEmpty(dateField))
             return result;
 
@@ -403,8 +449,40 @@
 
         return stringValueMap[value];
     }
-
     private void CheckAxesSelected()
+    {
+        var dataPoints = ConvertRawDataToPoints();
+        if (!dataPoints.Any())
+        {
+            minDate = null;
+            maxDate = null;
+            selectedPointsWithDates.Clear();
+            processedData.Clear();
+            return;
+        }
+
+        minDate = dataPoints.Min(p => p.Date).Date;
+        maxDate = dataPoints.Max(p => p.Date).Date;
+
+        if (minDate > maxDate)
+        {
+            (minDate, maxDate) = (maxDate, minDate);
+        }
+
+        if (startDate == null || startDate < minDate || startDate > maxDate) startDate = minDate;
+        if (endDate == null || endDate > maxDate || endDate < minDate) endDate = maxDate;
+
+        if (startDate > endDate)
+        {
+            (startDate, endDate) = (endDate, startDate);
+        }
+
+        selectedPointsWithDates = dataPoints.OrderBy(p => p.Date).ToList();
+
+        LoadChart(selectedPointsWithDates);
+    }
+
+    private void CheckAxesSelected_v()
     {
         var dataPoints = ConvertRawDataToPoints();
         if (!dataPoints.Any())
@@ -493,6 +571,58 @@
         LoadChart(filtered);
     }
     private void LoadChart(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
+    {
+        processedData.Clear();
+        if (selectedPoints.Count < 1) return;
+
+        if (string.IsNullOrEmpty(yField) || !useYAxis)
+        {
+            // Histogram style: group by X only
+            processedData = selectedPoints
+                .GroupBy(p => p.XLabel)
+                .Select(g => new CapabilityData
+                {
+                    Label = g.Key,
+                    XNumeric = g.First().X,
+                    Frequency = g.Count(),
+                    NormalizedCurve = g.Count()
+                })
+                .OrderBy(d => d.XNumeric)
+                .ToList();
+
+            avg = processedData.Average(d => d.Frequency);
+        }
+        else
+        {
+            // Standard SPC (X vs Y)
+            processedData = selectedPoints
+                .Select(p => new CapabilityData
+                {
+                    Label = p.XLabel,
+                    XNumeric = p.X,
+                    Frequency = p.Y,
+                    NormalizedCurve = p.Y
+                })
+                .OrderBy(d => d.XNumeric)
+                .ToList();
+
+            var yValues = selectedPoints.Select(d => d.Y).ToList();
+            avg = yValues.Average();
+
+            var n = yValues.Count;
+            var variance = yValues.Sum(v => Math.Pow(v - avg, 2)) / (n - 1);
+            var sigma = Math.Sqrt(variance);
+
+            if (!double.IsNaN(sigma) && sigma > 0)
+            {
+                UCL = avg + 3 * sigma;
+                LCL = avg - 3 * sigma;
+            }
+        }
+    }
+
+
+    private void LoadChart_v(List<(double X, double Y, DateTime Date, string XLabel, string YLabel)> selectedPoints)
     {
         processedData.Clear();
 

@@ -30,6 +30,21 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @using global::Core.EntityModels;
 <style>
+    .priority-high {
+        color: red;
+        font-weight: 500;
+    }
+
+    .priority-normal {
+        color: green;
+        font-weight: 500;
+    }
+
+    .priority-low {
+        color: orange;
+        font-weight: 500;
+    }
+
     .zero-width-label label {
     width: 0px !important
     }
@@ -247,13 +262,36 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="" ColSpanMd="2">
-                                <DxCheckBox CssClass="w-100"
+                            <DxFormLayoutItem Caption="Priority" ColSpanMd="4">
+                               @*  <DxCheckBox CssClass="w-100"
                                 @bind-Checked="@Data.Urgent"
                                 Alignment="default"
                                 LabelPosition="LabelPosition.Right">
                                     Urgent
-                                </DxCheckBox>
+                                </DxCheckBox> *@
+                               @*  <DxComboBox Data="@PrioritiesLst"
+                                    NullText="Select Priorities"
+                                    @bind-Value="@Data.Priorities"
+                                    CssClass="cw-480">
+                                </DxComboBox> *@
+
+                                <DxComboBox Data="@PrioritiesLst"
+                                            @bind-Value="@Data.Priorities"
+                                            NullText="Select Priorities"
+                                            CssClass="cw-480"
+                                            InputId="cbPriorities">
+
+                                    <EditBoxDisplayTemplate Context="editCtx">
+                                        @GetEditBoxTemplateContent(editCtx.DataItem)
+                                    </EditBoxDisplayTemplate>
+
+                                    <ItemDisplayTemplate Context="itemCtx">
+                                        @GetItemTemplateContent(itemCtx)
+                                    </ItemDisplayTemplate>
+                                </DxComboBox>
+
+
+                                <ValidationMessage For="@(() => Data.Priorities)" />
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
@@ -264,7 +302,7 @@ else
                                     Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                 @bind-Checked="@Data.TagLock"
                                 Alignment="default"
@@ -1469,6 +1507,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     bool AttachmentUploadVisible { get; set; } = false;
     bool newAttachmentUploadVisible { get; set; } = false;
     List<string>? Follow { get; set; }
+    List<string>? PrioritiesLst { get; set; }
     string? SelectedFollow { get; set; }
     internal EditForm? myForm;
     internal string MyID = "myForm";
@@ -1543,6 +1582,38 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     internal List<Documents>? _documentslst;
     internal List<Documents>? _PADoclst;
     internal List<Documents>? _PARoutineDoclst;
+
+
+    // Edit box (selected item)
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(item)">@item</span>
+        </div>;
+    }
+
+    // Drop-down items
+    RenderFragment GetItemTemplateContent(ComboBoxItemDisplayTemplateContext<string> context)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(context.DataItem)">
+                @context.HighlightedDisplayText
+            </span>
+        </div>;
+    }
+
+
+    // Map colors
+    string GetPriorityCss(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
+    }
 
     public static string FormatFileSize(long bytes)
     {
@@ -1888,9 +1959,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
              "Follow Up","No Follow Up"
         };
 
-        if (Data != null)
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
+
+    if (Data != null)
         {
             Data.Follow = Follow[1];
+            Data.Priorities = PrioritiesLst[1];
             Data.Urgent = false;
             Data.OverDue = false;
             Data.IsAllowParticipants = true;
@@ -1972,11 +2049,16 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
              "Follow Up","No Follow Up"
         };
 
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
 
 
         if (Data != null)
         {
             Data.Follow = Follow[1];
+            Data.Priorities = PrioritiesLst[1];
             Data.Urgent = false;
             Data.OverDue = false;
             Data.IsAllowParticipants = true;
@@ -2061,9 +2143,15 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
              "Follow Up","No Follow Up"
         };
 
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
+
         if (Data != null)
         {
             Data.Follow = Follow[1];
+            Data.Priorities = PrioritiesLst[1];
             Data.Urgent = false;
             Data.OverDue = false;
             Data.IsAllowParticipants = true;
@@ -2188,8 +2276,13 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         {
              "Follow Up","No Follow Up"
         };
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
 
         Data.Follow = Follow[1];
+        Data.Priorities = PrioritiesLst[1];
         Data.Urgent = false;
         Data.OverDue = false;
         Data.IsAllowParticipants = true;
@@ -2712,6 +2805,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     OnBehalf = Data.OnBehalf,
                     Follow = Data.Follow,
                     Urgent = Data.Urgent,
+                    Priorities = Data.Priorities,
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
                     NoOfDays = Data.NoOfDays,

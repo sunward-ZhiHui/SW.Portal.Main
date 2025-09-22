@@ -43,6 +43,24 @@
         transition: background-color 0.2s ease;
     }
 
+        .notification-item.priority-high {
+            border-left: 4px solid #e74c3c; /* red */
+        }
+
+        .notification-item.priority-normal {
+            border-left: 4px solid #27ae60; /* green */
+        }
+
+        .notification-item.priority-low {
+            border-left: 4px solid #e67e22; /* orange */
+        }
+
+    .priority-label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
         .notification-item:hover {
             background-color: #eef3fa;
         }
@@ -104,8 +122,8 @@
         <div class="notification-list" style="height: calc(100vh - 110px); overflow: auto;">
             @foreach (var notification in filteredNotifications)
             {
-                <div class="notification-item">
-                    <div class="notification-text">
+                <div class="notification-item @GetPriorityClass(notification.Priorities)">
+                    <div class="notification-text">                        
                         <div class="_name">@notification.FirstName</div>
                         <div class="subject" @onclick="() => NavigateToEmailAsync(notification)">@notification.Name</div>
                         <div class="sender">@notification.Description</div>
@@ -145,7 +163,16 @@
 
     private List<EmailConversations>? _emailNotificationList;
     private List<EmailConversations>? filteredNotifications;
-
+    private string GetPriorityClass(string priority)
+    {
+        return priority?.ToLower() switch
+        {
+            "high" => "priority-high",
+            "normal" => "priority-normal",
+            "low" => "priority-low",
+            _ => ""
+        };
+    }
     private string _searchText = string.Empty;
     private string SearchText
     {

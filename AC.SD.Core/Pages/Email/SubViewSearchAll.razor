@@ -65,6 +65,12 @@
                         {
                             <span class="primary_color_icon" style="font-size:11px;color:brown;">Closed</span>
                         }
+                        @if (!string.IsNullOrEmpty(item.Priorities) &&
+                                                item.Priorities.Equals("High", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="priority_l high">@item.Priorities</div>
+                        }
+
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                             <text>@item.TopicName</text>

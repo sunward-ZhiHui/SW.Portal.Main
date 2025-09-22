@@ -1151,7 +1151,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
         {
             try
             {
-                var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.FileData,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
+                var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.Priorities,FC.AddedDate,FC.FileData,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
                                 FC.ReplyId,FC.Description,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
@@ -1195,7 +1195,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             try
             {
                 var query = @"SELECT DISTINCT
-                                FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.FileData,                               
+                                FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.FileData, FC.Priorities,                              
                                 FC.ReplyId,FC.Description,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
@@ -1400,7 +1400,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             {
                 var query = @"
             SELECT 
-                FC.Name, FC.ID, FC.AddedDate, 
+                FC.Name, FC.ID, FC.AddedDate, FC.Priorities,
                 CONCAT(AU.FirstName, '-', AU.NickName) AS UserName, 
                 AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData,FC.Description, 
                 EN.IsRead, EN.ID AS EmailNotificationId, 
@@ -2596,7 +2596,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                             parameters.Add("DueDate", forumConversations.DueDate, DbType.DateTime);
                             parameters.Add("IsLockDueDate", forumConversations.IsLockDueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
-                            parameters.Add("Urgent", forumConversations.Urgent);
+                            parameters.Add("Priorities", forumConversations.Priorities);
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
                             parameters.Add("UserType", forumConversations.UserType, DbType.String);
@@ -2607,7 +2607,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 
-                            var query = "INSERT INTO EmailConversations(Description,IsDueDate,UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate,TransferId) OUTPUT INSERTED.ID VALUES (@Description,@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate,@TransferId)";
+                            var query = "INSERT INTO EmailConversations(Description,IsDueDate,UserType,NotifyUser,IsMobile,Priorities,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate,TransferId) OUTPUT INSERTED.ID VALUES (@Description,@IsDueDate,@UserType,@NotifyUser,@IsMobile,@Priorities,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate,@TransferId)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

@@ -454,7 +454,7 @@ namespace DocumentViewer.Controllers
 
                             //byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(textContent);
 
-                            var newConversation = new EmailConversation
+                            var newConversation = new EmailConversations
                             {
                                 TopicID = createReq.TopicID,
                                 FileData = replyBytes,
@@ -1423,7 +1423,20 @@ namespace DocumentViewer.Controllers
                 }
                 else
                 {
-                    var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
+                    var emailConversationlst = _context.EmailConversations
+                                            .Where(w => w.SessionId == docsessionId)
+                                            .Select(e => new EmailConversations
+                                            {
+                                                ID = e.ID,
+                                                Name = e.Name,
+                                                UserType = e.UserType,
+                                                TopicID = e.TopicID,
+                                                ReplyId = e.ReplyId,                                                    
+                                            })
+                                            .FirstOrDefault();
+
+
+                    //var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
                     if (emailConversationlst != null)
                     {
                         var topicId = emailConversationlst.TopicID;
@@ -1687,7 +1700,7 @@ namespace DocumentViewer.Controllers
 
             return result;
         }
-        public async Task<(EmailConversation? Item, Guid? ReplySessionId)> GetConversationWithReplySessionId(long id)
+        public async Task<(EmailConversations? Item, Guid? ReplySessionId)> GetConversationWithReplySessionId(long id)
         {
             var result = (from e in _context.EmailConversations
                           join r in _context.EmailConversations on e.ReplyId equals r.ID into replies

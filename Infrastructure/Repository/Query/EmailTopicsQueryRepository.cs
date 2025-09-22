@@ -1988,6 +1988,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
                         parameterss.Add("Urgent", EmailTopics.Urgent);
+                        parameterss.Add("Priorities", EmailTopics.Priorities);
                         parameterss.Add("OverDue", EmailTopics.OverDue);
                         parameterss.Add("DueDate", EmailTopics.DueDate);
 
@@ -2062,6 +2063,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
                         parameterss.Add("Urgent", EmailTopics.Urgent);
+                        parameterss.Add("Priorities", EmailTopics.Priorities);
                         parameterss.Add("OverDue", EmailTopics.OverDue);
                         parameterss.Add("DueDate", EmailTopics.DueDate);
 

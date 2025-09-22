@@ -28,7 +28,22 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject HttpClient httpClient;
 
+<style scoped>
+    .priority-high {
+        color: red;
+        font-weight: 500;
+    }
 
+    .priority-normal {
+        color: green;
+        font-weight: 500;
+    }
+
+    .priority-low {
+        color: orange;
+        font-weight: 500;
+    }
+</style>
 
 <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
     <DxFormLayout>       
@@ -89,6 +104,22 @@
             </DxFormLayoutItem>
 
         }
+       @*  <DxFormLayoutItem Caption="Priority" ColSpanMd="4">
+            <DxComboBox Data="@PrioritiesLst"
+                        @bind-Value="@Data.Priorities"
+                        NullText="Select Priorities"
+                        CssClass="cw-480"
+                        InputId="cbPriorities">
+
+                <EditBoxDisplayTemplate Context="editCtx">
+                    @GetEditBoxTemplateContent(editCtx.DataItem)
+                </EditBoxDisplayTemplate>
+
+                <ItemDisplayTemplate Context="itemCtx">
+                    @GetItemTemplateContent(itemCtx)
+                </ItemDisplayTemplate>
+            </DxComboBox>
+        </DxFormLayoutItem> *@
      
         <DxFormLayoutItem ColSpanMd="12">
             <div class="">
@@ -134,6 +165,7 @@
     public long RId { get; set; }
     [Parameter]
     public Action<long>? OnReplyClose { get; set; }
+    List<string>? PrioritiesLst { get; set; }
 
     private bool loading;   
     int CurrentUplodCount { get; set; }
@@ -179,7 +211,12 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");            
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");    
+        
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
         
         await JSRuntime.InvokeAsync<string>("showLoading");
         onloadSession();
@@ -329,6 +366,8 @@
             Data.EmailFormDataSessionID = null;
             Data.EmailFormSectionSessionID = null;
 
+            Data.Priorities = PrioritiesLst[1];
+
 
             await Task.Delay(1000);
             submitCount = 0;
@@ -336,6 +375,37 @@
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
         }
+    }
+
+    // Edit box (selected item)
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(item)">@item</span>
+        </div>;
+    }
+
+    // Drop-down items
+    RenderFragment GetItemTemplateContent(ComboBoxItemDisplayTemplateContext<string> context)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(context.DataItem)">
+                @context.HighlightedDisplayText
+            </span>
+        </div>;
+    }
+
+
+    // Map colors
+    string GetPriorityCss(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
     }
 
     async Task onRichTxtChangeFontsize()
@@ -595,6 +665,7 @@
                 AssignccIdss = assignccidsString,
                 PlistIdss = participantidsString,
                 AllowPlistids = plistUniqueItems,
+                Priorities = Data.Priorities,
                 DueDate = Data.DueDate,
                 EmailFormSectionSessionID = Data.EmailFormSectionSessionID,
                 EmailFormDataSessionID = Data.EmailFormDataSessionID,

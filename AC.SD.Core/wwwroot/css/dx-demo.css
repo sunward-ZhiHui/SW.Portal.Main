@@ -2052,6 +2052,67 @@ img {
     user-select: none;
 }
 
+.priority-high {
+    color: red;
+    font-weight: 600;
+}
+
+.priority-normal {
+    color: green;
+    font-weight: 600;
+}
+
+.priority-low {
+    color: orange;
+    font-weight: 600;
+}
+.priority {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;    
+    white-space: nowrap;
+    display: inline-block;
+}
+
+    .priority.high {
+        background: #e74c3c; /* red */
+    }
+
+    .priority.normal {
+        background: #27ae60; /* green */
+    }
+
+    .priority.low {
+        background: #e67e22; /* orange */
+    }
+
+
+.priority_l {
+    padding: 0px 6px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    display: inline-block;
+    float: right;
+}
+
+    .priority_l.high {
+        background: #e74c3c; /* red */
+    }
+
+    .priority_l.normal {
+        background: #27ae60; /* green */
+    }
+
+    .priority_l.low {
+        background: #e67e22; /* orange */
+    }
+
+
 /* Position the "next button" to the right */
 .next {
     right: 0;

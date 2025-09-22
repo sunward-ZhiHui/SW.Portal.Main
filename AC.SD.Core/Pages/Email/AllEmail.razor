@@ -48,20 +48,24 @@
                         @if (item.NotificationCount != 0)
                         {
                             <span class="notificationCount">@item.NotificationCount</span>
-                        }
-                        @if (item.Urgent.GetValueOrDefault(false))
-                        {
-                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
-                        }
+                        }                      
 
                         @if (item.OnBehalf == applicationUser.UserID)
                         {
                             <span class="onbehalf_icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
                         }
+
                         @if (item.IsAllowParticipants.GetValueOrDefault(false))
                         {
                             <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                         }
+
+                        @if (!string.IsNullOrEmpty(item.Priorities) &&
+                                                    item.Priorities.Equals("High", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <div class="priority_l high">@item.Priorities</div>
+                        }
+
                     </strong>
                     <div>
                         <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>

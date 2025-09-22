@@ -55,6 +55,21 @@
 @using System.Text.RegularExpressions
 
 <style scoped>
+    .priority-high {
+        color: red;
+        font-weight: 500;
+    }
+
+    .priority-normal {
+        color: green;
+        font-weight: 500;
+    }
+
+    .priority-low {
+        color: orange;
+        font-weight: 500;
+    }
+
     .markasunread_border_top {
     border-top: 1px solid #242424 !important;
 }
@@ -1041,9 +1056,7 @@
                                                                                 <span class="primary_color_icon handline" style="font-size: 14px;" @onclick="@(() => onMarkasRead(item.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
                                                                             }
 
-                                                                        }
-
-
+                                                                        }  
 
                                                                     </div>
                                                                 </div>
@@ -1105,8 +1118,8 @@
                                                                                                 <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
                                                                                             }
 
-                                                                                        }
-                                                                                    </div>
+                                                                                        }                                                                                      
+                                                                                    </div>                                                                                        
                                                                                 </div>
 
                                                                             </div>
@@ -1690,10 +1703,11 @@
                                                                                 <span class="primary_color_icon handline" style="font-size: 14px;" @onclick="@(() => onMarkasRead(item.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
                                                                             }
 
+                                                                        }                                                                        
+                                                                        @if (!string.IsNullOrEmpty(item.Priorities))
+                                                                        {
+                                                                            <div class="priority @item.Priorities.ToLower()">@item.Priorities</div>
                                                                         }
-
-
-
                                                                     </div>
                                                                 </div>
 
@@ -1759,6 +1773,8 @@
                                                                                         {
                                                                                             <span class="primary_color_icon"  title="Email Transfer"><i class="fa fa-exchange" aria-hidden="true"></i></span>
                                                                                         }
+                                                                                      @*   <div class="@GetPriorityClass(items.Priorities)">@items.Priorities</div> *@
+                                                                                        @* <div class="priority @items.Priorities.ToLower()">@items.Priorities</div> *@
                                                                                     </div>
                                                                                 </div>
 
@@ -2464,6 +2480,22 @@
                                                                                             <DxListEditorColumn FieldName="@nameof(EmailTopics.CopyEmailName)" Caption="Name" />
                                                                                         </DxTagBox>
                                                                                     </DxFormLayoutItem>
+                                                                                    @* <DxFormLayoutItem Caption="Priority" ColSpanMd="3">
+                                                                                         <DxComboBox Data="@PrioritiesLst"
+                                                                                                    @bind-Value="@Data.Priorities"
+                                                                                                    NullText="Select Priorities"
+                                                                                                    CssClass="cw-480"
+                                                                                                    InputId="cbPriorities">
+
+                                                                                                <EditBoxDisplayTemplate Context="editCtx">
+                                                                                                    @GetEditBoxTemplateContent(editCtx.DataItem)
+                                                                                                </EditBoxDisplayTemplate>
+
+                                                                                                <ItemDisplayTemplate Context="itemCtx">
+                                                                                                    @GetItemTemplateContent(itemCtx)
+                                                                                                </ItemDisplayTemplate>
+                                                                                           </DxComboBox>
+                                                                                    </DxFormLayoutItem> *@
 
 
                                                                                     @if(newSubjectreply == 1)
@@ -2480,7 +2512,7 @@
                                                                                                 Lock DueDate
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
-                                                                                        <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="3">
+                                                                                        <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                                                                             <DxCheckBox CssClass="w-100"
                                                                                             @bind-Checked="@Data.IsAllowParticipants"
                                                                                             Alignment="default"
@@ -2488,13 +2520,29 @@
                                                                                                 Allow Add Participants
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
-                                                                                        <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
-                                                                                            <DxCheckBox CssClass="w-100"
+                                                                                        <DxFormLayoutItem Caption="Priority" CssClass="topoverdue" ColSpanMd="3">
+                                                                                            @* <DxCheckBox CssClass="w-100"
                                                                                             @bind-Checked="@Data.Urgent"
                                                                                             Alignment="default"
                                                                                             LabelPosition="LabelPosition.Right">
                                                                                                 Urgent
-                                                                                            </DxCheckBox>
+                                                                                            </DxCheckBox> *@
+
+                                                                                             <DxComboBox Data="@PrioritiesLst"
+                                                                                                        @bind-Value="@Data.Priorities"
+                                                                                                        NullText="Select Priorities"
+                                                                                                        CssClass="cw-480"
+                                                                                                        InputId="cbPriorities">
+
+                                                                                                <EditBoxDisplayTemplate Context="editCtx">
+                                                                                                    @GetEditBoxTemplateContent(editCtx.DataItem)
+                                                                                                </EditBoxDisplayTemplate>
+
+                                                                                                <ItemDisplayTemplate Context="itemCtx">
+                                                                                                    @GetItemTemplateContent(itemCtx)
+                                                                                                </ItemDisplayTemplate>
+                                                                                            </DxComboBox>
+
                                                                                         </DxFormLayoutItem>
                                                                                         <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                                                                             <DxCheckBox CssClass="w-100"
@@ -3359,6 +3407,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+      List<string>? PrioritiesLst { get; set; }
     private bool _disposed = false;
       private List<EmailConversations>? getconid;
     string DrawerView = "Email";
@@ -3381,6 +3430,16 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     void ToggleInfo()
     {
         IsInfoOpen = !IsInfoOpen;
+    }
+    private string GetPriorityClass(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
     }
 
     private void ToggleInfoclick(EmailConversations emailConversations) 
@@ -3424,7 +3483,36 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 
+      // Edit box (selected item)
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(item)">@item</span>
+        </div>;
+    }
 
+    // Drop-down items
+    RenderFragment GetItemTemplateContent(ComboBoxItemDisplayTemplateContext<string> context)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(context.DataItem)">
+                @context.HighlightedDisplayText
+            </span>
+        </div>;
+    }
+
+
+    // Map colors
+    string GetPriorityCss(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
+    }
 
     private DemoCodePage? Drawer;
 
@@ -8275,7 +8363,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             Data.DynamicFormID = null;
             Data.EmailFormDataSessionID = null;
             Data.EmailFormSectionSessionID = null;  
+            PrioritiesLst = new List<string>
+            {
+                "Low","Normal","High"
+            };
 
+            Data.Priorities = PrioritiesLst[1];
 
             await Task.Delay(1000);           
             submitCount = 0;
@@ -8310,6 +8403,11 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         WindowVisible = false;
         IsUserGroupCCOpen = false;
         IsUserGroupToOpen = false;
+          PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
+        Data.Priorities = PrioritiesLst[1];
     }
     void OnLeftMenuItemClick(string text)
     {
@@ -8717,7 +8815,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     EmailFormDataSessionID = Data.EmailFormDataSessionID,
                     DynamicFormID = Data.DynamicFormID,
                     IsAllowParticipants = Data.IsAllowParticipants,
-                    Urgent = Data.Urgent,
+                    Priorities = Data.Priorities,
                     NotifyUser = Data.NotifyUser,
                     ConIds = ConIds,
                    // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),

@@ -18,7 +18,7 @@ namespace DocumentViewer.Models
         public DbSet<Employee> Employee { get; set; }
         public DbSet<UserNotifications> UserNotifications { get; set; }
         public DbSet<EmailNotifications> EmailNotifications { get; set; }        
-        public DbSet<EmailConversation> EmailConversations { get; set; }
+        public DbSet<EmailConversations> EmailConversations { get; set; }
         public DbSet<EmailConversationAssignTo> EmailConversationAssignTo { get; set; }
         public DbSet<EmailConversationAssignCC> EmailConversationAssignCC { get; set; }
         public DbSet<EmailConversationParticipant> EmailConversationParticipant { get; set; }

@@ -150,8 +150,10 @@ namespace Infrastructure.Repository.Query
                 }
                 if (acreports != null && acreports.Count() > 0)
                 {
+                    int i = 0;
                     acreports.ForEach(s =>
                     {
+                        s.Index = i++;
                         s.ApexQty = s.ApexQty == 0 ? null : s.ApexQty;
                         s.AntahQty = s.AntahQty == 0 ? null : s.AntahQty;
                         s.MissQty = s.MissQty == 0 ? null : s.MissQty;

@@ -10,6 +10,7 @@ namespace Core.EntityModels
 {
     public class INPCalendarPivotModel : BaseModel
     {
+        public long Index { get; set; } = 0;
         public int IntMonth { get; set; }
         public string VersionName { get; set; }
         public DateTime ReportDate { get; set; }

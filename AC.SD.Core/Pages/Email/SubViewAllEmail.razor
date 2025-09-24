@@ -58,6 +58,12 @@
                             {
                                 <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                             }
+                            @if (!string.IsNullOrEmpty(item.Priorities) &&
+                                                        item.Priorities.Equals("High", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <div class="priority_l high">@item.Priorities</div>
+                            }
+
                         </strong>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>

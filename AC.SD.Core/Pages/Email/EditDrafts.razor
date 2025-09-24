@@ -27,6 +27,24 @@
 @implements IDisposable;
 
 <style scoped>
+
+    .priority-high {
+        color: red;
+        font-weight: 500;
+    }
+
+    .priority-normal {
+        color: green;
+        font-weight: 500;
+    }
+
+    .priority-low {
+        color: orange;
+        font-weight: 500;
+    }
+
+
+
     .txtEditorMsg {
         height: calc(100vh - 477px);
     }
@@ -301,13 +319,30 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
-                              <DxFormLayoutItem Caption="" ColSpanMd="2">
-                                <DxCheckBox CssClass="w-100"
+                            <DxFormLayoutItem Caption="Priority" ColSpanMd="4">
+                                @* <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.Urgent"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
                                     Urgent
-                                </DxCheckBox>
+                                </DxCheckBox> *@
+                                <DxComboBox Data="@PrioritiesLst"
+                                            @bind-Value="@Data.Priorities"
+                                            NullText="Select Priorities"
+                                            CssClass="cw-480"
+                                            InputId="cbPriorities">
+
+                                    <EditBoxDisplayTemplate Context="editCtx">
+                                        @GetEditBoxTemplateContent(editCtx.DataItem)
+                                    </EditBoxDisplayTemplate>
+
+                                    <ItemDisplayTemplate Context="itemCtx">
+                                        @GetItemTemplateContent(itemCtx)
+                                    </ItemDisplayTemplate>
+                                </DxComboBox>
+
+
+                                <ValidationMessage For="@(() => Data.Priorities)" />
                             </DxFormLayoutItem>
 
                               <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
@@ -318,7 +353,7 @@ else
                                     Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                             @bind-Checked="@Data.TagLock"
                                             Alignment="default"
@@ -762,6 +797,7 @@ else
 </DxFlyout>
 
 @code {
+    List<string>? PrioritiesLst { get; set; }
     string UserTagName { get; set; }
     string OthersTagName { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
@@ -971,6 +1007,39 @@ else
     async Task SelectedItemGroupTagChanged()
     {
         // await SelectedItemChanged(_currentEditModel.GroupTag);
+    }
+
+
+    // Edit box (selected item)
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(item)">@item</span>
+        </div>;
+    }
+
+    // Drop-down items
+    RenderFragment GetItemTemplateContent(ComboBoxItemDisplayTemplateContext<string> context)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(context.DataItem)">
+                @context.HighlightedDisplayText
+            </span>
+        </div>
+    ;
+    }
+
+
+    // Map colors
+    string GetPriorityCss(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
     }
 
 
@@ -1654,8 +1723,15 @@ else
         {
              "Follow Up","No Follow Up"
         };
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
 
         Data.Follow = Follow[1];
+        Data.Priorities = PrioritiesLst[1];
+
+
 
     }
     private void onSubmit()
@@ -1685,7 +1761,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        
+
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -1702,9 +1778,15 @@ else
         {
              "Follow Up","No Follow Up"
         };
+        PrioritiesLst = new List<string>
+        {
+            "Low","Normal","High"
+        };
+
         Data.NoOfDays = 0;
         Data.TagLock = false;
         Data.Follow = Follow[1];
+        Data.Priorities = PrioritiesLst[1];
         Data.Urgent = false;
         Data.OverDue = false;
         Data.IsAllowParticipants = false;
@@ -1810,7 +1892,7 @@ else
                         lists.ApplicationMasterChildId =_TagEmailList[0].GroupTag.Value;
                         selectgrouptagItems = lists;
 
-                        
+
                         GroupValue = _groupTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == _TagEmailList[0].GroupTag.Value);
                         selectgrouptagItems = GroupValue as ApplicationMasterChildModel;
 
@@ -1853,9 +1935,17 @@ else
                         else
                         {
                             CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
-
-                            CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == CategoryData.CategoryTag);
-                            selectCategory = CategoryValue as ApplicationMasterChildModel;
+                            if(_categoryTagItems != null)
+                            {
+                                if (_categoryTagItems.Count > 0)
+                                {
+                                    CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == CategoryData.CategoryTag);
+                                    selectCategory = CategoryValue as ApplicationMasterChildModel;
+                                }
+                            }
+                            
+                            //CategoryValue = _categoryTagItems.FirstOrDefault(x => x.ApplicationMasterChildId == CategoryData.CategoryTag);
+                            //selectCategory = CategoryValue as ApplicationMasterChildModel;
 
                             if (CategoryData != null)
                             {
@@ -1877,6 +1967,7 @@ else
                 Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 Data.NotifyUser = actItem[0].NotifyUser;
                 Data.Follow = actItem[0].Follow;
+                Data.Priorities = actItem[0].Priorities;
                 Data.SessionId = actItem[0].SessionId;
                 Data.ID = actItem[0].ID;
                 Data.AddedByUserID = actItem[0].AddedByUserID;
@@ -2140,6 +2231,7 @@ else
                     StartDate = DateTime.Now,
                     OnBehalf = Data.OnBehalf,
                     Follow = Data.Follow,
+                    Priorities = Data.Priorities,
                     Urgent = Data.Urgent,
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,

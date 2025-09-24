@@ -26,6 +26,31 @@
     }
 </style>
 <style scoped>
+    .priorityh-high {
+        background: #e74c3c; /* red */
+        font-weight: 600;
+    }
+
+    .priorityh-normal {
+        background: #27ae60; /* green */
+        font-weight: 600;
+    }
+
+    .priorityh-low {
+        background: #e67e22; /* orange */
+        font-weight: 600;
+    }
+
+    .priorityh {
+        padding: 3px 10px;
+        border-radius: 6px;
+        color:#fff;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
     .reply-label {
     display: inline-flex;
     align-items: center;
@@ -113,6 +138,22 @@ AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="G
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="AssignFrom" Caption="Assign From" MinWidth="100" />
         <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" MinWidth="100" />
+        <DxGridDataColumn FieldName="Priorities" Caption="Priority" MinWidth="110">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                    var priorityClass = item.Priorities?.ToLower() switch
+                    {
+                        "high" => "priorityh priorityh-high",
+                        "normal" => "priorityh priorityh-normal",
+                        "low" => "priorityh priorityh-low",
+                        _ => "priorityh"
+                    };
+                }
+                <span class="@priorityClass">@item.Priorities</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
         <DxGridDataColumn FieldName="Replymsg" Caption="Msg" Width="80"> 
             <CellDisplayTemplate>
                 @{

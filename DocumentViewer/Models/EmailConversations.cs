@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 namespace DocumentViewer.Models
 {
-    public class EmailConversation
+    public class EmailConversations
     {
         public int ID { get; set; }
         public string? Name { get; set; }
@@ -10,9 +10,9 @@ namespace DocumentViewer.Models
         public DateTime? DueDate { get; set; }
         public bool? IsAllowParticipants { get; set; }
         public long? ParticipantId { get; set; }
-        public long ReplyId { get; set; }        
+        public long? ReplyId { get; set; }        
         public bool IsLockDueDate { get; set; } = false;        
-        public byte[] FileData { get; set; }
+        public byte[]? FileData { get; set; }
         public string? Description { get; set; }
         public DateTime AddedDate { get; set; }
         public int? IsMobile { get; set; }
@@ -24,6 +24,6 @@ namespace DocumentViewer.Models
         public int? AddedByUserID { get; set; }
         public Guid? SessionId { get; set; }          
         public int IsDueDate { get; set; } = 0;      
-        public long TransferID { get; set; }
+        public long? TransferID { get; set; }
     }       
 }

@@ -1,0 +1,53 @@
+﻿@page "/Schedulers"
+@using Application.Queries
+@using Syncfusion.Blazor.Schedule
+@using ScheduleView = Syncfusion.Blazor.Schedule.View;
+@using global::Core.Entities
+@using MediatR
+@inject IMediator Mediator
+<div class="control-section">
+    <SfSchedule TValue="ResourceData" Width="100%" Height="80vh" @bind-SelectedDate="@CurrentDate" AllowDragAndDrop="true" AllowResizing="true" @bind-CurrentView="@CurrentView" EnableAutoRowHeight="true">
+        <ScheduleEvents TValue="ResourceData" OnActionBegin="OnActionBegin" OnDragStart="OnDragStart"></ScheduleEvents>
+        <ScheduleGroup Resources="@_groupData"></ScheduleGroup>
+        <ScheduleResources>
+            <ScheduleResource TItem="ResourceData" TValue="int" DataSource="@ProjectData" Field="ProjectId" Title="Choose Project" Name="Projects" TextField="Text" IdField="Id" ColorField="Color"></ScheduleResource>
+            <ScheduleResource TItem="ResourceData" TValue="int[]" DataSource="@TaskData" Field="TaskId" Title="Category" Name="Categories" TextField="Text" IdField="Id" GroupIDField="GroupId" ColorField="Color" AllowMultiple="true"></ScheduleResource>
+        </ScheduleResources>
+        <ScheduleViews>
+            <ScheduleView Option="View.TimelineDay"></ScheduleView>
+            <ScheduleView Option="View.TimelineWeek"></ScheduleView>
+            <ScheduleView Option="View.TimelineWorkWeek"></ScheduleView>
+            <ScheduleView Option="View.TimelineMonth"></ScheduleView>
+            <ScheduleView Option="View.Agenda"></ScheduleView>
+        </ScheduleViews>
+        <ScheduleEventSettings DataSource="@EventDataSource" AllowAdding="false" AllowDeleting="false"></ScheduleEventSettings>
+    </SfSchedule>
+</div>
+@code {
+    private ScheduleView CurrentView { get; set; } = ScheduleView.TimelineWeek;
+    private DateTime CurrentDate { get; set; } = new DateTime(DateTime.Today.Year, 1, 10);
+    private List<ResourceData> EventDataSource { get; set; } = new List<ResourceData>();
+    private string[] _groupData = new string[] { "Projects", "Categories" };
+    private List<ResourceData> ProjectData { get; set; } = new List<ResourceData>();
+    private List<ResourceData> TaskData { get; set; } = new List<ResourceData>();
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetSchedulerResourceData());
+        if (result?.Any() == true)
+        {
+            ProjectData = result.Where(w => w.Type == "Main").OrderBy(o => o.Id).ToList();
+            TaskData = result.Where(w => w.Type == "Parent").OrderBy(o => o.Id).ToList();
+            EventDataSource = result.Where(w => w.Type == "Event").OrderBy(o => o.Id).ToList();
+        }
+    }
+    public void OnActionBegin(ActionEventArgs<ResourceData> args)
+    {
+    }
+    public void OnDragStart(DragEventArgs<ResourceData> args)
+    {
+
+    }
+}
+
+
+

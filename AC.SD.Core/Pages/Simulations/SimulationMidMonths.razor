@@ -950,50 +950,7 @@
         IsFilterOpen = true;
         StateHasChanged();
     }
-    public class MonthlyBarChart
-    {
-        public string? Month { get; set; }
-        public decimal? AddhocCust { get; set; }
-        public decimal? AdHoc { get; set; }
-        public decimal? ProjInv { get; set; }
-        public decimal? ProdProj { get; set; }
-        public decimal? ProjHS { get; set; }
-        public string? ProductionTicket { get; set; }
-    }
-    public class CustomerBarChart
-    {
-        public string? ItemNo { get; set; }
-        public string? Customer { get; set; }
-        public decimal? ValueData { get; set; }
-        public decimal? ApexStockBalance_ { get; set; }
-        public decimal? AntahStockBalance_ { get; set; }
-        public decimal? MsbStockBalance_ { get; set; }
-        public decimal? PsbStockBalance_ { get; set; }
-        public decimal? SgTenderStockBalance_ { get; set; }
-        public decimal? WipQty_ { get; set; }
-        public decimal? NotStartInvQty_ { get; set; }
-        public decimal? MyStockBalance_ { get; set; }
-        public decimal? OtherStoreQty_ { get; set; }
-        public decimal? DeliverynotReceived { get; set; }
-        public decimal? InterCompanyTransitQty_ { get; set; }
-        public decimal? StockBalance_ { get; set; }
-        public decimal? StockHoldingBalance_ { get; set; }
-        public decimal? Rework_ { get; set; }
-    }
-    public class StockBalance
-    {
-        public string? ItemNo { get; set; }
-        public decimal? Apex { get; set; }
-        public decimal? Antah { get; set; }
-        public decimal? MSS { get; set; }
-        public decimal? PX { get; set; }
-        public decimal? SWSIN { get; set; }
-        public decimal? SWMY { get; set; }
-        public decimal? OtherStore { get; set; }
-        public decimal? WIPStock { get; set; }
-        public decimal? TotalStockBalance { get; set; }
-        public decimal? NoOfMth { get; set; }
-    }
+
     void OnSelectedChanged(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "Index");

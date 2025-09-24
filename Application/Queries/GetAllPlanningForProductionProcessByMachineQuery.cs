@@ -59,4 +59,9 @@ namespace Application.Queries
             this.PlanningForProductionProcessByMachineRelated = aCEntryModel;
         }
     }
+    public class GetSchedulerResourceData : PagedRequest, IRequest<List<ResourceData>>
+    {
+        public string? SearchString { get; set; }
+    }
+    
 }

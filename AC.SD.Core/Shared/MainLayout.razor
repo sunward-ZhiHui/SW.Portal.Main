@@ -31,8 +31,7 @@
         letter-spacing: 2px;
     }
 
-    .emailnotifcationcount
-    {
+    .emailnotifcationcount {
         position: absolute;
         inset: 2px 122px auto auto;
         font-weight: normal;
@@ -126,13 +125,12 @@
 <Toast />
 
 <DxToastProvider Name="Customization"
-    DisplayTime="@TimeSpan.FromSeconds(7)"
-    FreezeOnClick="true"
-    HorizontalAlignment=HorizontalAlignment.Right
-    VerticalAlignment=VerticalEdge.Bottom   
-    AnimationType="ToastAnimationType.Slide"
-    ShowCloseButton="true" 
-/>
+                 DisplayTime="@TimeSpan.FromSeconds(7)"
+                 FreezeOnClick="true"
+                 HorizontalAlignment=HorizontalAlignment.Right
+                 VerticalAlignment=VerticalEdge.Bottom
+                 AnimationType="ToastAnimationType.Slide"
+                 ShowCloseButton="true" />
 
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
@@ -152,7 +150,7 @@
             <span class="notifcationcount">@_emailNotificationCount</span>
             </span> *@
 
-           @*  <DxButton Click="@ToggleEmailSwitcherPanel" IconCssClass="fa fa-envelope"></DxButton> *@
+            @*  <DxButton Click="@ToggleEmailSwitcherPanel" IconCssClass="fa fa-envelope"></DxButton> *@
 
             <span class="fa fa-envelope" @onclick="() => ToggleEmailSwitcherPanel()" title="Email Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="emailnotifcationcount">@_emailNotificationCount</span>
@@ -281,7 +279,7 @@
                 </div>
                 <div class="" style="background: #e7e7e7;">
                     <div class="list-container1">
-                       @*  <div class="list-item1" @onclick="() => GoViewEmail()">
+                        @*  <div class="list-item1" @onclick="() => GoViewEmail()">
                             <i class="fa fa-envelope"></i>
                             <p>Email AssignTo <span>@_emailNotificationCount</span></p>
                         </div> *@
@@ -292,6 +290,10 @@
                         <div class="list-item1" @onclick="() => GoWorkFlow()">
                             <i class="fa fa-sitemap"></i>
                             <p>WorkFlow <span>@_WorkflowNotificationCount</span></p>
+                        </div>
+                        <div class="list-item1" @onclick="() => GoWorkFlowSectionApproal()">
+                            <i class="fa fa-sitemap"></i>
+                            <p>Section Approval <span>@_SectionapprovelNotificationCount</span></p>
                         </div>
                         <div class="list-item1" @onclick="() => GoApproval()">
                             <i class="fa fa-check-circle"></i>
@@ -360,6 +362,7 @@
     long _memoNotificationCount { get; set; }
     long _WorkflowNotificationCount { get; set; }
     long _approvelNotificationCount { get; set; }
+    long _SectionapprovelNotificationCount { get; set; }
     long _appointmentsCount { get; set; }
     long _InvitationCount { get; set; }
     long _UserCreatedAppointmentCount { get; set; }
@@ -403,10 +406,10 @@
             _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
             _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
 
-            _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
+            _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
         }
 
-        string message = $"You have {_emailNotificationCount} new email notifications.";       
+        string message = $"You have {_emailNotificationCount} new email notifications.";
 
         AppToast.Show(message, "Notification");
 
@@ -426,6 +429,12 @@
     private async Task GoAppointments()
     {
         NavigationManager.NavigateTo($"Dashboard/1");
+        await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
+    }
+    private async Task GoWorkFlowSectionApproal()
+    {
+        NavigationManager.NavigateTo($"Dashboard/4");
         await InvokeAsync(StateHasChanged);
         IsNotificationCount = false;
     }
@@ -464,12 +473,14 @@
             _appointmentsCount = await Mediator.Send(new GetSchedulerCout(applicationUser.UserID));
             _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
             _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
+            var sectionFlow = await Mediator.Send(new GetDynamicFormWorkFlowApprovedFormByList(applicationUser.UserID, 0));
+            _SectionapprovelNotificationCount = sectionFlow?.Any() == true ? sectionFlow.Count() : 0;
         }
 
 
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
-        _NotificationCount =  _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount;
+        _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
 
         await InvokeAsync(StateHasChanged);
     }
@@ -477,11 +488,11 @@
     {
         loading = true;
         var request = new UpdateUserPasswordRequest
-            {
-                UserID = applicationUser.UserID,
-                LoginID = applicationUser.LoginID,
-                NewPassword = "1234",
-            };
+        {
+            UserID = applicationUser.UserID,
+            LoginID = applicationUser.LoginID,
+            NewPassword = "1234",
+        };
         var response = await Mediator.Send(request);
         if (response != null)
         {
@@ -498,12 +509,12 @@
     {
         loading = true;
         var request = new UpdateUserPasswordRequest
-            {
-                UserID = applicationUser.UserID,
-                LoginID = applicationUser.LoginID,
-                OldPassword = updatePassword.OldPassword,
-                NewPassword = updatePassword.Password
-            };
+        {
+            UserID = applicationUser.UserID,
+            LoginID = applicationUser.LoginID,
+            OldPassword = updatePassword.OldPassword,
+            NewPassword = updatePassword.Password
+        };
         var response = await Mediator.Send(request);
         if (response != null)
         {
@@ -631,7 +642,7 @@
                     LayoutToggled = false;
             }
         }
-    }  
+    }
 
     void ToggleThemeSwitcherPanel()
     {

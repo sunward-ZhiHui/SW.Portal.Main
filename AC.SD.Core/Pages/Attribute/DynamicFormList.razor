@@ -2807,8 +2807,20 @@
             headerRow.AppendChild(cellHeader);
         }
     }
+    public static string RemoveInvalidExcelChars(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // remove control chars except tab, newline, carriage return
+        return new string(input.Where(c => (c == 0x9 || c == 0xA || c == 0xD) || (c >= 0x20)).ToArray());
+    }
     private Cell addCellValues(string dataType, string? value)
     {
+        if (!string.IsNullOrEmpty(value))
+        {
+            value = RemoveInvalidExcelChars(value);
+        }
         Cell fileNamecell = new Cell();
         if (dataType == "Boolean")
         {

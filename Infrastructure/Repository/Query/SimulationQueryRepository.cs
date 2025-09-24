@@ -247,6 +247,15 @@ namespace Infrastructure.Repository.Query
                         s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
                         //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
                         s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
+                        if(!string.IsNullOrEmpty(s.AddhocCust))
+                        {
+                            s.ProductionProjected1_ = null; s.ProductionProjected2_ = null;
+                            s.ProductionProjected3_ = null; s.ProductionProjected4_ = null;
+                            s.ProductionProjected5_ = null; s.ProductionProjected6_ = null;
+                            s.ProductionProjected7_ = null; s.ProductionProjected8_ = null;
+                            s.ProductionProjected9_ = null; s.ProductionProjected10_ = null;
+                            s.ProductionProjected11_ = null; s.ProductionProjected12_ = null;
+                        }
                         var GroupTicket1 = s.GroupItemTicket1 + "," + s.GroupTicket1;
                         if (GroupTicket1 != null)
                         {
@@ -1925,6 +1934,15 @@ namespace Infrastructure.Repository.Query
                     s.NoOfTicket6_ = s.NoOfTicket6; s.NoOfTicket7_ = s.NoOfTicket7; s.NoOfTicket8_ = s.NoOfTicket8;
                     s.NoOfTicket9_ = s.NoOfTicket9; s.NoOfTicket10_ = s.NoOfTicket10; s.NoOfTicket11_ = s.NoOfTicket11; s.NoOfTicket12_ = s.NoOfTicket12;
                     var GroupTicket1 = s.GroupItemTicket1 + "," + s.GroupTicket1;
+                    if (!string.IsNullOrEmpty(s.AddhocCust))
+                    {
+                        s.ProductionProjected1_ = null; s.ProductionProjected2_ = null;
+                        s.ProductionProjected3_ = null; s.ProductionProjected4_ = null;
+                        s.ProductionProjected5_ = null; s.ProductionProjected6_ = null;
+                        s.ProductionProjected7_ = null; s.ProductionProjected8_ = null;
+                        s.ProductionProjected9_ = null; s.ProductionProjected10_ = null;
+                        s.ProductionProjected11_ = null; s.ProductionProjected12_ = null;
+                    }
                     if (GroupTicket1 != null)
                     {
                         var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();

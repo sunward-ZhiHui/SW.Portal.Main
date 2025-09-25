@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using Core.EntityModels;
 using DevExpress.DashboardAspNetCore;
+using Syncfusion.Blazor;
+using Syncfusion.Licensing;
 
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
@@ -154,7 +156,10 @@ namespace SW.Portal.Solutions.ServerSide
                     options.ClientTimeoutInterval = TimeSpan.FromMinutes(10);
                     options.HandshakeTimeout = TimeSpan.FromMinutes(2);
                 });
-
+                var licenseKey = "Ngo9BigBOggjHTQxAR8/V1JFaF5cXGRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXZcc3ZXQ2JcUkF1XEBWYEg=";
+                SyncfusionLicenseProvider.RegisterLicense(licenseKey);
+                services.AddSyncfusionBlazor();
+                services.AddSingleton<ISyncfusionStringLocalizer, SyncfusionStringLocalizer>();
                 services.AddBlazoredToast();
                 services.AddRazorPages();
                 services.AddResponseCompression(options =>

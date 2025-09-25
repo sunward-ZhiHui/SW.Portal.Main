@@ -107,4 +107,16 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetSchedulerResourceDataHandler : IRequestHandler<GetSchedulerResourceData, List<ResourceData>>
+    {
+        private readonly IPlanningForProductionProcessByMachineQueryRepository _queryRepository;
+        public GetSchedulerResourceDataHandler(IPlanningForProductionProcessByMachineQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ResourceData>> Handle(GetSchedulerResourceData request, CancellationToken cancellationToken)
+        {
+            return (List<ResourceData>)await _queryRepository.GetSchedulerResourceData();
+        }
+    }
 }

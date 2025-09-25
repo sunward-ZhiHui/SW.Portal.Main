@@ -39,6 +39,196 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
+                    <DxDrawer @bind-IsOpen="IsDrawerOpen"
+              CloseOnEscape="true"
+              Position="DrawerPosition.Right"
+              PanelWidth="@PanelWidth"
+              CssClass="drawer-fullscreen"
+              Mode="DrawerMode.Shrink">
+
+        <!-- Drawer panel (details) -->
+        <BodyTemplate>
+            <div class="drawer-header">
+                <div class="mb-3">
+
+                    @if (isFullScreen == true)
+                    {
+                        <DxButtonGroup RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Outline" SelectionMode="ButtonGroupSelectionMode.Single">
+                            <Items>
+                                <DxButtonGroupItem Text="Exit Screen" IconCssClass="fa-solid fa-compress-arrows-alt" Click="onClickNormalScreen" />
+                                <DxButtonGroupItem Text="Close" IconCssClass="fa fa-window-close" Click="OnCloseDrawer" />
+                            </Items>
+                        </DxButtonGroup>
+                    }
+                    else
+                    {
+                        <DxButtonGroup RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Outline" SelectionMode="ButtonGroupSelectionMode.Single">
+                            <Items>
+                                <DxButtonGroupItem Text="Fullscreen" IconCssClass="fa-solid fa-compress" Click="onClickFullScreen" />
+                                <DxButtonGroupItem Text="Close" IconCssClass="fa fa-window-close" Click="OnCloseDrawer" />
+                            </Items>
+                        </DxButtonGroup>
+                    }
+                </div>
+            </div>
+            <div style="height: calc(100vh - 250px);">
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutGroup ColSpanMd="12" Caption="@($"From Customer-{Stbheader}")" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+
+                        <DxChart T="CustomerBarChart" Data="@CustomerChartData" Width="100%">
+                            <DxChartTitle Text=@($"{_selectedItems?.MethodCode}")>
+                            </DxChartTitle>
+                            <DxChartBarSeries Name="Value"
+                                              T="CustomerBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Customer"
+                                              ValueField="pasi => pasi.ValueData" />
+                            <DxChartLegend Position="RelativePosition.Outside"
+                                           HorizontalAlignment="HorizontalAlignment.Center"
+                                           VerticalAlignment="VerticalEdge.Bottom" />
+                            <!-- Axis Label Formatting -->
+                            <DxChartValueAxis>
+                                <DxChartAxisLabel Format="ChartElementFormat.Decimal()" />
+                            </DxChartValueAxis>
+
+                            <!-- Legend -->
+                            <DxChartLegend Position="RelativePosition.Outside"
+                                           HorizontalAlignment="HorizontalAlignment.Center"
+                                           VerticalAlignment="VerticalEdge.Bottom" />
+
+                            <DxChartTooltip Enabled="true">
+                                <div style="margin: 0.75rem">
+                                    <div class="fw-bold">@context.Point.Argument</div>
+                                    <div>@context.Point.SeriesName: @($"{context.Point.Value:0.##}")</div>
+                                </div>
+                            </DxChartTooltip>
+                        </DxChart>
+                    </DxFormLayoutGroup>
+                    <DxFormLayoutGroup ColSpanMd="12" Caption="@($"From Item-{Stbheader}")" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+
+                        <DxChart Data="@StockBalanceCustomerBarChart" Width="100%" Height="500px">
+                            <DxChartTitle Text=@($"{_selectedItems?.MethodCode}")>
+                            </DxChartTitle>
+                            <DxChartLegend Position="RelativePosition.Outside"
+                                           HorizontalAlignment="HorizontalAlignment.Center"
+                                           VerticalAlignment="VerticalEdge.Bottom" />
+                            <!-- Argument axis -->
+                            <DxChartArgumentAxis>
+                                <DxChartAxisLabel Overlap="ChartAxisLabelOverlap.Stagger" />
+                            </DxChartArgumentAxis>
+
+                            <!-- Value axis -->
+                            <DxChartValueAxis Name="StockAxis">
+                                <DxChartAxisTitle Text="Stock Balance" />
+                            </DxChartValueAxis>
+
+                            <DxChartValueAxis Name="MonthAxis" Position="HorizontalEdge.Right">
+                                <DxChartAxisTitle Text="No. of Months" />
+                            </DxChartValueAxis>
+
+                            <!-- Bar series for stock values -->
+                            <DxChartBarSeries Name="Apex" ArgumentField="s => s.ItemNo" ValueField="s => s.ApexStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="Antah" ArgumentField="s => s.ItemNo" ValueField="s => s.AntahStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="MSS" ArgumentField="s => s.ItemNo" ValueField="s => s.MsbStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="PX" ArgumentField="s => s.ItemNo" ValueField="s => s.PsbStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="SWSIN" ArgumentField="s => s.ItemNo" ValueField="s => s.SgTenderStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="WIP" ArgumentField="s => s.ItemNo" ValueField="s => s.WipQty_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="Not Start Inv Qty" ArgumentField="s => s.ItemNo" ValueField="s => s.NotStartInvQty_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="SWMY" ArgumentField="s => s.ItemNo" ValueField="s => s.MyStockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="Other Store" ArgumentField="s => s.ItemNo" ValueField="s => s.OtherStoreQty_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="In Transit" ArgumentField="s => s.ItemNo" ValueField="s => s.DeliverynotReceived" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="In T/intercompany" ArgumentField="s => s.ItemNo" ValueField="s => s.InterCompanyTransitQty_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="Stock Balance" ArgumentField="s => s.ItemNo" ValueField="s => s.StockBalance_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <DxChartBarSeries Name="Rework" ArgumentField="s => s.ItemNo" ValueField="s => s.Rework_" T="CustomerBarChart" TArgument="string" TValue="decimal?" />
+                            <!-- Line series for No. of mth -->
+                            <DxChartLineSeries Name="No. of Months"
+                                               ArgumentField="s => s.ItemNo"
+                                               ValueField="s => s.StockHoldingBalance_"
+                                               T="CustomerBarChart"
+                                               TArgument="string"
+                                               TValue="decimal?"
+                                               Axis="MonthAxis" />
+                            <!-- Tooltip -->
+                            <DxChartTooltip Enabled="true">
+                                <div style="margin: 0.75rem">
+                                    <div class="fw-bold">@context.Point.Argument</div>
+                                    <div>@context.Point.SeriesName: @($"{context.Point.Value:0.##}")</div>
+                                </div>
+                            </DxChartTooltip>
+                        </DxChart>
+                    </DxFormLayoutGroup>
+                    <DxFormLayoutGroup ColSpanMd="12" Caption="Monthly Statistics" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+
+                        <DxChart T="MonthlyBarChart" Data="@ChartData" Width="100%">
+                            <DxChartTitle Text=@($"Monthly Statistics-{_selectedItems?.MethodCode}")>
+                                <DxChartSubTitle Text="@_selectedItems?.ItemNo" />
+                            </DxChartTitle>
+                            <DxChartBarSeries Name="Addhoc Cust"
+                                              T="MonthlyBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Month"
+                                              ValueField="pasi => pasi.AddhocCust" />
+
+                            <DxChartBarSeries Name="AdHoc"
+                                              T="MonthlyBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Month"
+                                              ValueField="pasi => pasi.AdHoc" />
+
+                            <DxChartBarSeries Name="Proj Inv"
+                                              T="MonthlyBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Month"
+                                              ValueField="pasi => pasi.ProjInv" />
+
+                            <DxChartBarSeries Name="Prod Proj"
+                                              T="MonthlyBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Month"
+                                              ValueField="pasi => pasi.ProdProj" />
+
+                            <DxChartBarSeries Name="Proj HS"
+                                              T="MonthlyBarChart"
+                                              TArgument="string"
+                                              TValue="decimal?"
+                                              ArgumentField="pasi => pasi.Month"
+                                              ValueField="pasi => pasi.ProjHS" />
+
+
+                            <DxChartLegend Position="RelativePosition.Outside"
+                                           HorizontalAlignment="HorizontalAlignment.Center"
+                                           VerticalAlignment="VerticalEdge.Bottom" />
+                            <!-- Axis Label Formatting -->
+                            <DxChartValueAxis>
+                                <DxChartAxisLabel Format="ChartElementFormat.Decimal()" />
+                            </DxChartValueAxis>
+
+                            <!-- Legend -->
+                            <DxChartLegend Position="RelativePosition.Outside"
+                                           HorizontalAlignment="HorizontalAlignment.Center"
+                                           VerticalAlignment="VerticalEdge.Bottom" />
+
+                            <DxChartTooltip Enabled="true">
+                                <div style="margin: 0.75rem">
+                                    <div class="fw-bold">@context.Point.Argument</div>
+                                    <div>@context.Point.SeriesName: @($"{context.Point.Value:0.##}")</div>
+                                    <div>Production Ticket: @GetDescription(context.Point.Argument)</div>
+                                </div>
+                            </DxChartTooltip>
+                        </DxChart>
+                    </DxFormLayoutGroup>
+
+                </DxFormLayout>
+            </div>
+        </BodyTemplate>
+
+        <!-- Main content (grid) -->
+        <TargetContent>
     <DxGrid @ref="Grid" Data="@_simulationItems" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -49,6 +239,8 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             VirtualScrollingEnabled="true"
             AutoExpandAllGroupRows="true"
+                    RowClick="OnSelectedChanged"
+                    FocusedRowEnabled="true"
             CssClass="ch-360"
             style="height: calc(100vh - 250px);">
         <Columns>
@@ -414,6 +606,8 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemNo" />
         </TotalSummary>
     </DxGrid>
+    </TargetContent>
+    </DxDrawer>
 </DxLoadingPanel>
 <DxFlyout @bind-IsOpen=IsFilterOpen
           PositionTarget=@($"#flyout-overview-target-container-FilterDocuments")
@@ -503,6 +697,12 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    bool isFullScreen { get; set; } = false;
+    string PanelWidth { get; set; } = "580px";
+    List<CustomerBarChart> CustomerChartData = new();
+    List<MonthlyBarChart> ChartData = new(); public List<CustomerBarChart> StockBalanceCustomerBarChart = new List<CustomerBarChart>();
+    bool IsDrawerOpen { get; set; } = false;
+    private INPCalendarPivotModel _selectedItems;
     private List<ViewPlants>? _plantItems;
     private List<NavMethodCodeModel>? _navMethodCodeModeltems;
     bool IsFilterOpen { get; set; } = false;
@@ -633,6 +833,98 @@
         }
         StateHasChanged();
         //Grid.AutoFitColumnWidths();
+    }
+    void onClickFullScreen()
+    {
+        isFullScreen = true;
+        PanelWidth = "100%";
+        StateHasChanged();
+    }
+    void onClickNormalScreen()
+    {
+        isFullScreen = false;
+        PanelWidth = "580px";
+        StateHasChanged();
+    }
+    void OnCloseDrawer()
+    {
+        IsDrawerOpen = false;
+        isFullScreen = false;
+        PanelWidth = "580px";
+        StateHasChanged();
+    }
+    void OnSelectedChanged(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "Index");
+        var uniqueId = Convert.ToInt64(UniqueId);
+        _selectedItems = _simulationItems.FirstOrDefault(f => f.Index == uniqueId);
+        var listData = _simulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+        CustomerChartData = new List<CustomerBarChart>
+        {
+            new(){Customer="Apex",ValueData=_selectedItems.ApexStockBalance_ ?? 0},
+             new(){Customer="Antah",ValueData=_selectedItems.AntahStockBalance_ ?? 0},
+             new(){Customer="MSS",ValueData=_selectedItems.MsbStockBalance_ ?? 0},
+             new(){Customer="PX",ValueData=_selectedItems.PsbStockBalance_ ?? 0},
+             new(){Customer="SWSIN",ValueData=_selectedItems.SgTenderStockBalance_ ?? 0},
+             new(){Customer="WIP",ValueData=_selectedItems.WipQty_ ?? 0},
+             new(){Customer="Not Start Inv Qty",ValueData=_selectedItems.NotStartInvQty_ ?? 0},
+             new(){Customer="SWMY",ValueData=_selectedItems.MyStockBalance_ ?? 0},
+             new(){Customer="Other Store",ValueData=_selectedItems.OtherStoreQty_ ?? 0},
+             new(){Customer="In Transit",ValueData=_selectedItems.DeliverynotReceived ?? 0},
+             new(){Customer="In T/intercompany",ValueData=_selectedItems.InterCompanyTransitQty_ ?? 0},
+             new(){Customer="Stock Balance",ValueData=_selectedItems.StockBalance_ ?? 0},
+             new(){Customer="No. of mth",ValueData=_selectedItems.StockHoldingBalance_ ?? 0},
+             new(){Customer="Rework",ValueData=_selectedItems.Rework},
+        };
+        ChartData = new List<MonthlyBarChart>
+        {
+            new() { Month=Month1, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc1_ ?? 0, ProjInv=_selectedItems.Month1_??0, ProdProj=_selectedItems.ProjectedHoldingStock1_??0, ProjHS=_selectedItems.ProductionProjected1_??0,ProductionTicket=_selectedItems.Ticket1 },
+            new() { Month=Month2, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc2_ ?? 0, ProjInv=_selectedItems.Month2_??0, ProdProj=_selectedItems.ProjectedHoldingStock2_??0, ProjHS=_selectedItems.ProductionProjected2_??0,ProductionTicket=_selectedItems.Ticket2 },
+            new() { Month=Month3, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc3_ ?? 0, ProjInv=_selectedItems.Month3_??0, ProdProj=_selectedItems.ProjectedHoldingStock3_??0, ProjHS=_selectedItems.ProductionProjected3_??0,ProductionTicket=_selectedItems.Ticket3 },
+            new() { Month=Month4, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc4_ ?? 0, ProjInv=_selectedItems.Month4_??0, ProdProj=_selectedItems.ProjectedHoldingStock4_??0, ProjHS=_selectedItems.ProductionProjected4_??0,ProductionTicket=_selectedItems.Ticket4 },
+            new() { Month=Month5, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc5_ ?? 0, ProjInv=_selectedItems.Month5_??0, ProdProj=_selectedItems.ProjectedHoldingStock5_??0, ProjHS=_selectedItems.ProductionProjected5_??0,ProductionTicket=_selectedItems.Ticket5 },
+            new() { Month=Month6, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc6_ ?? 0, ProjInv=_selectedItems.Month6_??0, ProdProj=_selectedItems.ProjectedHoldingStock6_??0, ProjHS=_selectedItems.ProductionProjected6_??0,ProductionTicket=_selectedItems.Ticket6 },
+            new() { Month=Month7, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc7_ ?? 0, ProjInv=_selectedItems.Month7_??0, ProdProj=_selectedItems.ProjectedHoldingStock7_??0, ProjHS=_selectedItems.ProductionProjected7_??0,ProductionTicket=_selectedItems.Ticket7 },
+            new() { Month=Month8, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc8_ ?? 0, ProjInv=_selectedItems.Month8_??0, ProdProj=_selectedItems.ProjectedHoldingStock8_??0, ProjHS=_selectedItems.ProductionProjected8_??0,ProductionTicket=_selectedItems.Ticket8 },
+            new() { Month=Month9, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc9_ ?? 0, ProjInv=_selectedItems.Month9_??0, ProdProj=_selectedItems.ProjectedHoldingStock9_??0, ProjHS=_selectedItems.ProductionProjected9_??0,ProductionTicket=_selectedItems.Ticket9 },
+            new() { Month=Month10, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc10_ ?? 0, ProjInv=_selectedItems.Month10_??0, ProdProj=_selectedItems.ProjectedHoldingStock10_??0, ProjHS=_selectedItems.ProductionProjected10_??0,ProductionTicket=_selectedItems.Ticket10 },
+            new() { Month=Month11, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc11_ ?? 0, ProjInv=_selectedItems.Month11_??0, ProdProj=_selectedItems.ProjectedHoldingStock11_??0, ProjHS=_selectedItems.ProductionProjected11_??0,ProductionTicket=_selectedItems.Ticket11 },
+            new() { Month=Month12, AddhocCust=0, AdHoc=_selectedItems.BlanketAddhoc12_ ?? 0, ProjInv=_selectedItems.Month12_??0, ProdProj=_selectedItems.ProjectedHoldingStock12_??0, ProjHS=_selectedItems.ProductionProjected12_??0,ProductionTicket=_selectedItems.Ticket12 },
+        };
+        StockBalanceCustomerBarChart = new List<CustomerBarChart>();
+        if (listData?.Any() == true)
+        {
+            listData.ForEach(f =>
+            {
+                var datasItems = new CustomerBarChart
+                {
+                    ItemNo = f.Remarks + "-" + f.ItemNo,
+                    ApexStockBalance_ = f.ApexStockBalance_,
+                    AntahStockBalance_ = f.AntahStockBalance_,
+                    MsbStockBalance_ = f.MsbStockBalance_,
+                    PsbStockBalance_ = f.PsbStockBalance_,
+                    SgTenderStockBalance_ = f.SgTenderStockBalance_,
+                    WipQty_ = f.WipQty_,
+                    NotStartInvQty_ = f.NotStartInvQty_,
+                    MyStockBalance_ = f.MyStockBalance_,
+                    OtherStoreQty_ = f.OtherStoreQty_,
+                    DeliverynotReceived = f.DeliverynotReceived,
+                    InterCompanyTransitQty_ = f.InterCompanyTransitQty_,
+                    StockBalance_ = f.StockBalance_,
+                    StockHoldingBalance_ = f.StockHoldingBalance_,
+                    Rework_ = f.Rework,
+                };
+                StockBalanceCustomerBarChart.Add(datasItems);
+            });
+        }
+        PanelWidth = "580px";
+        IsDrawerOpen = true;
+
+    }
+    string GetDescription(object? month)
+    {
+        var data = ChartData.FirstOrDefault(c => c.Month == month?.ToString());
+        return data?.ProductionTicket ?? "";
     }
     void OnFileProfiltefilter()
     {

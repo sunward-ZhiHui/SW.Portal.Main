@@ -20,5 +20,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<PlanningForProductionProcessByMachineRelated>> GetAllPlanningForProductionProcessByMachineRelatedAsync(long? PlanningForProductionProcessByMachineId);
         Task<PlanningForProductionProcessByMachineRelated> InsertOrUpdatePlanningForProductionProcessByMachineRelated(PlanningForProductionProcessByMachineRelated value);
         Task<PlanningForProductionProcessByMachineRelated> DeletePlanningForProductionProcessByMachineRelated(PlanningForProductionProcessByMachineRelated value);
+        Task<IReadOnlyList<ResourceData>> GetSchedulerResourceData();
     }
 }

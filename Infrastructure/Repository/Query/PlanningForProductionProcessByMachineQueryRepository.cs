@@ -1,32 +1,34 @@
-﻿using Core.Entities;
+﻿using Application.Queries;
+using Core.Entities;
+using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query;
-using Infrastructure.Repository.Query.Base;
 using Dapper;
+using DocumentFormat.OpenXml.Vml;
+using IdentityModel.Client;
+using Infrastructure.Data;
+using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
+using NAV;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Core.Entities.Views;
-using Core.EntityModels;
-using IdentityModel.Client;
-using NAV;
-using Application.Queries;
-using Infrastructure.Data;
 using static iText.IO.Image.Jpeg2000ImageData;
-using Newtonsoft.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
-using System.Dynamic;
-using System.Data.SqlClient;
-using Newtonsoft.Json.Serialization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repository.Query
 {
     public class PlanningForProductionProcessByMachineQueryRepository : DbConnector, IPlanningForProductionProcessByMachineQueryRepository
     {
+        private static readonly Random _random = new Random();
         public PlanningForProductionProcessByMachineQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
@@ -55,7 +57,7 @@ namespace Infrastructure.Repository.Query
                 var query = "select t1.*,t2.Value as TypeOfProduction,t7.Value as TypeOfProcess,t3.CodeValue as StatusCode,t4.UserName as AddedByUser,t5.UserName as ModifiedByUser,t6.Value as ProductionPlanningProcess from PlanningForProductionProcessByMachine t1\r\nJOIN ApplicationMasterDetail t2 ON t2.ApplicationMasterDetailID=t1.TypeOfProductionID\r\nJOIN ApplicationMasterDetail t6 ON t6.ApplicationMasterDetailID=t1.ProductionPlanningProcessID\r\nJOIN ApplicationMasterDetail t7 ON t7.ApplicationMasterDetailID=t1.TypeOfProcessID\r\nJOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID\r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID where t1.SessionId=@SessionId;\r\n";
                 using (var connection = CreateConnection())
                 {
-                    return await connection.QueryFirstOrDefaultAsync<PlanningForProductionProcessByMachine>(query,parameters);
+                    return await connection.QueryFirstOrDefaultAsync<PlanningForProductionProcessByMachine>(query, parameters);
                 }
             }
             catch (Exception exp)
@@ -139,7 +141,7 @@ namespace Infrastructure.Repository.Query
                 var query = "select t1.*,t6.ProfileNo as AssetIDWithModel,t2.Value as PlanningForProductionProcessByMachine,t3.CodeValue as StatusCode,t4.UserName as AddedByUser,t5.UserName as ModifiedByUser from PlanningForProductionProcessByMachineRelated t1\r\nLEFT JOIN ApplicationMasterDetail t2 ON t2.ApplicationMasterDetailID=t1.FixAssetMachineNameRequipmentID\r\nJOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID\r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\nLEFT JOIN DynamicFormData t6 ON t6.DynamicFormDataID=t1.AssetIDWithModelId where t1.PlanningForProductionProcessByMachineId=@PlanningForProductionProcessByMachineId\r\n";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<PlanningForProductionProcessByMachineRelated>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<PlanningForProductionProcessByMachineRelated>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -206,6 +208,88 @@ namespace Infrastructure.Repository.Query
                         throw new Exception(exp.Message, exp);
                     }
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private static string GetRandomColor()
+        {
+            return $"#{_random.Next(0x1000000):X6}";
+        }
+        public async Task<IReadOnlyList<ResourceData>> GetSchedulerResourceData()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "select oal.*,oau.Value as ProductionPlanningProcess from  PlanningForProductionProcessByMachine oal\r\njoin ApplicationMasterDetail oau on oal.ProductionPlanningProcessId=oau.ApplicationMasterDetailId;";
+                query += "select oal.*,oau.Value as PlanningForProductionProcessByMachine from PlanningForProductionProcessByMachineRelated oal\r\njoin ApplicationMasterDetail oau on oal.FixAssetMachineNameRequipmentId = oau.ApplicationMasterDetailId;";
+                query += "select oal.*,ProductionPlanningProcess = oau1.ProductionPlanningProcessId,PlanningForProductionProcessByMachine = oau.FixAssetMachineNameRequipmentId from ProductionPlanningScheduler oal\r\njoin  PlanningForProductionProcessByMachineRelated oau on oal.PlanningForProductionProcessByMachineRelatedId = oau.PlanningForProductionProcessByMachineRelatedId\r\njoin PlanningForProductionProcessByMachine oau1 on oau.PlanningForProductionProcessByMachineId = oau1.PlanningForProductionProcessByMachineId";
+                var PlanningForProductionProcessByMachine = new List<PlanningForProductionProcessByMachine>(); var PlanningForProductionProcessByMachineRelated = new List<PlanningForProductionProcessByMachineRelated>();
+                var ProductionPlanningScheduler = new List<ProductionPlanningScheduler>();
+                using (var connection = CreateConnection())
+                {
+                    var QuerResult = await connection.QueryMultipleAsync(query, parameters);
+                    PlanningForProductionProcessByMachine = QuerResult.Read<PlanningForProductionProcessByMachine>().ToList();
+                    PlanningForProductionProcessByMachineRelated = QuerResult.Read<PlanningForProductionProcessByMachineRelated>().ToList();
+                    ProductionPlanningScheduler = QuerResult.Read<ProductionPlanningScheduler>().ToList();
+                }
+                List<ResourceData> resourceDatas = new List<ResourceData>();
+                int i = 1;
+                if (PlanningForProductionProcessByMachine?.Any() == true)
+                {
+                    PlanningForProductionProcessByMachine.ForEach(s =>
+                    {
+                        var exits = resourceDatas.Where(w => w.ProductionPlanningSchedulerId == s.ProductionPlanningProcessId).FirstOrDefault();
+                        if (exits == null)
+                        {
+                            ResourceData schedulerDisplay = new ResourceData();
+                            schedulerDisplay.GroupId = 0;
+                            schedulerDisplay.Id = i++;
+                            schedulerDisplay.Text = s.ProductionPlanningProcess;
+                            schedulerDisplay.Type = "Main";
+                            schedulerDisplay.Color = GetRandomColor();
+                            schedulerDisplay.ProductionPlanningSchedulerId = s.ProductionPlanningProcessId;
+                            schedulerDisplay.PlanningForProductionProcessByMachine = s.PlanningForProductionProcessByMachineId;
+                            resourceDatas.Add(schedulerDisplay);
+                        }
+
+                    });
+                }
+                int j = 1;
+                if (PlanningForProductionProcessByMachineRelated?.Any() == true)
+                {
+                    PlanningForProductionProcessByMachineRelated.ForEach(g =>
+                    {
+                        ResourceData productionPlanningScheduler = new ResourceData();
+                        productionPlanningScheduler.GroupId = resourceDatas.FirstOrDefault(f => f.Type == "Main" && f.PlanningForProductionProcessByMachine == g.PlanningForProductionProcessByMachineId)?.Id;
+                        productionPlanningScheduler.Id = j++;
+                        productionPlanningScheduler.Text = g.PlanningForProductionProcessByMachine;
+                        productionPlanningScheduler.Type = "Parent";
+                        productionPlanningScheduler.ProductionPlanningSchedulerId = g.FixAssetMachineNameRequipmentId;
+                        resourceDatas.Add(productionPlanningScheduler);
+                    });
+                }
+                int k = 1;
+                if (ProductionPlanningScheduler?.Any() == true)
+                {
+                    ProductionPlanningScheduler.ForEach(oal =>
+                    {
+                        resourceDatas.Add(new ResourceData
+                        {
+                            Id = k++,
+                            Subject = oal.ReplanRefNo + "/" + oal.BatchNo + "/" + oal.UnitofMeasureCode + "/" + oal.RecipeNo + "/" + oal.Description + "/" + oal.Description2,
+                            StartTime = oal.StartDate,
+                            EndTime = oal.EndDate,
+                            IsAllDay = false,
+                            Type = "Event",
+                            ProjectId = resourceDatas.FirstOrDefault(f => f.Type == "Main" && f.ProductionPlanningSchedulerId == oal.ProductionPlanningProcess)?.Id,
+                            TaskId = resourceDatas.FirstOrDefault(f => f.Type == "Parent" && f.ProductionPlanningSchedulerId == oal.PlanningForProductionProcessByMachine)?.Id,
+                        });
+                    });
+                }
+                return resourceDatas;
             }
             catch (Exception exp)
             {

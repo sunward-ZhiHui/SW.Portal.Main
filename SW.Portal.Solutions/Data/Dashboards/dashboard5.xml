@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 4" />
+  <DataSources>
+    <SqlDataSource Name="EmailConversations" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="EmailConversations">
+        <Tables>
+          <Table Name="EmailConversations" />
+        </Tables>
+        <Columns>
+          <Column Table="EmailConversations" Name="Name" />
+          <Column Table="EmailConversations" Name="Message" />
+          <Column Table="EmailConversations" Name="Description" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Treemap ComponentName="treemapDashboardItem1" Name="Treemap 1" DataSource="sqlDataSource1" DataMember="EmailConversations">
+      <DataItems>
+        <Measure DataMember="Name" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="Message" SummaryType="Count" DefaultId="DataItem1" />
+        <Measure DataMember="Description" SummaryType="Count" DefaultId="DataItem2" />
+      </DataItems>
+      <Values>
+        <Value DefaultId="DataItem0" />
+        <Value DefaultId="DataItem1" />
+        <Value DefaultId="DataItem2" />
+      </Values>
+    </Treemap>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="treemapDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

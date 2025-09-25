@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="SPC Finished Product" />
+  <DataSources>
+    <JsonDataSource Name="SPC FINISHED PRODUCT" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 105,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23026&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.22,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 106,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23027&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.84,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 107,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-22016&quot;,&#xD;&#xA;    &quot;Value&quot;: 0.00,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 108,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-22017&quot;,&#xD;&#xA;    &quot;Value&quot;: 99.91,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  }&#xD;&#xA;]" />
+    </JsonDataSource>
+  </DataSources>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="jsonDataSource1" Rotated="true">
+      <InteractivityOptions IsDrillDownEnabled="true" TargetDimensions="Series" />
+      <DataItems>
+        <Dimension DataMember="BatchNo" ColoringMode="Hue" DefaultId="DataItem0" />
+        <Dimension DataMember="Remarks" ColoringMode="Hue" DefaultId="DataItem1" />
+        <Measure DataMember="Value" SummaryType="Mode" DefaultId="DataItem3" />
+      </DataItems>
+      <SeriesDimensions>
+        <SeriesDimension DefaultId="DataItem1" />
+      </SeriesDimensions>
+      <Arguments>
+        <Argument DefaultId="DataItem0" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <AxisY Reverse="true" />
+          <Series>
+            <Simple SeriesType="FullStackedLine">
+              <Value DefaultId="DataItem3" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+      <ChartLegend IsInsidePosition="true" InsidePosition="BottomLeftVertical" OutsidePosition="BottomLeftVertical" />
+      <AxisX Reverse="true" TitleVisible="true" />
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="chartDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

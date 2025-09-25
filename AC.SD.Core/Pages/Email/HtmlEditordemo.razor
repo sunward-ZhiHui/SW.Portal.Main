@@ -1,0 +1,250 @@
+﻿@page "/demo-vijay"
+@using System.Text
+@using DevExpress.Blazor
+@using DevExpress.Blazor.Office
+@using System.IO
+@using System.Drawing
+@inject IJSRuntime JS
+@using System.Text.RegularExpressions;
+@using System.Drawing.Imaging;
+
+@* <DxHtmlEditor @bind-Markup="@markup"
+              CssClass="my-editor"
+              Height="400px"
+              Width="100%">
+</DxHtmlEditor>
+
+<style>
+    .my-editor .dx-htmleditor-content img {
+        max-width: 500px;
+        height: auto;
+    }
+</style>
+
+@code {
+    string markup = "<p style=\"font-family: Calibri; font-size: 12pt;\">&#8203;</p>";
+} *@
+
+@* 
+<style>
+    .my-editor .dx-htmleditor-content img {
+        max-width: 800px;
+        height: auto;
+    }
+
+</style>
+<DxHtmlEditor Markup="@markup" MarkupChanged="@OnMarkupChanged" CssClass="my-editor">
+    <DxHtmlEditorMentions>
+        <DxHtmlEditorMention Data="@EmployeesData"
+                             DisplayFieldName="@nameof(MentionData.Name)"
+                             SearchFieldNames="@SearchFieldNames" />
+    </DxHtmlEditorMentions>
+</DxHtmlEditor>
+
+
+@code {
+    string markup = "<p style=\"font-family: Calibri; font-size: 12pt;\">&#8203;</p>";
+    bool _processingMarkup;
+
+    string[] SearchFieldNames = { nameof(MentionData.Name) };
+
+    class MentionData
+    {
+        public string Name { get; set; }
+        public string Team { get; set; }
+    }
+    MentionData[] EmployeesData = {
+        new MentionData() { Name = "John Heart", Team = "Engineering" },
+        new MentionData() { Name = "Kevin Carter", Team = "Engineering" },
+        new MentionData() { Name = "Olivia Peyton", Team = "Management" },
+        new MentionData() { Name = "Robert Reagan", Team = "Management" },
+        new MentionData() { Name = "Cynthia Stanwick", Team = "Engineering" },
+        new MentionData() { Name = "Brett Wade", Team = "Analysis" },
+        new MentionData() { Name = "Greta Sims", Team = "QA" },
+    };
+
+    async Task OnMarkupChanged(string newMarkup)
+    {
+        // quick assign when re-entry
+        if (_processingMarkup) { markup = newMarkup; return; }
+
+        _processingMarkup = true;
+        try
+        {
+            // Process images/html (example: add max-width or compress)
+            var processed = await ProcessImagesAsync(newMarkup);
+
+            // only assign if changed to reduce re-renders
+            if (processed != newMarkup) markup = processed;
+            else markup = newMarkup;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("OnMarkupChanged error: " + ex);
+            markup = newMarkup; // fallback to avoid blocking editor
+        }
+        finally
+        {
+            _processingMarkup = false;
+        }
+    }
+
+    // called from the handler above
+    async Task<string> ProcessImagesAsync(string html)
+    {
+        var rx = new Regex("src=\"data:image/(?<type>[^;]+);base64,(?<data>[^\"]+)\"", RegexOptions.IgnoreCase);
+        return await Task.Run(() => rx.Replace(html, m =>
+        {
+            var type = m.Groups["type"].Value;
+            var base64 = m.Groups["data"].Value;
+            try
+            {
+                var bytes = Convert.FromBase64String(base64);
+                var compressed = ResizeAndCompressJpeg(bytes, 800, 70L); // max width 800px, 70% quality
+                var newBase64 = Convert.ToBase64String(compressed);
+                return $"src=\"data:image/jpeg;base64,{newBase64}\""; // saving as jpeg
+            }
+            catch
+            {
+                return m.Value; // on error keep original
+            }
+        }));
+    }
+
+    byte[] ResizeAndCompressJpeg(byte[] data, int maxWidth, long quality)
+    {
+        using var inStream = new MemoryStream(data);
+        using var img = System.Drawing.Image.FromStream(inStream);
+        var w = Math.Min(maxWidth, img.Width);
+        var h = (int)(img.Height * (w / (double)img.Width));
+        using var bmp = new Bitmap(w, h);
+        using var g = Graphics.FromImage(bmp);
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+        g.DrawImage(img, 0, 0, w, h);
+
+        var codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+        var ep = new EncoderParameters(1);
+        ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+        using var outStream = new MemoryStream();
+        bmp.Save(outStream, codec, ep);
+        return outStream.ToArray();
+    }
+
+}
+ *@ 
+
+ <style scoped>   
+
+        .my-editor .dx-htmleditor-content img {
+            min-width: 800px;
+            max-width:100%;
+            height: auto;
+        }
+        </style>
+
+@implements IAsyncDisposable
+
+    <div @ref="editorContainer">
+        <DxLoadingPanel Visible="@isLoading">
+            <DxHtmlEditor @bind-Markup="@markup" Height="500px" />
+        </DxLoadingPanel>
+    </div>
+
+
+@if (htmlBinaryData1 != null)
+{
+    var htmlContent1 = Encoding.UTF8.GetString(htmlBinaryData1);
+    @((MarkupString)htmlContent1)
+}
+
+
+<DxButton Text="Save Changes" Click="SaveChanges" CssClass="mt-3" />
+
+@code {
+    private bool isLoading = false;
+    private string markup = string.Empty;
+    private string editorHeight = "500px"; // default
+
+    private ElementReference editorContainer;
+    private DotNetObjectReference<HtmlEditordemo>? objRef;
+    private byte[] htmlBinaryData1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("attachPasteHandler", editorContainer, objRef);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnEditorPaste()
+    {
+
+        isLoading = true;
+        await Task.Delay(2000);
+        isLoading = false;
+        Console.WriteLine("Paste detected!");
+
+        // Extract image if needed
+        if (!string.IsNullOrEmpty(markup))
+        {
+            var base64Match = Regex.Match(
+                markup,
+                @"data:image/(?<type>.+?);base64,(?<data>.+?)"""
+            );
+
+            if (base64Match.Success)
+            {
+                string base64Data = base64Match.Groups["data"].Value;
+                byte[] imageBytes = Convert.FromBase64String(base64Data);
+                htmlBinaryData1 = imageBytes;
+            }
+        }
+
+        // Ask JS to calculate scrollHeight
+        var newHeight = await JS.InvokeAsync<int>("getEditorScrollHeight", editorContainer);
+
+        // Update editor height (add some padding)
+        editorHeight = $"{newHeight + 50}px";
+
+        StateHasChanged();
+    }
+
+
+    [JSInvokable]
+    public Task OnEditorPaste_v()
+    {
+        Console.WriteLine("Paste detected!");
+        var newmarkup = markup + "<p>Paste detected!</p>";
+        return Task.CompletedTask;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef is not null)
+        {
+            await JS.InvokeVoidAsync("detachPasteHandler", editorContainer);
+            objRef.Dispose();
+        }
+    }
+
+
+    private Task SaveChanges()
+    {
+        if (!string.IsNullOrEmpty(markup))
+        {
+            htmlBinaryData1 = Encoding.UTF8.GetBytes(markup);
+            Console.WriteLine("Saved Markup: " + markup);
+        }
+        else
+        {
+            Console.WriteLine("Nothing to save.");
+            htmlBinaryData1 = null;
+        }
+        return Task.CompletedTask;
+    }
+
+}
+

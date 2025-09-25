@@ -1,0 +1,285 @@
+﻿@page "/home-vijay"
+@using System.Text
+@using DevExpress.Blazor
+@using DevExpress.Blazor.Office
+@using System.IO
+@using System.Drawing
+@inject IJSRuntime JS
+@using System.Text.RegularExpressions;
+@using System.Drawing.Imaging;
+
+<DxHtmlEditor @ref="htmlEditor" @bind-Markup="@Markup"
+              BindMarkupMode="HtmlEditorBindMarkupMode.OnLostFocus"
+              Height="800px"
+              CssClass="@EditorCssClass"
+              Width="100%"
+              CustomizeToolbar="OnCustomizeToolbar" />
+
+<DxButton Text="Save Changes" Click="SaveChanges" CssClass="mt-3" />
+
+<DxPopup @ref="uploadPopup" ShowFooter="true" HeaderText="Upload picture">
+    <BodyContentTemplate>
+        <div id="overviewDemoDropZone" class="card custom-drop-zone rounded-3 w-100 m-0">
+            <span class="drop-file-icon mb-3"></span>
+            <span class="drop-file-label">Drag and Drop File Here</span><span class="m-1">or</span>
+            <DxButton Id="overviewDemoSelectButton"
+                      CssClass="m-1"
+                      RenderStyle="ButtonRenderStyle.Primary"
+                      Text="Select File" />
+        </div>
+        <DxFileInput ExternalSelectButtonCssSelector="#overviewDemoSelectButton"
+                     ExternalDropZoneCssSelector="#overviewDemoDropZone"
+                     ExternalDropZoneDragOverCssClass="custom-drop-zone-hover"
+                     AllowMultiFileUpload="false"
+                     MaxFileCount="1"
+                     SelectedFilesChanged="OnSelectedFilesChanged"
+                     FilesUploading="OnFilesUploading">
+        </DxFileInput>
+        <div class="upload-validation-text info-text">
+            Uploads are limited to a single file up to 15 MB.
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton Enabled="@InsertButtonEnabled" RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="InsertImage" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="OnCancelUpload" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<p>The result markup: @Markup</p>
+
+@code {
+    DxPopup uploadPopup;
+    bool InsertButtonEnabled = false;
+    DxFileInput editorImageInput;
+    int CursorPosition = 0;
+    string uploadedImageUrl = "";
+
+    string Markup { get; set; } = "";
+    string EditorCssClass => "MyEditor";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("ModifyJsInstance", $".{EditorCssClass}");
+        }
+    }
+    DxHtmlEditor htmlEditor;
+    int EditorKey = 1;
+    private Task SaveChanges()
+    {       
+        EditorKey++;       
+
+        var htmlContent = Markup;
+        Console.WriteLine("Saved HTML: " + htmlContent);
+
+        return Task.CompletedTask;
+    }
+
+    bool uploadPopupVisible = false; // fallback binding
+
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        var insertGroup = toolbar.Groups[HtmlEditorToolbarGroupNames.InsertElement];
+        insertGroup.Items.Remove(HtmlEditorToolbarItemNames.ShowInsertPictureDialog);
+
+        insertGroup.Items.AddCustomButton("Picture", async () =>
+        {
+            try
+            {
+                // Ensure code runs on the Renderer sync context
+                await InvokeAsync(async () =>
+                {
+                    // safe JS call: catch JS failure separately
+                    int pos = 0;
+                    try
+                    {
+                        pos = await JS.InvokeAsync<int>("getCursorPosition", $".{EditorCssClass}");
+                    }
+                    catch (Exception jsEx)
+                    {
+                        // log JS errors and continue with a default position
+                        await JS.InvokeVoidAsync("console.error", "getCursorPosition failed:", jsEx?.Message ?? jsEx?.ToString());
+                        pos = 0;
+                    }
+
+                    CursorPosition = pos;
+
+                    // Prefer ShowAsync if the popup is already initialized,
+                    // otherwise fall back to @bind-Visible
+                    if (uploadPopup?.IsInitialized ?? false)
+                    {
+                        await uploadPopup.ShowAsync();
+                    }
+                    else
+                    {
+                        uploadPopupVisible = true;
+                        StateHasChanged(); // ensure popup appears
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the full error to browser console so you can inspect stack trace
+                await JS.InvokeVoidAsync("console.error", "Toolbar Picture click error:", ex?.ToString());
+                // Optionally show a friendly alert during development
+                // await JS.InvokeVoidAsync("alert", "Error opening image dialog: " + ex.Message);
+            }
+        }).IconCssClass = "oi oi-image custom-icon";
+    }
+
+
+    async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            try
+            {
+                var uploadsPath = getUploadPath();
+                if (!Directory.Exists(uploadsPath))
+                    Directory.CreateDirectory(uploadsPath);
+
+                var fileName = Path.GetFileName(file.Name);
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                // If file exists, add a unique suffix to the file name
+                if (System.IO.File.Exists(filePath))
+                {
+                    var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                    var ext = Path.GetExtension(fileName);
+                    var uniqueSuffix = $"_{DateTime.Now:yyyyMMddHHmmssfff}";
+                    fileName = nameWithoutExt + uniqueSuffix + ext;
+                    filePath = Path.Combine(uploadsPath, fileName);
+                }
+
+                using var fileStream = new FileStream(filePath, FileMode.Create);
+                await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
+
+                // Calculate the relative URL based on uploadsPath
+                var wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var relativePath = filePath.StartsWith(wwwroot) ? filePath.Substring(wwwroot.Length).Replace("\\", "/") : filePath;
+                uploadedImageUrl = relativePath.StartsWith("/") ? relativePath : "/" + relativePath;
+            }
+            catch (OperationCanceledException ex)
+            {
+                // Handle cancellation if needed
+            }
+        }
+    }
+
+    void OnSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        InsertButtonEnabled = files.Any();
+    }
+
+    async Task InsertImage()
+    {
+        await JS.InvokeVoidAsync("insertImageAtCursor", $".{EditorCssClass}", CursorPosition, uploadedImageUrl);
+        await uploadPopup.CloseAsync();
+        await JS.InvokeVoidAsync("focusEditor", $".{EditorCssClass}");
+    }
+
+    async Task OnCancelUpload()
+    {
+        await uploadPopup.CloseAsync();
+        await JS.InvokeVoidAsync("focusEditor", $".{EditorCssClass}");
+    }
+
+    string getUploadPath()
+    {
+        return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+    }
+}
+
+<style>
+    .custom-icon {
+        opacity: 0.7;
+    }
+
+    .custom-drop-zone {
+        padding: 0 !important;
+        border-style: dashed;
+        border-width: 2px !important;
+        height: 230px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(183, 183, 183, 0.1);
+    }
+
+        .custom-drop-zone.custom-drop-zone-hover {
+            border-style: solid;
+        }
+
+        .custom-drop-zone svg {
+            width: 42px;
+            height: 42px;
+        }
+
+        .custom-drop-zone > *:not(#overviewDemoSelectButton) {
+            pointer-events: none;
+        }
+
+    .upload-validation-text {
+        flex-direction: column;
+        align-items: flex-end;
+        font-size: 12px;
+    }
+</style>
+
+<script>
+    function ModifyJsInstance(cssSelector){
+        let htmlEditor = getDevExtremeInstance(cssSelector)
+        if(htmlEditor){
+            disableDefaultUpload(htmlEditor)
+        }
+    } 
+        function insertImageAtCursor(cssSelector, position, imageUrl) {
+        let htmlEditor = getDevExtremeInstance(cssSelector);
+        if (!htmlEditor) {
+            console.error("Quill editor instance not found for", cssSelector);
+            return;
+        }
+        htmlEditor.insertEmbed(position, 'image', imageUrl, 'user');
+        htmlEditor.setSelection(position + 1);
+    }
+
+
+    function getCursorPosition(cssSelector)
+    {
+        let htmlEditor = getDevExtremeInstance(cssSelector);
+        const range = htmlEditor.getSelection();
+        const index = range ? range.index : htmlEditor.getLength();
+        return index;
+    }
+    
+
+    function disableDefaultUpload(htmlEditor)
+    {
+        const Uploader = htmlEditor.get('modules/uploader');
+        class DisabledUploader extends Uploader {
+            constructor(quill, options) {
+                super(quill, { ...options, mimetypes: [] });
+            }
+        }
+        htmlEditor.register({ 'modules/uploader': DisabledUploader });
+    }
+        function getDevExtremeInstance(cssSelector) {
+        // In DevExpress Blazor, the Quill instance is attached to __quill
+        const editorElement = document.querySelector(`${cssSelector} .dxbl-htr`);
+        return editorElement ? editorElement.__quill : null;
+    }
+
+        function focusEditor(cssSelector) {
+        let htmlEditor = getDevExtremeInstance(cssSelector);
+        if (!htmlEditor) {
+            console.warn("focusEditor: retrying in 100ms");
+            setTimeout(() => focusEditor(cssSelector), 100);
+            return;
+        }
+        htmlEditor.focus();
+    }
+
+
+</script>

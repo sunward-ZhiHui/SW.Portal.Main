@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 5" />
+  <DataSources>
+    <SqlDataSource Name="AllProdOrderLine" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="AllProdOrderLine">
+        <Tables>
+          <Table Name="AllProdOrderLine" />
+        </Tables>
+        <Columns>
+          <Column Table="AllProdOrderLine" Name="ItemNo" />
+          <Column Table="AllProdOrderLine" Name="Description" />
+          <Column Table="AllProdOrderLine" Name="BatchNo" />
+          <Column Table="AllProdOrderLine" Name="BatchSize" />
+          <Column Table="AllProdOrderLine" Name="Quantity" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="sqlDataSource1" DataMember="AllProdOrderLine">
+      <DataItems>
+        <Measure DataMember="Quantity" DefaultId="DataItem0" />
+        <Measure DataMember="BatchNo" SummaryType="Count" DefaultId="DataItem1" />
+        <Measure DataMember="Description" SummaryType="Count" DefaultId="DataItem2" />
+      </DataItems>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem1" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem2" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="chartDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

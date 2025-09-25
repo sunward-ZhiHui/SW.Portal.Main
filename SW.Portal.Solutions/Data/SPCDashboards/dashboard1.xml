@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard" />
+  <DataSources>
+    <JsonDataSource Name="SPC TRENDING" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 6,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2205037&quot;,&#xD;&#xA;    &quot;Assay&quot;: 98.23&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 7,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2211029&quot;,&#xD;&#xA;    &quot;Assay&quot;: 100.16&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 8,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2303019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 99.50&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 9,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2306036&quot;,&#xD;&#xA;    &quot;Assay&quot;: 99.01&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 10,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2307019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 100.75&#xD;&#xA;  }&#xD;&#xA;]" />
+    </JsonDataSource>
+  </DataSources>
+  <Items>
+    <Pie ComponentName="pieDashboardItem1" Name="Pies 1" DataSource="jsonDataSource1" ShowPieCaptions="false">
+      <DataItems>
+        <Dimension DataMember="QCRefNo" DefaultId="DataItem0" />
+        <Measure DataMember="Assay" DefaultId="DataItem1" />
+      </DataItems>
+      <Arguments>
+        <Argument DefaultId="DataItem0" />
+      </Arguments>
+      <Values>
+        <Value DefaultId="DataItem1" />
+      </Values>
+    </Pie>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="pieDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

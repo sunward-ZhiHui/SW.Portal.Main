@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 6" />
+  <DataSources>
+    <SqlDataSource Name="view_Plants" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_Plants">
+        <Tables>
+          <Table Name="view_Plants" />
+        </Tables>
+        <Columns>
+          <Column Table="view_Plants" Name="PlantID" />
+          <Column Table="view_Plants" Name="CompanyID" />
+          <Column Table="view_Plants" Name="RegistrationNo" />
+          <Column Table="view_Plants" Name="EstablishedDate" />
+          <Column Table="view_Plants" Name="AddedDate" />
+          <Column Table="view_Plants" Name="NavCompany" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="sqlDataSource1" DataMember="view_Plants">
+      <DataItems>
+        <Measure DataMember="RegistrationNo" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="PlantID" DefaultId="DataItem1" />
+      </DataItems>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem1" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="chartDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

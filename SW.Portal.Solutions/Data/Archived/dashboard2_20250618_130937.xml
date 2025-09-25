@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New - 2 Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="view_EmailInfoNEW 1" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_EmailInfoNEW">
+        <Parameter Name="UserId" Type="DevExpress.DataAccess.Expression">(System.Int64)(?UserId)</Parameter>
+        <Tables>
+          <Table Name="view_EmailInfoNEW" />
+        </Tables>
+        <Columns>
+          <Column Table="view_EmailInfoNEW" Name="SessionId" />
+          <Column Table="view_EmailInfoNEW" Name="TopicID" />
+          <Column Table="view_EmailInfoNEW" Name="TopicName" />
+          <Column Table="view_EmailInfoNEW" Name="Description" />
+          <Column Table="view_EmailInfoNEW" Name="DueDate" />
+          <Column Table="view_EmailInfoNEW" Name="FirstName" />
+          <Column Table="view_EmailInfoNEW" Name="LastName" />
+          <Column Table="view_EmailInfoNEW" Name="UserId" />
+          <Column Table="view_EmailInfoNEW" Name="URI" />
+          <Column Table="view_EmailInfoNEW" Name="NotificationID" />
+          <Column Table="view_EmailInfoNEW" Name="IsRead" />
+          <Column Table="view_EmailInfoNEW" Name="ReadStatus" />
+          <Column Table="view_EmailInfoNEW" Name="ConversationName" />
+          <Column Table="view_EmailInfoNEW" Name="AddedDate" />
+        </Columns>
+        <Filter>[view_EmailInfoNEW.UserId] = ?</Filter>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="UserId" Type="System.Int64" Visible="false" />
+  </Parameters>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_EmailInfoNEW">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

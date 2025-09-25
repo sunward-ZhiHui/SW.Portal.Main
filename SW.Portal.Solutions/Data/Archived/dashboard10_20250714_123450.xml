@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="SPC _finish" />
+  <DataSources>
+    <JsonDataSource Name="SPC FINISHED PRODUCT" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 105,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23026&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.22,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 106,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23027&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.84,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 107,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-22016&quot;,&#xD;&#xA;    &quot;Value&quot;: 0.00,&#xD;&#xA;    &quot;Remarks&quot;: null&#xD;&#xA;  }&#xD;&#xA;]" />
+    </JsonDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="jsonDataSource1">
+      <DataItems>
+        <Measure DataMember="Value" DefaultId="DataItem0" />
+        <Dimension DataMember="BatchNo" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridMeasureColumn>
+          <Measure DefaultId="DataItem0" />
+        </GridMeasureColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

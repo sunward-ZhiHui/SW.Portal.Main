@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="spc tt" />
+  <DataSources>
+    <JsonDataSource Name="SPC TRENDING" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 6,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2205037&quot;,&#xD;&#xA;    &quot;Assay&quot;: 98.23&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 7,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2211029&quot;,&#xD;&#xA;    &quot;Assay&quot;: 100.16&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 8,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2303019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 99.50&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 9,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2306036&quot;,&#xD;&#xA;    &quot;Assay&quot;: 99.01&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 10,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2307019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 100.75&#xD;&#xA;  }&#xD;&#xA;]" />
+      <CalculatedFields>
+        <CalculatedField Name="P_USL" Expression="?P_USL " DataType="Auto" />
+        <CalculatedField Name="P_LSL" Expression="?P_LSL " DataType="Auto" />
+        <CalculatedField Name="P_LCL" Expression="?P_LCL " DataType="Auto" />
+        <CalculatedField Name="P_UCL" Expression="?P_UCL " DataType="Auto" />
+      </CalculatedFields>
+    </JsonDataSource>
+    <JsonDataSource Name="SPC TRENDING 1" ComponentName="jsonDataSource2">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 6,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2205037&quot;,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 7,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2211029&quot;,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 8,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2303019&quot;,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 9,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2306036&quot;,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 10,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2307019&quot;,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  }&#xD;&#xA;]" />
+      <CalculatedFields>
+        <CalculatedField Name="P_USL" Expression="?P_USL " DataType="Auto" />
+        <CalculatedField Name="P_LCL" Expression="?P_LCL " DataType="Auto" />
+        <CalculatedField Name="P_UCL" Expression="?P_UCL" DataType="Auto" />
+        <CalculatedField Name="P_LSL" Expression="?P_LSL " DataType="Auto" />
+      </CalculatedFields>
+    </JsonDataSource>
+    <JsonDataSource Name="SPC TRENDING 2" ComponentName="jsonDataSource3">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 6,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2205037&quot;,&#xD;&#xA;    &quot;Assay&quot;: 90.00,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 7,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2211029&quot;,&#xD;&#xA;    &quot;Assay&quot;: 60,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 8,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2303019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 50,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 9,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2306036&quot;,&#xD;&#xA;    &quot;Assay&quot;: 30,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 10,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2307019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 111,&#xD;&#xA;    &quot;USL&quot;: 40,&#xD;&#xA;    &quot;LSL&quot;: 90,&#xD;&#xA;    &quot;LCL&quot;: 140,&#xD;&#xA;    &quot;UCL&quot;: 260&#xD;&#xA;  }&#xD;&#xA;]" />
+      <CalculatedFields>
+        <CalculatedField Name="P_USL" Expression="?P_USL " DataType="Auto" />
+        <CalculatedField Name="P_LCL" Expression="?P_LCL " DataType="Auto" />
+        <CalculatedField Name="P_UCL" Expression="?P_UCL " DataType="Auto" />
+        <CalculatedField Name="Mean" Expression="Avg([Assay])" DataType="Auto" />
+        <CalculatedField Name="Mean1" Expression="Avg([Assay])" DataType="Auto" />
+        <CalculatedField Name="Sigma" Expression="StdDev([Assay])" DataType="Auto" />
+        <CalculatedField Name="CP" Expression="( ?P_USL  - ?P_LSL ) / (6 * StdDev([Assay]))" DataType="Auto" />
+        <CalculatedField Name="Cpk" Expression="Min(&#xD;&#xA;  ( ?P_UCL   - Avg([Assay])) / (3 * StdDev([Assay])),&#xD;&#xA;  (Avg([Assay]) - ?P_LSL ) / (3 * StdDev([Assay]))&#xD;&#xA;)" DataType="Auto" />
+        <CalculatedField Name="Calculated Field 1" Expression="Min(&#xD;&#xA;  ( ?P_UCL   - Avg([Assay])) / (3 * StdDev([Assay])),&#xD;&#xA;  (Avg([Assay]) - ?P_LSL ) / (3 * StdDev([Assay]))&#xD;&#xA;)" DataType="Auto" />
+        <CalculatedField Name="Calculated Field 2" Expression="&#xD;&#xA;  ( ?P_UCL   - Avg([Assay])) / (3 * StdDev([Assay]))&#xD;&#xA;" DataType="Auto" />
+      </CalculatedFields>
+    </JsonDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="P_USL" Type="System.Single" Value="1.1" />
+    <Parameter Name="P_LSL" Type="System.Single" Value="2.4" />
+    <Parameter Name="P_LCL" Type="System.Single" Value="9.4" />
+    <Parameter Name="P_UCL" Type="System.Single" Value="1.3" />
+  </Parameters>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="jsonDataSource3">
+      <InteractivityOptions TargetDimensions="Series" />
+      <DataItems>
+        <Measure DataMember="Assay" DefaultId="DataItem4" />
+        <Dimension DataMember="QCRefNo" DefaultId="DataItem0" />
+      </DataItems>
+      <Arguments>
+        <Argument DefaultId="DataItem0" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <AxisY ShowGridLines="false" />
+          <Series>
+            <Simple SeriesType="Line">
+              <Value DefaultId="DataItem4" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+      <Indicators>
+        <TrendLine Color="-4567727" ColorDataMember="Assay_Sum_Trend" DashStyle="Dash" DisplayName="Assay (Sum) Trend" LegendText="Assay (Sum) Trend" Name="indicator1" Value="DataItem2" ShowInLegend="true" Thickness="1" ValueLevel="Value" Visible="true" />
+      </Indicators>
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="chartDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

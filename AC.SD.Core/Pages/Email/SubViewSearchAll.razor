@@ -65,10 +65,9 @@
                         {
                             <span class="primary_color_icon" style="font-size:11px;color:brown;">Closed</span>
                         }
-                        @if (!string.IsNullOrEmpty(item.Priorities) &&
-                                                item.Priorities.Equals("High", StringComparison.OrdinalIgnoreCase))
+                        @if (!string.IsNullOrEmpty(item.Priorities))
                         {
-                            <div class="priority_l high">@item.Priorities</div>
+                            <div class="priority_l @item.Priorities.ToLower()">@item.Priorities</div>
                         }
 
                         <div>

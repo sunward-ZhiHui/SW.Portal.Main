@@ -2184,8 +2184,32 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<Documents>> GetEmailAttachmentListAsync(long UserId, string option)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();                        
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", option);
 
-
+                        var result = await connection.QueryAsync<Documents>("sp_Select_EmailDocList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<Documents>> GetTopicDocListAsync(long TopicId, long UserId,string option)
         {
             try

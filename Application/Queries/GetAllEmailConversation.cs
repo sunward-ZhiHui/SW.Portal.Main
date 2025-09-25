@@ -250,6 +250,17 @@ namespace Application.Queries
             Option = option;
         }
     }
+
+    public class GetEmailAttachmentList : PagedRequest, IRequest<List<Documents>>
+    {      
+        public long UserId { get; private set; }
+        public string Option { get; private set; }
+        public GetEmailAttachmentList(long userId, string option)
+        {            
+            this.UserId = userId;
+            this.Option = option;
+        }
+    }
     public class GetSubEmailTopicDocList : PagedRequest, IRequest<List<Documents>>
     {
         public long ConversationId { get; private set; }

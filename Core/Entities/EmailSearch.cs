@@ -14,9 +14,13 @@ namespace Core.Entities
         public string? BySubject { get; set; }
         public string? ByTag { get; set; }
         public IEnumerable<long> FromIds { get; set; }
+        public IEnumerable<long>? DocumentIds { get; set; }
+        public string? ByDocumentIds { get; set; }
+        public string? DocumentName { get; set; }
         public string ByFrom { get; set; }
         public DateTime? FilterFrom { get; set; }
         public DateTime? FilterTo { get; set; }
+        public string? Priorities { get; set; } = "All";
         public string? MSearchText { get; set; }
         public long UserID { get; set; }
         public string? GroupTag { get; set; }
@@ -42,6 +46,8 @@ namespace Core.Entities
         public string? CategoryCondition { get; set; }
         public string? ActionCondition { get; set; }
         public string? OtherTagCondition { get; set; }
+        public string? DocumentNameCondition { get; set; }
+        public string? DocExt { get; set; }
         public List<SubjectFilterModel> SubjectFilters { get; set; } = new();
         public string SubjectFilterSQL { get; set; }
 

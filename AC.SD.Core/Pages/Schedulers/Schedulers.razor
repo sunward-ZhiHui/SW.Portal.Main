@@ -5,6 +5,11 @@
 @using global::Core.Entities
 @using MediatR
 @inject IMediator Mediator
+<style scoped>
+    .e-content-wrap {
+        scrollbar-width: thin;
+    }
+</style>
 <div class="control-section">
     <SfSchedule TValue="ResourceData" Width="100%" Height="80vh" @bind-SelectedDate="@CurrentDate" AllowDragAndDrop="true" AllowResizing="true" @bind-CurrentView="@CurrentView" EnableAutoRowHeight="true">
         <ScheduleEvents TValue="ResourceData" OnActionBegin="OnActionBegin" OnDragStart="OnDragStart"></ScheduleEvents>

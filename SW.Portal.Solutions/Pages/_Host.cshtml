@@ -8,10 +8,10 @@
 @using DevExpress.Blazor
 <!DOCTYPE html>
 <html lang="en">
-<head>  
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="@Url.Content("~/")" />    
+    <base href="@Url.Content("~/")" />
     <script src="_content/AC.SD.Core/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="_content/AC.SD.Core/js/jquery-ui.min.js"></script>
     <script src="_content/AC.SD.Core/js/print.min.js"></script>
@@ -19,13 +19,14 @@
     <link href="_content/AC.SD.Core/css/print.min.css" rel="stylesheet" />
     <script src="_content/AC.SD.Core/js/voiceRecorder.js"></script>
 
-    <link href="_content/Syncfusion.Blazor.Themes/bootstrap5.css" rel="stylesheet" />
-
+    @*     <link href="_content/Syncfusion.Blazor.Themes/fluent2.css" rel="stylesheet" />
+ *@ 
+    <link href="_content/AC.SD.Core/fluent2/fluent2.css" rel="stylesheet" />
     <script src="_content/Syncfusion.Blazor.Core/scripts/syncfusion-blazor.min.js"></script>
 
-  @*   <script src="_content/AC.SD.Core/js/recording.js"></script> *@
+    @*   <script src="_content/AC.SD.Core/js/recording.js"></script> *@
     <script src="_content/AC.SD.Core/js/site.js"></script>
-@* 
+    @* 
     <script>
         function setDashboardRequestHeader(jsonFileName) {
             if (DevExpress && DevExpress.Dashboard && DevExpress.Dashboard.ResourceManager) {
@@ -69,7 +70,7 @@
         const messaging = getMessaging();
         //console.log(messaging);
 
-        onMessage(messaging, (payload) => {  
+        onMessage(messaging, (payload) => {
             notificationTitle = payload.notification.title;
             notificationOptions = {
                 body: payload.notification.body,
@@ -115,20 +116,20 @@
          function saveToken(currentToken) {
             window.localStorage.setItem('PushToken',currentToken);
         }
-    </script>   
-    
+    </script>
+
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
 
-   
-    <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css"> 
+
+    <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css">
     <meta property="og:description" content="Invested in continuous innovation and research for your quality assurance." />
-    <meta property="og:image" content="_content/AC.SD.Core/images/login/SW-Logo.png" />  
+    <meta property="og:image" content="_content/AC.SD.Core/images/login/SW-Logo.png" />
 
     @{
         string InitialThemeName = HttpContextAccessor.HttpContext.Request.Cookies[AC.SD.Core.Services.DemoThemeService.ThemeCookieKey];
-    }   
+    }
 
-    <script  type="text/javascript">
+    <script type="text/javascript">
         function showLoading()
         {
             $(".load-indicator").show();
@@ -136,7 +137,7 @@
 
         function hideLoading() {
             setTimeout(function () { $(".load-indicator").fadeOut("slow"); }, 100);
-        }        
+        }
         window.registerIframeOnload = function (iframeId, dotNetHelper) {
             var iframe = document.getElementById(iframeId);
             if (iframe) {
@@ -147,22 +148,25 @@
         };
     </script>
     <environment include="ServerSide">
-        <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />       
-    </environment> 
-    
+        <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />
+    </environment>
+
 </head>
 <body>
-    
+
     <div class="load-indicator" style="display:none;"></div>
     <Toast />
     @{
         var isIEOrEdgeLegacy = Request.Headers["User-Agent"].Any(userAgent => userAgent.Contains("MSIE") || userAgent.Contains("Trident"));
     }
-    @if(isIEOrEdgeLegacy) {
+    @if (isIEOrEdgeLegacy)
+    {
         <component type="typeof(BrowserNotSupported)" render-mode="Static" />
-    } else {
-       
-         <script type="module">
+    }
+    else
+    {
+
+        <script type="module">
             import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js'
         </script>
         <div id="app">
@@ -172,7 +176,7 @@
                 <script src="_content/AC.SD.Core/common.js"></script>
                 <script src="_content/AC.SD.Core/js/scrollEvents.js"></script>
                 <script src="_content/AC.SD.Core/js/todoList.js"></script>
-            </environment>           
+            </environment>
         </div>
     }
     <script src="_content/Chronos.Blazor.Cropper/CropHelper.js"></script>
@@ -184,17 +188,17 @@
     <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
     @* Uncomment the following lines if your application uses the Dashboard or JS-based Reports  *@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/devextreme-quill/1.6.3/dx-quill.min.js"></script>
-   @*  <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script> *@
+    @*  <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/24.2.3/js/dx.all.js"></script> *@
 
 
     <script>navigator.serviceWorker.register('firebase-messaging-sw.js');</script>
 
     @DxResourceManager.RegisterScripts((config) =>
-        {
-            config.Unregister(CommonResources.DevExtremeJS);
-            config.Unregister(BlazorResources.QuillJS);
-            
-        })
+    {
+        config.Unregister(CommonResources.DevExtremeJS);
+        config.Unregister(BlazorResources.QuillJS);
+
+    })
     @*<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
     <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />

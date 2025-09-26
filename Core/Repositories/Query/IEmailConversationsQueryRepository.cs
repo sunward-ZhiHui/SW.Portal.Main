@@ -50,7 +50,8 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);
         Task<List<EmailConversations>> GetTopConversationListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetReplyDiscussionListAsync(Int64 TopicId,long UserId);
-        Task<List<EmailConversations>> GetPrintReplyDiscussionListAsync(Int64 TopicId, long UserId);
+        Task<List<EmailConversations>> GetPrintReplyDiscussionListAsync(Int64 TopicId, long UserId);        
+        Task<List<Documents>> GetEmailAttachmentListAsync(long UserId, string option);
         Task<List<Documents>> GetTopicDocListAsync(long TopicId,long UserId,string option);
         Task<List<Documents>> GetSubTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);

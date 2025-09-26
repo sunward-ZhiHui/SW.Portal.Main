@@ -610,6 +610,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<Documents>)await _conversationQueryRepository.GetTopicDocListAsync(request.TopicId,request.UserId,request.Option);
         }
     }
+    public class GetEmailAttachmentListHandler : IRequestHandler<GetEmailAttachmentList, List<Documents>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+
+        public GetEmailAttachmentListHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetEmailAttachmentList request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _conversationQueryRepository.GetEmailAttachmentListAsync(request.UserId, request.Option);
+        }
+    }
+    
     public class GetSubEmailTopicDocListHandler : IRequestHandler<GetSubEmailTopicDocList, List<Documents>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;

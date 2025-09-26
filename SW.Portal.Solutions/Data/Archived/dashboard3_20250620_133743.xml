@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="vijay Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="EmailConversations" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="EmailConversations">
+        <Tables>
+          <Table Name="EmailConversations" />
+        </Tables>
+        <Columns>
+          <Column Table="EmailConversations" Name="ID" />
+          <Column Table="EmailConversations" Name="Name" />
+          <Column Table="EmailConversations" Name="TopicID" />
+          <Column Table="EmailConversations" Name="Message" />
+          <Column Table="EmailConversations" Name="FileData" />
+          <Column Table="EmailConversations" Name="ParticipantId" />
+          <Column Table="EmailConversations" Name="ReplyId" />
+          <Column Table="EmailConversations" Name="AddedDate" />
+          <Column Table="EmailConversations" Name="ModifiedByUserID" />
+          <Column Table="EmailConversations" Name="ModifiedDate" />
+          <Column Table="EmailConversations" Name="SessionId" />
+          <Column Table="EmailConversations" Name="AddedByUserID" />
+          <Column Table="EmailConversations" Name="StatusCodeID" />
+          <Column Table="EmailConversations" Name="IsAllowParticipants" />
+          <Column Table="EmailConversations" Name="DueDate" />
+          <Column Table="EmailConversations" Name="OnBehalf" />
+          <Column Table="EmailConversations" Name="Follow" />
+          <Column Table="EmailConversations" Name="Urgent" />
+          <Column Table="EmailConversations" Name="IsMobile" />
+          <Column Table="EmailConversations" Name="LastUpdateUserID" />
+          <Column Table="EmailConversations" Name="LastUpdateDate" />
+          <Column Table="EmailConversations" Name="NotifyUser" />
+          <Column Table="EmailConversations" Name="UserType" />
+          <Column Table="EmailConversations" Name="NoOfDays" />
+          <Column Table="EmailConversations" Name="ExpiryDueDate" />
+          <Column Table="EmailConversations" Name="DynamicFormDataUploadSessionID" />
+          <Column Table="EmailConversations" Name="TagLock" />
+          <Column Table="EmailConversations" Name="IsLockDueDate" />
+          <Column Table="EmailConversations" Name="IsDueDate" />
+          <Column Table="EmailConversations" Name="Description" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="EmailConversations">
+      <DataItems>
+        <Dimension DataMember="Description" DefaultId="DataItem0" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

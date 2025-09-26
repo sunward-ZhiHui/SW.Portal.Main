@@ -1,0 +1,369 @@
+﻿@page "/html-editor-demo"
+@using System.Text
+@using DevExpress.Blazor
+@using DevExpress.Blazor.Office
+@using System.IO
+@using System.Drawing
+@inject IJSRuntime JS
+@using System.Text.RegularExpressions;
+@using System.Drawing.Imaging;
+
+<style scoped>   
+
+        .my-editor .dx-htmleditor-content img {
+            min-width: 800px;
+            max-width:100%;
+            height: auto;
+        }
+
+    #chat-window {
+        background-color: rgba(191, 191, 191, 0.15);
+        height: 350px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .message {
+        height: 100px;
+        background-color: inherit;
+        display: inline-block;
+        max-width: 60%;
+        border-radius: 5px;
+        margin: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        background-color: var(--bs-body-bg)
+    }
+
+    .name {
+        font-weight: bold;
+    }
+
+    .date {
+        opacity: 0.5;
+    }
+
+    .photo {
+        float: left;
+        height: 100%;
+    }
+
+        .photo > img {
+            height: 40px;
+            width: 40px;
+            display: block;
+            border-radius: 40px;
+            margin-right: 10px;
+            object-fit: cover;
+            object-position: top;
+        }
+
+    .mention {
+        color: var(--bs-primary);
+    }
+
+
+
+    /* Chat message wrapper */
+    .message-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        padding: 12px 16px;
+        margin: 10px 0;
+        font-family: Calibri, Arial, sans-serif;
+        max-width: 500px;
+    }
+
+    /* Mention styling */
+    .dx-mention {
+        color: #0d6efd; /* blue like Teams/Slack */
+        font-weight: 500;
+        background: rgba(13, 110, 253, 0.1);
+        padding: 2px 4px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+        /* Ensure inner span (contenteditable=false) doesn't break styling */
+        .dx-mention span {
+            all: unset; /* reset unwanted styles */
+        }
+
+
+
+</style>
+
+
+@* <DxHtmlEditor @bind-Markup="@markup" Height="400px" Width="100%" /> *@
+<DxHtmlEditor IsValid="@isValid" ValidationMessage="Empty markup."
+              ShowValidationMessageOnFocus="false"
+              BindMarkupMode="HtmlEditorBindMarkupMode.OnLostFocus"
+              ValidationMessagePosition="HtmlEditorValidationMessagePosition.Right"
+              MarkupChanged="@OnMarkupChanged" CssClass="my-editor" Markup="@markup" Height="300px" Width="100%">
+    <DxHtmlEditorMentions>
+        <DxHtmlEditorMention Data="@EmployeesData"
+                             DisplayFieldName="@nameof(MentionData.Name)"
+                             SearchFieldNames="@SearchFieldNames" />
+    </DxHtmlEditorMentions>
+</DxHtmlEditor>
+
+
+
+
+<DxButton Text="Save Changes" Click="SaveChanges" CssClass="mt-3" />
+
+<div class="mt-3">
+    @* <b>Raw Bytes (Hex Preview):</b>
+    <pre>@BitConverter.ToString(HtmlContent)</pre> *@
+
+
+    @if (htmlBinaryData1 != null)
+    {
+        string htmlContent1 = Encoding.UTF8.GetString(htmlBinaryData1);
+        @((MarkupString)htmlContent1)
+    }
+
+   @*  @if (htmlBinaryData1 != null)
+    {
+        string htmlContent1 = Encoding.UTF8.GetString(htmlBinaryData1);
+
+        <div class="message-card">
+            @((MarkupString)htmlContent1)
+        </div>
+    } *@
+
+
+   
+</div>
+
+@code {
+
+    string[] SearchFieldNames = { nameof(MentionData.Name) };
+
+    class MentionData
+    {
+        public string Name { get; set; }
+        public string Team { get; set; }
+    }
+    MentionData[] EmployeesData = {
+        new MentionData() { Name = "John Heart", Team = "Engineering" },
+        new MentionData() { Name = "Kevin Carter", Team = "Engineering" },
+        new MentionData() { Name = "Olivia Peyton", Team = "Management" },
+        new MentionData() { Name = "Robert Reagan", Team = "Management" },
+        new MentionData() { Name = "Cynthia Stanwick", Team = "Engineering" },
+        new MentionData() { Name = "Brett Wade", Team = "Analysis" },
+        new MentionData() { Name = "Greta Sims", Team = "QA" },
+    };
+
+
+
+
+    DxHtmlEditor htmlEditor;
+    bool _processingMarkup;
+    bool isValid;
+    async void OnMarkupChanged(string newMarkup)
+    {
+        markup = newMarkup;
+        isValid = !string.IsNullOrEmpty(newMarkup);
+
+
+        // quick assign when re-entry
+        if (_processingMarkup) { markup = newMarkup; return; }
+
+        _processingMarkup = true;
+        try
+        {
+            // Process images/html (example: add max-width or compress)
+            var processed = await ProcessImagesAsync(newMarkup);
+
+            // only assign if changed to reduce re-renders
+            if (processed != newMarkup) markup = processed;
+            else markup = newMarkup;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("OnMarkupChanged error: " + ex);
+            markup = newMarkup; // fallback to avoid blocking editor
+        }
+        finally
+        {
+            _processingMarkup = false;
+        }
+        
+    }
+
+    // Simulating a DB field (VARBINARY(MAX))
+    private byte[] HtmlContent;
+    private byte[] htmlBinaryData1;
+    //string markup = "";
+    string markup = "<p style=\"font-family: Calibri; font-size: 12pt;\">&#8203;</p>";
+    //string markup { get; set; } = "";
+    //string markup = "<p><span style=\"font-family: Calibri; font-size: 12pt;\">&#8203;</span></p>";
+
+    // Bindable property for DxHtmlEditor
+    private string HtmlMarkup
+    {
+        get => HtmlContent != null
+            ? Encoding.UTF8.GetString(HtmlContent)
+            : string.Empty;
+        set => HtmlContent = Encoding.UTF8.GetBytes(value ?? string.Empty);
+    }
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        // var fontGroup = toolbar.Groups[HtmlEditorToolbarGroupNames.Font];
+
+        // // Replace Font Name dropdown
+        // fontGroup.Items.Remove(HtmlEditorToolbarItemNames.FontName);
+        // var fontName = fontGroup.Items.Add(HtmlEditorToolbarItemNames.FontName) as IBarComboBox;
+        // fontName.Items.Clear();
+        // fontName.Items.Add("Calibri", "Calibri");
+
+        // // Replace Font Size dropdown
+        // fontGroup.Items.Remove(HtmlEditorToolbarItemNames.FontSize);
+        // var fontSize = fontGroup.Items.Add(HtmlEditorToolbarItemNames.FontSize) as IBarComboBox;
+        // fontSize.Items.Clear();
+        // fontSize.Items.Add("12pt", "12pt");
+
+
+
+        // //Remove the "Tables" group
+        // toolbar.Groups.Remove("Tables");
+
+        // // Remove the "Illustrations" group
+        // toolbar.Groups.Remove("Illustrations");
+
+        // // Example: remove everything except History, Font, Paragraph
+        // var keep = new[] { "UndoRedo", "History", "Font", "Paragraph" };
+
+        // foreach (var group in toolbar.Groups.ToList())
+        // {
+        //     if (!keep.Contains(group.Name))
+        //     {
+        //         toolbar.Groups.Remove(group.Name); // <-- must be string
+        //     }
+        // }
+
+
+        // var fontGroup = toolbar.Groups[HtmlEditorToolbarGroupNames.Font];
+
+        // // Font name combo (add Calibri if missing)
+        // var fontNameItem = fontGroup.Items[HtmlEditorToolbarItemNames.FontName] as IBarComboBox;
+        // if (fontNameItem != null)
+        // {
+        //     // Add Calibri to the combo (text, value)
+        //     fontNameItem.Items.Add("Calibri", "Calibri");
+        // }
+
+        // // Font size combo (add 12pt if missing)
+        // var fontSizeItem = fontGroup.Items[HtmlEditorToolbarItemNames.FontSize] as IBarComboBox;
+        // if (fontSizeItem != null)
+        // {
+        //     fontSizeItem.Items.Add("12pt", "12pt");
+        // }
+
+        // var fontGroup = toolbar.Groups[HtmlEditorToolbarGroupNames.Font];
+
+        // // Replace Font Name dropdown
+        // fontGroup.Items.Remove(HtmlEditorToolbarItemNames.FontName);
+        // var fontName = fontGroup.Items.Add(HtmlEditorToolbarItemNames.FontName) as IBarComboBox;
+        // fontName.Items.Clear();
+        // fontName.Items.Add("Calibri", "Calibri");
+
+        // // Replace Font Size dropdown
+        // fontGroup.Items.Remove(HtmlEditorToolbarItemNames.FontSize);
+        // var fontSize = fontGroup.Items.Add(HtmlEditorToolbarItemNames.FontSize) as IBarComboBox;
+        // fontSize.Items.Clear();
+        // fontSize.Items.Add("12pt", "12pt");
+
+
+    }
+    // called from the handler above
+    async Task<string> ProcessImagesAsync(string html)
+    {
+        var rx = new Regex("src=\"data:image/(?<type>[^;]+);base64,(?<data>[^\"]+)\"", RegexOptions.IgnoreCase);
+        return await Task.Run(() => rx.Replace(html, m =>
+        {
+            var type = m.Groups["type"].Value;
+            var base64 = m.Groups["data"].Value;
+            try
+            {
+                var bytes = Convert.FromBase64String(base64);
+                var compressed = ResizeAndCompressJpeg(bytes, 800, 70L); // max width 800px, 70% quality
+                var newBase64 = Convert.ToBase64String(compressed);
+                return $"src=\"data:image/jpeg;base64,{newBase64}\""; // saving as jpeg
+            }
+            catch
+            {
+                return m.Value; // on error keep original
+            }
+        }));
+    }
+
+    byte[] ResizeAndCompressJpeg(byte[] data, int maxWidth, long quality)
+    {
+        using var inStream = new MemoryStream(data);
+        using var img = System.Drawing.Image.FromStream(inStream);
+        var w = Math.Min(maxWidth, img.Width);
+        var h = (int)(img.Height * (w / (double)img.Width));
+        using var bmp = new Bitmap(w, h);
+        using var g = Graphics.FromImage(bmp);
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+        g.DrawImage(img, 0, 0, w, h);
+
+        var codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+        var ep = new EncoderParameters(1);
+        ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+        using var outStream = new MemoryStream();
+        bmp.Save(outStream, codec, ep);
+        return outStream.ToArray();
+    }
+    public static byte[] HexStringToBytes(string hex)
+    {
+        // Remove 0x if it exists
+        if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            hex = hex.Substring(2);
+
+        int length = hex.Length;
+        byte[] bytes = new byte[length / 2];
+        for (int i = 0; i < length; i += 2)
+        {
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        }
+        return bytes;
+    }
+
+
+    protected override void OnInitialized()
+    {
+        // Example hardcoded HTML stored as UTF8 bytes (with BOM)
+        var dt = "0xEFBBBF3C21444F43545950452068746D6C205055424C494320222D2F2F5733432F2F445444205848544D4C20312E30205472616E736974696F6E616C2F2F454E222022687474703A2F2F7777772E77332E6F72672F54522F7868746D6C312F4454442F7868746D6C312D7472616E736974696F6E616C2E647464223E0D0A3C68746D6C20786D6C6E733D22687474703A2F2F7777772E77332E6F72672F313939392F7868746D6C223E0D0A093C686561643E0D0A09093C6D65746120687474702D65717569763D22436F6E74656E742D547970652220636F6E74656E743D22746578742F68746D6C3B20636861727365743D7574662D3822202F3E3C7469746C653E0D0A09093C2F7469746C653E0D0A09093C7374796C6520747970653D22746578742F637373223E0D0A0909092E637338354444443242447B746578742D616C69676E3A6C6566743B746578742D696E64656E743A3070743B6D617267696E3A3070742030707420307074203070747D0D0A0909092E637343393933323141347B636F6C6F723A233030303030303B6261636B67726F756E642D636F6C6F723A7472616E73706172656E743B666F6E742D66616D696C793A43616C696272693B666F6E742D73697A653A313270743B666F6E742D7765696768743A6E6F726D616C3B666F6E742D7374796C653A6E6F726D616C3B7D0D0A09093C2F7374796C653E0D0A093C2F686561643E0D0A093C626F64793E0D0A09093C7020636C6173733D2263733835444444324244223E3C7370616E20636C6173733D2263734339393332314134223E6E6577206C6F676963207472616E736665723C2F7370616E3E3C2F703E3C2F626F64793E0D0A3C2F68746D6C3E0D0A";
+        htmlBinaryData1 = HexStringToBytes(dt);
+        //System.Text.Encoding.UTF8.GetBytes(dt);
+        // HtmlContent = new byte[] { 0xEF, 0xBB, 0xBF } // UTF-8 BOM
+        //               .Concat(Encoding.UTF8.GetBytes(exampleHtml))
+        //               .ToArray();
+
+
+
+
+        StateHasChanged();
+    }
+
+    private void SaveChanges()
+    {
+
+        //var Markup = System.Text.Encoding.UTF8.GetString(HtmlMarkup);
+
+        //var exampleHtml1 = System.Text.Encoding.UTF8.GetBytes(markup);
+
+        htmlBinaryData1 = Encoding.UTF8.GetBytes(markup);
+
+        StateHasChanged();
+
+        //var llsls =  HexStringToBytes(exampleHtml1);
+        // In a real app, you would persist HtmlContent (VARBINARY(MAX)) to SQL here
+        //Console.WriteLine("Saved VARBINARY content:");
+        //Console.WriteLine(BitConverter.ToString(HtmlContent));
+    }
+}

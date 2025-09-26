@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Specific Gravity Trend with LSL/USL" />
+  <DataSources>
+    <JsonDataSource Name="SPC Trend" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[         { &quot;BatchID&quot;: 1, &quot;SpecificGravity&quot;: 1.251, &quot;LSL&quot;: 1.1, &quot;USL&quot;: 1.3 },         { &quot;BatchID&quot;: 2, &quot;SpecificGravity&quot;: 1.253, &quot;LSL&quot;: 1.1, &quot;USL&quot;: 1.3 },         { &quot;BatchID&quot;: 3, &quot;SpecificGravity&quot;: 1.249, &quot;LSL&quot;: 1.1, &quot;USL&quot;: 1.3 },         { &quot;BatchID&quot;: 4, &quot;SpecificGravity&quot;: 1.252, &quot;LSL&quot;: 1.1, &quot;USL&quot;: 1.3 }       ]" />
+      <CalculatedFields>
+        <CalculatedField Name="Calculated Field 1" Expression="[SpecificGravity] + 0.1" DataType="Auto" />
+      </CalculatedFields>
+    </JsonDataSource>
+  </DataSources>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="SPC Trend" DataSource="jsonDataSource1">
+      <DataItems>
+        <Dimension DataMember="BatchID" DefaultId="argBatch" />
+        <Measure DataMember="LSL" DefaultId="valLSL" />
+        <Measure DataMember="USL" DefaultId="valUSL" />
+        <Measure DataMember="SpecificGravity" DefaultId="DataItem0" />
+        <Measure DataMember="Calculated Field 1" DefaultId="DataItem1" />
+      </DataItems>
+      <Arguments>
+        <Argument DefaultId="argBatch" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple SeriesType="Line">
+              <Value DefaultId="valLSL" />
+            </Simple>
+            <Simple SeriesType="Line">
+              <Value DefaultId="valUSL" />
+            </Simple>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple SeriesType="Line">
+              <Value DefaultId="DataItem1" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="chartDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

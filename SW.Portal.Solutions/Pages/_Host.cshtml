@@ -129,7 +129,27 @@
         string InitialThemeName = HttpContextAccessor.HttpContext.Request.Cookies[AC.SD.Core.Services.DemoThemeService.ThemeCookieKey];
     }
 
-    <script type="text/javascript">
+    <script  type="text/javascript">
+
+
+               window.attachPasteHandler = function (element, dotNetRef) {
+            if (!element) return;
+            element.addEventListener("paste", function () {
+                dotNetRef.invokeMethodAsync("OnEditorPaste");
+            });
+        };
+
+                window.getEditorScrollHeight = (container) => {
+            if (!container) return 500;
+            let editor = container.querySelector('.dxbl-html-editor');
+            if (editor) {
+                return editor.scrollHeight;
+            }
+            return 500;
+        };
+
+
+
         function showLoading()
         {
             $(".load-indicator").show();

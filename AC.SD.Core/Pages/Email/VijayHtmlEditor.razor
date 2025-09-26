@@ -1,0 +1,23 @@
+﻿@page "/demo-vijay1"
+@using System.Text
+@using DevExpress.Blazor
+@using DevExpress.Blazor.Office
+@using System.IO
+@using System.Drawing
+@inject IJSRuntime JS
+@using System.Text.RegularExpressions;
+@using System.Drawing.Imaging;
+
+
+<DxHtmlEditor @bind-Markup="@Markup"
+              BindMarkupMode="HtmlEditorBindMarkupMode.OnLostFocus"            
+              AllowSoftLineBreak="true"
+              Height="200px"
+              Width="100%" /> 
+
+<p>The result markup: @Markup</p>
+
+
+@code {
+    string Markup { get; set; } = "";
+}

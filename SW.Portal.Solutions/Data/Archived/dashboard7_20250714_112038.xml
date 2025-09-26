@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="SPC Trending" />
+  <DataSources>
+    <JsonDataSource Name="SPC TRENDING" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 6,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2205037&quot;,&#xD;&#xA;    &quot;Assay&quot;: 98.23,&#xD;&#xA;    &quot;AddedDate&quot;: &quot;2025-07-14T09:25:00&quot;,&#xD;&#xA;    &quot;ModifiedByUserID&quot;: null,&#xD;&#xA;    &quot;ModifiedDate&quot;: null,&#xD;&#xA;    &quot;SessionId&quot;: &quot;c876ae20-fc40-44de-8efe-604bb941de80&quot;,&#xD;&#xA;    &quot;AddedByUserID&quot;: 1,&#xD;&#xA;    &quot;StatusCodeID&quot;: null,&#xD;&#xA;    &quot;Index&quot;: 0,&#xD;&#xA;    &quot;AddedBy&quot;: null,&#xD;&#xA;    &quot;ModifiedBy&quot;: null,&#xD;&#xA;    &quot;StatusCode&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 10,&#xD;&#xA;    &quot;QCRefNo&quot;: &quot;RMJ2307019&quot;,&#xD;&#xA;    &quot;Assay&quot;: 100.75,&#xD;&#xA;    &quot;AddedDate&quot;: &quot;2025-07-14T09:25:00&quot;,&#xD;&#xA;    &quot;ModifiedByUserID&quot;: null,&#xD;&#xA;    &quot;ModifiedDate&quot;: null,&#xD;&#xA;    &quot;SessionId&quot;: &quot;e551b48d-a323-4907-a7e1-b268b214339d&quot;,&#xD;&#xA;    &quot;AddedByUserID&quot;: 1,&#xD;&#xA;    &quot;StatusCodeID&quot;: null,&#xD;&#xA;    &quot;Index&quot;: 0,&#xD;&#xA;    &quot;AddedBy&quot;: null,&#xD;&#xA;    &quot;ModifiedBy&quot;: null,&#xD;&#xA;    &quot;StatusCode&quot;: null&#xD;&#xA;  }&#xD;&#xA;]" />
+    </JsonDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="jsonDataSource1">
+      <DataItems>
+        <Dimension DataMember="QCRefNo" DefaultId="DataItem0" />
+        <Measure DataMember="Assay" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridMeasureColumn>
+          <Measure DefaultId="DataItem1" />
+        </GridMeasureColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

@@ -1,0 +1,61 @@
+﻿@page "/html-editor-compress"
+@using DevExpress.Blazor
+@using System.Drawing
+@using System.Drawing.Imaging
+@using System.IO
+
+<DxHtmlEditor @bind-Markup="@markup"
+              @bind-Markup:event="OnHtmlChanged"
+              MarkupType="HtmlEditorMarkupType.Html"
+              Height="400px">
+</DxHtmlEditor>
+
+@code {
+    string markup = "";
+
+    private void OnHtmlChanged(string newValue)
+    {
+        if (string.IsNullOrEmpty(newValue))
+        {
+            markup = newValue;
+            return;
+        }
+
+        // Look for base64 images
+        var startTag = "src=\"data:image";
+        int startIndex = newValue.IndexOf(startTag);
+        if (startIndex > -1)
+        {
+            int base64Start = newValue.IndexOf("base64,", startIndex) + 7;
+            int base64End = newValue.IndexOf("\"", base64Start);
+            if (base64End > base64Start)
+            {
+                string base64String = newValue.Substring(base64Start, base64End - base64Start);
+
+                // Compress image to 60% quality
+                string compressedBase64 = CompressBase64Image(base64String, 60L);
+
+                // Replace old base64 with new compressed one
+                newValue = newValue.Replace(base64String, compressedBase64);
+            }
+        }
+
+        markup = newValue;
+    }
+
+    private string CompressBase64Image(string base64, long quality)
+    {
+        byte[] imageBytes = Convert.FromBase64String(base64);
+        using var inputStream = new MemoryStream(imageBytes);
+        using var originalImage = System.Drawing.Image.FromStream(inputStream);
+
+        var jpegEncoder = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+        var encoderParams = new EncoderParameters(1);
+        encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+
+        using var outputStream = new MemoryStream();
+        originalImage.Save(outputStream, jpegEncoder, encoderParams);
+
+        return Convert.ToBase64String(outputStream.ToArray());
+    }
+}

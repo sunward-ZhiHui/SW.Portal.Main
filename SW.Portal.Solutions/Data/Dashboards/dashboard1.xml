@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="view_EmailInfo" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_EmailInfo">
+        <Parameter Name="UserId" Type="DevExpress.DataAccess.Expression">(System.String)(?UserId)</Parameter>
+        <Tables>
+          <Table Name="view_EmailInfo" />
+        </Tables>
+        <Columns>
+          <Column Table="view_EmailInfo" Name="SessionId" />
+          <Column Table="view_EmailInfo" Name="ID" />
+          <Column Table="view_EmailInfo" Name="TopicName" />
+          <Column Table="view_EmailInfo" Name="Description" />
+          <Column Table="view_EmailInfo" Name="DueDate" />
+          <Column Table="view_EmailInfo" Name="FirstName" />
+          <Column Table="view_EmailInfo" Name="LastName" />
+          <Column Table="view_EmailInfo" Name="UserId" />
+          <Column Table="view_EmailInfo" Name="URI" />
+          <Column Table="view_EmailInfo" Name="IsRead" />
+          <Column Table="view_EmailInfo" Name="AddedDate" />
+        </Columns>
+        <Filter>[view_EmailInfo.UserId] = ?UserId</Filter>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="UserId" Type="System.Int64" />
+  </Parameters>
+  <Items>
+    <DateFilter ComponentName="dateFilterDashboardItem1" Name="Date Filter 1" DataSource="sqlDataSource1" DataMember="view_EmailInfo" SelectedDateTimePeriodIndex="Last One Month">
+      <InteractivityOptions IgnoreMasterFilters="false" />
+      <DataItems>
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem0" />
+      </DataItems>
+      <Dimension DefaultId="DataItem0" />
+      <DateTimePeriods>
+        <DateTimePeriod Name="Last One Month">
+          <StartLimit>
+            <FlowDateTimePeriodLimit Interval="Month" Offset="-1" />
+          </StartLimit>
+        </DateTimePeriod>
+      </DateTimePeriods>
+    </DateFilter>
+    <Grid ComponentName="gridDashboardItem1" Name="Email Details" DataSource="sqlDataSource1" DataMember="view_EmailInfo">
+      <InteractivityOptions MasterFilterMode="Single" />
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem2" Name="Read List" DataSource="sqlDataSource1" DataMember="view_EmailInfo" FilterString="[DataItem2] = True">
+      <InteractivityOptions IgnoreMasterFilters="true" />
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="IsRead" DefaultId="DataItem2" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem2" />
+      </HiddenDimensions>
+      <FormatRules>
+        <GridItemFormatRule Name="Format Rule 1" DataItem="DataItem0">
+          <FormatConditionValue>
+            <AppearanceSettings AppearanceType="PaleRed" />
+            <Value1 Type="System.String" Value="" />
+          </FormatConditionValue>
+        </GridItemFormatRule>
+      </FormatRules>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem3" Name="Un Read List" DataSource="sqlDataSource1" DataMember="view_EmailInfo" FilterString="[DataItem2] = False">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="IsRead" DefaultId="DataItem2" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem2" />
+      </HiddenDimensions>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutItem DashboardItem="dateFilterDashboardItem1" />
+        <LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutItem DashboardItem="gridDashboardItem1" />
+            <LayoutItem DashboardItem="gridDashboardItem3" />
+          </LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem2" />
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

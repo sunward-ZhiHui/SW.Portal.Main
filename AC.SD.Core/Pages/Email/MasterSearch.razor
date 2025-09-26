@@ -91,10 +91,9 @@ AllowSelectRowByClick="true">
                         {
                             <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                         }
-                        @if (!string.IsNullOrEmpty(item.Priorities) &&
-                                                item.Priorities.Equals("High", StringComparison.OrdinalIgnoreCase))
+                        @if (!string.IsNullOrEmpty(item.Priorities))
                         {
-                            <div class="priority_l high">@item.Priorities</div>
+                            <div class="priority_l @item.Priorities.ToLower()">@item.Priorities</div>
                         }
 
                     </strong>
@@ -548,6 +547,47 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         <DxComboBox Data="@ConditionList"  @bind-Value="Data.OtherTagCondition" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.OtherTagCondition)" />
                     </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Document Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="Data.DocumentName" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@DocumentExtensions"
+                                    @bind-Value="Data.DocExt"
+                                    ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.DocExt)" />
+                    </DxFormLayoutItem>
+                    
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList" @bind-Value="Data.DocumentNameCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.DocumentNameCondition)" />
+                    </DxFormLayoutItem>
+
+
+
+                   @*  <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Documents" ColSpanMd="12">
+                        <DxTagBox Data="_topicDocList"
+                                  @bind-Values="Data.DocumentIds"
+                                  NullText="Select Documents"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="DocumentId"
+                                  TextFieldName="FileName"
+                                  EditFormat="{0}-{1}"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  CssClass="cw-480">
+                            <DxListEditorColumn FieldName="@nameof(Documents.FileName)" Caption="File Name" />
+                            <DxListEditorColumn FieldName="@nameof(Documents.ProfileNo)" Caption="Profile No" />
+                            <DxListEditorColumn FieldName="@nameof(Documents.SubjectName)" Caption="Subject Name" />
+                            <DxListEditorColumn FieldName="@nameof(Documents.AddedBy)" Caption="Added By" Width="100px" />
+                        </DxTagBox>
+                        <ValidationMessage For="@(() => Data.DocumentIds)" />
+                    </DxFormLayoutItem> *@
+
+
+
                     <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="6">
                         @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
                         <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
@@ -555,19 +595,43 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="To" ColSpanMd="6">
-                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.FilterTo" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />
-                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
-                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.FilterTo" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />                      
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Priority" ColSpanMd="8">
+                       @*  <DxComboBox Data="@PrioritiesLst"
+                                    @bind-Value="@Data.Priorities"
+                                    NullText="Select Priority"
+                                    CssClass="cw-480"
+                                    InputId="cbPriorities">
+
+                            <EditBoxDisplayTemplate Context="editCtx">
+                                @GetEditBoxTemplateContent(editCtx.DataItem)
+                            </EditBoxDisplayTemplate>
+
+                            <ItemDisplayTemplate Context="itemCtx">
+                                @GetItemTemplateContent(itemCtx)
+                            </ItemDisplayTemplate>
+                        </DxComboBox> *@
+
+                        <DxRadioGroup Items="@PrioritiesLst"
+                                      @bind-Value="@Data.Priorities"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="priority-radio-group">
+
+                            <ItemTemplate Context="priority">
+                                <div class="template-container">
+                                    <span class="@GetPriorityCss(priority)">@priority</span>
+                                </div>
+                            </ItemTemplate>
+                        </DxRadioGroup>
+
+
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Archive" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="@Data.UnArchive"></DxCheckBox>
-                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
-                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Archive" ColSpanMd="4">
+                        <DxCheckBox @bind-Checked="@Data.UnArchive"></DxCheckBox>                       
                     </DxFormLayoutItem>
-                  @*   <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Close" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="@Data.IsClose"></DxCheckBox>
-                    </DxFormLayoutItem> *@
+
                     <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Status" ColSpanMd="12">
                         <DxRadioGroup Items="@StatusOptions"                                    
                                       Value="@Data.IsStatus"
@@ -596,7 +660,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    
+    List<string>? PrioritiesLst { get; set; }
     IEnumerable<string> StatusOptions = new[] { "All", "Open","Close" };
     ApplicationMasterChildModel selectGroupItem {get;set;}
     ApplicationMasterChildModel selectCategory { get; set; }
@@ -604,6 +668,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     DateTime Date = DateTime.Today;
     internal string MyID = "myid";
 
+    private List<Documents>? _topicDocList;
     DateTime MinDateFrom;
     DateTime MaxDateTo;
     DateTime DateRange = DateTime.Now.AddYears(-1);
@@ -652,10 +717,42 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     [Parameter]
     public Action EnableOpen { get; set; }
     List<string> ConditionList = new List<string>() { "AND", "OR" };
+    List<string> DocumentExtensions = new List<string> { "All", ".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".jpg", ".png", ".wav" };
     List<DropDownModel> LikeList = new List<DropDownModel>();
     List<DropDownModelSubject> LikeListSubject = new List<DropDownModelSubject>();
 
-    
+    // Edit box (selected item)
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(item)">@item</span>
+        </div>;
+    }
+
+    // Drop-down items
+    RenderFragment GetItemTemplateContent(ComboBoxItemDisplayTemplateContext<string> context)
+    {
+        return @<div class="template-container">
+            <span class="@GetPriorityCss(context.DataItem)">
+                @context.HighlightedDisplayText
+            </span>
+        </div>
+    ;
+    }
+
+
+    // Map colors
+    string GetPriorityCss(string priority)
+    {
+        return priority switch
+        {
+            "High" => "priority-high",
+            "Normal" => "priority-normal",
+            "Low" => "priority-low",
+            _ => ""
+        };
+    }
+
     async void OnStatusTypeChanged(string? radioValue)
     {
         Data.IsStatus = radioValue;
@@ -744,6 +841,14 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
         Data.ByFrom = toidsString;
 
+        // string documentsidstring = null;
+        // if (Data.DocumentIds != null)
+        // {
+        //     documentsidstring = string.Join(",", Data.DocumentIds);
+        // }
+
+        // Data.ByDocumentIds = documentsidstring;
+
         var data = Data;
         var subjectFilterSQL = BuildSubjectFilterSQL(SubjectFilters);
 
@@ -752,6 +857,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 UserID = applicationUser.UserID,
                 MSearchText = MSearchText,
                 ByFrom = Data.ByFrom,
+            //ByDocumentIds = Data.ByDocumentIds,
                 BySubject = Data.BySubject,
                 ByTag = Data.ByTag,
                 GroupTag = Data.GroupTag,
@@ -761,6 +867,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 UserTag = data.UserTag,
                 FilterFrom = Data.FilterFrom,
                 FilterTo = Data.FilterTo,
+                Priorities = Data.Priorities,
                 UnArchive = Data.UnArchive,
                 IsClose = Data.IsClose,
                 IsOpenandClose = Data.IsOpenandClose,
@@ -771,6 +878,10 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 CategoryCondition = Data.CategoryCondition,
                 ActionCondition = Data.ActionCondition,
                 OtherTagCondition = Data.OtherTagCondition,
+
+                DocumentName = Data.DocumentName,
+                DocExt = Data.DocExt,
+                DocumentNameCondition = Data.DocumentNameCondition,
 
                 SubjectLike = Data.SubjectLike,
                 GroupLike = Data.GroupLike,
@@ -836,6 +947,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             new DropDownModel() { Value = "=", Text = "Equal(=)" },
             new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" }
         };
+
+        PrioritiesLst = new List<string>
+        {
+            "All","Low","Normal","High"
+        };
+
     }
 
 
@@ -849,12 +966,16 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         Data.CategoryCondition = "OR";
         Data.ActionCondition = "OR";
         Data.OtherTagCondition = "OR";
+        Data.DocumentNameCondition = "AND";
+        Data.DocExt = "All";
 
         Data.SubjectLike = "=";
         Data.GroupLike = "=";
         Data.CategoryLike = "=";
-        Data.ActionLike = "=";
+        Data.ActionLike = "="; 
         Data.OtherLike = "=";
+
+        await JSRuntime.InvokeAsync<string>("showLoading");
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");       
 
@@ -862,6 +983,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());  
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         _groupTagItemss = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
+
+        //_topicDocList = await Mediator.Send(new GetEmailAttachmentList(applicationUser.UserID, "Search_All"));
 
         Data.FilterTo = DateTime.Today.AddMonths(1);
         var now = DateTime.Now.AddYears(-1);
@@ -879,8 +1002,12 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             _emailTopicAll = await Mediator.Send(new GetTopicFilterList(applicationUser.UserID, Filtersessionid.Value));
         }
 
+        PrioritiesLst = new List<string>
+        {
+            "All","Low","Normal","High"
+        };
 
-
+        await JSRuntime.InvokeAsync<string>("hideLoading");
         //NavigationManager.LocationChanged += OnLocationChanged;
         LikeList.Clear();
         LikeList.Add(new DropDownModel(){ Value = "=" ,Text ="Equal(=)"});
@@ -976,13 +1103,14 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                 IsClose = false,
                 IsOpenandClose = true,
                 IsStatus = "All",
+                Priorities = "All",
                 AllParticipantCondition = "OR",
                 SubjectCondition = "OR",
                 GroupCondition = "OR",
                 CategoryCondition = "OR",
                 ActionCondition = "OR",
                 OtherTagCondition = "OR",
-
+                DocumentNameCondition = "OR",
                 SubjectLike = "=",
                 GroupLike = "=",
                 CategoryLike = "=",

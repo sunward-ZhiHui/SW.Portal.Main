@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New 1 Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="view_EmailInfo" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_EmailInfo">
+        <Tables>
+          <Table Name="view_EmailInfo" />
+        </Tables>
+        <Columns>
+          <Column Table="view_EmailInfo" Name="SessionId" />
+          <Column Table="view_EmailInfo" Name="ID" />
+          <Column Table="view_EmailInfo" Name="TopicName" />
+          <Column Table="view_EmailInfo" Name="Description" />
+          <Column Table="view_EmailInfo" Name="DueDate" />
+          <Column Table="view_EmailInfo" Name="FirstName" />
+          <Column Table="view_EmailInfo" Name="LastName" />
+          <Column Table="view_EmailInfo" Name="UserId" />
+          <Column Table="view_EmailInfo" Name="URI" />
+          <Column Table="view_EmailInfo" Name="ConversationCount" />
+          <Column Table="view_EmailInfo" Name="ReadCount" />
+          <Column Table="view_EmailInfo" Name="UnreadCount" />
+          <Column Table="view_EmailInfo" Name="AddedDate" />
+        </Columns>
+      </Query>
+      <Query Type="SelectQuery" Name="EmailConversations">
+        <Tables>
+          <Table Name="EmailConversations" />
+        </Tables>
+        <Columns>
+          <Column Table="EmailConversations" Name="ID" />
+          <Column Table="EmailConversations" Name="Name" />
+          <Column Table="EmailConversations" Name="TopicID" />
+          <Column Table="EmailConversations" Name="ReplyId" />
+          <Column Table="EmailConversations" Name="AddedDate" />
+          <Column Table="EmailConversations" Name="SessionId" />
+          <Column Table="EmailConversations" Name="Description" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+    <SqlDataSource Name="EmailConversations" ComponentName="sqlDataSource2">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="EmailConversations">
+        <Parameter Name="TopicId" Type="DevExpress.DataAccess.Expression">(System.Int64)(?TopicId)</Parameter>
+        <Tables>
+          <Table Name="EmailConversations" />
+        </Tables>
+        <Columns>
+          <Column Table="EmailConversations" Name="Name" />
+          <Column Table="EmailConversations" Name="TopicID" />
+          <Column Table="EmailConversations" Name="Message" />
+          <Column Table="EmailConversations" Name="ParticipantId" />
+          <Column Table="EmailConversations" Name="ReplyId" />
+          <Column Table="EmailConversations" Name="AddedDate" />
+          <Column Table="EmailConversations" Name="SessionId" />
+          <Column Table="EmailConversations" Name="DueDate" />
+          <Column Table="EmailConversations" Name="Description" />
+        </Columns>
+        <Filter>[EmailConversations.TopicID] = ?TopicId</Filter>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+      <CalculatedFields>
+        <CalculatedField Name="Calculated Field 1" Expression="[TopicID] " DataType="Integer" DataMember="EmailConversations" />
+      </CalculatedFields>
+    </SqlDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="Topic" Visible="false" />
+    <Parameter Name="UserId" Type="System.Int64" Visible="false" />
+  </Parameters>
+  <Items>
+    <DateFilter ComponentName="dateFilterDashboardItem1" Name="Date Filter 1" ShowCaption="false" DataSource="sqlDataSource1" DataMember="view_EmailInfo" SelectedDateTimePeriodIndex="Last 6 Month">
+      <InteractivityOptions IgnoreMasterFilters="false" />
+      <DataItems>
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem0" />
+      </DataItems>
+      <Dimension DefaultId="DataItem0" />
+      <DateTimePeriods>
+        <DateTimePeriod Name="Last Month">
+          <StartLimit>
+            <FlowDateTimePeriodLimit Interval="Month" Offset="-1" />
+          </StartLimit>
+        </DateTimePeriod>
+        <DateTimePeriod Name="Last 6 Month">
+          <StartLimit>
+            <FlowDateTimePeriodLimit Interval="Month" Offset="-6" />
+          </StartLimit>
+        </DateTimePeriod>
+      </DateTimePeriods>
+    </DateFilter>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_EmailInfo" IsMasterFilterCrossDataSource="true">
+      <InteractivityOptions IgnoreMasterFilters="true" MasterFilterMode="Single" />
+      <DataItems>
+        <Dimension DataMember="Description" DefaultId="DataItem0" />
+        <Dimension DataMember="TopicName" DefaultId="DataItem1" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions ShowFilterRow="true" />
+    </Grid>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" ShowCaption="false" DataSource="sqlDataSource1" DataMember="view_EmailInfo">
+      <InteractivityOptions MasterFilterMode="Single" TargetDimensions="Series" />
+      <DataItems>
+        <Measure DataMember="ReadCount" DefaultId="DataItem0" />
+        <Measure DataMember="UnreadCount" DefaultId="DataItem1" />
+        <Dimension DataMember="TopicName" DefaultId="DataItem2" />
+        <Dimension DataMember="TopicName" DefaultId="DataItem3" />
+      </DataItems>
+      <SeriesDimensions>
+        <SeriesDimension DefaultId="DataItem3" />
+      </SeriesDimensions>
+      <Arguments>
+        <Argument DefaultId="DataItem2" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <AxisY>
+            <NumericFormat FormatType="Number" Unit="Ones" />
+          </AxisY>
+          <Series>
+            <Simple SeriesType="StackedBar">
+              <Value DefaultId="DataItem0" />
+            </Simple>
+            <Simple SeriesType="StackedBar">
+              <Value DefaultId="DataItem1" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+      <AxisX TitleVisible="true">
+        <NumericFormat FormatType="Number" Unit="Ones" />
+      </AxisX>
+    </Chart>
+    <Grid ComponentName="gridDashboardItem2" Name="Grid 2" ShowCaption="false" DataSource="sqlDataSource1" DataMember="view_EmailInfo">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="TopicName" DefaultId="DataItem2" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem2" />
+      </HiddenDimensions>
+      <FormatRules>
+        <GridItemFormatRule Name="Format Rule 1" DataItem="DataItem0" DataItemApplyTo="DataItem0">
+          <FormatConditionValue>
+            <AppearanceSettings AppearanceType="Green" />
+            <Value1 Type="System.String" Value="" />
+          </FormatConditionValue>
+        </GridItemFormatRule>
+      </FormatRules>
+      <GridColumns>
+        <GridDimensionColumn Weight="34.83870967741935">
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn Weight="115.16129032258064">
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions ColumnWidthMode="Manual" />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <ColorScheme>
+    <Entry DataSource="sqlDataSource1" DataMember="view_EmailInfo" Color="-11042296">
+      <MeasureKey>
+        <Definition DataMember="ReadCount" />
+      </MeasureKey>
+    </Entry>
+    <Entry DataSource="sqlDataSource1" DataMember="view_EmailInfo" Color="-65459">
+      <MeasureKey>
+        <Definition DataMember="UnreadCount" />
+      </MeasureKey>
+    </Entry>
+  </ColorScheme>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutItem DashboardItem="dateFilterDashboardItem1" />
+        <LayoutGroup>
+          <LayoutGroup Orientation="Vertical">
+            <LayoutItem DashboardItem="gridDashboardItem1" />
+            <LayoutItem DashboardItem="chartDashboardItem1" />
+          </LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem2" />
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

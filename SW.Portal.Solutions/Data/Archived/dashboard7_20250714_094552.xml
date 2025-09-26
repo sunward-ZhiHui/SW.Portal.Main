@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard" />
+  <DataSources>
+    <JsonDataSource Name="SPC QUALITY" ComponentName="jsonDataSource1">
+      <Source SourceType="DevExpress.DataAccess.Json.CustomJsonSource" Json="[&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 105,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23026&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.22,&#xD;&#xA;    &quot;Remarks&quot;: null,&#xD;&#xA;    &quot;AddedDate&quot;: &quot;2025-07-11T17:42:00&quot;,&#xD;&#xA;    &quot;ModifiedByUserID&quot;: null,&#xD;&#xA;    &quot;ModifiedDate&quot;: null,&#xD;&#xA;    &quot;SessionId&quot;: &quot;6fabe4a8-c2ca-4d17-9f24-efd0944f3a35&quot;,&#xD;&#xA;    &quot;AddedByUserID&quot;: 1,&#xD;&#xA;    &quot;StatusCodeID&quot;: null,&#xD;&#xA;    &quot;Index&quot;: 0,&#xD;&#xA;    &quot;AddedBy&quot;: null,&#xD;&#xA;    &quot;ModifiedBy&quot;: null,&#xD;&#xA;    &quot;StatusCode&quot;: null&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;ID&quot;: 106,&#xD;&#xA;    &quot;BatchNo&quot;: &quot;313-23027&quot;,&#xD;&#xA;    &quot;Value&quot;: 100.84,&#xD;&#xA;    &quot;Remarks&quot;: null,&#xD;&#xA;    &quot;AddedDate&quot;: &quot;2025-07-11T17:42:00&quot;,&#xD;&#xA;    &quot;ModifiedByUserID&quot;: null,&#xD;&#xA;    &quot;ModifiedDate&quot;: null,&#xD;&#xA;    &quot;SessionId&quot;: &quot;f14edb34-0e84-4fb8-8fe4-343b545623ec&quot;,&#xD;&#xA;    &quot;AddedByUserID&quot;: 1,&#xD;&#xA;    &quot;StatusCodeID&quot;: null,&#xD;&#xA;    &quot;Index&quot;: 0,&#xD;&#xA;    &quot;AddedBy&quot;: null,&#xD;&#xA;    &quot;ModifiedBy&quot;: null,&#xD;&#xA;    &quot;StatusCode&quot;: null&#xD;&#xA;  }&#xD;&#xA;]" />
+    </JsonDataSource>
+  </DataSources>
+</Dashboard>

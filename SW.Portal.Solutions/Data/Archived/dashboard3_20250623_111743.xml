@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="New Dashboard - 2" />
+  <DataSources>
+    <SqlDataSource Name="view_Department" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_Department">
+        <Tables>
+          <Table Name="view_Department" />
+        </Tables>
+        <Columns>
+          <Column Table="view_Department" Name="CompanyID" />
+          <Column Table="view_Department" Name="HODID" />
+          <Column Table="view_Department" Name="DepartmentCode" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_Department">
+      <DataItems>
+        <Measure DataMember="CompanyID" DefaultId="DataItem0" />
+        <Dimension DataMember="DepartmentCode" DefaultId="DataItem1" />
+        <Measure DataMember="HODID" DefaultId="DataItem2" />
+      </DataItems>
+      <GridColumns>
+        <GridMeasureColumn>
+          <Measure DefaultId="DataItem0" />
+        </GridMeasureColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+        <GridMeasureColumn>
+          <Measure DefaultId="DataItem2" />
+        </GridMeasureColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

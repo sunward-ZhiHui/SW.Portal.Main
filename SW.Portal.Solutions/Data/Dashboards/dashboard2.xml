@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Email" />
+  <DataSources>
+    <SqlDataSource Name="view_EmployeeEmailInfo" ComponentName="sqlDataSource1">
+      <Connection Name="DashboardConnection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="view_EmployeeEmailInfo">
+        <Parameter Name="UserId" Type="DevExpress.DataAccess.Expression">(System.String)(?UserId)</Parameter>
+        <Tables>
+          <Table Name="view_EmployeeEmailInfo" />
+        </Tables>
+        <Columns>
+          <Column Table="view_EmployeeEmailInfo" Name="SessionId" />
+          <Column Table="view_EmployeeEmailInfo" Name="ID" />
+          <Column Table="view_EmployeeEmailInfo" Name="TopicName" />
+          <Column Table="view_EmployeeEmailInfo" Name="Description" />
+          <Column Table="view_EmployeeEmailInfo" Name="DueDate" />
+          <Column Table="view_EmployeeEmailInfo" Name="FirstName" />
+          <Column Table="view_EmployeeEmailInfo" Name="LastName" />
+          <Column Table="view_EmployeeEmailInfo" Name="UserId" />
+          <Column Table="view_EmployeeEmailInfo" Name="URI" />
+          <Column Table="view_EmployeeEmailInfo" Name="IsRead" />
+          <Column Table="view_EmployeeEmailInfo" Name="AddedDate" />
+        </Columns>
+        <Filter>[view_EmployeeEmailInfo.UserId] = ?UserId</Filter>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+      <CalculatedFields>
+        <CalculatedField Name="Calculated Field 1" Expression="[UserId] = ?UserId " DataType="Auto" DataMember="view_EmployeeEmailInfo" />
+        <CalculatedField Name="Calculated Field 2" Expression="[IsRead] " DataType="Auto" DataMember="view_EmployeeEmailInfo" />
+      </CalculatedFields>
+    </SqlDataSource>
+  </DataSources>
+  <Parameters>
+    <Parameter Name="UserId" Type="System.Int64" Visible="false" />
+  </Parameters>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="view_EmployeeEmailInfo" IsMasterFilterCrossDataSource="true">
+      <InteractivityOptions IgnoreMasterFilters="true" MasterFilterMode="Single" IsDrillDownEnabled="true" />
+      <DataItems>
+        <Measure DataMember="Calculated Field 1" SummaryType="Count" DefaultId="DataItem0" />
+        <Dimension DataMember="TopicName" DefaultId="DataItem1" />
+        <Dimension DataMember="Description" DefaultId="DataItem2" />
+      </DataItems>
+      <HiddenMeasures>
+        <Measure DefaultId="DataItem0" />
+      </HiddenMeasures>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem2" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem2" Name="Read" DataSource="sqlDataSource1" DataMember="view_EmployeeEmailInfo" FilterString="[DataItem2] = True" VisibleDataFilterString="[DataItem0] = [DataItem0]">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="IsRead" DefaultId="DataItem2" />
+        <Dimension DataMember="UserId" DefaultId="DataItem3" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem2" />
+        <Dimension DefaultId="DataItem3" />
+      </HiddenDimensions>
+      <FormatRules>
+        <GridItemFormatRule Name="Format Rule 1" DataItem="DataItem0" DataItemApplyTo="DataItem0">
+          <FormatConditionExpression Expression="[DataItem0] = [DataItem0]">
+            <IconSettings IconType="IndicatorCircledGreenCheck" />
+          </FormatConditionExpression>
+        </GridItemFormatRule>
+      </FormatRules>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem3" Name="UnRead" DataSource="sqlDataSource1" DataMember="view_EmployeeEmailInfo" FilterString="[DataItem2] = False" VisibleDataFilterString="[DataItem0] = [DataItem0]">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="IsRead" DefaultId="DataItem2" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem2" />
+      </HiddenDimensions>
+      <FormatRules>
+        <GridItemFormatRule Name="Format Rule 1" DataItem="DataItem0" DataItemApplyTo="DataItem0">
+          <FormatConditionExpression Expression="[DataItem0] = [DataItem0]">
+            <IconSettings IconType="IndicatorCircledRedCross" />
+          </FormatConditionExpression>
+        </GridItemFormatRule>
+      </FormatRules>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+    <Grid ComponentName="gridDashboardItem4" Name="Grid 2" ShowCaption="false" DataSource="sqlDataSource1" DataMember="view_EmployeeEmailInfo">
+      <DataItems>
+        <Dimension DataMember="TopicName" DefaultId="DataItem0" />
+        <Dimension DataMember="Description" DefaultId="DataItem1" />
+        <Dimension DataMember="IsRead" DefaultId="DataItem3" />
+      </DataItems>
+      <FormatRules>
+        <GridItemFormatRule Name="Format Rule 1" DataItem="DataItem0">
+          <FormatConditionExpression Expression="[DataItem3] = True">
+            <AppearanceSettings AppearanceType="Green" />
+          </FormatConditionExpression>
+        </GridItemFormatRule>
+        <GridItemFormatRule Name="Format Rule 2" DataItem="DataItem0">
+          <FormatConditionExpression Expression="[DataItem3] = False">
+            <AppearanceSettings AppearanceType="Red" />
+          </FormatConditionExpression>
+        </GridItemFormatRule>
+      </FormatRules>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem1" />
+        </GridDimensionColumn>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem3" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutGroup Orientation="Vertical">
+        <LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem1" />
+          <LayoutItem DashboardItem="gridDashboardItem4" />
+        </LayoutGroup>
+        <LayoutGroup>
+          <LayoutItem DashboardItem="gridDashboardItem2" />
+          <LayoutItem DashboardItem="gridDashboardItem3" />
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

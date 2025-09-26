@@ -512,7 +512,7 @@ namespace Infrastructure.Repository.Query
                     }
                     catch (Exception exp)
                     {
-                        throw new Exception(exp.Message, exp);
+                        throw new Exception(exp.Message, exp); 
                     }
                 }
 
@@ -534,7 +534,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserId", emailSearch.UserID);
                         parameters.Add("searchtxt", emailSearch.MSearchText);
                         parameters.Add("fromids", emailSearch.ByFrom);
+                        //parameters.Add("documentIds", emailSearch.ByDocumentIds);
                         parameters.Add("subject", emailSearch.BySubject);
+
+                        parameters.Add("DocumentName", emailSearch.DocumentName);
+                        parameters.Add("DocExt", emailSearch.DocExt);
+                        parameters.Add("DocumentNameCondition", emailSearch.DocumentNameCondition);
+
                         parameters.Add("tag", emailSearch.ByTag);
 
                         parameters.Add("GroupTag", emailSearch.GroupTag);
@@ -542,7 +548,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ActionTag", emailSearch.ActionTag);
                         parameters.Add("Name", emailSearch.Name);
                         parameters.Add("UserTag", emailSearch.UserTag);
-
+                        parameters.Add("Priorities", emailSearch.Priorities);
                         parameters.Add("fromidsConditionType", emailSearch.AllParticipantCondition);
                         parameters.Add("GroupTagConditionType", emailSearch.GroupCondition);
                         parameters.Add("CategoryTagConditionType", emailSearch.CategoryCondition);

@@ -1,0 +1,454 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@page "/infoMasterpage"
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />                        
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_stockinfoMasterList"
+            KeyFieldName="StockInformationMasterID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="MasterName" Caption="Master Name" />
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="180" />
+            <DxGridDataColumn FieldName="CustomerName" Caption="Customer Name" MinWidth="180" />
+            <DxGridDataColumn FieldName="PlanningCategoryName" Caption="Planning Category" MinWidth="180" />
+            <DxGridDataColumn FieldName="BelowMonth" Caption="Below/Month" MinWidth="80" />
+            <DxGridDataColumn FieldName="TopupMonth" Caption="Topup Till/month" MinWidth="80" />           
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                Datas = (StockInformationMaster)EditFormContext.EditModel;
+            } 
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Master Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="Datas.MasterName"
+                               ShowValidationIcon="true"
+                               NullText="Enter Master Name">
+                    </DxTextBox>
+                    <ValidationMessage For="@(() => Datas.MasterName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompany"
+                                ValueFieldName="PlantID"
+                                Value="@Datas.CompanyID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ValueExpression="@(() => Datas.CompanyID)"
+                                ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
+                                ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Company Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.CompanyID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Customer" ColSpanMd="6">
+                    <DxComboBox Data="@_navCustomers"
+                                NullText="Select Customer"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="CustomerId"
+                                @bind-Value="@Datas.CustomerID">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Code)"
+                                                Caption="Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(NavCustomerModel.Name)"
+                                                Caption="Customer Name" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.CustomerID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Planning Category" ColSpanMd="6">
+                    <DxComboBox Data="@_planningCategory"
+                                NullText="Select Planning Category"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@Datas.PlanningCategory">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.PlanningCategory)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Below/Month" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="Datas.BelowMonth"
+                                 ShowValidationIcon="true"
+                                 NullText="Enter Below/Month"
+                                 MinValue="0"                                
+                                 Increment="1">
+                    </DxSpinEdit>
+                    <ValidationMessage For="@(() => Datas.BelowMonth)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Topup Till/Month" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="Datas.TopupMonth"
+                                 ShowValidationIcon="true"
+                                 NullText="Enter Topup Till/Month"
+                                 MinValue="0"                               
+                                 Increment="1">
+                    </DxSpinEdit>
+                    <ValidationMessage For="@(() => Datas.TopupMonth)" />
+                </DxFormLayoutItem>              
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MalaysiaItemNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@* <DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.AuditLogs.AuditLogList TableName="Acentry" PrimaryKeyValue="_selectedItems?.ACEntryId" DisplayColumns="CompanyId,FromDate,ToDate,CustomerId,Remark,Version" RevokeBack="CloseAuditLog"></AC.SD.Core.Pages.AuditLogs.AuditLogList>
+    </BodyContentTemplate>
+
+</DxPopup> *@
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    bool AuditLogPopUp { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    StockInformationMaster Datas = new StockInformationMaster();
+    private List<StockInformationMaster> _stockinfoMasterList;
+    private StockInformationMaster _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<CodeMaster> _stausItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<View_NavItems>? _AllNavitems; 
+    private List<View_NavItems>? malaysiaItems; 
+    private List<View_NavItems>? singaporeItems;
+    private List<View_ApplicationMasterDetail>? _planningCategory;
+    private List<ViewPlants>? _plantItems;
+    private List<NavCustomerModel> _navCustomers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        //_AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        //_stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _planningCategory = await Mediator.Send(new GetAllApplicationMasterDetailQuery(483));
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _navCustomers = await Mediator.Send(new GetAllNavCustomerQuery());
+
+        // if (_stausItems != null && _stausItems.Count() > 0)
+        // {
+        //     List<int?> codeIds = new List<int?>() { 1, 2 };
+        //     _stausItems = _stausItems.Where(w => codeIds.Contains(w.CodeId)).ToList();
+        // }
+        // if (_AllNavitems != null && _AllNavitems.Count() > 0)
+        // {
+        //     malaysiaItems = _AllNavitems.Where(w => w.CompanyId == 1 && w.StatusCodeId == 1).ToList();
+        //     singaporeItems = _AllNavitems.Where(w => w.CompanyId == 2 && w.StatusCodeId == 1).ToList();
+        // }
+        await UpdateDataAsync();
+    }
+
+    void SelectedPlantChanged(long? country)
+    {
+        Datas.CompanyID = null;
+        if (country > 0)
+        {
+            Datas.CompanyID = country;
+        }
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _stockinfoMasterList = await Mediator.Send(new GetAllStockInformationMasterQuery());
+        EditEnabled = false; 
+        DeleteEnabled = false;
+        if (_stockinfoMasterList.Count > 0)
+        {
+            _selectedItems = _stockinfoMasterList.FirstOrDefault();
+            // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "StockInformationMasterID");
+        _selectedItems = _stockinfoMasterList.FirstOrDefault(f => f.StockInformationMasterID == (long?)UniqueId);        
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (StockInformationMaster)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is StockInformationMaster dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        Grid.StartEditDataItemAsync(_selectedItems);
+                    }
+                }
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is StockInformationMaster datas)
+                    {
+                        var request = new DeleteStockInformationMaster(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (StockInformationMaster)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateStockInformationMaster
+            {
+                StockInformationMasterID = editModel.StockInformationMasterID,
+                MasterName = editModel.MasterName,
+                CompanyID = editModel.CompanyID,
+                CustomerID = editModel.CustomerID,
+                PlanningCategory = editModel.PlanningCategory,
+                BelowMonth = editModel.BelowMonth,
+                TopupMonth = editModel.TopupMonth,
+                SessionId = Guid.NewGuid(),
+                AddedByUserID = applicationUser?.UserID,
+                ModifiedByUserID = applicationUser?.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = editModel.StatusCodeID,
+                AddedDate = DateTime.Now,
+            };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateStockInformationMaster
+            {
+                StockInformationMasterID = editModel.StockInformationMasterID,
+                MasterName = editModel.MasterName,
+                CompanyID = editModel.CompanyID,
+                CustomerID = editModel.CustomerID,
+                PlanningCategory = editModel.PlanningCategory,
+                BelowMonth = editModel.BelowMonth,
+                TopupMonth = editModel.TopupMonth,
+                SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                AddedByUserID = editModel.AddedByUserID == null ? applicationUser?.UserID : editModel.AddedByUserID,
+                ModifiedByUserID = applicationUser?.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeID = editModel.StatusCodeID,
+                AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+
+            };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void viewAuditLog()
+    {
+        AuditLogPopUp = true;
+    }
+    void CloseAuditLog()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+
+}

@@ -74,16 +74,16 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Category" ColSpanMd="6">
-                        <DxComboBox Data="@_NAVINPCategorys"
-                                    NullText="Select Category..."
+                    <DxFormLayoutItem Caption="Planning Category" ColSpanMd="6">
+                        <DxComboBox Data="@_planning_category"
+                                    NullText="Select Planning Category"
                                     SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                    TextFieldName="Description"
-                                    ValueFieldName="NAVINPCategoryID"
-                                    @bind-Value="@Data.NavinpCategoryID">
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterDetailID"
+                                    @bind-Value="@Data.PlanningCategoryID">
                         </DxComboBox>
-                        <ValidationMessage For="@(() => Data.BatchSizeId)" />
+                        <ValidationMessage For="@(() => Data.PlanningCategoryID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Available Batch Size" ColSpanMd="6">
                         <DxTagBox Data="@_view_ApplicationMasterDetails"
@@ -206,7 +206,11 @@
     int ActiveSubTabIndex { get; set; } = 0; bool Blukdeletepopup { get; set; } = false;
     private NavMethodCodeModel Data = new NavMethodCodeModel();
     public ApplicationUser applicationUser { get; private set; }
-    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+    private List<ViewPlants>? _plantItems; private List<CodeMaster> _stausItems; 
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+
+    private List<View_ApplicationMasterDetail>? _planning_category;
+
     private List<NAVINPCategoryModel> _NAVINPCategorys;
     private List<CodeMaster> _adhocMonthStandAloneItems;
     protected override async Task OnInitializedAsync()
@@ -217,7 +221,8 @@
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _adhocMonthStandAloneItems = await Mediator.Send(new GetAllCodeMasterQuery("AdhocStandAlone"));
         _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(175));
-        _NAVINPCategorys = await Mediator.Send(new GetAllNAVINPCategory());
+        //_NAVINPCategorys = await Mediator.Send(new GetAllNAVINPCategory());
+        _planning_category = await Mediator.Send(new GetAllApplicationMasterDetailQuery(483));
         if (_stausItems != null && _stausItems.Count() > 0)
         {
             List<int?> codeIds = new List<int?>() { 1, 2 };
@@ -260,7 +265,7 @@
         Data.MethodName = null;
         Data.CompanyId = null;
         Data.MethodDescription = null;
-        Data.NavinpCategoryID = null;
+        Data.PlanningCategoryID = null;
         Data.ProdFrequency = null;
         Data.DistReplenishHs = null;
         Data.DistAcmonth = null;
@@ -284,7 +289,7 @@
             Data.MethodName = _dynamicFormData.MethodName;
             Data.CompanyId = _dynamicFormData.CompanyId;
             Data.MethodDescription = _dynamicFormData.MethodName;
-            Data.NavinpCategoryID = _dynamicFormData.NavinpCategoryID;
+            Data.PlanningCategoryID = _dynamicFormData.PlanningCategoryID;
             Data.ProdFrequency = _dynamicFormData.ProdFrequency;
             Data.DistReplenishHs = _dynamicFormData.DistReplenishHs;
             Data.DistAcmonth = _dynamicFormData.DistAcmonth;
@@ -364,7 +369,7 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = Data.StatusCodeID,
                     AddedDate = DateTime.Now,
-                    NavinpCategoryID = Data.NavinpCategoryID,
+                    PlanningCategoryID = Data.PlanningCategoryID,
                     ProdFrequency = Data.ProdFrequency,
                     DistReplenishHs = Data.DistReplenishHs,
                     DistAcmonth = Data.DistAcmonth,
@@ -394,7 +399,7 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = Data.StatusCodeID,
                     AddedDate = Data.AddedDate == null ? DateTime.Now : Data.AddedDate,
-                    NavinpCategoryID = Data.NavinpCategoryID,
+                    PlanningCategoryID = Data.PlanningCategoryID,
                     ProdFrequency = Data.ProdFrequency,
                     DistReplenishHs = Data.DistReplenishHs,
                     DistAcmonth = Data.DistAcmonth,

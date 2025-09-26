@@ -74,8 +74,30 @@
         <DxFormLayoutItem Caption="Pack Size(K)" ColSpanMd="6">
             <DxSpinEdit @bind-Value="Data.PackSize"></DxSpinEdit>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Pack Uom" ColSpanMd="6">
-            <DxTextBox @bind-Text="Data.PackUom"></DxTextBox>
+        <DxFormLayoutItem Caption="Pack size/BUOM" ColSpanMd="6">
+            <DxComboBox Data="@_packSize_BUM"
+                        NullText="Select Pack size/BUOM"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+                        @bind-Value="@Data.PackSizeBUOM"> 
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.PackSizeBUOM)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="NAV FP Description" ColSpanMd="6">
+            <DxComboBox Data="@_navFPDescription"
+                        NullText="Select NAV FP Description"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+                        @bind-Value="@Data.NAVFPDescription">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.NAVFPDescription)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Recommended factor for planning" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.Recommendedplanning"></DxTextBox>        
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Generic Code" ColSpanMd="6">
             <DxComboBox Data="@_view_GenericCodes"
@@ -144,6 +166,8 @@
     private bool loading;
     private List<NavMethodCodeModel> _NavMethodCodeItems; private List<CodeMaster> _StatusCodeItems = new List<CodeMaster>(); private List<ACItemsModel> _aCItemItems = new List<ACItemsModel>();
     private List<DropDownOptionsModel> _salesCategoryItems = new List<DropDownOptionsModel>();
+    private List<View_ApplicationMasterDetail>? _packSize_BUM;
+    private List<View_ApplicationMasterDetail>? _navFPDescription;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -153,6 +177,8 @@
         _view_GenericCodes = await Mediator.Send(new GetByGenericCodes());
         _NavMethodCodeItems = await Mediator.Send(new GetAllNavMethodCodeQuery());
         _aCItemItems = await Mediator.Send(new GetDDACItems());
+        _packSize_BUM = await Mediator.Send(new GetAllApplicationMasterDetailQuery(485));
+        _navFPDescription = await Mediator.Send(new GetAllApplicationMasterDetailQuery(487));
         Data = _selectedItems;
         Data.CompanyId = _selectedItems.CompanyId;
         Data.MethodCodeId = _selectedItems.MethodCodeId;
@@ -161,7 +187,7 @@
         Data.PackQty = _selectedItems.PackQty;
         Data.PackSize = _selectedItems.PackSize; Data.SteroidName = _selectedItems.SteroidName;
         Data.ReplenishmentMethodId = _selectedItems.ReplenishmentMethodId; Data.No = _selectedItems.No; Data.Description = _selectedItems.Description;
-        Data.StatusCodeId = _selectedItems.StatusCodeId; Data.PackUom = _selectedItems.PackUom; Data.ShelfLife = _selectedItems.ShelfLife;
+        Data.StatusCodeId = _selectedItems.StatusCodeId; Data.PackSizeBUOM = _selectedItems.PackSizeBUOM; Data.PackUom = _selectedItems.PackUom; Data.ShelfLife = _selectedItems.ShelfLife;
         Data.IsDifferentAcuom = false;
         Data.ItemSerialNo = "1";
         if (Data.IsDifferentAcuom == true)

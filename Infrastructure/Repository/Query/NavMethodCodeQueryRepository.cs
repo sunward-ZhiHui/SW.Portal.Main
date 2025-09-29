@@ -126,7 +126,7 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
 
                     parameters.Add("CompanyId", value.CompanyId);
-                    parameters.Add("NavinpCategoryID", value.NavinpCategoryID);
+                    parameters.Add("PlanningCategoryID", value.PlanningCategoryID);
                     parameters.Add("MethodName", value.MethodName, DbType.String);
                     parameters.Add("StatusCodeID", value.StatusCodeID);
                     parameters.Add("MethodDescription", value.MethodDescription, DbType.String);

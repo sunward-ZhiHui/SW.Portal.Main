@@ -49,7 +49,12 @@ namespace Core.Entities.Views
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public string PackUom { get; set; }
+        public string? PackUom { get; set; }
+        public long? NAVFPDescription { get; set; }   
+        public string? NAVFPDescriptionName { get; set; }
+        public long? PackSizeBUOM { get; set; }
+        public string? PackSizeBUOMName { get; set; }
+        public string? Recommendedplanning { get; set; }
         public long? GenericCodeId { get; set; }
         public bool? IsDifferentAcuom { get; set; }
         public decimal? PackQty { get; set; }

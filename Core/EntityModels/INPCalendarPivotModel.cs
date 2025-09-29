@@ -912,6 +912,7 @@ namespace Core.EntityModels
         public long? BatchSizeId { get; set; }
         public decimal? BatchSizeNo { get; set; }
         public long? NavinpCategoryID { get; set; }
+        public long? PlanningCategoryID { get; set; }
         [Required(ErrorMessage = "Company Name is Required")]
         public long? CompanyId { get; set; }
         public string? ItemNos { get; set; }

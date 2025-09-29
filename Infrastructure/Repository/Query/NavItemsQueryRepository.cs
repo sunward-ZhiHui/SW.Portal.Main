@@ -50,7 +50,21 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,\r\n(select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCodeId from NAVItems t1\r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
+                //var query = "select t1.*,(case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,\r\n(select TOP(1) tt2.MethodName from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,\r\n(select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1\r\n JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCodeId from NAVItems t1\r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId \r\nLEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
+
+                var query = @"select AMD.Value AS PackSizeBUOMName,AMD1.Value as NAVFPDescriptionName, t1.*,
+                                (case when t1.Steroid is NULL OR t1.Steroid=1 then  'Steroid' ELSE 'Non-Steroid' END) as SteroidName,
+                                t3.Code as GenericCode,t2.PlantCode,t2.Description as PlantDescription,
+                                (select TOP(1) tt2.MethodName from NavMethodCodeLines tt1 
+                                JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID WHERE tt1.ItemID=t1.ItemId) as MethodCode,
+                                (select TOP(1) tt2.MethodCodeID from NavMethodCodeLines tt1 
+                                JOIN NavMethodCode tt2 ON tt1.MethodCodeID=tt2.MethodCodeID 
+                                WHERE tt1.ItemID=t1.ItemId) as MethodCodeId 
+                                from NAVItems t1
+                                LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = t1.PackSizeBUOM
+                                LEFT JOIN ApplicationMasterDetail AMD1 ON AMD1.ApplicationMasterDetailID = t1.NAVFPDescription
+                                LEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyId 
+                                LEFT JOIN GenericCodes t3 ON t3.GenericCodeId=t1.GenericCodeId";
 
                 using (var connection = CreateConnection())
                 {
@@ -163,17 +177,22 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("ModifiedByUserId", view_NavItems.ModifiedByUserId, DbType.Int64);
                     parameters.Add("Steroid", view_NavItems.SteroidName == "Steroid" ? true : false);
                     parameters.Add("CategoryId", view_NavItems.CategoryId);
+
+                    parameters.Add("Recommendedplanning", view_NavItems.Recommendedplanning);
+                    parameters.Add("NAVFPDescription", view_NavItems.NAVFPDescription);
+
                     parameters.Add("ShelfLife", view_NavItems.ShelfLife, DbType.String);
                     parameters.Add("Quota", view_NavItems.Quota, DbType.String);
                     parameters.Add("PackSize", view_NavItems.PackSize);
                     parameters.Add("PackUom", view_NavItems.PackUom, DbType.String);
+                    parameters.Add("PackSizeBUOM", view_NavItems.PackSizeBUOM);
                     parameters.Add("PackQty", view_NavItems.PackQty);
                     parameters.Add("StatusCodeId", view_NavItems.StatusCodeId);
                     parameters.Add("GenericCodeId", view_NavItems.GenericCodeId);
                     parameters.Add("IsDifferentAcuom", view_NavItems.IsDifferentAcuom); parameters.Add("MethodCodeId", view_NavItems.MethodCodeId);
                     var query1 = "delete from NavItemCitemList where NavItemId=@ItemId;";
                     await connection.ExecuteAsync(query1, parameters);
-                    var query = "UPDATE Navitems SET IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE ItemId = @ItemId;";
+                    var query = "UPDATE Navitems SET NAVFPDescription=@NAVFPDescription,Recommendedplanning=@Recommendedplanning,IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackSizeBUOM=@PackSizeBUOM,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE ItemId = @ItemId;";
                     if (view_NavItems.MethodCodeId > 0 && view_NavItems.ItemId > 0)
                     {
                         query += "IF NOT Exists(select 1 from NavMethodCodeLines where MethodCodeId=@MethodCodeId AND ItemId=@ItemId)\r\nBEGIN\r\n" +

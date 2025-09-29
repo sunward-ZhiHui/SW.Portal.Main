@@ -195,6 +195,7 @@ namespace Infrastructure
             services.AddScoped<ISPCDataTrendingQueryRepository, SPCDataTrendingQueryRepository>();
             services.AddScoped<ISPCDataFinishedProdctQueryRepository, SPCDataFinishedProdctQueryRepository>();
             services.AddScoped<IChartRepository, ChartRepository>();
+            services.AddScoped<IStockInformationMasterQueryRepository, StockInformationMasterQueryRepository>();
             services.AddScoped<IPlanningForProductionProcessByMachineQueryRepository, PlanningForProductionProcessByMachineQueryRepository>();
             return services;
         }

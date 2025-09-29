@@ -11,20 +11,20 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetAllNAVItemLinksQuery : PagedRequest, IRequest<List<NAVItemLinksModel>>
+    public class GetAllStockInformationMasterQuery : PagedRequest, IRequest<List<StockInformationMaster>>
     {
         public string? SearchString { get; set; }
     }
-    public class InsertOrUpdateNavitemLinks : NAVItemLinksModel, IRequest<NAVItemLinksModel>
+    public class InsertOrUpdateStockInformationMaster : StockInformationMaster, IRequest<StockInformationMaster>
     {
 
     }
-    public class DeleteNavitemLinks : ACEntryModel, IRequest<NAVItemLinksModel>
+    public class DeleteStockInformationMaster : StockInformationMaster, IRequest<StockInformationMaster>
     {
-        public NAVItemLinksModel NAVItemLinksModel { get; private set; }
-        public DeleteNavitemLinks(NAVItemLinksModel aCEntryModel)
+        public StockInformationMaster StockInformationMaster { get; private set; }
+        public DeleteStockInformationMaster(StockInformationMaster stockInformationMaster)
         {
-            this.NAVItemLinksModel = aCEntryModel;
+            this.StockInformationMaster = stockInformationMaster;
         }
     }
 }

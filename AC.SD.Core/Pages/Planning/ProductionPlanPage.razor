@@ -1,0 +1,51 @@
+﻿@* @page "/production-plan"
+@using AC.SD.Core.Data
+@using global::Core.EntityModels
+@inject SchedulingService Scheduler
+
+<DxButton Click="@LoadPlan">Load Hardcoded Plan</DxButton>
+
+@if (Plan != null)
+{
+    @foreach (var item in Plan.Items)
+    {
+        <DxCard Style="margin:10px;padding:8px;">
+            <DxCardContent>
+                <h4>@item.ItemName (@item.MethodCode)</h4>
+                <div>Pack: @item.Pack | Batch L: @item.BatchSizeL</div>
+
+                <DxButton Click="@(()=>GeneratePages(item))" Text="Generate Page (Today)" />
+
+                @if (Pages.ContainsKey(item.MethodCode))
+                {
+                    <DxList Data="@Pages[item.MethodCode]">
+                        <ItemTemplate Context="step">
+                            <div style="margin-bottom:6px;">
+                                <strong>@step.StepName</strong> — @step.Start.ToString("HH:mm") to @step.End.ToString("HH:mm")
+                                <div>@step.Location | manpower: @step.Manpower | @step.Notes</div>
+                            </div>
+                        </ItemTemplate>
+                    </DxList>
+                }
+            </DxCardContent>
+        </DxCard>
+    }
+}
+
+@code {
+    ProductionPlan? Plan;
+    Dictionary<string, List<ScheduledStep>> Pages = new();
+
+    void LoadPlan()
+    {
+        Plan = SampleDataFactory.CreateSamplePlan(); // make sure SampleDataFactory is in YourApp.Data
+    }
+
+    void GeneratePages(Item item)
+    {
+        var dayStart = DateTime.Today.AddHours(8);
+        var scheduled = Scheduler.ScheduleItem(item, dayStart, 2);
+        Pages[item.MethodCode] = scheduled;
+    }
+}
+ *@

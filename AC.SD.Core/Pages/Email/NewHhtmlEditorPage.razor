@@ -56,6 +56,10 @@
 @using System.Drawing;
 @using System.Drawing.Imaging;
 
+
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
 <style scoped>
     p
     {
@@ -2502,7 +2506,7 @@
                                                                                             @bind-Checked="@Data.IsLockDueDate"
                                                                                             Alignment="default"
                                                                                             Enabled ="@LockDueDateEnable"
-                                                                                            LabelPosition="LabelPosition.Right">
+                                                                                            LabelPosition="DevExpress.Blazor.LabelPosition.Right">
                                                                                                 Lock DueDate
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
@@ -2510,7 +2514,7 @@
                                                                                             <DxCheckBox CssClass="w-100"
                                                                                             @bind-Checked="@Data.IsAllowParticipants"
                                                                                             Alignment="default"
-                                                                                            LabelPosition="LabelPosition.Right">
+                                                                                            LabelPosition="DevExpress.Blazor.LabelPosition.Right">
                                                                                                 Allow Add Participants
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
@@ -2518,7 +2522,7 @@
                                                                                             <DxCheckBox CssClass="w-100"
                                                                                             @bind-Checked="@Data.Urgent"
                                                                                             Alignment="default"
-                                                                                            LabelPosition="LabelPosition.Right">
+                                                                                            LabelPosition="DevExpress.Blazor.LabelPosition.Right">
                                                                                                 Urgent
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
@@ -2526,7 +2530,7 @@
                                                                                             <DxCheckBox CssClass="w-100"
                                                                                             @bind-Checked="@Data.NotifyUser"
                                                                                             Alignment="default"
-                                                                                            LabelPosition="LabelPosition.Right">
+                                                                                            LabelPosition="DevExpress.Blazor.LabelPosition.Right">
                                                                                                 Notify User
                                                                                             </DxCheckBox>
                                                                                         </DxFormLayoutItem>
@@ -2577,6 +2581,43 @@
                                                                                                 <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                                                                             </div>
                                                                                         </div>
+                                                                                        <div>
+                                                                                           @*  <SfSpeechToText @bind-Transcript="@Transcript"
+                                                                                                            ButtonSettings="@ButtonSettings"
+                                                                                                            Language="en-US" ShowTooltip="true"
+                                                                                                            AllowInterimResults="true"
+                                                                                                            SpeechRecognitionStarted="@onListeningStart"
+                                                                                                            SpeechRecognitionStopped="@onListeningStop"
+                                                                                                            SpeechRecognitionError="@OnError"
+                                                                                                            TranscriptChanging="OnTranscriptChanging"></SfSpeechToText>
+                                                                                            <mark class="speech-recognition-status">@ListeningStatus</mark> *@
+
+                                                                                        </div>
+                                                                                       
+
+                                                                                          @* <div class="speechtext-container" style="margin:20px; display:flex; flex-direction:column; gap:16px; max-width:500px;">
+                                                                                            <div class="actions" style="display:flex; gap:10px;">
+                                                                                                <div @onclick="() => TriggerStartListening()">Start Listening</div>
+                                                                                                <div @onclick="() => TriggerStopListening()" CssClass="e-danger" >Stop Listening</div>
+                                                                                                 <SfButton OnClick="TriggerStartListening" Content="Start Listening" />
+                                                                                                <SfButton OnClick="TriggerStopListening" Content="Stop Listening" CssClass="e-danger" />
+                                                                                            </div>
+
+                                                                                            <SfSpeechToText 
+                                                                                                @ref="speechToText"
+                                                                                                @bind-Transcript="Transcript"
+                                                                                                Language="en-US"
+                                                                                                AllowInterimResults="true"
+                                                                                                SpeechRecognitionStarted="OnStarted"
+                                                                                                SpeechRecognitionStopped="OnStopped"
+                                                                                                SpeechRecognitionError="OnError"
+                                                                                                TranscriptChanging="OnTranscriptChanging">
+                                                                                            </SfSpeechToText>  
+
+                                                                                            <div>
+                                                                                                <strong>Listening State:</strong> @listeningState
+                                                                                            </div>
+                                                                                        </div>   *@
                                                                                     </DxFormLayoutItem>
                                                                                 </DxFormLayout>
                                                                             </EditForm>
@@ -3395,6 +3436,151 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
 
 @code {
+    private string ListeningStatus = "Click the mic button to start speaking...";
+    private SpeechToTextButtonSettings ButtonSettings = new SpeechToTextButtonSettings { };
+     private bool IsSupportedBrowser = true;
+    private void onListeningStart()
+    {
+        if (IsSupportedBrowser)
+        {           
+            if (!string.IsNullOrEmpty(Transcript))
+            {
+                Transcript += '\n';
+            }
+        }
+        updateStatus(IsSupportedBrowser ? "Listening... Speak now..." : "For unsupported browsers, use event callbacks to handle Speech-to-Text actions.");
+       
+       
+    }
+    private void onListeningStop()
+    {
+        updateStatus(IsSupportedBrowser ? "Click the mic button to start speaking..." : "For unsupported browsers, use event callbacks to handle Speech-to-Text actions.");
+       
+       
+    }
+    private void updateStatus(string status)
+    {
+        ListeningStatus = status;
+    }
+
+
+    private SfSpeechToText speechToText;
+    private string Transcript { get; set; } = string.Empty;
+    private string listeningState = "Inactive";
+
+     private string finalizedPlain = "";            
+    private string lastInterimHtml = "";  
+
+    private async Task TriggerStartListening()
+    {
+        await speechToText.StartListeningAsync();
+    }
+
+    private async Task TriggerStopListening()
+    {
+        await speechToText.StopListeningAsync();
+    }
+
+    private void OnStarted(SpeechRecognitionStartedEventArgs args)
+    {
+        listeningState = "Listening";
+        Console.WriteLine("Speech recognition started.");
+    }
+     private void OnStopped(SpeechRecognitionStoppedEventArgs args)
+    {
+    }
+
+    private void OnStopped_old(SpeechRecognitionStoppedEventArgs args)
+    {
+        var full = speechToText?.Transcript ?? "";
+
+        // remove interim from markup (if any)
+        if (!string.IsNullOrEmpty(lastInterimHtml) && markupHtml.EndsWith(lastInterimHtml))
+        {
+            markupHtml = markupHtml.Substring(0, markupHtml.Length - lastInterimHtml.Length);
+        }
+
+        // compute new final portion relative to finalizedPlain
+        string newFinal = "";
+        if (!string.IsNullOrEmpty(full))
+        {
+            if (full.StartsWith(finalizedPlain))
+                newFinal = full.Substring(finalizedPlain.Length).TrimStart();
+            else
+                newFinal = full; // fallback
+        }
+
+        if (!string.IsNullOrWhiteSpace(newFinal))
+        {
+            var finalHtml = $"<p>{System.Net.WebUtility.HtmlEncode(newFinal)}</p>";
+            markupHtml += finalHtml;
+
+            finalizedPlain = string.IsNullOrEmpty(finalizedPlain) ? newFinal : $"{finalizedPlain} {newFinal}";
+        }
+
+        lastInterimHtml = "";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnError(SpeechRecognitionErrorEventArgs args)
+    {
+        // args.Error contains error type (e.g. "no-speech", "not-allowed", etc.)
+        listeningState = $"Error: {args.Error}";
+        Console.WriteLine($"Speech recognition error: {args.Error}");
+    }
+    private void OnTranscriptChanging(TranscriptChangeEventArgs args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Transcript))
+        {
+            // Append as plain text wrapped in <p>
+            markupHtml += $"<p>{args.Transcript}</p>";
+        }
+    }
+    private void OnTranscriptChanging_old(TranscriptChangeEventArgs args)
+    {
+        // if (!string.IsNullOrWhiteSpace(args.Transcript))
+        // {
+        //     // Append as plain text wrapped in <p>
+        //     markupHtml += $"<p>{args.Transcript}</p>";
+        // }
+
+        // if (!string.IsNullOrWhiteSpace(args.Transcript))
+        // {
+        //     // add final transcript as a paragraph (HTML-encode to be safe)
+        //     markupHtml += $"<p>{System.Net.WebUtility.HtmlEncode(args.Transcript)}</p>";
+        //     InvokeAsync(StateHasChanged);
+        // }
+
+        var incoming = args?.Transcript ?? "";
+        // derive interim part relative to already-finalized text
+        string interimPart;
+        if (incoming.StartsWith(finalizedPlain))
+            interimPart = incoming.Substring(finalizedPlain.Length).TrimStart();
+        else
+            interimPart = incoming; // fallback
+
+        // remove prior interim paragraph from the editor HTML if present
+        if (!string.IsNullOrEmpty(lastInterimHtml) && markupHtml.EndsWith(lastInterimHtml))
+        {
+            markupHtml = markupHtml.Substring(0, markupHtml.Length - lastInterimHtml.Length);
+        }
+
+        if (!string.IsNullOrWhiteSpace(interimPart))
+        {
+            // add interim paragraph (HTML-encoded). Mark it with data-interim attr so we can find it if needed
+            lastInterimHtml = $"<p data-interim='true'>{System.Net.WebUtility.HtmlEncode(interimPart)}</p>";
+            markupHtml += lastInterimHtml;
+        }
+        else
+        {
+            lastInterimHtml = "";
+        }
+
+        InvokeAsync(StateHasChanged);
+
+
+
+    }
 
     string[] SearchFieldNames = { nameof(MentionData.Name) };
 

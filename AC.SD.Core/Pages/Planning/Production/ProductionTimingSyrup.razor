@@ -1,0 +1,160 @@
+﻿@page "/sprocess-room-two-cols"
+@using Syncfusion.Blazor.Schedule
+
+<div class="control-section">
+    <SfSchedule TValue="JobData"
+                Width="100%" Height="650px"
+                CssClass="proc-room-two-cols"
+                @bind-SelectedDate="@CurrentDate"
+                @bind-CurrentView="@CurrentView">
+
+        <!-- one resource type that holds BOTH process & room -->
+        <ScheduleGroup Resources="@groupData" EnableCompactView="false"></ScheduleGroup>
+        <ScheduleResources>
+            <ScheduleResource TItem="LineResource" TValue="int"
+                              DataSource="@Lines"
+                              Field="LineId"
+                              Title="Lines"
+                              Name="Line"
+                              TextField="Process"
+                              IdField="Id"
+                              ColorField="Color"
+                              AllowMultiple="false">
+            </ScheduleResource>
+
+        </ScheduleResources>
+
+        <!-- events -->
+        <ScheduleEventSettings DataSource="@Jobs"></ScheduleEventSettings>
+
+        <!-- render two columns in the left resource panel -->
+        <ScheduleTemplates>
+            <ResourceHeaderTemplate>
+                @{
+                    var data = (context as TemplateContext).ResourceData as LineResource;
+                }
+                <div class="pr-grid">
+                    <div class="pr-col pr-process" title="@data!.Process">@data.Process</div>
+                    <div class="pr-col pr-room" title="@data.Room">@data.Room</div>
+                </div>
+            </ResourceHeaderTemplate>
+        </ScheduleTemplates>
+
+        <ScheduleViews>
+            <ScheduleView Option="View.TimelineDay"
+                          MaxEventsPerRow="1"
+                          StartHour="08:00"
+                          EndHour="20:00">
+            </ScheduleView>
+        </ScheduleViews>
+    </SfSchedule>
+</div>
+
+<style scoped>
+    /* widen the left resource area */
+    .e-schedule.proc-room-two-cols .e-timeline-view .e-resource-left-td {
+        width: 260px;
+    }
+
+    /* two-column grid inside each resource row */
+    .e-schedule.proc-room-two-cols .pr-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+    }
+
+    /* optional: lightweight column headers pinned at the top */
+    .e-schedule.proc-room-two-cols .e-resource-left-td .e-resource-cells:first-child::before {
+        content: "Process name    |    Room name";
+        display: block;
+        font-weight: 600;
+        padding: 6px 10px 2px 10px;
+        opacity: .8;
+    }
+
+    /* trim text nicely */
+    .e-schedule.proc-room-two-cols .pr-col {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+</style>
+
+@code {
+    private DateTime CurrentDate { get; set; } = DateTime.Today;    // “Day 1”
+    private View CurrentView { get; set; } = View.TimelineDay;
+    private readonly string[] groupData = new[] { "Line" };
+
+    public class LineResource
+    {
+        public int Id { get; set; }
+        public string Process { get; set; } = "";
+        public string Room { get; set; } = "";
+        public string Color { get; set; } = "#cccccc";
+    }
+
+    public class JobData
+    {
+        public int Id { get; set; }
+        public int LineId { get; set; }           // <-- must match Resource Field="LineId"
+        public string Subject { get; set; } = "";
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string? CategoryColor { get; set; }
+    }
+
+
+    // LEFT two columns (one row per line)
+    public List<LineResource> Lines { get; set; } = new()
+    {
+        new LineResource { Id=1, Process="Syrup simplex", Room="Room 1", Color="#f7c948" },
+        new LineResource { Id=2, Process="Syrup Prep 1",  Room="Room 2", Color="#6c5ce7" },
+        new LineResource { Id=3, Process="Syrup Prep 2",  Room="Room 3", Color="#00b894" },
+        new LineResource { Id=4, Process="Filling 1",     Room="Room 4", Color="#0984e3" },
+        new LineResource { Id=5, Process="Filling 2",     Room="Room 5", Color="#b2bec3" },
+    };
+
+    // RIGHT timeline sample items (map each to LineId)
+    public List<JobData> Jobs { get; set; } = new()
+    {
+        // Line 1 (Syrup simplex)
+        new JobData { Id=101, LineId=1, Subject="syrup simplex - batch 1", StartTime=DT(8,  0), EndTime=DT(10, 0) },
+        new JobData { Id=102, LineId=1, Subject="LV 2",                    StartTime=DT(9, 45), EndTime=DT(10,15) },
+        new JobData { Id=103, LineId=1, Subject="QC/top up LV1",           StartTime=DT(10,15), EndTime=DT(11, 0) },
+
+        // Line 2 (Syrup Prep 1)
+        new JobData { Id=201, LineId=2, Subject="for 1st volumn",          StartTime=DT(9,  0), EndTime=DT(11, 0) },
+
+        // Line 4 (Filling 1)
+        new JobData { Id=401, LineId=4, Subject="Setting",                 StartTime=DT(8, 30), EndTime=DT(9, 30) },
+        new JobData { Id=402, LineId=4, Subject="120ml",                   StartTime=DT(13, 0), EndTime=DT(15,30) },
+        new JobData { Id=403, LineId=4, Subject="LV1",                     StartTime=DT(15,30), EndTime=DT(16, 0) },
+
+        // Line 1 later batches
+        new JobData { Id=104, LineId=1, Subject="syrup simplex - batch 2", StartTime=DT(10,30), EndTime=DT(12, 0) },
+        new JobData { Id=105, LineId=1, Subject="LV 2",                    StartTime=DT(12, 0), EndTime=DT(12,30) },
+
+        // Line 3 (Syrup Prep 2)
+        new JobData { Id=301, LineId=3, Subject="for 1st volumn",          StartTime=DT(12,30), EndTime=DT(14, 0) },
+        new JobData { Id=302, LineId=3, Subject="QC/top up LV1",           StartTime=DT(14, 0), EndTime=DT(14,30) },
+        new JobData { Id=303, LineId=3, Subject="120ml",                   StartTime=DT(15, 0), EndTime=DT(19,30) },
+        new JobData { Id=304, LineId=3, Subject="LV1",                     StartTime=DT(19,30), EndTime=DT(20, 0) },
+
+        // Line 1 batch 3
+        new JobData { Id=106, LineId=1, Subject="syrup simplex - batch 3", StartTime=DT(13,30), EndTime=DT(15, 0) },
+        new JobData { Id=107, LineId=1, Subject="LV 2",                    StartTime=DT(15, 0), EndTime=DT(15,30) },
+
+        // Line 1 batch 4 (evening)
+        new JobData { Id=108, LineId=1, Subject="Syrup simplex batch 4",   StartTime=DT(16,30), EndTime=DT(18,30) },
+        new JobData { Id=109, LineId=1, Subject="LV 2",                    StartTime=DT(18,30), EndTime=DT(19, 0) },
+        new JobData { Id=110, LineId=1, Subject="for 1st volumn",          StartTime=DT(19, 0), EndTime=DT(19,45) },
+        new JobData { Id=111, LineId=1, Subject="QC/top up",               StartTime=DT(19,45), EndTime=DT(20, 0) },
+    };
+
+    // helper to create today-based times
+    private static DateTime DT(int hour, int minute) =>
+        DateTime.Today.AddHours(hour).AddMinutes(minute);
+}

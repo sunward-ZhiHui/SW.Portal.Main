@@ -1,0 +1,180 @@
+﻿@page "/syrup-Stepper1"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@using static global::Core.EntityModels.SyrupPlanning
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+    IsContentBlocked="true"
+    ApplyBackgroundShading="true"
+    IndicatorAreaVisible="false"
+    Text="Fetching Data...">
+
+    <DxGrid @ref="Grid"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            Data="_SyrupProcessNameList"
+            KeyFieldName="ID"
+            TextWrapEnabled="false"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 345px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>           
+            <DxGridDataColumn FieldName="ProcessName" Caption="Process Name" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProcessName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+
+@code {
+    [Parameter]
+    public List<SyrupProcessNameList> ProcessNames { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool AuditLogPopUp { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    SyrupProcessNameList Datas = new SyrupProcessNameList();
+    private List<SyrupProcessNameList> _SyrupProcessNameList;
+    private SyrupProcessNameList _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+
+
+    public ApplicationUser? applicationUser { get; private set; }
+ 
+
+
+ 
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Grid.AutoFitColumnWidths();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();      
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _SyrupProcessNameList = await Mediator.Send(new GetSyrupProcessNameListQuery());
+        ProcessNames = _SyrupProcessNameList;
+        EditEnabled = false;
+        DeleteEnabled = false;
+        if (_SyrupProcessNameList.Count > 0)
+        {
+            _selectedItems = _SyrupProcessNameList.FirstOrDefault();
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;        
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _SyrupProcessNameList.FirstOrDefault(f => f.ID == (long?)UniqueId);
+    }   
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);       
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (SyrupProcessNameList)e.EditModel;
+        if (e.IsNew)
+        {
+            //navitems.StatusCodeID = 1;
+        }
+        else
+        {
+            // navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (SyrupProcessNameList)e.EditModel;
+    }
+}

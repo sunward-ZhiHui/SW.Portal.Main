@@ -1,0 +1,200 @@
+﻿@page "/syrup-stepper"
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor
+@using Syncfusion.Blazor.Navigations
+@using global::Core.EntityModels
+
+<style scoped>
+    .step-content {
+        border: 1px solid #eee;
+        padding: 10px;
+    }
+
+    .e-stepper.e-horizontal {
+        margin-top: 10px;
+    }
+
+    .stepper-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        border-top: 1px solid #ddd;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        z-index: 1000;
+    }
+
+    .nav-button {
+        padding: 8px 18px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color .3s ease, opacity .3s ease;
+    }
+
+        .nav-button.prevv {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+            .nav-button.prevv:hover:not(:disabled) {
+                background-color: #217dbb;
+            }
+
+        .nav-button.nextt {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+            .nav-button.nextt:hover:not(:disabled) {
+                background-color: #27ae60;
+            }
+
+        .nav-button:disabled {
+            background-color: #d3d3d3;
+            color: #888;
+            cursor: not-allowed;
+            opacity: .6;
+        }
+</style>
+
+<SfStepper @bind-ActiveStep="currentStep">
+    <StepperSteps>
+        <StepperStep Label="Process Name" IconCss="fa fa-check" />
+        <StepperStep Label="Other process" IconCss="fa fa-check" />
+        <StepperStep Label="Syrup Simplex process" IconCss="fa fa-check" />
+        <StepperStep Label="Syrup Preparation" IconCss="fa fa-check" />
+        <StepperStep Label="Specific item Card" IconCss="fa fa-check" />
+        <StepperStep Label="Time Line Details" IconCss="fa fa-check" />
+    </StepperSteps>
+</SfStepper>
+
+@if (SyrupPlanningData != null)
+{
+    <div style="background:#f1f1f1; padding:10px; border:1px solid #f1f1f1;">
+        @SyrupPlanningData.MethodCode
+    </div>
+}
+
+<div class="step-content">
+    @if (currentStep == 0)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage1 />
+    }
+    else if (currentStep == 1)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 />
+    }
+    else if (currentStep == 2)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage2 />
+    }
+    else if (currentStep == 3)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage3 />
+    }
+    else if (currentStep == 4)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 />
+    }
+    else if (currentStep == 5)
+    {
+        <AC.SD.Core.Pages.Planning.PlanningDetails.VijayPage1 />
+    }
+</div>
+
+<!-- Footer Navigation -->
+<div class="stepper-footer">
+    <button @onclick="prevvStep"
+            class="nav-button prevv"
+            disabled="@(currentStep == 0 || IsBusy)">
+        Previous
+    </button>
+
+    <!-- This button becomes Submit on last step -->
+    <button @onclick="HandleNextOrSubmit"
+            class="nav-button nextt"
+            disabled="@IsNextDisabled">
+        @(IsLastStep ? (IsBusy ? "Submitting..." : "Submit") : "Next")
+    </button>
+</div>
+
+@code {
+    public long MethodCodeID { get; set; }
+
+    [Parameter] public SyrupPlanning? SyrupPlanningData { get; set; }
+
+    // Parent can subscribe to this to receive the final data.
+    [Parameter] public EventCallback<SyrupPlanning?> OnSubmit { get; set; }
+
+    int currentStep = 0;
+    int StepCount => 6;
+    bool IsBusy = false;
+
+    bool IsLastStep => currentStep == StepCount - 1;
+    bool IsNextDisabled =>
+        IsBusy || (!IsLastStep && currentStep == StepCount - 1); // safety plus busy state
+
+    protected override Task OnParametersSetAsync()
+    {
+        var x = MethodCodeID; // your existing line
+        return Task.CompletedTask;
+    }
+
+    async Task HandleNextOrSubmit()
+    {
+        if (!IsLastStep)
+        {
+            nexttStep();
+            return;
+        }
+
+        // Last step => submit
+        await SubmitAsync();
+    }
+
+    void nexttStep()
+    {
+        if (currentStep < StepCount - 1)
+        {
+            currentStep++;
+        }
+    }
+
+    void prevvStep()
+    {
+        if (currentStep > 0 && !IsBusy)
+        {
+            currentStep--;
+        }
+    }
+
+    async Task SubmitAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            // TODO: run any validation you need from sub-pages here.
+            // If you have EditForm/FluentValidation, trigger and gate submit.
+
+            // Fire the event to the parent with the collected data
+            if (OnSubmit.HasDelegate)
+            {
+                await OnSubmit.InvokeAsync(SyrupPlanningData);
+            }
+
+            // Optionally reset or navigate
+            // Navigation or state reset can go here.
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+}

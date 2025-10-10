@@ -1,0 +1,77 @@
+﻿@page "/syrup-Stepper2"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
+    
+    <DxFormLayoutItem Caption="Is there Syrup Simplex to produce?:" ColSpanMd="6">
+        <DxRadioGroup Items="@RadioButtonOptions"
+                      Value="@data.IsthereSyrupSimplextoproduce"
+                      ValueExpression="@(() => data.IsthereSyrupSimplextoproduce)"
+                      ValueChanged="@((string value) => OnChangeSyrupProduce(value))"
+                      Layout="RadioGroupLayout.Horizontal"
+                      CssClass="dx-demo-radio-group" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="ProcessName:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyrupSimplexProcessName" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Location:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyrupSimplexLocation" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Preparation /Hour:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyrupSimplexPreparationHour" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Syrup Simplex/Manpower:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="@data.SyrupSimplexManpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 2 Cleaning/Hours:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyrupSimplexLevel2CleaningHours" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 2 Cleaning/Manpower:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="@data.SyrupSimplexLevel2CleaningManpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="No of Campaign:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="@data.SyrupSimplexNoofCampaign" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Next Process Name:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyrupSimplexNextProcessName" />
+    </DxFormLayoutItem>    
+
+</DxFormLayout>
+
+
+
+@code{
+    IEnumerable<string> RadioButtonOptions = new[] { "Yes", "No" };
+    public ApplicationUser? applicationUser { get; private set; }
+    SyrupPlanning data = new SyrupPlanning();
+    [Parameter]
+    public long MethodCodeID { get; set; } = 70;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {        
+        data = await Mediator.Send(new GetSyrupSimplexDataList(MethodCodeID));
+    }
+
+    void OnChangeSyrupProduce(string value)
+    {
+        data.IsthereSyrupSimplextoproduce = value;
+    }
+}

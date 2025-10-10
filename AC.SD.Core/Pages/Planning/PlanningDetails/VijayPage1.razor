@@ -1,0 +1,428 @@
+﻿@page "/syrup-timelinevijay"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@using static global::Core.EntityModels.SyrupPlanning
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+@inject IStockInformationMasterQueryRepository Repo
+
+<style>
+    /* keep your existing styles or paste from previous file */
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        font-family: Segoe UI, system-ui;
+    }
+
+    header {
+        background: linear-gradient(135deg,#2c3e50,#4a6491);
+        color: white;
+        padding: 24px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .section {
+        background: white;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .stat-box {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        background: #f7fbff;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        color: #2c6fb2;
+        font-weight: 600;
+    }
+
+    .timeline-wrapper {
+        border: 1px solid #e6eef8;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .time-header {
+        display: flex;
+        background: #f1f7fc;
+        border-bottom: 1px solid #e6eef8;
+    }
+
+    .time-cell {
+        flex: 0 0 auto;
+        width: 80px;
+        padding: 6px 6px;
+        text-align: center;
+        border-right: 1px solid #e6eef8;
+        font-size: 0.85rem;
+    }
+
+    .lane {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px dashed #e9f0f8;
+        min-height: 64px;
+        position: relative;
+    }
+
+    .lane-title {
+        width: 200px;
+        padding: 8px 12px;
+        border-right: 1px solid #e6eef8;
+        background: #ffffff;
+        font-weight: 600;
+    }
+
+    .lane-track {
+        position: relative;
+        flex: 1;
+        min-height: 64px;
+    }
+
+    .timeline-item {
+        position: absolute;
+        top: 8px;
+        height: 48px;
+        background: linear-gradient(180deg,#e8f4fd,#d6ecfc);
+        border: 1px solid #5aa2df;
+        border-radius: 6px;
+        padding: 6px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .item-inner {
+        font-size: 0.85rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .item-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .item-meta {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+    }
+
+        .info-table th, .info-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+</style>
+
+<div class="">
+    <header>
+        <h1>Production Timing and Machine Info - Syrup</h1>
+        <p>Timeline view — day schedule with process blocks and machine info.</p>
+    </header>
+
+    <section class="section stats-row">
+        <div class="stat-box">
+            <h3>Working Hours</h3>
+            <div class="stat-value">@WorkingHoursText</div>
+            <p>Shift: @ShiftStart.ToString(@"hh\:mm") - @ShiftEnd.ToString(@"hh\:mm")</p>
+        </div>
+        <div class="stat-box">
+            <h3>Planned Items</h3>
+            <div class="stat-value">@Masters?.Count()</div>
+            <p>Master methods loaded</p>
+        </div>
+        <div class="stat-box">
+            <h3>Schedule Items</h3>
+            <div class="stat-value">@ScheduleItems.Count</div>
+            <p>Blocks generated</p>
+        </div>
+    </section>
+
+    <section class="section timeline-section"> 
+        <h2>Timeline — @DisplayDate.ToString("dddd, dd MMM yyyy")</h2>
+
+        <div class="timeline-wrapper">
+            <div class="time-header">
+                @foreach (var tick in TimeTicks)
+                {
+                    <div class="time-cell">@tick.ToString(@"hh\:mm")</div>
+                }
+            </div>
+
+            <div class="lanes">
+                @foreach (var lane in Lanes)
+                {
+                    <div class="lane">
+                        <div class="lane-title">@lane.Title</div>
+                        <div class="lane-track">
+                            @foreach (var item in ScheduleItems.Where(s => s.LaneId == lane.Id))
+                            {
+                                var leftPercent = CalcLeftPercent(item.Start);
+                                var widthPercent = CalcWidthPercent(item.Start, item.End);
+                                <div class="timeline-item" style="left:@($"{leftPercent:F4}%"); width:@($"{widthPercent:F4}%")" title="@item.Title">
+                                    <div class="item-inner">
+                                        <div class="item-title">@item.Title</div>
+                                        <div class="item-meta">@item.Start.ToString(@"hh\:mm") - @item.End.ToString(@"hh\:mm")</div>
+                                        <div class="item-note">@item.Note</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section machine-section">
+        <h2>Machine Information</h2>
+        <table class="info-table">
+            <thead>
+                <tr><th>Machine</th><th>Type</th><th>Speed</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var m in MachineInfo)
+                {
+                    <tr><td>@m.MachineName</td><td>@m.Type</td><td>@m.Speed</td><td>@m.Notes</td></tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>Production Timing and Machine Information System - Syrup Manufacturing</p>
+        <p>Last Updated: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</p>
+    </footer>
+</div>
+
+@code {
+    // ---------- CONFIG ----------
+    DateTime DisplayDate = DateTime.Today;
+    TimeSpan ShiftStart = new TimeSpan(8, 0, 0);
+    TimeSpan ShiftEnd = new TimeSpan(18, 0, 0);
+    TimeSpan DefaultMinBlock = TimeSpan.FromMinutes(10);
+
+    IEnumerable<TimeSpan> TimeTicks => GenerateTicks(ShiftStart, ShiftEnd, TimeSpan.FromMinutes(30));
+    string WorkingHoursText => $"{(ShiftEnd - ShiftStart).TotalHours} hrs";
+
+    // ---------- Lanes ----------
+    List<Lane> Lanes = new()
+    {
+        new Lane { Id = 1, Title = "Preparation" },
+        new Lane { Id = 2, Title = "Filling MH1" },
+        new Lane { Id = 3, Title = "Filling MH2" },
+        new Lane { Id = 4, Title = "Cleaning / QC" },
+        new Lane { Id = 5, Title = "Other" }
+    };
+
+    // ---------- State ----------
+    List<ScheduleItem> ScheduleItems { get; set; } = new();
+    List<SyrupPlanning>? Masters { get; set; } = new();
+    List<MachineInfoModel> MachineInfo { get; set; } = new()
+    {
+        new MachineInfoModel { MachineName="MH1", Type="Filling Machine", Speed="75-85 bpm", Notes="Setup time 1 hr" },
+        new MachineInfoModel { MachineName="MH2", Type="Filling Machine", Speed="60-80 bpm", Notes="Adjust per bottle size" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BuildTimelineAsync(DisplayDate);
+    }
+
+    // ---------- Build timeline ----------
+    public async Task BuildTimelineAsync(DateTime date)
+    {
+        ScheduleItems.Clear();
+        Masters = (await Repo.GetSyrupPlannings())?.ToList() ?? new List<SyrupPlanning>();
+        var fillings = (await Repo.GetSyrupFillingList())?.ToList() ?? new List<SyrupFilling>();
+        var others = (await Repo.GetSyrupOtherProcessList())?.ToList() ?? new List<SyrupOtherProcess>();
+
+        // simple lane next-available tracker
+        var laneNext = Lanes.ToDictionary(l => l.Id, l => ShiftStart);
+
+        foreach (var m in Masters)
+        {
+            // get preparation details
+            SyrupPlanning? prep = null;
+            try { prep = await Repo.SelectSyruppreparationDataList(m.MethodCodeID); } catch { /* swallow, continue */ }
+
+            // schedule preparation first volume
+            if (prep != null)
+            {
+                double pvHours = TryGetDoubleProperty(prep, "SyruppreparationFirstVolumnHour", "PreparationFirstVolumePerHour", "PreparationFirstVolumePerHour"); // fallback names
+                if (pvHours > 0)
+                {
+                    var start = laneNext[1];
+                    var end = AddHoursClamped(start, pvHours);
+                    ScheduleItems.Add(new ScheduleItem { LaneId = 1, Title = $"Prep: {m.MethodName}", Start = start, End = end, Note = $"Batch:{m.BatchSizeInLiters}L" });
+                    laneNext[1] = end;
+                }
+
+                // level1 cleaning
+                double l1 = TryGetDoubleProperty(prep, "SyruppreparationLevel1CleaningHours", "Level1CleaningHours", "PreparationTopUpPerHour");
+                if (l1 > 0)
+                {
+                    var start = laneNext[4];
+                    var end = AddHoursClamped(start, l1);
+                    ScheduleItems.Add(new ScheduleItem { LaneId = 4, Title = $"Level1 Clean: {m.MethodName}", Start = start, End = end, Note = "L1 clean" });
+                    laneNext[4] = end;
+                }
+            }
+
+            // simplex if exists
+            SyrupPlanning? simplex = null;
+            try { simplex = await Repo.SelectSyrupSimplexDataList(m.MethodCodeID); } catch { }
+            if (simplex != null && (simplex.IsthereSyrupSimplextoproduce == "1" || simplex.IsthereSyrupSimplextoproduce == "true" || simplex.IsthereSyrupSimplextoproduce == "True" || simplex.IsthereSyrupSimplextoproduce == "YES"))
+            {
+                double sxHours = TryGetDoubleProperty(simplex, "SyrupSimplexPreparationHour", "SyrupSimplexPreparationHour", "PreparationPerHour");
+                if (sxHours > 0)
+                {
+                    var start = laneNext[1];
+                    var end = AddHoursClamped(start, sxHours);
+                    ScheduleItems.Add(new ScheduleItem { LaneId = 1, Title = $"Simplex: {m.MethodName}", Start = start, End = end, Note = "Simplex" });
+                    laneNext[1] = end;
+                }
+            }
+
+            // fillings for this profile
+            var fList = fillings.Where(f => string.Equals(Convert.ToString(f.ProfileNo), Convert.ToString(m.ProfileNo))).ToList();
+            foreach (var f in fList)
+            {
+                int laneId = MapMachineToLaneId(f.PrimaryFillingMachine);
+                double fh = TryGetDoubleProperty(f, "FillingHours", "FillingHours", "FillingHours");
+                if (fh <= 0) fh = TryGetDoubleProperty(f, "ChangePackingFillingHours", "ChangePackingFillingHours", "ChangePackingFillingHours");
+                if (fh <= 0) continue;
+                var start = laneNext.ContainsKey(laneId) ? laneNext[laneId] : ShiftStart;
+                var end = AddHoursClamped(start, fh);
+                ScheduleItems.Add(new ScheduleItem { LaneId = laneId, Title = $"Filling: {m.MethodName}", Start = start, End = end, Note = $"{f.PrimaryFillingMachine} ({fh} hrs)" });
+                laneNext[laneId] = end;
+            }
+
+            // other processes
+            var oList = others.Where(o => string.Equals(Convert.ToString(o.ProfileNo), Convert.ToString(m.ProfileNo))).ToList();
+            foreach (var o in oList)
+            {
+                double dur = TryGetDoubleProperty(o, "EstimatedHours", "EstimatedHours", "EstimatedHours");
+                if (dur <= 0) dur = 0.25;
+                var start = laneNext[5];
+                var end = AddHoursClamped(start, dur);
+                ScheduleItems.Add(new ScheduleItem { LaneId = 5, Title = $"Other: {o.ProfileNo}", Start = start, End = end, Note = "Other process" });
+                laneNext[5] = end;
+            }
+        }
+
+        // clamp and sort
+        foreach (var s in ScheduleItems)
+        {
+            if (s.Start < ShiftStart) s.Start = ShiftStart;
+            if (s.End > ShiftEnd) s.End = ShiftEnd;
+            if (s.End <= s.Start) s.End = s.Start + DefaultMinBlock;
+        }
+
+        ScheduleItems = ScheduleItems.OrderBy(s => s.LaneId).ThenBy(s => s.Start).ToList();
+        StateHasChanged();
+    }
+
+    // ---------- Helpers ----------
+    IEnumerable<TimeSpan> GenerateTicks(TimeSpan start, TimeSpan end, TimeSpan step)
+    {
+        var cur = start;
+        while (cur <= end)
+        {
+            yield return cur;
+            cur = cur.Add(step);
+        }
+    }
+    private int MapMachineToLaneId(string? machine)
+    {
+        if (string.IsNullOrWhiteSpace(machine)) return 5; // Other lane
+
+        var m = machine.Trim().ToUpperInvariant();
+        if (m.Contains("MH1")) return 2; // Filling MH1 lane id
+        if (m.Contains("MH2")) return 3; // Filling MH2 lane id
+
+        // Add more explicit mappings here if needed:
+        // if (m.Contains("MH3")) return 6;
+
+        return 5; // default to Other
+    }
+
+    double TryGetDoubleProperty(object obj, params string[] candidateNames)
+    {
+        if (obj == null) return 0;
+        var t = obj.GetType();
+        foreach (var name in candidateNames)
+        {
+            var p = t.GetProperty(name);
+            if (p != null)
+            {
+                var val = p.GetValue(obj);
+                if (val == null) continue;
+                if (val is double d) return d;
+                if (val is decimal dec) return (double)dec;
+                if (val is int i) return i;
+                if (double.TryParse(Convert.ToString(val, System.Globalization.CultureInfo.InvariantCulture), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var res))
+                    return res;
+            }
+        }
+        return 0;
+    }
+
+    TimeSpan AddHoursClamped(TimeSpan start, double hours)
+    {
+        if (hours <= 0) hours = 0.001;
+        var end = start + TimeSpan.FromHours(hours);
+        if (end > ShiftEnd) end = ShiftEnd;
+        return end;
+    }
+
+    double CalcLeftPercent(TimeSpan start)
+    {
+        var total = (ShiftEnd - ShiftStart).TotalMinutes;
+        var offset = (start - ShiftStart).TotalMinutes;
+        return Math.Clamp(offset / total * 100.0, 0, 100);
+    }
+
+    double CalcWidthPercent(TimeSpan start, TimeSpan end)
+    {
+        var total = (ShiftEnd - ShiftStart).TotalMinutes;
+        var width = (end - start).TotalMinutes;
+        return Math.Clamp(width / total * 100.0, 0.5, 100);
+    }
+
+    // ---------- Small models used only here ----------
+    public class Lane { public int Id { get; set; } public string Title { get; set; } = ""; }
+    public class ScheduleItem { public int LaneId { get; set; } public string Title { get; set; } = ""; public TimeSpan Start { get; set; } public TimeSpan End { get; set; } public string Note { get; set; } = ""; }
+    public class MachineInfoModel { public string MachineName { get; set; } = ""; public string Type { get; set; } = ""; public string Speed { get; set; } = ""; public string Notes { get; set; } = ""; }
+}

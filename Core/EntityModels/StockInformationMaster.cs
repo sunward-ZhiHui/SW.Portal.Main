@@ -20,8 +20,9 @@ namespace Core.EntityModels
         public string? CustomerName { get; set; } 
         public long? PlanningCategory { get; set; }
         public string? PlanningCategoryName { get; set; }
-        public int? BelowMonth { get; set; }  
-        public int? TopupMonth { get; set; }
+        public decimal? BelowMonth { get; set; }  
+        public decimal? TopupMonth { get; set; }
+        public string? PlanningCategoryDescName { get; set; }
 
     }
 }

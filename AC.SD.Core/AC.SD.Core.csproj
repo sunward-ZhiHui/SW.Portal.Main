@@ -23,11 +23,7 @@
     <EmbeddedResource Remove="wwwroot1\**" />
     <None Remove="DataProviders\**" />
     <None Remove="wwwroot1\**" />
-  </ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Pages\Planning\PlanningDetails\q5dvljer.tor~" />
-	</ItemGroup>  
+  </ItemGroup>  
   <ItemGroup>
 	  <PackageReference Include="AutoMapper" Version="13.0.1" />
 	  <PackageReference Include="BlazorBarcodeScanner.ZXing.JS" Version="1.0.4" />
@@ -92,7 +88,8 @@
 	  <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.1" />
 	  <PackageReference Include="Syncfusion.Blazor.Core" Version="31.1.20" />
 	  <PackageReference Include="Syncfusion.Blazor.Gantt" Version="31.1.20" />
-	  <PackageReference Include="Syncfusion.Blazor.Inputs" Version="31.1.20" />
+	  <PackageReference Include="Syncfusion.Blazor.Grid" Version="31.1.20" />
+	  <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.1.20" />
 	  <PackageReference Include="Syncfusion.Blazor.Schedule" Version="31.1.20" />
 	  <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.1.20" />
 	  <PackageReference Include="System.Drawing.Common" Version="9.0.2" />

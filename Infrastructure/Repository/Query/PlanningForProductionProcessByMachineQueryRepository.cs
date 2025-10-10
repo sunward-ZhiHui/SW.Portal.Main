@@ -268,6 +268,7 @@ namespace Infrastructure.Repository.Query
                         productionPlanningScheduler.Text = g.PlanningForProductionProcessByMachine;
                         productionPlanningScheduler.Type = "Parent";
                         productionPlanningScheduler.ProductionPlanningSchedulerId = g.FixAssetMachineNameRequipmentId;
+                        productionPlanningScheduler.PlanningForProductionProcessByMachine = g.PlanningForProductionProcessByMachineId;
                         resourceDatas.Add(productionPlanningScheduler);
                     });
                 }
@@ -284,6 +285,7 @@ namespace Infrastructure.Repository.Query
                             EndTime = oal.EndDate,
                             IsAllDay = false,
                             Type = "Event",
+                            ProductionPlanningSchedulerId= oal.PlanningForProductionProcessByMachine,
                             ProjectId = resourceDatas.FirstOrDefault(f => f.Type == "Main" && f.ProductionPlanningSchedulerId == oal.ProductionPlanningProcess)?.Id,
                             TaskId = resourceDatas.FirstOrDefault(f => f.Type == "Parent" && f.ProductionPlanningSchedulerId == oal.PlanningForProductionProcessByMachine)?.Id,
                         });

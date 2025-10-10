@@ -1,0 +1,631 @@
+﻿@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/TicketCalculation"
+@implements IAsyncDisposable
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    @*  <DxMenuItem Position="ItemPosition.End" title="Export to XLS" IconCssClass="fa fa-filter" Click="ExportXls_Click" /> *@
+                    <DxMenuItem Position="ItemPosition.End" title="Export to CSV" IconCssClass="fas fa-file-csv" Click="ExportCsv_Click" />
+                    <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter())" id=@($"flyout-overview-target-container-FilterDocuments") />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_simulationItems" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement" KeyFieldName="Index"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 250px);">
+        <Columns>
+
+            <DxGridDataColumn FieldName="MethodCode" Caption="Generic Code" GroupIndex="0" Width="300" FixedPosition="GridColumnFixedPosition.Left" SortOrder="GridColumnSortOrder.Ascending" />
+            <DxGridDataColumn FieldName="ItemNo" Width="300" FixedPosition="GridColumnFixedPosition.Left" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+            <DxGridDataColumn FieldName="ProductionProjected1_" Name="ProductionProjected1_" DisplayFormat="n2" Caption="@Month1">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected1_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month1, item.ProductionProjected1_, "Month1"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected2_" Name="ProductionProjected2_" DisplayFormat="n2" Caption="@Month2">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected2_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month2, item.ProductionProjected2_, "Month2"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected3_" Name="ProductionProjected3_" DisplayFormat="n2" Caption="@Month3">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected3_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month3, item.ProductionProjected3_, "Month3"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected4_" Name="ProductionProjected4_" DisplayFormat="n2" Caption="@Month4">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected4_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month4, item.ProductionProjected4_, "Month4"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected5_" Name="ProductionProjected5_" DisplayFormat="n2" Caption="@Month5">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected5_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month5, item.ProductionProjected5_, "Month5"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected6_" Name="ProductionProjected6_" DisplayFormat="n2" Caption="@Month6">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected6_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month6, item.ProductionProjected6_, "Month6"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProductionProjected7_" Name="ProductionProjected7_" DisplayFormat="n2" Caption="@Month7">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (INPCalendarPivotModel)context.DataItem;
+                        var Names = item.ProductionProjected7_;
+                    }
+                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month7, item.ProductionProjected7_, "Month7"))" style="color:black;">@Names?.ToString("N2")</a>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemNo" />
+        </TotalSummary>
+    </DxGrid>
+
+</DxLoadingPanel>
+<DxFlyout @bind-IsOpen=IsFilterOpen
+          PositionTarget=@($"#flyout-overview-target-container-FilterDocuments")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Search Document"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Opening Balance Month" ColSpanMd="12">
+                <DxDateEdit NullText="Select a Opening Balance Month..." @bind-Date="@dateRangeModel.StockMonth" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="12">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="NavCompany"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@dateRangeModel.CompanyId" ShowValidationIcon="true">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                            Caption="Company Code"
+                                            Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                            Caption="Description" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                            Caption="Nav Company" />
+                    </Columns>
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox Checked="@dateRangeModel.IsSteroids" CheckedExpression="@(() => dateRangeModel.IsSteroids)" CheckedChanged="@((bool value) => CheckedVisibleChanged(value))">Steroid</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox Checked="@dateRangeModel.IsNonSteroids" CheckedExpression="@(() => dateRangeModel.IsNonSteroids)" CheckedChanged="@((bool value) => CheckedReadWriteChanged(value))">Non Steroid</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Version" ColSpanMd="12">
+                <DxComboBox Data="@_versionItems"
+                            NullText="Select Version..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="Id"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.VersionId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sales Category" ColSpanMd="12">
+                <DxComboBox Data="@_salesCategoryItems"
+                            NullText="Select Sales Category..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Text"
+                            ValueFieldName="Id"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.SalesCategoryId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Method Code" ColSpanMd="12">
+                <DxComboBox Data="@_navMethodCodeModeltems"
+                            NullText="Select Method Code..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="MethodName"
+                            ValueFieldName="MethodCodeID"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@dateRangeModel.MethodCodeId" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            @*   <DxFormLayoutItem Caption="Master Name" ColSpanMd="12">
+                <DxComboBox Data="@_stockinfoMasterList"
+                            NullText="Select Master Name..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="MasterName"
+                            ValueFieldName="StockInformationMasterID"
+                            Value="@dateRangeModel.StockInformationMasterId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ValueExpression="@(() => dateRangeModel.StockInformationMasterId)"
+                            ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem> *@
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(() => OnFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(() => OnClearFilterDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(() => OnCloseFilterDocuments()) />
+
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@TicketCalculationMonthPopUp"
+         ShowFooter="false"
+         HeaderText="Month Ticket Calculation"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="300" MaxWidth="1500px" MaxHeight="1000px"
+         CloseOnEscape="false" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <TicketCalculationMonth dateRangeModel="@dateRangeModel" TickectCalItemModel="@TickectCalItemModels" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem="@_simulationItemsList"></TicketCalculationMonth>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    private List<StockInformationMaster> _stockinfoMasterList;
+    private bool TicketCalculationMonthPopUp { get; set; }
+    private List<ViewPlants>? _plantItems;
+    private List<NavMethodCodeModel>? _navMethodCodeModeltems;
+    bool IsFilterOpen { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    private List<INPCalendarPivotModel> _BarChartItems = new List<INPCalendarPivotModel>();
+    private List<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
+    public List<INPCalendarPivotModel> _simulationItemsList { get; set; } = new List<INPCalendarPivotModel>();
+    private List<DropDownOptionsModel> _versionItems = new List<DropDownOptionsModel>();
+    private List<DropDownOptionsModel> _salesCategoryItems = new List<DropDownOptionsModel>();
+    IGrid Grid { get; set; }
+    DateRangeModel dateRangeModel = new DateRangeModel();
+    bool ExportSelectedRowsOnly { get; set; }
+    private INPCalendarPivotModel _selectedItems;
+    public string? Acheader { get; set; } = "AC as at end Aug 19";
+    public string? CurrentBatchSize { get; set; } = "Current Batch Size"; public string? BatchSize90 { get; set; } = "Batch Size";
+    public string? StbPreheader { get; set; } = ""; public string? Stbheader { get; set; } = "Stock balance as at end Aug 2019";
+    public string? Month1 { get; set; } = ""; public string? Month2 { get; set; } = ""; public string? Month3 { get; set; } = ""; public string? Month4 { get; set; } = "";
+    public string? Month5 { get; set; } = ""; public string? Month6 { get; set; } = ""; public string? Month7 { get; set; } = ""; public string? Month8 { get; set; } = "";
+    public string? Month9 { get; set; } = ""; public string? Month10 { get; set; } = ""; public string? Month11 { get; set; } = ""; public string? Month12 { get; set; } = "";
+    public ApplicationUser applicationUser { get; private set; }
+    string? MonthName { get; set; }
+    public decimal? MonthData { get; set; }
+    public string? MonthType { get; set; }
+    public StockInformationMaster stockInformationMaster { get; set; }
+    TickectCalItemModel TickectCalItemModels = new TickectCalItemModel();
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        dateRangeModel.StockMonth = DateTime.Now;
+        dateRangeModel.CompanyId = 1; dateRangeModel.VersionId = null;
+        dateRangeModel.SalesCategoryId = 4;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _navMethodCodeModeltems = await Mediator.Send(new GetAllNavMethodCode());
+        for (long i = 1; i <= 10; i++)
+        {
+            DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+            dropDownOptionsModel.Id = i;
+            dropDownOptionsModel.Value = i.ToString();
+            _versionItems.Add(dropDownOptionsModel);
+        }
+        salesCatList();
+        _stockinfoMasterList = await Mediator.Send(new GetAllStockInformationMasterQuery());
+        await onLoadData();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        InvokeAsync(onLoadData);
+        TicketCalculationMonthPopUp = false;
+        StateHasChanged();
+    }
+    private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.DataCell && e.Column != null)
+        {
+            var l1 = e.Column.Name;
+            var n1 = e.Grid.GetRowValue(e.VisibleIndex, l1);
+            decimal? values = (decimal?)n1;
+            if (values != null && stockInformationMaster != null && stockInformationMaster.StockInformationMasterID > 0 && stockInformationMaster.BelowMonth != null)
+            {
+                if (values < stockInformationMaster.BelowMonth)
+                {
+                    e.Style = "background-color:gray;";
+                }
+            }
+        }
+    }
+    void SelectedPlantChanged(long? country)
+    {
+        stockInformationMaster = null;
+        dateRangeModel.StockInformationMasterId = null;
+        if (country > 0 && _stockinfoMasterList?.Any() == true)
+        {
+            stockInformationMaster = _stockinfoMasterList.Where(w => w.StockInformationMasterID == country).FirstOrDefault();
+            dateRangeModel.StockInformationMasterId = country;
+        }
+    }
+    void salesCatList()
+    {
+        DropDownOptionsModel dropDownOptionsModel1 = new DropDownOptionsModel();
+        dropDownOptionsModel1.Text = "CAP";
+        dropDownOptionsModel1.Id = 1;
+        _salesCategoryItems.Add(dropDownOptionsModel1);
+        DropDownOptionsModel dropDownOptionsModel2 = new DropDownOptionsModel();
+        dropDownOptionsModel2.Text = "CREAM";
+        dropDownOptionsModel2.Id = 2;
+        _salesCategoryItems.Add(dropDownOptionsModel2);
+
+        DropDownOptionsModel dropDownOptionsModel3 = new DropDownOptionsModel();
+        dropDownOptionsModel3.Text = "DD";
+        dropDownOptionsModel3.Id = 3;
+        _salesCategoryItems.Add(dropDownOptionsModel3);
+        DropDownOptionsModel dropDownOptionsModel4 = new DropDownOptionsModel();
+        dropDownOptionsModel4.Text = "SYRUP";
+        dropDownOptionsModel4.Id = 4;
+        _salesCategoryItems.Add(dropDownOptionsModel4);
+        DropDownOptionsModel dropDownOptionsModel5 = new DropDownOptionsModel();
+        dropDownOptionsModel5.Text = "TABLET";
+        dropDownOptionsModel5.Id = 5;
+        _salesCategoryItems.Add(dropDownOptionsModel5);
+        DropDownOptionsModel dropDownOptionsModel6 = new DropDownOptionsModel();
+        dropDownOptionsModel6.Text = "VET";
+        dropDownOptionsModel6.Id = 6;
+        _salesCategoryItems.Add(dropDownOptionsModel6);
+        DropDownOptionsModel dropDownOptionsModel7 = new DropDownOptionsModel();
+        dropDownOptionsModel7.Text = "POWDER";
+        dropDownOptionsModel7.Id = 7;
+        _salesCategoryItems.Add(dropDownOptionsModel7);
+        DropDownOptionsModel dropDownOptionsModel8 = new DropDownOptionsModel();
+        dropDownOptionsModel8.Text = "INJ";
+        dropDownOptionsModel8.Id = 8;
+        _salesCategoryItems.Add(dropDownOptionsModel8);
+    }
+    void OnTicketCalculationMonthPopUp()
+    {
+        TicketCalculationMonthPopUp = true;
+    }
+    public void LoadDataItem()
+    {
+        _simulationItemsList = _simulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+
+        decimal? value1 = null;
+        decimal? value2 = null;
+        if (stockInformationMaster != null && stockInformationMaster.StockInformationMasterID > 0)
+        {
+            value1 = stockInformationMaster.BelowMonth;
+            value2 = stockInformationMaster.TopupMonth;
+        }
+        if (_simulationItemsList?.Any() == true)
+        {
+            _simulationItemsList.ForEach(s =>
+            {
+                switch (MonthType)
+                {
+                    case "Month1": s.MonthHs = s.ProductionProjected1_; break;
+                    case "Month2": s.MonthHs = s.ProductionProjected2_; break;
+                    case "Month3": s.MonthHs = s.ProductionProjected3_; break;
+                    case "Month4": s.MonthHs = s.ProductionProjected4_; break;
+                    case "Month5": s.MonthHs = s.ProductionProjected5_; break;
+                    case "Month6": s.MonthHs = s.ProductionProjected6_; break;
+                    case "Month7": s.MonthHs = s.ProductionProjected7_; break;
+                }
+                if (value1 != null && s.MonthHs != null && value1 != null && value1 <= s.MonthHs)
+                {
+                    decimal? TopUpNoOfMonth = (value2 - s.MonthHs);
+                    s.TopUpNoOfMonth = (decimal?)TopUpNoOfMonth;
+                    decimal? d1 = (s.SymlQty ?? 0) / (s.BatchSizeValue);
+                    decimal? addNoOfTicketCal = (decimal?)(Math.Round(TopUpNoOfMonth.GetValueOrDefault(0), 2) * d1);
+                    s.AddNoOfTicket = (decimal?)addNoOfTicketCal;
+                    s.RecommendedStockFactor = (s.BatchSizeValue ?? 0) / (s.PackSize);
+                    if (s.AddNoOfTicket != null)
+                    {
+                        string? addNoOfTicketStr = s.AddNoOfTicket.ToString();
+                        if (!string.IsNullOrEmpty(addNoOfTicketStr))
+                        {
+                            var parts = addNoOfTicketStr.Split('.');
+
+                            if (decimal.TryParse(parts[0], out decimal whole))
+                            {
+                                s.NoOfTicketWholeNo = whole;
+                            }
+                            if (parts.Length > 1 && decimal.TryParse(parts[1], out decimal fraction))
+                            {
+                                s.NoOfTicketDecimal = Convert.ToDecimal("." + fraction);
+                            }
+                        }
+                    }
+
+                }
+
+            });
+            decimal? NoOfTicketDecimalSum = _simulationItemsList.Where(w => w.NoOfTicketDecimal != null).Select(a => a.NoOfTicketDecimal).Sum();
+            TickectCalItemModels.NoOfTicketDecimalSums = NoOfTicketDecimalSum;
+            decimal? Rounddown = RoundDown(NoOfTicketDecimalSum.GetValueOrDefault(0), 0);
+            TickectCalItemModels.RoundDown1 = Rounddown;
+            decimal? Roundup = RoundUp(NoOfTicketDecimalSum.GetValueOrDefault(0), 0);
+            TickectCalItemModels.RoundUp1 = Roundup;
+            decimal? evenlyTopUp = (NoOfTicketDecimalSum - Rounddown) / _simulationItemsList.Count();
+            TickectCalItemModels.EvenlyTopUp = evenlyTopUp;
+            decimal? evenlyDownUp = (NoOfTicketDecimalSum - Roundup) / _simulationItemsList.Count();
+            TickectCalItemModels.EvenlyDownUp = evenlyDownUp;
+            _simulationItemsList.ForEach(s =>
+            {
+                decimal value = s.NoOfTicketDecimal.GetValueOrDefault(0) - TickectCalItemModels.EvenlyTopUp.GetValueOrDefault(0);
+                s.FinalSplitTicket1 = Math.Round(value, 2, MidpointRounding.AwayFromZero);
+                decimal value2 = s.NoOfTicketDecimal.GetValueOrDefault(0) - TickectCalItemModels.EvenlyDownUp.GetValueOrDefault(0);
+                s.FinalSplitTicket2 = Math.Round(value2, 2, MidpointRounding.AwayFromZero);
+                if (s.FinalSplitTicket1.HasValue)
+                {
+                    s.SplitAfterAddWholeTicket = s.FinalSplitTicket1.Value - Math.Floor(s.FinalSplitTicket1.Value);
+                    decimal? d1 = (s.BatchSizeValue ?? 0) / (s.PackSize);
+                    decimal? stockValue = (decimal?)(Math.Round(s.SplitAfterAddWholeTicket.GetValueOrDefault(0), 2) * d1);
+                    s.StockValue = stockValue;
+                    s.StockInWholeNo = stockValue != null ? Math.Floor(stockValue ?? 0m) : null;
+                    s.BalanceInStock = s.StockInWholeNo != null ? (s.StockInWholeNo - Math.Truncate(s.StockInWholeNo ?? 0m)) : null;
+                    s.BalanceStockInBulk = s.BalanceInStock * s.RecommendedStockFactor;
+                    s.AdditionalTickets = s.NoOfTicketWholeNo + s.SplitAfterAddWholeTicket;
+                    decimal? AdditionalAcTic = (decimal?)(Math.Round(s.AdditionalTickets.GetValueOrDefault(0), 2) * d1);
+                    s.AdditionalAc = AdditionalAcTic;
+                }
+            });
+            TickectCalItemModels.FinalBalanceQty = _simulationItemsList.Where(w => w.BalanceStockInBulk != null).Select(a => a.BalanceStockInBulk).Sum();
+        }
+        TickectCalItemModels.MonthHS = MonthName + " HS";
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    decimal RoundUp(decimal value, int decimals)
+    {
+        decimal factor = (decimal)Math.Pow(10, decimals);
+        if (value >= 0)
+            return Math.Ceiling(value * factor) / factor;
+        else
+            return Math.Floor(value * factor) / factor;
+    }
+    decimal RoundDown(decimal value, int decimals)
+    {
+        decimal factor = (decimal)Math.Pow(10, decimals);
+        return Math.Truncate(value * factor) / factor;
+    }
+    void openClick(INPCalendarPivotModel iNPCalendarPivotModel, string? Month, decimal? monthData, string? Type)
+    {
+        var satCatId = _salesCategoryItems.FirstOrDefault(w => w.Id == dateRangeModel.SalesCategoryId)?.Text;
+        if (!string.IsNullOrEmpty(satCatId))
+        {
+            stockInformationMaster = _stockinfoMasterList.Where(w => w.PlanningCategoryDescName != null && w.PlanningCategoryDescName.ToLower() == satCatId.ToLower()).FirstOrDefault();
+            if (stockInformationMaster != null && stockInformationMaster.StockInformationMasterID > 0)
+            {
+                MonthType = Type;
+                _selectedItems = iNPCalendarPivotModel;
+                MonthName = Month; MonthData = monthData;
+                LoadDataItem();
+                TicketCalculationMonthPopUp = true;
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.ShowToast("Stock Master Not Found.", AC.SD.Core.Services.ToastLevel.Warning);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Please select sales category.", AC.SD.Core.Services.ToastLevel.Warning);
+        }
+    }
+    async Task onLoadData()
+    {
+        PanelVisible = true;
+        var startDate = dateRangeModel.StockMonth;
+        var makeDate = dateRangeModel.StockMonth.AddDays(-1);
+        Stbheader = "Stock balance as at " + makeDate.ToString("dd-MMM-yyyy");
+        makeDate = makeDate.AddMonths(-1);
+        var lastDay = new DateTime(makeDate.Year, makeDate.Month, 1).AddMonths(1).AddDays(-1);
+        StbPreheader = "Stock balance as at " + lastDay.ToString("dd-MMM-yyyy");
+        Acheader = "AC as at " + lastDay.ToString("dd-MMM-yyyy");
+        var endDate = startDate.AddMonths(12);
+        int countmonth = 1;
+        while (startDate < endDate)
+        {
+
+            var lastDayOfMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
+
+            var daysInMonth = lastDayOfMonth - startDate.Day;
+
+            var monthEndDate = startDate.AddDays(daysInMonth);
+
+            if (endDate <= monthEndDate)
+            {
+                startDate = startDate.AddDays(daysInMonth);
+            }
+            else
+            {
+                var month = startDate.ToString("MMM");
+                if (countmonth == 1) Month1 = month;
+                if (countmonth == 2) Month2 = month;
+                if (countmonth == 3) Month3 = month;
+                if (countmonth == 4) Month4 = month;
+                if (countmonth == 5) Month5 = month;
+                if (countmonth == 6) Month6 = month;
+                if (countmonth == 7) Month7 = month;
+                if (countmonth == 8) Month8 = month;
+                if (countmonth == 9) Month9 = month;
+                if (countmonth == 10) Month10 = month;
+                if (countmonth == 11) Month11 = month;
+                if (countmonth == 12) Month12 = month;
+                startDate = monthEndDate.AddDays(1);
+            }
+            countmonth++;
+        }
+
+        _simulationItems = await Mediator.Send(new GetAllSimulationMidMonthQuery(dateRangeModel));
+        if (_simulationItems != null && _simulationItems.Count() > 0)
+        {
+            PanelVisible = false;
+        }
+        else
+        {
+            PanelVisible = false;
+        }
+        var satCatId = _salesCategoryItems.FirstOrDefault(w => w.Id == dateRangeModel.SalesCategoryId)?.Text;
+        if (!string.IsNullOrEmpty(satCatId) && _stockinfoMasterList?.Any() == true)
+        {
+            stockInformationMaster = _stockinfoMasterList.Where(w => w.PlanningCategoryDescName != null && w.PlanningCategoryDescName.ToLower() == satCatId.ToLower()).FirstOrDefault();
+        }
+        StateHasChanged();
+        //Grid.AutoFitColumnWidths();
+    }
+    void OnFileProfiltefilter()
+    {
+        IsFilterOpen = true;
+        StateHasChanged();
+    }
+    async Task OnFilterDocuments()
+    {
+        await onLoadData();
+    }
+    async Task OnClearFilterDocuments()
+    {
+        dateRangeModel = new DateRangeModel();
+        dateRangeModel.StockMonth = DateTime.Now;
+        dateRangeModel.CompanyId = 1;
+        dateRangeModel.VersionId = null;
+        dateRangeModel.IsSteroid = null;
+        dateRangeModel.SalesCategoryId = 4;
+        dateRangeModel.MethodCodeId = null;
+        await onLoadData();
+        StateHasChanged();
+    }
+    void CheckedVisibleChanged(bool value)
+    {
+        dateRangeModel.IsSteroid = true;
+        dateRangeModel.IsSteroids = value;
+        dateRangeModel.IsNonSteroids = false;
+        if (dateRangeModel.IsSteroids == false)
+        {
+            dateRangeModel.IsSteroid = null;
+        }
+        StateHasChanged();
+    }
+    void CheckedReadWriteChanged(bool value)
+    {
+        dateRangeModel.IsSteroid = false;
+        dateRangeModel.IsSteroids = false;
+        dateRangeModel.IsNonSteroids = value;
+        if (dateRangeModel.IsNonSteroids == false)
+        {
+            dateRangeModel.IsSteroid = null;
+        }
+        StateHasChanged();
+    }
+    void OnCloseFilterDocuments()
+    {
+        IsFilterOpen = false;
+        StateHasChanged();
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Simulation Mid Month", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    async Task ExportCsv_Click()
+    {
+        await Grid.ExportToCsvAsync("Simulation Mid Month", new GridCsvExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("Simulation Mid Month", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _plantItems?.Clear();
+        _navMethodCodeModeltems?.Clear();
+        _simulationItems = null;
+        _versionItems = null;
+        _salesCategoryItems = null;
+        dateRangeModel = null;
+
+
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
+    }
+}

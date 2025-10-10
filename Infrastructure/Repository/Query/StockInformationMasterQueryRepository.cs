@@ -40,7 +40,7 @@ namespace Infrastructure.Repository.Query
             {
                 List<StockInformationMaster> aCItemsModels = new List<StockInformationMaster>();
                 var parameters = new DynamicParameters();
-                var query = @"SELECT *,CONCAT(P.PlantCode ,'-', P.Description)  as CompanyName,CONCAT(C.Name,'-',C.Code) as CustomerName,AMD.Value as PlanningCategoryName from StockInformationMaster SM
+                var query = @"SELECT *,CONCAT(P.PlantCode ,'-', P.Description)  as CompanyName,CONCAT(C.Name,'-',C.Code) as CustomerName,AMD.Value as PlanningCategoryName,AMD.description as PlanningCategoryDescName from StockInformationMaster SM
                                 LEFT JOIN Plant P ON P.PlantID = SM.CompanyID
                                 LEFT JOIN NAVCustomer C ON C.CustomerId = SM.CustomerID
                                 LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = SM.PlanningCategory";

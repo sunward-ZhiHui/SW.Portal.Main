@@ -87,6 +87,9 @@
 	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
 	  <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.1" />
 	  <PackageReference Include="Syncfusion.Blazor.Core" Version="31.1.20" />
+	  <PackageReference Include="Syncfusion.Blazor.Gantt" Version="31.1.20" />
+	  <PackageReference Include="Syncfusion.Blazor.Grid" Version="31.1.20" />
+	  <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.1.20" />
 	  <PackageReference Include="Syncfusion.Blazor.Schedule" Version="31.1.20" />
 	  <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.1.20" />
 	  <PackageReference Include="System.Drawing.Common" Version="9.0.2" />

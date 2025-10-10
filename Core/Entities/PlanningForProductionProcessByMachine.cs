@@ -54,6 +54,12 @@ namespace Core.Entities
         public long? ProductionPlanningSchedulerId { get; set; }
         public long? PlanningForProductionProcessByMachine { set; get; }
         public string Type { get; set; }
+        public double? Progress { get; set; } = 30;
+        public int? ChildId {  get; set; }
+        public int? ParentId { get; set; }
+        public double? Duration { get; set; } = 10;
+        public string DependentId { get; set; } = string.Empty;
+
     }
     public class AppointmentData
     {
@@ -70,6 +76,7 @@ namespace Core.Entities
         public string RecurrenceException { get; set; }
         public string StartTimezone { get; set; }
         public string EndTimezone { get; set; }
+        public int Duration { get; set; } = 2;
     }
     public class ProductionPlanningScheduler
     {

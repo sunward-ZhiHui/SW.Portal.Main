@@ -1,0 +1,183 @@
+﻿@using System.Collections
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using global::Core.EntityModels
+<SfStepper @ref="LinearStepperComponent"
+           ID="linear-stepper"
+           Linear="true"
+           ActiveStep="@activeStep" Orientation="StepperOrientation.Horizontal" LabelPosition="StepperLabelPosition.End"
+           StepChanged="OnStepChanged">
+    <StepperSteps>
+        <StepperStep IconCss="sf-icon-form" Label="1.Display"></StepperStep>
+        <StepperStep IconCss="sf-icon-tasksheet" Label="2.Holding stock situation"></StepperStep>
+        <StepperStep IconCss="sf-icon-progress" Label="3.Forecast of holding stock"></StepperStep>
+    </StepperSteps>
+</SfStepper>
+<style scoped>
+    .table-container {
+        max-height: 400px; /* Visible height for the scroll area */
+        overflow-y: auto; /* Enable vertical scroll */
+        border: 1px solid #ccc;
+        position: relative;
+    }
+
+    /* Basic table setup */
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    /* --- Sticky Group Header --- */
+    .group-header {
+        position: sticky;
+        top: 0;
+        background-color: #eaeaea;
+        font-weight: bold;
+        font-size: 15px;
+        text-align: left;
+        z-index: 3; /* Ensure it stays above other sticky items */
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* --- Sticky Column Headers --- */
+    .table-container thead tr:not(.group-header) th {
+        position: sticky;
+        top: 30px; /* Push below the group header */
+        background-color: #f9f9f9;
+        z-index: 2;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* --- Body Cells --- */
+    .table-container tbody td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* --- Sticky Footer --- */
+    .table-container tfoot td {
+        position: sticky;
+        bottom: 0;
+        background-color: #f2f2f2;
+        z-index: 2;
+        padding: 8px;
+        border-top: 1px solid #ccc;
+    }
+
+    .table-container table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .table-container td, .table-container th {
+        border: 1px solid #ddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .table-container tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .table-container th {
+        background-color: #e6e6e6;
+        font-weight: bold;
+    }
+    .month-header {
+        background-color: #f7e3d0;
+        font-weight: bold;
+        text-align: center;
+    }
+</style>
+<!-- Step 1 -->
+<div class="step-content" style="@GetVisibility(0)">
+    <div style="padding:10px;width:100%;height:400px;">
+        <TicketCalculationMonthDisplay @ref="refTicketCalculationMonthDisplay" TickectCalItemModel="@TickectCalItemModel" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem1="@_simulationItem"></TicketCalculationMonthDisplay>
+    </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step-content" style="@GetVisibility(1)">
+    <div style="padding:10px;width:100%;height:400px;">
+        <HoldingStockSituation MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem2="@_simulationItem"></HoldingStockSituation>
+    </div>
+</div>
+
+<!-- Step 3 -->
+<div class="step-content" style="@GetVisibility(2)">
+    <div style="padding:10px;width:100%;height:400px;">
+        <ForecastOfHoldingStock dateRangeModel="@dateRangeModel" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem3="@_simulationItem"></ForecastOfHoldingStock>
+    </div>
+</div>
+@* <!-- Step 4 -->
+<div class="step-content" style="@GetVisibility(3)">
+    <div style="padding:10px;width:100%;height:400px;">
+        <ActualStockRequireToTopUp MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem2="@_simulationItem"></ActualStockRequireToTopUp>
+    </div>
+</div> *@
+<div class="mt-3">
+    <SfButton CssClass="e-primary" OnClick="GoPrevious" Disabled="@isFirstStep">Previous</SfButton>
+    <SfButton CssClass="e-success ml-2" OnClick="GoNext" Disabled="@isLastStep">Next</SfButton>
+</div>
+
+@code {
+    private TicketCalculationMonthDisplay refTicketCalculationMonthDisplay { get; set; }
+    private SfStepper LinearStepperComponent;
+    private int activeStep = 0;            // current step index (0-based)
+    private bool isFirstStep => activeStep == 0;
+    private bool isLastStep => activeStep == 2;
+    [Parameter]
+    public IEnumerable _simulationItem { get; set; }
+    [Parameter]
+    public string? MonthName { get; set; }
+    [Parameter]
+    public decimal? MonthData { get; set; }
+    [Parameter]
+    public string? MonthType { get; set; }
+    [Parameter]
+    public INPCalendarPivotModel _selectedItems { get; set; }
+    [Parameter]
+    public DateRangeModel dateRangeModel { get; set; }
+    [Parameter]
+    public TickectCalItemModel TickectCalItemModel { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+    }
+    private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    public async Task loadData()
+    {
+        // await refTicketCalculationMonthDisplay?.LoadData(_simulationItem, MonthName, MonthData, MonthType, _selectedItems, StockInformationMaster);
+    }
+    private void OnStepChanged(StepperChangedEventArgs args)
+    {
+        // keep local variable in sync if user clicks a step
+        activeStep = args.ActiveStep;
+        StateHasChanged();
+    }
+    private void GoNext()
+    {
+        if (activeStep < 3)
+        {
+            activeStep++;           // update the bound variable — Stepper will update
+            StateHasChanged();      // ensure UI re-renders
+        }
+    }
+    private void GoPrevious()
+    {
+        if (activeStep > 0)
+        {
+            activeStep--;
+            StateHasChanged();
+        }
+    }
+    private string GetVisibility(int stepIndex) => stepIndex == activeStep ? "display:block;" : "display:none;";
+}

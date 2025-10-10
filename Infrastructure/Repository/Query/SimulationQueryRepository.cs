@@ -73,7 +73,7 @@ namespace Infrastructure.Repository.Query
                         ItemNo = DefaultBatchSize,
                         DefaultBatch = DefaultBatchSize,
                         RecipeName = BatchSize,
-                    }); ;
+                    });
 
                 });
 
@@ -153,6 +153,7 @@ namespace Infrastructure.Repository.Query
                     int i = 0;
                     acreports.ForEach(s =>
                     {
+                        s.BatchSizeValue = methodCodeRecipe.Where(w => w.NavMethodCodeId == s.MethodCodeId).FirstOrDefault()?.BatchUnitSize;
                         s.Index = i++;
                         s.ApexQty = s.ApexQty == 0 ? null : s.ApexQty;
                         s.AntahQty = s.AntahQty == 0 ? null : s.AntahQty;
@@ -247,7 +248,7 @@ namespace Infrastructure.Repository.Query
                         s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
                         //s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
                         s.ProductionProjected12_ = (s.Month12 + s.ProjectedHoldingStock12) - s.BlanketAddhoc12;
-                        if(!string.IsNullOrEmpty(s.AddhocCust))
+                        if (!string.IsNullOrEmpty(s.AddhocCust))
                         {
                             s.ProductionProjected1_ = null; s.ProductionProjected2_ = null;
                             s.ProductionProjected3_ = null; s.ProductionProjected4_ = null;

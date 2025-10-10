@@ -1,0 +1,59 @@
+﻿@page "/Schedulers/ganttchart"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Gantt
+@using Syncfusion.Blazor.Grids
+@using global::Core.Entities
+@using MediatR
+@inject IMediator Mediator
+@using Application.Queries
+@inject NavigationManager NavigationManager
+<style scoped>
+    .e-yscroll, .e-chart-scroll-container {
+        scrollbar-width: thin;
+    }
+</style>
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Scheduler" IconCssClass="fas fa-link" Click="@onBack" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="e-gantt-human-resource-use-case">
+    <SfGantt @ref="GanttChartInstance" IncludeWeekend="true" SelectedRowIndex=1 HighlightWeekends="true" TValue="ResourceData" TreeColumnIndex="1" ScrollToTaskbarOnClick="true" Height="80vh" Width="100%">
+        <Syncfusion.Blazor.Data.SfDataManager Url="@adapatorUrl" Adaptor="Adaptors.WebApiAdaptor"></Syncfusion.Blazor.Data.SfDataManager>
+
+        <GanttTaskFields Id="ChildId" Name="Subject" StartDate="StartTime" EndDate="EndTime" Dependency="DependentId" ParentID="ParentId" Progress="Progress"></GanttTaskFields>
+        <GanttColumns>
+            <GanttColumn Field="ChildId" Visible="false"></GanttColumn>
+            <GanttColumn Field="Subject" Width="250px" ClipMode="ClipMode.EllipsisWithTooltip"></GanttColumn>
+            <GanttColumn Field="Progress" Width="180px">
+            </GanttColumn>
+            <GanttColumn Field="StartTime" HeaderText="Start Date" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Right"></GanttColumn>
+            <GanttColumn Field="EndTime" HeaderText="Due Date" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Right"></GanttColumn>
+        </GanttColumns>
+        <GanttLabelSettings RightLabel="Subject" TValue="ResourceData"></GanttLabelSettings>
+    </SfGantt>
+</div>
+@code {
+    private SfGantt<ResourceData> GanttChartInstance { get; set; } = new SfGantt<ResourceData>();
+    private string ProgressBarColor { get; set; } = string.Empty;
+    public string? adapatorUrl { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        string baseUrl = NavigationManager.BaseUri;
+        adapatorUrl = baseUrl + "api/Scheduler/GetGanttList";
+    }
+    public void onBack()
+    {
+        NavigationManager.NavigateTo("Schedulers");
+    }
+}

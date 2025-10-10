@@ -1,0 +1,492 @@
+﻿@using System.Collections
+@using global::Core.EntityModels
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <div class="col-lg-12 control-section">
+        <div class="content-wrapper tt1">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="group-header">
+                            <td colspan="12">Generic Code: @_selectedItems?.MethodCode</td>
+                        </tr>
+                        @if (MonthType == "Month1")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th colspan="5">@Month1</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month2</th>
+                                <th>@Month3</th>
+                                <th>@Month4</th>
+                                <th>@Month5</th>
+                                <th>@Month6</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month2")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th colspan="5">@Month2</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month3</th>
+                                <th>@Month4</th>
+                                <th>@Month5</th>
+                                <th>@Month6</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month3")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th></th>
+                                <th colspan="5">@Month3</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>@Month2</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month4</th>
+                                <th>@Month5</th>
+                                <th>@Month6</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month4")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th colspan="5">@Month4</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>@Month2</th>
+                                <th>@Month3</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month5</th>
+                                <th>@Month6</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month5")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th colspan="5">@Month5</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>@Month2</th>
+                                <th>@Month3</th>
+                                <th>@Month4</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month6</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month6")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th colspan="5">@Month6</th>
+                                <th colspan="7"></th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>@Month2</th>
+                                <th>@Month3</th>
+                                <th>@Month4</th>
+                                <th>@Month5</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                                <th>@Month7</th>
+                            </tr>
+                        }
+                        @if (MonthType == "Month7")
+                        {
+                            <tr class="month-header">
+                                <th rowspan="2">Item No</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th colspan="5">@Month7</th>
+                            </tr>
+                            <tr>
+                                <th>@Month1</th>
+                                <th>@Month2</th>
+                                <th>@Month3</th>
+                                <th>@Month4</th>
+                                <th>@Month5</th>
+                                <th>@Month6</th>
+                                <th>Additional / tickets</th>
+                                <th>AC in Units</th>
+                                <th>Batch size</th>
+                                <th>Additional / AC</th>
+                                <th>New holding stock</th>
+                            </tr>
+                        }
+
+
+                    </thead>
+                    <tbody>
+                        @if (_simulationItems?.Any() == true)
+                        {
+                            foreach (var item in _simulationItems)
+                            {
+                                <tr>
+                                    <td>@item.ItemNo</td>
+                                    @if (MonthType == "Month1")
+                                    {
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month2")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month3")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month4")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month5")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month6")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                    @if (MonthType == "Month7")
+                                    {
+                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@item.SymlQty</td>
+                                        <td>@item.PackSize</td>
+                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</DxLoadingPanel>
+@code {
+
+    [Parameter]
+    public IEnumerable _simulationItem3 { get; set; }
+    [Parameter]
+    public string? MonthName { get; set; }
+    [Parameter]
+    public decimal? MonthData { get; set; }
+    [Parameter]
+    public string? MonthType { get; set; }
+    [Parameter]
+    public INPCalendarPivotModel _selectedItems { get; set; }
+    [Parameter]
+    public DateRangeModel dateRangeModel { get; set; }
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; } = true;
+    private List<INPCalendarPivotModel> _AllsimulationItems = new List<INPCalendarPivotModel>();
+    private List<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
+    public string? Month1 { get; set; } = ""; public string? Month2 { get; set; } = ""; public string? Month3 { get; set; } = ""; public string? Month4 { get; set; } = "";
+    public string? Month5 { get; set; } = ""; public string? Month6 { get; set; } = ""; public string? Month7 { get; set; } = ""; public string? Month8 { get; set; } = "";
+    public string? Month9 { get; set; } = ""; public string? Month10 { get; set; } = ""; public string? Month11 { get; set; } = ""; public string? Month12 { get; set; } = "";
+    public decimal? NoOfTicketDecimalSums { get; set; }
+    public decimal? RoundDown1 { get; set; }
+    public decimal? RoundUp1 { get; set; }
+    public decimal? EvenlyTopUp { get; set; }
+    public decimal? EvenlyDownUp { get; set; }
+    public decimal? FinalBalanceQty { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+    }
+    public async Task LoadData()
+    {
+
+        var startDate = dateRangeModel.StockMonth;
+        var makeDate = dateRangeModel.StockMonth.AddDays(-1);
+        makeDate = makeDate.AddMonths(-1);
+        var lastDay = new DateTime(makeDate.Year, makeDate.Month, 1).AddMonths(1).AddDays(-1);
+        var endDate = startDate.AddMonths(12);
+        int countmonth = 1;
+        while (startDate < endDate)
+        {
+
+            var lastDayOfMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
+
+            var daysInMonth = lastDayOfMonth - startDate.Day;
+
+            var monthEndDate = startDate.AddDays(daysInMonth);
+
+            if (endDate <= monthEndDate)
+            {
+                startDate = startDate.AddDays(daysInMonth);
+            }
+            else
+            {
+                var month = startDate.ToString("MMM");
+                if (countmonth == 1) Month1 = month;
+                if (countmonth == 2) Month2 = month;
+                if (countmonth == 3) Month3 = month;
+                if (countmonth == 4) Month4 = month;
+                if (countmonth == 5) Month5 = month;
+                if (countmonth == 6) Month6 = month;
+                if (countmonth == 7) Month7 = month;
+                if (countmonth == 8) Month8 = month;
+                if (countmonth == 9) Month9 = month;
+                if (countmonth == 10) Month10 = month;
+                if (countmonth == 11) Month11 = month;
+                if (countmonth == 12) Month12 = month;
+                startDate = monthEndDate.AddDays(1);
+            }
+            countmonth++;
+        }
+
+        if (_simulationItem3 != null)
+        {
+            _AllsimulationItems = _simulationItem3.Cast<INPCalendarPivotModel>().ToList();
+            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+        }
+
+        if (_simulationItems?.Any() == true)
+        {
+            _simulationItems.ForEach(s =>
+            {
+                if (MonthType == "Month1")
+                {
+                    s.ProductionProjectedT1_ = s.AdditionalAc - 1;
+                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ != null ? s.ProductionProjectedT1_ - 1 : null;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month2")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month3")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month4")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month5")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month6")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month7")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
+                    s.ProductionProjectedT6_ = s.ProductionProjected6_;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ + s.AdditionalAc - 1;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+            });
+        }
+        PanelVisible = false;
+    }
+    decimal RoundUp(decimal value, int decimals)
+    {
+        decimal factor = (decimal)Math.Pow(10, decimals);
+        if (value >= 0)
+            return Math.Ceiling(value * factor) / factor;
+        else
+            return Math.Floor(value * factor) / factor;
+    }
+    decimal RoundDown(decimal value, int decimals)
+    {
+        decimal factor = (decimal)Math.Pow(10, decimals);
+        return Math.Truncate(value * factor) / factor;
+    }
+    private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+}

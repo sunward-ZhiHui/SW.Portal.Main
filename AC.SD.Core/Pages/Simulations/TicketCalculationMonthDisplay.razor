@@ -1,0 +1,127 @@
+﻿@using System.Collections
+@using global::Core.EntityModels
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <div class="col-lg-12 control-section">
+        <div class="table-container">
+            <table id="tt1">
+                <thead>
+                    <tr class="group-header">
+                        <td colspan="11">Generic Code: @_selectedItems?.MethodCode</td>
+                    </tr>
+                    <tr>
+                        <th>Item No</th>
+                        <th>@tickectCalItemModel?.MonthHS</th>
+                        <th>Top up no of  month</th>
+                        <th>AC in Units</th>
+                        <th>Batch Size</th>
+                        <th>Add No of ticket</th>
+                        <th>No of ticket - whole no</th>
+                        <th>No of ticket - Decemial</th>
+                        <th>Final Split Ticket</th>
+                        <th>Final Split Ticket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_simulationItems?.Any() == true)
+                    {
+                        foreach (var item in _simulationItems)
+                        {
+                            <tr>
+                                <td>@item.ItemNo</td>
+                                <td>@(item.MonthHs.HasValue? Math.Round(item.MonthHs.Value, 2): null)</td>
+                                <td>@(item.TopUpNoOfMonth.HasValue? Math.Round(item.TopUpNoOfMonth.Value, 2): null)</td>
+                                <td>@item.SymlQty</td>
+                                <td>@item.BatchSizeValue</td>
+                                <td>@(item.AddNoOfTicket.HasValue? Math.Round(item.AddNoOfTicket.Value, 2): null)</td>
+                                <td>@(item.NoOfTicketWholeNo.HasValue? Math.Round(item.NoOfTicketWholeNo.Value, 2): null)</td>
+                                <td>@(item.NoOfTicketDecimal.HasValue? Math.Round(item.NoOfTicketDecimal.Value, 2): null)</td>
+                                <td>@(item.FinalSplitTicket1.HasValue? Math.Round(item.FinalSplitTicket1.Value, 2): null)</td>
+                                <td>@(item.FinalSplitTicket2.HasValue? Math.Round(item.FinalSplitTicket2.Value, 2): null)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7"></td>
+                        <td>Total</td>
+                        <td>Round Down</td>
+                        <td>Round Up</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"></td>
+                        <td>@(tickectCalItemModel?.NoOfTicketDecimalSums != null ? Math.Round(tickectCalItemModel.NoOfTicketDecimalSums.Value, 2) : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.RoundDown1 != null ? Math.Round(tickectCalItemModel.RoundDown1.Value, 2) : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.RoundUp1 != null ? Math.Round(tickectCalItemModel.RoundUp1.Value, 2) : (decimal?)null)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="8"></td>
+                        <td>Evenly Top up</td>
+                        <td>Evenly Top up</td>
+                    </tr>
+                    <tr>
+                        <td colspan="8"></td>
+                        <td>@(tickectCalItemModel?.EvenlyTopUp != null ? Math.Round(tickectCalItemModel.EvenlyTopUp.Value, 2) : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.EvenlyDownUp != null ? Math.Round(tickectCalItemModel.EvenlyDownUp.Value, 2) : (decimal?)null)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</DxLoadingPanel>
+
+
+@code {
+
+    [Parameter]
+    public IEnumerable _simulationItem1 { get; set; }
+    [Parameter]
+    public string? MonthName { get; set; }
+    [Parameter]
+    public decimal? MonthData { get; set; }
+    [Parameter]
+    public string? MonthType { get; set; }
+    [Parameter]
+    public INPCalendarPivotModel _selectedItems { get; set; }
+    [Parameter]
+    public TickectCalItemModel tickectCalItemModel { get; set; }
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; } = true;
+    private List<INPCalendarPivotModel> _AllsimulationItems = new List<INPCalendarPivotModel>();
+    private IEnumerable<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+    }
+    public async Task LoadData()
+    {
+        if (_simulationItem1 != null)
+        {
+            _AllsimulationItems = _simulationItem1.Cast<INPCalendarPivotModel>().ToList();
+            _simulationItems = new List<INPCalendarPivotModel>();
+            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+
+    private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+}

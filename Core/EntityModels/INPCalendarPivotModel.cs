@@ -1,7 +1,9 @@
 ﻿using Core.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -571,6 +573,42 @@ namespace Core.EntityModels
         public string ProdOrderNo11 { get; set; }
         public string ProdOrderNo12 { get; set; }
 
+
+        public decimal? ProductionProjectedT1_ { get; set; }
+        public decimal? ProductionProjectedT2_ { get; set; }
+        public decimal? ProductionProjectedT3_ { get; set; }
+        public decimal? ProductionProjectedT4_ { get; set; }
+        public decimal? ProductionProjectedT5_ { get; set; }
+        public decimal? ProductionProjectedT6_ { get; set; }
+        public decimal? ProductionProjectedT7_ { get; set; }
+        public decimal? ProductionProjectedT8_ { get; set; }
+
+        public decimal? MonthHs { get; set; }
+        public decimal? TopUpNoOfMonth { get; set; }
+        public decimal? AddNoOfTicket { get; set; }
+        public decimal? NoOfTicketWholeNo { get; set; }
+        public decimal? NoOfTicketDecimal { get; set; }
+        public decimal? FinalSplitTicket1 { get; set; }
+        public decimal? FinalSplitTicket2 { get; set; }
+        public decimal? SplitAfterAddWholeTicket { get; set; }
+        public decimal? StockValue { get; set; }
+        public decimal? StockInWholeNo {  get; set; }
+        public decimal? BalanceInStock { get; set; }
+        public decimal? BatchSizeValue { get; set; }
+        public decimal? RecommendedStockFactor { get; set; }
+        public decimal? BalanceStockInBulk { get; set; }
+        public decimal? AdditionalTickets { get; set; }
+        public decimal? AdditionalAc { get; set; }
+    }
+    public class TickectCalItemModel
+    {
+        public decimal? NoOfTicketDecimalSums { get; set; }
+        public decimal? RoundDown1 { get; set; }
+        public decimal? RoundUp1 { get; set; }
+        public decimal? EvenlyTopUp { get; set; }
+        public decimal? EvenlyDownUp { get; set; }
+        public string? MonthHS { get; set; } = "HS";
+        public decimal? FinalBalanceQty { get; set; }
     }
     public class NAVRecipesModel
     {
@@ -668,7 +706,7 @@ namespace Core.EntityModels
         public long? VersionId { get; set; }
         public long? CustomerId { get; set; }
         public DateTime? SelectedMonth { get; set; }
-
+        public long? StockInformationMasterId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public List<long?> NavItemIds { get; set; }

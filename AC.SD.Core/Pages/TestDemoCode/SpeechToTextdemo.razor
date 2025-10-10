@@ -1,0 +1,79 @@
+﻿@page "/speechdemo"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
+<h3>Syncfusion Blazor Speech To Text Demo</h3>
+
+<div class="speechtext-container" style="margin:20px; display:flex; flex-direction:column; gap:16px; max-width:500px;">
+    <div class="actions" style="display:flex; gap:10px;">
+        <SfButton OnClick="TriggerStartListening" Content="Start Listening" />
+        <SfButton OnClick="TriggerStopListening" Content="Stop Listening" CssClass="e-danger" />
+    </div>
+
+    <SfSpeechToText 
+        @ref="speechToText"
+        @bind-Transcript="Transcript" 
+        Language="en-US"
+        AllowInterimResults="true"
+        SpeechRecognitionStarted="OnStarted"
+        SpeechRecognitionStopped="OnStopped"
+        SpeechRecognitionError="OnError"
+        TranscriptChanging="OnTranscriptChanging">
+    </SfSpeechToText>
+
+    <SfTextArea RowCount="5" ColumnCount="50"
+                @bind-Value="Transcript"
+                ResizeMode="Resize.None"
+                Placeholder="Transcribed text will appear here...">
+    </SfTextArea>
+
+    <div>
+        <strong>Listening State:</strong> @listeningState
+    </div>
+</div>
+
+@code {
+
+   
+
+    private SfSpeechToText speechToText;
+    private string Transcript { get; set; } = string.Empty;
+    private string listeningState = "Inactive";
+
+    private async Task TriggerStartListening()
+    {
+        await speechToText.StartListeningAsync();
+    }
+
+    private async Task TriggerStopListening()
+    {
+        await speechToText.StopListeningAsync();
+    }
+
+    private void OnStarted(SpeechRecognitionStartedEventArgs args)
+    {
+        listeningState = "Listening";
+        Console.WriteLine("Speech recognition started.");
+    }
+
+    private void OnStopped(SpeechRecognitionStoppedEventArgs args)
+    {
+        listeningState = "Stopped";
+        Console.WriteLine("Speech recognition stopped.");
+    }
+
+    private void OnError(SpeechRecognitionErrorEventArgs args)
+    {
+        // args.Error contains error type (e.g. "no-speech", "not-allowed", etc.)
+        listeningState = $"Error: {args.Error}";
+        Console.WriteLine($"Speech recognition error: {args.Error}");
+    }
+
+    private void OnTranscriptChanging(TranscriptChangeEventArgs args)
+    {
+        // gets triggered when transcript updates (interim or final)
+        // args.Transcript gives new value
+        // you could do additional logic here
+        // (for now, we do nothing special)
+    }
+}

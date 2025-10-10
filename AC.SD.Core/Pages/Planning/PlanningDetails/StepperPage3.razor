@@ -1,0 +1,76 @@
+﻿@page "/syrup-Stepper3"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
+
+    <DxFormLayoutItem Caption="Process Name:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationProcessName" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Location:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationLocation" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="First Volumn/Hour:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationFirstVolumnHour" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="First Volumn/Manpower:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationFirstVolumnManpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="IPQC test:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationIPQCTest" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Top up to Volumn/Hour:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationTopupToVolumnHour" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Top up to Volumn/Manpower:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationTopupToVolumnManpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Campaign Batches/Numbers:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationCampaignBatchesNumbers" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 1 Cleaning/Hours:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationLevel1CleaningHours" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 1 Cleaning/manpower:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationLevel1Cleaningmanpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 2 Cleaning/hours:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationLevel2Cleaninghours" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Level 2 Cleaning/Manpower:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationLevel2CleaningManpower" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Next Process Name:" ColSpanMd="6">
+        <DxTextBox @bind-Text="@data.SyruppreparationNextProcessName" />
+    </DxFormLayoutItem>
+
+</DxFormLayout>
+
+@code {
+    SyrupPlanning data = new SyrupPlanning();
+    [Parameter]
+    public long MethodCodeID { get; set; } = 70;
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        data = await Mediator.Send(new GetSyruppreparationDataList(MethodCodeID));
+    }
+}

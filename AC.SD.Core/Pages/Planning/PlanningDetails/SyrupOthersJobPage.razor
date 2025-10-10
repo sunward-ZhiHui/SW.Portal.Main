@@ -1,0 +1,195 @@
+﻿@page "/syrup-two-col"
+@using Syncfusion.Blazor.Schedule
+
+<div class="col-lg-12">
+    <SfSchedule TValue="Appt" Width="100%" Height="650px"
+                @bind-SelectedDate="_day1"
+                StartHour="08:00" EndHour="20:00">
+
+        <!-- ✅ REQUIRED so the left resource panel shows -->
+        <ScheduleGroup Resources="@_group"></ScheduleGroup>  <!-- add this -->
+
+        <ScheduleResources>
+            <ScheduleResource TItem="RoomInfo" TValue="int" Name="Room"
+                              DataSource="@Rooms"
+                              Field="RoomId" TextField="RoomLabel" IdField="Id" ColorField="Color">
+            </ScheduleResource>
+        </ScheduleResources>
+
+        <ScheduleTemplates>
+            <!-- header above the resource panel -->
+            <HeaderIndentTemplate>
+                <div class="two-col-header">
+                    <div>Production plan</div>
+                    <div>Key</div>
+                </div>
+            </HeaderIndentTemplate>
+
+            <!-- each resource row -->
+            <ResourceHeaderTemplate>
+                @{
+                    var r = (context as TemplateContext).ResourceData as RoomInfo;
+                }
+                <div class="two-col-row">
+                    <div class="plan">@r.Stage</div>
+                    <div class="key">@r.RoomLabel</div>
+                </div>
+            </ResourceHeaderTemplate>
+        </ScheduleTemplates>
+
+        <ScheduleEventSettings DataSource="@Appointments"></ScheduleEventSettings>
+
+        <ScheduleViews>
+            <ScheduleView Option="View.TimelineDay">
+                <ScheduleTimeScale Interval="30" SlotCount="1"></ScheduleTimeScale>
+            </ScheduleView>
+        </ScheduleViews>
+    </SfSchedule>
+</div>
+
+@code {
+
+
+    private readonly string[] _group = new[] { "Room" };  // ✅ for ScheduleGroup
+
+   
+    private DateTime _day1 = new DateTime(DateTime.Today.Year, 1, 1);
+
+    // Resource model
+    public class RoomInfo
+    {
+        public int Id { get; set; }           // unique id
+        public string RoomLabel { get; set; } // "Room 1"...
+        public string Stage { get; set; }     // "Syrup simplex"...
+        public string Color { get; set; }
+        public int RoomId => Id;              // matches Field="RoomId"
+    }
+
+    // Appointments use only RoomId
+    public class Appt
+    {
+        public int Id { get; set; }
+        public string Subject { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public int RoomId { get; set; } // must match resource Field
+    }
+
+    public List<RoomInfo> Rooms = new();
+    public List<Appt> Appointments = new();
+
+    protected override void OnInitialized()
+    {
+        // Two columns mapping exactly like you asked
+        Rooms = new()
+        {
+            new RoomInfo { Id=1, RoomLabel="Room 1", Color="#F3C567", Stage="Syrup simplex" },
+            new RoomInfo { Id=2, RoomLabel="Room 2", Color="#AED581", Stage="Syrup Prep 1" },
+            new RoomInfo { Id=3, RoomLabel="Room 3", Color="#81D4FA", Stage="Syrup Prep 2" },
+            new RoomInfo { Id=4, RoomLabel="Room 4", Color="#B39DDB", Stage="Filling 1" },
+            new RoomInfo { Id=5, RoomLabel="Room 5", Color="#90CAF9", Stage="Filling 2" } // (use 5; your note had Room 4 twice)
+        };
+
+        SeedAppointments(); // same timing as your screenshot (approx.)
+    }
+
+    private DateTime T(int h, int m) => _day1.Date.AddHours(h).AddMinutes(m);
+
+    private void SeedAppointments()
+    {
+        // Room 1 — Syrup simplex: batch1, LV2; batch2, LV2; batch3, LV2; batch4, LV2
+        Appointments.Add(new Appt { Id = 1, RoomId = 1, Subject = "syrup simplex - batch 1", StartTime = T(8, 0), EndTime = T(10, 0) });
+        Appointments.Add(new Appt { Id = 2, RoomId = 1, Subject = "LV 2", StartTime = T(9, 30), EndTime = T(10, 0) });
+        Appointments.Add(new Appt { Id = 3, RoomId = 1, Subject = "syrup simplex - batch 2", StartTime = T(11, 0), EndTime = T(13, 0) });
+        Appointments.Add(new Appt { Id = 4, RoomId = 1, Subject = "LV 2", StartTime = T(12, 30), EndTime = T(13, 0) });
+        Appointments.Add(new Appt { Id = 5, RoomId = 1, Subject = "syrup simplex - batch 3", StartTime = T(13, 30), EndTime = T(15, 30) });
+        Appointments.Add(new Appt { Id = 6, RoomId = 1, Subject = "LV 2", StartTime = T(15, 30), EndTime = T(16, 0) });
+        Appointments.Add(new Appt { Id = 7, RoomId = 1, Subject = "Syrup simplex batch 4", StartTime = T(16, 30), EndTime = T(18, 30) });
+        Appointments.Add(new Appt { Id = 8, RoomId = 1, Subject = "LV 2", StartTime = T(18, 30), EndTime = T(19, 0) });
+
+        // Room 2 — Syrup Prep 1: for 1st volumn, QC/top up, LV1 (twice)
+        Appointments.Add(new Appt { Id = 9, RoomId = 2, Subject = "for 1st volumn", StartTime = T(8, 30), EndTime = T(11, 0) });
+        Appointments.Add(new Appt { Id = 10, RoomId = 2, Subject = "for 1st volumn", StartTime = T(15, 30), EndTime = T(18, 0) });
+        Appointments.Add(new Appt { Id = 11, RoomId = 2, Subject = "QC/top up", StartTime = T(18, 0), EndTime = T(18, 30) });
+        Appointments.Add(new Appt { Id = 12, RoomId = 2, Subject = "LV1", StartTime = T(18, 0), EndTime = T(18, 30) });
+        Appointments.Add(new Appt { Id = 13, RoomId = 2, Subject = "for 1st volumn", StartTime = T(18, 30), EndTime = T(19, 30) });
+
+        // Room 3 — Syrup Prep 2: QC/top up + LV1 (AM), 120ml (late)
+        Appointments.Add(new Appt { Id = 14, RoomId = 3, Subject = "QC/top up", StartTime = T(10, 30), EndTime = T(11, 0) });
+        Appointments.Add(new Appt { Id = 15, RoomId = 3, Subject = "LV1", StartTime = T(10, 30), EndTime = T(11, 30) });
+        Appointments.Add(new Appt { Id = 16, RoomId = 3, Subject = "120ml", StartTime = T(17, 0), EndTime = T(19, 30) });
+
+        // Room 4 — Filling 1: Setting; 120ml + LV1
+        Appointments.Add(new Appt { Id = 17, RoomId = 4, Subject = "Setting", StartTime = T(8, 0), EndTime = T(8, 30) });
+        Appointments.Add(new Appt { Id = 18, RoomId = 4, Subject = "120ml", StartTime = T(13, 0), EndTime = T(15, 0) });
+        Appointments.Add(new Appt { Id = 19, RoomId = 4, Subject = "LV1", StartTime = T(15, 0), EndTime = T(15, 30) });
+
+        // Room 5 — Filling 2: (from screenshot evening long 120ml)
+        Appointments.Add(new Appt { Id = 20, RoomId = 5, Subject = "120ml", StartTime = T(19, 0), EndTime = T(20, 0) });
+    }
+}
+
+<style>
+    .e-schedule .e-timeline-view .e-resource-left-td {
+        width: 320px;
+    }
+
+    .two-col-header, .two-col-row {
+        display: grid;
+        grid-template-columns: 1fr 120px;
+        align-items: center;
+    }
+
+        .two-col-header > div, .two-col-row > div {
+            border-right: 1px solid rgba(0,0,0,.12);
+            padding: 0 6px;
+        }
+
+            .two-col-header > div:last-child, .two-col-row > div:last-child {
+                border-right: 0;
+            }
+
+    /* two-column resource header/rows */
+    .e-schedule .e-timeline-view .e-resource-left-td {
+        width: 320px;
+    }
+
+    .two-col-header, .two-col-row {
+        display: grid;
+        grid-template-columns: 1fr 120px; /* Production plan | Key */
+        align-items: center;
+    }
+
+        .two-col-header > div {
+            font-weight: 600;
+            border-right: 1px solid rgba(0,0,0,.12);
+            padding: 0 6px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+        }
+
+            .two-col-header > div:last-child {
+                border-right: 0;
+            }
+
+        .two-col-row > div {
+            border-right: 1px solid rgba(0,0,0,.12);
+            padding-left: 6px;
+            line-height: 58px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+            .two-col-row > div:last-child {
+                border-right: 0;
+            }
+
+    .plan {
+        font-weight: 500;
+    }
+
+    .key {
+        opacity: .9;
+    }
+</style>

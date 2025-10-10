@@ -1,0 +1,47 @@
+﻿@page "/speech"
+@inject IJSRuntime JS
+
+<PageTitle>Speech To Text</PageTitle>
+
+<DxFormLayout>
+    <DxFormLayoutItem Caption="Speech Controls">
+        <DxButton CssClass="m-1" Text="Start Listening" RenderStyle="ButtonRenderStyle.Primary" Click="StartListening" />
+        <DxButton CssClass="m-1" Text="Stop Listening" RenderStyle="ButtonRenderStyle.Danger" Click="StopListening" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Recognized Text">
+        <DxTextBox @bind-Text="recognizedText" Multiline="true" Rows="6" ReadOnly="true" />
+    </DxFormLayoutItem>
+</DxFormLayout>
+
+@code {
+    private string recognizedText = "";
+    private DotNetObjectReference<SpeechToText>? objRef;
+
+    protected override void OnInitialized()
+    {
+        objRef = DotNetObjectReference.Create(this);
+    }
+
+    private async Task StartListening()
+    {
+        await JS.InvokeVoidAsync("speechRecognitionInterop.startRecognition", objRef);
+    }
+
+    private async Task StopListening()
+    {
+        await JS.InvokeVoidAsync("speechRecognitionInterop.stopRecognition");
+    }
+
+    [JSInvokable]
+    public void UpdateSpeechText(string text)
+    {
+        recognizedText = text;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+}

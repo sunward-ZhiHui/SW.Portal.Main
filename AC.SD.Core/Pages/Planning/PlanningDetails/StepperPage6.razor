@@ -1,0 +1,282 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@using static global::Core.EntityModels.SyrupPlanning
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@page "/production-timeline"
+@using System
+@using System.Linq
+@using System.Collections.Generic
+
+<style>
+    body {
+        font-family: Segoe UI,Arial
+    }
+
+    .tl-header {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        margin-bottom: 4px
+    }
+
+    .ticks {
+        position: relative;
+        height: 32px;
+        border-left: 1px solid #ddd
+    }
+
+        .ticks div {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-left: 1px dashed #ddd
+        }
+
+        .ticks span {
+            position: absolute;
+            top: 100%;
+            font-size: .75rem;
+            transform: translateX(-50%)
+        }
+
+    .tl-grid {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: auto
+    }
+
+    .lanes {
+        display: flex;
+        flex-direction: column
+    }
+
+    .lane-name {
+        padding: 6px;
+        background: #f8f8f8;
+        border-bottom: 1px solid #eee;
+        font-weight: 600
+    }
+
+    .track {
+        position: relative;
+        border-bottom: 1px solid #eee;
+        height: 50px
+    }
+
+    .bar {
+        position: absolute;
+        top: 6px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        font-size: .8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+    }
+
+    .simplex {
+        background: #fef3c7;
+        border: 1px solid #fde68a
+    }
+
+    .prep {
+        background: #e0f2fe;
+        border: 1px solid #bae6fd
+    }
+
+    .ipqc {
+        background: #e9d5ff;
+        border: 1px solid #d8b4fe
+    }
+
+    .fill {
+        background: #dcfce7;
+        border: 1px solid #bbf7d0
+    }
+
+    .lv1 {
+        background: #fee2e2;
+        border: 1px solid #fecaca
+    }
+
+    .lv2 {
+        background: #ffe4e6;
+        border: 1px solid #fecdd3
+    }
+
+    .break {
+        background: #f3f4f6;
+        border: 1px dashed #ccc;
+        color: #555
+    }
+
+    .setup {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0
+    }
+
+    .mh1 {
+        background: #fef9c3;
+        border: 1px solid #fde68a
+    }
+</style>
+
+<h2>Syrup Planning Timeline</h2>
+
+<div class="tl-header">
+    <div></div>
+    <div class="ticks">
+        @foreach (var t in HalfHours)
+        {
+            var left = Px(t);
+            <div style="left:@($"{left}px")"></div>
+            <span style="left:@($"{left}px")">@t.ToString(@"hh\:mm")</span>
+        }
+    </div>
+</div>
+
+<div class="tl-grid">
+    <div class="lanes">
+        @foreach (var lane in Plan.Lanes)
+        {
+            <div class="lane-name">@lane.Name</div>
+        }
+    </div>
+    <div>
+        @foreach (var lane in Plan.Lanes)
+        {
+            <div class="track">
+                @foreach (var item in lane.Items)
+                {
+                    var left = Px(item.Start);
+                    var width = Math.Max(1, Px(item.End) - left);
+                    <div class="bar @item.Css" style="left:@($"{left}px");width:@($"{width}px")" title="@item.Label">
+                        @item.Label
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    // timeline window
+    static readonly TimeSpan Start = TimeSpan.FromHours(8);
+    static readonly TimeSpan End = TimeSpan.FromHours(20.5);
+    const int PX_PER_MIN = 4;
+
+    IEnumerable<TimeSpan> HalfHours =>
+        Enumerable.Range(0, (int)((End - Start).TotalMinutes / 30) + 1)
+                  .Select(i => Start + TimeSpan.FromMinutes(i * 30));
+
+    int Px(TimeSpan t) => (int)((t - Start).TotalMinutes) * PX_PER_MIN;
+
+    // --- production logic ---
+    Timeline Plan;
+
+    protected override void OnInitialized()
+    {
+        Build();
+    }
+
+    void Build()
+    {
+        var lunch = (TimeSpan.FromHours(12.5), TimeSpan.FromHours(13.5));
+        var otBreak = (TimeSpan.FromHours(18), TimeSpan.FromHours(18.5));
+
+        Plan = new Timeline();
+
+        var simplex = Plan.Add("Syrup Simplex");
+        var prep = Plan.Add("Prep");
+        var mh1 = Plan.Add("MH1 Handling");
+        var fill = Plan.Add("Filling");
+
+        var cur = Start;
+
+        // Monday setup
+        fill.Add(cur, TimeSpan.FromHours(1), "Setup", "setup");
+        cur += TimeSpan.FromHours(1);
+
+        // Simplex
+        simplex.Add(cur, TimeSpan.FromHours(2), "Simplex", "simplex");
+        simplex.Add(cur + TimeSpan.FromHours(2), TimeSpan.FromHours(1), "L2 Clean", "lv2");
+        var prepStart = cur + TimeSpan.FromHours(2);
+
+        // Prep
+        prep.Add(prepStart, TimeSpan.FromHours(1.5), "Prep first vol", "prep");
+        prep.Add(prepStart + TimeSpan.FromHours(1.5) - TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(15), "IPQC", "ipqc");
+
+        // MH1 handling
+        mh1.Add(prepStart + TimeSpan.FromMinutes(30), TimeSpan.FromHours(1), "MH1 handling", "mh1");
+
+        // breaks
+        foreach (var l in new[] { simplex, prep, mh1, fill })
+        {
+            l.Add(lunch.Item1, lunch.Item2 - lunch.Item1, "Lunch", "break");
+            l.Add(otBreak.Item1, otBreak.Item2 - otBreak.Item1, "OT Break", "break");
+        }
+
+        // Filling batches
+        var batches120 = 3;
+        var batches60 = 2;
+        var curF = prepStart + TimeSpan.FromHours(1.5);
+
+        void DoBatch(string pack, TimeSpan dur, int n)
+        {
+            for (int i = 1; i <= n; i++)
+            {
+                curF = SkipBreak(curF, lunch, otBreak);
+                fill.Add(curF, dur, $"{pack} Batch {i}", "fill");
+                curF += dur;
+                fill.Add(curF, TimeSpan.FromMinutes(30), "LV1 Clean", "lv1");
+                curF += TimeSpan.FromMinutes(30);
+            }
+        }
+
+        DoBatch("120 ml", TimeSpan.FromHours(2.5), batches120);
+        // product change → LV2
+        fill.Add(curF, TimeSpan.FromHours(3), "LV2 Clean", "lv2");
+        curF += TimeSpan.FromHours(3);
+        DoBatch("60 ml", TimeSpan.FromHours(3.5), batches60);
+    }
+
+    TimeSpan SkipBreak(TimeSpan t, (TimeSpan s, TimeSpan e) lunch, (TimeSpan s, TimeSpan e) ot)
+    {
+        if (t >= lunch.s && t < lunch.e) t = lunch.e;
+        if (t >= ot.s && t < ot.e) t = ot.e;
+        return t;
+    }
+
+    // --- data structs ---
+    class Timeline
+    {
+        public List<Lane> Lanes = new();
+        public Lane Add(string n) { var l = new Lane { Name = n }; Lanes.Add(l); return l; }
+    }
+    class Lane
+    {
+        public string Name;
+        public List<Item> Items = new();
+        public void Add(TimeSpan st, TimeSpan len, string lab, string css) => Items.Add(new Item { Start = st, End = st + len, Label = lab, Css = css });
+    }
+    class Item
+    {
+        public TimeSpan Start, End;
+        public string Label, Css;
+    }
+}

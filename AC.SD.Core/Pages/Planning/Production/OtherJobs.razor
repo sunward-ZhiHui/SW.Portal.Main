@@ -1,0 +1,501 @@
+﻿@page "/syrup-planner-dx"
+@using System.Globalization
+@using DevExpress.Blazor
+
+@* <DxFormLayout CssClass="mb-4">
+        <DxFormLayoutGroup Caption="Global Parameters">
+            <Items>
+                <DxFormLayoutItem Caption="Shift start">
+                    <DxMaskedInput @bind-Value="Globals.ShiftStartText" Mask="00:00" Placeholder="08:00" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Shift end">
+                    <DxMaskedInput @bind-Value="Globals.ShiftEndText" Mask="00:00" Placeholder="20:30" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Lunch start">
+                    <DxMaskedInput @bind-Value="Globals.LunchStartText" Mask="00:00" Placeholder="12:30" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Lunch end">
+                    <DxMaskedInput @bind-Value="Globals.LunchEndText" Mask="00:00" Placeholder="13:30" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="OT break start">
+                    <DxMaskedInput @bind-Value="Globals.OtBreakStartText" Mask="00:00" Placeholder="18:00" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="OT break end">
+                    <DxMaskedInput @bind-Value="Globals.OtBreakEndText" Mask="00:00" Placeholder="18:30" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Cleaning L1 (min)">
+                    <DxSpinEdit @bind-Value="Globals.CleanL1" MinValue="0" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Cleaning L2 (min)">
+                <DxSpinEdit @bind-Value="Globals.CleanL2" MinValue="0" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="IPQC pause (min)">
+                <DxSpinEdit @bind-Value="Globals.IpqcPause" MinValue="0" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="BPM 60ml">
+                    <DxSpinEdit @bind-Value="Globals.Bpm60" MinValue="1" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="BPM 120ml">
+                <DxSpinEdit @bind-Value="Globals.Bpm120" MinValue="1" />
+                </DxFormLayoutItem>
+            </Items>
+        </DxFormLayoutGroup>  
+</DxFormLayout> *@
+
+<DxFormLayout CssClass="mb-2">
+    
+        <DxFormLayoutGroup Caption="Add Batches">
+            <Items>
+                <DxFormLayoutItem Caption="Item name">
+                    <DxTextBox @bind-Text="Draft.Item" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Batch tag">
+                    <DxTextBox @bind-Text="Draft.Tag" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Pack size (ml)">
+                    @* <DxSelectBox @bind-Value="Draft.Pack" Data="PackSizes" TextFieldName="Text" ValueFieldName="Value" /> *@
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Qty (bottles)">
+                <DxSpinEdit @bind-Value="Draft.Qty" MinValue="1" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Batches (count)">
+                    <DxSpinEdit @bind-Value="Draft.BatchesCount" MinValue="1" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SyrupSimplex est. (min)">
+                    <DxSpinEdit @bind-Value="Draft.SyrupSimplexMin" MinValue="0" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SyrupPrep1 first vol (min)">
+                <DxSpinEdit @bind-Value="Draft.Prep1Min" MinValue="0" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem>
+                    <DxButton Text="Add to queue" Click="AddToQueue" CssClass="me-2" />
+                    <DxButton Text="Clear" Click="ClearQueue" RenderStyle="ButtonRenderStyle.Success" />
+                </DxFormLayoutItem>
+            </Items>
+        </DxFormLayoutGroup>    
+</DxFormLayout>
+
+<DxToolbar CssClass="mb-2">
+    <Items>
+        <DxToolbarItem Text="Compute Schedule" Click="ComputeSchedule" />
+    </Items>
+</DxToolbar>
+
+<DxGrid Data="@Queue" KeyFieldName="Id" ShowGroupPanel="false" CssClass="mb-4" PageSize="10">
+    <Columns>
+        <DxGridDataColumn FieldName="Id" Caption="#" Width="60px" />
+        <DxGridDataColumn FieldName="Item" />
+        <DxGridDataColumn FieldName="Tag" />
+        <DxGridDataColumn FieldName="Pack" Caption="Pack (ml)" Width="110px" />
+        <DxGridDataColumn FieldName="Qty" Caption="Qty (bottles)" DisplayFormat="n0" />
+        <DxGridDataColumn FieldName="SyrupSimplexMin" Caption="Simplex (min)" Width="140px" />
+        <DxGridDataColumn FieldName="Prep1Min" Caption="Prep1 (min)" Width="120px" />
+        <DxGridDataColumn Caption="" Width="120px">
+            <CellDisplayTemplate Context="ctx">
+                <DxButton Text="Remove" Click="@(() => RemoveQueue((BatchInput)ctx.DataItem))" RenderStyle="ButtonRenderStyle.Secondary" />
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+    </Columns>
+</DxGrid>
+
+@if (Schedule.Any())
+{
+    <DxGrid Data="@Schedule" KeyFieldName="RowId" ShowGroupPanel="false" PageSize="15">
+        <Columns>
+            <DxGridDataColumn FieldName="Batch" Caption="#" Width="60px" />
+            <DxGridDataColumn FieldName="Tag" Caption="Batch Tag" Width="140px" />
+            <DxGridDataColumn FieldName="Stage" Width="220px" />
+            <DxGridDataColumn FieldName="Room" Width="110px" />
+            <DxGridDataColumn Caption="Start" Width="100px">
+                <CellDisplayTemplate Context="c">
+                    @ToHM(((ScheduleItem)c.DataItem).Start)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="End" Width="100px">
+                <CellDisplayTemplate Context="c">
+                    @ToHM(((ScheduleItem)c.DataItem).End)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="DurationMin" Caption="Duration (min)" Width="130px" />
+            <DxGridDataColumn FieldName="Notes" />
+        </Columns>
+    </DxGrid>
+}
+
+@if (Appointments.Any())
+{
+    <DxToolbar class="mb-2">
+        <Items>
+            <DxToolbarItem Text="Today" Click="@(() => PlannerDate = DateTime.Today)" />
+            <DxToolbarItem Text="Prev Day" Click="@(() => PlannerDate = PlannerDate.AddDays(-1))" />
+            <DxToolbarItem Text="Next Day" Click="@(() => PlannerDate = PlannerDate.AddDays(1))" />
+        </Items>
+    </DxToolbar>
+
+    <DxScheduler StartDate="PlannerDate" DataStorage="DataStorage" Height="800px">
+        <Views>
+            <DxSchedulerDayView ShowWorkTimeOnly="true"
+                                WorkTime="@(new DxSchedulerTimeSpanRange(
+                                                          TimeSpan.FromMinutes(Globals.ShiftStartMin),
+                                                          TimeSpan.FromMinutes(Globals.ShiftEndMin)))">
+
+            <HorizontalAppointmentTemplate>
+                <div class="p-1">
+                    <div style="font-weight:600">@context.Appointment.Subject</div>
+                    <div>@context.Appointment.Start:HH\\:mm - @context.Appointment.End:HH\\:mm</div>
+                    <div>@context.Appointment.Location</div>
+                    @if (!string.IsNullOrWhiteSpace(@context.Appointment.Description))
+                        {
+                            <div>@context.Appointment.Description</div>
+                        }
+                    </div>
+                </HorizontalAppointmentTemplate>
+
+                <VerticalAppointmentTemplate>
+                    <div class="p-1" style="height:100%">
+                        <div style="font-weight:600">@context.Appointment.Subject</div>
+                        <div>@context.Appointment.Start:HH\\:mm - @context.Appointment.End:HH\\:mm</div>
+                    </div>
+                </VerticalAppointmentTemplate>
+
+            </DxSchedulerDayView>
+        </Views>
+    </DxScheduler>
+
+}
+
+
+
+@code {
+    DxSchedulerDataStorage DataStorage;
+
+    public class CalendarItem
+    {
+        public int Id { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Subject { get; set; } = "";
+        public string? Description { get; set; }
+        public string? Location { get; set; }
+        public int LabelId { get; set; }
+        public string ResourceId { get; set; } = "";
+    }
+    public class SchedulerResource { public string Id { get; set; } = ""; public string Text { get; set; } = ""; }
+    public class LabelObject { public int Id { get; set; } public string Caption { get; set; } = ""; public string Color { get; set; } = ""; }
+
+    DateTime PlannerDate = DateTime.Today;
+    List<CalendarItem> Appointments = new();
+    List<SchedulerResource> Resources = new() {
+    new() { Id = "room1", Text = "Room1 • Syrup Simplex" },
+    new() { Id = "room2", Text = "Room2 • Prep 1" },
+    new() { Id = "room3", Text = "Room3 • Prep 2/Transfer" },
+    new() { Id = "fill1", Text = "Room4 • Filling 1" },
+    new() { Id = "fill2", Text = "Room5 • Filling 2" },
+};
+    List<LabelObject> Labels = new() {
+    new() { Id = 1, Caption = "Syrup",    Color = "#4caf50" },
+    new() { Id = 2, Caption = "Prep",     Color = "#ff9800" },
+    new() { Id = 3, Caption = "Filling",  Color = "#2196f3" },
+    new() { Id = 4, Caption = "Cleaning", Color = "#9e9e9e" },
+    new() { Id = 5, Caption = "IPQC",     Color = "#8e24aa" },
+};
+
+    protected override void OnInitialized()
+    {
+        // DataStorage = new DxSchedulerDataStorage
+        // {
+        //     AppointmentsSource = Appointments,
+        //     AppointmentMappings = new DxSchedulerAppointmentMappings
+        //     {
+        //         Id = nameof(CalendarItem.Id),
+        //         Start = nameof(CalendarItem.Start),
+        //         End = nameof(CalendarItem.End),
+        //         Subject = nameof(CalendarItem.Subject),
+        //         Description = nameof(CalendarItem.Description),
+        //         Location = nameof(CalendarItem.Location),
+        //         LabelId = nameof(CalendarItem.LabelId),
+        //         ResourceId = nameof(CalendarItem.ResourceId)
+        //     },
+        //     ResourcesSource = Resources,
+        //     ResourceMappings = new DxSchedulerResourceMappings
+        //     {
+        //         Id = nameof(SchedulerResource.Id),
+        //         Caption = nameof(SchedulerResource.Text)
+        //     },
+        //     // ✅ correct names:
+        //     AppointmentLabelsSource = Labels,
+        //     AppointmentLabelMappings = new DxSchedulerAppointmentLabelMappings
+        //     {
+        //         Id = nameof(LabelObject.Id),
+        //         Caption = nameof(LabelObject.Caption),
+        //         Color = nameof(LabelObject.Color)
+        //     }
+        // };
+
+    }
+
+
+    DateTime ToDT(int minutes) => PlannerDate.Date.AddMinutes(minutes);
+
+    int StageToLabelId(string stage)
+    {
+        stage = stage.ToLowerInvariant();
+        if (stage.Contains("syrup simplex")) return 1;
+        if (stage.Contains("prep")) return 2;
+        if (stage.Contains("fill")) return 3;
+        if (stage.Contains("clean")) return 4;
+        if (stage.Contains("ipqc")) return 5;
+        return 1;
+    }
+
+    string StageToResourceKey(string stage, string room) =>
+        room switch
+        {
+            "Room1" => "room1",
+            "Room2" => "room2",
+            "Room3" => "room3",
+            "Room4" => "fill1",
+            "Room5" => "fill2",
+            _ => "room1"
+        };
+
+    void BuildAppointmentsFromSchedule()
+    {
+        Appointments.Clear();
+        int id = 1;
+        foreach (var s in Schedule)
+        {
+            Appointments.Add(new CalendarItem
+            {
+                Id = id++,
+                Start = ToDT(s.Start),
+                End = ToDT(s.End),
+                Subject = $"{s.Tag} — {s.Stage}",
+                Description = s.Notes,
+                Location = s.Room,
+                LabelId = StageToLabelId(s.Stage),
+                ResourceId = StageToResourceKey(s.Stage, s.Room)
+            });
+        }
+    }
+
+}
+
+
+@code {
+    // ---------- Models ----------
+    public class GlobalsModel
+    {
+        // Bind to DxMaskedInput as strings "HH:mm" to avoid TimeOnly/TimeSpan issues
+        public string ShiftStartText   { get; set; } = "08:00";
+        public string ShiftEndText     { get; set; } = "20:30";
+        public string LunchStartText   { get; set; } = "12:30";
+        public string LunchEndText     { get; set; } = "13:30";
+        public string OtBreakStartText { get; set; } = "18:00";
+        public string OtBreakEndText   { get; set; } = "18:30";
+
+        public int CleanL1 { get; set; } = 30;
+        public int CleanL2 { get; set; } = 180;
+        public int IpqcPause { get; set; } = 15;
+        public int Bpm60 { get; set; } = 100;
+        public int Bpm120 { get; set; } = 80;
+
+        // Minute-of-day computed properties
+        public int ShiftStartMin   => ParseMinutes(ShiftStartText);
+        public int ShiftEndMin     => ParseMinutes(ShiftEndText);
+        public int LunchStartMin   => ParseMinutes(LunchStartText);
+        public int LunchEndMin     => ParseMinutes(LunchEndText);
+        public int OtBreakStartMin => ParseMinutes(OtBreakStartText);
+        public int OtBreakEndMin   => ParseMinutes(OtBreakEndText);
+
+        public static int ParseMinutes(string hhmm)
+        {
+            if (string.IsNullOrWhiteSpace(hhmm)) return 0;
+            var parts = hhmm.Split(':');
+            if (parts.Length != 2) return 0;
+            _ = int.TryParse(parts[0], out var h);
+            _ = int.TryParse(parts[1], out var m);
+            h = Math.Clamp(h, 0, 23); m = Math.Clamp(m, 0, 59);
+            return h * 60 + m;
+        }
+    }
+
+    public class BatchInput
+    {
+        public int Id { get; set; }
+        public string Item { get; set; } = "Item";
+        public string Tag { get; set; } = "B1";
+        public int Pack { get; set; } = 120;       // ml
+        public int Qty { get; set; } = 10000;      // bottles
+        public int SyrupSimplexMin { get; set; } = 120;
+        public int Prep1Min { get; set; } = 90;
+        public int BatchesCount { get; set; } = 1;
+    }
+
+    public class ScheduleItem
+    {
+        public int RowId { get; set; }             // for grid key
+        public int Batch { get; set; }
+        public string Tag { get; set; } = "";
+        public string Stage { get; set; } = "";
+        public string Room { get; set; } = "";
+        public int Start { get; set; }             // minutes since midnight
+        public int End { get; set; }
+        public int DurationMin { get; set; }
+        public string Notes { get; set; } = "";
+    }
+
+    // ---------- State ----------
+    GlobalsModel Globals = new();
+    BatchInput Draft = new();
+    List<BatchInput> Queue = new();
+    List<ScheduleItem> Schedule = new();
+
+    // Pack dropdown
+    record PackOpt(string Text, int Value);
+    List<PackOpt> PackSizes = new()
+    {
+        new PackOpt("60", 60),
+        new PackOpt("120", 120)
+    };
+
+    // ---------- Actions ----------
+    void AddToQueue()
+    {
+        var batches = Math.Max(1, Draft.BatchesCount);
+        for (int i = 0; i < batches; i++)
+        {
+            Queue.Add(new BatchInput
+            {
+                Id = Queue.Any() ? Queue.Max(x => x.Id) + 1 : 1,
+                Item = string.IsNullOrWhiteSpace(Draft.Item) ? "Item" : Draft.Item.Trim(),
+                Tag = (string.IsNullOrWhiteSpace(Draft.Tag) ? $"B{(Queue.Any()? Queue.Max(x=>x.Id)+1:1)}" : Draft.Tag.Trim()) + (batches > 1 ? $"-{i + 1}" : ""),
+                Pack = Draft.Pack,
+                Qty = Draft.Qty,
+                SyrupSimplexMin = Draft.SyrupSimplexMin,
+                Prep1Min = Draft.Prep1Min,
+                BatchesCount = 1
+            });
+        }
+        StateHasChanged();
+    }
+
+    void RemoveQueue(BatchInput row)
+    {
+        Queue.Remove(row);
+    }
+
+    void ClearQueue()
+    {
+        Queue.Clear();
+        Schedule.Clear();
+        Appointments.Clear();
+    }
+
+    // ---------- Scheduling ----------
+    void ComputeSchedule()
+    {
+        if (!Queue.Any()) { Schedule.Clear(); return; }
+
+        var r = new Dictionary<string, int> {
+            { "room1", Globals.ShiftStartMin }, // Syrup Simplex
+            { "room2", Globals.ShiftStartMin }, // Prep1
+            { "room3", Globals.ShiftStartMin }, // Prep2/Transfer
+            { "fill1", Globals.ShiftStartMin }, // Filling 1
+            { "fill2", Globals.ShiftStartMin }  // Filling 2
+        };
+
+        Schedule = new List<ScheduleItem>();
+        int rowId = 1;
+
+        (int s, int e) Reserve(string res, int earliest, int duration)
+        {
+            var s = Math.Max(r[res], earliest);
+
+            // Avoid lunch overlap
+            if (s >= Globals.LunchStartMin && s < Globals.LunchEndMin)
+                s = Globals.LunchEndMin;
+
+            var e = s + duration;
+            if (s < Globals.LunchStartMin && e > Globals.LunchStartMin)
+            {
+                s = Globals.LunchEndMin;
+                e = s + duration;
+            }
+            r[res] = e;
+            return (s, e);
+        }
+
+        int FillDuration(int qty, int pack)
+        {
+            var bpm = pack == 60 ? Globals.Bpm60 : Globals.Bpm120;
+            if (bpm <= 0) bpm = 1;
+            return (int)Math.Ceiling(qty / (double)bpm);
+        }
+
+        for (int i = 0; i < Queue.Count; i++)
+        {
+            var b = Queue[i];
+
+            // 1) Syrup Simplex
+            var (s1, e1) = Reserve("room1", r["room1"], b.SyrupSimplexMin);
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="Syrup Simplex", Room="Room1", Start=s1, End=e1, DurationMin=b.SyrupSimplexMin, Notes="Mixing/heating (estimate)" });
+
+            // 2) Prep1
+            var (s2, e2) = Reserve("room2", e1, b.Prep1Min);
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="Syrup Prep 1 (first vol)", Room="Room2", Start=s2, End=e2, DurationMin=b.Prep1Min, Notes="First volume - QC/top-up after" });
+
+            // 3) IPQC pause
+            var (s3, e3) = Reserve("room2", e2, Globals.IpqcPause);
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="IPQC / Top-up check", Room="Room2", Start=s3, End=e3, DurationMin=Globals.IpqcPause, Notes="QC check before top-up" });
+
+            // 4) Prep2 / Transfer
+            const int prep2Dur = 15;
+            var (s4, e4) = Reserve("room3", e3, prep2Dur);
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="Syrup Prep 2 / Transfer", Room="Room3", Start=s4, End=e4, DurationMin=prep2Dur, Notes="Transfer to filling" });
+
+            // 5) Filling — pick earlier machine
+            var fillDur = FillDuration(b.Qty, b.Pack);
+            var start1 = Math.Max(r["fill1"], e4);
+            var start2 = Math.Max(r["fill2"], e4);
+            var chosen = (start1 <= start2) ? "fill1" : "fill2";
+            var roomName = chosen == "fill1" ? "Room4" : "Room5";
+            var (sf, ef) = Reserve(chosen, e4, fillDur);
+            var bpmUsed = b.Pack == 60 ? Globals.Bpm60 : Globals.Bpm120;
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage=$"Filling ({b.Pack}ml)", Room=roomName, Start=sf, End=ef, DurationMin=fillDur, Notes=$"~{bpmUsed} bpm" });
+
+            // 6) Cleaning L1
+            var (sc1, ec1) = Reserve(chosen, ef, Globals.CleanL1);
+            Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="Cleaning L1", Room=roomName, Start=sc1, End=ec1, DurationMin=Globals.CleanL1, Notes="Routine cleaning after batch" });
+
+            // 7) Cleaning L2 if next item is different
+            if (i + 1 < Queue.Count)
+            {
+                var next = Queue[i + 1];
+                if (!string.Equals(next.Item, b.Item, StringComparison.OrdinalIgnoreCase))
+                {
+                    var (sc2, ec2) = Reserve(chosen, ec1, Globals.CleanL2);
+                    Schedule.Add(new ScheduleItem { RowId=rowId++, Batch=i+1, Tag=b.Tag, Stage="Cleaning L2 (pre next item)", Room=roomName, Start=sc2, End=ec2, DurationMin=Globals.CleanL2, Notes="Deep cleaning due to product change" });
+                }
+            }
+        }
+
+        BuildAppointmentsFromSchedule();
+        StateHasChanged();
+    }
+
+    // ---------- Helpers ----------
+    static string ToHM(int minutes)
+    {
+        var h = minutes / 60;
+        var m = minutes % 60;
+        return $"{h:00}:{m:00}";
+    }
+}
+
+<style>
+    .mb-2 { margin-bottom: .5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+</style>

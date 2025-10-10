@@ -1,0 +1,270 @@
+﻿@page "/gantt-min123"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Schedule
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query   
+@inject IStockInformationMasterQueryRepository Repo
+
+<PageTitle>Syrup Scheduler</PageTitle>
+
+<!-- Scheduler -->
+<SfSchedule TValue="AppointmentData"
+            @ref="ScheduleRef"
+            Width="100%"
+            Height="650px"
+            SelectedDate="@_currentDate"
+            CurrentView="@CurrentView">
+
+    <!-- Grouping -->
+    <ScheduleGroup Resources="@GroupData"></ScheduleGroup>
+
+    <ScheduleViews>
+        <!-- Timeline day view, 08:00 - 20:00 -->
+        <ScheduleView Option="View.TimelineDay" StartHour="08:00" EndHour="20:00">
+            <!-- Interval passed as a numeric expression so it's not treated as a string -->
+            <ScheduleViewTimeScale Interval="@(30)" SlotCount="1" />
+        </ScheduleView>
+    </ScheduleViews>
+
+    <ScheduleResources>
+        <!-- Field must match appointment.ProcessId -->
+        <ScheduleResource TItem="RoomResource" TValue="int"
+                          DataSource="@RoomList"
+                          Field="ProcessId"
+                          Name="Rooms"
+                          TextField="RoomName"
+                          IdField="RoomId"
+                          ColorField="RoomColor">
+        </ScheduleResource>
+    </ScheduleResources>
+
+    <ScheduleEventSettings DataSource="@FilteredAppointments">
+        <ScheduleField>
+            <FieldId Name="Id"></FieldId>
+            <FieldSubject Name="Subject"></FieldSubject>
+            <FieldStartTime Name="StartTime"></FieldStartTime>
+            <FieldEndTime Name="EndTime"></FieldEndTime>
+            <FieldLocation Name="Location"></FieldLocation>
+            <FieldResourceId Name="ProcessId"></FieldResourceId>
+        </ScheduleField>
+    </ScheduleEventSettings>
+
+    <ScheduleTemplates>
+        <!-- ResourceHeaderTemplate is supported and kept -->
+        <ResourceHeaderTemplate>
+            @{
+                var r = (context as TemplateContext).ResourceData;
+                <div style="padding:6px 8px;">
+                    <div style="font-weight:600;">@((r as dynamic).RoomName)</div>
+                    <div style="font-size:12px;color:#666;">@((r as dynamic).RoomLabel)</div>
+                </div>
+            }
+        </ResourceHeaderTemplate>
+
+        @* NOTE: I removed <EventTemplate> because your Syncfusion version reports it as unsupported
+           If you want to customize event rendering, depending on SF version you can:
+           - use a supported EventTemplate token if available, or
+           - use the client-side "EventRendered" JS interop callback to style events,
+           - or upgrade Syncfusion to a version that supports EventTemplate in ScheduleTemplates.
+        *@
+    </ScheduleTemplates>
+</SfSchedule>
+
+@code {
+    private SfSchedule<AppointmentData> ScheduleRef;
+
+    private DateTime _currentDate = DateTime.Today;
+    private View CurrentView = View.TimelineDay;
+    private string[] GroupData = new[] { "Rooms" };
+
+    public class RoomResource
+    {
+        public int RoomId { get; set; }
+        public string RoomName { get; set; } = "";
+        public string RoomLabel { get; set; } = "";
+        public string RoomColor { get; set; } = "#90CAF9";
+    }
+
+    public class AppointmentData
+    {
+        public int Id { get; set; }
+        public string Subject { get; set; } = "";
+        public string Location { get; set; } = "";
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public int ProcessId { get; set; }    // resource id (must match RoomResource.RoomId)
+    }
+
+    List<RoomResource> RoomList { get; set; } = new();
+    List<AppointmentData> FilteredAppointments { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currentDate = DateTime.Today;
+
+        // 1) load processes
+        var processes = await SafeGetProcessList();
+        RoomList = BuildRoomResources(processes);
+
+        // 2) load plans and map events
+        var plans = await SafeGetSyrupPlannings();
+        FilteredAppointments = BuildAppointmentsFromPlans(plans, _currentDate, RoomList);
+    }
+
+    private async Task<List<SyrupPlanning.SyrupProcessNameList>> SafeGetProcessList()
+    {
+        try
+        {
+            var r = await Repo.GetSyrupProcessNameList();
+            return r?.ToList() ?? new List<SyrupPlanning.SyrupProcessNameList>();
+        }
+        catch
+        {
+            // fallback default list
+            return new List<SyrupPlanning.SyrupProcessNameList>
+        {
+            new SyrupPlanning.SyrupProcessNameList { ID = 10676, ProcessName = "Process: Syrup Simplex" },
+            new SyrupPlanning.SyrupProcessNameList { ID = 10677, ProcessName = "Process : Syrup Preparation" },
+            new SyrupPlanning.SyrupProcessNameList { ID = 10679, ProcessName = "Process : Syrup Filling - Primary to Secondary" },
+            new SyrupPlanning.SyrupProcessNameList { ID = 10683, ProcessName = "Other Process" }
+        };
+        }
+    }
+
+
+    private async Task<List<SyrupPlanning>> SafeGetSyrupPlannings()
+    {
+        try
+        {
+            var r = await Repo.GetSyrupPlannings();
+            return r?.ToList() ?? new List<SyrupPlanning>();
+        }
+        catch
+        {
+            return new List<SyrupPlanning>();
+        }
+    }
+
+    private List<RoomResource> BuildRoomResources(List<SyrupPlanning.SyrupProcessNameList> processes)
+    {
+        var outList = new List<RoomResource>();
+        var colors = new[] { "#FFD54F", "#64B5F6", "#90A4AE", "#A5D6A7", "#CE93D8", "#FFAB91" };
+        int i = 0;
+
+        if (processes == null || processes.Count == 0)
+        {
+            processes = new List<SyrupPlanning.SyrupProcessNameList>
+            {
+                new SyrupPlanning.SyrupProcessNameList { ID = 10676, ProcessName = "Process: Syrup Simplex" },
+                new SyrupPlanning.SyrupProcessNameList { ID = 10677, ProcessName = "Process : Syrup Preparation" },
+                new SyrupPlanning.SyrupProcessNameList { ID = 10679, ProcessName = "Process : Syrup Filling - Primary to Secondary" },
+                new SyrupPlanning.SyrupProcessNameList { ID = 10683, ProcessName = "Other Process" }
+            };
+        }
+
+        foreach (var p in processes)
+        {
+            var name = p.ProcessName ?? $"Process-{p.ID}";
+            outList.Add(new RoomResource
+            {
+                RoomId = (int)p.ID,
+                RoomName = name,
+                RoomLabel = ShortLabel(name),
+                RoomColor = colors[(i++) % colors.Length]
+            });
+        }
+
+        return outList;
+    }
+
+    private string ShortLabel(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return name;
+        var s = name.Replace("Process:", "", StringComparison.OrdinalIgnoreCase)
+                    .Replace("Process", "", StringComparison.OrdinalIgnoreCase)
+                    .Trim();
+        return s;
+    }
+
+    // Reuse your existing mapper code here (kept same idea as before)
+    private List<AppointmentData> BuildAppointmentsFromPlans(List<SyrupPlanning> plans, DateTime day, List<RoomResource> rooms)
+    {
+        var events = new List<AppointmentData>();
+        var cursorPerProcess = new Dictionary<int, DateTime>();
+        var defaultStart = day.Date.AddHours(8);
+
+        static double ParseHours(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return 0;
+            if (double.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var d))
+                return d;
+            var cleaned = s.Replace(",", ".");
+            if (double.TryParse(cleaned, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var d2))
+                return d2;
+            return 0;
+        }
+
+        int idCounter = 1;
+        foreach (var p in plans)
+        {
+            int processId = rooms.FirstOrDefault()?.RoomId ?? 0;
+
+            // choose process id by available fields (prefer Simplex, Preparation)
+            if (!string.IsNullOrWhiteSpace(p.SyrupSimplexProcessName))
+            {
+                var m = rooms.FirstOrDefault(r => r.RoomName.Contains("Simplex", StringComparison.OrdinalIgnoreCase));
+                if (m != null) processId = m.RoomId;
+            }
+            else if (!string.IsNullOrWhiteSpace(p.SyruppreparationProcessName))
+            {
+                var m = rooms.FirstOrDefault(r => r.RoomName.Contains("Preparation", StringComparison.OrdinalIgnoreCase));
+                if (m != null) processId = m.RoomId;
+            }
+
+            if (!cursorPerProcess.ContainsKey(processId))
+                cursorPerProcess[processId] = defaultStart;
+
+            // Example: create simple events as before (see your previous mapper logic)
+            if (p.IsthereSyrupSimplextoproduce?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                var hrs = ParseHours(p.SyrupSimplexPreparationHour);
+                if (hrs <= 0)
+                {
+                    if (p.PreparationPerHour > 0)
+                        hrs = (double)(p.BatchSizeInLiters / (decimal)p.PreparationPerHour);
+                    else hrs = 1.0;
+                }
+                var s = cursorPerProcess[processId];
+                var e = s.AddMinutes((int)Math.Ceiling(hrs * 60));
+                events.Add(new AppointmentData { Id = idCounter++, Subject = $"Syrup Simplex: {p.ProfileNo}", Location = p.SyrupSimplexLocation ?? "", StartTime = s, EndTime = e, ProcessId = processId });
+                cursorPerProcess[processId] = e.AddMinutes(10);
+            }
+
+            // preparation block examples (first vol / topup)
+            var firstVol = ParseHours(p.SyruppreparationFirstVolumnHour);
+            if (firstVol > 0)
+            {
+                var s = cursorPerProcess[processId];
+                var e = s.AddMinutes((int)Math.Ceiling(firstVol * 60));
+                events.Add(new AppointmentData { Id = idCounter++, Subject = $"Prep: {p.ProfileNo}", Location = p.SyruppreparationLocation ?? "", StartTime = s, EndTime = e, ProcessId = processId });
+                cursorPerProcess[processId] = e.AddMinutes(5);
+            }
+        }
+
+        if (!events.Any() && rooms.Any())
+        {
+            var first = rooms.First();
+            events.Add(new AppointmentData
+            {
+                Id = 1,
+                Subject = "No schedule items",
+                Location = "",
+                StartTime = defaultStart,
+                EndTime = defaultStart.AddMinutes(30),
+                ProcessId = first.RoomId
+            });
+        }
+
+        return events;
+    }
+}

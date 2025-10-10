@@ -1,0 +1,236 @@
+﻿@page "/syrupDynamicstepper"
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor
+@using Syncfusion.Blazor.Navigations
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query
+@inject IStockInformationMasterQueryRepository StockQueryRepo
+
+
+<style scoped>
+    .step-content {
+        border: 1px solid #eee;
+        padding: 10px;
+    }
+
+    .e-stepper.e-horizontal {
+        margin-top: 10px;
+    }
+
+    .stepper-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        border-top: 1px solid #ddd;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        z-index: 1000;
+    }
+
+    .nav-button {
+        padding: 8px 18px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color .3s ease, opacity .3s ease;
+    }
+
+        .nav-button.prevv {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+            .nav-button.prevv:hover:not(:disabled) {
+                background-color: #217dbb;
+            }
+
+        .nav-button.nextt {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+            .nav-button.nextt:hover:not(:disabled) {
+                background-color: #27ae60;
+            }
+
+        .nav-button:disabled {
+            background-color: #d3d3d3;
+            color: #888;
+            cursor: not-allowed;
+            opacity: .6;
+        }
+</style>
+ 
+
+@if (ProcessNames == null)
+{
+    <div>Loading steps...</div>
+}
+else
+{
+    <SfStepper @bind-ActiveStep="currentStep">
+        <StepperSteps>
+            @foreach (var p in ProcessNames)
+            {
+                <StepperStep Label="@p.ProcessName" IconCss="fa fa-check" />
+            }
+
+            @* If you still want extra fixed steps after the dynamic ones, append them here:
+               Example: add "Time Line Details" as the final static step. Uncomment if needed. *@
+            @* <StepperStep Label="Time Line Details" IconCss="fa fa-calendar" /> *@
+        </StepperSteps>
+    </SfStepper>
+
+    @if (SyrupPlanningData != null)
+    {
+        <div style="background:#f1f1f1; padding:10px; border:1px solid #f1f1f1;">
+            @SyrupPlanningData.MethodCode
+        </div>
+    }
+
+    <div class="step-content">
+        @* Map pages to indices. If your dynamic list length or page mapping differs,
+           change this switch to suit your flow. *@
+        @switch (currentStep)
+        {
+            case 0:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage1 ProcessNames="ProcessNames" />
+                break;
+            case 1:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 />
+                break;
+            case 2:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage2 />
+                break;
+            case 3:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage3 />
+                break;
+            case 4:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 />
+                break;
+            default:
+                <AC.SD.Core.Pages.Planning.PlanningDetails.VijayPage1 />
+                break;
+        }
+    </div>
+
+    <!-- Footer Navigation -->
+    <div class="stepper-footer">
+        <button @onclick="prevvStep"
+                class="nav-button prevv"
+                disabled="@(currentStep == 0 || IsBusy)">
+            Previous
+        </button>
+
+        <button @onclick="HandleNextOrSubmit"
+                class="nav-button nextt"
+                disabled="@IsNextDisabled">
+            @(IsLastStep ? (IsBusy ? "Submitting..." : "Submit") : "Next")
+        </button>
+    </div>
+}
+
+@code {
+    // existing params
+    public long MethodCodeID { get; set; }
+
+    [Parameter] public SyrupPlanning? SyrupPlanningData { get; set; }
+    [Parameter] public EventCallback<SyrupPlanning?> OnSubmit { get; set; }
+
+    // dynamic process list
+    List<SyrupPlanning.SyrupProcessNameList>? ProcessNames;
+
+    int currentStep = 0;
+    int StepCount => ProcessNames?.Count ?? 0; // dynamic count
+    bool IsBusy = false;
+
+    bool IsLastStep => (ProcessNames != null) && (currentStep == StepCount - 1);
+    bool IsNextDisabled =>
+        IsBusy || ProcessNames == null || currentStep >= StepCount; // guard
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load step labels dynamically
+        try
+        {
+            ProcessNames = (await StockQueryRepo.GetSyrupProcessNameList()).ToList();
+            // Optionally, ensure at least one step exists:
+            if (ProcessNames == null || ProcessNames.Count == 0)
+            {
+                ProcessNames = new List<SyrupPlanning.SyrupProcessNameList>
+                {
+                    new SyrupPlanning.SyrupProcessNameList { ID = 0, ProcessName = "Default" }
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            // handle/log as needed; keep a fallback step so UI doesn't break
+            ProcessNames = new List<SyrupPlanning.SyrupProcessNameList>
+            {
+                new SyrupPlanning.SyrupProcessNameList { ID = 0, ProcessName = "Unable to load steps" }
+            };
+        }
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        // keep your existing line (you already had this)
+        var x = MethodCodeID;
+        return Task.CompletedTask;
+    }
+
+    async Task HandleNextOrSubmit()
+    {
+        if (!IsLastStep)
+        {
+            nexttStep();
+            return;
+        }
+
+        // Last step => submit
+        await SubmitAsync();
+    }
+
+    void nexttStep()
+    {
+        if (ProcessNames == null) return;
+        if (currentStep < StepCount - 1)
+        {
+            currentStep++;
+        }
+    }
+
+    void prevvStep()
+    {
+        if (currentStep > 0 && !IsBusy)
+        {
+            currentStep--;
+        }
+    }
+
+    async Task SubmitAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            // TODO: trigger validations on sub-pages if needed
+
+            if (OnSubmit.HasDelegate)
+            {
+                await OnSubmit.InvokeAsync(SyrupPlanningData);
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+}
+

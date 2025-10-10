@@ -1,0 +1,363 @@
+﻿@page "/syrup-stepperSubmit"
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor
+@using Syncfusion.Blazor.Navigations
+@using global::Core.EntityModels
+@using System.Reflection
+@inject NavigationManager NavigationManager
+
+<style scoped>
+    .step-content {
+        border: 1px solid #eee;
+        padding: 10px;
+        min-height: 320px;
+    }
+
+    .e-stepper.e-horizontal {
+        margin-top: 10px;
+    }
+
+    .stepper-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        border-top: 1px solid #ddd;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        z-index: 1000;
+    }
+
+    .nav-button {
+        padding: 8px 18px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color .3s, opacity .3s;
+    }
+
+        .nav-button.prevv {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+            .nav-button.prevv:hover:not(:disabled) {
+                background-color: #217dbb;
+            }
+
+        .nav-button.nextt {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+            .nav-button.nextt:hover:not(:disabled) {
+                background-color: #27ae60;
+            }
+
+        .nav-button:disabled {
+            background-color: #d3d3d3;
+            color: #888;
+            cursor: not-allowed;
+            opacity: .6;
+        }
+
+    
+    .hidden-step {
+        display: none;
+    }
+
+    .visible-step {
+        display: block;
+    }
+</style>
+
+<SfStepper @bind-ActiveStep="currentStep">
+    <StepperSteps>
+        <StepperStep Label="Process Name" IconCss="fa fa-check" />
+        <StepperStep Label="Other process" IconCss="fa fa-check" />
+        <StepperStep Label="Syrup Simplex process" IconCss="fa fa-check" />
+        <StepperStep Label="Syrup Preparation" IconCss="fa fa-check" />
+        <StepperStep Label="Specific item Card" IconCss="fa fa-check" />
+        <StepperStep Label="Time Line Details" IconCss="fa fa-check" />
+    </StepperSteps>
+</SfStepper>
+
+@if (SyrupPlanningData != null)
+{
+    <div style="background:#f1f1f1; padding:10px; border:1px solid #f1f1f1;">
+        @SyrupPlanningData.MethodCode
+    </div>
+}
+
+<div class="step-content">
+    <!-- Render all pages but hide non-active ones so @ref remains available -->
+    <div class="@(currentStep == 0 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage1 @ref="page1Ref" />
+    </div>
+
+    <div class="@(currentStep == 1 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 @ref="page5Ref" />
+    </div>
+
+    <div class="@(currentStep == 2 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage2 @ref="page2Ref" />
+    </div>
+
+    <div class="@(currentStep == 3 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage3 @ref="page3Ref" />
+    </div>
+
+    <div class="@(currentStep == 4 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 @ref="page4Ref" />
+    </div>
+
+    <div class="@(currentStep == 5 ? "visible-step" : "hidden-step")">
+        <AC.SD.Core.Pages.Planning.PlanningDetails.VijayPage1 @ref="vijayPageRef" />
+    </div>
+</div>
+
+<!-- Footer Navigation -->
+<div class="stepper-footer">
+    <button @onclick="prevvStep" class="nav-button prevv" disabled="@(currentStep == 0 || IsBusy)">Previous</button>
+
+    <button @onclick="HandleNextOrSubmit" class="nav-button nextt" disabled="@IsNextDisabled">
+        @(IsLastStep ? (IsBusy ? "Submitting..." : "Submit") : "Next")
+    </button>
+</div>
+
+@code {
+    public long MethodCodeID { get; set; }
+
+    [Parameter] public SyrupPlanning? SyrupPlanningData { get; set; }
+    [Parameter] public EventCallback<SyrupPlanning?> OnSubmit { get; set; }
+
+    int currentStep = 0;
+    int StepCount => 6;
+    bool IsBusy = false;
+    bool IsLastStep => currentStep == StepCount - 1;
+    bool IsNextDisabled => IsBusy; // simple
+
+    // child refs (typed as object so we don't need the exact component types)
+    private object? page1Ref;
+    private object? page2Ref;
+    private object? page3Ref;
+    private object? page4Ref;
+    private object? page5Ref;
+    private object? vijayPageRef;
+
+    protected override Task OnParametersSetAsync()
+    {
+        // your existing logic placeholder
+        var x = MethodCodeID;
+        return Task.CompletedTask;
+    }
+
+    async Task HandleNextOrSubmit()
+    {
+        if (!IsLastStep) { nexttStep(); return; }
+        await SubmitAsync();
+    }
+
+    void nexttStep()
+    {
+        if (currentStep < StepCount - 1) currentStep++;
+    }
+
+    void prevvStep()
+    {
+        if (currentStep > 0 && !IsBusy) currentStep--;
+    }
+
+    // ----- Submit logic -----
+    async Task SubmitAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            // 1) Collect SyrupPlanning objects from children (if they expose GetModel / Model / SyrupPlanningData)
+            var collected = new List<SyrupPlanning>();
+            TryCollectFromChild(page1Ref, collected);
+            TryCollectFromChild(page2Ref, collected);
+            TryCollectFromChild(page3Ref, collected);
+            TryCollectFromChild(page4Ref, collected);
+            TryCollectFromChild(page5Ref, collected);
+            TryCollectFromChild(vijayPageRef, collected);
+
+            // 2) Collect section data (GetSectionData) if available
+            var sections = new List<SectionData>();
+            TryCollectSectionFromChild(page1Ref, sections);
+            TryCollectSectionFromChild(page2Ref, sections);
+            TryCollectSectionFromChild(page3Ref, sections);
+            TryCollectSectionFromChild(page4Ref, sections);
+            TryCollectSectionFromChild(page5Ref, sections);
+            TryCollectSectionFromChild(vijayPageRef, sections);
+
+            // 3) Merge collected SyrupPlanning instances (or fall back to parent SyrupPlanningData)
+            SyrupPlanning master = (collected.Count > 0) ? MergeCollectedSyrupPlanning(collected) : (SyrupPlanningData ?? new SyrupPlanning());
+
+            // 4) If parent passed SyrupPlanningData, fill missing master values from it
+            if (SyrupPlanningData != null) master = MergeTwoMasters(master, SyrupPlanningData);
+
+            // 5) If you want to persist sections now, call your service here.
+            // For now we raise the existing OnSubmit with master (preserves your signature).
+            if (OnSubmit.HasDelegate)
+            {
+                await OnSubmit.InvokeAsync(master);
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    // --- Reflection helpers (valid C# signatures) ---
+    private T? TryInvokeMethodReturningGeneric<T>(object target, string methodName) where T : class
+    {
+        try
+        {
+            var mi = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (mi == null) return null;
+            var res = mi.Invoke(target, null);
+            return res as T;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private object? TryInvokeMethodReturningObject(object target, string methodName)
+    {
+        try
+        {
+            var mi = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (mi == null) return null;
+            return mi.Invoke(target, null);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void TryCollectFromChild(object? child, List<SyrupPlanning> collector)
+    {
+        if (child == null) return;
+
+        // 1 - try GetModel(): SyrupPlanning GetModel()
+        var model = TryInvokeMethodReturningGeneric<SyrupPlanning>(child, "GetModel");
+        if (model != null) { collector.Add(model); return; }
+
+        // 2 - try property names: Model, SyrupPlanning, SyrupPlanningData
+        var prop = TryGetPropertyValue(child, new[] { "Model", "SyrupPlanning", "SyrupPlanningData" });
+        if (prop is SyrupPlanning sp) { collector.Add(sp); return; }
+    }
+
+    private void TryCollectSectionFromChild(object? child, List<SectionData> sections)
+    {
+        if (child == null) return;
+
+        // try GetSectionData() -> could return SectionData or any object we can serialize
+        var secObj = TryInvokeMethodReturningObject(child, "GetSectionData");
+        if (secObj == null) return;
+
+        if (secObj is SectionData sd) { sections.Add(sd); return; }
+
+        // otherwise serialize the result into JsonData
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(secObj);
+            sections.Add(new SectionData { SectionName = GuessSectionName(child), JsonData = json });
+        }
+        catch
+        {
+            // ignore non-serializable results
+        }
+    }
+
+    // Try read candidate property names and return value
+    private object? TryGetPropertyValue(object target, string[] candidateNames)
+    {
+        try
+        {
+            var t = target.GetType();
+            foreach (var name in candidateNames)
+            {
+                var pi = t.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (pi != null) return pi.GetValue(target);
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string GuessSectionName(object child)
+    {
+        var sn = TryGetPropertyValue(child, new[] { "SectionName", "Title", "Label" }) as string;
+        if (!string.IsNullOrWhiteSpace(sn)) return sn;
+        return child.GetType().Name;
+    }
+
+    // --- Merge helpers (ONLY use properties that exist on your SyrupPlanning model) ---
+    private SyrupPlanning MergeCollectedSyrupPlanning(List<SyrupPlanning> list)
+    {
+        var result = new SyrupPlanning();
+
+        foreach (var m in list)
+        {
+            if (m == null) continue;
+
+            if (result.Id == 0 && m.Id != 0) result.Id = m.Id;
+            if (result.DynamicFormDataID == 0 && m.DynamicFormDataID != 0) result.DynamicFormDataID = m.DynamicFormDataID;
+            if (result.MethodCodeLineID == 0 && m.MethodCodeLineID != 0) result.MethodCodeLineID = m.MethodCodeLineID;
+            if (result.MethodCodeID == 0 && m.MethodCodeID != 0) result.MethodCodeID = m.MethodCodeID;
+
+            if (string.IsNullOrWhiteSpace(result.MethodName) && !string.IsNullOrWhiteSpace(m.MethodName)) result.MethodName = m.MethodName;
+            if (string.IsNullOrWhiteSpace(result.MethodCode) && !string.IsNullOrWhiteSpace(m.MethodCode)) result.MethodCode = m.MethodCode;
+            if (string.IsNullOrWhiteSpace(result.ProfileNo) && !string.IsNullOrWhiteSpace(m.ProfileNo)) result.ProfileNo = m.ProfileNo;
+
+            if (result.BatchSizeInLiters == 0 && m.BatchSizeInLiters != 0) result.BatchSizeInLiters = m.BatchSizeInLiters;
+            if (string.IsNullOrWhiteSpace(result.RestrictionOnPlanningDay) && !string.IsNullOrWhiteSpace(m.RestrictionOnPlanningDay)) result.RestrictionOnPlanningDay = m.RestrictionOnPlanningDay;
+            if (string.IsNullOrWhiteSpace(result.ProcessName) && !string.IsNullOrWhiteSpace(m.ProcessName)) result.ProcessName = m.ProcessName;
+
+            if (string.IsNullOrWhiteSpace(result.IsthereSyrupSimplextoproduce) && !string.IsNullOrWhiteSpace(m.IsthereSyrupSimplextoproduce)) result.IsthereSyrupSimplextoproduce = m.IsthereSyrupSimplextoproduce;
+            if (string.IsNullOrWhiteSpace(result.SyrupSimplexProcessName) && !string.IsNullOrWhiteSpace(m.SyrupSimplexProcessName)) result.SyrupSimplexProcessName = m.SyrupSimplexProcessName;
+
+            // add any other properties you need from SyrupPlanning.cs
+        }
+
+        return result;
+    }
+
+    private SyrupPlanning MergeTwoMasters(SyrupPlanning primary, SyrupPlanning fallback)
+    {
+        var r = primary;
+
+        if (r.DynamicFormDataID == 0 && fallback.DynamicFormDataID != 0) r.DynamicFormDataID = fallback.DynamicFormDataID;
+        if (r.MethodCodeLineID == 0 && fallback.MethodCodeLineID != 0) r.MethodCodeLineID = fallback.MethodCodeLineID;
+        if (r.MethodCodeID == 0 && fallback.MethodCodeID != 0) r.MethodCodeID = fallback.MethodCodeID;
+
+        if (string.IsNullOrWhiteSpace(r.MethodName) && !string.IsNullOrWhiteSpace(fallback.MethodName)) r.MethodName = fallback.MethodName;
+        if (string.IsNullOrWhiteSpace(r.MethodCode) && !string.IsNullOrWhiteSpace(fallback.MethodCode)) r.MethodCode = fallback.MethodCode;
+        if (r.BatchSizeInLiters == 0 && fallback.BatchSizeInLiters != 0) r.BatchSizeInLiters = fallback.BatchSizeInLiters;
+
+        return r;
+    }
+
+    // Simple SectionData DTO used locally. If you already have a SectionData class in the project, remove this.
+    public class SectionData
+    {
+        public string SectionName { get; set; } = string.Empty;
+        public string? JsonData { get; set; }
+        public long? DynamicFormDataID { get; set; }
+    }
+}

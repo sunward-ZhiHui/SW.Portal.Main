@@ -1,0 +1,644 @@
+﻿@page "/syrup-planning"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+@* <DxToolbar CssClass="mb-2">
+    <Items>
+        <DxToolbarItem Text="Generate Schedule" Click="ComputeSchedule" />
+    </Items>
+</DxToolbar> *@
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Planning" IconCssClass="fa fa-cogs" Click="@onPlanning" Enabled="@isEnabled" />
+                <DxMenuItem Text="Generate Schedule" IconCssClass="fa fa-refresh" Click="@ComputeSchedule" />
+                <DxMenuItem Text="View" IconCssClass="fa fa-info-circle" Click="@openDrawer" Enabled="@isEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+    IsContentBlocked="true"
+    ApplyBackgroundShading="true"
+    IndicatorAreaVisible="false"
+    Text="Fetching Data...">
+
+<DxDrawer @bind-IsOpen="IsDrawerOpen"
+    CloseOnEscape="true"
+    Position="DrawerPosition.Right"
+    PanelWidth="@PanelWidth"
+    CssClass="drawer-fullscreen"
+    Mode="DrawerMode.Shrink">
+    <!-- Drawer panel (details) -->
+    <BodyTemplate>
+        <div class="drawer-header">
+            <div class="mb-3">
+                @if (isFullScreen == true)
+                {
+                    <DxButtonGroup RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Outline" SelectionMode="ButtonGroupSelectionMode.Single">
+                        <Items>
+                            <DxButtonGroupItem Text="Exit Screen" IconCssClass="fa-solid fa-compress-arrows-alt" Click="onClickNormalScreen" />
+                            <DxButtonGroupItem Text="Close" IconCssClass="fa fa-window-close" Click="OnCloseDrawer" />
+                        </Items>
+                    </DxButtonGroup>
+                }
+                else
+                {
+                    <DxButtonGroup RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Outline" SelectionMode="ButtonGroupSelectionMode.Single">
+                        <Items>
+                            <DxButtonGroupItem Text="Fullscreen" IconCssClass="fa-solid fa-compress" Click="onClickFullScreen" />
+                            <DxButtonGroupItem Text="Close" IconCssClass="fa fa-window-close" Click="OnCloseDrawer" />
+                        </Items>
+                    </DxButtonGroup>
+                }
+            </div>
+        </div>
+        <div style="height: calc(100vh - 250px);">
+            @if (_selectedItems != null)
+                {
+                    <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+                        <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="_selectedItems.ProfileNo" ReadOnly="true" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Method Code" ColSpanMd="6">
+                            <DxTextBox @bind-Text="_selectedItems.MethodCode" ReadOnly="true" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Batch Size In Liters" ColSpanMd="6">
+                            <DxSpinEdit @bind-Value="_selectedItems.BatchSizeInLiters" ReadOnly="true" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
+                            <DxTextBox @bind-Text="_selectedItems.ProcessName" ReadOnly="true" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Syrup Simplex Location" ColSpanMd="12">
+                            <DxTextBox @bind-Text="_selectedItems.SyrupSimplexLocation" ReadOnly="true" />
+                        </DxFormLayoutItem>                    
+                    </DxFormLayout>
+                }
+        </div>
+    </BodyTemplate>
+    <TargetContent>
+        <DxGrid @ref="Grid" 
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" 
+        ShowGroupPanel="true" 
+        ShowGroupedColumns="true" 
+        ShowSearchBox="true"            
+            Data="_syrupPlanningList"         
+            KeyFieldName="MethodCodeLineID"
+            TextWrapEnabled="false"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditMode="GridEditMode.EditForm"
+            EditModelSaving="@OnEditModelSaving"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @* <DxGridDataColumn FieldName="MethodCodeID" FixedPosition="GridColumnFixedPosition.Left" Caption="Planning" Width="80">
+                <CellDisplayTemplate>
+                    <span class="fa fa-eye" @onclick="@(() => onPlanning())"></span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn> *@
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" Width="180" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="MethodCode" Caption="Method Code" Width="230" GroupIndex="0" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="BatchSizeInLiters" Caption="Batch Size In Liters" Width="180" />
+            <DxGridDataColumn FieldName="RestrictionOnPlanningDay" Caption="Restriction On Planning Day" Width="180" />
+            <DxGridDataColumn FieldName="IsthereSyrupSimplextoproduce" Caption="Is there Syrup Simplex to produce" Width="180" />
+            <DxGridDataColumn FieldName="ProcessName" Caption="Process Name" Width="180" />
+            <DxGridDataColumn FieldName="SyrupSimplexLocation" Caption="Syrup Simplex Location" Width="180" />
+            <DxGridDataColumn FieldName="PreparationPerHour" Caption="Preparation Per Hour" Width="180" />
+            <DxGridDataColumn FieldName="SyrupSimplexManpower" Caption="Syrup Simplex Manpower" Width="180" />
+            <DxGridDataColumn FieldName="Level1CleaningHours" Caption="Level1 Cleaning Hours" Width="180" />
+            <DxGridDataColumn FieldName="Level2CleaningHours" Caption="Level2 Cleaning Hours" Width="180" />
+            <DxGridDataColumn FieldName="SyrupLevel2CleaningHours" Caption="Syrup Level2 Cleaning Hours" Width="180" />
+            <DxGridDataColumn FieldName="Level2CleaningManpower" Caption="Level2 Cleaning Manpower" Width="180"  />
+            <DxGridDataColumn FieldName="NoOfCampaign" Caption="No Of Campaign" Width="180" />
+            <DxGridDataColumn FieldName="NextProcessName" Caption="NextProcess Name" Width="180" />
+            <DxGridDataColumn FieldName="NextProcessNameAfterPreparation" Caption="Next Process Name After Preparation" Width="180" />
+            <DxGridDataColumn FieldName="SyrupPreparationLocation" Caption="Syrup Preparation Location" Width="180" />          
+            <DxGridDataColumn FieldName="PreparationTopUpPerHour" Caption="Preparation TopUp Per Hour" Width="180" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MethodCode" />
+        </TotalSummary>
+    </DxGrid>
+    </TargetContent>
+    </DxDrawer>
+</DxLoadingPanel>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@PreviewPlanning">
+    <BodyContentTemplate>       
+        <div style="height: calc(100vh - 150px);overflow-y:auto;overflow-x:hidden;">
+            <AC.SD.Core.Pages.Planning.Production.StepperPage SyrupPlanningData="_selectedItems"></AC.SD.Core.Pages.Planning.Production.StepperPage>
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@onScheduler">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 150px);overflow:auto;overflow-x:auto">
+            <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage>
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
+@code {
+    bool IsDrawerOpen { get; set; } = false;
+    string PanelWidth { get; set; } = "580px";
+    bool isFullScreen { get; set; } = false;
+    long MethodCodeID {get;set;}
+    bool ExportSelectedRowsOnly { get; set; }
+    bool AuditLogPopUp { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    SyrupPlanning Datas = new SyrupPlanning();
+    private List<SyrupPlanning> _syrupPlanningList;
+    private SyrupPlanning _selectedItems;
+    IGrid Grid { get; set; }
+    string permission = "";
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private DxSchedulerDataStorage _dataStorage = new();
+
+    public ApplicationUser? applicationUser { get; private set; }
+    bool PreviewPlanning { get; set; } = false;
+    bool onScheduler { get; set; } = false;
+    bool isEnabled { get; set; } = false;
+
+
+    async Task onPlanning()
+    {       
+       
+        PreviewPlanning = true;
+    }
+    void onClickNormalScreen()
+    {
+        isFullScreen = false;
+        PanelWidth = "580px";
+        StateHasChanged();
+    }
+    void OnCloseDrawer()
+    {
+        IsDrawerOpen = false;
+        isFullScreen = false;
+        PanelWidth = "580px";
+        StateHasChanged();
+    }
+    void onClickFullScreen()
+    {
+        isFullScreen = true;
+        PanelWidth = "100%";
+        StateHasChanged();
+    }
+ 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Grid.AutoFitColumnWidths();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");       
+        await UpdateDataAsync();
+
+        // initial compute for Today 08:00
+        _schedulerStartDate = DateTime.Today.AddHours(8);    
+        
+        _dataStorage = new DxSchedulerDataStorage()
+        {
+            AppointmentsSource = _appointments,
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Start = nameof(ScheduleAppointment.Start),
+                End = nameof(ScheduleAppointment.End),
+                Subject = nameof(ScheduleAppointment.Subject),
+                Description = nameof(ScheduleAppointment.Description),
+                LabelId = nameof(ScheduleAppointment.LabelId),
+                StatusId = nameof(ScheduleAppointment.StatusId),
+                ResourceId = nameof(ScheduleAppointment.ResourceId),
+                Id = nameof(ScheduleAppointment.Id)
+            },
+            ResourcesSource = _resources,
+            ResourceMappings = new DxSchedulerResourceMappings()
+            {
+                Caption = nameof(ScheduleResource.Caption),
+                Id = nameof(ScheduleResource.Id)
+            }
+        };
+
+        ComputeScheduleFromBatches(_syrupPlanningList, _schedulerStartDate);
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _syrupPlanningList = await Mediator.Send(new GetSyrupPlanningQuery());
+        EditEnabled = false;
+        DeleteEnabled = false;
+        if (_syrupPlanningList.Count > 0)
+        {
+            _selectedItems = _syrupPlanningList.FirstOrDefault();            
+            Grid.ClearSelection();
+            PanelVisible = false;
+        }
+        PanelVisible = false;
+        ComputeScheduleFromBatches(_syrupPlanningList, _schedulerStartDate);
+        StateHasChanged();
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MethodCodeLineID");
+        _selectedItems = _syrupPlanningList.FirstOrDefault(f => f.MethodCodeLineID == (long?)UniqueId);
+
+        //PanelWidth = "580px";
+        //IsDrawerOpen = true;
+
+        isEnabled = true;
+
+        StateHasChanged();
+    }
+    void openDrawer()
+    {
+        PanelWidth = "580px";
+        IsDrawerOpen = true;
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        //addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (SyrupPlanning)e.EditModel;
+        if (e.IsNew)
+        {
+            //navitems.StatusCodeID = 1;
+        }
+        else
+        {
+           // navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
+        }
+    }    
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }    
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (SyrupPlanning)e.EditModel;       
+    }
+
+
+    // ===== Schedule grid backing model =====
+    public sealed class ScheduleItem
+    {
+        public int RowId { get; set; }
+        public int Batch { get; set; }          // 1-based batch index in the queue
+        public string Tag { get; set; } = "";   // e.g., MethodCode + campaign index
+        public string Stage { get; set; } = ""; // segment title ("Preparation", etc.)
+        public string Room { get; set; } = "";  // we’ll map to the resource key
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public int DurationMin { get; set; }
+        public string Notes { get; set; } = "";
+    }
+
+    // Backing list for your DxGrid
+    private readonly List<ScheduleItem> Schedule = new List<ScheduleItem>();
+
+    // HH:mm formatter used in your CellDisplayTemplate
+    private static string ToHM(DateTime dt) => dt.ToString("HH:mm");
+
+    private void ComputeSchedule()
+    {
+        onScheduler = true;
+        StateHasChanged();
+    }
+
+    // Compute button handler (wired in your toolbar)
+    private void ComputeSchedule_old()
+    {
+        Schedule.Clear();
+        if (_syrupPlanningList == null || _syrupPlanningList.Count == 0)
+            return;
+
+        // Same resource key you already use in ComputeScheduleFromBatches
+        Func<SyrupPlanning, string> resourceKey = b =>
+            string.IsNullOrWhiteSpace(b.SyrupSimplexLocation) ? "(No Location)" : b.SyrupSimplexLocation;
+
+        // Build distinct resources and their cursors
+        var resourceIds = _syrupPlanningList.Select(resourceKey).Distinct().ToList();
+        var cursorByResource = resourceIds.ToDictionary(k => k, _ => _schedulerStartDate);
+
+        int rowId = 1;
+        for (int batchIndex = 0; batchIndex < _syrupPlanningList.Count; batchIndex++)
+        {
+            var batch = _syrupPlanningList[batchIndex];
+            var rId = resourceKey(batch);
+
+            DateTime cursor;
+            if (!cursorByResource.TryGetValue(rId, out cursor))
+                cursor = _schedulerStartDate;
+
+            // One-campaign segment plan from your existing method
+            var segments = BuildSegmentsForBatch(batch);
+
+            // Repeat per campaign using your helper (works with int / int? / string)
+            var repeat = GetCampaignCount(batch.NoOfCampaign, 1);
+            if (repeat < 1) repeat = 1;
+
+            for (int campaign = 1; campaign <= repeat; campaign++)
+            {
+                foreach (var seg in segments)
+                {
+                    if (seg.duration <= TimeSpan.Zero) continue;
+
+                    var start = cursor;
+                    var end = start.Add(seg.duration);
+
+                    // You can adjust the "Tag" to whatever you prefer to see
+                    var tag = $"{batch.MethodCode} [{campaign}/{repeat}]";
+
+                    // Optional notes (example: manpower or batch meta)
+                    var notes = $"Profile: {batch.ProfileNo}; Size(L): {batch.BatchSizeInLiters}";
+
+                    Schedule.Add(new ScheduleItem
+                    {
+                        RowId = rowId++,
+                        Batch = batchIndex + 1,
+                        Tag = tag,
+                        Stage = seg.title,
+                        Room = rId, // map to resource (e.g., SyrupSimplexLocation)
+                        Start = start,
+                        End = end,
+                        DurationMin = (int)Math.Round(seg.duration.TotalMinutes),
+                        Notes = notes
+                    });
+
+                    cursor = end; // advance per-resource cursor
+                }
+            }
+
+            cursorByResource[rId] = cursor;
+        }
+    }
+
+
+    // ===== Scheduler POCOs =====
+    public sealed class ScheduleResource
+    {
+        public string Id { get; set; } = "";     // e.g., SyrupSimplexLocation or ProcessName
+        public string Caption { get; set; } = "";
+    }
+
+    public sealed class ScheduleAppointment
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Subject { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string ResourceId { get; set; } = ""; // must match a Resource.Id
+        public int? LabelId { get; set; }            // optional color labels
+        public int? StatusId { get; set; }           // optional busy/free, etc.
+    }
+
+    // ===== Scheduler backing data =====
+    private DateTime _schedulerStartDate = DateTime.Today;
+    private List<ScheduleAppointment> _appointments = new();
+    private List<ScheduleResource> _resources = new();
+
+    // ===== Public action from toolbar buttons =====
+    private void RecomputeAndRefresh(DateOnly day, TimeOnly startAt)
+    {
+        _schedulerStartDate = day.ToDateTime(startAt);
+        ComputeScheduleFromBatches(_syrupPlanningList, _schedulerStartDate);
+        StateHasChanged();
+    }
+
+    private static int ParseIntOrDefault(string? s, int defVal = 1) => int.TryParse(s, out var n) ? n : defVal;
+
+    // Helper: get campaign count from various possible types
+    private static int GetCampaignCount(object val, int defVal = 1)
+    {
+        if (val == null) return defVal;
+
+        // int
+        if (val is int i)
+            return Math.Max(1, i);
+
+        // nullable int
+        if (val is int?)
+            return Math.Max(1, ((int?)val) ?? defVal);
+
+        // string
+        if (val is string s)
+            return Math.Max(1, ParseIntOrDefault(s, defVal));
+
+        // anything else
+        return Math.Max(1, ParseIntOrDefault(val.ToString(), defVal));
+    }
+
+
+    // ===== Core: compute schedule from batches =====
+    // Strategy:
+    //   - Group by Resource (choose SyrupSimplexLocation or ProcessName)
+    //   - For each resource, schedule its batches sequentially, starting from baseStart.
+    //   - Each batch contributes segments with durations read from your entity.
+    //   - NoOfCampaign multiplies the segments.
+    //   - Decimal "hours" fields are converted to TimeSpan.
+    //   - Adjust mapping/segments easily in the array below.
+    private void ComputeScheduleFromBatches(List<SyrupPlanning> batches, DateTime baseStart)
+    {
+        _appointments.Clear();
+        _resources.Clear();
+
+        if (batches is null || batches.Count == 0) return;
+
+        // Pick the resource dimension here:
+        //   var resourceKey = b => b.SyrupSimplexLocation ?? "(No Location)";
+        // OR:
+        //   var resourceKey = b => b.ProcessName ?? "(No Process)";
+        Func<SyrupPlanning, string> resourceKey = b => string.IsNullOrWhiteSpace(b.SyrupSimplexLocation)
+            ? "(No Location)"
+            : b.SyrupSimplexLocation;
+
+        // Build distinct resources
+        var resourceIds = batches
+            .Select(resourceKey)
+            .Distinct()
+            .ToList();
+
+        _resources = resourceIds.Select(id => new ScheduleResource { Id = id, Caption = id }).ToList();
+
+        // Keep a moving cursor per resource
+        var cursorByResource = resourceIds.ToDictionary(k => k, _ => baseStart);
+
+        foreach (var batch in batches)
+        {
+            var rId = resourceKey(batch);
+            if (!cursorByResource.TryGetValue(rId, out var cursor))
+                cursor = baseStart;
+
+            // Build the segment plan for ONE campaign
+            var segments = BuildSegmentsForBatch(batch);
+
+            // Repeat per campaign (handles int / int? / string)
+            var repeat = GetCampaignCount(batch.NoOfCampaign, 1);
+
+            for (int i = 1; i <= repeat; i++)
+            {
+                foreach (var seg in segments)
+                {
+                    if (seg.duration <= TimeSpan.Zero) continue;
+
+                    var start = cursor;
+                    var end = start + seg.duration;
+
+                    _appointments.Add(new ScheduleAppointment
+                    {
+                        Start = start,
+                        End = end,
+                        Subject = $"{seg.title} • {batch.MethodCode}",
+                        Description = BuildDescription(batch, seg, i, repeat),
+                        ResourceId = rId,
+                        LabelId = seg.labelId,
+                        StatusId = seg.statusId
+                    });
+
+                    cursor = end; // move cursor
+                }
+            }
+
+            cursorByResource[rId] = cursor;
+        }
+    }
+
+    // Describe each segment we want to schedule and how to fetch its decimal hours
+    private (string key, string title, Func<SyrupPlanning, decimal?> hoursSelector, int labelId, int statusId)[] _segmentDefs =
+{
+    ("prep",     "Preparation",             b => ToNullableDecimal(b.PreparationPerHour),       1, 1),
+    ("lvl1",     "Level 1 Cleaning",       b => ToNullableDecimal(b.Level1CleaningHours),       2, 1),
+    ("lvl2",     "Level 2 Cleaning",       b => ToNullableDecimal(b.Level2CleaningHours),       3, 1),
+    ("syrLvl2",  "Syrup Level 2 Cleaning", b => ToNullableDecimal(b.SyrupLevel2CleaningHours),  4, 1),
+    ("topup",    "Preparation TopUp",      b => ToNullableDecimal(b.PreparationTopUpPerHour),   5, 1),
+};
+
+    // helper to tolerate string/decimal fields:
+    private static decimal? ToNullableDecimal(object? v)
+    {
+        if (v is null) return null;
+        if (v is decimal d) return d;
+        if (v is double dbl) return (decimal)dbl;
+        if (v is float fl) return (decimal)fl;
+        if (v is int i) return i;
+        if (v is long l) return l;
+        var s = v.ToString();
+        return decimal.TryParse(s, out var parsed) ? parsed : (decimal?)null;
+    }
+
+    private List<(string key, string title, TimeSpan duration, int labelId, int statusId)> BuildSegmentsForBatch(SyrupPlanning b)
+    {
+        var list = new List<(string, string, TimeSpan, int, int)>();
+        foreach (var def in _segmentDefs)
+        {
+            var hrs = def.hoursSelector(b);
+            if (hrs is null) continue;
+            var minutes = (double)hrs.Value * 60.0;
+            if (minutes <= 0) continue;
+
+            list.Add((def.key, def.title, TimeSpan.FromMinutes(minutes), def.labelId, def.statusId));
+        }
+        return list;
+    }
+
+    private static string BuildDescription(SyrupPlanning b, (string key, string title, TimeSpan duration, int labelId, int statusId) seg, int campaignIndex, int campaignTotal)
+    {
+        int ManpowerOr(int? a, int? b, int fallback = 0) => a ?? b ?? fallback;
+        // usage:
+        var manpower = ManpowerOr(b.Level2CleaningManpower as int?, b.SyrupSimplexManpower as int?, 0);
+
+        var durText = $"{seg.duration.TotalHours:0.##} h";
+        return
+    $@"Profile: {b.ProfileNo}
+MethodCode: {b.MethodCode}
+Process: {b.ProcessName}
+Location: {b.SyrupSimplexLocation}
+Batch Size (L): {b.BatchSizeInLiters}
+Segment: {seg.title}
+Duration: {durText}
+Campaign: {campaignIndex}/{campaignTotal}
+Manpower: {manpower}";
+    }
+
+
+}

@@ -1,0 +1,178 @@
+﻿@page "/gantt-min"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Gantt
+
+
+<SfGantt TValue="TaskItem"
+         DataSource="TaskCollection"
+         Height="520px"
+         RowHeight="34"
+         TaskbarHeight="26"
+         ProjectStartDate="@ProjectStart"
+         ProjectEndDate="@ProjectEnd"
+         AllowSelection="true"
+         AllowTaskbarDragAndDrop="false"
+         AllowTaskbarEditing="false">
+
+    <!-- Map ONLY task fields here -->
+    <GanttTaskFields Id="Id"
+                     Name="Name"
+                     StartDate="StartDate"
+                     EndDate="EndDate" />
+
+    <!-- Resources (rooms) and assignments -->
+    <GanttResource DataSource="ResourceCollection"
+                   Id="Id"
+                   Name="Name"
+                   TValue="TaskItem"
+                   TResources="ResourceModel">
+    </GanttResource>
+
+    <GanttAssignmentFields DataSource="AssignmentCollection"
+                           PrimaryKey="PrimaryId"
+                           TaskID="TaskId"
+                           ResourceID="ResourceId"
+                           Units="Unit"
+                           TValue="TaskItem"
+                           TAssignment="AssignmentModel">
+    </GanttAssignmentFields>
+
+    <!-- Columns -->
+    <GanttColumns>
+        <GanttColumn Field="Name" HeaderText="Process name" Width="220" />
+        <!-- Shows assigned resource names -->
+        <GanttResourceColumn HeaderText="Room" Width="160" />
+        <GanttColumn Field="StartDate" HeaderText="Start" Format="t" Width="110" />
+        <GanttColumn Field="EndDate" HeaderText="End" Format="t" Width="110" />
+    </GanttColumns>
+
+    <!-- Timeline: 08:00–20:00 with 30-min ticks -->
+    <GanttTimelineSettings TimelineViewMode="TimelineViewMode.Hour">
+        <TopTier Unit="TimelineViewMode.Day" Format="ddd" />
+        <BottomTier Unit="TimelineViewMode.Minute" Count="30" Format="HH:mm" />
+    </GanttTimelineSettings>
+
+    <GanttDayWorkingTimeCollection>
+        <GanttDayWorkingTime From="08" To="20" />
+    </GanttDayWorkingTimeCollection>
+
+    <!-- Left label on bars -->
+    <GanttLabelSettings TValue="TaskItem" LeftLabel="BarText" />
+
+    <!-- Taskbar template: safe cast avoids 'object' errors -->
+    <GanttTemplates TValue="TaskItem">
+        <TaskbarTemplate Context="data">
+            @{
+                var item = data as TaskItem;
+            }
+            @if (item is not null)
+            {
+                <div class="@($"h-full w-full rounded-sm border px-2 d-flex align-items-center {GetCls(item.Tag)}")"
+                     title="@item.BarText">
+                    <span style="font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        @item.BarText
+                    </span>
+                </div>
+            }
+        </TaskbarTemplate>
+    </GanttTemplates>
+</SfGantt>
+
+@code {
+    // One-day window (today 08:00–20:00)
+    DateTime ProjectStart => DateTime.Today.AddHours(8);
+    DateTime ProjectEnd   => DateTime.Today.AddHours(20);
+
+    // ----- Models -----
+    public class TaskItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        // For labels/colors only (not used by resource binding)
+        public string? BarText { get; set; }
+        public string? Tag { get; set; }
+    }
+
+    public class ResourceModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public int MaxUnit { get; set; } = 1; // optional
+    }
+
+    public class AssignmentModel
+    {
+        public int PrimaryId { get; set; }      // unique key for the assignment row
+        public int TaskId { get; set; }         // links to TaskItem.Id
+        public int ResourceId { get; set; }     // links to ResourceModel.Id
+        public int Unit { get; set; } = 100;    // % allocation
+    }
+
+    // ----- Data -----
+    List<TaskItem> TaskCollection => new()
+    {
+        // Syrup simplex
+        new() { Id=1, Name="Syrup simplex", StartDate=ProjectStart,              EndDate=ProjectStart.AddHours(2.5), BarText="syrup simplex - batch 1", Tag="prep" },
+        new() { Id=2, Name="Syrup simplex", StartDate=ProjectStart.AddHours(1.5),EndDate=ProjectStart.AddHours(2.0), BarText="LV 2",                    Tag="lv"   },
+
+        // Syrup Prep 1
+        new() { Id=3, Name="Syrup Prep 1",  StartDate=ProjectStart.AddHours(1.5),EndDate=ProjectStart.AddHours(2.5), BarText="for 1st volumn",          Tag="prep" },
+        new() { Id=4, Name="Syrup Prep 1",  StartDate=ProjectStart.AddHours(2.5),EndDate=ProjectStart.AddHours(3.0), BarText="QC / top up",             Tag="qc"   },
+        new() { Id=5, Name="Syrup Prep 1",  StartDate=ProjectStart.AddHours(3.0),EndDate=ProjectStart.AddHours(3.5), BarText="LV 1",                    Tag="lv"   },
+
+        // Syrup Prep 2
+        new() { Id=6, Name="Syrup Prep 2",  StartDate=ProjectStart.AddHours(3.0),EndDate=ProjectStart.AddHours(4.5), BarText="",                        Tag="fill" },
+        new() { Id=7, Name="Syrup Prep 2",  StartDate=ProjectStart.AddHours(5.0),EndDate=ProjectStart.AddHours(7.5), BarText="120ml",                   Tag="fill" },
+        new() { Id=8, Name="Syrup Prep 2",  StartDate=ProjectStart.AddHours(7.5),EndDate=ProjectStart.AddHours(8.0), BarText="LV 1",                    Tag="lv"   },
+
+        // Filling 1
+        new() { Id=9, Name="Filling 1",     StartDate=ProjectStart,              EndDate=ProjectStart.AddHours(1.0), BarText="Setting",                 Tag="fill" },
+
+        // Filling 2 (placeholder)
+        new() { Id=10, Name="Filling 2",    StartDate=ProjectStart,              EndDate=ProjectStart,              BarText="",                        Tag="fill" }
+    };
+
+    List<ResourceModel> ResourceCollection = new()
+    {
+        new() { Id = 1, Name = "Room 1" },
+        new() { Id = 2, Name = "Room 2" },
+        new() { Id = 3, Name = "Room 3" },
+        new() { Id = 4, Name = "Room 4" },
+        new() { Id = 5, Name = "Room 5" }
+    };
+
+    // Link tasks to rooms (TaskId -> ResourceId)
+    List<AssignmentModel> AssignmentCollection = new()
+    {
+        new() { PrimaryId=1, TaskId=1,  ResourceId=1, Unit=100 },
+        new() { PrimaryId=2, TaskId=2,  ResourceId=1, Unit=100 },
+        new() { PrimaryId=3, TaskId=3,  ResourceId=2, Unit=100 },
+        new() { PrimaryId=4, TaskId=4,  ResourceId=2, Unit=100 },
+        new() { PrimaryId=5, TaskId=5,  ResourceId=2, Unit=100 },
+        new() { PrimaryId=6, TaskId=6,  ResourceId=3, Unit=100 },
+        new() { PrimaryId=7, TaskId=7,  ResourceId=3, Unit=100 },
+        new() { PrimaryId=8, TaskId=8,  ResourceId=3, Unit=100 },
+        new() { PrimaryId=9, TaskId=9,  ResourceId=4, Unit=100 },
+        new() { PrimaryId=10, TaskId=10, ResourceId=5, Unit=100 }
+    };
+
+    // Color helper (keeps template simple)
+    private string GetCls(string? tag) => tag switch
+    {
+        "prep" => "bg-yellow-200 border-yellow-300",
+        "fill" => "bg-gray-300 border-gray-400",
+        "qc"   => "bg-pink-200 border-pink-300",
+        "lv"   => "bg-green-100 border-green-200",
+        _      => "bg-blue-200 border-blue-300"
+    };
+}
+
+<style>
+  .bg-yellow-200 { background:#fde68a; } .border-yellow-300 { border-color:#fcd34d; }
+  .bg-gray-300  { background:#d1d5db; } .border-gray-400   { border-color:#9ca3af; }
+  .bg-pink-200  { background:#fbcfe8; } .border-pink-300   { border-color:#f9a8d4; }
+  .bg-green-100 { background:#d1fae5; } .border-green-200  { border-color:#a7f3d0; }
+  .bg-blue-200  { background:#bfdbfe; } .border-blue-300   { border-color:#93c5fd; }
+</style>

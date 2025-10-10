@@ -1,0 +1,312 @@
+﻿@page "/production-timing-syrup-others"
+@inject NavigationManager Nav
+
+<!-- Demo page: Production timing – Syrup (Others) -->
+<div class="p-4 space-y-6">
+    <DxFormLayout CssClass="shadow rounded-xl p-4">
+        <DxFormLayoutItem Caption="Section" ColSpanMd="4">
+            <span>Other Process</span>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Grid" ColSpanMd="4">
+            <span>Production timing - syrup Others</span>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="dynamicFormDataId" ColSpanMd="4">
+            <DxTextBox @bind-Text="Header.dynamicFormDataId" ReadOnly="true" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="profileNo" ColSpanMd="4">
+            <DxTextBox @bind-Text="Header.profileNo" ReadOnly="true" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="name" ColSpanMd="4">
+            <DxTextBox @bind-Text="Header.name" ReadOnly="true" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="SessionId" ColSpanMd="4">
+            <DxTextBox @bind-Text="Header.SessionId" ReadOnly="true" />
+        </DxFormLayoutItem>
+    </DxFormLayout>
+
+    <DxTabs>
+        <DxTab Text="Before specific process">
+            <DxGrid Data="BeforeItems" ShowGroupPanel="true" PageSize="8" ShowFilterRow="true" CssClass="rounded-xl shadow" EditMode="GridEditMode.EditRow">
+                <Columns>
+                    <DxGridCommandColumn Width="140" />
+                    <DxGridDataColumn FieldName="ProcessName" Caption="Process Name" MinWidth="220">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="MustCompleteForNext" Caption="Must complete to have next process?" Width="220">
+                        <CellDisplayTemplate>
+                            @{
+                                var ctx = (BeforeProcessItem)context.DataItem;
+                            }
+                            <DxCheckBox Checked="@ctx.MustCompleteForNext" ReadOnly="true" />
+                        </CellDisplayTemplate>
+                        <EditSettings>
+                            <DxCheckBoxSettings />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="NextProcess" Caption="Next Process" MinWidth="200">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Location" Caption="Location of process" MinWidth="160" />
+                    <DxGridDataColumn FieldName="Manpower" Caption="No of manpower" Width="140">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="50" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Manhours" Caption="No of Manhours/Hours" Width="170">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="200" Step="0.5m" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="IsFromNextProcess" Caption="Manpower is from next process?" Width="200">
+                        <CellDisplayTemplate>
+                            @{
+                                var ctx = (BeforeProcessItem)context.DataItem;
+                            }
+                            <DxCheckBox Checked="@ctx.IsFromNextProcess" ReadOnly="true" />
+                        </CellDisplayTemplate>
+                        <EditSettings>
+                            <DxCheckBoxSettings />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="CanCarryNonWorkDay" Caption="Can carryout on non work day?" Width="200">
+                        <CellDisplayTemplate>
+                            @{
+                                var ctx = (BeforeProcessItem)context.DataItem;
+                            }
+                            <DxCheckBox Checked="@ctx.CanCarryNonWorkDay" ReadOnly="true" />
+                        </CellDisplayTemplate>
+                        <EditSettings>
+                            <DxCheckBoxSettings />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="TimeGapHours" Caption="Time Gap/Hour" Width="140">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="72" Step="0.5m" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                </Columns>
+
+                <ToolbarTemplate>
+                    <DxButton Text="Add" IconCssClass="dx-icon-add" Click="AddBefore" />
+                    <DxButton Text="Save" IconCssClass="dx-icon-save" Click="SaveAll" />
+                </ToolbarTemplate>
+            </DxGrid>
+
+            <div class="text-sm text-gray-600 mt-2 leading-6">
+                <strong>Selection help:</strong> "show at pigeon hole" = Location of process. If <em>Must complete</em> is Yes, the next process only arranges after this; if No, use <em>Time Gap</em> for scheduling. "Yes" under <em>Can carryout on non work day?</em> means it can be arranged; otherwise skip.
+            </div>
+        </DxTab>
+
+        <DxTab Text="After specific process">
+            <DxGrid Data="AfterItems" PageSize="8" ShowFilterRow="true" CssClass="rounded-xl shadow" EditMode="GridEditMode.EditRow">
+                <Columns>
+                    <DxGridCommandColumn Width="140" />
+                    <DxGridDataColumn FieldName="ProcessName" Caption="Name of the process" MinWidth="220">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="AfterWhichProcess" Caption="After which process" MinWidth="220">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Manpower" Caption="No of Manpower" Width="150">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="50" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Manhours" Caption="Manpower Hours" Width="160">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="200" Step="0.5m" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="IsFromPreviousProcess" Caption="Manpower is from previous process" Width="230">
+                        <CellDisplayTemplate>
+                            @{
+                                var ctx = (AfterProcessItem)context.DataItem;
+                            }
+                            <DxCheckBox Checked="@ctx.IsFromPreviousProcess" ReadOnly="true" />
+                        </CellDisplayTemplate>
+                        <EditSettings>
+                            <DxCheckBoxSettings />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="TimeGapHours" Caption="Time Gap/hour" Width="150">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="72" Step="0.5m" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                </Columns>
+
+                <ToolbarTemplate>
+                    <DxButton Text="Add" IconCssClass="dx-icon-add" Click="AddAfter" />
+                    <DxButton Text="Save" IconCssClass="dx-icon-save" Click="SaveAll" />
+                </ToolbarTemplate>
+            </DxGrid>
+            <div class="text-sm text-gray-600 mt-2">Mark <em>arrange 1</em> by setting Manpower & Time Gap; toggle <em>Is from previous process</em> as needed.</div>
+        </DxTab>
+
+        <DxTab Text="Parallel with specific job" >
+            <DxGrid Data="ParallelItems" PageSize="8" ShowFilterRow="true" CssClass="rounded-xl shadow" EditMode="GridEditMode.EditRow">
+                <Columns>
+                    <DxGridCommandColumn Width="140"  />
+                    <DxGridDataColumn FieldName="ProcessName" Caption="Process Name" MinWidth="220">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="ParallelProcess" Caption="Parallel process" MinWidth="220">
+                        <EditSettings>
+                            <DxComboBoxSettings Data="PlanningProcesses" TextFieldName="." ValueFieldName="." />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Manpower" Caption="Manpower/No" Width="140">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="50" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Manhours" Caption="Manhours/Hrs" Width="150">
+                        <EditSettings>
+                            <DxSpinEditSettings Min="0" Max="200" Step="0.5m" />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="IsSameTeam" Caption="Is manpower same team" Width="200">
+                        <CellDisplayTemplate>
+                            @{
+                                var ctx = (ParallelProcessItem)context.DataItem;
+                            }
+                            <DxCheckBox Checked="@ctx.IsSameTeam" ReadOnly="true" />
+                        </CellDisplayTemplate>
+                        <EditSettings>
+                            <DxCheckBoxSettings />
+                        </EditSettings>
+                    </DxGridDataColumn>
+                </Columns>
+
+                <ToolbarTemplate>
+                    <DxButton Text="Add" IconCssClass="dx-icon-add" Click="AddParallel" />
+                    <DxButton Text="Save" IconCssClass="dx-icon-save" Click="SaveAll" />
+                </ToolbarTemplate>
+            </DxGrid>
+        </DxTab>
+    </DxTabs>
+</div>
+
+@code {
+    // Header (read-only demo values)
+    HeaderInfo Header = new()
+    {
+        dynamicFormDataId = "85257",
+        profileNo = "PHI-25-0002",
+        name = "Grid - Production Timing - Syrup General",
+        SessionId = "11aac4bb-8027-4e89-a68c-20dd70c1a3d8"
+    };
+
+    // Sample planning processes used by all sections (acts as the drop-down list)
+    List<string> PlanningProcesses = new() {
+    "Syrup - Gum Preparation",
+    "Syrup Simplex",
+    "Syrup - Heating",
+    "Syrup - Filtering",
+    "Syrup - Cooling",
+    "BMP - machine filling",
+    "BMP - manual filling"
+  };
+
+    // BEFORE specific process grid data
+    List<BeforeProcessItem> BeforeItems = new()
+  {
+    new BeforeProcessItem {
+      ProcessName = "Before specific process",
+      MustCompleteForNext = true,
+      NextProcess = "Syrup Simplex",
+      Location = "pigeon hole",
+      Manpower = 1,
+      Manhours = 1,
+      IsFromNextProcess = false,
+      CanCarryNonWorkDay = true,
+      TimeGapHours = 0
+    }
+  };
+
+    // AFTER specific process grid data
+    List<AfterProcessItem> AfterItems = new()
+  {
+    new AfterProcessItem {
+      ProcessName = "Syrup - Filtering",
+      AfterWhichProcess = "Syrup - Heating",
+      Manpower = 1,
+      Manhours = 1,
+      IsFromPreviousProcess = true,
+      TimeGapHours = 0
+    }
+  };
+
+    // PARALLEL grid data
+    List<ParallelProcessItem> ParallelItems = new()
+  {
+    new ParallelProcessItem {
+      ProcessName = "BMP - machine filling",
+      ParallelProcess = "Syrup - Cooling",
+      Manpower = 1,
+      Manhours = 1,
+      IsSameTeam = true
+    }
+  };
+
+    void AddBefore() => BeforeItems.Add(new BeforeProcessItem());
+    void AddAfter() => AfterItems.Add(new AfterProcessItem());
+    void AddParallel() => ParallelItems.Add(new ParallelProcessItem());
+
+    void SaveAll()
+    {
+        // DEMO ONLY: no persistence; place your save logic or API call here
+        Console.WriteLine("Saved (demo)");
+    }
+
+    // --- Models ---
+    class HeaderInfo
+    {
+        public string dynamicFormDataId { get; set; } = string.Empty;
+        public string profileNo { get; set; } = string.Empty;
+        public string name { get; set; } = string.Empty;
+        public string SessionId { get; set; } = string.Empty;
+    }
+
+    class BeforeProcessItem
+    {
+        public string? ProcessName { get; set; } = "Syrup - Gum Preparation";
+        public bool MustCompleteForNext { get; set; }
+        public string? NextProcess { get; set; }
+        public string? Location { get; set; }
+        public int Manpower { get; set; }
+        public decimal Manhours { get; set; }
+        public bool IsFromNextProcess { get; set; }
+        public bool CanCarryNonWorkDay { get; set; }
+        public decimal TimeGapHours { get; set; }
+    }
+
+    class AfterProcessItem
+    {
+        public string? ProcessName { get; set; }
+        public string? AfterWhichProcess { get; set; }
+        public int Manpower { get; set; }
+        public decimal Manhours { get; set; }
+        public bool IsFromPreviousProcess { get; set; }
+        public decimal TimeGapHours { get; set; }
+    }
+
+    class ParallelProcessItem
+    {
+        public string? ProcessName { get; set; }
+        public string? ParallelProcess { get; set; }
+        public int Manpower { get; set; }
+        public decimal Manhours { get; set; }
+        public bool IsSameTeam { get; set; }
+    }
+}

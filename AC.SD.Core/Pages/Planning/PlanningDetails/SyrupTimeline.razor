@@ -1,0 +1,189 @@
+﻿@page "/syrup-timeline"
+@using System.Linq
+@using DevExpress.Blazor
+
+<DxGrid Data="@Timeline"
+        ShowGroupPanel="true"
+        PageSize="50"
+        CssClass="w-100">
+    <Columns>
+        <DxGridDataColumn FieldName="Stage" Caption="Stage" GroupIndex="0"  />
+        <DxGridDataColumn FieldName="Task" Caption="Task"  />
+        <DxGridDataColumn FieldName="Machine" Caption="Machine"  />
+        <DxGridDataColumn FieldName="Start" Caption="Start" DisplayFormat="g"  />
+        <DxGridDataColumn FieldName="End" Caption="End" DisplayFormat="g"  />
+
+        <!-- Duration column (hh:mm) -->
+        <DxGridDataColumn Caption="Duration" Width="120px">
+            <CellDisplayTemplate>
+                @{
+                    var item = (TimelineItem)context.DataItem;
+                    var durText = TimeSpan.FromMinutes(item.DurationMinutes).ToString(@"hh\:mm");
+                }
+                <span>@durText</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
+        <!-- Mini-Gantt column -->
+       @*  <DxGridDataColumn Caption="Timeline" Width="*">
+            <CellDisplayTemplate>
+                @{
+                    var item = (TimelineItem)context.DataItem;
+
+                    var dayStart = WorkWindows.Min(w => w.Start);
+                    var dayEnd = WorkWindows.Max(w => w.End);
+                    var totalMin = Math.Max((dayEnd - dayStart).TotalMinutes, 1); // guard
+
+                    var leftPctRaw = (item.Start - dayStart).TotalMinutes / totalMin * 100.0;
+                    var widthPctRaw = (item.End - item.Start).TotalMinutes / totalMin * 100.0;
+
+                    // clamp so it’s always on-screen and at least a hair visible
+                    double Clamp(double v, double lo, double hi) => v < lo ? lo : (v > hi ? hi : v);
+                    var leftPct = Clamp(leftPctRaw, 0, 100);
+                    var widthPct = Clamp(widthPctRaw, 0.8, 100 - leftPct); // min ~0.8% so very short tasks still show
+
+                    string trackStyle = "position:relative;height:18px;background:#f5f5f5;border-radius:4px;overflow:hidden;border:1px solid #eee;";
+                    // use DevExpress theme color if available, else fallback blue
+                    string barStyle =
+                    $"position:absolute;left:{leftPct:F2}%;width:{widthPct:F2}%;height:100%;border-radius:4px;" +
+                    $"background: var(--dxbl-primary, #3b82f6);opacity:.9;";
+                }
+                <div style="@trackStyle">
+                    <div style="@barStyle"></div>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn> *@
+
+    </Columns>
+</DxGrid>
+
+@code {
+    // -------- SETTINGS YOU CAN TUNE --------
+    // Work windows for the day (8:00–12:30, 13:30–18:00, OT 18:30–20:30)
+    public static List<WorkWindow> WorkWindows { get; } = BuildWindows(DateTime.Today);
+
+    // machine rates (bottles per minute) from your sheet
+    const double Rate60mlBpm = 100; // 60 ml
+    const double Rate120mlBpm = 80;  // 120 ml
+
+    // output rows
+    List<TimelineItem> Timeline = new();
+
+    protected override void OnInitialized()
+    {
+        // ---------- DEFINE THE STEPS ----------
+        var steps = new List<Step>
+        {
+            // Preparation
+            Step.Fixed("Preparation", "Simplex – heat water & dissolve sugar", 120),
+            Step.Fixed("Preparation", "Cleaning L2 after batch", 60),
+            Step.Fixed("Preparation", "Syrup Prep 1 (mixing)", 90),
+            Step.Fixed("Preparation", "In-process check / top-up", 15),
+            Step.Fixed("Preparation", "Transfer for Filling", 15),
+
+            // Filling Primary (example ticket quantities)
+            Step.ByRate("Filling Primary", "120 ml Bottle", quantityBottles: 4000, rateBpm: Rate120mlBpm, machine: "MH1"),
+            Step.ByRate("Filling Primary", "60 ml Bottle",  quantityBottles: 3500, rateBpm: Rate60mlBpm,  machine: "MH1"),
+
+            // Filling Secondary
+            Step.Fixed("Filling Secondary", "Cap Sealing", 30),
+            Step.Fixed("Filling Secondary", "Labeling", 45),
+            Step.Fixed("Filling Secondary", "Batch Coding / Inkjet", 30),
+            Step.Fixed("Filling Secondary", "Carton Sealing", 30),
+            Step.Fixed("Filling Secondary", "Final QC & Dispatch", 30),
+        };
+
+        // Optional: Monday machine setup 60 min
+        // steps.Insert(0, Step.Fixed("Preparation", "Machine setting (Monday only)", 60));
+
+        // ---------- SCHEDULE ----------
+        Timeline = Schedule(steps, WorkWindows);
+    }
+
+    // Build today's work windows
+    static List<WorkWindow> BuildWindows(DateTime baseDay)
+    {
+        var y = baseDay.Year; var m = baseDay.Month; var d = baseDay.Day;
+        return new List<WorkWindow>
+        {
+            new WorkWindow(new DateTime(y,m,d, 8,  0,0), new DateTime(y,m,d,12,30,0)),
+            new WorkWindow(new DateTime(y,m,d,13,30,0), new DateTime(y,m,d,18, 0,0)),
+            new WorkWindow(new DateTime(y,m,d,18,30,0), new DateTime(y,m,d,20,30,0)), // remove if no OT
+        };
+    }
+
+    // --------- SCHEDULER ---------
+    static List<TimelineItem> Schedule(List<Step> steps, List<WorkWindow> windows)
+    {
+        var result = new List<TimelineItem>();
+        if (steps.Count == 0 || windows.Count == 0) return result;
+
+        var wi = 0;
+        var cursor = windows[0].Start;
+
+        foreach (var step in steps)
+        {
+            var remaining = TimeSpan.FromMinutes(step.Minutes);
+
+            while (remaining > TimeSpan.Zero)
+            {
+                if (wi >= windows.Count) break; // no more capacity today
+
+                var w = windows[wi];
+
+                if (cursor < w.Start) cursor = w.Start;
+                if (cursor >= w.End) { wi++; continue; }
+
+                var free = w.End - cursor;
+                var slice = remaining <= free ? remaining : free;
+
+                result.Add(new TimelineItem
+                {
+                    Stage = step.Stage,
+                    Task = step.Name,
+                    Machine = step.Machine,
+                    Start = cursor,
+                    End = cursor + slice,
+                    DurationMinutes = (int)Math.Round(slice.TotalMinutes)
+                });
+
+                cursor += slice;
+                remaining -= slice;
+
+                if (cursor >= w.End) wi++;
+            }
+        }
+        return result;
+    }
+
+    // --------- MODELS ---------
+    public record WorkWindow(DateTime Start, DateTime End);
+
+    public class Step
+    {
+        public string Stage { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string? Machine { get; init; }
+        public int Minutes { get; init; }
+
+        public static Step Fixed(string stage, string name, int minutes, string? machine = null)
+            => new() { Stage = stage, Name = name, Minutes = minutes, Machine = machine };
+
+        public static Step ByRate(string stage, string name, int quantityBottles, double rateBpm, string? machine = null)
+        {
+            // production time in minutes, rounded up
+            var minutes = (int)Math.Ceiling(quantityBottles / Math.Max(rateBpm, 1));
+            return Fixed(stage, name, minutes, machine);
+        }
+    }
+
+    public class TimelineItem
+    {
+        public string Stage { get; set; } = default!;
+        public string Task { get; set; } = default!;
+        public string? Machine { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public int DurationMinutes { get; set; }
+    }
+}

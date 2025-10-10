@@ -1,0 +1,588 @@
+﻿@page "/syrupvijayk"
+@using Application.Queries;
+@using MediatR
+@using System.ComponentModel;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query;
+@using static global::Core.EntityModels.SyrupPlanning
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@inject IStockInformationMasterQueryRepository Repo
+@inject IJSRuntime JS
+
+<h2>Syrup Timeline (no Excel) — Generate & Copy CSV</h2>
+
+<div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+    <label>Schedule date:</label>
+
+    <!-- bind directly to a DateTime, no manual string parsing -->
+    <InputDate @bind-Value="SelectedDate" class="form-control" />
+
+    <button class="btn btn-primary" @onclick="GenerateTimeline">Generate Timeline</button>
+    <button class="btn btn-secondary" @onclick="CopyCsvToClipboard" disabled="@(ScheduleRows == null || !ScheduleRows.Any())">Copy CSV</button>
+    <button class="btn btn-outline" @onclick="ToggleTable">@((ShowTable ? "Hide" : "Show") + " Table")</button>
+</div>
+
+@if (IsWorking)
+{
+    <p><em>Working... please wait.</em></p>
+}
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div style="margin:8px 0; color:#2c6fb2;">@Message</div>
+}
+
+@if (ScheduleRows != null && ScheduleRows.Any())
+{
+    <div style="margin-top:16px;">
+        <h4>Timeline (visual)</h4>
+        <div style="max-width:1200px; border:1px solid #e6eef8; padding:8px; border-radius:6px;">
+            <div style="display:flex; background:#f1f7fc; padding:6px; border-radius:4px;">
+                @foreach (var tick in TimeTicks)
+                {
+                    <div style="width:72px; text-align:center; font-size:0.85rem;">@tick.ToString(@"hh\:mm")</div>
+                }
+            </div>
+
+            @foreach (var lane in LaneDefs)
+            {
+                <div style="display:flex; border-bottom:1px solid #eee; min-height:64px; align-items:center;">
+                    <div style="width:200px; padding:8px; font-weight:600; border-right:1px solid #eee;">@lane.Title</div>
+                    <div style="flex:1; position:relative; min-height:64px;">
+                        @foreach (var item in ScheduleRows.Where(s => s.LaneId == lane.Id).OrderBy(s => s.Start))
+                        {
+                            var left = CalcLeftPercent(item.Start);
+                            var width = CalcWidthPercent(item.Start, item.End);
+                            <div style="position:absolute; left:@($"{left:F4}%"); width:@($"{width:F4}%"); top:8px; height:48px;
+                                                    background:linear-gradient(#dff1ff,#cde9ff); border:1px solid #2f9fd6; border-radius:6px; padding:6px; box-sizing:border-box; overflow:hidden;">
+                                <div style="font-weight:700; font-size:0.95rem;">@item.Title</div>
+                                <div style="font-size:0.85rem; opacity:0.85;">@item.Start.ToString(@"hh\:mm") - @item.End.ToString(@"hh\:mm") (@Math.Round((item.End - item.Start).TotalHours, 2)h)</div>
+                                <div style="font-size:0.8rem; color:#333;">@item.Note</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (ShowTable)
+        {
+            <h4 style="margin-top:16px;">Schedule Table</h4>
+            <div style="overflow:auto; max-height:400px; border:1px solid #eee; padding:8px;">
+                <table class="table" style="min-width:900px;">
+                    <thead>
+                        <tr>
+                            <th>LaneId</th>
+                            <th>LaneTitle</th>
+                            <th>Title</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Duration (hrs)</th>
+                            <th>Note</th>
+                            <th>MethodCodeID</th>
+                            <th>ProfileNo</th>
+                            <th>Machine</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in ScheduleRows)
+                        {
+                            <tr>
+                                <td>@r.LaneId</td>
+                                <td>@LaneMap[r.LaneId]</td>
+                                <td>@r.Title</td>
+                                <td>@r.Start.ToString(@"hh\:mm")</td>
+                                <td>@r.End.ToString(@"hh\:mm")</td>
+                                <td>@Math.Round((r.End - r.Start).TotalHours, 4)</td>
+                                <td>@r.Note</td>
+                                <td>@(r.MethodCodeID?.ToString() ?? "")</td>
+                                <td>@(r.ProfileNo ?? "")</td>
+                                <td>@(r.Machine ?? "")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    // SelectedDate used by InputDate
+    private DateTime SelectedDate { get; set; } = DateTime.Today;
+
+    // Safely read any property; convert TimeOnly/nullable TimeOnly to string
+    private object? GetAnyPropertySafe(object? obj, string propName)
+    {
+        if (obj == null) return null;
+        var prop = obj.GetType().GetProperty(propName);
+        if (prop == null) return null;
+        var val = prop.GetValue(obj);
+        if (val == null) return null;
+
+        var tn = val.GetType().FullName ?? "";
+        if (tn == "System.TimeOnly" || tn == "System.Nullable`1[System.TimeOnly]")
+        {
+            // convert to string to avoid implicit TimeOnly -> string errors elsewhere
+            return val.ToString(); // e.g. "08:00:00"
+        }
+
+        // If it's TimeSpan or DateTime you can also choose to return string:
+        if (val is TimeSpan ts) return ts.ToString();      // "01:30:00"
+        if (val is DateTime dt) return dt.ToString("o");   // ISO string if needed
+
+        return val;
+    }
+
+    // If you need a textual value (e.g. for display or for DateTime.TryParse), use this:
+    private string? GetStringProperty(object? obj, string propName, string? format = null)
+    {
+        var v = GetAnyPropertySafe(obj, propName);
+        if (v == null) return null;
+
+        // If underlying type already produced a formatted string above, return it
+        if (v is string s) return s;
+
+        // DateTime formatting (if you expect a date)
+        if (v is DateTime dt)
+        {
+            return format != null ? dt.ToString(format, System.Globalization.CultureInfo.InvariantCulture) : dt.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        // TimeSpan formatting
+        if (v is TimeSpan tsp)
+        {
+            return format != null ? tsp.ToString(format) : tsp.ToString();
+        }
+
+        // fallback
+        return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    // Robust number parser (accepts strings, numbers, etc.)
+    private double? ParseDoubleSafe(object? value)
+    {
+        if (value == null) return null;
+        // avoid trying to parse time/date values
+        var tname = value.GetType().FullName ?? "";
+        if (tname == "System.TimeOnly" || tname.StartsWith("System.Nullable`1[System.TimeOnly]") || value is DateTime) return null;
+
+        if (value is double d) return d;
+        if (value is decimal dec) return (double)dec;
+        if (value is int i) return i;
+        if (value is long l) return (double)l;
+
+        var s = value.ToString();
+        if (string.IsNullOrWhiteSpace(s)) return null;
+
+        if (double.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var result))
+            return result;
+
+        // strip non-digit characters and try again
+        var cleaned = new string(s.Where(ch => char.IsDigit(ch) || ch == '.' || ch == ',').ToArray()).Replace(',', '.');
+        if (double.TryParse(cleaned, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+            return result;
+
+        return null;
+    }
+
+    // Improved numeric parser - accepts object or string safely
+    private double? TryParseDoubleFlexible(object? v)
+    {
+        if (v == null) return null;
+
+        // If it's TimeOnly or DateTime, we don't parse as number
+        var tname = v.GetType().FullName ?? "";
+        if (tname == "System.TimeOnly" || tname == "System.Nullable`1[System.TimeOnly]" || v is DateTime) return null;
+
+        if (v is double d) return d;
+        if (v is decimal dec) return (double)dec;
+        if (v is int i) return i;
+        if (v is long l) return (double)l;
+
+        var s = v.ToString();
+        if (string.IsNullOrWhiteSpace(s)) return null;
+
+        if (double.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var res))
+            return res;
+
+        // Allow strings with non-number characters (e.g. "2.5 hrs") by stripping
+        var cleaned = new string(s.Where(ch => char.IsDigit(ch) || ch == '.' || ch == ',').ToArray()).Replace(',', '.');
+        if (double.TryParse(cleaned, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out res))
+            return res;
+
+        return null;
+    }
+
+    // ---------- Config & business rules ----------
+    string SelectedDateString
+    {
+        get => SelectedDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                SelectedDate = DateTime.Today;
+                return;
+            }
+
+            // Always pass a string to DateTime.TryParseExact
+            if (System.DateTime.TryParseExact(value, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsedExact))
+            {
+                SelectedDate = parsedExact;
+            }
+            else if (System.DateTime.TryParse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsed))
+            {
+                SelectedDate = parsed;
+            }
+            else
+            {
+                SelectedDate = DateTime.Today;
+            }
+        }
+    }
+
+
+    TimeSpan ShiftStart = new TimeSpan(8, 0, 0);
+    TimeSpan ShiftEnd = new TimeSpan(18, 0, 0);
+    TimeSpan LunchStart = new TimeSpan(12, 30, 0);
+    TimeSpan LunchEnd = new TimeSpan(13, 30, 0);
+    bool EnableOvertime = false;
+    TimeSpan OvertimeEnd = new TimeSpan(20, 30, 0);
+    double MH60_BPM = 82.5;
+    double MH120_BPM = 77.5;
+    double MH2_120_BPM = 80.0;
+    TimeSpan Level1Cleaning = TimeSpan.FromMinutes(30);
+    TimeSpan Level2Cleaning = TimeSpan.FromHours(3);
+    TimeSpan SimplexL2Cleaning = TimeSpan.FromHours(1);
+    TimeSpan PreparationFirstVolumeDefault = TimeSpan.FromMinutes(90);
+    TimeSpan InProcessCheckBeforeTopUp = TimeSpan.FromMinutes(15);
+    TimeSpan MachineHandlingTime = TimeSpan.FromHours(1);
+    TimeSpan MinBlock = TimeSpan.FromMinutes(10);
+
+    // ---------- State ----------
+    bool IsWorking = false;
+    string Message = "";
+    bool ShowTable = true;
+    List<LaneDef> LaneDefs = new() {
+        new LaneDef { Id=1, Title="Preparation"},
+        new LaneDef { Id=2, Title="Filling MH1 (120/60 ml)"},
+        new LaneDef { Id=3, Title="Filling MH2 (120 ml)"},
+        new LaneDef { Id=4, Title="Cleaning / QC"},
+        new LaneDef { Id=5, Title="Other"}
+    };
+    Dictionary<int, string> LaneMap => LaneDefs.ToDictionary(x => x.Id, x => x.Title);
+    List<TimelineRow> ScheduleRows = new();
+
+    IEnumerable<TimeSpan> TimeTicks => GenerateTicks(ShiftStart, EnableOvertime ? OvertimeEnd : ShiftEnd, TimeSpan.FromMinutes(30));
+
+    // ---------- Actions ----------
+    async Task GenerateTimeline()
+    {
+        IsWorking = true;
+        Message = "";
+        ScheduleRows.Clear();
+        StateHasChanged();
+
+        try
+        {
+            var masters = (await Repo.GetSyrupPlannings())?.ToList() ?? new List<SyrupPlanning>();
+            var fillings = (await Repo.GetSyrupFillingList())?.ToList() ?? new List<SyrupFilling>();
+            var others = (await Repo.GetSyrupOtherProcessList())?.ToList() ?? new List<SyrupOtherProcess>();
+
+            var laneNext = LaneDefs.ToDictionary(l => l.Id, l => ShiftStart);
+            var machineSetupDone = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var m in masters)
+            {
+                var methodName = m.MethodName ?? $"Method-{m.MethodCodeID}";
+                var profileNo = m.ProfileNo?.ToString() ?? "";
+
+                // read batch liters robustly (some models use BatchSizeInLiters or BatchSizeL)
+                double? batchLitersNullable = TryParseDoubleFlexible(GetAnyProperty(m, "BatchSizeInLiters") ?? GetAnyProperty(m, "BatchSizeL"));
+                double batchLiters = batchLitersNullable ?? 0;
+
+                SyrupPlanning prep = null;
+                SyrupPlanning simplex = null;
+                try { prep = await Repo.SelectSyruppreparationDataList(m.MethodCodeID); } catch { prep = null; }
+                try { simplex = await Repo.SelectSyrupSimplexDataList(m.MethodCodeID); } catch { simplex = null; }
+
+                // SIMPLEX
+                if (simplex != null && IsTruthy(GetAnyProperty(simplex, "IsthereSyrupSimplextoproduce")))
+                {
+                    var simplexHours = TryParseDoubleFlexible(GetAnyProperty(simplex, "SyrupSimplexPreparationHour")) ?? 2.0;
+                    var simplexStart = laneNext[1];
+                    var simplexEnd = AddHoursClamped(simplexStart, simplexHours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 1, Title = $"Simplex: {methodName}", Start = simplexStart, End = simplexEnd, Note = "Heating/dissolve sugar" });
+                    laneNext[1] = simplexEnd;
+
+                    var simplexL2Hours = TryParseDoubleFlexible(GetAnyProperty(simplex, "SyrupSimplexLevel2CleaningHours")) ?? SimplexL2Cleaning.TotalHours;
+                    var simplexL2Start = laneNext[4];
+                    var simplexL2End = AddHoursClamped(simplexL2Start, simplexL2Hours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 4, Title = $"L2 Clean (Simplex): {methodName}", Start = simplexL2Start, End = simplexL2End, Note = "L2 after simplex" });
+                    laneNext[4] = simplexL2End;
+                }
+
+                // PREPARATION first volume
+                var prepHours = TryParseDoubleFlexible(GetAnyProperty(prep, "SyruppreparationFirstVolumnHour"))
+                                ?? TryParseDoubleFlexible(GetAnyProperty(m, "PreparationFirstVolumePerHour"))
+                                ?? PreparationFirstVolumeDefault.TotalHours;
+                if (prepHours > 0)
+                {
+                    var pStart = laneNext[1];
+                    var pEnd = AddHoursClamped(pStart, prepHours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 1, Title = $"Prep: {methodName}", Start = pStart, End = pEnd, Note = $"First vol approx {prepHours}h" });
+                    laneNext[1] = pEnd;
+                }
+
+                // IPQC 15min before topup (on lane 4) — compute only if there will be a top-up later
+                var ipqcPoint = laneNext[1];
+                var ipqcStop = ipqcPoint - InProcessCheckBeforeTopUp;
+                if (ipqcStop > ShiftStart)
+                {
+                    var ipqcStart = ipqcStop;
+                    var ipqcEnd = ipqcStart + InProcessCheckBeforeTopUp;
+                    ScheduleRows.Add(new TimelineRow { LaneId = 4, Title = $"IPQC check: {methodName}", Start = ipqcStart, End = ipqcEnd, Note = "In-process check" });
+                }
+
+                // TOPUP
+                var topupHours = TryParseDoubleFlexible(GetAnyProperty(prep, "SyruppreparationTopupToVolumnHour")) ?? 0;
+                if (topupHours > 0)
+                {
+                    var tStart = laneNext[1];
+                    var tEnd = AddHoursClamped(tStart, topupHours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 1, Title = $"TopUp: {methodName}", Start = tStart, End = tEnd, Note = "Top up to final volume" });
+                    laneNext[1] = tEnd;
+                }
+
+                // Cleaning L1 & L2
+                var l1hours = TryParseDoubleFlexible(GetAnyProperty(prep, "SyruppreparationLevel1CleaningHours")) ?? Level1Cleaning.TotalHours;
+                if (l1hours > 0)
+                {
+                    var s = laneNext[4];
+                    var e = AddHoursClamped(s, l1hours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 4, Title = $"L1 Clean: {methodName}", Start = s, End = e, Note = "L1 cleaning" });
+                    laneNext[4] = e;
+                }
+
+                var l2hours = TryParseDoubleFlexible(GetAnyProperty(prep, "SyruppreparationLevel2Cleaninghours")) ?? Level2Cleaning.TotalHours;
+                if (l2hours > 0)
+                {
+                    var s = laneNext[4];
+                    var e = AddHoursClamped(s, l2hours);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 4, Title = $"L2 Clean: {methodName}", Start = s, End = e, Note = "L2 cleaning" });
+                    laneNext[4] = e;
+                }
+
+                // FILLINGS by profile
+                var fList = fillings.Where(f => string.Equals(Convert.ToString(GetAnyProperty(f, "ProfileNo")), profileNo)).ToList();
+                if (!fList.Any() && batchLiters > 0)
+                {
+                    var duration = ComputeFillingHours(batchLiters, 120, MH60_BPM, MH120_BPM, "MH1");
+                    var laneId = 2;
+                    var start = laneNext[laneId];
+                    if (!machineSetupDone.GetValueOrDefault("MH1")) { start = start + MachineHandlingTime; machineSetupDone["MH1"] = true; }
+                    var end = AddHoursClamped(start, duration);
+                    ScheduleRows.Add(new TimelineRow { LaneId = laneId, Title = $"Filling (120ml): {methodName}", Start = start, End = end, Note = $"calc from {batchLiters} L" });
+                    laneNext[laneId] = end;
+                }
+                else
+                {
+                    foreach (var f in fList)
+                    {
+                        var fhObj = GetAnyProperty(f, "FillingHours") ?? GetAnyProperty(f, "ChangePackingFillingHours");
+                        var fh = TryParseDoubleFlexible(fhObj) ?? 0;
+                        var machineName = GetAnyProperty(f, "PrimaryFillingMachine")?.ToString() ?? "";
+                        int packMl = InferPackSizeFromFilling(f) ?? (machineName.ToUpperInvariant().Contains("60") ? 60 : 120);
+                        if (fh <= 0 && batchLiters > 0) fh = ComputeFillingHours(batchLiters, packMl, MH60_BPM, MH120_BPM, machineName);
+                        var laneId = MapMachineToLaneId(machineName, packMl);
+                        var start = laneNext.ContainsKey(laneId) ? laneNext[laneId] : ShiftStart;
+                        if (!string.IsNullOrEmpty(machineName) && !machineSetupDone.GetValueOrDefault(machineName)) { start = start + MachineHandlingTime; machineSetupDone[machineName] = true; }
+                        var end = AddHoursClamped(start, fh);
+                        ScheduleRows.Add(new TimelineRow { LaneId = laneId, Title = $"Filling ({packMl}ml): {methodName}", Start = start, End = end, Note = $"{machineName} calc/hrs:{Math.Round(fh, 2)}", Machine = machineName });
+                        laneNext[laneId] = end;
+                    }
+                }
+
+                // OTHER processes
+                var oList = others.Where(o => string.Equals(Convert.ToString(GetAnyProperty(o, "ProfileNo")), profileNo)).ToList();
+                foreach (var o in oList)
+                {
+                    var dur = TryParseDoubleFlexible(GetAnyProperty(o, "EstimatedHours")) ?? 0.25;
+                    var s = laneNext[5];
+                    var e = AddHoursClamped(s, dur);
+                    ScheduleRows.Add(new TimelineRow { LaneId = 5, Title = $"Other: {methodName}", Start = s, End = e, Note = "Other" });
+                    laneNext[5] = e;
+                }
+            } // end masters
+
+            // clamp & sort
+            foreach (var s in ScheduleRows)
+            {
+                if (s.Start < ShiftStart) s.Start = ShiftStart;
+                if (s.End > (EnableOvertime ? OvertimeEnd : ShiftEnd)) s.End = (EnableOvertime ? OvertimeEnd : ShiftEnd);
+                if (s.End <= s.Start) s.End = s.Start + MinBlock;
+            }
+            ScheduleRows = ScheduleRows.OrderBy(r => r.LaneId).ThenBy(r => r.Start).ToList();
+
+            Message = $"Generated {ScheduleRows.Count} timeline items for {SelectedDate:yyyy-MM-dd}.";
+        }
+        catch (Exception ex)
+        {
+            Message = "Error: " + ex.Message;
+        }
+        finally
+        {
+            IsWorking = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task CopyCsvToClipboard()
+    {
+        if (ScheduleRows == null || !ScheduleRows.Any()) { Message = "No schedule to copy."; return; }
+        var sb = new System.Text.StringBuilder();
+        var headers = new[] { "LaneId", "LaneTitle", "Title", "Start", "End", "DurationHours", "Note", "MethodCodeID", "ProfileNo", "Machine" };
+        sb.AppendLine(string.Join(",", headers.Select(h => $"\"{h}\"")));
+        foreach (var r in ScheduleRows)
+        {
+            var row = new[] {
+                r.LaneId.ToString(),
+                LaneMap.TryGetValue(r.LaneId, out var lt)?lt:"",
+                (r.Title ?? "").Replace("\"","\"\""),
+                r.Start.ToString(@"hh\:mm"),
+                r.End.ToString(@"hh\:mm"),
+                Math.Round((r.End-r.Start).TotalHours,4).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                (r.Note ?? "").Replace("\"","\"\""),
+                r.MethodCodeID?.ToString() ?? "",
+                r.ProfileNo ?? "",
+                r.Machine ?? ""
+            }.Select(val => $"\"{val}\"");
+            sb.AppendLine(string.Join(",", row));
+        }
+        var csv = sb.ToString();
+
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", csv);
+            Message = "CSV copied to clipboard — paste into Excel/Sheets/Notepad.";
+        }
+        catch (Exception ex)
+        {
+            Message = "Clipboard copy failed: " + ex.Message + ". Opening a popup with CSV for manual copy.";
+            await JS.InvokeVoidAsync("window.open", "data:text/plain;charset=utf-8," + System.Uri.EscapeDataString(csv), "_blank");
+        }
+    }
+
+    void ToggleTable() => ShowTable = !ShowTable;
+
+    // ---------- Helpers ----------
+    IEnumerable<TimeSpan> GenerateTicks(TimeSpan start, TimeSpan end, TimeSpan step)
+    {
+        var cur = start;
+        while (cur <= end)
+        {
+            yield return cur;
+            cur = cur.Add(step);
+        }
+    }
+
+    object GetAnyProperty(object obj, string propName)
+    {
+        if (obj == null) return null;
+        var p = obj.GetType().GetProperty(propName);
+        if (p == null) return null;
+        var val = p.GetValue(obj);
+        // if the property is TimeOnly or nullable TimeOnly, return its string to avoid implicit conversion errors
+        if (val != null)
+        {
+            var t = val.GetType().FullName;
+            if (t == "System.TimeOnly" || t == "System.Nullable`1[System.TimeOnly]")
+            {
+                return val.ToString();
+            }
+        }
+        return val;
+    }
+  
+
+    double ComputeFillingHours(double batchLiters, int packMl, double mh60_bpm_avg, double mh120_bpm_avg_or_other, string preferredMachine = "")
+    {
+        var bottles = (batchLiters * 1000.0) / packMl;
+        double bpm = packMl == 60 ? mh60_bpm_avg : mh120_bpm_avg_or_other;
+        if (!string.IsNullOrEmpty(preferredMachine) && preferredMachine.ToUpperInvariant().Contains("MH2") && packMl == 120) bpm = MH2_120_BPM;
+        if (bpm <= 0) bpm = (packMl == 60 ? MH60_BPM : MH120_BPM);
+        var minutes = bottles / bpm;
+        var hours = minutes / 60.0;
+        if (hours < 0.01) hours = 0.01;
+        return hours;
+    }
+
+    TimeSpan AddHoursClamped(TimeSpan start, double hours)
+    {
+        if (hours <= 0) hours = MinBlock.TotalHours;
+        var end = start + TimeSpan.FromHours(hours);
+        var cap = EnableOvertime ? OvertimeEnd : ShiftEnd;
+        if (end > cap) end = cap;
+        return end;
+    }
+
+    double CalcLeftPercent(TimeSpan start)
+    {
+        var total = (EnableOvertime ? (OvertimeEnd - ShiftStart).TotalMinutes : (ShiftEnd - ShiftStart).TotalMinutes);
+        var offset = (start - ShiftStart).TotalMinutes;
+        return Math.Clamp(offset / total * 100.0, 0, 100);
+    }
+
+    double CalcWidthPercent(TimeSpan start, TimeSpan end)
+    {
+        var total = (EnableOvertime ? (OvertimeEnd - ShiftStart).TotalMinutes : (ShiftEnd - ShiftStart).TotalMinutes);
+        var width = (end - start).TotalMinutes;
+        return Math.Clamp(width / total * 100.0, 0.5, 100);
+    }
+
+    int MapMachineToLaneId(string machineName, int packMl)
+    {
+        if (string.IsNullOrWhiteSpace(machineName)) return packMl == 60 ? 2 : 2;
+        var m = machineName.ToUpperInvariant();
+        if (m.Contains("MH1")) return 2;
+        if (m.Contains("MH2")) return 3;
+        return packMl == 60 ? 2 : 2;
+    }
+
+    int? InferPackSizeFromFilling(object f)
+    {
+        if (f == null) return null;
+        var t = f.GetType();
+        var names = new[] { "TypeOfPlanningProcess", "PrimaryFillingMachine", "Description", "ProductSize" };
+        foreach (var n in names)
+        {
+            var p = t.GetProperty(n);
+            if (p == null) continue;
+            var val = p.GetValue(f)?.ToString();
+            if (string.IsNullOrWhiteSpace(val)) continue;
+            if (val.Contains("60")) return 60;
+            if (val.Contains("120")) return 120;
+            if (val.Contains("ml")) { var digits = new string(val.Where(char.IsDigit).ToArray()); if (int.TryParse(digits, out var v)) return v; }
+        }
+        return null;
+    }
+
+    bool IsTruthy(object obj)
+    {
+        if (obj == null) return false;
+        var s = obj.ToString().Trim().ToLowerInvariant();
+        return s == "1" || s == "true" || s == "yes" || s == "y";
+    }
+
+    // small models
+    class LaneDef { public int Id { get; set; } public string Title { get; set; } = ""; }
+    class TimelineRow { public int LaneId { get; set; } public string Title { get; set; } = ""; public TimeSpan Start { get; set; } public TimeSpan End { get; set; } public string Note { get; set; } = ""; public long? MethodCodeID { get; set; } public string? ProfileNo { get; set; } public string? Machine { get; set; } }
+}

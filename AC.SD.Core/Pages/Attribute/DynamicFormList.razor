@@ -489,7 +489,7 @@
     public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
     private string colDataWidth = $"{colDataWidthInPx}px";
     private string colRowNameWidth = $"{colRowNameWidthInPx}px";
-    private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
+    //private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
     ObservableCollection<object> Items { get; set; } = new ObservableCollection<object>();
     bool ReInitializeDragging { get; set; }
     DotNetObjectReference<DynamicFormList> DotNetHelper { get; set; }
@@ -603,7 +603,7 @@
         dataColumnNames?.Clear();
         _dynamicformObjectDataList?.Clear();
         _dynamicFormSectionAttributeList?.Clear();
-        PlantDependencySubAttributeDetails?.Clear();
+        //PlantDependencySubAttributeDetails?.Clear();
         Items?.Clear();
     }
     async Task openPrintForm()
@@ -704,7 +704,7 @@
             if (SessionId != null)
             {
                 _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-
+                var PlantDependencySubAttributeDetails = new List<AttributeDetails>();
                 if (_dynamicForm != null)
                 {
                     if (_dynamicForm != null)
@@ -924,7 +924,7 @@
                             await loadDynamicFormDataLists();
                             if (_dynamicformDataList != null && _dynamicformDataList.Count() > 0)
                             {
-                                _dynamicformObjectDataList = loadItems(_dynamicformDataList, _AttributeHeader);
+                                _dynamicformObjectDataList = loadItems(_dynamicformDataList, _AttributeHeader, PlantDependencySubAttributeDetails);
                                 _selectedItems = _dynamicformDataList.FirstOrDefault();
                                 FileProfileTypeId = _selectedItems.FileProfileTypeId;
                             }
@@ -965,7 +965,7 @@
         await Task.WhenAll(_dynamicformDataLists);
         _dynamicformDataList = await _dynamicformDataLists.Result;
     }
-    private List<object> loadItems(List<DynamicFormData> dynamicFormDatas,AttributeHeaderListModel attributeHeaderListModels)
+    private List<object> loadItems(List<DynamicFormData> dynamicFormDatas, AttributeHeaderListModel attributeHeaderListModels, List<AttributeDetails> PlantDependencySubAttributeDetails)
     {
         List<object>? _dynamicformObjectDataLists = new List<object>();
         if (dynamicFormDatas != null && dynamicFormDatas.Count > 0)
@@ -1200,7 +1200,7 @@
                                     {
                                         nameDatas.ForEach(n =>
                                         {
-                                            loadApplicationMasterParentData(jsonObj, s, n, objectData);
+                                            loadApplicationMasterParentData(jsonObj, s, n, objectData, PlantDependencySubAttributeDetails);
                                         });
                                     }
                                 }
@@ -2120,7 +2120,7 @@
         }
     }
 
-    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
+    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData, List<AttributeDetails> PlantDependencySubAttributeDetails)
     {
 
         var SubNamess = jsonObj.ContainsKey(nameData);
@@ -3300,9 +3300,26 @@
         await Task.WhenAll(_dynamicformDataLists, _AttributeHeaders);
         var _dynamicformDataListItems = await _dynamicformDataLists.Result;
         var _AttributeHeadersDetails = await _AttributeHeaders.Result;
-        var _dynamicformObjectDataLists = loadItems(_dynamicformDataListItems, _AttributeHeadersDetails);
+        List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
+        var DataSourceTablelists = _AttributeHeadersDetails.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
+        dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
+        ApplicationMasterIds = _AttributeHeadersDetails.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
+        ApplicationMasterParentIds = _AttributeHeadersDetails.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
+        if (ApplicationMasterIds.Count > 0)
+        {
+            dataSourceTableIds.Add("ApplicationMaster");
+        }
+        if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
+        {
+            dataSourceTableIds.Add("ApplicationMasterParent");
+        }
+        var PlantDependencySubAttributeDetailss = Task.Factory.StartNew(() => Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>())));
+        await Task.WhenAll(PlantDependencySubAttributeDetailss);
+        var PlantDependencySubAttributeDetailsItems = await PlantDependencySubAttributeDetailss.Result;
+        var _dynamicformObjectDataLists = loadItems(_dynamicformDataListItems, _AttributeHeadersDetails, PlantDependencySubAttributeDetailsItems);
         dynamicFormSearch1.StartDate = DateTime.Today.AddYears(50);
         dynamicFormSearch1.EndDate = DateTime.Now;
+
         UpdateDataSyncDatas(_AttributeHeadersDetails);
         var resultData = await Mediator.Send(new GetDynamicFormDataTableSync(dataColumnNamesSync, _dynamicformObjectDataLists, _AttributeHeadersDetails, _dynamicForm));
         if (resultData.ID > 0)

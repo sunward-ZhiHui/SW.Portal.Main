@@ -1,357 +1,175 @@
 ﻿@page "/syrup-Stepper5"
-@using Application.Queries;
+@using Application.Queries
 @using MediatR
-@using System.ComponentModel;
-@using global::Core.Entities.Views;
-@using global::Core.Entities;
-@inject IMediator Mediator
-@using DevExpress.Export
-@using Application.Response;
+@using global::Core.Entities
 @using global::Core.EntityModels
-@inject IJSRuntime jsRuntime
-@using global::Core.Repositories.Query;
+@using global::Core.Repositories.Query
 @using static global::Core.EntityModels.SyrupPlanning
+@inject IMediator Mediator
+@inject IStockInformationMasterQueryRepository Repo
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+    <DxFormLayoutGroup Caption="1. Other additional job (single record)" ColSpanMd="12">
 
-<div class="card" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <div class="row">
-            <div>
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>
-                        <DxMenuItem Text="Edit" Enabled="@(_selectedItems is not null)" Click="@(() => { if (_selectedItems is not null) OpenEdit(_selectedItems.ID); })" />
-                    </Items>
-                </DxMenu>
-            </div>
-        </div>
-    </div>
-</div>
+        <DxFormLayoutItem Caption="Other Jobs Information" ColSpanMd="6">
+            <DxRadioGroup Items="@OtherJobsOptions"
+                          Value="@EditVM.OtherJobsInformation"
+                          ValueExpression="@(() => EditVM.OtherJobsInformation)"
+                          ValueChanged="@((string v) => { EditVM.OtherJobsInformation = v; _ = OnInputChanged(); })"
+                          Layout="RadioGroupLayout.Horizontal" />
+        </DxFormLayoutItem>
 
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
+        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
+            <DxTextBox @bind-Text="@EditVM.ProcessName" @oninput="OnInputChanged" />
+        </DxFormLayoutItem>
 
-    <DxGrid @ref="Grid"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ShowGroupPanel="true"
-            ShowGroupedColumns="true"
-            ShowSearchBox="true"
-            Data="_SyrupOtherProcessList"
-            KeyFieldName="ID"
-            TextWrapEnabled="false"
-            CustomizeElement="Grid_CustomizeElement"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Single"
-            ValidationEnabled="true"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360 " style="height: calc(100vh - 345px);"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            RowDoubleClick="OnRowDoubleClick"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            EditMode="GridEditMode.EditForm"
-            EditModelSaving="@OnEditModelSaving"
-            SelectedDataItemsChanged="@SelectedDataItemsChanged"
-            VirtualScrollingEnabled="true"
-            AllowSelectRowByClick="true">
-        <Columns>
-            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" />
-            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" DisplayFormat="dd-MMM-yyyy hh.mm tt" />
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
-<!-- Popup Editor -->
-<DxPopup @bind-Visible="EditVisible"
-         HeaderText="Others Job Detail"
-         Width="1100px"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true">
-    <BodyTemplate Context="popupCtx">
-        <div style="padding:10px;">
-            <EditForm Model="@EditVM" OnValidSubmit="@SaveAsync" Context="formCtx">
-                <DataAnnotationsValidator />
+        <DxFormLayoutItem Caption="Must complete to have next process?" ColSpanMd="6">
+            <DxRadioGroup Items="@CompletNextprocessOptions"
+                          Value="@EditVM.MustCompleteForNext"
+                          ValueExpression="@(() => EditVM.MustCompleteForNext)"
+                          ValueChanged="@((string v) => { EditVM.MustCompleteForNext = v; _ = OnInputChanged(); })"
+                          Layout="RadioGroupLayout.Horizontal" />
+        </DxFormLayoutItem>
 
-                <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-                    <DxFormLayoutGroup Caption="1. Other additional jobs" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Next Process" ColSpanMd="6">
+            <DxTextBox @bind-Text="@EditVM.SyrupOtherProcessNextProcess" @oninput="OnInputChanged" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Other Jobs Information" ColSpanMd="6">
-                            <DxRadioGroup Items="@OtherJobsOptions"
-                                          Value="@EditVM.OtherJobsInformation"
-                                          ValueExpression="@(() => EditVM.OtherJobsInformation)"
-                                          ValueChanged="@((string value) => OnChangeSyrupProduce(value))"
-                                          Layout="RadioGroupLayout.Horizontal"
-                                          CssClass="dx-demo-radio-group" />
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Location of process" ColSpanMd="6">
+            <DxTextBox @bind-Text="@EditVM.LocationOfProcess" @oninput="OnInputChanged" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">                            
-                             <DxTextBox @bind-Text="@EditVM.ProcessName" />
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="No of manpower" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.NoOfManpower"
+                        ValueChanged="@(async (int? v) => { EditVM.NoOfManpower = v; await OnInputChanged(); })"
+                        Increment="1" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Must complete to have next process?" ColSpanMd="6">
-                            <DxRadioGroup Items="@CompletNextprocessOptions"
-                                          Value="@EditVM.MustCompleteForNext"
-                                          ValueExpression="@(() => EditVM.MustCompleteForNext)"
-                                          ValueChanged="@((string value) => OnChangeMustCompleteForNext(value))"
-                                          Layout="RadioGroupLayout.Horizontal"
-                                          CssClass="dx-demo-radio-group" />
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="No of Manhours/Hours" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.ManhoursOrHours"
+                        ValueChanged="@(async (decimal? v) => { EditVM.ManhoursOrHours = v; await OnInputChanged(); })"
+                        Increment="0.5M" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Next Process" ColSpanMd="6">
-                            @* <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@ProcessNames" @bind-Value="EditVM.NextProcess" AllowUserInput="false" />
-                            </ChildContent> *@
-                            <DxTextBox @bind-Text="@EditVM.NextProcess" />
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Manpower is from next process?" ColSpanMd="6">
+            <DxRadioGroup Items="@ManpowerFromNextProcessOptions"
+                          Value="@EditVM.ManpowerFromNextProcess"
+                          ValueExpression="@(() => EditVM.ManpowerFromNextProcess)"
+                          ValueChanged="@((string v) => { EditVM.ManpowerFromNextProcess = v; _ = OnInputChanged(); })"
+                          Layout="RadioGroupLayout.Horizontal" />
+        </DxFormLayoutItem>
 
+        <DxFormLayoutItem Caption="Can carryout on non work day?" ColSpanMd="6">
+            <DxRadioGroup Items="@CanCarryoutOnNonWorkdayOptions"
+                          Value="@EditVM.CanCarryoutOnNonWorkday"
+                          ValueExpression="@(() => EditVM.CanCarryoutOnNonWorkday)"
+                          ValueChanged="@((string v) => { EditVM.CanCarryoutOnNonWorkday = v; _ = OnInputChanged(); })"
+                          Layout="RadioGroupLayout.Horizontal" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Location of process" ColSpanMd="6">
-                           @*  <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@Locations" @bind-Value="EditVM.LocationOfProcess" AllowUserInput="false" />
-                            </ChildContent> *@
-                            <DxTextBox @bind-Text="@EditVM.LocationOfProcess" />
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Time Gap/Hour" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.TimeGapHour"
+                        ValueChanged="@(async (decimal? v) => { EditVM.TimeGapHour = v; await OnInputChanged(); })"
+                        Increment="0.5M" />
+        </DxFormLayoutItem>
 
-
-                        <DxFormLayoutItem Caption="No of manpower" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.NoOfManpower" Increment="1" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-
-                        <DxFormLayoutItem Caption="No of Manhours/Hours" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.ManhoursOrHours" Increment="0.5M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-
-                        <DxFormLayoutItem Caption="Manpower is from next process?" ColSpanMd="6">                            
-                             <DxRadioGroup Items="@ManpowerFromNextProcessOptions"
-                                          Value="@EditVM.ManpowerFromNextProcess"
-                                          ValueExpression="@(() => EditVM.ManpowerFromNextProcess)"
-                                          ValueChanged="@((string value) => OnChangeManpowerFromNextProcess(value))"
-                                          Layout="RadioGroupLayout.Horizontal"
-                                          CssClass="dx-demo-radio-group" />
-                        </DxFormLayoutItem>
-
-
-                        <DxFormLayoutItem Caption="Can carryout on non work day?" ColSpanMd="6">
-                            <DxRadioGroup Items="@CanCarryoutOnNonWorkdayOptions"
-                                          Value="@EditVM.CanCarryoutOnNonWorkday"
-                                          ValueExpression="@(() => EditVM.CanCarryoutOnNonWorkday)"
-                                          ValueChanged="@((string value) => OnChangeCanCarryoutOnNonWorkday(value))"
-                                          Layout="RadioGroupLayout.Horizontal"
-                                          CssClass="dx-demo-radio-group" />
-                        </DxFormLayoutItem>
-
-
-                        <DxFormLayoutItem Caption="Time Gap/Hour" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.TimeGapHour" Increment="0.5M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                    </DxFormLayoutGroup>
-                </DxFormLayout>
-
-                <div class="mt-3">
-                    <DxButton Text="Save" RenderStyle="ButtonRenderStyle.Primary" SubmitFormOnClick="true" />
-                    <DxButton Text="Cancel" CssClass="ml-2" Click="@(() => EditVisible = false)" />
-                </div>
-            </EditForm>
-        </div>
-    </BodyTemplate>
-</DxPopup>
+    </DxFormLayoutGroup>
+</DxFormLayout>
 
 @code {
+    // Parameters for parent communication
+    [Parameter] public SyrupPlanning Model { get; set; } = new SyrupPlanning();
+    [Parameter] public EventCallback<SyrupPlanning> OnChanged { get; set; }
+
+    // Lookups / options
     IEnumerable<string> OtherJobsOptions = new[] { "Before specific process", "After Specific Process", "Parallel with specific job" };
     IEnumerable<string> CompletNextprocessOptions = new[] { "Yes", "No, can run parallel" };
     IEnumerable<string> ManpowerFromNextProcessOptions = new[] { "Yes", "Not necessary" };
     IEnumerable<string> CanCarryoutOnNonWorkdayOptions = new[] { "Yes", "No" };
-    bool EditVisible { get; set; }
-    bool ExportSelectedRowsOnly { get; set; }
-    bool AuditLogPopUp { get; set; } = false;
-    bool PanelVisible { get; set; } = true;
-    bool PopupVisible { get; set; } = false;
-    DxPopup? popup;
-    SyrupOtherProcess Datas = new SyrupOtherProcess();
-    private List<SyrupOtherProcess> _SyrupOtherProcessList;
-    private SyrupOtherProcess _selectedItems;
-    IGrid Grid { get; set; }
-    string permission = "";
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-    bool AddPopup { get; set; } = false;
-    bool AttachmentPopUp { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
-    IReadOnlyList<object> SelectedDataItems { get; set; }
 
-    SyrupOtherProcess EditVM { get; set; } = new();
+    // single-edit view model (child record)
+    SyrupOtherProcess EditVM { get; set; } = new SyrupOtherProcess();
+
     public ApplicationUser? applicationUser { get; private set; }
-
-    void OnChangeSyrupProduce(string value)
-    {
-        EditVM.OtherJobsInformation = value;
-    }
-    void OnChangeMustCompleteForNext(string value)
-    {
-        EditVM.MustCompleteForNext = value;
-    }    
-    void OnChangeCanCarryoutOnNonWorkday(string value)
-    {
-        EditVM.CanCarryoutOnNonWorkday = value;
-    }
-    void OnChangeManpowerFromNextProcess(string value)
-    {
-        EditVM.ManpowerFromNextProcess = value;
-    }
-    
-    readonly List<string> ProcessNames = new()
-    {
-        "Syrup - Gum Preparation",
-        "Syrup Simplex",
-        "Syrup - Primary Packing",
-        "Syrup - Secondary packing (120Ml)"
-    };
-    readonly List<string> Locations = new()
-    {
-        "Room 1", "Room 2", "Room 3", "Warehouse", "QC Lab"
-    };
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Grid.AutoFitColumnWidths();
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await UpdateDataAsync();
-    }
+       
+        try
+        {
+                
+            var list = await Mediator.Send(new GetSyrupOtherProcessListQuery());
+            var first = list?.FirstOrDefault();
 
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-            e.CssClass += "non-selectable-row";
-        }
-    }
-    async Task UpdateDataAsync()
-    {
-        PanelVisible = true;
-        _SyrupOtherProcessList = await Mediator.Send(new GetSyrupOtherProcessListQuery());
-        EditEnabled = false;
-        DeleteEnabled = false;
-        if (_SyrupOtherProcessList.Count > 0)
-        {
-            _selectedItems = _SyrupOtherProcessList.FirstOrDefault();
-            Grid.ClearSelection();
-            PanelVisible = false;
-        }
-        PanelVisible = false;
-        StateHasChanged();
-    }
-
-    void OnRowClick(GridRowClickEventArgs e)
-    {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        _selectedItems = _SyrupOtherProcessList.FirstOrDefault(f => f.ID == (long?)UniqueId);
-    }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
-    {
-        var id = (long?)e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        if (id.HasValue) OpenEdit(id.Value);
-    }
-    void OpenEdit(long id)
-    {
-        var row = _SyrupOtherProcessList.FirstOrDefault(x => x.ID == id);
-        if (row is null) return;
-
-        // Map grid row -> edit VM (normally you'd fetch full record)
-        EditVM = new SyrupOtherProcess
-        {
-            ID = row.ID,
-            ProfileNo = row.ProfileNo,
-            ProcessName = "Syrup - Gum Preparation",
-            NextProcess = "Syrup Simplex",
-            MustCompleteForNext = "Before specific process", // Modify this line if needed
-            LocationOfProcess = "Room 1",
-            ManhoursOrHours = 0,
-            NoOfManpower = 0,
-            ManpowerFromNextProcess = "Yes",
-            CanCarryoutOnNonWorkday = "No",
-            TimeGapHour = 0
-        };
-
-        EditVisible = true;
-    }
-
-    async Task SaveAsync()
-    {
-        // TODO: persist EditVM via your repository/MediatR
-        EditVisible = false;
-        await InvokeAsync(StateHasChanged);
-    }
-    void addNew()
-    {
-        Grid.StartEditNewRowAsync();
-
-    }
-    async Task ExportXlsx_Click()
-    {
-        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
-        {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
-        });
-    }
-    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
-        var navitems = (SyrupOtherProcess)e.EditModel;
-        if (e.IsNew)
-        {
-            //navitems.StatusCodeID = 1;
-        }
-        else
-        {
-            // navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
-        }
-    }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
-        if (SelectedDataItems.Count > 0)
-        {
-            if (SelectedDataItems.Count > 1)
+            if (first != null)
             {
-                EditEnabled = false; DeleteEnabled = true;
+                EditVM = new SyrupOtherProcess
+                {
+                    ID = first.ID,
+                    SyrupPlanningID = first.SyrupPlanningID,
+                    DynamicFormID = first.DynamicFormID,
+                    OtherJobsInformation = first.OtherJobsInformation,
+                    ProcessName = first.ProcessName,
+                    ProfileNo = first.ProfileNo,
+                    SyrupOtherProcessNextProcess = first.SyrupOtherProcessNextProcess,
+                    MustCompleteForNext = first.MustCompleteForNext,
+                    LocationOfProcess = first.LocationOfProcess,
+                    ManhoursOrHours = first.ManhoursOrHours,
+                    NoOfManpower = first.NoOfManpower,
+                    ManpowerFromNextProcess = first.ManpowerFromNextProcess,
+                    CanCarryoutOnNonWorkday = first.CanCarryoutOnNonWorkday,
+                    TimeGapHour = first.TimeGapHour,
+                    AddedByUserID = first.AddedByUserID,
+                    ModifiedBy = first.ModifiedBy,
+                    ModifiedDate = first.ModifiedDate
+                };
             }
             else
             {
-                EditEnabled = true; DeleteEnabled = true;
+                // create a new record stub bound to parent
+                EditVM = new SyrupOtherProcess
+                {
+                    SyrupPlanningID = Model.Id,
+                    AddedByUserID = applicationUser?.UserID,
+                    ModifiedBy = applicationUser?.LoginID,
+                    ModifiedDate = DateTime.Now
+                };
             }
         }
+        catch (Exception ex)
+        {
+            toastService.ShowToast("Failed to load other process: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+            // fallback to empty VM
+            EditVM = new SyrupOtherProcess { SyrupPlanningID = Model.Id };
+        }
+        
+        
     }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+
+    // Called after any input change — updates audit info and notifies parent.
+    private async Task OnInputChanged()
     {
-        var editModel = (SyrupOtherProcess)e.EditModel;
+        // update audit info
+        EditVM.ModifiedBy = applicationUser?.LoginID;
+        EditVM.ModifiedDate = DateTime.Now;
+
+        // Optionally copy some values to parent Model (if you want them mirrored)
+        // e.g. Model.SomeChildSummary = EditVM.ProcessName;
+
+        if (OnChanged.HasDelegate)
+            await OnChanged.InvokeAsync(Model);
+    }
+
+    // Expose the single current child as a list so parent code that expects IEnumerable still works.
+    public List<SyrupOtherProcess> GetLocalOtherProcesses()
+    {
+        if (EditVM == null) return new List<SyrupOtherProcess>();
+        // Ensure FK matches parent
+        if (Model != null && Model.Id > 0) EditVM.SyrupPlanningID = Model.Id;
+        return new List<SyrupOtherProcess> { EditVM };
     }
 }

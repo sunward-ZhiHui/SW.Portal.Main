@@ -1,258 +1,142 @@
 ﻿@page "/syrup-Stepper4"
-@using Application.Queries;
+@using Application.Queries
 @using MediatR
-@using System.ComponentModel;
-@using global::Core.Entities.Views;
-@using global::Core.Entities;
-@inject IMediator Mediator
-@using DevExpress.Export
-@using Application.Response;
+@using global::Core.Entities
 @using global::Core.EntityModels
-@inject IJSRuntime jsRuntime
-@using global::Core.Repositories.Query;
+@using global::Core.Repositories.Query
 @using static global::Core.EntityModels.SyrupPlanning
+@inject IMediator Mediator
+@inject IStockInformationMasterQueryRepository Repo
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 
-<div class="card" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <div class="row">
-            <div>
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>
-                        <DxMenuItem Text="Edit"
-                                    Enabled="@(_selectedItems is not null)"
-                                    Click="@(() => { if (_selectedItems is not null) OpenEdit(_selectedItems.ID); })" />
-                    </Items>
-                </DxMenu>
-            </div>
-        </div>
-    </div>
-</div>
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+    <!-- 1. Primary Packing -->
+    <DxFormLayoutGroup Caption="1. Primary Packing" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.ProcessName_Primary" @oninput="OnInputChanged" />
+           @*  <DxComboBox Data="@ProcessNames"
+                        Value="EditVM.ProcessName_Primary"
+                        ValueChanged="@((string v) => { EditVM.ProcessName_Primary = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
 
-    <DxGrid @ref="Grid"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ShowGroupPanel="true"
-            ShowGroupedColumns="true"
-            ShowSearchBox="true"
-            Data="_SyrupFillingList"
-            KeyFieldName="ID"
-            TextWrapEnabled="false"
-            CustomizeElement="Grid_CustomizeElement"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Single"
-            ValidationEnabled="true"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360 " style="height: calc(100vh - 345px);"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            RowDoubleClick="OnRowDoubleClick"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            EditMode="GridEditMode.EditForm"
-            EditModelSaving="@OnEditModelSaving"
-            SelectedDataItemsChanged="@SelectedDataItemsChanged"
-            VirtualScrollingEnabled="true"
-            AllowSelectRowByClick="true">
-        <Columns>
-            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" />
-            <DxGridDataColumn FieldName="PrimaryFillingMachine" Caption="Primary filling machine" />
-            <DxGridDataColumn FieldName="TypeOfPlanningProcess" Caption="Type of Planning Process" />
-            <DxGridDataColumn FieldName="FillingHours" Caption="1. Filling/Hours" />
-            <DxGridDataColumn FieldName="FillingManpower" Caption="1. Filling/Manpower" />
-            <DxGridDataColumn FieldName="ChangePackingFillingHours" Caption="Change Packing Filling/Hours" />
-            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" DisplayFormat="dd-MMM-yyyy hh:mm tt" />
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
+        <DxFormLayoutItem Caption="Next Process Name" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.NextProcessName_Primary" @oninput="OnInputChanged" />
+         @*    <DxComboBox Data="@ProcessNames"
+                        Value="EditVM.NextProcessName_Primary"
+                        ValueChanged="@((string v) => { EditVM.NextProcessName_Primary = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
 
+        <DxFormLayoutItem Caption="Type of planning" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.PlanningType_Primary" @oninput="OnInputChanged" />
+            @* <DxComboBox Data="@PlanningTypes"
+                        Value="EditVM.PlanningType_Primary"
+                        ValueChanged="@((string v) => { EditVM.PlanningType_Primary = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
+    </DxFormLayoutGroup>
 
+    <!-- 2. Machine Filling -->
+    <DxFormLayoutGroup Caption="2. Machine Filling" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Primary filling machine" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.PrimaryFillingMachine" @oninput="OnInputChanged" />
+            @* <DxComboBox Data="@Machines"
+                        Value="EditVM.PrimaryFillingMachine"
+                        ValueChanged="@((string v) => { EditVM.PrimaryFillingMachine = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
 
-<DxPopup @bind-Visible="EditPopupVisible"
-         HeaderText="Production Timing – Syrup"
-         Width="1100px"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true">
-    <BodyTemplate Context="popupCtx">
-        <div style="padding:10px;">
-            <EditForm Model="@EditVM" OnValidSubmit="@SaveAsync" Context="formCtx">
-                <DataAnnotationsValidator />
+        <DxFormLayoutItem Caption="1. Filling/Hours" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.FillingHours_Level1"
+                        ValueChanged="@(async (decimal? v) => { EditVM.FillingHours_Level1 = v; await OnInputChanged(); })"
+                        Increment="0.1M" />
+        </DxFormLayoutItem>
 
-                <DxFormLayout>
-                    <!-- 1. Primary Packing -->
-                    <DxFormLayoutGroup Caption="1. Primary Packing" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@ProcessNames"
-                                            @bind-Value="EditVM.ProcessName_Primary"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="1. Filling Speed/bottle/minutes" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.Speed_BottlePerMinute"
+                        ValueChanged="@(async (decimal? v) => { EditVM.Speed_BottlePerMinute = v; await OnInputChanged(); })"
+                        Increment="1" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Next Process Name" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@ProcessNames"
-                                            @bind-Value="EditVM.NextProcessName_Primary"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="1. Filling/Manpower" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.FillingManpower_Level1"
+                        ValueChanged="@(async (int? v) => { EditVM.FillingManpower_Level1 = v; await OnInputChanged(); })"
+                        Increment="1" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Type of planning" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@PlanningTypes"
-                                            @bind-Value="EditVM.PlanningType_Primary"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
+        <DxFormLayoutItem Caption="Change Packing Filling/Hours" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.ChangePackingFillingHours"
+                        ValueChanged="@(async (decimal? v) => { EditVM.ChangePackingFillingHours = v; await OnInputChanged(); })"
+                        Increment="0.1M" />
+        </DxFormLayoutItem>
 
-                    <!-- 2. Machine Filling -->
-                    <DxFormLayoutGroup Caption="2. Machine Filling" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Primary filling machine" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@Machines"
-                                            @bind-Value="EditVM.PrimaryFillingMachine"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Level 2/Hours" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.FillingHours_Level2"
+                        ValueChanged="@(async (decimal? v) => { EditVM.FillingHours_Level2 = v; await OnInputChanged(); })"
+                        Increment="0.1M" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="1. Filling/Hours" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.FillingHours_Level1" Increment="0.1M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Level 2/Manpower" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.FillingManpower_Level2"
+                        ValueChanged="@(async (int? v) => { EditVM.FillingManpower_Level2 = v; await OnInputChanged(); })"
+                        Increment="1" />
+        </DxFormLayoutItem>
+    </DxFormLayoutGroup>
 
-                        <DxFormLayoutItem Caption="1. Filling Speed/bottle/minutes" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.Speed_BottlePerMinute" Increment="1" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+    <!-- 4. Secondary Packing -->
+    <DxFormLayoutGroup Caption="4. Secondary Packing" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Secondary Packing same as Primary time?" ColSpanMd="6">
+            <DxCheckBox Checked="EditVM.SecondarySameAsPrimaryTime"
+                        CheckedChanged="@((bool v) => { EditVM.SecondarySameAsPrimaryTime = v; _ = OnInputChanged(); })" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="1. Filling/Manpower" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.FillingManpower_Level1" Increment="1" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Secondary Packing /Hours" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.SecondaryPackingHours"
+                        ValueChanged="@(async (decimal? v) => { EditVM.SecondaryPackingHours = v; await OnInputChanged(); })"
+                        Increment="0.1M" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Change Packing Filling/Hours" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.ChangePackingFillingHours" Increment="0.1M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="No of Manpower" ColSpanMd="6">
+            <DxSpinEdit Value="EditVM.SecondaryManpower"
+                        ValueChanged="@(async (int? v) => { EditVM.SecondaryManpower = v; await OnInputChanged(); })"
+                        Increment="1" />
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Level 2/Hours" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.FillingHours_Level2" Increment="0.1M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.ProcessName_Secondary" @oninput="OnInputChanged" />
+            @* <DxComboBox Data="@ProcessNames"
+                        Value="EditVM.ProcessName_Secondary"
+                        ValueChanged="@((string v) => { EditVM.ProcessName_Secondary = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Level 2/Manpower" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.FillingManpower_Level2" Increment="1" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
+        <DxFormLayoutItem Caption="Next process Name" ColSpanMd="6">
+            <DxTextBox @bind-Text="EditVM.NextProcessName_Secondary" @oninput="OnInputChanged" />
+           @*  <DxComboBox Data="@ProcessNames"
+                        Value="EditVM.NextProcessName_Secondary"
+                        ValueChanged="@((string v) => { EditVM.NextProcessName_Secondary = v; _ = OnInputChanged(); })"
+                        AllowUserInput="false" /> *@
+        </DxFormLayoutItem>
 
-                    <!-- 4. Secondary Packing -->
-                    <DxFormLayoutGroup Caption="4. Secondary Packing" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Secondary Packing same as Primary time?" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxCheckBox @bind-Checked="EditVM.SecondarySameAsPrimaryTime" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="Secondary Packing /Hours" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.SecondaryPackingHours" Increment="0.1M" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="No of Manpower" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxSpinEdit @bind-Value="EditVM.SecondaryManpower" Increment="1" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="Process Name" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@ProcessNames"
-                                            @bind-Value="EditVM.ProcessName_Secondary"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="Next process Name" ColSpanMd="6">
-                            <ChildContent Context="itemCtx">
-                                <DxComboBox Data="@ProcessNames"
-                                            @bind-Value="EditVM.NextProcessName_Secondary"
-                                            AllowUserInput="false" />
-                            </ChildContent>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="Require offline packing" ColSpanMd="6">
-                            <DxRadioGroup Items="@RadioButtonOptions"
-                                          Value="@EditVM.RequireOfflinePacking"
-                                          ValueExpression="@(() => EditVM.RequireOfflinePacking)"
-                                          ValueChanged="@((string value) => OnChangeRequireOfflinePacking(value))"
-                                          Layout="RadioGroupLayout.Horizontal"
-                                          CssClass="dx-demo-radio-group" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
-                </DxFormLayout>
-
-                <div class="mt-3">
-                    <DxButton Text="Save" RenderStyle="ButtonRenderStyle.Primary" SubmitFormOnClick="true" />
-                    <DxButton Text="Cancel" CssClass="ml-2" Click="@(() => EditPopupVisible = false)" />
-                </div>
-            </EditForm>
-        </div>
-    </BodyTemplate>
-</DxPopup>
+        <DxFormLayoutItem Caption="Require offline packing" ColSpanMd="6">
+            <DxRadioGroup Items="@RadioButtonOptions"
+                          Value="EditVM.RequireOfflinePacking"
+                          ValueChanged="@((string v) => { EditVM.RequireOfflinePacking = v; _ = OnInputChanged(); })"
+                          Layout="RadioGroupLayout.Horizontal" />
+        </DxFormLayoutItem>
+    </DxFormLayoutGroup>
+</DxFormLayout>
 
 @code {
+    // Parent hookup (same pattern as other steps)
+    [Parameter] public SyrupPlanning Model { get; set; } = new SyrupPlanning();
+    [Parameter] public EventCallback<SyrupPlanning> OnChanged { get; set; }
+
+    // Options
     IEnumerable<string> RadioButtonOptions = new[] { "Yes", "No" };
-    bool ExportSelectedRowsOnly { get; set; }
-    bool AuditLogPopUp { get; set; } = false;
-    bool PanelVisible { get; set; } = true;
-    bool PopupVisible { get; set; } = false;
-    DxPopup? popup;
-    SyrupFilling Datas = new SyrupFilling();
-    private List<SyrupFilling> _SyrupFillingList;
-    private SyrupFilling _selectedItems;
-    IGrid Grid { get; set; }
-    string permission = "";
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-    bool AddPopup { get; set; } = false;
-    bool AttachmentPopUp { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
-    IReadOnlyList<object> SelectedDataItems { get; set; }
-    bool EditPopupVisible { get; set; }
-    SyrupPlanningEditVM EditVM { get; set; } = new();
-
-    public ApplicationUser? applicationUser { get; private set; }
-
-    void OnChangeRequireOfflinePacking(string value)
-    {
-        EditVM.RequireOfflinePacking = value;
-    }
-
-    // Lookups (replace with your queries later)
     readonly List<string> ProcessNames = new()
     {
         "Syrup - Primary Packing",
@@ -262,151 +146,111 @@
     readonly List<string> PlanningTypes = new() { "BMP - Machine Filling", "Manual Filling" };
     readonly List<string> Machines = new() { "Filling Machine A", "Filling Machine B", "Filling Machine C" };
 
-    public class SyrupPlanningEditVM
-    {
-        public long ID { get; set; }
-        public string? ProfileNo { get; set; }
+    // Local single-edit model (bind UI to this)
+    SyrupFilling EditVM { get; set; } = new();
 
-        // Primary Packing
-        public string? ProcessName_Primary { get; set; }
-        public string? NextProcessName_Primary { get; set; }
-        public string? PlanningType_Primary { get; set; }
+    // local list used if parent wants to read collection of child rows
+    private List<SyrupFilling> _SyrupFillingList = new List<SyrupFilling>();
 
-        // Machine Filling
-        public string? PrimaryFillingMachine { get; set; }
-        public decimal? FillingHours_Level1 { get; set; }
-        public int? FillingManpower_Level1 { get; set; }
-        public decimal? Speed_BottlePerMinute { get; set; }
-        public decimal? ChangePackingFillingHours { get; set; }
-        public decimal? FillingHours_Level2 { get; set; }
-        public int? FillingManpower_Level2 { get; set; }
-
-        // Secondary Packing
-        public bool SecondarySameAsPrimaryTime { get; set; }
-        public decimal? SecondaryPackingHours { get; set; }
-        public int? SecondaryManpower { get; set; }
-        public string? ProcessName_Secondary { get; set; }
-        public string? NextProcessName_Secondary { get; set; }
-        public string RequireOfflinePacking { get; set; }
-    }
-
-    void OpenEdit(long id)
-    {
-        var row = _SyrupFillingList.FirstOrDefault(x => x.ID == id);
-        if (row is null) return;
-
-        EditVM = new SyrupPlanningEditVM
-        {
-            ID = row.ID,
-            ProfileNo = row.ProfileNo,
-            ProcessName_Primary = row.ProcessName,
-            NextProcessName_Primary = "Syrup - Secondary packing (120Ml)",
-            PlanningType_Primary = "BMP - Machine Filling",
-            PrimaryFillingMachine = row.PrimaryFillingMachine,
-            ProcessName_Secondary = "Syrup - Secondary packing (120Ml)"
-        };
-
-        EditPopupVisible = true;
-        StateHasChanged();
-    }
-    async Task SaveAsync()
-    {
-        EditPopupVisible = false;
-        await InvokeAsync(StateHasChanged);
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Grid.AutoFitColumnWidths();
-        }
-    }
+    public ApplicationUser? applicationUser { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await UpdateDataAsync();
+        await LoadDataAsync();
     }
 
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    async Task LoadDataAsync()
     {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        try
         {
-            e.CssClass = "alt-item";
-            e.CssClass += "non-selectable-row";
-        }
-    }
-    async Task UpdateDataAsync()
-    {
-        PanelVisible = true;
-        _SyrupFillingList = await Mediator.Send(new GetSyrupFillingListQuery());
-        EditEnabled = false;
-        DeleteEnabled = false;
-        if (_SyrupFillingList.Count > 0)
-        {
-            _selectedItems = _SyrupFillingList.FirstOrDefault();
-            Grid.ClearSelection();
-            PanelVisible = false;
-        }
-        PanelVisible = false;
-        StateHasChanged();
-    }
-
-    void OnRowClick(GridRowClickEventArgs e)
-    {
-        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        //_selectedItems = _SyrupFillingList.FirstOrDefault(f => f.ID == (long?)UniqueId);
-
-        var id = (long?)e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        if (id.HasValue)
-            _selectedItems = _SyrupFillingList.FirstOrDefault(x => x.ID == id.Value);
-    }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
-    {
-        var id = (long?)e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        if (id.HasValue) OpenEdit(id.Value);
-    }
-    void addNew()
-    {
-        Grid.StartEditNewRowAsync();
-
-    }
-    async Task ExportXlsx_Click()
-    {
-        await Grid.ExportToXlsxAsync("Dist. Items", new GridXlExportOptions()
-        {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
-        });
-    }
-    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
-        var navitems = (SyrupFilling)e.EditModel;
-        if (e.IsNew)
-        {
-            //navitems.StatusCodeID = 1;
-        }
-        else
-        {
-            // navitems.StatusCodeID = navitems.StatusCodeID > 0 ? navitems.StatusCodeID : 1;
-        }
-    }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
-        if (SelectedDataItems.Count > 0)
-        {
-            if (SelectedDataItems.Count > 1)
+            if (Model != null && Model.Id > 0)
             {
-                EditEnabled = false; DeleteEnabled = true;
+                // get existing fillings by parent id; take the first if you only want one record
+                var rows = await Mediator.Send(new GetSyrupFillingListQuery());
+                _SyrupFillingList = rows?.ToList() ?? new List<SyrupFilling>();
+
+                var first = _SyrupFillingList.FirstOrDefault();
+                if (first != null)
+                {
+                    EditVM = new SyrupFilling
+                    {
+                        ID = first.ID,
+                        SyrupPlanningID = first.SyrupPlanningID,
+                        ProfileNo = first.ProfileNo,
+                        ProcessName_Primary = first.ProcessName_Primary,
+                        NextProcessName_Primary = first.NextProcessName_Primary,
+                        PlanningType_Primary = first.PlanningType_Primary,
+                        PrimaryFillingMachine = first.PrimaryFillingMachine,
+                        TypeOfPlanningProcess = first.TypeOfPlanningProcess,
+                        FillingHours_Level1 = first.FillingHours_Level1,
+                        FillingManpower_Level1 = first.FillingManpower_Level1,
+                        Speed_BottlePerMinute = first.Speed_BottlePerMinute,
+                        ChangePackingFillingHours = first.ChangePackingFillingHours,
+                        FillingHours_Level2 = first.FillingHours_Level2,
+                        FillingManpower_Level2 = first.FillingManpower_Level2,
+                        SecondarySameAsPrimaryTime = first.SecondarySameAsPrimaryTime,
+                        SecondaryPackingHours = first.SecondaryPackingHours,
+                        SecondaryManpower = first.SecondaryManpower,
+                        ProcessName_Secondary = first.ProcessName_Secondary,
+                        NextProcessName_Secondary = first.NextProcessName_Secondary,
+                        RequireOfflinePacking = first.RequireOfflinePacking,
+                        ModifiedBy = first.ModifiedBy,
+                        ModifiedDate = first.ModifiedDate,
+                        AddedByUserID = first.AddedByUserID,
+                        Description = first.Description
+                    };
+                }
+                else
+                {
+                    // new blank record with parent FK filled if known
+                    EditVM = new SyrupFilling
+                    {
+                        SyrupPlanningID = Model.Id,
+                        AddedByUserID = applicationUser?.UserID,
+                        ModifiedBy = applicationUser?.LoginID,
+                        ModifiedDate = DateTime.Now
+                    };
+                }
             }
             else
             {
-                EditEnabled = true; DeleteEnabled = true;
+                // parent not saved yet — create blank VM
+                EditVM = new SyrupFilling
+                {
+                    SyrupPlanningID = 0,
+                    AddedByUserID = applicationUser?.UserID,
+                    ModifiedBy = applicationUser?.LoginID,
+                    ModifiedDate = DateTime.Now
+                };
             }
         }
+        catch (Exception ex)
+        {
+            toastService.ShowToast("Failed to load filling data: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+            // fallback blank
+            EditVM = new SyrupFilling { SyrupPlanningID = Model?.Id ?? 0 };
+        }
     }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+
+    // called whenever a field changes — update audit info and notify parent
+    private async Task OnInputChanged()
     {
-        var editModel = (SyrupFilling)e.EditModel;
+        EditVM.ModifiedBy = applicationUser?.LoginID;
+        EditVM.ModifiedDate = DateTime.Now;
+
+        // keep local list in sync (single-record behavior)
+        _SyrupFillingList = new List<SyrupFilling> { EditVM };
+
+        if (OnChanged.HasDelegate)
+            await OnChanged.InvokeAsync(Model);
+    }
+
+    // Expose to parent: the child rows to persist during final save
+    public List<SyrupFilling> GetLocalSyrupFilling()
+    {
+        // ensure FK aligns with parent
+        if (Model != null && Model.Id > 0) EditVM.SyrupPlanningID = Model.Id;
+        return new List<SyrupFilling> { EditVM };
     }
 }

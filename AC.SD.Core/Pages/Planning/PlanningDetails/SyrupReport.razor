@@ -1,0 +1,453 @@
+﻿@page "/syrup-report"
+@using Application.Queries
+@using MediatR
+@using global::Core.Entities
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query
+@using static global::Core.EntityModels.SyrupReportDtos
+@using static global::Core.EntityModels.SyrupPlanning
+@inject IMediator Mediator
+@inject IStockInformationMasterQueryRepository Repo
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+
+<style>
+    .report-card {
+        margin-bottom: 20px;
+    }
+
+    .overview-cards .card {
+        min-height: 120px;
+    }
+
+    .process-flow {
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .process-step {
+        border: 1px solid #2b8cc4;
+        border-radius: 6px;
+        padding: 14px;
+        width: 185px;
+        background: #fff;
+        box-shadow: 0 1px 0 rgba(0,0,0,.04);
+    }
+
+        .process-step .title {
+            font-weight: 700;
+            color: #1f6fa5;
+            margin-bottom: 6px;
+        }
+
+        .process-step .meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+    .critical-note {
+        background: #fff3cd;
+        border-left: 4px solid #ffd966;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 4px;
+    }
+
+    .table-small td, .table-small th {
+        padding: .55rem;
+        font-size: .95rem;
+    }
+
+    .muted-note {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="py-4">
+    <div class="card report-card">
+        <div class="card-body">
+            <h3 class="card-title">@Overview?.MethodCodeName</h3>
+        </div>
+    </div>
+
+    <!-- Overview -->
+ @*    <div class="card report-card overview-cards">
+        <div class="card-body">
+            <h5>Production Overview</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <div class="text-muted">Working Hours</div>
+                        <div class="h4">@Overview?.WorkingHours ?? "—"</div>
+                        <div class="muted-note">@Overview?.WorkingHoursNote</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <div class="text-muted">Filling Speed</div>
+                        <div class="h4">@Overview?.FillingSpeed ?? "—"</div>
+                        <div class="muted-note">@Overview?.FillingSpeedNote</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <div class="text-muted">Batch Size</div>
+                        <div class="h4">@Overview?.BatchSize ?? "—"</div>
+                        <div class="muted-note">@Overview?.BatchSizeNote</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 muted-note">@Overview?.ShortNote</div>
+        </div>
+    </div> *@
+
+    <!-- Process Flow -->
+    @* <div class="card report-card">
+        <div class="card-body">
+            <h5>Process Flow</h5>
+            <div class="process-flow mt-3">
+                @if (ProcessFlow?.Any() ?? false)
+                {
+                    foreach (var step in ProcessFlow)
+                    {
+                        <div class="process-step">
+                            <div class="title">@step.Title</div>
+                            <div class="muted-note">@step.Subtitle</div>
+                            <div class="mt-2 meta">Duration: <strong>@(FormatDuration(step.DurationHours))</strong></div>
+                            @if (!string.IsNullOrWhiteSpace(step.Notes))
+                            {
+                                <div class="mt-2"><small class="muted-note">@step.Notes</small></div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="muted-note">No process flow data available.</div>
+                }
+            </div>          
+        </div>
+    </div> *@
+
+    <!-- Timing Details -->
+
+    <DxGrid @ref="Grid"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            Data="TimingDetails"
+            KeyFieldName="ID"
+            TextWrapEnabled="false"            
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Single"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " 
+            FocusedRowEnabled="true"            
+            EditMode="GridEditMode.EditForm"
+            VirtualScrollingEnabled="true"
+            AllowSelectRowByClick="true">
+        <Columns>           
+            <DxGridDataColumn FieldName="ProcessName" Caption="Process Name" />
+            <DxGridDataColumn FieldName="StartDate" Caption="Start Date" Width="230">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimingRowVm)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="EndDate" Caption="End Date" Width="180" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimingRowVm)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.EndDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Location" Caption="Room"  />            
+            <DxGridDataColumn FieldName="DurationHours" Caption="Duration Hours" Width="180" />
+            <DxGridDataColumn FieldName="Manpower" Caption="Man power" Width="180" />
+            <DxGridDataColumn FieldName="NextProcessTimeline" Caption="Next Process Timeline"  />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProcessName" />
+        </TotalSummary>
+    </DxGrid>
+
+
+   @*  <div class="card report-card">
+        <div class="card-body">
+            <h5>Production Timing Details</h5>
+
+            <table class="table table-bordered table-small">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Process</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th style="width:140px">Location</th>
+                        <th style="width:120px">Duration</th>
+                        <th style="width:140px">Manpower</th>
+                        <th style="width:140px">Next Process Timeline</th>                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (TimingDetails?.Any() ?? false)
+                    {
+                        foreach (var r in TimingDetails)
+                        {
+                            <tr>
+                                <td>@r.ProcessName</td>
+                                <td>@(r.StartDate?.ToString("dd-MMM-yyyy HH:mm") ?? "—")</td>
+                                <td>@(r.EndDate?.ToString("dd-MMM-yyyy HH:mm") ?? "—")</td>
+                                <td>@(r.Location ?? "—")</td>                                
+                                <td>@(FormatDuration(r.DurationHours))</td>
+                                <td>@(r.Manpower ?? 0)</td>
+                                <td>@(r.NextProcessTimeline ?? "—")</td>                               
+                                
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="muted-note">No timing data.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+ *@
+    <!-- Machine Info -->
+    <div class="card report-card">
+        <div class="card-body">
+            <h5>Machine Information</h5>
+            @if (MachineInfos?.Any() ?? false)
+            {
+                <table class="table table-bordered table-small">
+                    <thead class="thead-light">
+                        <tr><th>Machine</th><th>Type</th><th>Capacity</th><th>Speed</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in MachineInfos)
+                        {
+                            <tr>
+                                <td>@m.Name</td>
+                                <td>@m.Type</td>
+                                <td>@m.Capacity</td>
+                                <td>@m.Speed</td>
+                                <td>@m.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="muted-note">No machine data.</div>
+            }
+        </div>
+    </div>
+
+    <!-- Product Items -->
+    <div class="card report-card">
+        <div class="card-body">
+            <h5>Product Items</h5>
+            <table class="table table-bordered table-small">
+                <thead class="thead-light">
+                    <tr><th>Product Name</th><th>Code</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    @if (ProductItems?.Any() ?? false)
+                    {
+                        @foreach (var p in ProductItems)
+                        {
+                            <tr>
+                                <td>@p.Name</td>
+                                <td>@p.Code</td>
+                                <td>@p.PackSize</td>                                
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="muted-note">No product items.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Key Considerations -->
+@*     <div class="card report-card">
+        <div class="card-body">
+            <h5>Key Planning Considerations</h5>
+            <ul class="list-unstyled">
+                @foreach (var c in KeyConsiderations)
+                {
+                    <li class="mb-2"><strong>@c.Title</strong> — <span class="muted-note">@c.Description</span></li>
+                }
+            </ul>
+        </div>
+    </div> *@
+</div>
+@code {
+    IGrid Grid { get; set; }
+    [Parameter]
+    public int? MethodCodeID { get; set; } = 70;
+    [Parameter]
+    public long? SyrupPlanningId { get; set; } = 1;
+    [Parameter]
+    public string? ProfileNo { get; set; } = "MC-0054";
+    DateTime productionDay = DateTime.Now;
+    TimeSpan shiftStart = TimeSpan.FromHours(8); 
+
+    // simple view models for the component
+    class OverviewVm
+    {
+        public string WorkingHours { get; set; }
+        public string WorkingHoursNote { get; set; }
+        public string FillingSpeed { get; set; }
+        public string FillingSpeedNote { get; set; }
+        public string BatchSize { get; set; }
+        public string BatchSizeNote { get; set; }
+        public string ShortNote { get; set; }
+    }
+
+    class ProcessStepVm 
+    { 
+        public string Title { get; set; } 
+        public string Subtitle { get; set; } 
+        public decimal? DurationHours { get; set; } 
+        public string Notes { get; set; } 
+    }
+    class TimingRowVm 
+    { 
+        public long ID { get; set; }
+        public string? ProcessName { get; set; } 
+        public decimal? DurationHours { get; set; } 
+        public decimal? Manpower { get; set; }
+        public string Location { get; set; } 
+        public string Notes { get; set; } 
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Room { get; set; }
+        public string? NextProcessTimeline { get; set; }
+    }
+    class MachineVm { public string Name { get; set; } public string Type { get; set; } public string Capacity { get; set; } public string Speed { get; set; } public string Notes { get; set; } }
+    class ProductVm { public string Name { get; set; } public string Code { get; set; } public string PackSize { get; set; } public string Notes { get; set; } }
+    class ConsiderationVm { public string Title { get; set; } public string Description { get; set; } }
+
+    //OverviewVm Overview;
+    List<ProcessStepVm> ProcessFlow = new();
+    //List<TimingRowVm> TimingDetails = new();
+    List<TimingRowVm> TimingDetails = new();
+    List<MachineVm> MachineInfos = new();
+    List<ProductVm> ProductItems = new();
+    List<ConsiderationVm> KeyConsiderations = new();
+
+ 
+    TimingOverviewDto? Overview;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            string profile = ProfileNo;
+            if (string.IsNullOrEmpty(profile))
+            {
+                if (SyrupPlanningId.HasValue)
+                {
+                    var planning = await Repo.GetSyrupPlanningByIdAsync(SyrupPlanningId.Value);
+                    profile = planning?.ProfileNo;
+                }
+                else if (MethodCodeID.HasValue)
+                {
+                    var master = await Repo.GetMasterByMethodCodeAsync(MethodCodeID.Value);
+                    // master may not include profile -> you might still need to resolve profile from planning table
+                }
+            }
+
+            if (!string.IsNullOrEmpty(profile))
+            {
+                // fetch overview + details
+                Overview = await Repo.GetTimingOverviewByProfileNoAsync(profile) ?? new TimingOverviewDto { ProfileNo = profile };
+
+                var pf = await Repo.GetProcessFlowByProfileNoAsync(profile, productionDay, shiftStart);
+                //var td = await Repo.GetTimingDetailsByProfileNoAsync(profile);
+                var td = await Repo.GetProcessFlowByProfileNoAsync(profile, productionDay, shiftStart);
+                var machines = await Repo.GetMachineInfoByProfileNoAsync(profile);
+                var products = MethodCodeID.HasValue ? await Repo.GetProductItemsByMethodCodeAsync(MethodCodeID.Value) : new List<ProductItemDto>();
+
+                // map as before
+                if (pf != null && pf.Any())
+                {
+                    ProcessFlow = pf.Select(x => new ProcessStepVm
+                    {
+                        Title = x.TaskName,
+                        Subtitle = x.Room,
+                        DurationHours = x.DurationHours,
+                        Notes = x.Notes
+                    }).ToList();
+                }
+
+                TimingDetails = td?.Select(r => new TimingRowVm
+                {
+                    ID = r.Seq,
+                    ProcessName = r.TaskName,
+                    DurationHours = r.DurationHours,
+                    StartDate = r.StartDate,
+                    EndDate = r.EndDate,
+                    Manpower = r.Manpower,
+                    Location = r.Room,
+                    NextProcessTimeline = r.NextProcess_Timeline,
+                    Notes = r.Notes
+                }).ToList() ?? new();
+
+                MachineInfos = machines?.Select(m => new MachineVm
+                {
+                    Name = m.Machine,
+                    Type = m.Type,
+                    Capacity = m.Capacity,
+                    Speed = m.Speed,
+                    Notes = m.Notes
+                }).ToList() ?? new();
+
+                ProductItems = products?.Select(p => new ProductVm
+                {
+                    Name = p.Description,
+                    Code = p.No,
+                    PackSize = p.Description2,
+                    Notes = p.CategoryID?.ToString()
+                }).ToList() ?? new();
+            }
+            else
+            {
+                toastService.ShowToast("No profile or method code supplied to render report.", AC.SD.Core.Services.ToastLevel.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast("Failed to load report: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+
+
+    string FormatDuration(decimal? hours)
+    {
+        if (!hours.HasValue) return "—";
+        var h = hours.Value;
+        if (h < 1) return $"{h * 60:N0} min";
+        return $"{h:N1} hrs";
+    }
+}

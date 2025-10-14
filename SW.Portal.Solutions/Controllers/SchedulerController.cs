@@ -38,10 +38,11 @@ namespace SW.Portal.Solutions.Controllers
     public class SchedulerController : Controller
     {
         private readonly IMediator _mediator;
-        public SchedulerController(IMediator mediator)
+        private readonly IStockInformationMasterQueryRepository _stockInformationMasterQueryRepository;
+        public SchedulerController(IMediator mediator, IStockInformationMasterQueryRepository stockInformationMasterQueryRepository)
         {
             _mediator = mediator;
-
+            _stockInformationMasterQueryRepository = stockInformationMasterQueryRepository;
         }
         public class ReturnItems
         {
@@ -108,6 +109,56 @@ namespace SW.Portal.Solutions.Controllers
             returnItems.Count = tempList.Count();
             return returnItems;
         }
+              
+        [HttpGet("GetGanttGenerated")]
+        public async Task<IActionResult> GetGanttGenerated([FromQuery] string? profileNo = null,[FromQuery] DateTime? day = null,[FromQuery] string shiftStart = "08:00")
+        {
+            try
+            {
+                // 1️⃣  Determine production date (default = today)
+                DateTime productionDay = day?.Date ?? DateTime.Today;
+
+                // 2️⃣  Parse shiftStart (default = 08:00)
+                TimeSpan start = TimeSpan.FromHours(8);
+                if (!string.IsNullOrWhiteSpace(shiftStart))
+                {
+                    var timeParts = shiftStart.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                    if (timeParts.Length >= 1 && int.TryParse(timeParts[0], out var hh))
+                    {
+                        int mm = (timeParts.Length >= 2 && int.TryParse(timeParts[1], out var m)) ? m : 0;
+                        start = new TimeSpan(hh, mm, 0);
+                    }
+                }
+
+                // 3️⃣  Validate parameters
+                if (string.IsNullOrWhiteSpace(profileNo))
+                    return BadRequest(new { Message = "Parameter 'profileNo' is required." });
+
+                // 4️⃣  Fetch Gantt rows
+                var rows = await _stockInformationMasterQueryRepository
+                    .GetProductionGanttRowsAsync(profileNo, productionDay, start);
+
+                // 5️⃣  Return JSON with items + count
+                var list = rows.ToList();
+                return Ok(new
+                {
+                    Items = list,
+                    Count = list.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                // 6️⃣  Return full exception details (safe for dev)
+                return StatusCode(500, new
+                {
+                    Message = ex.Message,
+                    Exception = ex.GetType().FullName,
+                    ex.StackTrace,
+                    Inner = ex.InnerException?.Message
+                });
+            }
+        }
+
     }
 
 

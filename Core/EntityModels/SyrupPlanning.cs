@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class SyrupPlanning
+    public class SyrupPlanning : BaseEntity
     {
         public long Id { get; set; }
+        public long DynamicFormDataItemID { get; set; }
         public long MethodCodeLineID { get; set; }
         public long DynamicFormDataID { get; set; }
         public string? MethodName { get; set; }
@@ -77,7 +79,7 @@ namespace Core.EntityModels
         public int SyrupLevel2CleaningManpower { get; set; }
 
         public string? NextProcessNameAfterPreparation { get; set; }
-
+        public List<SyrupOtherProcess> SyrupOtherProcesses { get; set; } = new List<SyrupOtherProcess>();
         public class SyrupProcessNameList
         {
             public long ID { get; set; }
@@ -87,25 +89,57 @@ namespace Core.EntityModels
         public class SyrupFilling
         {
             public long ID { get; set; }
+            public long SyrupPlanningID { get; set; }
             public long DynamicFormID { get; set; }
+            public long DynamicFormDataID { get; set; }
+            public long DynamicFormDataItemID { get; set; }
             public string ProcessName { get; set; } = "";
             public string ProfileNo { get; set; } = "";
-            public string PrimaryFillingMachine { get; set; } = "";
+       
             public string TypeOfPlanningProcess { get; set; } = "";
             public string FillingHours { get; set; } = "";
-            public string FillingManpower { get; set; } = "";
-            public string ChangePackingFillingHours { get; set; } = "";
+            public string FillingManpower { get; set; } = "";           
             public string ModifiedBy { get; set; } = "";
             public DateTime ModifiedDate { get; set; }
+           
+
+            // Primary Packing
+            public string? ProcessName_Primary { get; set; }
+            public string? NextProcessName_Primary { get; set; }
+            public string? PlanningType_Primary { get; set; }
+
+            // Machine Filling
+            public string? PrimaryFillingMachine { get; set; }
+            public decimal? FillingHours_Level1 { get; set; }
+            public int? FillingManpower_Level1 { get; set; }
+            public decimal? Speed_BottlePerMinute { get; set; }
+            public decimal? ChangePackingFillingHours { get; set; }
+            public decimal? FillingHours_Level2 { get; set; }
+            public int? FillingManpower_Level2 { get; set; }
+
+            // Secondary Packing
+            public bool SecondarySameAsPrimaryTime { get; set; }
+            public decimal? SecondaryPackingHours { get; set; }
+            public int? SecondaryManpower { get; set; }
+            public string? ProcessName_Secondary { get; set; }
+            public string? NextProcessName_Secondary { get; set; }
+            public string? RequireOfflinePacking { get; set; }
+            public long? AddedByUserID { get; set; }
+            public string? Description { get; set; }          
+
+
         }
         public class SyrupOtherProcess
         {
             public long ID { get; set; }
             public long DynamicFormID { get; set; }
+            public long DynamicFormDataItemID { get;set; }
+            public long SyrupPlanningID { get; set; }
+            public long DynamicFormDataID { get; set; }
             public string? OtherJobsInformation { get; set; }
             public string? ProcessName { get; set; }
             public string? ProfileNo { get; set; }
-            public string? NextProcess { get; set; }
+            public string? SyrupOtherProcessNextProcess { get; set; }
 
             public string? MustCompleteForNext { get; set; }
 
@@ -120,10 +154,11 @@ namespace Core.EntityModels
             public string? CanCarryoutOnNonWorkday { get; set; }
 
             public decimal? TimeGapHour { get; set; }
-            public int? AddedByUserID { get; set; }
+            public long? AddedByUserID { get; set; }
             public string? Description { get; set; }
             public string? ModifiedBy { get; set; } 
             public DateTime ModifiedDate { get; set; }
+
         }
 
     }

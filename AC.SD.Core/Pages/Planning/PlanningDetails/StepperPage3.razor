@@ -1,76 +1,130 @@
 ﻿@page "/syrup-Stepper3"
-@using Application.Queries;
+@using Application.Queries
 @using MediatR
-@using System.ComponentModel;
-@using global::Core.Entities.Views;
-@using global::Core.Entities;
+@using global::Core.Entities.Views
+@using global::Core.Entities
 @inject IMediator Mediator
 @using DevExpress.Export
-@using Application.Response;
+@using Application.Response
 @using global::Core.EntityModels
 @inject IJSRuntime jsRuntime
-@using global::Core.Repositories.Query;
+@using global::Core.Repositories.Query
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 
-
 <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
 
     <DxFormLayoutItem Caption="Process Name:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationProcessName" />
+        <DxTextBox @bind-Text="Model.SyruppreparationProcessName" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Location:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationLocation" />
+        <DxTextBox @bind-Text="Model.SyruppreparationLocation" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="First Volumn/Hour:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationFirstVolumnHour" />
+        <DxTextBox @bind-Text="Model.SyruppreparationFirstVolumnHour" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="First Volumn/Manpower:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationFirstVolumnManpower" />
+        <DxTextBox @bind-Text="Model.SyruppreparationFirstVolumnManpower" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="IPQC test:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationIPQCTest" />
+        <DxTextBox @bind-Text="Model.SyruppreparationIPQCTest" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Top up to Volumn/Hour:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationTopupToVolumnHour" />
+        <DxTextBox @bind-Text="Model.SyruppreparationTopupToVolumnHour" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Top up to Volumn/Manpower:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationTopupToVolumnManpower" />
+        <DxTextBox @bind-Text="Model.SyruppreparationTopupToVolumnManpower" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Campaign Batches/Numbers:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationCampaignBatchesNumbers" />
+        <DxTextBox @bind-Text="Model.SyruppreparationCampaignBatchesNumbers" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Level 1 Cleaning/Hours:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationLevel1CleaningHours" />
+        <DxTextBox @bind-Text="Model.SyruppreparationLevel1CleaningHours" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Level 1 Cleaning/manpower:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationLevel1Cleaningmanpower" />
+        <DxTextBox @bind-Text="Model.SyruppreparationLevel1Cleaningmanpower" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Level 2 Cleaning/hours:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationLevel2Cleaninghours" />
+        <DxTextBox @bind-Text="Model.SyruppreparationLevel2Cleaninghours" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Level 2 Cleaning/Manpower:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationLevel2CleaningManpower" />
+        <DxTextBox @bind-Text="Model.SyruppreparationLevel2CleaningManpower" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Next Process Name:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyruppreparationNextProcessName" />
+        <DxTextBox @bind-Text="Model.SyruppreparationNextProcessName" @oninput="OnInputChanged" />
     </DxFormLayoutItem>
 
 </DxFormLayout>
 
 @code {
-    SyrupPlanning data = new SyrupPlanning();
     [Parameter]
     public long MethodCodeID { get; set; } = 70;
+
     public ApplicationUser? applicationUser { get; private set; }
+
+    // IMPORTANT: Use the parent instance (do NOT create a new SyrupPlanning here)
+    [Parameter]
+    public SyrupPlanning Model { get; set; } = new SyrupPlanning();
+
+    [Parameter]
+    public EventCallback<SyrupPlanning> OnChanged { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
+
     async Task UpdateDataAsync()
     {
-        data = await Mediator.Send(new GetSyruppreparationDataList(MethodCodeID));
+        try
+        {
+            var serverData = await Mediator.Send(new GetSyruppreparationDataList(MethodCodeID));
+            if (serverData != null)
+            {
+                // Preserve parent reference: copy only relevant fields into Model
+                CopySyruppreparationValues(serverData, Model);
+            }
+
+            if (OnChanged.HasDelegate)
+                await OnChanged.InvokeAsync(Model);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UpdateDataAsync failed: {ex.Message}");
+        }
+    }
+
+    void CopySyruppreparationValues(SyrupPlanning source, SyrupPlanning target)
+    {
+        if (source == null || target == null) return;
+
+        target.DynamicFormDataID = source.DynamicFormDataID;
+        target.MethodCodeLineID = source.MethodCodeLineID;
+        target.MethodCodeID = source.MethodCodeID;
+        target.ProfileNo = source.ProfileNo;
+
+        target.SyruppreparationProcessName = source.SyruppreparationProcessName;
+        target.SyruppreparationLocation = source.SyruppreparationLocation;
+        target.SyruppreparationFirstVolumnHour = source.SyruppreparationFirstVolumnHour;
+        target.SyruppreparationFirstVolumnManpower = source.SyruppreparationFirstVolumnManpower;
+        target.SyruppreparationIPQCTest = source.SyruppreparationIPQCTest;
+        target.SyruppreparationTopupToVolumnHour = source.SyruppreparationTopupToVolumnHour;
+        target.SyruppreparationTopupToVolumnManpower = source.SyruppreparationTopupToVolumnManpower;
+        target.SyruppreparationCampaignBatchesNumbers = source.SyruppreparationCampaignBatchesNumbers;
+        target.SyruppreparationLevel1CleaningHours = source.SyruppreparationLevel1CleaningHours;
+        target.SyruppreparationLevel1Cleaningmanpower = source.SyruppreparationLevel1Cleaningmanpower;
+        target.SyruppreparationLevel2Cleaninghours = source.SyruppreparationLevel2Cleaninghours;
+        target.SyruppreparationLevel2CleaningManpower = source.SyruppreparationLevel2CleaningManpower;
+        target.SyruppreparationNextProcessName = source.SyruppreparationNextProcessName;
+    }
+
+    private async Task OnInputChanged()
+    {
+        if (OnChanged.HasDelegate)
+            await OnChanged.InvokeAsync(Model);
     }
 }

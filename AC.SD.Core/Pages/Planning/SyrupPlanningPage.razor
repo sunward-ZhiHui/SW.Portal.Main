@@ -28,7 +28,7 @@
             <Items>
                 <DxMenuItem Text="Planning" IconCssClass="fa fa-cogs" Click="@onPlanning" Enabled="@isEnabled" />
                 <DxMenuItem Text="Generate Schedule" IconCssClass="fa fa-refresh" Click="@ComputeSchedule" />
-                <DxMenuItem Text="View" IconCssClass="fa fa-info-circle" Click="@openDrawer" Enabled="@isEnabled" />
+                <DxMenuItem Text="View" IconCssClass="fa fa-info-circle" Click="@onTimeLineView" Enabled="@isEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -157,10 +157,20 @@
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@PreviewPlanning">
     <BodyContentTemplate>       
         <div style="height: calc(100vh - 150px);overflow-y:auto;overflow-x:hidden;">
-            <AC.SD.Core.Pages.Planning.Production.StepperPage SyrupPlanningData="_selectedItems"></AC.SD.Core.Pages.Planning.Production.StepperPage>
+            <AC.SD.Core.Pages.Planning.Production.StepperPage OnSaveCompleted="HandleSaveCompleted" SyrupPlanningData="_selectedItems"></AC.SD.Core.Pages.Planning.Production.StepperPage>
         </div>
     </BodyContentTemplate>
 </DxPopup>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@onSyrupReport">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 150px);overflow-y:auto;overflow-x:hidden;">
+            <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport>
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
+
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@onScheduler">
     <BodyContentTemplate>
@@ -195,9 +205,19 @@
 
     public ApplicationUser? applicationUser { get; private set; }
     bool PreviewPlanning { get; set; } = false;
+    bool onSyrupReport { get; set; } = false;
     bool onScheduler { get; set; } = false;
     bool isEnabled { get; set; } = false;
 
+    private void HandleSaveCompleted()
+    {
+        PreviewPlanning = false; // close popup
+        StateHasChanged();
+    }
+    async Task onTimeLineView()
+    {
+        onSyrupReport = true;
+    }
 
     async Task onPlanning()
     {       

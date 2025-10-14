@@ -2,7 +2,12 @@
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor
 @using Syncfusion.Blazor.Navigations
+@using global::Core.Entities
 @using global::Core.EntityModels
+@using global::Core.Repositories.Query
+@using static global::Core.EntityModels.SyrupPlanning
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IStockInformationMasterQueryRepository Repo
 
 <style scoped>
     .step-content {
@@ -70,7 +75,7 @@
         <StepperStep Label="Syrup Simplex process" IconCss="fa fa-check" />
         <StepperStep Label="Syrup Preparation" IconCss="fa fa-check" />
         <StepperStep Label="Specific item Card" IconCss="fa fa-check" />
-        <StepperStep Label="Time Line Details" IconCss="fa fa-check" />
+       
     </StepperSteps>
 </SfStepper>
 
@@ -88,24 +93,24 @@
     }
     else if (currentStep == 1)
     {
-        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 />
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 @ref="stepper5Ref" Model="Model" OnChanged="OnChildChanged" />
     }
     else if (currentStep == 2)
     {
-        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage2 />
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage2 Model="Model" OnChanged="OnChildChanged" />
     }
     else if (currentStep == 3)
     {
-        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage3 />
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage3 Model="Model" OnChanged="OnChildChanged" />
     }
     else if (currentStep == 4)
     {
-        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 />
+        <AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 @ref="stepper4Ref" Model="Model" OnChanged="OnChildChanged" />
     }
-    else if (currentStep == 5)
+   @*  else if (currentStep == 5)
     {
         <AC.SD.Core.Pages.Planning.PlanningDetails.VijayPage1 />
-    }
+    } *@
 </div>
 
 <!-- Footer Navigation -->
@@ -125,25 +130,38 @@
 </div>
 
 @code {
-    public long MethodCodeID { get; set; }
+    private AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage5 stepper5Ref;
+    private AC.SD.Core.Pages.Planning.PlanningDetails.StepperPage4 stepper4Ref;
+    [Parameter] 
+    public EventCallback OnSaveCompleted { get; set; }
 
-    [Parameter] public SyrupPlanning? SyrupPlanningData { get; set; }
+    public long MethodCodeID { get; set; }
+    private SyrupPlanning Model = new SyrupPlanning();
+    public ApplicationUser applicationUser { get; private set; }
+    [Parameter] 
+    public SyrupPlanning? SyrupPlanningData { get; set; }
 
     // Parent can subscribe to this to receive the final data.
     [Parameter] public EventCallback<SyrupPlanning?> OnSubmit { get; set; }
 
     int currentStep = 0;
-    int StepCount => 6;
+    int StepCount => 5;
     bool IsBusy = false;
 
     bool IsLastStep => currentStep == StepCount - 1;
     bool IsNextDisabled =>
         IsBusy || (!IsLastStep && currentStep == StepCount - 1); // safety plus busy state
 
-    protected override Task OnParametersSetAsync()
-    {
-        var x = MethodCodeID; // your existing line
+    private Task OnChildChanged(SyrupPlanning partial)
+    {        
+        StateHasChanged();
         return Task.CompletedTask;
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var x = MethodCodeID;       
+
     }
 
     async Task HandleNextOrSubmit()
@@ -155,7 +173,8 @@
         }
 
         // Last step => submit
-        await SubmitAsync();
+        //await SubmitAsync();
+        await SaveAllAsync();
     }
 
     void nexttStep()
@@ -197,4 +216,76 @@
             IsBusy = false;
         }
     }
+
+    async Task SaveAllAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            var lst = Model;
+            Model.AddedByUserID =  applicationUser.UserID;
+            Model.AddedDate = DateTime.Now;
+            Model.ModifiedByUserID = applicationUser.UserID;
+            Model.ModifiedDate = DateTime.Now;
+
+            Model.DynamicFormDataID = SyrupPlanningData.DynamicFormDataID;
+            Model.MethodCodeID = SyrupPlanningData.MethodCodeID;
+            Model.DynamicFormDataItemID = SyrupPlanningData.DynamicFormDataItemID;
+            Model.ProfileNo = SyrupPlanningData.ProfileNo;
+            Model.MethodName = SyrupPlanningData.MethodName;
+            Model.BatchSizeInLiters = SyrupPlanningData.BatchSizeInLiters;
+
+
+            var _SyrupPlanningData = await Repo.InsertOrUpdateSyrupPlanningAsync(Model);
+            long newId = _SyrupPlanningData.Id;
+            var childList = stepper5Ref?.GetLocalOtherProcesses() ?? new List<SyrupOtherProcess>();
+            foreach (var c in childList)
+            {
+                c.SyrupPlanningID = newId;
+                c.DynamicFormDataID = SyrupPlanningData.DynamicFormDataID;
+                c.DynamicFormDataItemID = SyrupPlanningData.DynamicFormDataItemID;
+                c.ProfileNo = SyrupPlanningData.ProfileNo;
+                c.AddedByUserID = applicationUser.UserID;             
+                c.ModifiedDate = DateTime.Now;
+            }
+            
+            await Repo.SaveSyrupOtherProcessesAsync(newId, childList);
+
+
+            // get child list from StepperPage4
+            var syrupFillingList = stepper4Ref?.GetLocalSyrupFilling() ?? new List<SyrupFilling>();
+            foreach (var r in syrupFillingList) 
+            {
+                r.SyrupPlanningID = newId;
+                r.DynamicFormDataID = SyrupPlanningData.DynamicFormDataID;
+                r.DynamicFormDataItemID = SyrupPlanningData.DynamicFormDataItemID;
+                r.ProfileNo = SyrupPlanningData.ProfileNo;
+                r.AddedByUserID = applicationUser.UserID;        
+                r.ModifiedDate = DateTime.Now;
+
+            }
+            // persist children
+            await Repo.SaveSyrupFillingAsync(newId, syrupFillingList);
+
+
+            if (OnSaveCompleted.HasDelegate)
+                await OnSaveCompleted.InvokeAsync();
+
+            // If you have OnSubmit callback to parent, fire it
+            if (OnSubmit.HasDelegate)
+                await OnSubmit.InvokeAsync(SyrupPlanningData);
+           
+        }
+        catch (Exception ex)
+        {
+           
+            Console.WriteLine("Save failed: " + ex.Message);
+            throw;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
 }

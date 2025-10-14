@@ -1,77 +1,147 @@
 ﻿@page "/syrup-Stepper2"
 @using Application.Queries;
 @using MediatR
-@using System.ComponentModel;
-@using global::Core.Entities.Views;
-@using global::Core.Entities;
+@using System.ComponentModel
+@using global::Core.Entities.Views
+@using global::Core.Entities
 @inject IMediator Mediator
 @using DevExpress.Export
-@using Application.Response;
+@using Application.Response
 @using global::Core.EntityModels
 @inject IJSRuntime jsRuntime
-@using global::Core.Repositories.Query;
+@using global::Core.Repositories.Query
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 
-
 <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
-    
     <DxFormLayoutItem Caption="Is there Syrup Simplex to produce?:" ColSpanMd="6">
         <DxRadioGroup Items="@RadioButtonOptions"
-                      Value="@data.IsthereSyrupSimplextoproduce"
-                      ValueExpression="@(() => data.IsthereSyrupSimplextoproduce)"
+                      Value="@Model.IsthereSyrupSimplextoproduce"
+                      ValueExpression="@(() => Model.IsthereSyrupSimplextoproduce)"
                       ValueChanged="@((string value) => OnChangeSyrupProduce(value))"
                       Layout="RadioGroupLayout.Horizontal"
                       CssClass="dx-demo-radio-group" />
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="ProcessName:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyrupSimplexProcessName" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Location:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyrupSimplexLocation" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Preparation /Hour:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyrupSimplexPreparationHour" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Syrup Simplex/Manpower:" ColSpanMd="6">
-        <DxSpinEdit @bind-Value="@data.SyrupSimplexManpower" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Level 2 Cleaning/Hours:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyrupSimplexLevel2CleaningHours" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Level 2 Cleaning/Manpower:" ColSpanMd="6">
-        <DxSpinEdit @bind-Value="@data.SyrupSimplexLevel2CleaningManpower" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="No of Campaign:" ColSpanMd="6">
-        <DxSpinEdit @bind-Value="@data.SyrupSimplexNoofCampaign" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Next Process Name:" ColSpanMd="6">
-        <DxTextBox @bind-Text="@data.SyrupSimplexNextProcessName" />
-    </DxFormLayoutItem>    
 
+    <DxFormLayoutItem Caption="ProcessName:" ColSpanMd="6">
+        <DxTextBox @bind-Text="Model.SyrupSimplexProcessName" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Location:" ColSpanMd="6">
+        <DxTextBox @bind-Text="Model.SyrupSimplexLocation" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Preparation /Hour:" ColSpanMd="6">
+        <DxTextBox @bind-Text="Model.SyrupSimplexPreparationHour" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Syrup Simplex/Manpower:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="Model.SyrupSimplexManpower" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Level 2 Cleaning/Hours:" ColSpanMd="6">
+        <DxTextBox @bind-Text="Model.SyrupSimplexLevel2CleaningHours" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Level 2 Cleaning/Manpower:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="Model.SyrupSimplexLevel2CleaningManpower" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="No of Campaign:" ColSpanMd="6">
+        <DxSpinEdit @bind-Value="Model.SyrupSimplexNoofCampaign" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
+
+    <DxFormLayoutItem Caption="Next Process Name:" ColSpanMd="6">
+        <DxTextBox @bind-Text="Model.SyrupSimplexNextProcessName" @oninput="OnInputChanged" />
+    </DxFormLayoutItem>
 </DxFormLayout>
 
-
-
-@code{
+@code {
     IEnumerable<string> RadioButtonOptions = new[] { "Yes", "No" };
     public ApplicationUser? applicationUser { get; private set; }
-    SyrupPlanning data = new SyrupPlanning();
+
+    // REMOVE local 'data' — use the Model instance provided by parent
     [Parameter]
     public long MethodCodeID { get; set; } = 70;
+
+    [Parameter]
+    public SyrupPlanning Model { get; set; } = new SyrupPlanning();
+
+    [Parameter]
+    public EventCallback<SyrupPlanning> OnChanged { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
+
+    /// <summary>
+    /// Load from server and merge into the Model instance.
+    /// </summary>
     async Task UpdateDataAsync()
-    {        
-        data = await Mediator.Send(new GetSyrupSimplexDataList(MethodCodeID));
+    {
+        try
+        {
+            var serverData = await Mediator.Send(new GetSyrupSimplexDataList(MethodCodeID));
+
+            if (serverData != null)
+            {
+                // If Model is null or a default new instance, replace it with server data
+                // If parent passed an existing model instance and you want to preserve reference,
+                // copy values into Model instead of replacing the reference.
+                // Here we PRESERVE the parent reference by copying values into Model:
+                CopySyrupSimplexValues(serverData, Model);
+            }
+            // notify parent that Model now contains loaded values
+            if (OnChanged.HasDelegate)
+                await OnChanged.InvokeAsync(Model);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            // optional: show toast or log
+            Console.WriteLine($"UpdateDataAsync failed: {ex.Message}");
+        }
     }
 
-    void OnChangeSyrupProduce(string value)
+    void CopySyrupSimplexValues(SyrupPlanning source, SyrupPlanning target)
     {
-        data.IsthereSyrupSimplextoproduce = value;
+        if (source == null || target == null) return;
+
+        // Only copy the fields relevant to this step
+        target.DynamicFormDataItemID = source.DynamicFormDataItemID;
+        target.DynamicFormDataID = source.DynamicFormDataID;
+        target.MethodCodeLineID = source.MethodCodeLineID;
+        target.MethodCodeID = source.MethodCodeID;
+        target.ProfileNo = source.ProfileNo;
+
+        target.IsthereSyrupSimplextoproduce = source.IsthereSyrupSimplextoproduce;
+        target.SyrupSimplexProcessName = source.SyrupSimplexProcessName;
+        target.SyrupSimplexLocation = source.SyrupSimplexLocation;
+        target.SyrupSimplexPreparationHour = source.SyrupSimplexPreparationHour;
+        target.SyrupSimplexManpower = source.SyrupSimplexManpower;
+        target.SyrupSimplexLevel2CleaningHours = source.SyrupSimplexLevel2CleaningHours;
+        target.SyrupSimplexLevel2CleaningManpower = source.SyrupSimplexLevel2CleaningManpower;
+        target.SyrupSimplexNoofCampaign = source.SyrupSimplexNoofCampaign;
+        target.SyrupSimplexNextProcessName = source.SyrupSimplexNextProcessName;
+        // copy others if needed...
+    }
+
+    async Task OnChangeSyrupProduce(string value)
+    {
+        Model.IsthereSyrupSimplextoproduce = value;
+        await OnInputChanged();
+    }
+
+    private async Task OnInputChanged()
+    {
+        // Make sure values are up-to-date in Model; then notify parent
+        if (OnChanged.HasDelegate)
+        {
+            await OnChanged.InvokeAsync(Model);
+        }
     }
 }

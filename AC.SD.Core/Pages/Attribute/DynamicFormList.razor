@@ -1737,6 +1737,15 @@
                                             {
                                                 objectData[attrName] = false;
                                             }
+                                            else if (s.ControlTypeId == 2703)
+                                            {
+                                                DateTime? values = null;
+                                                objectData[attrName] = values;
+                                            }
+                                            else if (s.ControlTypeId == 2709)
+                                            {
+                                                objectData[attrName] = (TimeSpan?)null;
+                                            }
                                             else
                                             {
                                                 objectData[attrName] = string.Empty;

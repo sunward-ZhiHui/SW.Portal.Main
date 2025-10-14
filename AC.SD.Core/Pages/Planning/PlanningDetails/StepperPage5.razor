@@ -98,69 +98,56 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
-        // If parent has an ID, try to load the existing single child for that parent.
-        if (Model != null && Model.Id > 0)
+       
+        try
         {
-            try
-            {
-                // Use repo method that fetches by parent id. Replace with your Mediator call if needed.
-                var list = await Mediator.Send(new GetSyrupOtherProcessListQuery());
-                var first = list?.FirstOrDefault();
+                
+            var list = await Mediator.Send(new GetSyrupOtherProcessListQuery());
+            var first = list?.FirstOrDefault();
 
-                if (first != null)
-                {
-                    EditVM = new SyrupOtherProcess
-                    {
-                        ID = first.ID,
-                        SyrupPlanningID = first.SyrupPlanningID,
-                        DynamicFormID = first.DynamicFormID,
-                        OtherJobsInformation = first.OtherJobsInformation,
-                        ProcessName = first.ProcessName,
-                        ProfileNo = first.ProfileNo,
-                        SyrupOtherProcessNextProcess = first.SyrupOtherProcessNextProcess,
-                        MustCompleteForNext = first.MustCompleteForNext,
-                        LocationOfProcess = first.LocationOfProcess,
-                        ManhoursOrHours = first.ManhoursOrHours,
-                        NoOfManpower = first.NoOfManpower,
-                        ManpowerFromNextProcess = first.ManpowerFromNextProcess,
-                        CanCarryoutOnNonWorkday = first.CanCarryoutOnNonWorkday,
-                        TimeGapHour = first.TimeGapHour,
-                        AddedByUserID = first.AddedByUserID,
-                        ModifiedBy = first.ModifiedBy,
-                        ModifiedDate = first.ModifiedDate
-                    };
-                }
-                else
-                {
-                    // create a new record stub bound to parent
-                    EditVM = new SyrupOtherProcess
-                    {
-                        SyrupPlanningID = Model.Id,
-                        AddedByUserID = applicationUser?.UserID,
-                        ModifiedBy = applicationUser?.LoginID,
-                        ModifiedDate = DateTime.Now
-                    };
-                }
-            }
-            catch (Exception ex)
+            if (first != null)
             {
-                toastService.ShowToast("Failed to load other process: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
-                // fallback to empty VM
-                EditVM = new SyrupOtherProcess { SyrupPlanningID = Model.Id };
+                EditVM = new SyrupOtherProcess
+                {
+                    ID = first.ID,
+                    SyrupPlanningID = first.SyrupPlanningID,
+                    DynamicFormID = first.DynamicFormID,
+                    OtherJobsInformation = first.OtherJobsInformation,
+                    ProcessName = first.ProcessName,
+                    ProfileNo = first.ProfileNo,
+                    SyrupOtherProcessNextProcess = first.SyrupOtherProcessNextProcess,
+                    MustCompleteForNext = first.MustCompleteForNext,
+                    LocationOfProcess = first.LocationOfProcess,
+                    ManhoursOrHours = first.ManhoursOrHours,
+                    NoOfManpower = first.NoOfManpower,
+                    ManpowerFromNextProcess = first.ManpowerFromNextProcess,
+                    CanCarryoutOnNonWorkday = first.CanCarryoutOnNonWorkday,
+                    TimeGapHour = first.TimeGapHour,
+                    AddedByUserID = first.AddedByUserID,
+                    ModifiedBy = first.ModifiedBy,
+                    ModifiedDate = first.ModifiedDate
+                };
+            }
+            else
+            {
+                // create a new record stub bound to parent
+                EditVM = new SyrupOtherProcess
+                {
+                    SyrupPlanningID = Model.Id,
+                    AddedByUserID = applicationUser?.UserID,
+                    ModifiedBy = applicationUser?.LoginID,
+                    ModifiedDate = DateTime.Now
+                };
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Parent not saved yet — prepare blank child with no parent id
-            EditVM = new SyrupOtherProcess
-            {
-                SyrupPlanningID = 0,
-                AddedByUserID = applicationUser?.UserID,
-                ModifiedBy = applicationUser?.LoginID,
-                ModifiedDate = DateTime.Now
-            };
+            toastService.ShowToast("Failed to load other process: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+            // fallback to empty VM
+            EditVM = new SyrupOtherProcess { SyrupPlanningID = Model.Id };
         }
+        
+        
     }
 
     // Called after any input change — updates audit info and notifies parent.

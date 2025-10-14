@@ -89,8 +89,14 @@
     <!-- 4. Secondary Packing -->
     <DxFormLayoutGroup Caption="4. Secondary Packing" ColSpanMd="12">
         <DxFormLayoutItem Caption="Secondary Packing same as Primary time?" ColSpanMd="6">
-            <DxCheckBox Checked="EditVM.SecondarySameAsPrimaryTime"
-                        CheckedChanged="@((bool v) => { EditVM.SecondarySameAsPrimaryTime = v; _ = OnInputChanged(); })" />
+            <DxRadioGroup Items="@RadioButtonOptions"
+                          Value="@(EditVM.SecondarySameAsPrimaryTime ? "Yes" : "No")"
+                          ValueChanged="@(async (string v) =>
+                                                    {
+                              EditVM.SecondarySameAsPrimaryTime = (v == "Yes");
+                              await OnInputChanged();
+                          })"
+                          Layout="RadioGroupLayout.Horizontal" />
         </DxFormLayoutItem>
 
         <DxFormLayoutItem Caption="Secondary Packing /Hours" ColSpanMd="6">
@@ -163,67 +169,55 @@
     async Task LoadDataAsync()
     {
         try
-        {
-            if (Model != null && Model.Id > 0)
-            {
-                // get existing fillings by parent id; take the first if you only want one record
-                var rows = await Mediator.Send(new GetSyrupFillingListQuery());
-                _SyrupFillingList = rows?.ToList() ?? new List<SyrupFilling>();
+        {           
+            
+            var rows = await Mediator.Send(new GetSyrupFillingListQuery());
+            _SyrupFillingList = rows?.ToList() ?? new List<SyrupFilling>();
 
-                var first = _SyrupFillingList.FirstOrDefault();
-                if (first != null)
+            var first = _SyrupFillingList.FirstOrDefault();
+            if (first != null)
+            {
+                EditVM = new SyrupFilling
                 {
-                    EditVM = new SyrupFilling
-                    {
-                        ID = first.ID,
-                        SyrupPlanningID = first.SyrupPlanningID,
-                        ProfileNo = first.ProfileNo,
-                        ProcessName_Primary = first.ProcessName_Primary,
-                        NextProcessName_Primary = first.NextProcessName_Primary,
-                        PlanningType_Primary = first.PlanningType_Primary,
-                        PrimaryFillingMachine = first.PrimaryFillingMachine,
-                        TypeOfPlanningProcess = first.TypeOfPlanningProcess,
-                        FillingHours_Level1 = first.FillingHours_Level1,
-                        FillingManpower_Level1 = first.FillingManpower_Level1,
-                        Speed_BottlePerMinute = first.Speed_BottlePerMinute,
-                        ChangePackingFillingHours = first.ChangePackingFillingHours,
-                        FillingHours_Level2 = first.FillingHours_Level2,
-                        FillingManpower_Level2 = first.FillingManpower_Level2,
-                        SecondarySameAsPrimaryTime = first.SecondarySameAsPrimaryTime,
-                        SecondaryPackingHours = first.SecondaryPackingHours,
-                        SecondaryManpower = first.SecondaryManpower,
-                        ProcessName_Secondary = first.ProcessName_Secondary,
-                        NextProcessName_Secondary = first.NextProcessName_Secondary,
-                        RequireOfflinePacking = first.RequireOfflinePacking,
-                        ModifiedBy = first.ModifiedBy,
-                        ModifiedDate = first.ModifiedDate,
-                        AddedByUserID = first.AddedByUserID,
-                        Description = first.Description
-                    };
-                }
-                else
-                {
-                    // new blank record with parent FK filled if known
-                    EditVM = new SyrupFilling
-                    {
-                        SyrupPlanningID = Model.Id,
-                        AddedByUserID = applicationUser?.UserID,
-                        ModifiedBy = applicationUser?.LoginID,
-                        ModifiedDate = DateTime.Now
-                    };
-                }
+                    ID = first.ID,
+                    SyrupPlanningID = first.SyrupPlanningID,
+                    ProfileNo = first.ProfileNo,
+                    ProcessName_Primary = first.ProcessName_Primary,
+                    NextProcessName_Primary = first.NextProcessName_Primary,
+                    PlanningType_Primary = first.PlanningType_Primary,
+                    PrimaryFillingMachine = first.PrimaryFillingMachine,
+                    TypeOfPlanningProcess = first.TypeOfPlanningProcess,
+                    FillingHours_Level1 = first.FillingHours_Level1,
+                    FillingManpower_Level1 = first.FillingManpower_Level1,
+                    Speed_BottlePerMinute = first.Speed_BottlePerMinute,
+                    ChangePackingFillingHours = first.ChangePackingFillingHours,
+                    FillingHours_Level2 = first.FillingHours_Level2,
+                    FillingManpower_Level2 = first.FillingManpower_Level2,
+                    SecondarySameAsPrimaryTime = first.SecondarySameAsPrimaryTime,
+                    SecondaryPackingHours = first.SecondaryPackingHours,
+                    SecondaryManpower = first.SecondaryManpower,
+                    ProcessName_Secondary = first.ProcessName_Secondary,
+                    NextProcessName_Secondary = first.NextProcessName_Secondary,
+                    RequireOfflinePacking = first.RequireOfflinePacking,
+                    ModifiedBy = first.ModifiedBy,
+                    ModifiedDate = first.ModifiedDate,
+                    AddedByUserID = first.AddedByUserID,
+                    Description = first.Description
+                };
             }
             else
             {
-                // parent not saved yet — create blank VM
+                // new blank record with parent FK filled if known
                 EditVM = new SyrupFilling
                 {
-                    SyrupPlanningID = 0,
+                    SyrupPlanningID = Model.Id,
                     AddedByUserID = applicationUser?.UserID,
                     ModifiedBy = applicationUser?.LoginID,
                     ModifiedDate = DateTime.Now
                 };
             }
+            
+            
         }
         catch (Exception ex)
         {

@@ -143,6 +143,7 @@
             ShowSearchBox="true"
             Data="TimingDetails"
             KeyFieldName="ID"
+            CustomizeElement="Grid_CustomizeElement"
             TextWrapEnabled="false"            
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -449,5 +450,13 @@
         var h = hours.Value;
         if (h < 1) return $"{h * 60:N0} min";
         return $"{h:N1} hrs";
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
     }
 }

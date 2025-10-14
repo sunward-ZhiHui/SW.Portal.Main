@@ -174,8 +174,9 @@
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@onScheduler">
     <BodyContentTemplate>
-        <div style="height: calc(100vh - 150px);overflow:auto;overflow-x:auto">
-            <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage>
+        <div>
+            @* <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage> *@
+            <AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage>
         </div>
     </BodyContentTemplate>
 </DxPopup>

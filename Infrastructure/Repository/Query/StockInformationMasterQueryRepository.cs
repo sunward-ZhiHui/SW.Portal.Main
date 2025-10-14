@@ -240,30 +240,69 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                List<SyrupFilling> aCItemsModels = new List<SyrupFilling>();
-                var parameters = new DynamicParameters();
-                var query = @"select t2.DynamicFormID,t1.DynamicFormDataItemID as ID,t1.ProfileNo,
-                                t1.[13213_Primaryfillingmachine] as PrimaryFillingMachine,
-                                t1.[13230_TypeofPlanningProcess] as TypeOfPlanningProcess,
-                                t1.[13223_1FillingHours] as FillingHours,
-                                t1.[13225_1FillingManpower] as FillingManpower,
-                                t1.[13218_ChangePackingFillingHours] as ChangePackingFillingHours,
-                                t1.ModifiedBy,t1.ModifiedDate
-                                from DynamicForm_ProdTimingSyrupPackingGrid t1
-                                INNER JOIN DynamicFormData t2 on t2.DynamicFormDataID = t1.DynamicFormDataID
-                                where t1.DynamicFormDataGridId = 85012";
+                var query = @"SELECT
+                        1 AS SyrupPlanningID,
+                        t2.DynamicFormID AS DynamicFormID,
+                        t1.DynamicFormDataID AS DynamicFormDataID,
+                        t1.DynamicFormDataItemID AS DynamicFormDataItemID,
+                        t1.ProfileNo AS ProfileNo,
+
+                        -- Primary Packing
+                        t1.[13265_ProductionPlanningProcess] AS ProcessName_Primary,
+                        t1.[13266_ProductionPlanningProcess] AS NextProcessName_Primary,
+                        t1.[13230_TypeofPlanningProcess] AS PlanningType_Primary,
+
+                        -- Machine Filling / Primary Filling
+                        t1.[13213_Primaryfillingmachine] AS PrimaryFillingMachine,
+                        t1.[13219_Level1hours] AS FillingHours_Level1,
+                        t1.[13220_Level1manpower] AS FillingManpower_Level1,
+                        t1.[13224_1FillingSpeedbottleminutes] AS Speed_BottlePerMinute,
+                        t1.[13218_ChangePackingFillingHours] AS ChangePackingFillingHours,
+                        t1.[13221_Level2hours] AS FillingHours_Level2,
+                        t1.[13222_Level2Manpower] AS FillingManpower_Level2,
+
+                        -- Secondary Packing
+                        CAST(
+  CASE 
+    WHEN LOWER(LTRIM(RTRIM(t1.[13256_SecondaryPackingTimeisthesameasPrimarypackingtime]))) = 'yes' THEN 1
+    ELSE 0
+  END AS bit
+) AS SecondarySameAsPrimaryTime,
+
+                        t1.[13256_1944_SecondaryPackingHours] AS SecondaryPackingHours,
+                        t1.[13256_1945_NoofManpower] AS SecondaryManpower,
+                        t1.[13267_ProductionPlanningProcess] AS ProcessName_Secondary,
+                        t1.[13268_ProductionPlanningProcess] AS NextProcessName_Secondary,
+                        t1.[13270_Syruprequireofflinepacking] AS RequireOfflinePacking,
+
+                        -- Generic short-named fields (map to common properties)
+                        t1.[13230_TypeofPlanningProcess] AS TypeOfPlanningProcess,
+                        t1.[13223_1FillingHours] AS FillingHours,
+                        t1.[13225_1FillingManpower] AS FillingManpower,
+
+                        -- metadata
+                        1 AS AddedByUserID,
+                        '' AS Description,
+                        t1.ModifiedBy AS ModifiedBy,
+                        t1.ModifiedDate AS ModifiedDate
+
+                    FROM DynamicForm_ProdTimingSyrupPackingGrid t1
+                    INNER JOIN DynamicFormData t2 on t2.DynamicFormDataID = t1.DynamicFormDataID
+                    WHERE t1.DynamicFormDataGridId = 85012;
+                    ";
+
                 using (var connection = CreateConnection())
                 {
-                    aCItemsModels = (await connection.QueryAsync<SyrupFilling>(query, parameters)).ToList();
+                    var list = (await connection.QueryAsync<SyrupFilling>(query)).ToList();
+                    return list;
                 }
-
-                return aCItemsModels;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<IReadOnlyList<SyrupOtherProcess>> GetSyrupOtherProcessList()
         {
             try

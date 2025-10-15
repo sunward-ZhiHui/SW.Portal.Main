@@ -60,23 +60,23 @@ namespace Core.EntityModels
 
         // Syrup Preparation
         public string? SyrupPreparationLocation { get; set; }
-        public decimal PreparationFirstVolumePerHour { get; set; }
+        public decimal? PreparationFirstVolumePerHour { get; set; }
         public int PreparationFirstVolumeManpower { get; set; }
 
         public bool IpqcTestRequired { get; set; } // True/False instead of "2. IPQC test"
 
-        public decimal PreparationTopUpPerHour { get; set; }
-        public int PreparationTopUpManpower { get; set; }
+        public decimal? PreparationTopUpPerHour { get; set; }
+        public int? PreparationTopUpManpower { get; set; }
 
-        public int CampaignBatches { get; set; }
+        public int? CampaignBatches { get; set; }
 
         // Cleaning Level 1
-        public decimal Level1CleaningHours { get; set; }
-        public int Level1CleaningManpower { get; set; }
+        public decimal? Level1CleaningHours { get; set; }
+        public int? Level1CleaningManpower { get; set; }
 
         // Cleaning Level 2 (repeated section for Syrup Preparation)
-        public decimal SyrupLevel2CleaningHours { get; set; }
-        public int SyrupLevel2CleaningManpower { get; set; }
+        public decimal? SyrupLevel2CleaningHours { get; set; }
+        public int? SyrupLevel2CleaningManpower { get; set; }
 
         public string? NextProcessNameAfterPreparation { get; set; }
         public List<SyrupOtherProcess> SyrupOtherProcesses { get; set; } = new List<SyrupOtherProcess>();

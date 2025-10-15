@@ -350,15 +350,68 @@ namespace Infrastructure.Repository.Query
             {
                 List<SyrupPlanning> aCItemsModels = new List<SyrupPlanning>();
                 var parameters = new DynamicParameters();
-                var query = @"select t1.DynamicFormDataItemID,t1.DynamicFormDataID,t1.ProfileNo,t1.[13192_MethodCode] as MethodName,t1.[13192_MethodCode] as MethodCode,t1.[13192_MethodCode_UId] as MethodCodeID,t1.[13193_BatchSizeL] as BatchSizeInLiters,t1.[13262_RestrictiononPlanningday] as RestrictionOnPlanningDay,
-                                t1.[13229_IsthereSyrupSimplextoproduce] as IsthereSyrupSimplextoproduce,t1.[13229_2003_ProcessName] as ProcessName,t1.[13202_Location] as SyrupSimplexLocation,
-                                t1.[13229_1955_1PreparationHour] as PreparationPerHour,ISNULL(NULLIF(t1.[13229_1956_SyrupSimplexManpower], ''), 0) as SyrupSimplexManpower,t1.[13211_Level2Cleaninghours] as Level2CleaningHours,
-                                t1.[13212_Level2CleaningManpower] as Level2CleaningManpower,t1.[13229_2009_NoofCampaign] as NoOfCampaign,t1.[13229_2004_NextProcessName] as NextProcessName,
-                                t1.[13229_1954_Location] as SyrupPreparationLocation,t1.[13203_1PreparationfirstVolumnHour] as PreparationFirstVolumePerHour,t1.[13204_1PreparationFirstVolumnManpower] as PreparationFirstVolumeManpower,
-                                t1.[13205_2IPQCtest] as IpqcTestRequired,t1.[13206_3PreparationTopuptoVolumnHour] as PreparationTopUpPerHour,t1.[13207_3PreparationTopuptoVolumnManpower] as PreparationTopUpManpower,
-                                t1.[13208_CampaignBatchesNumbers] as CampaignBatches,t1.[13209_Level1CleaningHours] as Level1CleaningHours,t1.[13210_Level1Cleaningmanpower] as Level1CleaningManpower,
-                                t1.[13229_1957_Level2CleaningHours] as SyrupLevel2CleaningHours,t1.[13229_1958_Level2CleaningManpower] as SyrupLevel2CleaningManpower,t1.[13229_2004_NextProcessName]  as NextProcessNameAfterPreparation
-                                from DynamicForm_ProductiontimingNMachineInfosyrup t1";
+                var query = @"SELECT    ISNULL(TRY_CAST(NULLIF(t1.DynamicFormDataItemID, '') AS BIGINT), 0) AS DynamicFormDataItemID,
+    ISNULL(TRY_CAST(NULLIF(t1.DynamicFormDataID, '') AS BIGINT), 0) AS DynamicFormDataID,
+    t1.ProfileNo,
+
+    -- Method code/name/id (keep as strings except UId which might be numeric)
+    t1.[13192_MethodCode] AS MethodName,
+    t1.[13192_MethodCode] AS MethodCode,
+    ISNULL(TRY_CAST(NULLIF(t1.[13192_MethodCode_UId], '') AS BIGINT), 0) AS MethodCodeID,
+
+    -- Batch size (decimal)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13193_BatchSizeL], '-', ''), '') AS DECIMAL(18,2)), 0) AS BatchSizeInLiters,
+
+    t1.[13262_RestrictiononPlanningday] AS RestrictionOnPlanningDay,
+    t1.[13229_IsthereSyrupSimplextoproduce] AS IsthereSyrupSimplextoproduce,
+    t1.[13229_2003_ProcessName] AS ProcessName,
+    t1.[13202_Location] AS SyrupSimplexLocation,
+
+    -- Preparation per hour (decimal) — remove hyphen or empty and try cast
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13229_1955_1PreparationHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationPerHour,
+
+    -- SyrupSimplexManpower (int) — handle empty/non-numeric
+    ISNULL(TRY_CAST(NULLIF(t1.[13229_1956_SyrupSimplexManpower], '') AS INT), 0) AS SyrupSimplexManpower,
+
+    -- Level2 cleaning hours & manpower for the top-level section
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13211_Level2Cleaninghours], '-', ''), '') AS DECIMAL(18,2)), 0) AS Level2CleaningHours,
+    ISNULL(TRY_CAST(NULLIF(t1.[13212_Level2CleaningManpower], '') AS INT), 0) AS Level2CleaningManpower,
+
+    t1.[13229_2009_NoofCampaign] AS NoOfCampaign,
+    t1.[13229_2004_NextProcessName] AS NextProcessName,
+
+    t1.[13229_1954_Location] AS SyrupPreparationLocation,
+
+    -- Preparation first volume per hour (decimal) and manpower (int)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13203_1PreparationfirstVolumnHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationFirstVolumePerHour,
+    ISNULL(TRY_CAST(NULLIF(t1.[13204_1PreparationFirstVolumnManpower], '') AS INT), 0) AS PreparationFirstVolumeManpower,
+
+    -- IPQC test -> boolean mapping (common values: '1','0','Yes','No','Y','N')
+    CASE
+        WHEN LOWER(NULLIF(t1.[13205_2IPQCtest], '')) IN ('1','true','t','yes','y') THEN 1
+        ELSE 0
+    END AS IpqcTestRequired,
+
+    -- Preparation top up per hour / manpower
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13206_3PreparationTopuptoVolumnHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationTopUpPerHour,
+    ISNULL(TRY_CAST(NULLIF(t1.[13207_3PreparationTopuptoVolumnManpower], '') AS INT), 0) AS PreparationTopUpManpower,
+
+    t1.[13208_CampaignBatchesNumbers] AS CampaignBatches,
+
+    -- Level1 cleaning hours & manpower (decimal / int)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13209_Level1CleaningHours], '-', ''), '') AS DECIMAL(18,2)), 0) AS Level1CleaningHours,
+    ISNULL(TRY_CAST(NULLIF(t1.[13210_Level1Cleaningmanpower], '') AS INT), 0) AS Level1CleaningManpower,
+
+    -- The problematic column: SyrupLevel2CleaningHours -> safe cast (DECIMAL)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13229_1957_Level2CleaningHours], '-', ''), '') AS DECIMAL(18,2)), 0) AS SyrupLevel2CleaningHours,
+
+    -- SyrupLevel2CleaningManpower (int)
+    ISNULL(TRY_CAST(NULLIF(t1.[13229_1958_Level2CleaningManpower], '') AS INT), 0) AS SyrupLevel2CleaningManpower,
+
+    -- Next process after preparation
+    t1.[13229_2004_NextProcessName] AS NextProcessNameAfterPreparation
+
+FROM DynamicForm_ProductiontimingNMachineInfosyrup t1";
                 using (var connection = CreateConnection())
                 {
                     aCItemsModels = (await connection.QueryAsync<SyrupPlanning>(query, parameters)).ToList();
@@ -378,19 +431,68 @@ namespace Infrastructure.Repository.Query
             {
                 List<SyrupPlanning> aCItemsModels = new List<SyrupPlanning>();
                 var parameters = new DynamicParameters();
-                var query = @"select t3.MethodCodeLineID,t2.MethodName,t2.MethodCodeID,t4.No as itemno,t4.Description,t4.Description2,t4.CategoryID,
-                                t1.ProfileNo,t1.[13192_MethodCode] as MethodCode,t1.[13193_BatchSizeL] as BatchSizeInLiters,t1.[13262_RestrictiononPlanningday] as RestrictionOnPlanningDay,
-                                t1.[13229_IsthereSyrupSimplextoproduce] as IsthereSyrupSimplextoproduce,t1.[13229_2003_ProcessName] as ProcessName,t1.[13202_Location] as SyrupSimplexLocation,
-                                t1.[13229_1955_1PreparationHour] as PreparationPerHour,ISNULL(NULLIF(t1.[13229_1956_SyrupSimplexManpower], ''), 0) as SyrupSimplexManpower,t1.[13211_Level2Cleaninghours] as Level2CleaningHours,
-                                t1.[13212_Level2CleaningManpower] as Level2CleaningManpower,t1.[13229_2009_NoofCampaign] as NoOfCampaign,t1.[13229_2004_NextProcessName] as NextProcessName,
-                                t1.[13229_1954_Location] as SyrupPreparationLocation,t1.[13203_1PreparationfirstVolumnHour] as PreparationFirstVolumePerHour,t1.[13204_1PreparationFirstVolumnManpower] as PreparationFirstVolumeManpower,
-                                t1.[13205_2IPQCtest] as IpqcTestRequired,t1.[13206_3PreparationTopuptoVolumnHour] as PreparationTopUpPerHour,t1.[13207_3PreparationTopuptoVolumnManpower] as PreparationTopUpManpower,
-                                t1.[13208_CampaignBatchesNumbers] as CampaignBatches,t1.[13209_Level1CleaningHours] as Level1CleaningHours,t1.[13210_Level1Cleaningmanpower] as Level1CleaningManpower,
-                                t1.[13229_1957_Level2CleaningHours] as SyrupLevel2CleaningHours,t1.[13229_1958_Level2CleaningManpower] as SyrupLevel2CleaningManpower,t1.[13229_2004_NextProcessName]  as NextProcessNameAfterPreparation
-                                from DynamicForm_ProductiontimingNMachineInfosyrup t1
-                                inner join navmethodcode t2 on t2.MethodCodeID = t1.[13192_MethodCode_UId]
-                                inner join navmethodcodelines t3 on t3.MethodCodeID = t2.MethodCodeID
-                                inner join NAVItems t4 on t4.ItemId = t3.ItemID";
+                var query = @"SELECT    ISNULL(TRY_CAST(NULLIF(t1.DynamicFormDataItemID, '') AS BIGINT), 0) AS DynamicFormDataItemID,
+    ISNULL(TRY_CAST(NULLIF(t1.DynamicFormDataID, '') AS BIGINT), 0) AS DynamicFormDataID,
+    t1.ProfileNo,
+
+    -- Method code/name/id (keep as strings except UId which might be numeric)
+    t1.[13192_MethodCode] AS MethodName,
+    t1.[13192_MethodCode] AS MethodCode,
+    ISNULL(TRY_CAST(NULLIF(t1.[13192_MethodCode_UId], '') AS BIGINT), 0) AS MethodCodeID,
+
+    -- Batch size (decimal)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13193_BatchSizeL], '-', ''), '') AS DECIMAL(18,2)), 0) AS BatchSizeInLiters,
+
+    t1.[13262_RestrictiononPlanningday] AS RestrictionOnPlanningDay,
+    t1.[13229_IsthereSyrupSimplextoproduce] AS IsthereSyrupSimplextoproduce,
+    t1.[13229_2003_ProcessName] AS ProcessName,
+    t1.[13202_Location] AS SyrupSimplexLocation,
+
+    -- Preparation per hour (decimal) — remove hyphen or empty and try cast
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13229_1955_1PreparationHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationPerHour,
+
+    -- SyrupSimplexManpower (int) — handle empty/non-numeric
+    ISNULL(TRY_CAST(NULLIF(t1.[13229_1956_SyrupSimplexManpower], '') AS INT), 0) AS SyrupSimplexManpower,
+
+    -- Level2 cleaning hours & manpower for the top-level section
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13211_Level2Cleaninghours], '-', ''), '') AS DECIMAL(18,2)), 0) AS Level2CleaningHours,
+    ISNULL(TRY_CAST(NULLIF(t1.[13212_Level2CleaningManpower], '') AS INT), 0) AS Level2CleaningManpower,
+
+    t1.[13229_2009_NoofCampaign] AS NoOfCampaign,
+    t1.[13229_2004_NextProcessName] AS NextProcessName,
+
+    t1.[13229_1954_Location] AS SyrupPreparationLocation,
+
+    -- Preparation first volume per hour (decimal) and manpower (int)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13203_1PreparationfirstVolumnHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationFirstVolumePerHour,
+    ISNULL(TRY_CAST(NULLIF(t1.[13204_1PreparationFirstVolumnManpower], '') AS INT), 0) AS PreparationFirstVolumeManpower,
+
+    -- IPQC test -> boolean mapping (common values: '1','0','Yes','No','Y','N')
+    CASE
+        WHEN LOWER(NULLIF(t1.[13205_2IPQCtest], '')) IN ('1','true','t','yes','y') THEN 1
+        ELSE 0
+    END AS IpqcTestRequired,
+
+    -- Preparation top up per hour / manpower
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13206_3PreparationTopuptoVolumnHour], '-', ''), '') AS DECIMAL(18,2)), 0) AS PreparationTopUpPerHour,
+    ISNULL(TRY_CAST(NULLIF(t1.[13207_3PreparationTopuptoVolumnManpower], '') AS INT), 0) AS PreparationTopUpManpower,
+
+    t1.[13208_CampaignBatchesNumbers] AS CampaignBatches,
+
+    -- Level1 cleaning hours & manpower (decimal / int)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13209_Level1CleaningHours], '-', ''), '') AS DECIMAL(18,2)), 0) AS Level1CleaningHours,
+    ISNULL(TRY_CAST(NULLIF(t1.[13210_Level1Cleaningmanpower], '') AS INT), 0) AS Level1CleaningManpower,
+
+    -- The problematic column: SyrupLevel2CleaningHours -> safe cast (DECIMAL)
+    ISNULL(TRY_CAST(NULLIF(REPLACE(t1.[13229_1957_Level2CleaningHours], '-', ''), '') AS DECIMAL(18,2)), 0) AS SyrupLevel2CleaningHours,
+
+    -- SyrupLevel2CleaningManpower (int)
+    ISNULL(TRY_CAST(NULLIF(t1.[13229_1958_Level2CleaningManpower], '') AS INT), 0) AS SyrupLevel2CleaningManpower,
+
+    -- Next process after preparation
+    t1.[13229_2004_NextProcessName] AS NextProcessNameAfterPreparation
+
+FROM DynamicForm_ProductiontimingNMachineInfosyrup t1";
                 using (var connection = CreateConnection())
                 {
                     aCItemsModels = (await connection.QueryAsync<SyrupPlanning>(query, parameters)).ToList();

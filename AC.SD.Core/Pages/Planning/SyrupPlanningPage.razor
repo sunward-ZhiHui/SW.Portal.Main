@@ -99,8 +99,8 @@
         ShowGroupPanel="true" 
         ShowGroupedColumns="true" 
         ShowSearchBox="true"            
-            Data="_syrupPlanningList"         
-            KeyFieldName="MethodCodeLineID"
+            Data="_syrupPlanningList"
+            KeyFieldName="DynamicFormDataItemID"
             TextWrapEnabled="false"
             CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -165,7 +165,7 @@
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="100%" @bind-Visible="@onSyrupReport">
     <BodyContentTemplate>
         <div style="height: calc(100vh - 150px);overflow-y:auto;overflow-x:hidden;">
-            <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport>
+            <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport SyrupPlanningData="_selectedItems"></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupReport>
         </div>
     </BodyContentTemplate>
 </DxPopup>
@@ -176,7 +176,7 @@
     <BodyContentTemplate>
         <div>
             @* <AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.SyrupSchedulerPage> *@
-            <AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage></AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage>
+            <AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage SyrupPlanningData="_selectedItems"></AC.SD.Core.Pages.Planning.PlanningDetails.GenerateSchedulerPage>
         </div>
     </BodyContentTemplate>
 </DxPopup>
@@ -314,8 +314,8 @@
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MethodCodeLineID");
-        _selectedItems = _syrupPlanningList.FirstOrDefault(f => f.MethodCodeLineID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataItemID");
+        _selectedItems = _syrupPlanningList.FirstOrDefault(f => f.DynamicFormDataItemID == (long?)UniqueId);
 
         //PanelWidth = "580px";
         //IsDrawerOpen = true;

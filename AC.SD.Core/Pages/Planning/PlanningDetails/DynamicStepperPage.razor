@@ -158,7 +158,7 @@ else
         // Load step labels dynamically
         try
         {
-            ProcessNames = (await StockQueryRepo.GetSyrupProcessNameList()).ToList();
+            ProcessNames = (await StockQueryRepo.GetSyrupProcessNameList(85012)).ToList();
             // Optionally, ensure at least one step exists:
             if (ProcessNames == null || ProcessNames.Count == 0)
             {

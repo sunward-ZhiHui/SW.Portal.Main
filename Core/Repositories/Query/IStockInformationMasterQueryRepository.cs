@@ -18,15 +18,15 @@ namespace Core.Repositories.Query
         Task<StockInformationMaster> DeleteStockInformationMaster(StockInformationMaster value);
         Task<StockInformationMaster> InsertOrUpdateStockInformationMaster(StockInformationMaster value);
         Task<IReadOnlyList<SyrupPlanning>> GetSyrupPlannings();
-        Task<IReadOnlyList<SyrupProcessNameList>> GetSyrupProcessNameList();        
-        Task<SyrupPlanning> SelectSyrupSimplexDataList(long methodCodeId);
-        Task<SyrupPlanning> SelectSyruppreparationDataList(long methodCodeId);
-        Task<IReadOnlyList<SyrupFilling>> GetSyrupFillingList();
+        Task<IReadOnlyList<SyrupProcessNameList>> GetSyrupProcessNameList(long? DynamicFormDataID);        
+        Task<SyrupPlanning> SelectSyrupSimplexDataList(long? DynamicFormDataID);
+        Task<SyrupPlanning> SelectSyruppreparationDataList(long? DynamicFormDataID);
+        Task<IReadOnlyList<SyrupFilling>> GetSyrupFillingList(long? DynamicFormDataID);
         Task<IReadOnlyList<SyrupOtherProcess>> GetSyrupOtherProcessList();
         Task<SyrupPlanning> InsertOrUpdateSyrupPlanningAsync(SyrupPlanning model);
         Task SaveSyrupOtherProcessesAsync(long syrupPlanningId, IEnumerable<SyrupOtherProcess> items);
         Task SaveSyrupFillingAsync(long syrupPlanningId, IEnumerable<SyrupFilling> items);
-        Task<IReadOnlyList<ProcessStepDto>> GetProcessFlowByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
+        Task<IReadOnlyList<ProcessStepDto>> GetProcessFlowByProfileNoAsync(long DynamicFormDataID, DateTime productionDay, TimeSpan shiftStart, int? weekOfMonth = null,    int? month = null,    int? year = null);
         Task<IReadOnlyList<TimingDetailDto>> GetTimingDetailsByProfileNoAsync(string profileNo);
         Task<IReadOnlyList<MachineInfoDto>> GetMachineInfoByProfileNoAsync(string profileNo);
         Task<IReadOnlyList<ProductItemDto>> GetProductItemsByMethodCodeAsync(int methodCodeId);
@@ -34,7 +34,9 @@ namespace Core.Repositories.Query
         Task<ProductItemDto?> GetMasterByMethodCodeAsync(int methodCodeId);
         Task<TimingOverviewDto?> GetTimingOverviewByProfileNoAsync(string profileNo);
         Task<IReadOnlyList<TaskData>> GetProductionGanttRowsAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
-        Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart);
+        Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart,long? SelectDynamicFormDataID = null,int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null);
+        Task<bool> CheckSyrupOtherProcessExists(long DynamicFormDataID);
+        Task<(List<GanttTaskDto> Tasks, List<GanttSegmentDto> Segments)> GetGanttTasksAndSegmentsByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
 
     }
 }

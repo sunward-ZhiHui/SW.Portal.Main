@@ -21,14 +21,18 @@ namespace Core.EntityModels
         public string? RestrictionOnPlanningDay { get; set; }
         public string? ProcessName { get; set; }
 
+        public int? WeekOfMonth { get; set; }
+        public int? Month { get; set; }
+        public int? Year { get; set; }
+
         // Syrup Simplex process
-        public string? IsthereSyrupSimplextoproduce { get; set; }        
+        public string? IsthereSyrupSimplextoproduce { get; set; }
         public string? SyrupSimplexProcessName { get; set; }
         public string? SyrupSimplexLocation { get; set; }
         public string? SyrupSimplexPreparationHour { get; set; }
         public int SyrupSimplexManpower { get; set; }
         public string? SyrupSimplexLevel2CleaningHours { get; set; }
-        public int SyrupSimplexLevel2CleaningManpower{ get; set; }
+        public int SyrupSimplexLevel2CleaningManpower { get; set; }
         public int SyrupSimplexNoofCampaign { get; set; }
         public string? SyrupSimplexNextProcessName { get; set; }
 
@@ -49,7 +53,7 @@ namespace Core.EntityModels
         public string? SyruppreparationNextProcessName { get; set; }
 
         public decimal PreparationPerHour { get; set; }
-    
+
 
         // Cleaning Level 2
         public decimal Level2CleaningHours { get; set; }
@@ -95,13 +99,13 @@ namespace Core.EntityModels
             public long DynamicFormDataItemID { get; set; }
             public string ProcessName { get; set; } = "";
             public string ProfileNo { get; set; } = "";
-       
+
             public string TypeOfPlanningProcess { get; set; } = "";
             public string FillingHours { get; set; } = "";
-            public string FillingManpower { get; set; } = "";           
+            public string FillingManpower { get; set; } = "";
             public string ModifiedBy { get; set; } = "";
             public DateTime ModifiedDate { get; set; }
-           
+
 
             // Primary Packing
             public string? ProcessName_Primary { get; set; }
@@ -125,7 +129,7 @@ namespace Core.EntityModels
             public string? NextProcessName_Secondary { get; set; }
             public string? RequireOfflinePacking { get; set; }
             public long? AddedByUserID { get; set; }
-            public string? Description { get; set; }          
+            public string? Description { get; set; }
 
 
         }
@@ -133,7 +137,7 @@ namespace Core.EntityModels
         {
             public long ID { get; set; }
             public long DynamicFormID { get; set; }
-            public long DynamicFormDataItemID { get;set; }
+            public long DynamicFormDataItemID { get; set; }
             public long SyrupPlanningID { get; set; }
             public long DynamicFormDataID { get; set; }
             public string? OtherJobsInformation { get; set; }
@@ -147,7 +151,7 @@ namespace Core.EntityModels
 
             public decimal? ManhoursOrHours { get; set; }
 
-            public int? NoOfManpower { get; set; } 
+            public int? NoOfManpower { get; set; }
 
             public string? ManpowerFromNextProcess { get; set; }
 
@@ -156,9 +160,33 @@ namespace Core.EntityModels
             public decimal? TimeGapHour { get; set; }
             public long? AddedByUserID { get; set; }
             public string? Description { get; set; }
-            public string? ModifiedBy { get; set; } 
+            public string? ModifiedBy { get; set; }
             public DateTime ModifiedDate { get; set; }
 
+        }
+
+        public class GanttTaskDto
+        {
+            public int TaskId { get; set; }
+            public string TaskName { get; set; } = string.Empty;
+            public DateTime? StartDate { get; set; }
+            public DateTime? EndDate { get; set; }
+            public string? Duration { get; set; }
+            public int Progress { get; set; }
+            public int? ParentId { get; set; }
+            public string? Predecessor { get; set; }            
+            public int? SyrupPlanningID { get; set; }
+            public int? MethodCodeID { get; set; }
+            public string? MethodName { get; set; }
+        }
+
+        public class GanttSegmentDto
+        {
+            public int id { get; set; }
+            public int TaskId { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime? EndDate { get; set; }
+            public string? Duration { get; set; }
         }
 
     }

@@ -1,4 +1,4 @@
-﻿@page "/syrup-Stepper1"
+﻿@page "/syrup-Stepper1" 
 @using Application.Queries;
 @using MediatR
 @using System.ComponentModel;
@@ -61,6 +61,8 @@
 
 @code {
     [Parameter]
+    public long? DynamicFormDataID { get; set; }
+    [Parameter]
     public List<SyrupProcessNameList> ProcessNames { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool AuditLogPopUp { get; set; } = false;
@@ -111,7 +113,7 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        _SyrupProcessNameList = await Mediator.Send(new GetSyrupProcessNameListQuery());
+        _SyrupProcessNameList = await Mediator.Send(new GetSyrupProcessNameListQuery(DynamicFormDataID));
         ProcessNames = _SyrupProcessNameList;
         EditEnabled = false;
         DeleteEnabled = false;

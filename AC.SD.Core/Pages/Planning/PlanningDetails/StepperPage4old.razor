@@ -339,7 +339,7 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        _SyrupFillingList = await Mediator.Send(new GetSyrupFillingListQuery());
+        _SyrupFillingList = await Mediator.Send(new GetSyrupFillingListQuery(85012));
         EditEnabled = false;
         DeleteEnabled = false;
         if (_SyrupFillingList.Count > 0)

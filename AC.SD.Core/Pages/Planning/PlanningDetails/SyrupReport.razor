@@ -74,65 +74,21 @@
         </div>
     </div>
 
-    <!-- Overview -->
- @*    <div class="card report-card overview-cards">
-        <div class="card-body">
-            <h5>Production Overview</h5>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div class="text-muted">Working Hours</div>
-                        <div class="h4">@Overview?.WorkingHours ?? "—"</div>
-                        <div class="muted-note">@Overview?.WorkingHoursNote</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div class="text-muted">Filling Speed</div>
-                        <div class="h4">@Overview?.FillingSpeed ?? "—"</div>
-                        <div class="muted-note">@Overview?.FillingSpeedNote</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div class="text-muted">Batch Size</div>
-                        <div class="h4">@Overview?.BatchSize ?? "—"</div>
-                        <div class="muted-note">@Overview?.BatchSizeNote</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-3 muted-note">@Overview?.ShortNote</div>
+    <div class="row" style="margin-bottom:10px;">
+        <div class="col-md-9"></div>
+       <div class="col-md-2">
+            <DxDateEdit @bind-Date="DateTimeValue"                        
+                        Mask="@DateTimeMask.MonthAndYear"
+                        CssClass="cw-320"
+                        InputId="deTimeSection" />
+       </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary ml-2" @onclick="ApplyDateFilterAsync">Apply filter</button>
         </div>
-    </div> *@
+    </div>
 
-    <!-- Process Flow -->
-    @* <div class="card report-card">
-        <div class="card-body">
-            <h5>Process Flow</h5>
-            <div class="process-flow mt-3">
-                @if (ProcessFlow?.Any() ?? false)
-                {
-                    foreach (var step in ProcessFlow)
-                    {
-                        <div class="process-step">
-                            <div class="title">@step.Title</div>
-                            <div class="muted-note">@step.Subtitle</div>
-                            <div class="mt-2 meta">Duration: <strong>@(FormatDuration(step.DurationHours))</strong></div>
-                            @if (!string.IsNullOrWhiteSpace(step.Notes))
-                            {
-                                <div class="mt-2"><small class="muted-note">@step.Notes</small></div>
-                            }
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="muted-note">No process flow data available.</div>
-                }
-            </div>          
-        </div>
-    </div> *@
+
+   
 
     <!-- Timing Details -->
 
@@ -185,50 +141,7 @@
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProcessName" />
         </TotalSummary>
     </DxGrid>
-
-
-   @*  <div class="card report-card">
-        <div class="card-body">
-            <h5>Production Timing Details</h5>
-
-            <table class="table table-bordered table-small">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Process</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th style="width:140px">Location</th>
-                        <th style="width:120px">Duration</th>
-                        <th style="width:140px">Manpower</th>
-                        <th style="width:140px">Next Process Timeline</th>                        
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (TimingDetails?.Any() ?? false)
-                    {
-                        foreach (var r in TimingDetails)
-                        {
-                            <tr>
-                                <td>@r.ProcessName</td>
-                                <td>@(r.StartDate?.ToString("dd-MMM-yyyy HH:mm") ?? "—")</td>
-                                <td>@(r.EndDate?.ToString("dd-MMM-yyyy HH:mm") ?? "—")</td>
-                                <td>@(r.Location ?? "—")</td>                                
-                                <td>@(FormatDuration(r.DurationHours))</td>
-                                <td>@(r.Manpower ?? 0)</td>
-                                <td>@(r.NextProcessTimeline ?? "—")</td>                               
-                                
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr><td colspan="5" class="muted-note">No timing data.</td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
- *@
+      
     <!-- Machine Info -->
     <div class="card report-card">
         <div class="card-body">
@@ -288,21 +201,18 @@
             </table>
         </div>
     </div>
-
-    <!-- Key Considerations -->
-@*     <div class="card report-card">
-        <div class="card-body">
-            <h5>Key Planning Considerations</h5>
-            <ul class="list-unstyled">
-                @foreach (var c in KeyConsiderations)
-                {
-                    <li class="mb-2"><strong>@c.Title</strong> — <span class="muted-note">@c.Description</span></li>
-                }
-            </ul>
-        </div>
-    </div> *@
+      
 </div>
 @code {
+    DateTime? DateTimeValue { get; set; } = DateTime.Now;
+
+    int? SelectedWeekOfMonth { get; set; }
+    int? SelectedMonth { get; set; }
+    int? SelectedYear { get; set; }
+
+    [Parameter] 
+    public SyrupPlanning? SyrupPlanningData { get; set; }
+
     IGrid Grid { get; set; }
     [Parameter]
     public int? MethodCodeID { get; set; } = 70;
@@ -313,80 +223,46 @@
     DateTime productionDay = DateTime.Now;
     TimeSpan shiftStart = TimeSpan.FromHours(8); 
 
-    // simple view models for the component
-    class OverviewVm
+
+
+    async Task ApplyDateFilterAsync()
     {
-        public string WorkingHours { get; set; }
-        public string WorkingHoursNote { get; set; }
-        public string FillingSpeed { get; set; }
-        public string FillingSpeedNote { get; set; }
-        public string BatchSize { get; set; }
-        public string BatchSizeNote { get; set; }
-        public string ShortNote { get; set; }
+        if (!DateTimeValue.HasValue)
+        {
+            SelectedWeekOfMonth = SelectedMonth = SelectedYear = null;
+        }
+        else
+        {
+            var d = DateTimeValue.Value;
+            // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            SelectedMonth = d.Month;
+            SelectedYear = d.Year;
+        }
+
+        await LoadReportDataAsync();
     }
 
-    class ProcessStepVm 
-    { 
-        public string Title { get; set; } 
-        public string Subtitle { get; set; } 
-        public decimal? DurationHours { get; set; } 
-        public string Notes { get; set; } 
-    }
-    class TimingRowVm 
-    { 
-        public long ID { get; set; }
-        public string? ProcessName { get; set; } 
-        public decimal? DurationHours { get; set; } 
-        public decimal? Manpower { get; set; }
-        public string Location { get; set; } 
-        public string Notes { get; set; } 
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public string? Room { get; set; }
-        public string? NextProcessTimeline { get; set; }
-    }
-    class MachineVm { public string Name { get; set; } public string Type { get; set; } public string Capacity { get; set; } public string Speed { get; set; } public string Notes { get; set; } }
-    class ProductVm { public string Name { get; set; } public string Code { get; set; } public string PackSize { get; set; } public string Notes { get; set; } }
-    class ConsiderationVm { public string Title { get; set; } public string Description { get; set; } }
-
-    //OverviewVm Overview;
-    List<ProcessStepVm> ProcessFlow = new();
-    //List<TimingRowVm> TimingDetails = new();
-    List<TimingRowVm> TimingDetails = new();
-    List<MachineVm> MachineInfos = new();
-    List<ProductVm> ProductItems = new();
-    List<ConsiderationVm> KeyConsiderations = new();
-
- 
-    TimingOverviewDto? Overview;
-
-    protected override async Task OnInitializedAsync()
+    async Task ClearDateFilterAsync()
     {
+        DateTimeValue = null;
+        SelectedWeekOfMonth = SelectedMonth = SelectedYear = null;
+        await LoadReportDataAsync();
+    }
+    async Task LoadReportDataAsync()
+    {
+        var lst = SyrupPlanningData;
         try
         {
-            string profile = ProfileNo;
-            if (string.IsNullOrEmpty(profile))
-            {
-                if (SyrupPlanningId.HasValue)
-                {
-                    var planning = await Repo.GetSyrupPlanningByIdAsync(SyrupPlanningId.Value);
-                    profile = planning?.ProfileNo;
-                }
-                else if (MethodCodeID.HasValue)
-                {
-                    var master = await Repo.GetMasterByMethodCodeAsync(MethodCodeID.Value);
-                    // master may not include profile -> you might still need to resolve profile from planning table
-                }
-            }
+            string profile = lst.ProfileNo;
 
             if (!string.IsNullOrEmpty(profile))
             {
-                // fetch overview + details
-                Overview = await Repo.GetTimingOverviewByProfileNoAsync(profile) ?? new TimingOverviewDto { ProfileNo = profile };
 
-                var pf = await Repo.GetProcessFlowByProfileNoAsync(profile, productionDay, shiftStart);
+                Overview = await Repo.GetTimingOverviewByProfileNoAsync(profile) ?? new TimingOverviewDto { ProfileNo = profile };
+                var pf = await Repo.GetProcessFlowByProfileNoAsync(lst.DynamicFormDataID, productionDay, shiftStart, SelectedWeekOfMonth,SelectedMonth,SelectedYear);
                 //var td = await Repo.GetTimingDetailsByProfileNoAsync(profile);
-                var td = await Repo.GetProcessFlowByProfileNoAsync(profile, productionDay, shiftStart);
+                var td = await Repo.GetProcessFlowByProfileNoAsync(lst.DynamicFormDataID, productionDay, shiftStart, SelectedWeekOfMonth,SelectedMonth,SelectedYear);
                 var machines = await Repo.GetMachineInfoByProfileNoAsync(profile);
                 var products = MethodCodeID.HasValue ? await Repo.GetProductItemsByMethodCodeAsync(MethodCodeID.Value) : new List<ProductItemDto>();
 
@@ -441,6 +317,76 @@
         {
             toastService.ShowToast("Failed to load report: " + ex.Message, AC.SD.Core.Services.ToastLevel.Error);
         }
+        
+    }
+
+
+    // simple view models for the component
+    class OverviewVm
+    {
+        public string? WorkingHours { get; set; }
+        public string? WorkingHoursNote { get; set; }
+        public string? FillingSpeed { get; set; }
+        public string? FillingSpeedNote { get; set; }
+        public string? BatchSize { get; set; }
+        public string? BatchSizeNote { get; set; }
+        public string? ShortNote { get; set; }
+    }
+
+    class ProcessStepVm 
+    { 
+        public string Title { get; set; } 
+        public string Subtitle { get; set; } 
+        public decimal? DurationHours { get; set; } 
+        public string Notes { get; set; } 
+    }
+    class TimingRowVm 
+    { 
+        public long ID { get; set; }
+        public string? ProcessName { get; set; } 
+        public decimal? DurationHours { get; set; } 
+        public decimal? Manpower { get; set; }
+        public string Location { get; set; } 
+        public string Notes { get; set; } 
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Room { get; set; }
+        public string? NextProcessTimeline { get; set; }
+    }
+    class MachineVm { public string Name { get; set; } public string Type { get; set; } public string Capacity { get; set; } public string Speed { get; set; } public string Notes { get; set; } }
+    class ProductVm { public string Name { get; set; } public string Code { get; set; } public string PackSize { get; set; } public string Notes { get; set; } }
+    class ConsiderationVm { public string Title { get; set; } public string Description { get; set; } }
+
+    //OverviewVm Overview;
+    List<ProcessStepVm> ProcessFlow = new();
+    //List<TimingRowVm> TimingDetails = new();
+    List<TimingRowVm> TimingDetails = new();
+    List<MachineVm> MachineInfos = new();
+    List<ProductVm> ProductItems = new();
+    List<ConsiderationVm> KeyConsiderations = new();
+
+ 
+    TimingOverviewDto? Overview;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lst = SyrupPlanningData;
+
+        if (!DateTimeValue.HasValue)
+        {
+            SelectedWeekOfMonth = SelectedMonth = SelectedYear = null;
+        }
+        else
+        {
+            var d = DateTimeValue.Value;
+            // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            SelectedMonth = d.Month;
+            SelectedYear = d.Year;
+        }
+
+        await LoadReportDataAsync();
+        
     }
 
 

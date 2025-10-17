@@ -1088,5 +1088,15 @@ namespace Application.Queries
             this.DynamicForm = dynamicForm;
         }
     }
+    public class GetOnDynamicFormSyncTables : PagedRequest, IRequest<DynamicForm>
+    {
+        public DynamicForm? DynamicForm { get; set; }
+        public long? UserId { get; set; }
+        public GetOnDynamicFormSyncTables(DynamicForm? dynamicForm,long? userId)
+        {
+            this.DynamicForm = dynamicForm;
+            this.UserId = userId;
+        }
+    }
 }
 

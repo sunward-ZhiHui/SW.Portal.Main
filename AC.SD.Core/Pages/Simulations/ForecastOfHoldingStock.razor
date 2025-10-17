@@ -191,106 +191,106 @@
                         {
                             foreach (var item in _simulationItems)
                             {
-                                <tr>
+                                <tr style="@(item.ItemId == _selectedItems.ItemId ? "background-color:yellow" : "")">
                                     <td>@item.ItemNo</td>
                                     @if (MonthType == "Month1")
                                     {
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>  
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month2")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month3")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month4")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
 
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month5")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month6")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                     @if (MonthType == "Month7")
                                     {
-                                        <td>@(item.ProductionProjectedT1_.HasValue? Math.Round(item.ProductionProjectedT1_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT2_.HasValue? Math.Round(item.ProductionProjectedT2_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT3_.HasValue? Math.Round(item.ProductionProjectedT3_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT4_.HasValue? Math.Round(item.ProductionProjectedT4_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT5_.HasValue? Math.Round(item.ProductionProjectedT5_.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT6_.HasValue? Math.Round(item.ProductionProjectedT6_.Value, 2) : null)</td>
-                                        <td>@(item.AdditionalTickets.HasValue? Math.Round(item.AdditionalTickets.Value, 2) : null)</td>
+                                        <td>@(item.ProductionProjectedT1_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT2_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT3_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT4_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT5_?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT6_?.ToString("N2"))</td>
+                                        <td>@(item.AdditionalTickets?.ToString("N2"))</td>
                                         <td>@item.SymlQty</td>
-                                        <td>@item.PackSize</td>
-                                        <td>@(item.AdditionalAc.HasValue? Math.Round(item.AdditionalAc.Value, 2) : null)</td>
-                                        <td>@(item.ProductionProjectedT7_.HasValue? Math.Round(item.ProductionProjectedT7_.Value, 2) : null)</td>
+                                        <td>@item.BatchSizeValue</td>
+                                        <td>@(item.AdditionalAc?.ToString("N2"))</td>
+                                        <td>@(item.ProductionProjectedT7_?.ToString("N2"))</td>
                                     }
                                 </tr>
                             }
@@ -381,112 +381,8 @@
         if (_simulationItem3 != null)
         {
             _AllsimulationItems = _simulationItem3.Cast<INPCalendarPivotModel>().ToList();
-            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
-        }
-
-        if (_simulationItems?.Any() == true)
-        {
-            _simulationItems.ForEach(s =>
-            {
-                if (MonthType == "Month1")
-                {
-                    s.ProductionProjectedT1_ = s.AdditionalAc - 1;
-                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ != null ? s.ProductionProjectedT1_ - 1 : null;
-                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
-                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
-                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month2")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
-                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
-                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month3")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
-                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
-                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month4")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
-                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
-                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month5")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
-                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
-                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
-                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month6")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
-                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
-                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
-                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
-                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-                if (MonthType == "Month7")
-                {
-                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
-                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
-                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
-                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
-                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
-                    s.ProductionProjectedT6_ = s.ProductionProjected6_;
-                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ + s.AdditionalAc - 1;
-                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
-                }
-            });
+            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).OrderBy(o => o.ItemNo).ToList();
         }
         PanelVisible = false;
-    }
-    decimal RoundUp(decimal value, int decimals)
-    {
-        decimal factor = (decimal)Math.Pow(10, decimals);
-        if (value >= 0)
-            return Math.Ceiling(value * factor) / factor;
-        else
-            return Math.Floor(value * factor) / factor;
-    }
-    decimal RoundDown(decimal value, int decimals)
-    {
-        decimal factor = (decimal)Math.Pow(10, decimals);
-        return Math.Truncate(value * factor) / factor;
-    }
-    private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
     }
 }

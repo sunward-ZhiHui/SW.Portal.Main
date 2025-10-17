@@ -840,7 +840,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicFormSectionAttributeSecurity> Handle(InsertDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.InsertDynamicFormSectionAttributeSecurity(request.DynamicFormSectionAttributeSecurity,request.UserId);
+            return await _queryRepository.InsertDynamicFormSectionAttributeSecurity(request.DynamicFormSectionAttributeSecurity, request.UserId);
         }
 
     }
@@ -884,7 +884,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids,request.DynamicFormId,request.UserId);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids, request.DynamicFormId, request.UserId);
         }
     }
 
@@ -1826,7 +1826,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormAudit>> Handle(GetDynamicFormAuditDynamicFormSectionList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormAudit>)await _dynamicFormQueryRepository.GetDynamicFormAuditDynamicFormSectionList(request.SessionIds,request.FormType);
+            return (List<DynamicFormAudit>)await _dynamicFormQueryRepository.GetDynamicFormAuditDynamicFormSectionList(request.SessionIds, request.FormType);
         }
 
 
@@ -1842,5 +1842,20 @@ namespace Application.Handlers.QueryHandlers
         {
             return (List<DynamicFormWorkFlow>)await _dynamicFormQueryRepository.GeDynamicFormWorkFlowListIds(request.Ids);
         }
+    }
+
+    public class GetOnDynamicFormSyncTablesHandler : IRequestHandler<GetOnDynamicFormSyncTables, DynamicForm>
+    {
+        private readonly IDynamicFormSyncQueryRepository _dynamicFormQueryRepository;
+        public GetOnDynamicFormSyncTablesHandler(IDynamicFormSyncQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicForm> Handle(GetOnDynamicFormSyncTables request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.OnDynamicFormSyncTables(request.DynamicForm, request.UserId);
+        }
+
+
     }
 }

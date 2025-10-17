@@ -585,6 +585,8 @@ namespace Core.EntityModels
 
         public decimal? MonthHs { get; set; }
         public decimal? TopUpNoOfMonth { get; set; }
+        public bool? IsUpdateTopUpNoOfMonth { get; set; }=false;
+        public decimal? PrevTopUpNoOfMonth { get; set; }
         public decimal? AddNoOfTicket { get; set; }
         public decimal? NoOfTicketWholeNo { get; set; }
         public decimal? NoOfTicketDecimal { get; set; }
@@ -592,13 +594,22 @@ namespace Core.EntityModels
         public decimal? FinalSplitTicket2 { get; set; }
         public decimal? SplitAfterAddWholeTicket { get; set; }
         public decimal? StockValue { get; set; }
-        public decimal? StockInWholeNo {  get; set; }
+        public decimal? StockInWholeNo { get; set; }
         public decimal? BalanceInStock { get; set; }
         public decimal? BatchSizeValue { get; set; }
         public decimal? RecommendedStockFactor { get; set; }
         public decimal? BalanceStockInBulk { get; set; }
         public decimal? AdditionalTickets { get; set; }
         public decimal? AdditionalAc { get; set; }
+        public decimal? NewHoldingStock { get; set; }
+        public bool IsEditingTopUp { get; set; } = false;
+
+    }
+    public class MonthTypeModel
+    {
+        public DateTime? MonthData { get; set; }
+        public string? MonthType { get; set; }
+        public string? MonthName { get; set; }
     }
     public class TickectCalItemModel
     {
@@ -1079,5 +1090,62 @@ namespace Core.EntityModels
         public decimal? WIPStock { get; set; }
         public decimal? TotalStockBalance { get; set; }
         public decimal? NoOfMth { get; set; }
+    }
+    public class SimulationTicketCalculation
+    {
+        public long SimulationTicketCalculationId { get; set; }
+        public long? MethodCodeId { get; set; }
+        public long? ItemId { get; set; }
+        public string? MonthType { get; set; }
+        public string? MonthName { get; set; }
+        public DateTime? TicketMonth { get; set; }
+        public decimal? AcUnits { get; set; }
+        public decimal? BatchSize { get; set; }
+        public long? PackSize { get; set; }
+        public decimal? MonthHS { get; set; }
+        public decimal? TopUpNoOfMonth { get; set; }
+        public decimal? AddNoOfTicket { get; set; }
+        public decimal? NoOfTicketWholeNo { get; set; }
+        public decimal? NoOfTicketDecimal { get; set; }
+        public decimal? FinalSplitTicket1 { get; set; }
+        public decimal? FinalSplitTicket2 { get; set; }
+        public decimal? SplitAfterAddWholeTicket { get; set; }
+        public decimal? StockValue { get; set; }
+        public decimal? StockInWholeNo { get; set; }
+        public decimal? BalanceInStock { get; set; }
+        public decimal? RecommendedStockFactor { get; set; }
+        public decimal? BalanceStockInBulk { get; set; }
+        public decimal? AdditionalTickets { get; set; }
+        public decimal? AdditionalAc { get; set; }
+        public decimal? NewHoldingStock { get; set; }
+        public decimal? Month1 { get; set; }
+        public decimal? Month2 { get; set; }
+        public decimal? Month3 { get; set; }
+        public decimal? Month4 { get; set; }
+        public decimal? Month5 { get; set; }
+        public decimal? Month6 { get; set; }
+        public decimal? Month7 { get; set; }
+        public long? AddedByUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public long? ModifiedByUserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public Guid? SessionId {  get; set; }
+        public decimal? PrevTopUpNoOfMonth { get; set; }
+        public bool? IsUpdateTopUpNoOfMonth { get; set; } = false;
+    }
+    public class SimulationTicketCalculationChild
+    {
+        public long SimulationTicketCalculationChildId { get; set; }
+        public long? MethodCodeId { get; set; }
+        public string? MonthType { get; set; }
+        public string? MonthName { get; set; }
+        public DateTime? TicketMonth { get; set; }
+        public decimal? NoOfTicketDecimalSums { get; set; }
+        public decimal? RoundDown1 { get; set; }
+        public decimal? RoundUp1 { get; set; }
+        public decimal? EvenlyTopUp { get; set; }
+        public decimal? EvenlyDownUp { get; set; }
+        public decimal? FinalBalanceQty { get; set; }
+        public Guid? SessionId { get; set; }
     }
 }

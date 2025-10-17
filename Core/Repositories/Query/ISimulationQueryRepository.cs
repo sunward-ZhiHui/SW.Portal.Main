@@ -18,5 +18,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV3(DateRangeModel dateRangeModel);
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV4(DateRangeModel dateRangeModel);
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV5(DateRangeModel dateRangeModel);
+        Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculation(List<SimulationTicketCalculation> value, SimulationTicketCalculationChild simulationTicketCalculationChild);
+        Task<IReadOnlyList<SimulationTicketCalculation>> GetAllSimulationTicketCalculation();
     }
 }

@@ -53,8 +53,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected1_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month1, item.ProductionProjected1_, "Month1"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month1, item.ProductionProjected1_, "Month1"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected2_" Name="ProductionProjected2_" DisplayFormat="n2" Caption="@Month2">
@@ -62,8 +62,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected2_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month2, item.ProductionProjected2_, "Month2"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month2, item.ProductionProjected2_, "Month2"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected3_" Name="ProductionProjected3_" DisplayFormat="n2" Caption="@Month3">
@@ -71,8 +71,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected3_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month3, item.ProductionProjected3_, "Month3"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month3, item.ProductionProjected3_, "Month3"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected4_" Name="ProductionProjected4_" DisplayFormat="n2" Caption="@Month4">
@@ -80,8 +80,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected4_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month4, item.ProductionProjected4_, "Month4"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month4, item.ProductionProjected4_, "Month4"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected5_" Name="ProductionProjected5_" DisplayFormat="n2" Caption="@Month5">
@@ -89,8 +89,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected5_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month5, item.ProductionProjected5_, "Month5"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month5, item.ProductionProjected5_, "Month5"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected6_" Name="ProductionProjected6_" DisplayFormat="n2" Caption="@Month6">
@@ -98,8 +98,9 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected6_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month6, item.ProductionProjected6_, "Month6"))" style="color:black;">@Names?.ToString("N2")</a>
+
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month6, item.ProductionProjected6_, "Month6"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProductionProjected7_" Name="ProductionProjected7_" DisplayFormat="n2" Caption="@Month7">
@@ -107,8 +108,8 @@
                     @{
                         var item = (INPCalendarPivotModel)context.DataItem;
                         var Names = item.ProductionProjected7_;
+                        <a href="javascript:void(0);" onclick="@(() => openClick(item, Month7, item.ProductionProjected7_, "Month7"))" style="color:black;">@Names?.ToString("N2")</a>
                     }
-                    <a href="javascript:void(0);" onclick="@(() => openClick(item, Month7, item.ProductionProjected7_, "Month7"))" style="color:black;">@Names?.ToString("N2")</a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
         </Columns>
@@ -224,10 +225,11 @@
          ShowFooter="false"
          HeaderText="Month Ticket Calculation"
          CloseOnOutsideClick="false"
+         Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="300" MaxWidth="1500px" MaxHeight="1000px"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <TicketCalculationMonth dateRangeModel="@dateRangeModel" TickectCalItemModel="@TickectCalItemModels" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem="@_simulationItemsList"></TicketCalculationMonth>
+        <TicketCalculationMonth OnItemSelectedBack="OnItemSelectedItemBack" stockInformationMaster="@stockInformationMaster" MonthTypeModels="@MonthTypeModelData" applicationUser="@applicationUser" dateRangeModel="@dateRangeModel" TickectCalItemModel="@TickectCalItemModels" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem="@_simulationItemsList"></TicketCalculationMonth>
     </BodyContentTemplate>
 
 </DxPopup>
@@ -258,7 +260,7 @@
     public decimal? MonthData { get; set; }
     public string? MonthType { get; set; }
     public StockInformationMaster stockInformationMaster { get; set; }
-    TickectCalItemModel TickectCalItemModels = new TickectCalItemModel();
+    TickectCalItemModel TickectCalItemModels = new TickectCalItemModel(); List<MonthTypeModel> monthTypeModels = new List<MonthTypeModel>(); MonthTypeModel MonthTypeModelData = new MonthTypeModel();
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -300,7 +302,7 @@
             {
                 if (values < stockInformationMaster.BelowMonth)
                 {
-                    e.Style = "background-color:gray;";
+                    e.Style = "background-color:yellow;";
                 }
             }
         }
@@ -355,10 +357,28 @@
     {
         TicketCalculationMonthPopUp = true;
     }
-    public void LoadDataItem()
+    public async Task OnItemSelectedItemBack(INPCalendarPivotModel value)
     {
+        if (_simulationItemsList?.Any() == true)
+        {
+            _simulationItemsList.ForEach(s =>
+            {
+                if (s.ItemId == value.ItemId && s.MethodCodeId == value.MethodCodeId)
+                {
+                    s.TopUpNoOfMonth = value.TopUpNoOfMonth;
+                }
+            });
+            LoadDataItem(true);
+        }
+    }
+    public void loadAddItem()
+    {
+        _simulationItemsList = new List<INPCalendarPivotModel>();
         _simulationItemsList = _simulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
-
+        LoadDataItem(false);
+    }
+    public void LoadDataItem(bool isBack)
+    {
         decimal? value1 = null;
         decimal? value2 = null;
         if (stockInformationMaster != null && stockInformationMaster.StockInformationMasterID > 0)
@@ -370,6 +390,16 @@
         {
             _simulationItemsList.ForEach(s =>
             {
+                s.BatchSizeValue = 900000; decimal? TickValue = 0;
+                s.MonthHs = null;
+                s.TopUpNoOfMonth = isBack ? s.TopUpNoOfMonth : null;
+                s.AddNoOfTicket = null; s.RecommendedStockFactor = null;
+                s.NoOfTicketWholeNo = null; s.NoOfTicketDecimal = null; s.FinalSplitTicket1 = null; s.FinalSplitTicket2 = null;
+                s.StockValue = null; s.StockInWholeNo = null; s.BalanceInStock = null; s.BalanceStockInBulk = null;
+                s.ProductionProjectedT1_ = null; s.NewHoldingStock = null;
+                s.ProductionProjectedT2_ = null; s.ProductionProjectedT3_ = null; s.ProductionProjectedT4_ = null;
+                s.ProductionProjectedT5_ = null; s.ProductionProjectedT6_ = null; s.ProductionProjectedT7_ = null;
+                s.ProductionProjectedT8_ = null; s.AdditionalTickets = null; s.AdditionalAc = null;
                 switch (MonthType)
                 {
                     case "Month1": s.MonthHs = s.ProductionProjected1_; break;
@@ -380,12 +410,29 @@
                     case "Month6": s.MonthHs = s.ProductionProjected6_; break;
                     case "Month7": s.MonthHs = s.ProductionProjected7_; break;
                 }
-                if (value1 != null && s.MonthHs != null && value1 != null && value1 <= s.MonthHs)
+                if (MonthType == "Month1") { TickValue = s.ProductionProjected1_; }
+                if (MonthType == "Month2") { TickValue = s.ProductionProjected2_; }
+                if (MonthType == "Month3") { TickValue = s.ProductionProjected3_; }
+                if (MonthType == "Month4") { TickValue = s.ProductionProjected4_; }
+                if (MonthType == "Month5") { TickValue = s.ProductionProjected5_; }
+                if (MonthType == "Month6") { TickValue = s.ProductionProjected6_; }
+                if (MonthType == "Month7") { TickValue = s.ProductionProjected7_; }
+
+                //if (value1 != null && s.MonthHs != null && value2 != null && value1 <= TickValue)
+                if (value1 != null && TickValue != null && value2 != null)
                 {
-                    decimal? TopUpNoOfMonth = (value2 - s.MonthHs);
-                    s.TopUpNoOfMonth = (decimal?)TopUpNoOfMonth;
+                    if (isBack)
+                    {
+
+                    }
+                    else
+                    {
+                        decimal? TopUpNoOfMonth = (TickValue - value2);
+                        s.TopUpNoOfMonth = (decimal?)TopUpNoOfMonth;
+                        s.PrevTopUpNoOfMonth = TopUpNoOfMonth;
+                    }
                     decimal? d1 = (s.SymlQty ?? 0) / (s.BatchSizeValue);
-                    decimal? addNoOfTicketCal = (decimal?)(Math.Round(TopUpNoOfMonth.GetValueOrDefault(0), 2) * d1);
+                    decimal? addNoOfTicketCal = (decimal?)(Math.Round(s.TopUpNoOfMonth.GetValueOrDefault(0), 2) * d1);
                     s.AddNoOfTicket = (decimal?)addNoOfTicketCal;
                     s.RecommendedStockFactor = (s.BatchSizeValue ?? 0) / (s.PackSize);
                     if (s.AddNoOfTicket != null)
@@ -405,9 +452,7 @@
                             }
                         }
                     }
-
                 }
-
             });
             decimal? NoOfTicketDecimalSum = _simulationItemsList.Where(w => w.NoOfTicketDecimal != null).Select(a => a.NoOfTicketDecimal).Sum();
             TickectCalItemModels.NoOfTicketDecimalSums = NoOfTicketDecimalSum;
@@ -435,11 +480,99 @@
                     s.BalanceInStock = s.StockInWholeNo != null ? (s.StockInWholeNo - Math.Truncate(s.StockInWholeNo ?? 0m)) : null;
                     s.BalanceStockInBulk = s.BalanceInStock * s.RecommendedStockFactor;
                     s.AdditionalTickets = s.NoOfTicketWholeNo + s.SplitAfterAddWholeTicket;
-                    decimal? AdditionalAcTic = (decimal?)(Math.Round(s.AdditionalTickets.GetValueOrDefault(0), 2) * d1);
+                    decimal? d2 = (s.BatchSizeValue ?? 0) / (s.SymlQty);
+                    decimal? AdditionalAcTic = (decimal?)(Math.Round(s.AdditionalTickets.GetValueOrDefault(0), 2) * d2);
                     s.AdditionalAc = AdditionalAcTic;
                 }
             });
             TickectCalItemModels.FinalBalanceQty = _simulationItemsList.Where(w => w.BalanceStockInBulk != null).Select(a => a.BalanceStockInBulk).Sum();
+            _simulationItemsList.ForEach(s =>
+            {
+                if (MonthType == "Month1")
+                {
+                    s.ProductionProjectedT1_ = s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ != null ? s.ProductionProjectedT1_ - 1 : null;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month2")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjectedT1_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ != null ? s.ProductionProjectedT2_ - 1 : null;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month3")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjectedT2_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ != null ? s.ProductionProjectedT3_ - 1 : null;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month4")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjectedT3_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ != null ? s.ProductionProjectedT4_ - 1 : null;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month5")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjectedT4_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT5_;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ != null ? s.ProductionProjectedT5_ - 1 : null;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month6")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
+                    s.ProductionProjectedT6_ = s.ProductionProjectedT5_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT6_;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ != null ? s.ProductionProjectedT6_ - 1 : null;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+                if (MonthType == "Month7")
+                {
+                    s.ProductionProjectedT1_ = s.ProductionProjected1_;
+                    s.ProductionProjectedT2_ = s.ProductionProjected2_;
+                    s.ProductionProjectedT3_ = s.ProductionProjected3_;
+                    s.ProductionProjectedT4_ = s.ProductionProjected4_;
+                    s.ProductionProjectedT5_ = s.ProductionProjected5_;
+                    s.ProductionProjectedT6_ = s.ProductionProjected6_;
+                    s.ProductionProjectedT7_ = s.ProductionProjectedT6_ + s.AdditionalAc - 1;
+                    s.NewHoldingStock = s.ProductionProjectedT7_;
+                    s.ProductionProjectedT8_ = s.ProductionProjectedT7_ != null ? s.ProductionProjectedT7_ - 1 : null;
+                }
+            });
         }
         TickectCalItemModels.MonthHS = MonthName + " HS";
         PanelVisible = false;
@@ -460,6 +593,8 @@
     }
     void openClick(INPCalendarPivotModel iNPCalendarPivotModel, string? Month, decimal? monthData, string? Type)
     {
+        _simulationItemsList = new List<INPCalendarPivotModel>();
+        MonthTypeModelData = monthTypeModels.Where(f => f.MonthName == Month).FirstOrDefault();
         var satCatId = _salesCategoryItems.FirstOrDefault(w => w.Id == dateRangeModel.SalesCategoryId)?.Text;
         if (!string.IsNullOrEmpty(satCatId))
         {
@@ -469,7 +604,7 @@
                 MonthType = Type;
                 _selectedItems = iNPCalendarPivotModel;
                 MonthName = Month; MonthData = monthData;
-                LoadDataItem();
+                loadAddItem();
                 TicketCalculationMonthPopUp = true;
                 StateHasChanged();
             }
@@ -482,6 +617,7 @@
         {
             toastService.ShowToast("Please select sales category.", AC.SD.Core.Services.ToastLevel.Warning);
         }
+        StateHasChanged();
     }
     async Task onLoadData()
     {
@@ -511,26 +647,94 @@
             else
             {
                 var month = startDate.ToString("MMM");
-                if (countmonth == 1) Month1 = month;
-                if (countmonth == 2) Month2 = month;
-                if (countmonth == 3) Month3 = month;
-                if (countmonth == 4) Month4 = month;
-                if (countmonth == 5) Month5 = month;
-                if (countmonth == 6) Month6 = month;
-                if (countmonth == 7) Month7 = month;
-                if (countmonth == 8) Month8 = month;
-                if (countmonth == 9) Month9 = month;
-                if (countmonth == 10) Month10 = month;
-                if (countmonth == 11) Month11 = month;
-                if (countmonth == 12) Month12 = month;
+                if (countmonth == 1)
+                {
+                    Month1 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month1, MonthData = startDate });
+                }
+                if (countmonth == 2)
+                {
+                    Month2 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month2, MonthData = startDate });
+                }
+                if (countmonth == 3)
+                {
+                    Month3 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month3, MonthData = startDate });
+                }
+                if (countmonth == 4)
+                {
+                    Month4 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month4, MonthData = startDate });
+                }
+                if (countmonth == 5)
+                {
+                    Month5 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month5, MonthData = startDate });
+                }
+                if (countmonth == 6)
+                {
+                    Month6 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month6, MonthData = startDate });
+                }
+                if (countmonth == 7)
+                {
+                    Month7 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month7, MonthData = startDate });
+                }
+                if (countmonth == 8)
+                {
+                    Month8 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month8, MonthData = startDate });
+                }
+                if (countmonth == 9)
+                {
+                    Month9 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month9, MonthData = startDate });
+                }
+                if (countmonth == 10)
+                {
+                    Month10 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month10, MonthData = startDate });
+                }
+                if (countmonth == 11)
+                {
+                    Month11 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month11, MonthData = startDate });
+                }
+                if (countmonth == 12)
+                {
+                    Month12 = month; monthTypeModels.Add(new MonthTypeModel { MonthName = month, MonthType = Month12, MonthData = startDate });
+                }
                 startDate = monthEndDate.AddDays(1);
             }
             countmonth++;
         }
 
         _simulationItems = await Mediator.Send(new GetAllSimulationMidMonthQuery(dateRangeModel));
+        var resultData = await Mediator.Send(new GetAllSimulationTicketCalculation());
         if (_simulationItems != null && _simulationItems.Count() > 0)
         {
+            resultData = resultData?.Any() == true ? resultData : new List<SimulationTicketCalculation>();
+            _simulationItems.ForEach(s =>
+            {
+                var monthTypeYear1 = monthTypeModels.Where(w => w.MonthType == Month1).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth1_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth==true &&  w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month1 && w.TicketMonth.Value.Year == monthTypeYear1).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected1_ = TopUpNoOfMonth1_ ?? s.ProductionProjected1_;
+
+                var monthTypeYear2 = monthTypeModels.Where(w => w.MonthType == Month2).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth2_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month2 && w.TicketMonth.Value.Year == monthTypeYear2).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected2_ = TopUpNoOfMonth2_ ?? ((s.ProductionProjected1_ ?? 0) - 1);
+
+                var monthTypeYear3 = monthTypeModels.Where(w => w.MonthType == Month3).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth3_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month3 && w.TicketMonth.Value.Year == monthTypeYear3).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected3_ = TopUpNoOfMonth3_ ?? ((s.ProductionProjected2_ ?? 0) - 1);
+
+                var monthTypeYear4 = monthTypeModels.Where(w => w.MonthType == Month4).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth4_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month4 && w.TicketMonth.Value.Year == monthTypeYear4).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected4_ = TopUpNoOfMonth4_ ?? ((s.ProductionProjected3_ ?? 0) - 1);
+
+                var monthTypeYear5 = monthTypeModels.Where(w => w.MonthType == Month5).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth5_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month5 && w.TicketMonth.Value.Year == monthTypeYear5).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected5_ = TopUpNoOfMonth5_ ?? ((s.ProductionProjected4_ ?? 0) - 1);
+
+                var monthTypeYear6 = monthTypeModels.Where(w => w.MonthType == Month6).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth6_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month6 && w.TicketMonth.Value.Year == monthTypeYear6).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected6_ = TopUpNoOfMonth6_ ?? ((s.ProductionProjected5_ ?? 0) - 1);
+
+                var monthTypeYear7 = monthTypeModels.Where(w => w.MonthType == Month7).FirstOrDefault()?.MonthData?.Year;
+                decimal? TopUpNoOfMonth7_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month7 && w.TicketMonth.Value.Year == monthTypeYear7).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                s.ProductionProjected7_ = TopUpNoOfMonth7_ ?? ((s.ProductionProjected6_ ?? 0) - 1);
+            });
             PanelVisible = false;
         }
         else

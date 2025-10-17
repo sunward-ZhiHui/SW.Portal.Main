@@ -18,6 +18,10 @@ namespace Application.Queries
     {
 
     }
+    public class GetAllSimulationTicketCalculation : PagedRequest, IRequest<List<SimulationTicketCalculation>>
+    {
+
+    }
     public class GetSimulationAddhocV3Query : PagedRequest, IRequest<List<INPCalendarPivotModel>>
     {
         public DateRangeModel DateRangeModel { get; set; }
@@ -40,6 +44,16 @@ namespace Application.Queries
         public GetSimulationAddhocV5Query(DateRangeModel dateRangeModel)
         {
             this.DateRangeModel = dateRangeModel;
+        }
+    }
+    public class InsertOrUpdateSimulationTicketCalculation : SimulationTicketCalculation, IRequest<SimulationTicketCalculation>
+    {
+        public List<SimulationTicketCalculation> SimulationTicketCalculation { get; private set; }
+        public SimulationTicketCalculationChild SimulationTicketCalculationChild { get; private set; }
+        public InsertOrUpdateSimulationTicketCalculation(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculationChild simulationTicketCalculationChild)
+        {
+            this.SimulationTicketCalculation = simulationTicketCalculations;
+            this.SimulationTicketCalculationChild = simulationTicketCalculationChild;
         }
     }
 }

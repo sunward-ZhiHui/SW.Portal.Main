@@ -13,6 +13,7 @@ namespace Core.EntityModels
         public class ProcessStepDto
         {
             public int Seq { get; set; }
+            public long DynamicFormDataID { get; set; }
             public string Source { get; set; } = string.Empty;
             public string ProcessName { get; set; } = string.Empty;
             public string TaskName { get; set; } = string.Empty;
@@ -25,6 +26,9 @@ namespace Core.EntityModels
             public decimal? Manpower { get; set; }
             public string? NextProcess { get; set; }
             public string? Notes { get; set; }
+            public int? WeekOfMonth { get; set; }
+            public int? Month { get; set; }
+            public int? Year { get; set; }
         }
         public class TimingDetailDto
         {
@@ -93,9 +97,15 @@ namespace Core.EntityModels
             public DateTime? StartDate { get; set; }
             public DateTime? EndDate { get; set; }
             public int Progress { get; set; }
+            public string? Room { get; set; }
             public string? Predecessor { get; set; }
             public int? ParentId { get; set; }
+            public int? SortChild { get; set; }
+            public int? SortPlanning { get; set; }
+            public int? SyrupPlanningID { get; set; }
             public string? Duration { get; set; }
+            public decimal? DurationHours { get; set; }
+            public string? NextProcessName { get; set; }
             public string? Notes { get; set; }
         }
 

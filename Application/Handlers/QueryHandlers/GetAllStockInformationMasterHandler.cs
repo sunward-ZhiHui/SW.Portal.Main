@@ -75,7 +75,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<SyrupProcessNameList>> Handle(GetSyrupProcessNameListQuery request, CancellationToken cancellationToken)
         {
-            return (List<SyrupProcessNameList>)await _queryRepository.GetSyrupProcessNameList();
+            return (List<SyrupProcessNameList>)await _queryRepository.GetSyrupProcessNameList(request.DynamicFormDataID);
         }
     }
     public class GetSyrupFillingListQueryHandler : IRequestHandler<GetSyrupFillingListQuery, List<SyrupFilling>>
@@ -87,7 +87,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<SyrupFilling>> Handle(GetSyrupFillingListQuery request, CancellationToken cancellationToken)
         {
-            return (List<SyrupFilling>)await _queryRepository.GetSyrupFillingList();
+            return (List<SyrupFilling>)await _queryRepository.GetSyrupFillingList(request.DynamicFormDataID);
         }
     }
     public class GetSyrupOtherProcessListQueryHandler : IRequestHandler<GetSyrupOtherProcessListQuery, List<SyrupOtherProcess>>
@@ -114,7 +114,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<SyrupPlanning> Handle(GetSyrupSimplexDataList request, CancellationToken cancellationToken)
         {
-            return (SyrupPlanning)await _queryRepository.SelectSyrupSimplexDataList(request.MethodCodeID);
+            return (SyrupPlanning)await _queryRepository.SelectSyrupSimplexDataList(request.DynamicFormDataID);
         }
     }
     public class GetSyruppreparationDataListHandler : IRequestHandler<GetSyruppreparationDataList, SyrupPlanning>
@@ -126,7 +126,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<SyrupPlanning> Handle(GetSyruppreparationDataList request, CancellationToken cancellationToken)
         {
-            return (SyrupPlanning)await _queryRepository.SelectSyruppreparationDataList(request.MethodCodeID);
+            return (SyrupPlanning)await _queryRepository.SelectSyruppreparationDataList(request.DynamicFormDataID);
         }
     }
 

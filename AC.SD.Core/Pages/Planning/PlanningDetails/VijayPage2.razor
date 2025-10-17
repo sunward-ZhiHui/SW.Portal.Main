@@ -294,7 +294,7 @@
         try
         {
             var masters = (await Repo.GetSyrupPlannings())?.ToList() ?? new List<SyrupPlanning>();
-            var fillings = (await Repo.GetSyrupFillingList())?.ToList() ?? new List<SyrupFilling>();
+            var fillings = (await Repo.GetSyrupFillingList(85012))?.ToList() ?? new List<SyrupFilling>();
             var others = (await Repo.GetSyrupOtherProcessList())?.ToList() ?? new List<SyrupOtherProcess>();
 
             var laneNext = LaneDefs.ToDictionary(l => l.Id, l => ShiftStart);

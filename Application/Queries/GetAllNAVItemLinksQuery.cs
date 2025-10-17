@@ -36,11 +36,19 @@ namespace Application.Queries
 
     public class GetSyrupProcessNameListQuery : IRequest<List<SyrupProcessNameList>>
     {
-
+        public long? DynamicFormDataID { get; set; }
+        public GetSyrupProcessNameListQuery(long? dynamicFormDataID)
+        {
+            DynamicFormDataID = dynamicFormDataID;
+        }
     }
     public class GetSyrupFillingListQuery : IRequest<List<SyrupFilling>>
     {
-
+        public long? DynamicFormDataID { get; set; }
+        public GetSyrupFillingListQuery(long? dynamicFormDataID)
+        {
+            DynamicFormDataID = dynamicFormDataID;
+        }
     }
     public class GetSyrupOtherProcessListQuery : IRequest<List<SyrupOtherProcess>>
     {
@@ -48,19 +56,19 @@ namespace Application.Queries
     }
     public class GetSyrupSimplexDataList : IRequest<SyrupPlanning>
     {
-        public long MethodCodeID { get; set; }
+        public long? DynamicFormDataID { get; set; }
 
-        public GetSyrupSimplexDataList(long methodCodeID)
+        public GetSyrupSimplexDataList(long? dynamicFormDataID)
         {
-            MethodCodeID = methodCodeID;
+            DynamicFormDataID = dynamicFormDataID;
         }
     }
     public class GetSyruppreparationDataList : IRequest<SyrupPlanning>
     {
-        public long MethodCodeID { get; set; }  
-        public GetSyruppreparationDataList(long methodCodeID)
+        public long? DynamicFormDataID { get; set; }  
+        public GetSyruppreparationDataList(long? dynamicFormDataID)
         {
-            MethodCodeID = methodCodeID;
+            DynamicFormDataID = dynamicFormDataID;
         }
     }
     

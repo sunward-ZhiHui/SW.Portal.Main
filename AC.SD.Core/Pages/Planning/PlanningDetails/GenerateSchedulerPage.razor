@@ -1,20 +1,24 @@
 ﻿@page "/SyrupScheduleGantt"
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Gantt
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query
 @using static global::Core.EntityModels.SyrupReportDtos
 @inject IStockInformationMasterQueryRepository StockQueryRepo
 @inject NavigationManager NavigationManager
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
 
 <style>
     /* Container class used in the SfGantt: gantt-halfhour-grid */
     .gantt-halfhour-grid .e-gantt-chart {
         /*
-               Two repeating gradients:
-               - faint line every half-hour (60px)
-               - stronger line every hour (120px)
-               Adjust 60px/120px if you change TimelineUnitSize.
-            */
+                   Two repeating gradients:
+                   - faint line every half-hour (60px)
+                   - stronger line every hour (120px)
+                   Adjust 60px/120px if you change TimelineUnitSize.
+                */
         background-image: repeating-linear-gradient( to right, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 60px ), repeating-linear-gradient( to right, rgba(0,0,0,0.09) 0px, rgba(0,0,0,0.09) 1px, transparent 1px, transparent 120px );
         background-position: left top;
         background-repeat: repeat-y;
@@ -38,6 +42,40 @@
         scrollbar-width: thin;
     }
 </style>
+
+<div class="card-body">
+    <div class="row">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem ColSpanMd="5">
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Method Code Name" ColSpanMd="3">
+                <DxComboBox Data="@_syrupPlanningList"
+                            NullText="Select Method"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="MethodName"
+                            ValueFieldName="DynamicFormDataID"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@SelectDynamicFormDataID" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Week Of The Month" ColSpanMd="3">
+                <DxDateEdit @bind-Date="DateTimeValue"
+                            Mask="@DateTimeMask.MonthAndYear"
+                            CssClass="cw-320"
+                            InputId="deTimeSection" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem ColSpanMd="1">
+                <button class="btn btn-primary ml-2" @onclick="ApplyDateFilterAsync">Apply filter</button>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </div>
+</div>
+
+
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
@@ -46,7 +84,7 @@
                      Height="80vh"
                      Width="100%"
                      DurationUnit="DurationUnit.Minute"
-                     HighlightWeekends="false"
+                     HighlightWeekends="true"
                      ProjectStartDate="@ProjectStartDate"
                      ProjectEndDate="@ProjectEndDate"
                      TimelineSettings="@TimelineSettings"
@@ -54,7 +92,8 @@
                      TaskbarHeight="20"
                      RowHeight="38"
                      CssClass="gantt-halfhour-grid"
-                     TreeColumnIndex="1">
+                     TreeColumnIndex="1"
+                     Toolbar="@(new List<string>() {"ExpandAll", "CollapseAll" })">
 
                 <GanttTaskFields Id="TaskId"
                                  Name="TaskName"
@@ -66,8 +105,9 @@
                 </GanttTaskFields>
 
                 <GanttColumns>
-                    <GanttColumn Field="TaskId" HeaderText="ID" Width="70"></GanttColumn>
-                    <GanttColumn Field="TaskName" HeaderText="Task Name" Width="260"></GanttColumn>
+                    <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
+                    <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
+                    <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
                 </GanttColumns>
             </SfGantt>
         </div>
@@ -75,14 +115,22 @@
 </div>
 
 @code {
-    
+    private long? SelectDynamicFormDataID { get; set; }
+    DateTime? DateTimeValue { get; set; } = DateTime.Now;
+    int? SelectedWeekOfMonth { get; set; }
+    int? SelectedMonth { get; set; }
+    int? SelectedYear { get; set; }
+
+    private List<SyrupPlanning> _syrupPlanningList;
+    [Parameter]
+    public SyrupPlanning? SyrupPlanningData { get; set; }
     private DateTime ProjectStartDate { get; set; } = new DateTime(2021, 4, 2, 8, 0, 0);
     private DateTime ProjectEndDate { get; set; } = new DateTime(2021, 4, 2, 20, 0, 0);
-    private IReadOnlyList<TaskData> Tasks { get; set; } = Array.Empty<TaskData>();    
+    private IReadOnlyList<TaskData> Tasks { get; set; } = Array.Empty<TaskData>();
     private GanttTimelineSettings TimelineSettings = new()
     {
         TimelineViewMode = TimelineViewMode.Hour,
-        TimelineUnitSize = 120, 
+        TimelineUnitSize = 120,
         TopTier = new GanttTimelineTierSettings
         {
             Unit = TimelineViewMode.Day,
@@ -90,11 +138,11 @@
         },
         BottomTier = new GanttTimelineTierSettings
         {
-            Unit = TimelineViewMode.Hour,            
+            Unit = TimelineViewMode.Hour,
             Format = "HH:mm"
         }
     };
-    
+
     private List<GanttDayWorkingTime> DayWorkingTimes = new()
     {
         new GanttDayWorkingTime { From = 8, To = 20 }
@@ -102,18 +150,52 @@
 
     protected override async Task OnInitializedAsync()
     {
-        string profileNo = "MC-0054";        
-        DateTime productionDay = DateTime.Today; 
+        _syrupPlanningList = await Mediator.Send(new GetSyrupPlanningQuery());
+        string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
+        DateTime productionDay = DateTime.Today;
         TimeSpan shiftStart = TimeSpan.FromHours(8);
         TimeSpan shiftEnd = TimeSpan.FromHours(20);
-        
+
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
 
-        await Task.Delay(2000); 
-        var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
-        Tasks = readOnly.ToList();
-        
+        //await Task.Delay(2000);
+        //var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
+        //Tasks = readOnly.ToList();
+
+        await LoadReportDataAsync();
+
     }
-   
+    private async Task ApplyDateFilterAsync()
+    {
+        //var id = SelectDynamicFormDataID;
+
+        if (!DateTimeValue.HasValue)
+        {
+            SelectedWeekOfMonth = SelectedMonth = SelectedYear = null;
+        }
+        else
+        {
+            var d = DateTimeValue.Value;
+            // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            SelectedMonth = d.Month;
+            SelectedYear = d.Year;
+        }
+
+        await LoadReportDataAsync();
+    }
+    private async Task LoadReportDataAsync()
+    {
+        string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
+        DateTime productionDay = DateTime.Today;
+        TimeSpan shiftStart = TimeSpan.FromHours(8);
+        TimeSpan shiftEnd = TimeSpan.FromHours(20);
+
+        ProjectStartDate = productionDay.Date + shiftStart;
+        ProjectEndDate = productionDay.Date + shiftEnd;
+        var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart, SelectDynamicFormDataID, SelectedWeekOfMonth, SelectedMonth, SelectedYear);
+        Tasks = readOnly.ToList();
+    }
+
 }

@@ -121,8 +121,8 @@
         await Task.Delay(2000); // ⏳ wait 2 seconds before data load
 
         // Fetch your data after delay
-        var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
-        Tasks = readOnly.ToList();
+        // var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
+        // Tasks = readOnly.ToList();
 
         // Optional: StateHasChanged() if you need to refresh manually
     }

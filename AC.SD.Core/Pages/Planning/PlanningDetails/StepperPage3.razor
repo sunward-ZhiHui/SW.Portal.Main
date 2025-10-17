@@ -59,7 +59,7 @@
 
 @code {
     [Parameter]
-    public long MethodCodeID { get; set; } = 70;
+    public long? DynamicFormDataID { get; set; }
 
     public ApplicationUser? applicationUser { get; private set; }
 
@@ -80,7 +80,7 @@
     {
         try
         {
-            var serverData = await Mediator.Send(new GetSyruppreparationDataList(MethodCodeID));
+            var serverData = await Mediator.Send(new GetSyruppreparationDataList(DynamicFormDataID));
             if (serverData != null)
             {
                 // Preserve parent reference: copy only relevant fields into Model

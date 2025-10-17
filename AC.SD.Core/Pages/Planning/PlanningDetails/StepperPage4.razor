@@ -137,7 +137,8 @@
 </DxFormLayout>
 
 @code {
-    // Parent hookup (same pattern as other steps)
+    [Parameter]
+    public long? DynamicFormDataID { get; set; }
     [Parameter] public SyrupPlanning Model { get; set; } = new SyrupPlanning();
     [Parameter] public EventCallback<SyrupPlanning> OnChanged { get; set; }
 
@@ -171,7 +172,7 @@
         try
         {           
             
-            var rows = await Mediator.Send(new GetSyrupFillingListQuery());
+            var rows = await Mediator.Send(new GetSyrupFillingListQuery(DynamicFormDataID));
             _SyrupFillingList = rows?.ToList() ?? new List<SyrupFilling>();
 
             var first = _SyrupFillingList.FirstOrDefault();

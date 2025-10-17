@@ -1,7 +1,12 @@
 ﻿@using System.Collections
+@using Application.Queries
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Navigations
+@using global::Core.Entities
 @using global::Core.EntityModels
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
 <SfStepper @ref="LinearStepperComponent"
            ID="linear-stepper"
            Linear="true"
@@ -21,11 +26,11 @@
         position: relative;
     }
 
-    /* Basic table setup */
-    .table-container table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+        /* Basic table setup */
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
     /* --- Sticky Group Header --- */
     .group-header {
@@ -86,16 +91,29 @@
         background-color: #e6e6e6;
         font-weight: bold;
     }
+
     .month-header {
         background-color: #f7e3d0;
         font-weight: bold;
         text-align: center;
     }
 </style>
+<div style="padding:10px;width:100%;">
+    <div class="table-container">
+        <table width="100%" id="tt1">
+            <tr>
+                <th>Below Month</th>
+                <th>@stockInformationMaster?.BelowMonth?.ToString("N2")</th>
+                <th>Topup Month</th>
+                <th>@stockInformationMaster?.TopupMonth?.ToString("N2")</th>
+            </tr>
+        </table>
+    </div>
+</div>
 <!-- Step 1 -->
 <div class="step-content" style="@GetVisibility(0)">
     <div style="padding:10px;width:100%;height:400px;">
-        <TicketCalculationMonthDisplay @ref="refTicketCalculationMonthDisplay" TickectCalItemModel="@TickectCalItemModel" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem1="@_simulationItem"></TicketCalculationMonthDisplay>
+        <TicketCalculationMonthDisplay @ref="refTicketCalculationMonthDisplay" stockInformationMaster="@stockInformationMaster"  OnItemSelected="@OnItemSelecteds" TickectCalItemModel="@TickectCalItemModel" MonthName="@MonthName" MonthData="@MonthData" MonthType="@MonthType" _selectedItems="@_selectedItems" _simulationItem1="@_simulationItem"></TicketCalculationMonthDisplay>
     </div>
 </div>
 
@@ -121,9 +139,26 @@
 <div class="mt-3">
     <SfButton CssClass="e-primary" OnClick="GoPrevious" Disabled="@isFirstStep">Previous</SfButton>
     <SfButton CssClass="e-success ml-2" OnClick="GoNext" Disabled="@isLastStep">Next</SfButton>
+    <SfButton CssClass="e-info ml-2" OnClick="openUpdateTicket">Update Ticket</SfButton>
 </div>
-
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Update"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure update ticket?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool Blukdeletepopup { get; set; } = false;
     private TicketCalculationMonthDisplay refTicketCalculationMonthDisplay { get; set; }
     private SfStepper LinearStepperComponent;
     private int activeStep = 0;            // current step index (0-based)
@@ -143,8 +178,20 @@
     public DateRangeModel dateRangeModel { get; set; }
     [Parameter]
     public TickectCalItemModel TickectCalItemModel { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public MonthTypeModel MonthTypeModels { get; set; }
+    [Parameter]
+    public StockInformationMaster stockInformationMaster { get; set; }
+    [Parameter]
+    public EventCallback<INPCalendarPivotModel> OnItemSelectedBack { get; set; }
     protected override async Task OnInitializedAsync()
     {
+    }
+    public async Task OnItemSelecteds(INPCalendarPivotModel iNPCalendarPivotModels)
+    {
+        await OnItemSelectedBack.InvokeAsync(iNPCalendarPivotModels);
     }
     private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -152,6 +199,20 @@
         {
             e.CssClass = "alt-item";
         }
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+        StateHasChanged();
+    }
+    async Task bulkDelete()
+    {
+        await InsertDataItems();
+    }
+    void openUpdateTicket()
+    {
+        Blukdeletepopup = true;
+        StateHasChanged();
     }
     public async Task loadData()
     {
@@ -178,6 +239,75 @@
             activeStep--;
             StateHasChanged();
         }
+    }
+    public async Task InsertDataItems()
+    {
+        SimulationTicketCalculationChild simulationTicketCalculationChild = new SimulationTicketCalculationChild();
+        simulationTicketCalculationChild.NoOfTicketDecimalSums = TickectCalItemModel.NoOfTicketDecimalSums;
+        simulationTicketCalculationChild.EvenlyDownUp = TickectCalItemModel.EvenlyDownUp;
+        simulationTicketCalculationChild.EvenlyTopUp = TickectCalItemModel.EvenlyTopUp;
+        simulationTicketCalculationChild.RoundDown1 = TickectCalItemModel.RoundDown1;
+        simulationTicketCalculationChild.RoundUp1 = TickectCalItemModel.RoundUp1;
+        simulationTicketCalculationChild.FinalBalanceQty = TickectCalItemModel.FinalBalanceQty;
+        simulationTicketCalculationChild.MethodCodeId = _selectedItems.MethodCodeId;
+        simulationTicketCalculationChild.MonthName = MonthName;
+        simulationTicketCalculationChild.MonthType = MonthType;
+        simulationTicketCalculationChild.TicketMonth = MonthTypeModels?.MonthData;
+        var AllsimulationItems = _simulationItem.Cast<INPCalendarPivotModel>().ToList();
+        if (AllsimulationItems?.Any() == true)
+        {
+            List<SimulationTicketCalculation> simulationTicketCalculations = new List<SimulationTicketCalculation>();
+            AllsimulationItems.ForEach(s =>
+            {
+                simulationTicketCalculations.Add(new SimulationTicketCalculation
+                {
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    MethodCodeId = s.MethodCodeId,
+                    ItemId = s.ItemId,
+                    MonthName = MonthName,
+                    MonthType = MonthType,
+                    AcUnits = s.SymlQty,
+                    BatchSize = s.BatchSizeValue,
+                    PackSize = s.PackSize,
+                    MonthHS = s.MonthHs,
+                    TopUpNoOfMonth = s.TopUpNoOfMonth,
+                    AddNoOfTicket = s.AddNoOfTicket,
+                    NoOfTicketWholeNo = s.NoOfTicketWholeNo,
+                    NoOfTicketDecimal = s.NoOfTicketDecimal,
+                    FinalSplitTicket1 = s.FinalSplitTicket1,
+                    FinalSplitTicket2 = s.FinalSplitTicket2,
+                    SplitAfterAddWholeTicket = s.SplitAfterAddWholeTicket,
+                    StockValue = s.StockValue,
+                    StockInWholeNo = s.StockInWholeNo,
+                    BalanceInStock = s.BalanceInStock,
+                    RecommendedStockFactor = s.RecommendedStockFactor,
+                    BalanceStockInBulk = s.BalanceStockInBulk,
+                    AdditionalTickets = s.AdditionalTickets,
+                    AdditionalAc = s.AdditionalAc,
+                    NewHoldingStock = s.NewHoldingStock,
+                    Month1 = s.ProductionProjectedT1_,
+                    Month2 = s.ProductionProjectedT2_,
+                    Month3 = s.ProductionProjectedT3_,
+                    Month4 = s.ProductionProjectedT4_,
+                    Month5 = s.ProductionProjectedT5_,
+                    Month6 = s.ProductionProjectedT6_,
+                    Month7 = s.ProductionProjectedT7_,
+                    TicketMonth = MonthTypeModels?.MonthData,
+                    PrevTopUpNoOfMonth=s.PrevTopUpNoOfMonth,
+                    IsUpdateTopUpNoOfMonth = s.IsUpdateTopUpNoOfMonth,
+                });
+            });
+            var result = await Mediator.Send(new InsertOrUpdateSimulationTicketCalculation(simulationTicketCalculations, simulationTicketCalculationChild));
+            if (result.SimulationTicketCalculationId > 0)
+            {
+                toastService.ShowToast("Ticket Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                Blukdeletepopup = false;
+            }
+        }
+        StateHasChanged();
     }
     private string GetVisibility(int stepIndex) => stepIndex == activeStep ? "display:block;" : "display:none;";
 }

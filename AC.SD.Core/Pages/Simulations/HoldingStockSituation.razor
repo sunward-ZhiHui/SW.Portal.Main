@@ -36,24 +36,24 @@
                         {
                             foreach (var item in _simulationItems)
                             {
-                                <tr>
+                                <tr style="@(item.ItemId == _selectedItems.ItemId ? "background-color:yellow" : "")">
                                     <td>@item.ItemNo</td>
-                                    <td>@(item.NoOfTicketWholeNo.HasValue? Math.Round(item.NoOfTicketWholeNo.Value, 2): null)</td>
-                                    <td>@(item.FinalSplitTicket1.HasValue? Math.Round(item.FinalSplitTicket1.Value, 2): null)</td>
-                                    <td>@(item.SplitAfterAddWholeTicket.HasValue? Math.Round(item.SplitAfterAddWholeTicket.Value, 2): null)</td>
+                                    <td>@(item.NoOfTicketWholeNo?.ToString("N2"))</td>
+                                    <td>@(item.FinalSplitTicket1?.ToString("N2"))</td>
+                                    <td>@(item.SplitAfterAddWholeTicket?.ToString("N2"))</td>
                                     <td>@item.BatchSizeValue</td>
                                     <td>@item.PackSize</td>
-                                    <td>@(item.StockValue.HasValue? Math.Round(item.StockValue.Value, 2): null)</td>
-                                    <td>@(item.StockInWholeNo.HasValue? Math.Round(item.StockInWholeNo.Value, 2): null)</td>
-                                    <td>@(item.BalanceInStock.HasValue? Math.Round(item.BalanceInStock.Value, 2): null)</td>
-                                    <td>@(item.RecommendedStockFactor.HasValue? Math.Round(item.RecommendedStockFactor.Value, 2): null)</td>
-                                    <td>@(item.BalanceStockInBulk.HasValue? Math.Round(item.BalanceStockInBulk.Value, 2): null)</td>
+                                    <td>@(item.StockValue?.ToString("N2"))</td>
+                                    <td>@(item.StockInWholeNo?.ToString("N2"))</td>
+                                    <td>@(item.BalanceInStock?.ToString("N2"))</td>
+                                    <td>@(item.RecommendedStockFactor?.ToString("N2"))</td>
+                                    <td>@(item.BalanceStockInBulk?.ToString("N2"))</td>
                                 </tr>
                             }
                             <tr>
                                 <td colspan="9"></td>
                                 <td>Final Balance Qty</td>
-                                <td>@(tickectCalItemModel?.FinalBalanceQty != null ? Math.Round(tickectCalItemModel.FinalBalanceQty.Value, 2) : (decimal?)null)</td>
+                                <td>@(tickectCalItemModel?.FinalBalanceQty != null ? tickectCalItemModel.FinalBalanceQty?.ToString("N2") : (decimal?)null)</td>
                             </tr>
                         }
                     </tbody>
@@ -94,7 +94,7 @@
         {
             _AllsimulationItems = _simulationItem2.Cast<INPCalendarPivotModel>().ToList();
             _simulationItems = new List<INPCalendarPivotModel>();
-            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).OrderBy(o => o.ItemNo).ToList();
         }
         PanelVisible = false;
     }

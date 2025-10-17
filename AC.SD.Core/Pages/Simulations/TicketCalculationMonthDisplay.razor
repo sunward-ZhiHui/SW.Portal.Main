@@ -3,6 +3,14 @@
 @using Application.Queries;
 @using MediatR
 @inject IMediator Mediator
+<style scoped>
+    .table-container input[type="text"] {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: right;
+        padding: 2px 4px;
+    }
+</style>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -33,17 +41,28 @@
                     {
                         foreach (var item in _simulationItems)
                         {
-                            <tr>
+
+                            <tr style="@(item.ItemId == _selectedItems.ItemId ? "background-color:yellow" : "")">
                                 <td>@item.ItemNo</td>
-                                <td>@(item.MonthHs.HasValue? Math.Round(item.MonthHs.Value, 2): null)</td>
-                                <td>@(item.TopUpNoOfMonth.HasValue? Math.Round(item.TopUpNoOfMonth.Value, 2): null)</td>
+                                <td>@item.MonthHs?.ToString("N2")</td>
+                                @* <td>@item.TopUpNoOfMonth?.ToString("N2")</td> *@
+                                <td @onclick="() => OnOpenTextBox(item)">
+                                    @if (item.IsEditingTopUp)
+                                    {
+                                        <input type="text" class="form-control form-control-sm text-end" value="@(item.TopUpNoOfMonth?.ToString("N2"))" @onblur="() => BlurTopUpOfMonth()" @onchange="(e => SaveTopUpNoOfMonth(item, e))" style="width:100px;" autofocus />
+                                    }
+                                    else
+                                    {
+                                        @item.TopUpNoOfMonth?.ToString("N2")
+                                    }
+                                </td>
                                 <td>@item.SymlQty</td>
                                 <td>@item.BatchSizeValue</td>
-                                <td>@(item.AddNoOfTicket.HasValue? Math.Round(item.AddNoOfTicket.Value, 2): null)</td>
-                                <td>@(item.NoOfTicketWholeNo.HasValue? Math.Round(item.NoOfTicketWholeNo.Value, 2): null)</td>
-                                <td>@(item.NoOfTicketDecimal.HasValue? Math.Round(item.NoOfTicketDecimal.Value, 2): null)</td>
-                                <td>@(item.FinalSplitTicket1.HasValue? Math.Round(item.FinalSplitTicket1.Value, 2): null)</td>
-                                <td>@(item.FinalSplitTicket2.HasValue? Math.Round(item.FinalSplitTicket2.Value, 2): null)</td>
+                                <td>@item.AddNoOfTicket?.ToString("N2")</td>
+                                <td>@item.NoOfTicketWholeNo?.ToString("N2")</td>
+                                <td>@item.NoOfTicketDecimal?.ToString("N2")</td>
+                                <td>@item.FinalSplitTicket1?.ToString("N2")</td>
+                                <td>@item.FinalSplitTicket2?.ToString("N2")</td>
                             </tr>
                         }
                     }
@@ -57,9 +76,9 @@
                     </tr>
                     <tr>
                         <td colspan="7"></td>
-                        <td>@(tickectCalItemModel?.NoOfTicketDecimalSums != null ? Math.Round(tickectCalItemModel.NoOfTicketDecimalSums.Value, 2) : (decimal?)null)</td>
-                        <td>@(tickectCalItemModel?.RoundDown1 != null ? Math.Round(tickectCalItemModel.RoundDown1.Value, 2) : (decimal?)null)</td>
-                        <td>@(tickectCalItemModel?.RoundUp1 != null ? Math.Round(tickectCalItemModel.RoundUp1.Value, 2) : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.NoOfTicketDecimalSums != null ? tickectCalItemModel.NoOfTicketDecimalSums?.ToString("N2") : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.RoundDown1 != null ? tickectCalItemModel.RoundDown1?.ToString("N2") : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.RoundUp1 != null ? tickectCalItemModel.RoundUp1?.ToString("N2") : (decimal?)null)</td>
                     </tr>
                     <tr>
                         <td colspan="8"></td>
@@ -68,8 +87,8 @@
                     </tr>
                     <tr>
                         <td colspan="8"></td>
-                        <td>@(tickectCalItemModel?.EvenlyTopUp != null ? Math.Round(tickectCalItemModel.EvenlyTopUp.Value, 2) : (decimal?)null)</td>
-                        <td>@(tickectCalItemModel?.EvenlyDownUp != null ? Math.Round(tickectCalItemModel.EvenlyDownUp.Value, 2) : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.EvenlyTopUp != null ? tickectCalItemModel.EvenlyTopUp?.ToString("N2") : (decimal?)null)</td>
+                        <td>@(tickectCalItemModel?.EvenlyDownUp != null ? tickectCalItemModel.EvenlyDownUp?.ToString("N2") : (decimal?)null)</td>
                     </tr>
                 </tfoot>
             </table>
@@ -92,6 +111,10 @@
     public INPCalendarPivotModel _selectedItems { get; set; }
     [Parameter]
     public TickectCalItemModel tickectCalItemModel { get; set; }
+    [Parameter]
+    public StockInformationMaster stockInformationMaster { get; set; }
+    [Parameter]
+    public EventCallback<INPCalendarPivotModel> OnItemSelected { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; } = true;
     private List<INPCalendarPivotModel> _AllsimulationItems = new List<INPCalendarPivotModel>();
@@ -105,13 +128,49 @@
     {
         await LoadData();
     }
+    private void OnOpenTextBox(INPCalendarPivotModel item)
+    {
+        foreach (var s in _simulationItems)
+        {
+            if (item.MethodCodeId == s.MethodCodeId && item.ItemId == s.ItemId)
+            {
+                s.IsEditingTopUp = true;
+            }
+            else
+            {
+                s.IsEditingTopUp = false;
+            }
+        }
+    }
+    private void BlurTopUpOfMonth()
+    {
+        foreach (var s in _simulationItems)
+        {
+            s.IsEditingTopUp = false;
+        }
+    }
+    private async Task SaveTopUpNoOfMonth(INPCalendarPivotModel item, ChangeEventArgs e)
+    {
+        if (decimal.TryParse(Convert.ToString(e.Value), out decimal newValue))
+        {
+            item.IsUpdateTopUpNoOfMonth = true;
+            item.TopUpNoOfMonth = newValue;
+        }
+
+        // Hide textbox and show text again
+        item.IsEditingTopUp = false;
+        await OnItemSelected.InvokeAsync(item);
+        // Optionally trigger calculations or refresh totals
+        StateHasChanged();
+
+    }
     public async Task LoadData()
     {
         if (_simulationItem1 != null)
         {
             _AllsimulationItems = _simulationItem1.Cast<INPCalendarPivotModel>().ToList();
             _simulationItems = new List<INPCalendarPivotModel>();
-            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
+            _simulationItems = _AllsimulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).OrderBy(o => o.ItemNo).ToList();
         }
         PanelVisible = false;
         StateHasChanged();

@@ -36,6 +36,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<TaskData>> GetProductionGanttRowsAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
         Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart,long? SelectDynamicFormDataID = null,int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null);
         Task<bool> CheckSyrupOtherProcessExists(long DynamicFormDataID);
+        Task<bool> ExistsGeneratePlanningAsync(int week, int year);
+        Task<SyncResult> SyncPrimaryToSyrupPlanningAsync();
         Task<(List<GanttTaskDto> Tasks, List<GanttSegmentDto> Segments)> GetGanttTasksAndSegmentsByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
 
     }

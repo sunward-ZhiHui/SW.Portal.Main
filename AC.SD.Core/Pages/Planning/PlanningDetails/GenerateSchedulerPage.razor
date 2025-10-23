@@ -1,4 +1,5 @@
 ﻿@page "/SyrupScheduleGantt"
+@using AC.SD.Core.Helpers
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Gantt
 @using global::Core.EntityModels
@@ -8,7 +9,9 @@
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
 @using Application.Queries;
-@using MediatR
+@using MediatR;
+@inject IJSRuntime JSRuntime;
+@using System.Globalization;
 
 <style>
     /* Container class used in the SfGantt: gantt-halfhour-grid */
@@ -79,47 +82,51 @@
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            <SfGantt TValue="TaskData"
-                     DataSource="@Tasks"
-                     Height="80vh"
-                     Width="100%"
-                     DurationUnit="DurationUnit.Minute"
-                     HighlightWeekends="true"
-                     ProjectStartDate="@ProjectStartDate"
-                     ProjectEndDate="@ProjectEndDate"
-                     TimelineSettings="@TimelineSettings"
-                     DayWorkingTime="@DayWorkingTimes"
-                     TaskbarHeight="20"
-                     RowHeight="38"
-                     CssClass="gantt-halfhour-grid"
-                     TreeColumnIndex="1"
-                     Toolbar="@(new List<string>() {"ExpandAll", "CollapseAll" })">
+            @if(Tasks != null)
+            {
+                <SfGantt TValue="TaskData"
+                         DataSource="@Tasks"
+                         Height="80vh"
+                         Width="100%"
+                         DurationUnit="DurationUnit.Minute"
+                         HighlightWeekends="true"
+                         ProjectStartDate="@ProjectStartDate"
+                         ProjectEndDate="@ProjectEndDate"
+                         TimelineSettings="@TimelineSettings"
+                         DayWorkingTime="@DayWorkingTimes"
+                         TaskbarHeight="20"
+                         RowHeight="38"
+                         CssClass="gantt-halfhour-grid"
+                         TreeColumnIndex="1"
+                         Toolbar="@(new List<string>() {"ExpandAll", "CollapseAll" })">
 
-                <GanttTaskFields Id="TaskId"
-                                 Name="TaskName"
-                                 StartDate="StartDate"
-                                 EndDate="EndDate"
-                                 Progress="Progress"
-                                 ParentID="ParentId"
-                                 Dependency="Predecessor">
-                </GanttTaskFields>
+                    <GanttTaskFields Id="TaskId"
+                                     Name="TaskName"
+                                     StartDate="StartDate"
+                                     EndDate="EndDate"
+                                     Progress="Progress"
+                                     ParentID="ParentId"
+                                     Dependency="Predecessor">
+                    </GanttTaskFields>
 
-                <GanttColumns>
-                    <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
-                    <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
-                    <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
-                </GanttColumns>
-            </SfGantt>
+                    <GanttColumns>
+                        <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
+                        <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
+                        <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
+                    </GanttColumns>
+                </SfGantt>
+            }
+           
         </div>
     </div>
 </div>
 
 @code {
     private long? SelectDynamicFormDataID { get; set; }
-    DateTime? DateTimeValue { get; set; } = DateTime.Now;
+    DateTime? DateTimeValue { get; set; }
     int? SelectedWeekOfMonth { get; set; }
     int? SelectedMonth { get; set; }
-    int? SelectedYear { get; set; }
+    int? SelectedYear { get; set; }   
 
     private List<SyrupPlanning> _syrupPlanningList;
     [Parameter]
@@ -147,9 +154,16 @@
     {
         new GanttDayWorkingTime { From = 8, To = 20 }
     };
-
+    protected override async Task OnParametersSetAsync()
+    {        
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        await LoadReportDataAsync();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     protected override async Task OnInitializedAsync()
     {
+        DateTimeValue = DateTime.Now;
+        await JSRuntime.InvokeAsync<string>("showLoading");
         _syrupPlanningList = await Mediator.Send(new GetSyrupPlanningQuery());
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
         DateTime productionDay = DateTime.Today;
@@ -159,11 +173,23 @@
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
 
+
+        var d = DateTimeValue.Value;
+        // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+        //SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+        SelectedMonth = d.Month;
+        SelectedYear = d.Year;
+
+        int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);
+        SelectedWeekOfMonth = weekNumber;
+
         //await Task.Delay(2000);
         //var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
         //Tasks = readOnly.ToList();
 
-        await LoadReportDataAsync();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+    
 
     }
     private async Task ApplyDateFilterAsync()
@@ -178,12 +204,26 @@
         {
             var d = DateTimeValue.Value;
             // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
-            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            //SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
             SelectedMonth = d.Month;
             SelectedYear = d.Year;
+
+
+            // Get first day of the month
+            DateTime firstDayOfMonth = new DateTime(d.Year, d.Month, 1);
+            int offset = DayOfWeekToInt(firstDayOfMonth.DayOfWeek);
+            //int weekOfMonth = ((d.Day + offset - 1) / 7) + 1;
+            int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);
+            SelectedWeekOfMonth = weekNumber;
+
+
         }
 
         await LoadReportDataAsync();
+    }
+    int DayOfWeekToInt(DayOfWeek day)
+    {        
+        return (day == DayOfWeek.Sunday) ? 6 : ((int)day - 1);
     }
     private async Task LoadReportDataAsync()
     {

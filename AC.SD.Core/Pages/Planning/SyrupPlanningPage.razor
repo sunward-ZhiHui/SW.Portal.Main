@@ -1,4 +1,5 @@
 ﻿@page "/syrup-planning"
+@using AC.SD.Core.Helpers
 @using Application.Queries;
 @using MediatR
 @using System.ComponentModel;
@@ -13,6 +14,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
+@inject IAppToastService AppToast
+@inject IStockInformationMasterQueryRepository Repo
 
 @* <DxToolbar CssClass="mb-2">
     <Items>
@@ -27,8 +30,9 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Planning" IconCssClass="fa fa-cogs" Click="@onPlanning" Enabled="@isEnabled" />
-                <DxMenuItem Text="Generate Schedule" IconCssClass="fa fa-refresh" Click="@ComputeSchedule" />
+                <DxMenuItem Text="Generate Schedule" IconCssClass="fa fa-refresh" Click="@ComputeSchedule" Enabled="@isGenerateEnabled" />
                 <DxMenuItem Text="View" IconCssClass="fa fa-info-circle" Click="@onTimeLineView" Enabled="@isEnabled" />
+                <DxMenuItem Text="Production Sync" IconCssClass="fa fa-refresh" Click="@OnSyncClickAsync" />
             </Items>
         </DxMenu>
     </div>
@@ -182,6 +186,12 @@
 </DxPopup>
 
 @code {
+    private readonly string[] ScreenIds =
+   {
+        "ProductiontimingNMachineInfosyrup",
+        "ProdTimingSyrupPackingGrid",
+        "ProductionTimingSyrupOthers"
+    };
     bool IsDrawerOpen { get; set; } = false;
     string PanelWidth { get; set; } = "580px";
     bool isFullScreen { get; set; } = false;
@@ -209,6 +219,8 @@
     bool onSyrupReport { get; set; } = false;
     bool onScheduler { get; set; } = false;
     bool isEnabled { get; set; } = false;
+    bool isGenerateEnabled { get; set; } = false;
+    DateTime? DateTimeValue { get; set; }
 
     private void HandleSaveCompleted()
     {
@@ -220,9 +232,49 @@
         onSyrupReport = true;
     }
 
+    private async Task OnSyncClickAsync()
+    {        
+        await ProcessScreensAsync();
+    }
+
+    private async Task ProcessScreensAsync()
+    {
+        try
+        {
+
+            await jsRuntime.InvokeVoidAsync("showLoading");            
+            foreach (var screenId in ScreenIds)
+            {
+                var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation(screenId));
+                if (result != null && result.ID > 0)
+                {
+                    await Mediator.Send(new GetOnDynamicFormSyncTables(result, applicationUser.UserID));
+                }
+
+                AppToast.ShowSuccess($"{screenId} synced successfully!");
+            }
+
+
+            AppToast.ShowSuccess("All screen syncs completed successfully!");
+        }
+        catch (Exception ex)
+        {
+
+            AppToast.ShowError($"Sync failed: {ex.Message}");
+        }
+        finally
+        {
+            var result = await Repo.SyncPrimaryToSyrupPlanningAsync();
+            AppToast.ShowSuccess($"Sync complete — read {result.ReadCount}, inserted {result.InsertedCount}, skipped {result.SkippedCount}");
+
+            await jsRuntime.InvokeVoidAsync("hideLoading");
+        }
+    }
+
+
     async Task onPlanning()
     {       
-       
+
         PreviewPlanning = true;
     }
     void onClickNormalScreen()
@@ -244,7 +296,7 @@
         PanelWidth = "100%";
         StateHasChanged();
     }
- 
+
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -255,7 +307,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        DateTimeValue = DateTime.Now;
+        var d = DateTimeValue.Value;
+        int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);         
+
+        isGenerateEnabled = await Repo.ExistsGeneratePlanningAsync(weekNumber,d.Year);
         await UpdateDataAsync();
 
         // initial compute for Today 08:00

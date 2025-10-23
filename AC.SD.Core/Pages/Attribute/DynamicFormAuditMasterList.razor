@@ -43,6 +43,7 @@
                             TextFieldName="Name"
                             ValueFieldName="ID"
                             Value="@DataAudit.DynamicFormId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ValueExpression="@(() => DataAudit.DynamicFormId )"
                             ValueChanged="@((long? plantData) => SelectedFormChanged(plantData))"
                             ShowValidationIcon="true">
@@ -69,6 +70,7 @@
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             EditFormat="{0}-{1}"
                             Value="@DataAudit.AuditUserId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ValueExpression="@(() => DataAudit.AuditUserId )"
                             ValueChanged="@((long? plantData) => SelectedUserChanged(plantData))">
                     <Columns>
@@ -178,7 +180,7 @@
         EditEnabled = false;
         _DynamicFormDataAuditList = new List<DynamicFormDataAudit>();
         PanelVisible = true;
-        if (DataAudit.DynamicFormId > 0 && DataAudit.AuditUserId > 0)
+        if (DataAudit.DynamicFormId > 0)
         {
             _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditMasterList(DataAudit));
             if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)

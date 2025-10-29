@@ -148,6 +148,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     private DynamicFormDataDashboardWorkFlowFormList refDynamicFormDataDashboardWorkFlowFormList { get; set; }
     private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
@@ -272,11 +273,29 @@
         OnRowclick(e);
         NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
     }
-    void OpenNewForm()
+    async Task PermissionCheckFor()
+    {
+        if (_selectedItems != null && _selectedItems.DynamicFormId > 0)
+        {
+            AddPermissionEnabled = false; DeletePermissionEnabled = false; EditPermissionEnabled = false;
+            var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_selectedItems.DynamicFormId, applicationUser.UserID));
+            if (result != null)
+            {
+                AddPermissionEnabled = result.IsAdd.GetValueOrDefault(true);
+                DeletePermissionEnabled = result.IsDelete.GetValueOrDefault(true);
+                EditPermissionEnabled = result.IsEdit.GetValueOrDefault(true);
+            }
+        }
+    }
+    async Task OpenNewForm()
     {
         if (_selectedItems != null)
         {
-            NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+            await PermissionCheckFor();
+            if (EditPermissionEnabled == true)
+            {
+                NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+            }
         }
     }
     void addDetailFile()

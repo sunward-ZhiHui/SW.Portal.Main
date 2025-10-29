@@ -6274,8 +6274,8 @@ t1.DynamicFormSectionID,
                                                 "VALUES (@Type,@IsDelete,@IsEdit,@IsAdd,@DynamicFormId,@UserId);\r\n";
                                             var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                             var UniqueSessionId = Guid.NewGuid();
-                                           // await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                            //await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                            await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                            await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsDelete.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsDelete", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, item.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserId", UniqueSessionId);
@@ -6288,14 +6288,14 @@ t1.DynamicFormSectionID,
                                             bool isUpdate = false;
                                             if (counts.IsEdit != value.IsEdit)
                                             {
-                                               // await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                               // isUpdate = true;
+                                                await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                                isUpdate = true;
                                             }
                                             if (counts.IsAdd != value.IsAdd)
                                             {
-                                                //await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                                await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
 
-                                                //isUpdate = true;
+                                                isUpdate = true;
                                             }
                                             if (counts.IsDelete != value.IsDelete)
                                             {
@@ -6353,8 +6353,8 @@ t1.DynamicFormSectionID,
                                                     "VALUES (@Type,@IsDelete,@IsEdit,@IsAdd,@DynamicFormId,@UserId,@UserGroupId);\r\n";
                                                 var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                 var UniqueSessionId = Guid.NewGuid();
-                                               // await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                                //await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                                await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                                await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
                                                 await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsDelete.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsDelete", UniqueSessionId);
                                                 await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId);
                                                 await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, s.UserGroupId > 0 ? s.UserGroupId.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserGroupId", UniqueSessionId);
@@ -6368,14 +6368,14 @@ t1.DynamicFormSectionID,
                                                 bool isUpdate = false;
                                                 if (counts.IsEdit != value.IsEdit)
                                                 {
-                                                   // await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                                   // isUpdate = true;
+                                                    await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                                    isUpdate = true;
                                                 }
                                                 if (counts.IsAdd != value.IsAdd)
                                                 {
-                                                   // await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                                    await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
 
-                                                    //isUpdate = true;
+                                                    isUpdate = true;
                                                 }
                                                 if (counts.IsDelete != value.IsDelete)
                                                 {
@@ -6431,8 +6431,8 @@ t1.DynamicFormSectionID,
                                                "VALUES (@Type,@IsDelete,@IsEdit,@IsAdd,@DynamicFormId,@UserId,@LevelId);\r\n";
                                             var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                             var UniqueSessionId = Guid.NewGuid();
-                                            //await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                           // await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                            await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsEdit.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                            await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsAdd.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.IsDelete.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsDelete", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId);
                                             await InsertDynamicFormAudit("Add", "DynamicFormPermission", string.Empty, s.LevelId.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "LevelId", UniqueSessionId);
@@ -6446,14 +6446,14 @@ t1.DynamicFormSectionID,
                                             bool isUpdate = false;
                                             if (counts.IsEdit != value.IsEdit)
                                             {
-                                                //await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
-                                               // isUpdate = true;
+                                                await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsEdit.ToString(), value.IsEdit.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsEdit", UniqueSessionId);
+                                                isUpdate = true;
                                             }
                                             if (counts.IsAdd != value.IsAdd)
                                             {
-                                               // await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
+                                                await InsertDynamicFormAudit("Update", "DynamicFormPermission", counts.IsAdd.ToString(), value.IsAdd.ToString(), value.DynamicFormId, counts.DynamicFormPermissionId, sesId, UserId, DateTime.Now, false, "IsAdd", UniqueSessionId);
 
-                                                //isUpdate = true;
+                                                isUpdate = true;
                                             }
                                             if (counts.IsDelete != value.IsDelete)
                                             {
@@ -6550,8 +6550,8 @@ t1.DynamicFormSectionID,
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.DynamicFormId.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "DynamicFormId", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.Type != null ? index.Type.ToString() : null, null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "Type", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.UserId > 0 ? index.UserId.ToString() : null, null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "UserId", UniqueSessionId);
-                       // await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsAdd.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsAdd", UniqueSessionId);
-                      //  await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsEdit.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsEdit", UniqueSessionId);
+                        await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsAdd.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsAdd", UniqueSessionId);
+                        await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsEdit.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsEdit", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsDelete.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsDelete", UniqueSessionId);
                     }
                 }

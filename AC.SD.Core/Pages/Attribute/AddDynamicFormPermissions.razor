@@ -11,14 +11,14 @@
             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
-                    @* <DxFormLayoutItem Caption="" ColSpanMd="2">
+                    <DxFormLayoutItem Caption="" ColSpanMd="2">
                         <DxCheckBox @bind-Checked="@Data.IsAdd">Is Add</DxCheckBox>
 
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="" ColSpanMd="2">
                         <DxCheckBox @bind-Checked="@Data.IsEdit">Is Edit</DxCheckBox>
 
-                    </DxFormLayoutItem> *@
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="" ColSpanMd="2">
                         <DxCheckBox @bind-Checked="@Data.IsDelete">Is Delete</DxCheckBox>
 

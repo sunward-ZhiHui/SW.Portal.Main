@@ -1,5 +1,6 @@
 ﻿@page "/syrup-stepper"
 @using System.ComponentModel.DataAnnotations
+@using AC.SD.Core.Helpers
 @using DevExpress.Blazor
 @using Syncfusion.Blazor.Navigations
 @using global::Core.Entities
@@ -160,7 +161,7 @@ else
 
     public long DynamicFormDataID { get; set; }
     public long MethodCodeID { get; set; }
-
+    DateTime? DateTimeValue { get; set; } = DateTime.Now;
     int currentStep = 0;
     bool IsBusy = false;
 
@@ -286,11 +287,20 @@ else
         {
             IsBusy = true;
 
+            var d = DateTimeValue.Value;
+            int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);
+            var SelectedWeekOfMonth = weekNumber;
+            var SelectedMonth = d.Month;
+            var SelectedYear = d.Year;
+
             // set meta
             Model.AddedByUserID = applicationUser.UserID;
             Model.AddedDate = DateTime.Now;
             Model.ModifiedByUserID = applicationUser.UserID;
             Model.ModifiedDate = DateTime.Now;
+            Model.Year = SelectedYear;
+            Model.Month = SelectedMonth;
+            Model.WeekOfMonth = SelectedWeekOfMonth;
 
             // copy relevant values (guard SyrupPlanningData not null)
             if (SyrupPlanningData != null)

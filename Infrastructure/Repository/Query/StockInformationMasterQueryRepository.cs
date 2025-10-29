@@ -4,6 +4,8 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using DevExpress.Xpo.DB;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
 using IdentityModel.Client;
 using Infrastructure.Data;
@@ -17,6 +19,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -622,7 +625,7 @@ VALUES
                 if (conn.State != ConnectionState.Closed) conn.Close();
             }
         }
-        public async Task<IReadOnlyList<ProcessStepDto>> GetProcessFlowByProfileNoAsync(long DynamicFormDataID, DateTime productionDay, TimeSpan shiftStart, int? weekOfMonth = null,    int? month = null,    int? year = null)
+        public async Task<IReadOnlyList<ProcessStepDto>> GetProcessFlowByProfileNoAsync(long DynamicFormDataID, DateTime productionDay, TimeSpan shiftStart, int? weekOfMonth = null, int? month = null, int? year = null)
         {
             if (DynamicFormDataID == 0)
                 return Array.Empty<ProcessStepDto>();
@@ -849,10 +852,10 @@ VALUES
                 {
                     DynamicFormDataID = DynamicFormDataID,
                     StartDateTimeParam = startDateTime,
-                    WeekOfMonthParam = weekOfMonth,  
+                    WeekOfMonthParam = weekOfMonth,
                     MonthParam = month,
                     YearParam = year
-                });             
+                });
                 var list = rows.ToList();
                 return list;
             }
@@ -884,7 +887,7 @@ VALUES
             }
         }
 
-        public async Task<(List<GanttTaskDto> Tasks, List<GanttSegmentDto> Segments)>GetGanttTasksAndSegmentsByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart)
+        public async Task<(List<GanttTaskDto> Tasks, List<GanttSegmentDto> Segments)> GetGanttTasksAndSegmentsByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart)
         {
             if (string.IsNullOrWhiteSpace(profileNo))
                 return (new List<GanttTaskDto>(), new List<GanttSegmentDto>());
@@ -1331,12 +1334,17 @@ VALUES
                     conn.Close();
             }
         }
-        private int GetWeekOfMonth(DateTime date)
+        private int GetWeekOfMonth(DateTime selectedDate)
         {
-            DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-            int firstDayOffset = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Monday = 0
-            int weekOfMonth = ((date.Day + firstDayOffset - 1) / 7) + 1;
-            return weekOfMonth;
+            //DateTime firstDayOfMonth = new DateTime(selectedDate.Year, selectedDate.Month, 1);
+            //int firstDayOffset = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Monday = 0
+            //int weekOfMonth = ((selectedDate.Day + firstDayOffset - 1) / 7) + 1;
+            //return weekOfMonth;
+
+            var cultureInfo = CultureInfo.CurrentCulture;
+            var calendar = cultureInfo.Calendar;
+
+            return calendar.GetWeekOfYear(selectedDate,cultureInfo.DateTimeFormat.CalendarWeekRule,cultureInfo.DateTimeFormat.FirstDayOfWeek);
         }
         public async Task<SyrupPlanning> InsertOrUpdateSyrupPlanningAsync(SyrupPlanning model)
         {
@@ -1354,22 +1362,54 @@ VALUES
             {
                 DateTime planningDate = model.AddedDate != default ? model.AddedDate : DateTime.Now;
 
-                int weekOfMonth = GetWeekOfMonth(planningDate); // Monday-based week
+                int weekOfMonth = GetWeekOfMonth(planningDate);              
                 int month = planningDate.Month;
                 int year = planningDate.Year;
 
 
                 var existingIds = new List<long>();
 
+                //var existingWeekIds = new List<long>();
+                //if (model.DynamicFormDataID > 0 && model.DynamicFormDataItemID > 0)
+                //{
+
+                //    const string checkWeekSql = @"SELECT SyrupPlanningID FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID
+                //  AND DynamicFormDataItemID = @DynamicFormDataItemID
+                //  AND WeekOfMonth = @WeekOfMonth
+                //  AND [Month] = @Month
+                //  AND [Year] = @Year";
+
+                //    existingWeekIds = (await conn.QueryAsync<long>(checkWeekSql, new
+                //    {
+                //        model.DynamicFormDataID,
+                //        model.DynamicFormDataItemID,
+                //        WeekOfMonth = weekOfMonth,
+                //        Month = month,
+                //        Year = year
+                //    }, transaction: tran)).ToList();                   
+
+                //    if (existingWeekIds.Count > 0)
+                //    {
+                //        const string deleteFillingSql = @"DELETE FROM dbo.SyrupFilling WHERE SyrupPlanningID IN @Ids";
+                //        int deletedFilling = await conn.ExecuteAsync(deleteFillingSql, new { Ids = existingWeekIds }, transaction: tran);
+
+                //        const string deleteOtherProcessSql = @"DELETE FROM dbo.SyrupOtherProcess WHERE SyrupPlanningID IN @Ids";
+                //        int deletedOther = await conn.ExecuteAsync(deleteOtherProcessSql, new { Ids = existingWeekIds }, transaction: tran);
+
+                //        const string deleteParentSql = @"DELETE FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID AND DynamicFormDataItemID = @DynamicFormDataItemID;";
+                //        int deletedParents = await conn.ExecuteAsync(deleteParentSql, new
+                //        {
+                //            model.DynamicFormDataID,
+                //            model.DynamicFormDataItemID
+                //        }, transaction: tran);
+                //    }
+                //}
+
                 var existingWeekIds = new List<long>();
                 if (model.DynamicFormDataID > 0 && model.DynamicFormDataItemID > 0)
                 {
-
                     const string checkWeekSql = @"SELECT SyrupPlanningID FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID
-                  AND DynamicFormDataItemID = @DynamicFormDataItemID
-                  AND WeekOfMonth = @WeekOfMonth
-                  AND [Month] = @Month
-                  AND [Year] = @Year";
+          AND DynamicFormDataItemID = @DynamicFormDataItemID AND WeekOfMonth = @WeekOfMonth AND [Month] = @Month AND [Year] = @Year;";
 
                     existingWeekIds = (await conn.QueryAsync<long>(checkWeekSql, new
                     {
@@ -1380,31 +1420,79 @@ VALUES
                         Year = year
                     }, transaction: tran)).ToList();
 
-                    //const string findSql = @"SELECT SyrupPlanningID FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID AND DynamicFormDataItemID = @DynamicFormDataItemID;";
-
-                    //existingIds = (await conn.QueryAsync<long>(findSql, new
-                    //{
-                    //    model.DynamicFormDataID,
-                    //    model.DynamicFormDataItemID
-                    //}, transaction: tran)).ToList();
-
                     if (existingWeekIds.Count > 0)
-                    {                        
-                        const string deleteFillingSql = @"DELETE FROM dbo.SyrupFilling WHERE SyrupPlanningID IN @Ids";
-                        int deletedFilling = await conn.ExecuteAsync(deleteFillingSql, new { Ids = existingIds }, transaction: tran);
+                    {
+                        
+                        const string countChildrenSql = @"SELECT (SELECT COUNT(*) FROM dbo.SyrupFilling sf WHERE sf.SyrupPlanningID IN @Ids) AS FillingCount,
+                                                          (SELECT COUNT(*) FROM dbo.SyrupOtherProcess sop WHERE sop.SyrupPlanningID IN @Ids) AS OtherProcessCount";
+                        var counts = await conn.QuerySingleAsync(countChildrenSql, new { Ids = existingWeekIds }, transaction: tran);
+                                              
+                        const string deleteFillingSql = @"DELETE sf FROM dbo.SyrupFilling sf
+                                                            JOIN dbo.SyrupPlanning sp ON sf.SyrupPlanningID = sp.SyrupPlanningID
+                                                            WHERE sp.DynamicFormDataID = @DynamicFormDataID
+                                                              AND sp.DynamicFormDataItemID = @DynamicFormDataItemID
+                                                              AND sp.WeekOfMonth = @WeekOfMonth AND sp.[Month] = @Month AND sp.[Year] = @Year";
 
-                        const string deleteOtherProcessSql = @"DELETE FROM dbo.SyrupOtherProcess WHERE SyrupPlanningID IN @Ids";
-                        int deletedOther = await conn.ExecuteAsync(deleteOtherProcessSql, new { Ids = existingIds }, transaction: tran);
-                                            
-                        const string deleteParentSql = @"DELETE FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID AND DynamicFormDataItemID = @DynamicFormDataItemID;";
+                        int deletedFilling = await conn.ExecuteAsync(deleteFillingSql, new
+                        {
+                            model.DynamicFormDataID,
+                            model.DynamicFormDataItemID,
+                            WeekOfMonth = weekOfMonth,
+                            Month = month,
+                            Year = year
+                        }, transaction: tran);
+
+                        const string deleteOtherProcessSql = @" DELETE sop FROM dbo.SyrupOtherProcess sop
+                                                                JOIN dbo.SyrupPlanning sp ON sop.SyrupPlanningID = sp.SyrupPlanningID
+                                                                WHERE sp.DynamicFormDataID = @DynamicFormDataID
+                                                                    AND sp.DynamicFormDataItemID = @DynamicFormDataItemID
+                                                                    AND sp.WeekOfMonth = @WeekOfMonth AND sp.[Month] = @Month AND sp.[Year] = @Year";
+
+                        int deletedOther = await conn.ExecuteAsync(deleteOtherProcessSql, new
+                        {
+                            model.DynamicFormDataID,
+                            model.DynamicFormDataItemID,
+                            WeekOfMonth = weekOfMonth,
+                            Month = month,
+                            Year = year
+                        }, transaction: tran);
+
+                        // Double-check no children remain for those parents
+                        const string remainingChildrenCheck = @" SELECT TOP 1 1 FROM dbo.SyrupOtherProcess sop
+                                                                JOIN dbo.SyrupPlanning sp ON sop.SyrupPlanningID = sp.SyrupPlanningID
+                                                                WHERE sp.DynamicFormDataID = @DynamicFormDataID
+                                                                  AND sp.DynamicFormDataItemID = @DynamicFormDataItemID
+                                                                  AND sp.WeekOfMonth = @WeekOfMonth AND sp.[Month] = @Month AND sp.[Year] = @Year";
+
+                        var stillExists = await conn.QueryFirstOrDefaultAsync<int?>(remainingChildrenCheck, new
+                        {
+                            model.DynamicFormDataID,
+                            model.DynamicFormDataItemID,
+                            WeekOfMonth = weekOfMonth,
+                            Month = month,
+                            Year = year
+                        }, transaction: tran);
+
+                        if (stillExists.HasValue)
+                        {                            
+                            throw new InvalidOperationException("Child rows in SyrupOtherProcess still exist after delete attempt. Aborting parent delete.");
+                        }
+
+                        const string deleteParentSql = @" DELETE FROM dbo.SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID AND DynamicFormDataItemID = @DynamicFormDataItemID AND WeekOfMonth = @WeekOfMonth AND [Month] = @Month AND [Year] = @Year";
+
                         int deletedParents = await conn.ExecuteAsync(deleteParentSql, new
                         {
                             model.DynamicFormDataID,
-                            model.DynamicFormDataItemID
-                        }, transaction: tran);                        
+                            model.DynamicFormDataItemID,
+                            WeekOfMonth = weekOfMonth,
+                            Month = month,
+                            Year = year
+                        }, transaction: tran);
+                       
                     }
                 }
-                
+
+
                 var minSqlDate = new DateTime(1753, 1, 1);
                 DateTime? addedDateSafe = model.AddedDate >= minSqlDate ? model.AddedDate : null;
                 DateTime? modifiedDateSafe = model.ModifiedDate >= minSqlDate ? model.ModifiedDate : null;
@@ -1553,7 +1641,7 @@ VALUES
 
                     resultId = await conn.QuerySingleAsync<long>(insertSql, parameters, transaction: tran);
                 }
-                
+
                 tran.Commit();
                 model.Id = resultId;
                 return model;
@@ -1779,7 +1867,7 @@ VALUES
                         ProcessName_Secondary = it.ProcessName_Secondary,
                         NextProcessName_Secondary = it.NextProcessName_Secondary,
                         RequireOfflinePacking = it.RequireOfflinePacking,
-                        AddedByUserID = it.AddedByUserID,
+                        AddedByUserID = it.AddedByUserID,   
                         Description = it.Description,
                         ModifiedBy = it.ModifiedBy,
                         ModifiedDate = it.ModifiedDate
@@ -2716,10 +2804,579 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                 if (conn.State != ConnectionState.Closed) conn.Close();
             }
         }
+        
+        private static string FormatDuration(TimeSpan ts)
+        {
+            if (ts.TotalMinutes <= 0) return "0m";
+            int days = ts.Days, hours = ts.Hours, minutes = ts.Minutes;
+            var parts = new List<string>(3);
+            if (days > 0) parts.Add($"{days}d");
+            if (hours > 0) parts.Add($"{hours}h");
+            if (minutes > 0) parts.Add($"{minutes}m");
+            return string.Join(" ", parts);
+        }
+        private static (DateTime LStart, DateTime LEnd)? GetLunchWindow(DateTime when)
+        {
+            var day = when.Date;
+            bool isFriday = when.DayOfWeek == DayOfWeek.Friday;
+
+            var lunchStart = day.AddHours(12).AddMinutes(30); 
+            var lunchEnd = isFriday
+                ? day.AddHours(14).AddMinutes(30)   // Friday: 12:30–14:30
+                : day.AddHours(13).AddMinutes(30);  // Other days: 12:30–13:30
+
+            return (lunchStart, lunchEnd);
+        }
+       
+        private static (List<SegmentModel> Segments, int NextId) BuildSegmentsForTask(int taskId, DateTime start, DateTime end, int nextSegId)
+        {
+            var segments = new List<SegmentModel>();
+            int currentId = nextSegId;
+
+            if (end <= start) return (segments, currentId);
+
+            DateTime cursor = start;
+
+            while (cursor < end)
+            {
+                var endOfDay = cursor.Date.AddDays(1);
+                var sliceEnd = end < endOfDay ? end : endOfDay;
+
+                var (lunchStart, lunchEnd) = GetLunchWindow(cursor).Value;
+
+                // Before lunch
+                var preStart = cursor;
+                var preEnd = sliceEnd <= lunchStart ? sliceEnd : lunchStart;
+                if (preEnd > preStart)
+                    Add(preStart, preEnd);
+
+                // After lunch
+                var postStart = sliceEnd <= lunchEnd ? sliceEnd : lunchEnd;
+                postStart = postStart < lunchEnd ? lunchEnd : postStart; // ensure after lunch
+                if (sliceEnd > postStart)
+                    Add(postStart, sliceEnd);
+
+                cursor = sliceEnd;
+            }
+
+            return (segments, currentId);
+
+            void Add(DateTime s, DateTime e)
+            {
+                var span = e - s;
+                if (span.TotalMinutes <= 0) return;
+
+                var hours = Math.Round(span.TotalHours, 2);
+                segments.Add(new SegmentModel
+                {
+                    id = currentId++,
+                    TaskId = taskId,
+                    StartDate = s,
+                    EndDate = e,
+                    Duration = hours.ToString("0.##", CultureInfo.InvariantCulture)
+                });
+            }
+        }
+        public List<SegmentModel> FlattenSegments(IEnumerable<TaskData> tasks) => tasks?.SelectMany(t => t.Segments ?? Enumerable.Empty<SegmentModel>()).ToList() ?? new List<SegmentModel>();
+
+        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo,DateTime productionDay,TimeSpan shiftStart,long? DynamicFormDataID = null,int? SelectedWeekOfMonth = null,int? SelectedMonth = null,int? SelectedYear = null)
+        {
+            var startDateTime = productionDay.Date + shiftStart;
+            const string procName = "dbo.sp_GetProductionGantt";
+
+            using var conn = CreateConnection();
+            if (conn is SqlConnection sconn) await sconn.OpenAsync();
+            else if (conn.State == ConnectionState.Closed) conn.Open();
+
+            try
+            {
+                var rows = (await conn.QueryAsync(
+                    procName,
+                    new
+                    {
+                        ProfileNo = profileNo,
+                        StartDateTimeParam = startDateTime,
+                        DynamicFormDataID,
+                        WeekOfMonthParam = SelectedWeekOfMonth,
+                        MonthParam = SelectedMonth,
+                        YearParam = SelectedYear
+                    },
+                    commandType: CommandType.StoredProcedure
+                )).ToList();
+
+                var results = new List<TaskData>(rows.Count);
+                int nextSegmentId = 1;
+
+                foreach (var row in rows)
+                {
+                    long taskId = row.TaskId is null ? 0L : Convert.ToInt64(row.TaskId);
+                    string? taskName = Convert.ToString(row.TaskName);
+
+                    DateTime sd, ed;
+                    DateTime? startDate = DateTime.TryParse(Convert.ToString(row.StartDate), out sd) ? sd : (DateTime?)null;
+                    DateTime? endDate = DateTime.TryParse(Convert.ToString(row.EndDate), out ed) ? ed : (DateTime?)null;
+
+                    int durationMinutesFromSql = row.DurationMinutes is null ? 0 : Convert.ToInt32(row.DurationMinutes);
+                    int durationMinutesComputed = 0;
+
+                    if (startDate.HasValue && endDate.HasValue)
+                    {
+                        var diff = endDate.Value - startDate.Value;
+                        if (diff.TotalMinutes > 0)
+                            durationMinutesComputed = (int)Math.Round(diff.TotalMinutes);
+                    }
+
+                    int durationMinutesFinal = durationMinutesComputed > 0 ? durationMinutesComputed : durationMinutesFromSql;
+                    string durationText = FormatDuration(TimeSpan.FromMinutes(durationMinutesFinal));
+                    decimal? durationHours = Math.Round(durationMinutesFinal / 60m, 2);
+
+                    var task = new TaskData
+                    {
+                        TaskId = (int)taskId,
+                        TaskName = taskName,
+                        StartDate = startDate,
+                        EndDate = endDate,
+                        Duration = durationText,
+                        Room = row.Room is null ? null : Convert.ToString(row.Room),
+                        Predecessor = taskId.ToString(),
+                        DurationHours = durationHours
+                    };
+
+                    // ✅ build segments (no ref!)
+                    if (startDate.HasValue && endDate.HasValue)
+                    {
+                        var segResult = BuildSegmentsForTask(task.TaskId, startDate.Value, endDate.Value, nextSegmentId);
+                        task.Segments.AddRange(segResult.Segments);
+                        nextSegmentId = segResult.NextId;
+                    }
+
+                    results.Add(task);
+                }
+
+                return results.AsReadOnly();
+            }
+            finally
+            {
+                if (conn.State != ConnectionState.Closed) conn.Close();
+            }
+        }
+        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList_vvkk1(string profileNo, DateTime productionDay, TimeSpan shiftStart,    long? DynamicFormDataID = null, int? SelectedWeekOfMonth = null,    int? SelectedMonth = null, int? SelectedYear = null)
+        {
+            var startDateTime = productionDay.Date + shiftStart;
+
+            const string sqlTimeline = @"
+WITH AllProcesses AS
+(
+    /* 1. Other Process */
+    SELECT 
+        sp.MethodCodeID,
+        sp.MethodName,
+        op.SyrupPlanningID,
+        10 AS Seq,
+        'OtherProcess' AS Source,
+        op.ProcessName AS ProcessName,
+        op.LocationOfProcess AS Room,
+        op.SyrupOtherProcessNextProcess AS NextProcessName,
+        TRY_CONVERT(decimal(18,4), op.ManhoursOrHours) AS DurationHours,
+        CAST(ROUND(ISNULL(TRY_CONVERT(decimal(18,4), op.ManhoursOrHours), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), op.NoOfManpower) AS Manpower
+    FROM dbo.SyrupOtherProcess op
+    INNER JOIN dbo.SyrupPlanning sp on sp.SyrupPlanningID = op.SyrupPlanningID
+    WHERE ISNULL(LTRIM(RTRIM(op.ProcessName)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 2. Syrup Simplex */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sp.SyrupPlanningID,
+        20 AS Seq,
+        'SyrupSimplex' AS Source,
+        sp.SyrupSimplexProcessName AS ProcessName,
+        sp.SyrupSimplexLocation AS Room,
+        sp.SyrupSimplexNextProcessName AS NextProcessName,
+        TRY_CONVERT(decimal(18,4), REPLACE(sp.SyrupSimplexPreparationHour, ',', '')) AS DurationHours,
+        CAST(ROUND(ISNULL(TRY_CONVERT(decimal(18,4), REPLACE(sp.SyrupSimplexPreparationHour, ',', '')), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sp.SyrupSimplexManpower) AS Manpower
+    FROM dbo.SyrupPlanning sp
+    WHERE ISNULL(LTRIM(RTRIM(sp.SyrupSimplexProcessName)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 3. Syrup Simplex - Level2 Cleaning */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sp.SyrupPlanningID,
+        21 AS Seq,
+        'SyrupSimplexLevel2Cleaning' AS Source,
+        CONCAT(sp.SyrupSimplexProcessName, ' - Level2 Cleaning') AS ProcessName,
+        sp.SyruppreparationLocation AS Room,
+        sp.SyrupSimplexNextProcessName AS NextProcessName,
+        TRY_CONVERT(decimal(18,4), sp.SyrupSimplexLevel2CleaningHours) AS DurationHours,
+        CAST(ROUND(ISNULL(TRY_CONVERT(decimal(18,4), sp.SyrupSimplexLevel2CleaningHours), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sp.SyrupSimplexLevel2CleaningManpower) AS Manpower
+    FROM dbo.SyrupPlanning sp
+    WHERE ISNULL(LTRIM(RTRIM(sp.SyrupSimplexProcessName)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 4. Syrup Preparation - Mixing */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sp.SyrupPlanningID,
+        30 AS Seq,
+        'SyrupPreparation' AS Source,
+        sp.SyruppreparationProcessName AS ProcessName,
+        sp.SyruppreparationLocation AS Room,
+        sp.SyruppreparationNextProcessName AS NextProcessName,
+        TRY_CONVERT(decimal(18,4), REPLACE(sp.SyruppreparationFirstVolumnHour, ',', '')) AS DurationHours,
+        CAST(ROUND(ISNULL(TRY_CONVERT(decimal(18,4), REPLACE(sp.SyruppreparationFirstVolumnHour, ',', '')), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sp.SyruppreparationFirstVolumnManpower) AS Manpower
+    FROM dbo.SyrupPlanning sp
+    WHERE ISNULL(LTRIM(RTRIM(sp.SyruppreparationProcessName)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    /* 5. Syrup Filling — include each process column separately */
+    UNION ALL
+
+    /* 5a. ProcessName_Primary */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sf.SyrupPlanningID,
+        40 AS Seq,
+        'PrimaryPacking' AS Source,
+        sf.ProcessName_Primary AS ProcessName,
+        NULL AS Room,
+        sf.NextProcessName_Primary AS NextProcessName,
+        COALESCE(sf.FillingHours_Level1, sf.ChangePackingFillingHours, 0) AS DurationHours,
+        CAST(ROUND(ISNULL(COALESCE(sf.FillingHours_Level1, sf.ChangePackingFillingHours, 0), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sf.FillingManpower_Level1) AS Manpower
+    FROM dbo.SyrupFilling sf
+    LEFT JOIN dbo.SyrupPlanning sp ON sf.SyrupPlanningID = sp.SyrupPlanningID
+    WHERE ISNULL(LTRIM(RTRIM(sf.ProcessName_Primary)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 5b. NextProcessName_Primary (Machine Filling) */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sf.SyrupPlanningID,
+        41 AS Seq,
+        'MachineFilling' AS Source,
+        sf.NextProcessName_Primary AS ProcessName,
+        NULL AS Room,
+        sf.ProcessName_Secondary AS NextProcessName,
+        COALESCE(sf.FillingHours_Level2, 0) AS DurationHours,
+        CAST(ROUND(ISNULL(COALESCE(sf.FillingHours_Level2, 0), 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sf.FillingManpower_Level2) AS Manpower
+    FROM dbo.SyrupFilling sf
+    LEFT JOIN dbo.SyrupPlanning sp ON sf.SyrupPlanningID = sp.SyrupPlanningID
+    WHERE ISNULL(LTRIM(RTRIM(sf.NextProcessName_Primary)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 5c. ProcessName_Secondary */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sf.SyrupPlanningID,
+        42 AS Seq,
+        'SecondaryPacking' AS Source,
+        sf.ProcessName_Secondary AS ProcessName,
+        NULL AS Room,
+        sf.NextProcessName_Secondary AS NextProcessName,
+        CASE WHEN ISNULL(sf.SecondarySameAsPrimaryTime,0) = 1 THEN COALESCE(sf.FillingHours_Level1,0)
+             ELSE COALESCE(sf.SecondaryPackingHours,0) END AS DurationHours,
+        CAST(ROUND(ISNULL(
+            CASE WHEN ISNULL(sf.SecondarySameAsPrimaryTime,0) = 1 THEN COALESCE(sf.FillingHours_Level1,0)
+                 ELSE COALESCE(sf.SecondaryPackingHours,0) END, 0) * 60, 0) AS INT) AS DurationMinutes,
+        TRY_CONVERT(decimal(18,4), sf.SecondaryManpower) AS Manpower
+    FROM dbo.SyrupFilling sf
+    LEFT JOIN dbo.SyrupPlanning sp ON sf.SyrupPlanningID = sp.SyrupPlanningID
+    WHERE ISNULL(LTRIM(RTRIM(sf.ProcessName_Secondary)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+
+    UNION ALL
+
+    /* 5d. NextProcessName_Secondary (if present) */
+    SELECT
+        sp.MethodCodeID,
+        sp.MethodName,
+        sf.SyrupPlanningID,
+        43 AS Seq,
+        'SecondaryNext' AS Source,
+        sf.NextProcessName_Secondary AS ProcessName,
+        NULL AS Room,
+        NULL AS NextProcessName,
+        0 AS DurationHours,
+        0 AS DurationMinutes,
+        NULL AS Manpower
+    FROM dbo.SyrupFilling sf
+    LEFT JOIN dbo.SyrupPlanning sp ON sf.SyrupPlanningID = sp.SyrupPlanningID
+    WHERE ISNULL(LTRIM(RTRIM(sf.NextProcessName_Secondary)), '') <> ''
+      AND (@WeekOfMonthParam IS NULL OR sp.WeekOfMonth = @WeekOfMonthParam)
+      AND (@MonthParam IS NULL OR sp.Month = @MonthParam)
+      AND (@YearParam IS NULL OR sp.Year = @YearParam)
+      AND (@DynamicFormDataID IS NULL OR sp.DynamicFormDataID = @DynamicFormDataID)
+),
+OrderedPerPlan AS
+(
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY MethodCodeID, SyrupPlanningID ORDER BY Seq, ProcessName) AS rn_within_plan,
+           COALESCE(DurationMinutes, 0) AS DurationMinutesNonNull
+    FROM AllProcesses
+    WHERE SyrupPlanningID IS NOT NULL
+),
+TimelinePerPlan AS
+(
+    SELECT *,
+           SUM(DurationMinutesNonNull) OVER (PARTITION BY MethodCodeID, SyrupPlanningID ORDER BY rn_within_plan
+                                            ROWS UNBOUNDED PRECEDING) AS CumMinutesPerPlan
+    FROM OrderedPerPlan
+),
+-- CHILD rows (numeric IDs) — compute Predecessor
+ChildRows AS
+(
+    SELECT
+        CAST((COALESCE(SyrupPlanningID, 0) * 1000000) + rn_within_plan AS BIGINT) AS TaskId, -- unique numeric child id
+        ProcessName AS TaskName,
+        DATEADD(MINUTE, (CumMinutesPerPlan - DurationMinutesNonNull), @StartDateTimeParam) AS StartDate,
+        DATEADD(MINUTE, CumMinutesPerPlan, @StartDateTimeParam) AS EndDate,
+        0 AS Progress,
+
+        /* Predecessor logic:
+           - If this row is MachineFilling (Seq = 41) -> depend on PrimaryPacking (Seq = 40) for same SyrupPlanning (if present)
+           - If this row is SecondaryPacking (Seq = 42) -> depend on PrimaryPacking (Seq = 40) if present
+           - Otherwise default to previous sibling
+        */
+        CASE
+            WHEN Seq = 41 THEN
+                /* MachineFilling -> PrimaryPacking if present, else previous sibling */
+                CAST(
+                    (COALESCE(SyrupPlanningID,0) * 1000000)
+                    +
+                    ISNULL(
+                        (SELECT MIN(rn_within_plan) FROM OrderedPerPlan op2
+                         WHERE op2.SyrupPlanningID = TimelinePerPlan.SyrupPlanningID AND op2.Seq = 40),
+                        rn_within_plan - 1
+                    )
+                    AS VARCHAR(50)
+                )
+            WHEN Seq = 42 THEN
+                /* SecondaryPacking -> PrimaryPacking if present, else previous sibling */
+                CAST(
+                    (COALESCE(SyrupPlanningID,0) * 1000000)
+                    +
+                    ISNULL(
+                        (SELECT MIN(rn_within_plan) FROM OrderedPerPlan op2
+                         WHERE op2.SyrupPlanningID = TimelinePerPlan.SyrupPlanningID AND op2.Seq = 40),
+                        rn_within_plan - 1
+                    )
+                    AS VARCHAR(50)
+                )
+            WHEN rn_within_plan > 1 THEN
+                /* default: previous sibling */
+                CAST((COALESCE(SyrupPlanningID,0) * 1000000) + (rn_within_plan - 1) AS VARCHAR(50))
+            ELSE NULL
+        END AS Predecessor,
+
+        CAST(MethodCodeID AS BIGINT) AS ParentId, -- <- child points directly to Method
+        DurationMinutesNonNull AS DurationMinutes,
+        COALESCE(DurationHours, 0) AS DurationHours,
+        Manpower,
+        Room,
+        NextProcessName,
+        SyrupPlanningID,
+        MethodCodeID,
+        MethodName,
+        MethodCodeID AS SortMethod,
+        SyrupPlanningID AS SortPlanning,
+        rn_within_plan AS SortChild,
+        Seq
+    FROM TimelinePerPlan
+),
+-- METHOD top-level rows (numeric IDs)
+MethodRows AS
+(
+    SELECT
+        CAST(MethodCodeID AS BIGINT) AS TaskId, -- numeric top-level id = MethodCodeID
+        MethodName AS TaskName,
+        @StartDateTimeParam AS StartDate,
+        @StartDateTimeParam AS EndDate,
+        0 AS Progress,
+        NULL AS Predecessor,
+        NULL AS ParentId, -- top level has no parent
+        SUM(COALESCE(DurationMinutes,0)) AS DurationMinutes,
+        SUM(COALESCE(DurationHours,0)) AS DurationHours,
+        NULL AS Manpower,
+        NULL AS Room,
+        NULL AS NextProcessName,
+        NULL AS SyrupPlanningID,
+        MethodCodeID,
+        MethodName,
+        MethodCodeID AS SortMethod,
+        NULL AS SortPlanning,
+        0 AS SortChild
+    FROM AllProcesses
+    GROUP BY MethodCodeID, MethodName
+)
+
+-- final union: methods + children
+SELECT
+    TaskId, TaskName, StartDate, EndDate, Progress, Predecessor, ParentId,
+    DurationMinutes, DurationHours, Manpower, Room, NextProcessName, SyrupPlanningID,
+    MethodCodeID, MethodName,
+    SortMethod, SortPlanning, SortChild
+FROM MethodRows
+
+UNION ALL
+
+SELECT
+    TaskId, TaskName, StartDate, EndDate, Progress, Predecessor, ParentId,
+    DurationMinutes, DurationHours, Manpower, Room, NextProcessName, SyrupPlanningID,
+    MethodCodeID, MethodName,
+    SortMethod, SortPlanning, SortChild
+FROM ChildRows
+
+ORDER BY SortMethod, SortPlanning, SortChild, TaskId;
+";
+
+            using var conn = CreateConnection();
+            if (conn is SqlConnection sconn) await sconn.OpenAsync();
+            else if (conn.State == ConnectionState.Closed) conn.Open();
+
+            try
+            {
+                var rows = (await conn.QueryAsync(sqlTimeline, new
+                {
+                    ProfileNo = profileNo,
+                    StartDateTimeParam = startDateTime,
+                    DynamicFormDataID = DynamicFormDataID,
+                    WeekOfMonthParam = SelectedWeekOfMonth,
+                    MonthParam = SelectedMonth,
+                    YearParam = SelectedYear
+                })).ToList();
+
+                var results = new List<TaskData>(rows.Count);
+
+                foreach (var row in rows)
+                {
+                    // use long for TaskId because we built large IDs
+                    long taskId = row.TaskId is null ? 0L : Convert.ToInt64(row.TaskId);
+                    string? taskName = row.TaskName is null ? null : Convert.ToString(row.TaskName);
+
+                    DateTime? startDate = null;
+                    DateTime? endDate = null;
+
+                    DateTime sd;
+                    if (DateTime.TryParse(Convert.ToString(row.StartDate), out sd))
+                        startDate = sd;
+
+                    DateTime ed;
+                    if (DateTime.TryParse(Convert.ToString(row.EndDate), out ed))
+                        endDate = ed;
+
+                   
 
 
-        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart,long? DynamicFormDataID = null,int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null)
-        {            
+                    int durationMinutes = row.DurationMinutes is null ? 0 : Convert.ToInt32(row.DurationMinutes);
+
+                    int progress = 0;
+                    DateTime now = DateTime.Now;
+
+                    if (startDate.HasValue)
+                    {
+                        if (durationMinutes <= 0)
+                        {
+                            progress = (now >= startDate.Value) ? 100 : 0;
+                        }
+                        else if (now <= startDate.Value)
+                        {
+                            progress = 0;
+                        }
+                        else if (endDate.HasValue && now >= endDate.Value)
+                        {
+                            progress = 100;
+                        }
+                        else
+                        {
+                            var elapsedMinutes = (now - startDate.Value).TotalMinutes;
+                            double fraction = elapsedMinutes / durationMinutes;
+                            progress = (int)Math.Round(Math.Min(100, fraction * 100));
+                        }
+                    }
+
+                    // predecessor is a string from SQL (or null)
+                    string? predecessor = row.Predecessor is null ? null : Convert.ToString(row.Predecessor);
+
+                    // ParentId -> may be null
+                    long? parentId = null;
+                    long pid;
+                    if (row.ParentId != null)
+                    {
+                       
+                        if (long.TryParse(Convert.ToString(row.ParentId), out pid))
+                            parentId = pid;
+                    }
+
+                    decimal durationHours = row.DurationHours is null ? 0m : Convert.ToDecimal(row.DurationHours);
+                    decimal? manpower = row.Manpower is null ? null : (decimal?)Convert.ToDecimal(row.Manpower);
+                    string? nextProcess = row.NextProcessName is null ? null : Convert.ToString(row.NextProcessName);
+
+                    results.Add(new TaskData
+                    {
+                        TaskId = (int)taskId,
+                        TaskName = taskName,
+                        StartDate = startDate,
+                        EndDate = endDate,
+                        Room = row.Room is null ? null : Convert.ToString(row.Room),
+                        Progress = progress,
+                        Predecessor = taskId.ToString(),
+                        ParentId = (int?)parentId
+                    });
+                }
+
+                return results.AsReadOnly();
+            }
+            finally
+            {
+                if (conn.State != ConnectionState.Closed) conn.Close();
+            }
+        }
+
+        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList_vvkk(string profileNo, DateTime productionDay, TimeSpan shiftStart, long? DynamicFormDataID = null, int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null)
+        {
             var startDateTime = productionDay.Date + shiftStart;
 
             const string sqlTimeline = @"WITH AllProcesses AS
@@ -3011,7 +3668,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                 })).ToList();
 
                 var results = new List<TaskData>(rows.Count);
-                
+
                 foreach (var row in rows)
                 {
                     int taskId = row.TaskId is null ? 0 : Convert.ToInt32(row.TaskId);
@@ -3098,7 +3755,706 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                     conn.Close();
             }
         }
-    
 
+        private const string InsertSyrupPlanningSql = @"
+INSERT INTO SyrupPlanning
+(
+    DynamicFormDataItemID,
+    MethodCodeLineID,
+    DynamicFormDataID,
+    MethodName,
+    MethodCodeID,
+    ProfileNo,
+    MethodCode,
+    BatchSizeInLiters,
+    RestrictionOnPlanningDay,
+    ProcessName,
+    IsthereSyrupSimplextoproduce,
+    SyrupSimplexProcessName,
+    SyrupSimplexLocation,
+    SyrupSimplexPreparationHour,
+    SyrupSimplexManpower,
+    SyrupSimplexLevel2CleaningHours,
+    SyrupSimplexLevel2CleaningManpower,
+    SyrupSimplexNoofCampaign,
+    SyrupSimplexNextProcessName,
+
+
+    SyruppreparationFirstVolumnHour,
+    SyruppreparationFirstVolumnManpower,
+    SyruppreparationIPQCTest,
+    SyruppreparationTopupToVolumnHour,
+    SyruppreparationTopupToVolumnManpower,
+    SyruppreparationCampaignBatchesNumbers,
+    SyruppreparationLevel1CleaningHours,
+    SyruppreparationLevel1Cleaningmanpower,
+    SyruppreparationLevel2Cleaninghours,
+    SyruppreparationLevel2CleaningManpower,
+    SyruppreparationNextProcessName,
+    PreparationPerHour,
+    Level2CleaningHours,
+    Level2CleaningManpower,
+    NoOfCampaign,
+    NextProcessName,
+    PreparationFirstVolumePerHour,
+    PreparationFirstVolumeManpower,
+    IpqcTestRequired,
+    PreparationTopUpPerHour,
+    PreparationTopUpManpower,
+    CampaignBatches,
+    Level1CleaningHours,
+    Level1CleaningManpower,
+    SyrupLevel2CleaningHours,
+    SyrupLevel2CleaningManpower,
+    NextProcessNameAfterPreparation,
+    AddedByUserID,
+    ModifiedByUserID,
+    AddedDate,
+    ModifiedDate,
+    WeekOfMonth,
+    Month,
+    Year
+)
+OUTPUT INSERTED.SyrupPlanningID
+VALUES
+(
+    @DynamicFormDataItemID,
+    @MethodCodeLineID,
+    @DynamicFormDataID,
+    @MethodName,
+    @MethodCodeID,
+    @ProfileNo,
+    @MethodCode,
+    @BatchSizeInLiters,
+    @RestrictionOnPlanningDay,
+    @ProcessName,
+    @IsthereSyrupSimplextoproduce,
+    @SyrupSimplexProcessName,
+    @SyrupSimplexLocation,
+    @SyrupSimplexPreparationHour,
+    @SyrupSimplexManpower,
+    @SyrupSimplexLevel2CleaningHours,
+    @SyrupSimplexLevel2CleaningManpower,
+    @SyrupSimplexNoofCampaign,
+    @SyrupSimplexNextProcessName,
+  
+  
+    @SyruppreparationFirstVolumnHour,
+    @SyruppreparationFirstVolumnManpower,
+    @SyruppreparationIPQCTest,
+    @SyruppreparationTopupToVolumnHour,
+    @SyruppreparationTopupToVolumnManpower,
+    @SyruppreparationCampaignBatchesNumbers,
+    @SyruppreparationLevel1CleaningHours,
+    @SyruppreparationLevel1Cleaningmanpower,
+    @SyruppreparationLevel2Cleaninghours,
+    @SyruppreparationLevel2CleaningManpower,
+    @SyruppreparationNextProcessName,
+    @PreparationPerHour,
+    @Level2CleaningHours,
+    @Level2CleaningManpower,
+    @NoOfCampaign,
+    @NextProcessName,
+    @PreparationFirstVolumePerHour,
+    @PreparationFirstVolumeManpower,
+    @IpqcTestRequired,
+    @PreparationTopUpPerHour,
+    @PreparationTopUpManpower,
+    @CampaignBatches,
+    @Level1CleaningHours,
+    @Level1CleaningManpower,
+    @SyrupLevel2CleaningHours,
+    @SyrupLevel2CleaningManpower,
+    @NextProcessNameAfterPreparation,
+    @AddedByUserID,
+    @ModifiedByUserID,
+    @AddedDate,
+    @ModifiedDate,
+    @WeekOfMonth,
+    @Month,
+    @Year
+)";
+
+        // child selects (fetch packing & other rows for a given DynamicFormDataID)
+        const string packingSelectPerId = @"SELECT 
+    t1.DynamicFormDataID AS DynamicFormDataID,
+    t1.DynamicFormDataItemID AS DynamicFormDataItemID,
+    t1.ProfileNo AS ProfileNo,
+    t1.[13265_ProductionPlanningProcess] AS ProcessName_Primary,
+    t1.[13266_ProductionPlanningProcess] AS NextProcessName_Primary,
+    t1.[13230_TypeofPlanningProcess] AS PlanningType_Primary,
+    t1.[13213_Primaryfillingmachine] AS PrimaryFillingMachine,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13219_Level1hours], ',', ''))),'-'),'') AS decimal(18,4)) AS FillingHours_Level1,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13220_Level1manpower], ',', ''))),'-'),'') AS int) AS FillingManpower_Level1,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13224_1FillingSpeedbottleminutes], ',', ''))),'-'),'') AS decimal(18,4)) AS Speed_BottlePerMinute,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13218_ChangePackingFillingHours], ',', ''))),'-'),'') AS decimal(18,4)) AS ChangePackingFillingHours,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13221_Level2hours], ',', ''))),'-'),'') AS decimal(18,4)) AS FillingHours_Level2,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13222_Level2Manpower], ',', ''))),'-'),'') AS int) AS FillingManpower_Level2,
+    CAST(CASE WHEN LOWER(LTRIM(RTRIM(t1.[13256_SecondaryPackingTimeisthesameasPrimarypackingtime]))) = 'yes' THEN 1 ELSE 0 END AS bit) AS SecondarySameAsPrimaryTime,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13256_1944_SecondaryPackingHours], ',', ''))),'-'),'') AS decimal(18,4)) AS SecondaryPackingHours,
+    TRY_CAST(NULLIF(NULLIF(LTRIM(RTRIM(REPLACE(t1.[13256_1945_NoofManpower], ',', ''))),'-'),'') AS int) AS SecondaryManpower,
+    t1.[13267_ProductionPlanningProcess] AS ProcessName_Secondary,
+    t1.[13268_ProductionPlanningProcess] AS NextProcessName_Secondary,
+    t1.[13270_Syruprequireofflinepacking] AS RequireOfflinePacking,
+    1 AS AddedByUserID,
+    '' AS Description,
+    t1.ModifiedBy AS ModifiedBy,
+    t1.ModifiedDate AS ModifiedDate
+FROM DynamicForm_ProdTimingSyrupPackingGrid t1
+INNER JOIN DynamicFormData t2 on t2.DynamicFormDataID = t1.DynamicFormDataID
+WHERE t1.DynamicFormDataGridId = @Id";
+
+        const string otherSelectPerId = @"SELECT 
+    DynamicFormDataItemID AS DynamicFormDataItemID,
+    DynamicFormDataID,
+    [13260_OtherJobsInformation] AS OtherJobsInformation,
+    [13260_1980_ProductionPlanningProcess] AS ProcessName,
+    ProfileNo,
+    [13260_1987_ProductionPlanningProcess] AS SyrupOtherProcessNextProcess,
+    [13260_1981_Mustcompletetohavenextprocess] AS MustCompleteForNext,                          
+    [13260_1984_Locationofprocess] AS LocationOfProcess,
+    TRY_CAST(NULLIF([13260_1986_NoofManhoursHours], '') AS DECIMAL(18,2)) AS ManhoursOrHours,
+    TRY_CAST(NULLIF([13260_1985_Noofmanpower], '') AS INT) AS NoOfManpower,
+    [13260_1988_Manpowerisfromnextprocess] AS ManpowerFromNextProcess,
+    [13260_1996_Cancarryoutonnonworkday] AS CanCarryoutOnNonWorkday,
+    TRY_CAST(NULLIF([13260_2000_TimeGapHour], '') AS DECIMAL(18,2)) AS TimeGapHour,
+    1 AS AddedByUserID,
+    '' AS Description,
+    '' AS ModifiedBy,
+    GETDATE() AS ModifiedDate
+FROM DynamicForm_ProductionTimingSyrupOthers
+WHERE DynamicFormDataGridId = @Id;
+";
+
+        // child insert SQLs
+        const string insertFillingSql = @"INSERT INTO SyrupFilling
+(
+    SyrupPlanningID,
+    ProcessName_Primary,
+    DynamicFormDataID,
+    DynamicFormDataItemID,
+    ProfileNo,
+    PlanningType_Primary,
+    ModifiedBy,
+    ModifiedDate,
+    PrimaryFillingMachine,
+    FillingHours_Level1,
+    FillingManpower_Level1,
+    Speed_BottlePerMinute,
+    ChangePackingFillingHours,
+    FillingHours_Level2,
+    FillingManpower_Level2,
+    SecondarySameAsPrimaryTime,
+    SecondaryPackingHours,
+    SecondaryManpower,
+    ProcessName_Secondary,
+    NextProcessName_Secondary,
+    RequireOfflinePacking,
+    AddedByUserID,
+    Description
+)
+VALUES
+(
+    @SyrupPlanningID,
+    @ProcessName_Primary,
+    @DynamicFormDataID,
+    @DynamicFormDataItemID,
+    @ProfileNo,
+    @PlanningType_Primary,
+    @ModifiedBy,
+    @ModifiedDate,
+    @PrimaryFillingMachine,
+    @FillingHours_Level1,
+    @FillingManpower_Level1,
+    @Speed_BottlePerMinute,
+    @ChangePackingFillingHours,
+    @FillingHours_Level2,
+    @FillingManpower_Level2,
+    @SecondarySameAsPrimaryTime,
+    @SecondaryPackingHours,
+    @SecondaryManpower,
+    @ProcessName_Secondary,
+    @NextProcessName_Secondary,
+    @RequireOfflinePacking,
+    @AddedByUserID,
+    @Description
+)";
+
+        const string insertOtherSql = @"
+INSERT INTO SyrupOtherProcess
+( 
+    DynamicFormDataItemID,
+    SyrupPlanningID,
+    DynamicFormDataID,
+    OtherJobsInformation,
+    ProcessName,
+    ProfileNo,
+    SyrupOtherProcessNextProcess,
+    MustCompleteForNext,
+    LocationOfProcess,
+    ManhoursOrHours,
+    NoOfManpower,
+    ManpowerFromNextProcess,
+    CanCarryoutOnNonWorkday,
+    TimeGapHour,
+    AddedByUserID,
+    Description,
+    ModifiedBy,
+    ModifiedDate
+)
+VALUES
+(
+    @DynamicFormDataItemID,
+    @SyrupPlanningID,
+    @DynamicFormDataID,
+    @OtherJobsInformation,
+    @ProcessName,
+    @ProfileNo,
+    @SyrupOtherProcessNextProcess,
+    @MustCompleteForNext,
+    @LocationOfProcess,
+    @ManhoursOrHours,
+    @NoOfManpower,
+    @ManpowerFromNextProcess,
+    @CanCarryoutOnNonWorkday,
+    @TimeGapHour,
+    @AddedByUserID,
+    @Description,
+    @ModifiedBy,
+    @ModifiedDate
+)";
+        // DTOs for intermediate selects (thin)
+        public class PackingDto
+        {
+            public long DynamicFormID { get; set; }
+            public long DynamicFormDataID { get; set; }
+            public long DynamicFormDataItemID { get; set; }
+            public string? ProfileNo { get; set; }
+            public string? ProcessName_Primary { get; set; }
+            public string? NextProcessName_Primary { get; set; }
+            public string? PlanningType_Primary { get; set; }
+            public string? PrimaryFillingMachine { get; set; }
+            public decimal? FillingHours_Level1 { get; set; }
+            public int? FillingManpower_Level1 { get; set; }
+            public decimal? Speed_BottlePerMinute { get; set; }
+            public decimal? ChangePackingFillingHours { get; set; }
+            public decimal? FillingHours_Level2 { get; set; }
+            public int? FillingManpower_Level2 { get; set; }
+            public bool SecondarySameAsPrimaryTime { get; set; }
+            public decimal? SecondaryPackingHours { get; set; }
+            public int? SecondaryManpower { get; set; }
+            public string? ProcessName_Secondary { get; set; }
+            public string? NextProcessName_Secondary { get; set; }
+            public string? RequireOfflinePacking { get; set; }
+            public int AddedByUserID { get; set; }
+            public string Description { get; set; } = "";
+            public string? ModifiedBy { get; set; }
+            public DateTime? ModifiedDate { get; set; }
+        }
+
+        public class OtherDto
+        {
+            public long DynamicFormDataItemID { get; set; }
+            public long DynamicFormDataID { get; set; }
+            public string? OtherJobsInformation { get; set; }
+            public string? ProcessName { get; set; }
+            public string? ProfileNo { get; set; }
+            public string? SyrupOtherProcessNextProcess { get; set; }
+            public string? MustCompleteForNext { get; set; }
+            public string? LocationOfProcess { get; set; }
+            public decimal? ManhoursOrHours { get; set; }
+            public int? NoOfManpower { get; set; }
+            public string? ManpowerFromNextProcess { get; set; }
+            public string? CanCarryoutOnNonWorkday { get; set; }
+            public decimal? TimeGapHour { get; set; }
+            public int AddedByUserID { get; set; }
+            public string Description { get; set; } = "";
+            public string? ModifiedBy { get; set; }
+            public DateTime? ModifiedDate { get; set; }
+        }
+
+        public class PrimaryProductionDto
+        {
+            public long? DynamicFormDataItemID { get; set; }
+            public long DynamicFormDataID { get; set; }
+            public string? ProfileNo { get; set; }
+            public long? MethodCodeID { get; set; }
+            public string? MethodName { get; set; }
+            public string? SyrupSimplexProcessName { get; set; }
+            public string? SyrupSimplexLocation { get; set; }
+            public string? IsthereSyrupSimplextoproduce { get; set; }
+            public decimal? BatchSizeInLiters { get; set; }
+            public decimal? SyrupSimplexPreparationHour { get; set; }   // decimal?
+            public int? SyrupSimplexManpower { get; set; }             // int?
+            public decimal? SyrupSimplexLevel2CleaningHours { get; set; }
+            public int? SyrupSimplexLevel2CleaningManpower { get; set; }
+            public int? SyrupSimplexNoofCampaign { get; set; }
+
+            public string? SyrupSimplexNextProcessName { get; set; }
+            public string? SyruppreparationProcessName { get; set; }
+            public string? SyruppreparationLocation { get; set; }
+
+            public decimal? SyruppreparationFirstVolumnHour { get; set; }
+            public int? SyruppreparationFirstVolumnManpower { get; set; }
+            public string? SyruppreparationIPQCTest { get; set; }
+            public decimal? SyruppreparationTopupToVolumnHour { get; set; }
+            public int? SyruppreparationTopupToVolumnManpower { get; set; }
+            public string? SyruppreparationCampaignBatchesNumbers { get; set; }
+            public decimal? SyruppreparationLevel1CleaningHours { get; set; }
+            public int? SyruppreparationLevel1Cleaningmanpower { get; set; }
+            public decimal? SyruppreparationLevel2Cleaninghours { get; set; }
+            public int? SyruppreparationLevel2CleaningManpower { get; set; }
+            public string? SyruppreparationNextProcessName { get; set; }
+
+            public string? ModifiedBy { get; set; }
+            public DateTime? ModifiedDate { get; set; }
+        }
+
+        public async Task<List<PrimaryProductionDto>> GetPrimaryRowsAsync()
+        {
+            using (var connection = CreateConnection())
+            {
+                const string PrimarySelectSql = @"SELECT
+                    DynamicFormDataItemID,
+                    DynamicFormDataID,
+                    ProfileNo,
+                    [13192_MethodCode] as MethodName,
+                    ISNULL(TRY_CAST(NULLIF(REPLACE([13193_BatchSizeL], '-', ''), '') AS DECIMAL(18,2)), 0) AS BatchSizeInLiters,
+                    [13192_MethodCode_UId] AS MethodCodeID,
+                    [13229_2003_ProductionPlanningProcess] AS SyrupSimplexProcessName,
+                    [13229_1954_Location] AS SyrupSimplexLocation,
+                    [13229_IsthereSyrupSimplextoproduce] AS IsthereSyrupSimplextoproduce,
+
+                    -- ensure empty strings become NULL and cast to decimal
+                    TRY_CAST(NULLIF([13229_1955_1PreparationHour], '') AS DECIMAL(18,4)) AS SyrupSimplexPreparationHour,
+
+                    -- manpower: convert empty string -> NULL then to INT (use COALESCE to 0 if you prefer non-null)
+                    TRY_CAST(NULLIF([13229_1956_SyrupSimplexManpower], '') AS INT) AS SyrupSimplexManpower,
+
+                    TRY_CAST(NULLIF([13229_1957_Level2CleaningHours], '') AS DECIMAL(18,4)) AS SyrupSimplexLevel2CleaningHours,
+                    TRY_CAST(NULLIF([13229_1958_Level2CleaningManpower], '') AS INT) AS SyrupSimplexLevel2CleaningManpower,
+                    TRY_CAST(NULLIF([13229_2009_NoofCampaign], '') AS INT) AS SyrupSimplexNoofCampaign,
+
+                    [13229_2004_NextProcessName] AS SyrupSimplexNextProcessName,
+                    [13229_2004_ProductionPlanningProcess] AS SyruppreparationProcessName,
+                    [13202_Location] AS SyruppreparationLocation,
+
+                    TRY_CAST(NULLIF([13203_1PreparationfirstVolumnHour], '') AS DECIMAL(18,4)) AS SyruppreparationFirstVolumnHour,
+                    TRY_CAST(NULLIF([13204_1PreparationFirstVolumnManpower], '') AS INT) AS SyruppreparationFirstVolumnManpower,
+                    [13205_2IPQCtest] AS SyruppreparationIPQCTest,
+                    TRY_CAST(NULLIF([13206_3PreparationTopuptoVolumnHour], '') AS DECIMAL(18,4)) AS SyruppreparationTopupToVolumnHour,
+                    TRY_CAST(NULLIF([13207_3PreparationTopuptoVolumnManpower], '') AS INT) AS SyruppreparationTopupToVolumnManpower,
+                    [13208_CampaignBatchesNumbers] AS SyruppreparationCampaignBatchesNumbers,
+                    TRY_CAST(NULLIF([13209_Level1CleaningHours], '') AS DECIMAL(18,4)) AS SyruppreparationLevel1CleaningHours,
+                    TRY_CAST(NULLIF([13210_Level1Cleaningmanpower], '') AS INT) AS SyruppreparationLevel1Cleaningmanpower,
+                    TRY_CAST(NULLIF([13211_Level2Cleaninghours], '') AS DECIMAL(18,4)) AS SyruppreparationLevel2Cleaninghours,
+                    TRY_CAST(NULLIF([13212_Level2CleaningManpower], '') AS INT) AS SyruppreparationLevel2CleaningManpower,
+                    [13264_ProductionPlanningProcess] AS SyruppreparationNextProcessName,
+                    ModifiedBy,
+                    ModifiedDate
+                FROM DynamicForm_ProductiontimingNMachineInfosyrup";
+                var rows = (await connection.QueryAsync<PrimaryProductionDto>(PrimarySelectSql)).ToList();
+                return rows;
+            }
+        }
+
+        public async Task<HashSet<long>> GetExistingDynamicFormIdsAsync(IEnumerable<long> ids)
+        {
+            using (var connection = CreateConnection())
+            {
+                if (ids == null) return new HashSet<long>();
+                var list = ids.Where(i => i != 0).Distinct().ToArray();
+                if (!list.Any()) return new HashSet<long>();
+                var sql = "SELECT DynamicFormDataID FROM SyrupPlanning WHERE DynamicFormDataID IN @Ids";
+                var exist = await connection.QueryAsync<long>(sql, new { Ids = list });
+                return exist.ToHashSet();
+            }
+        }
+
+
+        public async Task<bool> ExistsInSyrupPlanningAsync(long dynamicFormDataId, int week, int month, int year)
+        {
+            if (dynamicFormDataId <= 0) return false;
+
+            const string sql = @"SELECT TOP 1 1 FROM SyrupPlanning WHERE DynamicFormDataID = @DynamicFormDataID  AND ISNULL(WeekOfMonth, 0) = @WeekOfMonth  AND ISNULL(Month, 0) = @Month  AND ISNULL(Year, 0) = @Year";
+            using (var connection = CreateConnection())
+            {
+                var found = await connection.QueryFirstOrDefaultAsync<int?>(sql, new
+                {
+                    DynamicFormDataID = dynamicFormDataId,
+                    WeekOfMonth = week,
+                    Month = month,
+                    Year = year
+                });
+
+                return found.HasValue && found.Value == 1;
+            }
+
+
+        }
+
+        public async Task<bool> ExistsGeneratePlanningAsync(int week,int year)
+        {
+            if (week <= 0) return false;
+
+            const string sql = @"SELECT TOP 1 1 FROM SyrupPlanning WHERE ISNULL(WeekOfMonth, 0) = @WeekOfMonth  AND ISNULL(Year, 0) = @Year";
+            using (var connection = CreateConnection())
+            {
+                var found = await connection.QueryFirstOrDefaultAsync<int?>(sql, new
+                {
+                   
+                    WeekOfMonth = week,                    
+                    Year = year
+                });
+
+                return found.HasValue && found.Value == 1;
+            }
+
+           
+        }
+
+
+        public async Task<SyncResult> SyncPrimaryToSyrupPlanningAsync()
+        {
+            var primaryRows = await GetPrimaryRowsAsync();
+            var ids = primaryRows.Select(r => r.DynamicFormDataID).Distinct().ToList();
+
+
+            var insertedCount = 0;
+            var skipped = 0;
+
+            var rowsToInsert = new List<SyrupPlanning>();
+            //var existing = await GetExistingDynamicFormIdsAsync(ids);
+            foreach (var p in primaryRows)
+            {
+                var refDate = DateTime.Now;
+                var week = GetWeekOfMonth(refDate);
+                var month = refDate.Month;
+                var year = refDate.Year;
+
+                var exists = await ExistsInSyrupPlanningAsync(p.DynamicFormDataID, week, month, year);
+                if (exists)
+                {
+                    skipped++;
+                    continue;
+                }
+
+
+                var syrup = MapPrimaryToSyrup(p); // use your existing mapper
+                syrup.WeekOfMonth = week;
+                syrup.AddedByUserID = 1;
+                syrup.ModifiedByUserID = 1;
+                syrup.Month = month;
+                syrup.Year = year;
+                syrup.AddedDate = refDate;
+                syrup.ModifiedDate = refDate;
+
+                //rowsToInsert.Add(syrup);
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var insertedId = await connection.QuerySingleAsync<long>(InsertSyrupPlanningSql, syrup);
+
+
+                        var packingRows = (await connection.QueryAsync<PackingDto>(packingSelectPerId, new { Id = p.DynamicFormDataID })).ToList();
+
+                        // map packingRows -> SyrupFilling (set SyrupPlanningID to insertedId)
+                        var childFillings = packingRows.Select(r =>
+                        {
+                            return new SyrupPlanning.SyrupFilling
+                            {
+                                SyrupPlanningID = insertedId,
+                                DynamicFormID = r.DynamicFormID,
+                                DynamicFormDataID = r.DynamicFormDataID,
+                                DynamicFormDataItemID = r.DynamicFormDataItemID,
+                                ProcessName_Primary = r.ProcessName_Primary ?? "",
+                                ProfileNo = r.ProfileNo ?? "",
+                                PlanningType_Primary = r.PlanningType_Primary,
+                                ModifiedBy = r.ModifiedBy ?? "",
+                                ModifiedDate = r.ModifiedDate ?? DateTime.UtcNow,
+                                PrimaryFillingMachine = r.PrimaryFillingMachine,
+                                FillingHours_Level1 = r.FillingHours_Level1,
+                                FillingManpower_Level1 = r.FillingManpower_Level1,
+                                Speed_BottlePerMinute = r.Speed_BottlePerMinute,
+                                ChangePackingFillingHours = r.ChangePackingFillingHours,
+                                FillingHours_Level2 = r.FillingHours_Level2,
+                                FillingManpower_Level2 = r.FillingManpower_Level2,
+                                SecondarySameAsPrimaryTime = r.SecondarySameAsPrimaryTime,
+                                SecondaryPackingHours = r.SecondaryPackingHours,
+                                SecondaryManpower = r.SecondaryManpower,
+                                ProcessName_Secondary = r.ProcessName_Secondary,
+                                NextProcessName_Secondary = r.NextProcessName_Secondary,
+                                RequireOfflinePacking = r.RequireOfflinePacking,
+                                AddedByUserID = r.AddedByUserID,
+                                Description = r.Description
+                            };
+                        }).ToList();
+
+                        if (childFillings.Any())
+                        {
+                            await connection.ExecuteAsync(insertFillingSql, childFillings);
+                        }
+
+                        // 2) fetch otherRows for this DynamicFormDataID
+                        var otherRows = (await connection.QueryAsync<OtherDto>(otherSelectPerId, new { Id = p.DynamicFormDataID })).ToList();
+
+                        var childOthers = otherRows.Select(o => new SyrupPlanning.SyrupOtherProcess
+                        {                            
+                            DynamicFormDataItemID = o.DynamicFormDataItemID,
+                            SyrupPlanningID = insertedId,
+                            DynamicFormDataID = o.DynamicFormDataID,
+                            OtherJobsInformation = o.OtherJobsInformation,
+                            ProcessName = o.ProcessName,
+                            ProfileNo = o.ProfileNo,
+                            SyrupOtherProcessNextProcess = o.SyrupOtherProcessNextProcess,
+                            MustCompleteForNext = o.MustCompleteForNext,
+                            LocationOfProcess = o.LocationOfProcess,
+                            ManhoursOrHours = o.ManhoursOrHours,
+                            NoOfManpower = o.NoOfManpower,
+                            ManpowerFromNextProcess = o.ManpowerFromNextProcess,
+                            CanCarryoutOnNonWorkday = o.CanCarryoutOnNonWorkday,
+                            TimeGapHour = o.TimeGapHour,
+                            AddedByUserID = o.AddedByUserID,
+                            Description = o.Description,
+                            ModifiedBy = o.ModifiedBy,
+                            ModifiedDate = DateTime.Now
+                        }).ToList();
+
+                        if (childOthers.Any())
+                        {
+                            await connection.ExecuteAsync(insertOtherSql, childOthers);
+                        }
+
+
+
+                    }
+                    catch
+                    {
+                        // Handle exceptions
+                    }
+                }
+
+                insertedCount++;
+            }
+
+            return new SyncResult
+            {
+                ReadCount = primaryRows.Count,
+                InsertedCount = insertedCount,
+                SkippedCount = skipped
+            };
+
+            //if (!rowsToInsert.Any())
+            // return new SyncResult { ReadCount = primaryRows.Count, InsertedCount = 0, SkippedCount = primaryRows.Count };
+
+            //using (var connection = CreateConnection())
+            //{
+            //        try
+            //        {
+
+            //            var affected = await connection.ExecuteAsync(InsertSyrupPlanningSql, rowsToInsert);                     
+
+            //            return new SyncResult
+            //            {
+            //                ReadCount = primaryRows.Count,
+            //                InsertedCount = affected,
+            //                SkippedCount = primaryRows.Count - rowsToInsert.Count
+            //            };
+            //        }
+            //        catch
+            //        {
+
+            //            throw;
+            //        }               
+
+            //}
+
+        }
+        private SyrupPlanning MapPrimaryToSyrup(PrimaryProductionDto s)
+        {
+            var md = s.ModifiedDate ?? DateTime.UtcNow;
+            var syrup = new SyrupPlanning
+            {
+                DynamicFormDataItemID = s.DynamicFormDataItemID ?? 0,
+                MethodCodeLineID = 0,
+                DynamicFormDataID = s.DynamicFormDataID,
+                MethodName = s.MethodName,
+                MethodCodeID = s.MethodCodeID ?? 0,
+                ProfileNo = s.ProfileNo,
+                MethodCode = null, // source didn't provide MethodCode text; only MethodCodeID. set null or map appropriately
+                BatchSizeInLiters = s.BatchSizeInLiters ?? 0m,
+                RestrictionOnPlanningDay = null,
+                ProcessName = s.SyrupSimplexProcessName,
+                IsthereSyrupSimplextoproduce = s.IsthereSyrupSimplextoproduce,
+                SyrupSimplexProcessName = s.SyrupSimplexProcessName,
+                SyrupSimplexLocation = s.SyrupSimplexLocation,
+                SyrupSimplexPreparationHour = s.SyrupSimplexPreparationHour?.ToString(CultureInfo.InvariantCulture),
+                SyrupSimplexManpower = s.SyrupSimplexManpower ?? 0,
+                SyrupSimplexLevel2CleaningHours = s.SyrupSimplexLevel2CleaningHours?.ToString(CultureInfo.InvariantCulture),
+                SyrupSimplexLevel2CleaningManpower = s.SyrupSimplexLevel2CleaningManpower ?? 0,
+                SyrupSimplexNoofCampaign = s.SyrupSimplexNoofCampaign?? 0,
+                SyrupSimplexNextProcessName = s.SyrupSimplexNextProcessName,
+
+                SyruppreparationProcessName = s.SyruppreparationProcessName,
+                SyruppreparationLocation = s.SyruppreparationLocation,
+                SyruppreparationFirstVolumnHour = s.SyruppreparationFirstVolumnHour?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationFirstVolumnManpower = s.SyruppreparationFirstVolumnManpower?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationIPQCTest = s.SyruppreparationIPQCTest,
+                SyruppreparationTopupToVolumnHour = s.SyruppreparationTopupToVolumnHour?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationTopupToVolumnManpower = s.SyruppreparationTopupToVolumnManpower?.ToString(),
+                SyruppreparationCampaignBatchesNumbers = s.SyruppreparationCampaignBatchesNumbers,
+                SyruppreparationLevel1CleaningHours = s.SyruppreparationLevel1CleaningHours?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationLevel1Cleaningmanpower = s.SyruppreparationLevel1Cleaningmanpower?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationLevel2Cleaninghours = s.SyruppreparationLevel2Cleaninghours?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationLevel2CleaningManpower = s.SyruppreparationLevel2CleaningManpower?.ToString(CultureInfo.InvariantCulture),
+                SyruppreparationNextProcessName = s.SyruppreparationNextProcessName,
+
+                PreparationPerHour = 0m,
+                Level2CleaningHours = s.SyrupSimplexLevel2CleaningHours ?? s.SyruppreparationLevel2Cleaninghours ?? 0m,
+                Level2CleaningManpower = s.SyrupSimplexLevel2CleaningManpower ?? s.SyruppreparationLevel2CleaningManpower ?? 0,
+                NoOfCampaign = s.SyrupSimplexNoofCampaign?.ToString(),
+                NextProcessName = s.SyruppreparationNextProcessName,
+
+                PreparationFirstVolumePerHour = s.SyruppreparationFirstVolumnHour,
+                PreparationFirstVolumeManpower = s.SyruppreparationFirstVolumnManpower ?? 0,
+                IpqcTestRequired = ConvertToBool(s.SyruppreparationIPQCTest),
+                PreparationTopUpPerHour = s.SyruppreparationTopupToVolumnHour,
+                PreparationTopUpManpower = s.SyruppreparationTopupToVolumnManpower,
+                CampaignBatches = TryParseInt(s.SyruppreparationCampaignBatchesNumbers) ?? 0,
+                Level1CleaningHours = s.SyruppreparationLevel1CleaningHours,
+                Level1CleaningManpower = s.SyruppreparationLevel1Cleaningmanpower,
+                SyrupLevel2CleaningHours = s.SyruppreparationLevel2Cleaninghours,
+                SyrupLevel2CleaningManpower = s.SyruppreparationLevel2CleaningManpower,
+                NextProcessNameAfterPreparation = s.SyruppreparationNextProcessName,
+
+                AddedByUserID = null,
+                ModifiedByUserID = null,
+                AddedDate = md,
+                ModifiedDate = md,
+                WeekOfMonth = GetWeekOfMonth(DateTime.Now),
+                Month = md.Month,
+                Year = md.Year
+            };
+
+            return syrup;
+        }
+        private static bool ConvertToBool(string? v)
+        {
+            if (string.IsNullOrWhiteSpace(v)) return false;
+            v = v.Trim().ToLowerInvariant();
+            if (v == "1" || v == "yes" || v == "true" || v == "y") return true;
+            if (v == "0" || v == "no" || v == "false" || v == "n") return false;
+            if (int.TryParse(v, out var n)) return n != 0;
+            return false;
+        }
+        private static int? TryParseInt(string? v)
+        {
+            if (string.IsNullOrWhiteSpace(v)) return null;
+            if (int.TryParse(v, out var n)) return n;
+            var digits = new string(v.Where(char.IsDigit).ToArray());
+            if (int.TryParse(digits, out n)) return n;
+            return null;
+        }
     }
 }

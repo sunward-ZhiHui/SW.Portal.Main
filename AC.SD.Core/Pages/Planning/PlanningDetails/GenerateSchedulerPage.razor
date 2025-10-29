@@ -1,4 +1,5 @@
 ﻿@page "/SyrupScheduleGantt"
+@using AC.SD.Core.Helpers
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Gantt
 @using global::Core.EntityModels
@@ -8,7 +9,9 @@
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
 @using Application.Queries;
-@using MediatR
+@using MediatR;
+@inject IJSRuntime JSRuntime;
+@using System.Globalization;
 
 <style>
     /* Container class used in the SfGantt: gantt-halfhour-grid */
@@ -43,6 +46,174 @@
     }
 </style>
 
+<style>
+    .e-gantt-human-resource-toolbar {
+        height: 70px;
+        display: flex;
+        align-items: center;
+    }
+
+    #Gantt_Toolbar {
+        padding: 5px 0px;
+        display: inline !important;
+    }
+
+        #Gantt_Toolbar .e-toolbar-item.e-template {
+            margin-left: 0px !important;
+        }
+
+    .e-human-resource-label {
+        font-weight: 400;
+        margin-bottom: 0px !important;
+        margin-right: 10px;
+    }
+
+    .e-gantt-human-resource-use-case {
+        height: 500px;
+    }
+
+    .sf-hr-header-container {
+        background: rgba(var(--color-sf-primary));
+    }
+
+        .sf-hr-header-container h1 {
+            font-size: 33px;
+            padding: 10px;
+            color: #fff;
+        }
+
+    .sf-gantt-chart-container {
+        height: 55%
+    }
+
+    .sf-schedule-container {
+        height: 36%;
+    }
+
+    .sf-hr-card-container {
+        padding: 9px 20px 10px !important;
+        background: linear-gradient(0deg, rgba(var(--color-sf-primary), 0.08), rgba(var(--color-sf-primary), 0.08)), rgba(var(--color-sf-surface));
+        border: 1px solid lightgray;
+        margin: 0px !important;
+    }
+
+    .sf-hr-card-div {
+        padding: 7px 11px 7px 21px !important
+    }
+
+    .sf-hr-card-btn {
+        float: right;
+        border-radius: 7px;
+        background: rgba(var(--color-sf-primary));
+        color: #fff;
+        padding: 1px 11px;
+        border: none;
+    }
+
+    .e-input-group.sf-hr-dropdown-list {
+        border-radius: 3px;
+    }
+
+    .e-input-group:not(.e-float-icon-left):not(.e-float-input)::before, .e-input-group:not(.e-float-icon-left):not(.e-float-input)::after {
+        background: none !important;
+    }
+
+    .e-timeline-top-header-cell, .e-columnheader, .e-gridcontent tr:nth-child(even), .e-chart-root-container tr:nth-child(even):not(.e-active) {
+        background: rgba(var(--color-sf-primary-container), 0.2) !important;
+    }
+
+    .sf-grid-progress-outer {
+        float: left;
+        display: inline-block;
+        background: #E6E6E6;
+        border-radius: 2px;
+        width: 100px;
+    }
+
+        .sf-grid-progress-outer div {
+            background-color: @ProgressBarColor;
+            height: 2px;
+            border-radius: 4px;
+        }
+
+    .fluent2-highcontrast .e-rowcell.e-templatecell.e-active .sf-grid-progress-outer div {
+        background-color: #000;
+    }
+
+    .sf-grid-progress-inner {
+        float: right;
+        display: inline;
+        font-size: 14px;
+        padding: 4px 0px;
+        margin-left: 18px;
+    }
+
+    .e-gantt-progress-custom {
+        display: flex;
+        align-items: center;
+    }
+
+    .e-gantt .e-gantt-chart .e-gantt-child-taskbar-inner-div, .e-gantt .e-gantt-chart .e-gantt-child-progressbar-inner-div {
+        border-radius: 2px !important;
+    }
+
+    #Gantt_Toolbar {
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+        #Gantt_Toolbar .e-toolbar-items {
+            background: none !important;
+        }
+
+    @@media only screen and (max-width:992px) {
+        .e-gantt-chart-human-resource {
+            width: 100%;
+        }
+
+        .e-gantt-human-resource-schedule {
+            display: none !important;
+        }
+    }
+
+    .e-gantt-chart-human-resource {
+        width: 75%;
+        display: inline-block;
+    }
+
+    .e-gantt-human-resource-schedule {
+        width: 25% !important;
+        display: inline-block;
+        float: right;
+        padding-left: 10px;
+    }
+
+    @@media only screen and (max-width:992px) {
+        .e-gantt-chart-human-resource {
+            width: 100% !important;
+        }
+
+        .e-gantt-human-resource-schedule {
+            display: none !important;
+            width: 0% !important;
+        }
+    }
+
+    .e-schedule .e-agenda-view .e-day-border {
+        border: none !important;
+    }
+
+    .e-calendar, .e-bigger .e-calendar {
+        min-width: min-content;
+        max-width: max-content;
+    }
+
+        .e-calendar .e-header .e-title, .e-bigger .e-calendar .e-header .e-title {
+            width: fit-content;
+            white-space: nowrap;
+        }
+</style>
+
 <div class="card-body">
     <div class="row">
         <DxFormLayout CssClass="w-100">
@@ -74,52 +245,76 @@
         </DxFormLayout>
     </div>
 </div>
-
-
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            <SfGantt TValue="TaskData"
-                     DataSource="@Tasks"
-                     Height="80vh"
-                     Width="100%"
-                     DurationUnit="DurationUnit.Minute"
-                     HighlightWeekends="true"
-                     ProjectStartDate="@ProjectStartDate"
-                     ProjectEndDate="@ProjectEndDate"
-                     TimelineSettings="@TimelineSettings"
-                     DayWorkingTime="@DayWorkingTimes"
-                     TaskbarHeight="20"
-                     RowHeight="38"
-                     CssClass="gantt-halfhour-grid"
-                     TreeColumnIndex="1"
-                     Toolbar="@(new List<string>() {"ExpandAll", "CollapseAll" })">
+            @if(Tasks != null)
+            {
+                <SfGantt TValue="TaskData"
+                         DataSource="@Tasks"
+                         Height="80vh"
+                         Width="100%"
+                         DurationUnit="DurationUnit.Hour"
+                         HighlightWeekends="true"
+                         ProjectStartDate="@ProjectStartDate"
+                         ProjectEndDate="@ProjectEndDate"
+                         TimelineSettings="@TimelineSettings"
+                         DayWorkingTime="@DayWorkingTimes"
+                         TaskbarHeight="20"
+                         RowHeight="38"
+                         CssClass="gantt-halfhour-grid"
+                         TreeColumnIndex="1"
+                         Toolbar="@(new List<string>() {"ExpandAll", "CollapseAll" })">
 
-                <GanttTaskFields Id="TaskId"
-                                 Name="TaskName"
-                                 StartDate="StartDate"
-                                 EndDate="EndDate"
-                                 Progress="Progress"
-                                 ParentID="ParentId"
-                                 Dependency="Predecessor">
-                </GanttTaskFields>
+                    <GanttTaskFields Id="TaskId"
+                                     Name="TaskName"
+                                     StartDate="StartDate"
+                                     EndDate="EndDate"
+                                     Progress="Progress"
+                                     ParentID="ParentId"
+                                     Dependency="Predecessor">
+                    </GanttTaskFields>
 
-                <GanttColumns>
-                    <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
-                    <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
-                    <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
-                </GanttColumns>
-            </SfGantt>
+                    <GanttColumns>
+                        <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
+                        <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
+                        <GanttColumn Field="DurationHours" HeaderText="Duration" Width="70"></GanttColumn>
+                        <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
+                    </GanttColumns>
+                    @if (ShowMarkers)
+                    {
+                        <GanttEventMarkers>
+                            @foreach (var day in EachDay(ProjectStartDate, ProjectEndDate))
+                            {
+                                var w = GetLunchWindow(day);
+                                <GanttEventMarker Day="@w.start" Label="Lunch start" CssClass="e-lunch-marker-start"></GanttEventMarker>
+                                <GanttEventMarker Day="@w.end" Label="Lunch end" CssClass="e-lunch-marker-end"></GanttEventMarker>
+                            }
+                        </GanttEventMarkers>
+                    }
+                    <GanttSegmentFields PrimaryKey="id" ForeignKey="TaskId" StartDate="StartDate" EndDate="EndDate"
+                    Duration="Duration" TValue="TaskData" TSegments="SegmentModel" DataSource="SegmentCollection"></GanttSegmentFields>
+
+
+                    <GanttSplitterSettings Position="30%"></GanttSplitterSettings>
+                    <GanttLabelSettings RightLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
+                </SfGantt>
+            }
+           
         </div>
     </div>
 </div>
 
 @code {
     private long? SelectDynamicFormDataID { get; set; }
-    DateTime? DateTimeValue { get; set; } = DateTime.Now;
+    DateTime? DateTimeValue { get; set; }
     int? SelectedWeekOfMonth { get; set; }
     int? SelectedMonth { get; set; }
-    int? SelectedYear { get; set; }
+    int? SelectedYear { get; set; }  
+    private TimeSpan LunchStartTime { get; set; } = TimeSpan.FromHours(12.5); // 12:30
+    private TimeSpan LunchEndTime { get; set; } = TimeSpan.FromHours(13.5);   // 13:30
+    private bool ShowMarkers { get; set; } = true;
+    private List<SegmentModel> SegmentCollection { get; set; } = new List<SegmentModel>();
 
     private List<SyrupPlanning> _syrupPlanningList;
     [Parameter]
@@ -127,6 +322,13 @@
     private DateTime ProjectStartDate { get; set; } = new DateTime(2021, 4, 2, 8, 0, 0);
     private DateTime ProjectEndDate { get; set; } = new DateTime(2021, 4, 2, 20, 0, 0);
     private IReadOnlyList<TaskData> Tasks { get; set; } = Array.Empty<TaskData>();
+    private string ProgressBarColor { get; set; } = string.Empty;
+
+    private IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
+    {
+        for (var day = from.Date; day <= thru.Date; day = day.AddDays(1))
+            yield return day;
+    }   
     private GanttTimelineSettings TimelineSettings = new()
     {
         TimelineViewMode = TimelineViewMode.Hour,
@@ -147,9 +349,16 @@
     {
         new GanttDayWorkingTime { From = 8, To = 20 }
     };
-
+    protected override async Task OnParametersSetAsync()
+    {        
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        await LoadReportDataAsync();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     protected override async Task OnInitializedAsync()
     {
+        DateTimeValue = DateTime.Now;
+        await JSRuntime.InvokeAsync<string>("showLoading");
         _syrupPlanningList = await Mediator.Send(new GetSyrupPlanningQuery());
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
         DateTime productionDay = DateTime.Today;
@@ -159,11 +368,23 @@
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
 
+
+        var d = DateTimeValue.Value;
+        // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+        //SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+        SelectedMonth = d.Month;
+        SelectedYear = d.Year;
+
+        int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);
+        SelectedWeekOfMonth = weekNumber;
+
         //await Task.Delay(2000);
         //var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart);
         //Tasks = readOnly.ToList();
 
-        await LoadReportDataAsync();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
 
     }
     private async Task ApplyDateFilterAsync()
@@ -178,13 +399,28 @@
         {
             var d = DateTimeValue.Value;
             // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
-            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            //SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
             SelectedMonth = d.Month;
             SelectedYear = d.Year;
+
+
+            // Get first day of the month
+            DateTime firstDayOfMonth = new DateTime(d.Year, d.Month, 1);
+            int offset = DayOfWeekToInt(firstDayOfMonth.DayOfWeek);
+            //int weekOfMonth = ((d.Day + offset - 1) / 7) + 1;
+            int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value); 
+            SelectedWeekOfMonth = weekNumber;
+
+
         }
 
         await LoadReportDataAsync();
     }
+    int DayOfWeekToInt(DayOfWeek day)
+    {        
+        return (day == DayOfWeek.Sunday) ? 6 : ((int)day - 1);
+    }
+
     private async Task LoadReportDataAsync()
     {
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
@@ -194,8 +430,161 @@
 
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
-        var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(profileNo, productionDay, shiftStart, SelectDynamicFormDataID, SelectedWeekOfMonth, SelectedMonth, SelectedYear);
+
+        var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(
+            profileNo, productionDay, shiftStart,
+            SelectDynamicFormDataID, SelectedWeekOfMonth, SelectedMonth, SelectedYear);
+
         Tasks = readOnly.ToList();
+        SegmentCollection = StockQueryRepo.FlattenSegments(Tasks);
+
+        var startCandidates = Tasks.Where(t => t.StartDate.HasValue).Select(t => t.StartDate!.Value);
+        var endCandidates = Tasks.Where(t => t.EndDate.HasValue).Select(t => t.EndDate!.Value);
+
+        if (startCandidates.Any() && endCandidates.Any())
+        {
+            var minStart = startCandidates.Min();
+            var maxEnd = endCandidates.Max();
+            ProjectStartDate = minStart.AddMinutes(-30);
+            ProjectEndDate = maxEnd.AddMinutes(+30);
+        }
+
     }
 
+    private IEnumerable<TaskData> SplitTasksAcrossLunch(IEnumerable<TaskData> source)
+    {
+        foreach (var t in source)
+        {
+            if (!(t.StartDate.HasValue && t.EndDate.HasValue))
+            {
+                yield return t;
+                continue;
+            }
+
+            var start = t.StartDate.Value;
+            var end = t.EndDate.Value;
+
+            // only split single-day tasks
+            if (start.Date != end.Date)
+            {
+                yield return t;
+                continue;
+            }
+
+            var (ls, le) = GetLunchWindow(start.Date);
+
+            // if no overlap with lunch, keep as is
+            if (!(start < le && end > ls))
+            {
+                yield return t;
+                continue;
+            }
+
+            // total planned working duration from SQL (minutes)
+            var totalMinutes = (int)Math.Round((end - start).TotalMinutes);
+
+            // minutes done before lunch (from start up to lunchStart, but not beyond end)
+            int preLunchWorked = 0;
+            if (start < ls)
+            {
+                var preLunchEnd = end < ls ? end : ls; // min(end, lunchStart)
+                preLunchWorked = (int)Math.Round((preLunchEnd - start).TotalMinutes);
+                if (preLunchWorked < 0) preLunchWorked = 0;
+            }
+
+            // lunch overlap within the original [start..end] (just informational)
+            var overlapStart = (start > ls) ? start : ls; // max(start, lunchStart)
+            var overlapEnd = (end < le) ? end : le; // min(end, lunchEnd)
+            int lunchOverlap = overlapStart < overlapEnd
+                ? (int)Math.Round((overlapEnd - overlapStart).TotalMinutes)
+                : 0;
+
+            // remaining minutes to work after lunch
+            int remainingAfterLunch = Math.Max(0, totalMinutes - preLunchWorked);
+
+            long baseId = t.TaskId;
+            int? parentId = t.ParentId;
+
+            // 1) Morning segment (only if any minutes before lunch)
+            if (preLunchWorked > 0)
+            {
+                yield return new TaskData
+                {
+                    TaskId = (int)(baseId * 10 + 1),
+                    TaskName = t.TaskName,
+                    StartDate = start,
+                    EndDate = start.AddMinutes(preLunchWorked), // ends exactly at lunch start in the crossing case
+                    Room = t.Room,
+                    Progress = t.Progress,
+                    ParentId = parentId,
+                    Predecessor = t.Predecessor
+                };
+            }
+
+            // 2) Afternoon segment (only if anything remains)
+            if (remainingAfterLunch > 0)
+            {
+                var seg2Start = le; // start right after lunch
+                                    // If the task starts inside lunch, it should also start after lunch
+                if (start > ls && start < le) seg2Start = le;
+
+                var seg2End = seg2Start.AddMinutes(remainingAfterLunch);
+
+                // Depend on segment1 if it exists; keep any original predecessor too.
+                string? seg2Pred = preLunchWorked > 0
+                    ? ((baseId * 10 + 1).ToString()) +
+                      (string.IsNullOrWhiteSpace(t.Predecessor) ? "" : $",{t.Predecessor}")
+                    : t.Predecessor;
+
+                yield return new TaskData
+                {
+                    TaskId = (int)(baseId * 10 + 2),
+                    TaskName = t.TaskName,
+                    StartDate = seg2Start,
+                    EndDate = seg2End,
+                    Room = t.Room,
+                    Progress = t.Progress,
+                    ParentId = parentId,
+                    Predecessor = seg2Pred
+                };
+            }
+
+            // skip original
+        }
+    }
+
+    private (DateTime start, DateTime end) GetLunchWindow(DateTime day)
+    {
+        var start = day.Date + LunchStartTime; // 12:30
+        var end = (day.DayOfWeek == DayOfWeek.Friday)
+            ? day.Date + TimeSpan.FromHours(14.5) // 14:30
+            : day.Date + LunchEndTime;            // 13:30
+        return (start, end);
+    }
+
+
+
+
+    private List<GanttDayWorkingTime> GetDayWorkingTimesForDate(DateTime date, bool hasOT)
+    {
+        bool isFriday = date.DayOfWeek == DayOfWeek.Friday;
+        bool hasOTBreak = hasOT;
+
+        // Morning: 8–12
+        var times = new List<GanttDayWorkingTime>{new GanttDayWorkingTime { From = 8, To = 12 }};
+
+        // Afternoon depends on Friday lunch
+        if (isFriday)
+        {
+            times.Add(new GanttDayWorkingTime { From = 14, To = hasOTBreak ? 19 : 18 });
+        }
+        else
+        {
+            times.Add(new GanttDayWorkingTime { From = 13, To = hasOTBreak ? 19 : 18 });
+        }
+
+        return times;
+    }
+
+    
 }

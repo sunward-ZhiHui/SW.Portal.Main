@@ -1,375 +1,132 @@
 ﻿@page "/syrup-planner"
+@using Syncfusion.Blazor.Gantt
 @using System.Globalization
-
-<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
-  
-    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-      <div style="min-width:170px">
-        <label class="muted">Shift Start</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="ShiftStart" />
-      </div>
-      <div style="min-width:170px">
-        <label class="muted">Shift End</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="ShiftEnd" />
-      </div>
-      <div style="min-width:170px">
-        <label class="muted">Lunch Start</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="LunchStart" />
-      </div>
-      <div style="min-width:170px">
-        <label class="muted">Lunch End</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="LunchEnd" />
-      </div>
-      <div style="min-width:170px">
-        <label class="muted">OT Break Start</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="OtStart" />
-      </div>
-      <div style="min-width:170px">
-        <label class="muted">OT Break End</label><br />
-        <DxTimeEdit T="DateTime" @bind-Value="OtEnd" />
-      </div>
+@inject IJSRuntime JS
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGantt DataSource="@TaskCollection" Height="450px" Width="100%" HighlightWeekends="true" DurationUnit="DurationUnit.Hour"
+                     AllowSelection="true" GridLines="GridLine.Both" TreeColumnIndex="1" ProjectStartDate="@ProjectStartDate" ProjectEndDate="@ProjectEndDate" ScrollToTaskbarOnClick="true">
+                <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="StartDate" EndDate="EndDate" Duration="Duration" Progress="Progress"
+                                 Dependency="Predecessor" ParentID="ParentId" Notes="Notes"></GanttTaskFields>
+                <GanttColumns>
+                    <GanttColumn Field="TaskId" Width="100"></GanttColumn>
+                    <GanttColumn Field="TaskName" Width="250" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip"></GanttColumn>
+                    <GanttColumn Field="StartDate" HeaderText="Start Date" MinWidth="120"></GanttColumn>
+                    <GanttColumn Field="EndDate" HeaderText="End Date" MinWidth="120"></GanttColumn>
+                    <GanttColumn Field="Duration" HeaderText="Duration" MinWidth="120"></GanttColumn>
+                    <GanttColumn Field="Progress" HeaderText="Progress" MinWidth="120"></GanttColumn>
+                    <GanttColumn Field="Predecessor" HeaderText="Dependency" MinWidth="200"></GanttColumn>
+                    <GanttColumn Field="Notes" Width="100"></GanttColumn>
+                </GanttColumns>
+                <GanttEditSettings AllowAdding="true" AllowDeleting="true" AllowEditing="true" AllowTaskbarEditing="true" ShowDeleteConfirmDialog="true"></GanttEditSettings>
+                <GanttSegmentFields PrimaryKey="id" ForeignKey="TaskId" StartDate="StartDate" EndDate="EndDate" Duration="Duration" TValue="TaskData" TSegments="SegmentModel" DataSource="SegmentCollection"></GanttSegmentFields>
+                <GanttLabelSettings LeftLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
+                @if (ShowMarkers)
+                {
+                    <GanttEventMarkers>
+                        @foreach (var day in EachDay(ProjectStartDate, ProjectEndDate))
+                        {
+                            var w = GetLunchWindow(day);
+                            <GanttEventMarker Day="@w.start" Label="Lunch start" CssClass="e-lunch-marker-start"></GanttEventMarker>
+                            <GanttEventMarker Day="@w.end" Label="Lunch end" CssClass="e-lunch-marker-end"></GanttEventMarker>
+                        }
+                    </GanttEventMarkers>
+                }
+                <GanttSplitterSettings Position="28%"></GanttSplitterSettings>
+                <GanttDayWorkingTimeCollection>
+                    <GanttDayWorkingTime From="9" To="12"></GanttDayWorkingTime>
+                    <GanttDayWorkingTime From="14" To="18"></GanttDayWorkingTime>
+                </GanttDayWorkingTimeCollection>
+                <GanttTimelineSettings TimelineUnitSize="40">
+                    <GanttTopTierSettings Unit="TimelineViewMode.Day" Format="ddd"></GanttTopTierSettings>
+                    <GanttBottomTierSettings Unit="TimelineViewMode.Hour"></GanttBottomTierSettings>
+                </GanttTimelineSettings>
+            </SfGantt>
+        </div>
     </div>
-
-    <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <div><label>BPM 60ml</label><br /><DxSpinEdit T="int" @bind-Value="Bpm60" Min="1" /></div>
-      <div><label>BPM 120ml</label><br /><DxSpinEdit T="int" @bind-Value="Bpm120" Min="1" /></div>
-      <div><label>Cleaning L1 (min)</label><br /><DxSpinEdit T="int" @bind-Value="CleanL1" Min="0" /></div>
-      <div><label>Cleaning L2 (min)</label><br /><DxSpinEdit T="int" @bind-Value="CleanL2" Min="0" /></div>
-      <div><label>IPQC (min)</label><br /><DxSpinEdit T="int" @bind-Value="IpqcMin" Min="0" /></div>
-    </div>
-
 </div>
-
-@* 
-  <h4>Add Batches</h4>
-  <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
-    <div style="min-width:180px">
-      <label>Item name</label>
-      <DxTextBox @bind-Text="NewBatch.Item" Placeholder="Item A" />
-    </div>
-    <div style="min-width:140px">
-      <label>Batch tag</label>
-      <DxTextBox @bind-Text="NewBatch.Tag" Placeholder="Batch A" />
-    </div>
-    <div style="min-width:120px">
-      <label>Pack size (ml)</label>   
-    </div>
-    <div style="min-width:140px">
-      <label>Qty (bottles)</label>    
-    </div>
-    <div style="min-width:120px">
-      <label>Copies</label>
-      <DxSpinEdit T="int" @bind-Value="NewBatch.Copies" Min="1" />
-    </div>
-    <div style="min-width:150px">
-      <label>Syrup Simplex (min)</label>
-      <DxSpinEdit T="int" @bind-Value="NewBatch.SyrupSimplexMin" Min="0" />
-    </div>
-    <div style="min-width:150px">
-      <label>Syrup Prep1 (min)</label>
-      <DxSpinEdit T="int" @bind-Value="NewBatch.Prep1Min" Min="0" />
-    </div>
-
-    <div>
-      <DxButton Click="AddBatch" Text="Add" CssClass="dx-primary" />
-      <DxButton Click="ClearBatches" Text="Clear" />
-    </div>
-  </div>
-
-
-<DxCard Style="padding:12px; margin-bottom:12px;">
-  <h4>Queue</h4>
-  <DxDataGrid Data="@Batches" ShowColumnHeaders="true" KeyFieldName="Id" ShowPager="false" PageSize="20" Height="180px">
-    <Columns>
-      <DxDataGridColumn Field="@nameof(BatchModel.Id)" Caption="#" Width="60px" />
-      <DxDataGridColumn Field="@nameof(BatchModel.Item)" Caption="Item" />
-      <DxDataGridColumn Field="@nameof(BatchModel.Tag)" Caption="Batch" />
-      <DxDataGridColumn Field="@nameof(BatchModel.PackSize)" Caption="Pack (ml)" Width="90px" />
-      <DxDataGridColumn Field="@nameof(BatchModel.Qty)" Caption="Qty" Width="120px" />
-      <DxDataGridColumn Field="@nameof(BatchModel.SyrupSimplexMin)" Caption="Simplex (min)" Width="110px" />
-      <DxDataGridCommandColumn Width="90px">
-       
-      </DxDataGridCommandColumn>
-    </Columns>
-  </DxDataGrid>  
-</DxCard> *@
-
-<div style="margin-top:10px;">
-    <DxButton Click="ComputeSchedule" Text="Generate Schedule" CssClass="dx-primary" />
-    <DxButton Click="ClearSchedule" Text="Clear Schedule" />
-</div>
-
-  <h4>Schedule</h4>
-  <DxDataGrid Data="@ScheduleRows" ShowColumnHeaders="true" KeyFieldName="Index" PageSize="50" Height="420px">
-    <Columns>
-      <DxDataGridColumn Field="@nameof(ScheduleRow.Index)" Caption="#" Width="60px" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.BatchTag)" Caption="Batch" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.Stage)" Caption="Stage" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.Room)" Caption="Room" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.Start)" Caption="Start" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.End)" Caption="End" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.DurationMin)" Caption="Duration (min)" />
-      <DxDataGridColumn Field="@nameof(ScheduleRow.Notes)" Caption="Notes" />
-    </Columns>
-  </DxDataGrid>
-
-
+<style>
+    html, body {
+        height: 100%;
+    }
+</style>
 @code {
-  // --- Public data models ---
-  public class BatchModel {
-    public int Id { get; set; }
-    public string Item { get; set; } = string.Empty;
-    public string Tag { get; set; } = string.Empty;
-    public int PackSize { get; set; } = 120;
-    public int Qty { get; set; } = 1000;
-    public int Copies { get; set; } = 1;
-    public int SyrupSimplexMin { get; set; } = 120; // default 120
-    public int Prep1Min { get; set; } = 90;
-  }
+    private DateTime ProjectStartDate { get; set; } = new DateTime(2022, 03, 28, 8, 0, 0);
+    private DateTime ProjectEndDate { get; set; } = new DateTime(2022, 03, 28, 20, 0, 0);
+    private List<TaskData> TaskCollection { get; set; } = new List<TaskData>();
+    private List<SegmentModel> SegmentCollection { get; set; } = new List<SegmentModel>();
+    private bool ShowMarkers { get; set; } = true;
+    private TimeSpan LunchStartTime { get; set; } = TimeSpan.FromHours(12.5); // 12:30
+    private TimeSpan LunchEndTime { get; set; } = TimeSpan.FromHours(13.5);   // 13:30
 
-  public class ScheduleRow {
-    public int Index { get; set; }
-    public string BatchTag { get; set; } = string.Empty;
-    public string Stage { get; set; } = string.Empty;
-    public string Room { get; set; } = string.Empty;
-    public DateTime Start { get; set; }
-    public DateTime End { get; set; }
-    public int DurationMin { get; set; }
-    public string Notes { get; set; } = string.Empty;
-  }
-
-  // --- UI / state ---
-  // Defaults (use DateTime for DxTimeEdit)
-  private DateTime ShiftStart { get; set; } = DateTime.Today.AddHours(8);            // 08:00
-  private DateTime ShiftEnd { get; set; } = DateTime.Today.AddHours(20).AddMinutes(30); // 20:30
-  private DateTime LunchStart { get; set; } = DateTime.Today.AddHours(12).AddMinutes(30); // 12:30
-  private DateTime LunchEnd { get; set; } = DateTime.Today.AddHours(13).AddMinutes(30);   // 13:30
-  private DateTime OtStart { get; set; } = DateTime.Today.AddHours(18);              // 18:00
-  private DateTime OtEnd { get; set; } = DateTime.Today.AddHours(18).AddMinutes(30); // 18:30
-
-  private int CleanL1 { get; set; } = 30;
-  private int CleanL2 { get; set; } = 180;
-  private int IpqcMin { get; set; } = 15;
-
-  private int Bpm60 { get; set; } = 100;
-  private int Bpm120 { get; set; } = 80;
-
-  // Collections
-  public List<BatchModel> Batches { get; set; } = new();
-  public BatchModel NewBatch { get; set; } = new() { PackSize = 120, Qty = 1000, Copies = 1, SyrupSimplexMin = 120, Prep1Min = 90 };
-  public List<ScheduleRow> ScheduleRows { get; set; } = new();
-  private int nextBatchId = 1;
-
-  public int[] PackSizes { get; } = new int[] { 60, 120 };
-
-  // --- Batch operations ---
-  void AddBatch() {
-    if (string.IsNullOrWhiteSpace(NewBatch.Item)) {
-      // minimal validation
-      NewBatch.Item = "Item";
+    protected override void OnInitialized()
+    {
+        TaskCollection = GetTaskCollection();
+        SegmentCollection = GetSegmentCollection();
     }
-    for (int i = 0; i < Math.Max(1, NewBatch.Copies); i++) {
-      var model = new BatchModel {
-        Id = nextBatchId++,
-        Item = NewBatch.Item,
-        Tag = string.IsNullOrWhiteSpace(NewBatch.Tag) ? $"B{nextBatchId}" : NewBatch.Tag + (NewBatch.Copies > 1 ? $"-{i+1}" : ""),
-        PackSize = NewBatch.PackSize,
-        Qty = NewBatch.Qty,
-        Copies = 1,
-        SyrupSimplexMin = NewBatch.SyrupSimplexMin,
-        Prep1Min = NewBatch.Prep1Min
-      };
-      Batches.Add(model);
+    private IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
+    {
+        for (var day = from.Date; day <= thru.Date; day = day.AddDays(1))
+            yield return day;
     }
-    // reset (keep defaults)
-    NewBatch = new() { PackSize = 120, Qty = 1000, Copies = 1, SyrupSimplexMin = 120, Prep1Min = 90 };
-  }
-
-  void RemoveBatch(int id) {
-    var idx = Batches.FindIndex(b => b.Id == id);
-    if (idx >= 0) Batches.RemoveAt(idx);
-  }
-
-  void ClearBatches() {
-    Batches.Clear();
-  }
-
-  void ClearSchedule() {
-    ScheduleRows.Clear();
-  }
-
-  // --- Scheduling algorithm (resource-based, non-optimized greedy) ---
-  void ComputeSchedule() {
-    ScheduleRows.Clear();
-    if (Batches.Count == 0) return;
-
-    // resource availability (minutes since midnight) using DateTime minutes for consistency
-    // We'll keep DateTime values for start/end times for easier DxTimeEdit compatibility
-    var resources = new Dictionary<string, DateTime> {
-      { "room1", TruncToDay(ShiftStart).AddHours(ShiftStart.Hour).AddMinutes(ShiftStart.Minute) }, // Room1
-      { "room2", TruncToDay(ShiftStart).AddHours(ShiftStart.Hour).AddMinutes(ShiftStart.Minute) },
-      { "room3", TruncToDay(ShiftStart).AddHours(ShiftStart.Hour).AddMinutes(ShiftStart.Minute) },
-      { "fill1", TruncToDay(ShiftStart).AddHours(ShiftStart.Hour).AddMinutes(ShiftStart.Minute) },
-      { "fill2", TruncToDay(ShiftStart).AddHours(ShiftStart.Hour).AddMinutes(ShiftStart.Minute) }
-    };
-
-    int index = 1;
-    for (int q = 0; q < Batches.Count; q++) {
-      var b = Batches[q];
-
-      // 1) Syrup Simplex on Room1
-      var simplexStart = MaxDate(resources["room1"], ShiftStart);
-      simplexStart = AvoidBreaks(simplexStart);
-      var simplexDur = Math.Max(0, b.SyrupSimplexMin); // minutes
-      var simplexEnd = simplexStart.AddMinutes(simplexDur);
-      resources["room1"] = simplexEnd;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = "Syrup Simplex",
-        Room = "Room1",
-        Start = simplexStart,
-        End = simplexEnd,
-        DurationMin = simplexDur,
-        Notes = "Mixing/heating"
-      });
-
-      // 2) Syrup Prep1 (Room2) - first volume only
-      var prep1Start = MaxDate(resources["room2"], simplexEnd);
-      prep1Start = AvoidBreaks(prep1Start);
-      var prep1Dur = Math.Max(0, b.Prep1Min);
-      var prep1End = prep1Start.AddMinutes(prep1Dur);
-      resources["room2"] = prep1End;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = "Syrup Prep1 (first vol)",
-        Room = "Room2",
-        Start = prep1Start,
-        End = prep1End,
-        DurationMin = prep1Dur,
-        Notes = "First vol - QC/top-up after"
-      });
-
-      // 3) IPQC pause before top-up (same room2)
-      var ipqcStart = MaxDate(resources["room2"], prep1End);
-      ipqcStart = AvoidBreaks(ipqcStart);
-      var ipqcEnd = ipqcStart.AddMinutes(IpqcMin);
-      resources["room2"] = ipqcEnd;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = "IPQC / Top-up check",
-        Room = "Room2",
-        Start = ipqcStart,
-        End = ipqcEnd,
-        DurationMin = IpqcMin,
-        Notes = "QC check before top-up"
-      });
-
-      // 4) Syrup Prep2 / Transfer (Room3) - default 15 min
-      var prep2Start = MaxDate(resources["room3"], ipqcEnd);
-      prep2Start = AvoidBreaks(prep2Start);
-      var prep2Dur = 15;
-      var prep2End = prep2Start.AddMinutes(prep2Dur);
-      resources["room3"] = prep2End;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = "Syrup Prep2 / Transfer",
-        Room = "Room3",
-        Start = prep2Start,
-        End = prep2End,
-        DurationMin = prep2Dur,
-        Notes = "Transfer to filling"
-      });
-
-      // 5) Filling: choose earliest of fill1/fill2
-      int bpm = b.PackSize == 60 ? Bpm60 : Bpm120;
-      // filling duration minutes = ceil(qty / bpm)
-      var fillMinutes = (int)Math.Ceiling((double)b.Qty / Math.Max(1, bpm));
-      var earliestFillStart = prep2End;
-      var cand1 = MaxDate(resources["fill1"], earliestFillStart);
-      var cand2 = MaxDate(resources["fill2"], earliestFillStart);
-      // choose earliest
-      string chosen = cand1 <= cand2 ? "fill1" : "fill2";
-      var fillStart = MaxDate(resources[chosen], earliestFillStart);
-      fillStart = AvoidBreaks(fillStart);
-      var fillEnd = fillStart.AddMinutes(fillMinutes);
-      resources[chosen] = fillEnd;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = $"Filling ({b.PackSize}ml)",
-        Room = chosen == "fill1" ? "Room4" : "Room5",
-        Start = fillStart,
-        End = fillEnd,
-        DurationMin = fillMinutes,
-        Notes = $"~{bpm} bpm"
-      });
-
-      // 6) Cleaning L1 after the batch on chosen fill machine
-      var cleanStart = MaxDate(resources[chosen], fillEnd);
-      cleanStart = AvoidBreaks(cleanStart);
-      var cleanEnd = cleanStart.AddMinutes(CleanL1);
-      resources[chosen] = cleanEnd;
-      ScheduleRows.Add(new ScheduleRow {
-        Index = index++,
-        BatchTag = b.Tag,
-        Stage = "Cleaning L1",
-        Room = chosen == "fill1" ? "Room4" : "Room5",
-        Start = cleanStart,
-        End = cleanEnd,
-        DurationMin = CleanL1,
-        Notes = "Routine cleaning"
-      });
-
-      // 7) If next batch is different item => schedule L2 on same machine BEFORE next production
-      if (q + 1 < Batches.Count) {
-        var next = Batches[q + 1];
-        if (!string.Equals(next.Item, b.Item, StringComparison.OrdinalIgnoreCase)) {
-          var l2Start = MaxDate(resources[chosen], cleanEnd);
-          l2Start = AvoidBreaks(l2Start);
-          var l2End = l2Start.AddMinutes(CleanL2);
-          resources[chosen] = l2End;
-          ScheduleRows.Add(new ScheduleRow {
-            Index = index++,
-            BatchTag = b.Tag,
-            Stage = "Cleaning L2 (pre next item)",
-            Room = chosen == "fill1" ? "Room4" : "Room5",
-            Start = l2Start,
-            End = l2End,
-            DurationMin = CleanL2,
-            Notes = "Deep cleaning - product change"
-          });
-        }
-      }
+    private (DateTime start, DateTime end) GetLunchWindow(DateTime day)
+    {
+        var start = day.Date + LunchStartTime; // 12:30
+        var end = (day.DayOfWeek == DayOfWeek.Friday)
+            ? day.Date + TimeSpan.FromHours(14.5) // 14:30
+            : day.Date + LunchEndTime;            // 13:30
+        return (start, end);
     }
-  }
 
-  // --- Helpers ---
-  // Return later of two DateTimes
-  static DateTime MaxDate(DateTime a, DateTime b) => a > b ? a : b;
+    public class SegmentModel
+    {
+        public int id { get; set; }
+        public int TaskId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string? Duration { get; set; }
+    }
+    public class TaskData
+    {
+        public int TaskId { get; set; }
+        public string TaskName { get; set; } = string.Empty;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Duration { get; set; }
+        public int Progress { get; set; }
+        public int? ParentId { get; set; }
+        public string Predecessor { get; set; } = string.Empty;
+    }
 
-  // Truncate to date midnight (we keep same Date for ShiftStart)
-  static DateTime TruncToDay(DateTime dt) => dt.Date;
-
-  // If proposed start falls into lunch or OT break, move it after the break.
-  // Also if a task would start before lunch but end after lunch, we move start to lunchEnd (we avoid splitting tasks).
-  DateTime AvoidBreaks(DateTime proposedStart) {
-    // local copies of breaks (same day)
-    var ls = LunchStart;
-    var le = LunchEnd;
-    var os = OtStart;
-    var oe = OtEnd;
-
-    // If start in lunch -> move to lunch end
-    if (proposedStart >= ls && proposedStart < le) return le;
-
-    // If start in OT break -> move to OT end
-    if (proposedStart >= os && proposedStart < oe) return oe;
-
-    // Otherwise return start (we don't split tasks: schedule functions compute end afterwards)
-    return proposedStart;
-  }
+    public static List<TaskData> GetTaskCollection()
+    {
+        List<TaskData> Tasks = new List<TaskData>() {
+            new TaskData() { TaskId = 1, TaskName = "Project initiation", StartDate = new DateTime(2022, 03, 28), EndDate = new DateTime(2022, 03, 29), Duration="4" },
+            new TaskData() { TaskId = 2, TaskName = "Identify site location", StartDate = new DateTime(2022, 03, 28), Progress = 30, ParentId = 1, Duration="8", },
+            new TaskData() { TaskId = 3, TaskName = "Site analyze", StartDate = new DateTime(2022, 03, 28),  Progress = 50, ParentId = 1, Duration="8"},
+            new TaskData() { TaskId = 4, TaskName = "Perform soil test", StartDate = new DateTime(2022, 03, 28), ParentId = 1, Duration="5", Predecessor="2FS", Progress=40, },
+            new TaskData() { TaskId = 5, TaskName = "Soil test approval", StartDate = new DateTime(2022, 03, 28), Duration="4", Progress = 30 },
+            new TaskData() { TaskId = 6, TaskName = "Project estimation", StartDate = new DateTime(2022, 03, 28), Duration="8", Progress=40, ParentId=1 },
+            new TaskData() { TaskId = 7, TaskName = "Develop floor plan for estimation", StartDate = new DateTime(2022, 03, 28), Duration = "0", Progress = 30, ParentId = 5, Predecessor= "4FS" },
+            new TaskData() { TaskId = 8, TaskName = "List materials", StartDate = new DateTime(2022, 03, 28), Duration = "6", Progress = 30, ParentId = 5 },
+            new TaskData() { TaskId = 9, TaskName = "Estimation approval",Progress=30, StartDate = new DateTime(2022, 03, 28), Duration = "4", ParentId = 5, Predecessor="8FS" },
+            new TaskData() { TaskId = 10, TaskName = "Building approval", StartDate = new DateTime(2022, 03, 12), Duration = "5", ParentId = 5 },
+            new TaskData() { TaskId = 11, TaskName = "Construction initiation", StartDate = new DateTime(2022, 03, 28), Duration = "5", Progress=40 },
+            new TaskData() { TaskId = 12, TaskName = "Ground floor initiation", StartDate = new DateTime(2022, 03, 28), Duration = "5", ParentId = 11, Progress=40},
+            new TaskData() { TaskId = 13, TaskName = "First floor initiation", StartDate = new DateTime(2022, 03, 28), Duration = "7",ParentId = 11, Progress=40},
+            new TaskData() { TaskId = 14, TaskName = "Electric work initiation", StartDate = new DateTime(2022, 03, 28), Duration = "5", ParentId = 11, Progress=40, },
+            new TaskData() { TaskId = 15, TaskName = "Plumbing work", StartDate = new DateTime(2022, 03, 28), Duration = "5", ParentId = 11, Progress=40 },
+       };
+        return Tasks;
+    }
+    private List<SegmentModel> GetSegmentCollection()
+    {
+        List<SegmentModel> segments = new List<SegmentModel>();
+        segments.Add(new SegmentModel() { id = 1, TaskId = 3, StartDate = new DateTime(2022, 03, 28), Duration = "2", EndDate = new DateTime(2022, 03, 28) });        
+        segments.Add(new SegmentModel() { id = 2, TaskId = 3, StartDate = new DateTime(2022, 03, 28), Duration = "3", EndDate = new DateTime(2022, 03, 28) });            
+        segments.Add(new SegmentModel() { id = 3, TaskId = 3, StartDate = new DateTime(2022, 03, 28), Duration = "2", EndDate = new DateTime(2022, 03, 28) });
+            
+        return segments;
+    }    
 }

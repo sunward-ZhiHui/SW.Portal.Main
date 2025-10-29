@@ -1,4 +1,5 @@
 ﻿@page "/syrup-report"
+@using AC.SD.Core.Helpers
 @using Application.Queries
 @using MediatR
 @using global::Core.Entities
@@ -234,8 +235,8 @@
         else
         {
             var d = DateTimeValue.Value;
-            // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
-            SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
+            int weekNumber = DateHelper.GetWeekNumber(DateTimeValue.Value);
+            SelectedWeekOfMonth = weekNumber;
             SelectedMonth = d.Month;
             SelectedYear = d.Year;
         }
@@ -378,8 +379,7 @@
         }
         else
         {
-            var d = DateTimeValue.Value;
-            // Simple week-of-month calculation: days 1-7 => 1, 8-14 => 2, 15-21 => 3, 22-28 => 4, 29+ => 5
+            var d = DateTimeValue.Value;            
             SelectedWeekOfMonth = ((d.Day - 1) / 7) + 1;
             SelectedMonth = d.Month;
             SelectedYear = d.Year;

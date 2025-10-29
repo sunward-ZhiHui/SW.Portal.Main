@@ -38,6 +38,7 @@ namespace Core.Repositories.Query
         Task<bool> CheckSyrupOtherProcessExists(long DynamicFormDataID);
         Task<bool> ExistsGeneratePlanningAsync(int week, int year);
         Task<SyncResult> SyncPrimaryToSyrupPlanningAsync();
+        List<SegmentModel> FlattenSegments(IEnumerable<TaskData> tasks);
         Task<(List<GanttTaskDto> Tasks, List<GanttSegmentDto> Segments)> GetGanttTasksAndSegmentsByProfileNoAsync(string profileNo, DateTime productionDay, TimeSpan shiftStart);
 
     }

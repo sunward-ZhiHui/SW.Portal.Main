@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Core.EntityModels
 {
@@ -107,6 +108,15 @@ namespace Core.EntityModels
             public decimal? DurationHours { get; set; }
             public string? NextProcessName { get; set; }
             public string? Notes { get; set; }
+            public List<SegmentModel> Segments { get; set; } = new List<SegmentModel>();
+        }
+        public class SegmentModel
+        {
+            public int id { get; set; }
+            public int TaskId { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public string? Duration { get; set; } // decimal hours as string, e.g. "1.5"
         }
 
         public class SyrupResourceData 

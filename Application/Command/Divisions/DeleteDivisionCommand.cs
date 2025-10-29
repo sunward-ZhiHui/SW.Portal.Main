@@ -10,10 +10,11 @@ namespace Application.Commands
     public class DeleteDivisionCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
-
-        public DeleteDivisionCommand(Int64 Id)
+        public long UserId { get; private set; }
+        public DeleteDivisionCommand(Int64 Id, long userId)
         {
             this.Id = Id;
+            UserId = userId;
         }
     }
 }

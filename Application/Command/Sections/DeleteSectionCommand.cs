@@ -10,10 +10,12 @@ namespace Application.Command.Sections
     public class DeleteSectionCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
+        public long? UserId { get; private set; }
 
-        public DeleteSectionCommand(Int64 Id)
+        public DeleteSectionCommand(Int64 Id, long? userId)
         {
             this.Id = Id;
+            UserId = userId;
         }
     }
 }

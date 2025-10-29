@@ -29,7 +29,9 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Permission" IconCssClass="fa fa-user-lock" Click="@addPermissionOpen" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@AddPermissionEnabled" />
+
                 @*  <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                     <Items>
@@ -94,7 +96,7 @@
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
             <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50" />
             <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50" >
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50">
                 <CellDisplayTemplate>
                     @{
                         var item = (DynamicForm)context.DataItem;
@@ -202,7 +204,19 @@
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="false"
+         HeaderText="Add Permission"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddDynamicFormPermissions @ref="refAddPermissionForms" SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddDynamicFormPermissions>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    private AddDynamicFormPermissions refAddPermissionForms { get; set; }
+    bool addPermissionEnabled { get; set; } = false;
     private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
     bool OdataAttrListpopup { get; set; } = false;
     private DynamicFormReports refDynamicFormReports;
@@ -211,7 +225,7 @@
     bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
-    private DynamicForm _selectedItems;
+    private DynamicForm _selectedItems; bool AddPermissionEnabled { get; set; }
     bool EditEnabled { get; set; } = false; bool DynamicFormReportsBypopup { get; set; } = false; bool Menupopup { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false; bool Clonepopup { get; set; } = false; bool EditCloneEnabled { get; set; } = false;
@@ -238,6 +252,11 @@
 
         return ValueTask.CompletedTask;
     }
+    void addPermissionOpen()
+    {
+        addPermissionEnabled = true;
+        StateHasChanged();
+    }
     public void ClearData()
     {
 
@@ -254,12 +273,22 @@
         // Suppress finalization
         //GC.SuppressFinalize(this);
     }
+    async Task PermissionCheckFor()
+    {
+        AddPermissionEnabled = false;
+        var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_selectedItems.ID, applicationUser.UserID));
+        if (result != null && result.IsAdd == true)
+        {
+            AddPermissionEnabled = true;
+        }
+        StateHasChanged();
+    }
     async Task UpdateDataAsync()
     {
         try
         {
             PanelVisible = true; EditCloneEnabled = true;
-            EditEnabled = false; DeleteEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; AddPermissionEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
             //StateHasChanged();
             if (_dynamicForm != null && _dynamicForm.Count > 0)
@@ -273,10 +302,13 @@
                     EditCloneEnabled = true;
                 }
                 Grid.ClearSelection();
+                await PermissionCheckFor();
                 StateHasChanged();
-                //Grid.SetFocusedRowIndex(0);
+
+
             }
             PanelVisible = false;
+
             StateHasChanged();
         }
         catch (Exception ex)
@@ -291,7 +323,7 @@
             e.CssClass = "alt-item";
         }
     }
-    void OnRowclick(GridRowClickEventArgs e)
+    async Task OnRowclick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
@@ -301,6 +333,7 @@
         {
             EditCloneEnabled = true;
         }
+        await PermissionCheckFor();
     }
     void OpenNewForm()
     {
@@ -372,10 +405,11 @@
             await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
-    void AddNewForm()
+    async Task AddNewForm()
     {
         if (_selectedItems != null)
         {
+
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _selectedItems.SessionID);
         }
     }

@@ -29,6 +29,12 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add Section" IconCssClass="fa fa-add" Click="@AddSection" />
                 <DxMenuItem Text="Reset Division" IconCssClass="fa fa-refresh" Click="@ResetDivision" Enabled="@isDivisionEnabled" />
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -109,8 +115,8 @@
                                 ValueFieldName="DivisionID"
                                 Enabled="@isEnabled"
                                 Value="@department.DivisionId"
-                                ValueExpression="@(() => department.DivisionId )"
-                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect,department))"
+                                ValueExpression="@(() => department.DivisionId)"
+                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect, department))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => department.DivisionId)" />
@@ -193,8 +199,20 @@
 
 
 </DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Department" MasterId="_selectedItems?.DepartmentId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
 
+</DxPopup>
 @code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
     string plantcode = "";
     string Name = "";
     string Text { get; set; } = "Active";
@@ -246,7 +264,11 @@
             isDivisionEnabled = true;
         }
     }
-
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
@@ -258,6 +280,7 @@
             newmaster.StatusCode = "";
             newmaster.ProfileCode = "";
             newmaster.Description = "";
+            newmaster.StatusCodeId = 1;
             companyName = "";
             companyId = null;
 
@@ -311,10 +334,10 @@
 
             EditEnabled = true;
             DeleteEnabled = true;
-            StateHasChanged();
-
+            Grid.ClearSelection();
         }
-        //  await jsRuntime.InvokeAsync<string>("hideLoading");
+        SelectedDataItems = null;
+        StateHasChanged();
     }
     void SelectedItemChanged(long? divisionId, ViewDepartment viewDepartment)
     {
@@ -334,7 +357,9 @@
         var editableDepartment = (ViewDepartment)e.EditModel;
         if (e.IsNew)
         {
-            var request = new CreateDepartmentCommand
+            try
+            {
+                var request = new CreateDepartmentCommand
                 {
                     CompanyId = companyId,
                     DivisionId = editableDepartment.DivisionId,
@@ -347,10 +372,19 @@
                     ModifiedDate = DateTime.Now,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
+                    AddedBy = applicationUser.UserName,
+                    StatusCode = _stausItems?.Where(w => w.CodeId == editableDepartment.StatusCodeId)?.FirstOrDefault()?.CodeValue,
+                    CompanyName = _plantItems?.Where(w => w.PlantID == companyId)?.FirstOrDefault()?.PlantCode,
+                    DivisionName = _divisionsItems?.Where(w => w.DivisionID == editableDepartment.DivisionId)?.FirstOrDefault()?.Name,
                 };
-            await Mediator.Send(request);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+                await Mediator.Send(request);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+            }
         }
         else
         {
@@ -361,14 +395,16 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableDepartment = (ViewDepartment)e.DataItem;
-        var request = new DeleteDepartmentCommand(editableDepartment.DepartmentId);
+        var request = new DeleteDepartmentCommand(editableDepartment.DepartmentId, applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewDepartment editableDepartment)
     {
-        var request = new EditDepartmentCommand
+        try
+        {
+            var request = new EditDepartmentCommand
             {
                 DepartmentId = editableDepartment.DepartmentId,
                 CompanyId = companyId,
@@ -382,10 +418,19 @@
                 ModifiedByUserId = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
                 ProfileCode = editableDepartment.ProfileCode,
+                ModifiedBy = applicationUser.UserName,
+                StatusCode = _stausItems?.Where(w => w.CodeId == editableDepartment.StatusCodeId)?.FirstOrDefault()?.CodeValue,
+                CompanyName = _plantItems?.Where(w => w.PlantID == companyId)?.FirstOrDefault()?.PlantCode,
+                DivisionName = _divisionsItems?.Where(w => w.DivisionID == editableDepartment.DivisionId)?.FirstOrDefault()?.Name,
             };
-        await Mediator.Send(request);
-        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await UpdateDataAsync();
+            await Mediator.Send(request);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -401,22 +446,22 @@
         {
 
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
         else
         {
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = false,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -493,7 +538,7 @@
                     {
 
                         // var editableDepartment = (ViewDepartment)e.DataItem;
-                        var request = new DeleteDepartmentCommand(forumdepartment.DepartmentId);
+                        var request = new DeleteDepartmentCommand(forumdepartment.DepartmentId, applicationUser.UserID);
                         await Mediator.Send(request);
 
                         Blukdeletepopup = false;

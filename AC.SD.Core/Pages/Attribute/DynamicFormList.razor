@@ -53,9 +53,9 @@
                 {
                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                 }
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditPermissionEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeletePermissionEnabled" />
                 <DxMenuItem Text="More" IconCssClass="fa fa-list">
                     <Items>
                         <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
@@ -449,6 +449,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     DynamicFormSectionAttribute _filterDynamicFormSectionAttribute = new DynamicFormSectionAttribute();
     DynamicFormData _filterdynamicformData = new DynamicFormData();
     string? tableName { get; set; }
@@ -508,6 +509,20 @@
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         dynamicFormSearch.FilterType = "Last 7 Days";
+    }
+    async Task PermissionCheckFor()
+    {
+        if (_dynamicForm != null && _dynamicForm.ID > 0)
+        {
+            AddPermissionEnabled = false; DeletePermissionEnabled = false; EditPermissionEnabled = false;
+            var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_dynamicForm.ID, applicationUser.UserID));
+            if (result != null)
+            {
+                AddPermissionEnabled = result.IsAdd.GetValueOrDefault(true);
+                DeletePermissionEnabled = result.IsDelete.GetValueOrDefault(true);
+                EditPermissionEnabled = result.IsEdit.GetValueOrDefault(true);
+            }
+        }
     }
     async Task OnFilterDocuments()
     {
@@ -646,6 +661,7 @@
             var dynamicForms = Task.Factory.StartNew(() => Mediator.Send(new GetAllDynamicFormList(SessionId, -1)));
             await Task.WhenAll(dynamicForms);
             _dynamicForm = await dynamicForms.Result;
+            await PermissionCheckFor();
             await OnTemplateUploadRadioGroupValueChanged("Last 7 Days");
             await UpdateDataAsync();
         }
@@ -2439,26 +2455,29 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        if (EditPermissionEnabled == true)
         {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-        }
-        else
-        {
-            string names1 = "dynamicFormMenuList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            string str = NavigationManager.Uri;
+            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            string names = "DynamicMasterSetupList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
             {
-                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+                NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
             }
             else
             {
-                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-            }
+                string names1 = "dynamicFormMenuList";
+                if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+                {
+                    NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+                }
 
+            }
         }
     }
     void addNew()

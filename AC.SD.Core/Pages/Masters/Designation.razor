@@ -30,6 +30,12 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelmaster" />
                 <DxMenuItem Text="Reset Subsection" IconCssClass="fa fa-refresh" Click="@ResetSubSection" Enabled="@isSubsectionEnabled" />
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -113,8 +119,8 @@
                                 ValueFieldName="SubSectionId"
                                 Enabled="@isEnabled"
                                 Value="@plant.SubSectionID"
-                                ValueExpression="@(() => plant.SubSectionID )"
-                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect,plant))"
+                                ValueExpression="@(() => plant.SubSectionID)"
+                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect, plant))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => plant.SubSectionID)" />
@@ -253,8 +259,20 @@
 
 
 </DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Designation" MasterId="_selectedItems?.DesignationID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
 
+</DxPopup>
 @code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
     string secName = "";
     string companyName = "";
     string divisionName = "";
@@ -319,6 +337,11 @@
             isSubsectionEnabled = true;
         }
     }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
     async Task UpdateDataAsync()
     {
         // await jsRuntime.InvokeAsync<string>("showLoading");
@@ -350,11 +373,11 @@
 
             EditEnabled = true;
             DeleteEnabled = true;
-            StateHasChanged();
-
+            Grid.ClearSelection();
         }
-        // await jsRuntime.InvokeAsync<string>("hideLoading");
+        SelectedDataItems = null;
         PanelVisible = false;
+        StateHasChanged();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -362,7 +385,7 @@
         if (e.IsNew)
         {
             var newmaster = (ViewDesignation)e.EditModel;
-
+            newmaster.StatusCodeID = 1;
             CompanyID = null;
             DivisionID = null;
             SectionID = null;
@@ -411,7 +434,9 @@
         var editableData = (ViewDesignation)e.EditModel;
         if (e.IsNew)
         {
-            var request = new CreateDesignationCommand
+            try
+            {
+                var request = new CreateDesignationCommand
                 {
                     Name = editableData.Name,
                     Description = editableData.Description,
@@ -426,11 +451,21 @@
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                     SectionID = SectionID,
-
+                    AddedBy = applicationUser.UserName,
+                    StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeID)?.FirstOrDefault()?.CodeValue,
+                    SubSectionName = _subsectionListItems?.Where(w => w.SubSectionId == editableData.SubSectionID)?.FirstOrDefault()?.SubSectionName,
+                    CompanyName = _plantItems?.Where(w => w.PlantID == CompanyID)?.FirstOrDefault()?.PlantCode,
+                    SectionName = _sections?.Where(w => w.SectionId == SectionID)?.FirstOrDefault()?.SectionName,
+                    LevelName = levelItems?.Where(w => w.LevelID == editableData.LevelID)?.FirstOrDefault()?.Name,
                 };
-            await Mediator.Send(request);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+                await Mediator.Send(request);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+            }
         }
         else
         {
@@ -441,14 +476,16 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableData = (ViewDesignation)e.DataItem;
-        var request = new DeleteDesignationCommand(editableData.DesignationID);
+        var request = new DeleteDesignationCommand(editableData.DesignationID,applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewDesignation editableData)
     {
-        var request = new EditDesignationCommand
+        try
+        {
+            var request = new EditDesignationCommand
             {
                 DesignationId = editableData.DesignationID,
                 Name = editableData.Name,
@@ -464,11 +501,21 @@
                 SubSectionID = editableData.SubSectionID,
                 ModifiedDate = DateTime.Now,
                 ModifiedByUserId = applicationUser.UserID,
-
+                ModifiedBy = applicationUser.UserName,
+                StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeID)?.FirstOrDefault()?.CodeValue,
+                SubSectionName = _subsectionListItems?.Where(w => w.SubSectionId == editableData.SubSectionID)?.FirstOrDefault()?.SubSectionName,
+                CompanyName = _plantItems?.Where(w => w.PlantID == CompanyID)?.FirstOrDefault()?.PlantCode,
+                SectionName = _sections?.Where(w => w.SectionId == SectionID)?.FirstOrDefault()?.SectionName,
+                LevelName = levelItems?.Where(w => w.LevelID == editableData.LevelID)?.FirstOrDefault()?.Name,
             };
-        await Mediator.Send(request);
-        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await UpdateDataAsync();
+            await Mediator.Send(request);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -484,22 +531,22 @@
         {
 
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
         else
         {
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = false,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -578,7 +625,7 @@
                     if (item is ViewDesignation forumdesignation)
                     {
                         //var editableData = (ViewDesignation)e.DataItem;
-                        var request = new DeleteDesignationCommand(forumdesignation.DesignationID);
+                        var request = new DeleteDesignationCommand(forumdesignation.DesignationID,applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -664,9 +711,9 @@
             levelItems.Clear();
             levelItems = null;
         }
-      
+
         _subsectionListItems.Clear();
-      
+
         SelectedDataItems = null;
         _selectedItems = null;
         _selectlst = null;

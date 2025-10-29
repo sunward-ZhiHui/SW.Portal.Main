@@ -1,0 +1,300 @@
+﻿@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+<div class="">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    @* <DxFormLayoutItem Caption="" ColSpanMd="2">
+                        <DxCheckBox @bind-Checked="@Data.IsAdd">Is Add</DxCheckBox>
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="2">
+                        <DxCheckBox @bind-Checked="@Data.IsEdit">Is Edit</DxCheckBox>
+
+                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem Caption="" ColSpanMd="2">
+                        <DxCheckBox @bind-Checked="@Data.IsDelete">Is Delete</DxCheckBox>
+
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div style="width:100%;">
+    <DxTabs RenderMode="TabsRenderMode.AllTabs" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
+        <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User1"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="Users" ColSpanMd="10">
+                                    <DxTagBox Data="_usersList"
+                                              @bind-Values="Data.SelectUserIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserID"
+                                              TextFieldName="FirstName"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                              EditFormat="{0}-{1}-{2}"
+                                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+
+                    </div>
+                </div>
+            </div>
+
+        </DxTabPage>
+        <DxTabPage Text="User Group" TabIconCssClass="tabs-icon-products tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User2"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="User Group" ColSpanMd="10">
+                                    <DxTagBox Data="_userGroupsList"
+                                              @bind-Values="Data.SelectUserGroupIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </div>
+
+                </div>
+            </div>
+        </DxTabPage>
+        <DxTabPage Text="Level" TabIconCssClass="tabs-icon-support tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <EditForm Model="@Data" id="User3"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="Level Master" ColSpanMd="10">
+                                    <DxTagBox Data="_levelMasterLists"
+                                              @bind-Values="Data.SelectLevelMasterIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                              ValueFieldName="LevelID"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+
+                        </EditForm>
+
+                    </div>
+
+                </div>
+            </div>
+        </DxTabPage>
+    </DxTabs>
+    <div class="col-md-12">
+        <DynamicFormPermissionList @ref="refDocumentUserRoleListsUser" dynamicFormId="@dynamicFormId"></DynamicFormPermissionList>
+    </div>
+</div>
+@code {
+    private DynamicFormPermissionList? refDocumentUserRoleListsUser;
+    [Parameter]
+    public DynamicForm SelectedItems { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    public long dynamicFormId { get; set; }
+    private bool loading;
+    bool Checked { get; set; } = true;
+    bool IsEditEnabled { get; set; } = true;
+    bool IsDeleteEnabled { get; set; } = true;
+    private string MyID = "myidPerSection";
+    DynamicFormPermission Data = new DynamicFormPermission();
+    private List<ViewEmployee>? _usersList { get; set; }
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    int ActiveTabSecIndex { get; set; } = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        Data.DynamicFormId = SelectedItems.ID;
+        Data.IsDelete = false;
+        Data.IsEdit = false;
+        Data.IsAdd = false;
+        dynamicFormId = SelectedItems.ID;
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        IsEditEnabled = false;
+        IsDeleteEnabled = false;
+        if (Data.IsAdd == true)
+        {
+            IsEditEnabled = true;
+            IsDeleteEnabled = true;
+        }
+        Data.Type = "User";
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+    }
+    void CheckedVisibleChanged(bool value)
+    {
+        IsEditEnabled = false;
+        IsDeleteEnabled = false;
+        Data.IsDelete = false;
+        Data.IsEdit = false;
+        Data.IsAdd = value;
+        if (value == true)
+        {
+            IsEditEnabled = true;
+            IsDeleteEnabled = true;
+
+        }
+        StateHasChanged();
+    }
+    void CheckedReadWriteChanged(bool value)
+    {
+        Data.IsEdit = value;
+        Data.IsDelete = false;
+        StateHasChanged();
+    }
+    void CheckedReadOnlyChanged(bool value)
+    {
+        Data.IsDelete = value;
+        Data.IsEdit = false;
+        StateHasChanged();
+    }
+    async Task OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 0)
+        {
+            Data.Type = "User";
+
+        }
+        if (e.TabIndex == 1)
+        {
+            Data.Type = "UserGroup";
+        }
+        if (e.TabIndex == 2)
+        {
+            Data.Type = "Level";
+        }
+        await refDocumentUserRoleListsUser.loadData(dynamicFormId);
+        StateHasChanged();
+    }
+    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        //  ActiveTabSecIndex = 0;
+        StateHasChanged();
+    }
+    void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        // ActiveTabSecIndex = 1;
+        StateHasChanged();
+    }
+    void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
+    {
+        // ActiveTabSecIndex = 2;
+        StateHasChanged();
+    }
+    async Task HandleValidSubmit()
+    {
+        var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
+        var userGroupCount = Data.SelectUserGroupIDs == null ? 0 : Data.SelectUserGroupIDs.Count();
+        var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
+
+        if (Data.Type == "User" && userCount == 0)
+        {
+            toastService.ShowToast("Must select User", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else if (Data.Type == "UserGroup" && userGroupCount == 0)
+        {
+            toastService.ShowToast("Must select Usergroup", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else if (Data.Type == "Level" && levelCount == 0)
+        {
+            toastService.ShowToast("Must select Level", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            loading = true; Data.AuditUserId = applicationUser.UserID; Data.DynamicFormId = SelectedItems.ID;
+            var response = await Mediator.Send(new InsertDynamicFormPermission(Data));
+            if (response.DynamicFormId > 0)
+            {
+                Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await refDocumentUserRoleListsUser.loadData(dynamicFormId);
+                loading = false;
+            }
+        }
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        refDocumentUserRoleListsUser?.DisposeAsync();
+        Data = new DynamicFormPermission();
+        _usersList?.Clear();
+        _userGroupsList?.Clear();
+        _levelMasterLists?.Clear();
+        //GC.SuppressFinalize(this);
+    }
+}

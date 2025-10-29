@@ -43,8 +43,8 @@
                 <Items>
                     @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@IsReadonly" />
-                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditPermissionEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeletePermissionEnabled" />
                     <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                     <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
@@ -352,6 +352,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     DynamicFormSectionAttribute _filterDynamicFormSectionAttribute = new DynamicFormSectionAttribute();
     DynamicFormData _filterdynamicformData = new DynamicFormData(); bool imageUploadPopup { get; set; } = false;
     private DynamicFormsAuditTrail refDynamicFormsAuditTrail { get; set; }
@@ -475,6 +476,21 @@
 
         }
     }
+    async Task PermissionCheckFor()
+    {
+        if (_dynamicForm != null && _dynamicForm.ID > 0)
+        {
+            AddPermissionEnabled = false; DeletePermissionEnabled = false; EditPermissionEnabled = false;
+            var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_dynamicForm.ID, applicationUser.UserID));
+            if (result != null)
+            {
+                AddPermissionEnabled = result.IsAdd.GetValueOrDefault(true);
+                IsReadonly = result.IsAdd == true ? true : IsReadonly;
+                DeletePermissionEnabled = result.IsDelete.GetValueOrDefault(true);
+                EditPermissionEnabled = result.IsEdit.GetValueOrDefault(true);
+            }
+        }
+    }
     async Task UpdateDataAsync()
     {
         try
@@ -493,6 +509,7 @@
                 _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1)); _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                 if (_dynamicForm != null && applicationUser != null)
                 {
+                    await PermissionCheckFor();
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, true));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -1920,7 +1937,10 @@
         OnRowclick(e);
         if (IsShow == true)
         {
-            addEdit();
+            if (EditPermissionEnabled == true)
+            {
+                addEdit();
+            }
         }
     }
     void addNew()

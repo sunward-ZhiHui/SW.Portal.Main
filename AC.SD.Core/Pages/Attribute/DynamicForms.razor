@@ -123,7 +123,7 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                                     @if (IsDynamicGridForm == true)
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -177,7 +177,7 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                                     @if (IsDynamicGridForm == true)
                                     {
                                         <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
@@ -234,14 +234,16 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-
-                                    <DxMenuItem Text="Save">
-                                        <Items>
-                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                        </Items>
-                                    </DxMenuItem>
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
+                                    @if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save">
+                                            <Items>
+                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                            </Items>
+                                        </DxMenuItem>
+                                    }
                                     <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
                                         <Items>
                                             <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
@@ -283,12 +285,15 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Save">
-                                        <Items>
-                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                        </Items>
-                                    </DxMenuItem>
+                                    @if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save">
+                                            <Items>
+                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                            </Items>
+                                        </DxMenuItem>
+                                    }
                                     <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
                                         <Items>
                                             <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
@@ -333,8 +338,11 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
+@if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    }
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
@@ -370,7 +378,10 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    @if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    }
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
@@ -412,6 +423,7 @@
         </div>
         <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
             <DxTabPage Text="Form">
+                
                 <div class="card-body" style="margin-top:5px;">
                     <DxFormLayout CssClass="w-100">
                         <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
@@ -1192,6 +1204,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     bool IsRenameOpens { get; set; } = false; public DynamicFormWorkFlowSection _selectedDynamicFormWorkFlowItems { get; set; }
     public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
     bool CheckedAll { get; set; } = false;
@@ -1598,6 +1611,20 @@
             }
         }
     }
+    async Task PermissionCheckFor()
+    {
+        if (_dynamicform != null && _dynamicform.ID > 0)
+        {
+            AddPermissionEnabled = false; DeletePermissionEnabled = false; EditPermissionEnabled = false;
+            var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_dynamicform.ID, applicationUser.UserID));
+            if (result != null)
+            {
+                AddPermissionEnabled = result.IsAdd.GetValueOrDefault(true);
+                DeletePermissionEnabled = result.IsDelete.GetValueOrDefault(true);
+                EditPermissionEnabled = result.IsEdit.GetValueOrDefault(true);
+            }
+        }
+    }
     async Task loadDynamicForm()
     {
         await onshowLoading();
@@ -1618,6 +1645,7 @@
         }
         if (_dynamicform != null)
         {
+            await PermissionCheckFor();
             AddEnabled = true; plantIds = new List<long>(); plantCode = null;
             ActiveTabIndex = 0; isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve"; isButtonClick = "";
             IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false; isSubmit = false; isWorkflowEnabled = false; isSaveEnabled = true;

@@ -4,6 +4,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,12 @@ namespace Application.Commands
         public int? StatusCodeID { get; set; }
 
         public long? AddedByUserID { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
         public EditPlantCommand()
         {
             this.CompanyID = 1;

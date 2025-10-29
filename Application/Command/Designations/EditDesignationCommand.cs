@@ -2,6 +2,7 @@
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,20 @@ namespace Application.Command.designations
         public DateTime? ModifiedDate { get; set; }
         public long? SectionID { get; set; }
         public long? SubSectionID { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
+        [NotMapped]
+        public string? SectionName { get; set; }
+        [NotMapped]
+        public string? SubSectionName { get; set; }
+        [NotMapped]
+        public string? CompanyName { get; set; }
+        [NotMapped]
+        public string? LevelName { get; set; }
         public EditDesignationCommand()
         {
 

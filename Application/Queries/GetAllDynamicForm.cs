@@ -1073,7 +1073,14 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
-
+    public class GeDynamicFormPermissionListIds : PagedRequest, IRequest<List<DynamicFormPermission>>
+    {
+        public List<long?> Ids { get; set; }
+        public GeDynamicFormPermissionListIds(List<long?> ids)
+        {
+            this.Ids = ids;
+        }
+    }
     public class GetDynamicFormDataTableSync : PagedRequest, IRequest<DynamicForm>
     {
         public List<DropDownOptionsModel> DropDownOptionsModel { get; set; }
@@ -1096,6 +1103,44 @@ namespace Application.Queries
         {
             this.DynamicForm = dynamicForm;
             this.UserId = userId;
+        }
+    }
+    public class InsertDynamicFormPermission : PagedRequest, IRequest<DynamicFormPermission>
+    {
+        public DynamicFormPermission DynamicFormPermission { get; private set; }
+        public InsertDynamicFormPermission(DynamicFormPermission dynamicFormSectionSecurity)
+        {
+            this.DynamicFormPermission = dynamicFormSectionSecurity;
+        }
+    }
+    public class GetDynamicFormPermissionList : PagedRequest, IRequest<List<DynamicFormPermission>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormPermissionList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDynamicFormPermission : DynamicFormPermission, IRequest<long>
+    {
+        public long? Id { get; set; }
+        public List<long?> Ids { get; set; }
+        public long? UserId { get; set; }
+        public DeleteDynamicFormPermission(long? id, List<long?> ids, long? userId)
+        {
+            this.Id = id;
+            this.Ids = ids;
+            UserId = userId;
+        }
+    }
+    public class GetDynamicFormPermissionCheck : PagedRequest, IRequest<DynamicFormPermission>
+    {
+        public long? DynamicFormId { get; set; }
+        public long? UserId { get; set; }
+        public GetDynamicFormPermissionCheck(long? dynamicFormId, long? userId)
+        {
+            this.DynamicFormId = dynamicFormId;
+            UserId = userId;
         }
     }
 }

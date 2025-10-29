@@ -1,0 +1,213 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using System.Text.RegularExpressions
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+            @if (IsDeleted == true)
+            {
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+
+                    <Items>
+                        <DxMenuItem Position="ItemPosition.Start" Text="Audit Trail" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog())" />
+                        <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    </Items>
+                </DxMenu>
+            }
+            else
+            {
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+
+                    <Items>
+                        <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    </Items>
+                </DxMenu>
+            }
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisibleApproval"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid7" Data="@_dynamicFormApprovalData"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="RowIndex"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            FocusedRowChanged="OnRowApprovalClick"
+            AllowSelectRowByClick="true"
+            style="height: calc(100vh - 220px);"
+            CustomizeElement="Grid_CustomizeApprovalElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            VirtualScrollingEnabled="true"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+            <DxGridDataColumn FieldName="RowIndex" Caption="No" MinWidth="5" />
+            <DxGridDataColumn FieldName="HeaderDisplayName" Caption="Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="FormType" Caption="Form Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditUser" Caption="Audit User" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditDate" Caption="Audit Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (HRMasterAuditTrail)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDate.HasValue && item.AuditDate != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDate?.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FormType" />
+        </TotalSummary>
+        <DetailRowTemplate>
+            <AC.SD.Core.Pages.Masters.HRMasterAuditTrailListItems Items="(HRMasterAuditTrail)context.DataItem" AllItems="@AllItems"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailListItems>
+
+        </DetailRowTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="@_selectedItems?.Type" MasterId="_selectedItems?.HRMasterSetId"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    bool AuditLogPopUp { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    [Parameter]
+    public long? MasterId { get; set; }
+    [Parameter]
+    public string? MasterType { get; set; }
+    [Parameter]
+    public bool? IsDeleted { get; set; } = false;
+    bool PanelVisibleApproval { get; set; }
+    bool IsEnabled { get; set; } = false;
+    private List<HRMasterAuditTrail>? _dynamicFormApprovalData; private List<HRMasterAuditTrail>? AllItems;
+    IGrid? Grid7 { get; set; }
+    private HRMasterAuditTrail _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+        });
+    }
+    void viewAuditLog()
+    {
+        AuditLogPopUp = true;
+    }
+    public static string AddSpacesToPascalCase(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        // Insert space before each capital letter, except the first
+        return Regex.Replace(input, "(?<!^)([A-Z])", " $1");
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisibleApproval = true; IsEnabled = false; _dynamicFormApprovalData = new List<HRMasterAuditTrail>();
+            if (MasterId > 0)
+            {
+                AllItems = await Mediator.Send(new GetHRMasterAuditList(MasterId, MasterType, IsDeleted, null));
+                if (AllItems?.Any() == true)
+                {
+                    int i = 1;
+                    var sessionIds = AllItems.OrderByDescending(o => o.AuditDate).Select(s => s.SessionId).Distinct().ToList();
+                    if (sessionIds?.Any() == true)
+                    {
+                        foreach (var index in sessionIds)
+                        {
+                            HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail();
+                            var data = AllItems.FirstOrDefault(f => f.SessionId == index);
+                            if (data != null)
+                            {
+                                data.RowIndex = i++;
+                                data.HeaderDisplayName = AllItems.FirstOrDefault(f => f.SessionId == index && f.ColumnName == "DisplayName")?.PreValue;
+                                _dynamicFormApprovalData.Add(data);
+                            }
+                        }
+                    }
+                }
+            }
+            PanelVisibleApproval = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowApprovalClick(GridFocusedRowChangedEventArgs args)
+    {
+        if (args.DataItem != null)
+        {
+            _selectedItems = (HRMasterAuditTrail)args.DataItem;
+        }
+
+        StateHasChanged();
+    }
+
+    public void ClearData()
+    {
+        _dynamicFormApprovalData?.Clear();
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        ClearData();
+    }
+}

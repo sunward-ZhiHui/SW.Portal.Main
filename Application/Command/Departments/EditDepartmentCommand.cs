@@ -2,6 +2,7 @@
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,16 @@ namespace Application.Command.Departments
         public string? ProfileCode { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
+        [NotMapped]
+        public string? CompanyName { get; set; }
+        [NotMapped]
+        public string? DivisionName { get; set; }
         public EditDepartmentCommand()
         {
             this.ModifiedDate = DateTime.Now;

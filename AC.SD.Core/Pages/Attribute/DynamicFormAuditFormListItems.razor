@@ -59,7 +59,7 @@
             
             @if (Items != null)
             {
-                if (Items.FormType == "DynamicFormSectionAttributeSecurity" || Items.FormType == "DynamicFormSectionSecurity")
+                if (Items.FormType == "DynamicFormSectionAttributeSecurity" || Items.FormType == "DynamicFormSectionSecurity" || Items.FormType == "DynamicFormPermission")
                 {
                     <DxGridDataColumn FieldName="RowItemIndex" Caption="No" GroupIndex="0"  MinWidth="10" />
                     <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="50" />
@@ -424,7 +424,7 @@
                     }
                     var listData = _dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormSectionAttributeSection" || w.FormType == "DynamicFormSectionAttrFormula" || w.FormType == "DynamicFormSectionAttrFormulaFunction") && w.DynamicFormSectionAttributeId > 0).ToList();
 
-                    listData.AddRange(_dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicForm" ||  w.FormType == "DynamicFormApproval" || w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormWorkFlowApproval") && (w.ColumnName != "DynamicFormWorkFlowId" && w.ColumnName != "DynamicFormId" && w.ColumnName != "ApprovalUserId" && w.ColumnName != "UserId" && w.ColumnName != "SelectDynamicFormSectionId")).ToList());
+                    listData.AddRange(_dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicForm" || w.FormType == "DynamicFormPermission" || w.FormType == "DynamicFormApproval" || w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormWorkFlowApproval") && (w.ColumnName != "DynamicFormWorkFlowId" && w.ColumnName != "DynamicFormId" && w.ColumnName != "ApprovalUserId" && w.ColumnName != "UserId" && w.ColumnName != "SelectDynamicFormSectionId")).ToList());
                     if (listData != null && listData.Count() > 0)
                     {
                         foreach (var indexData in listData)
@@ -514,14 +514,14 @@
                                     }
                                 }
                             }
-                            if (index.FormType == "DynamicForm" ||  index.FormType == "DynamicFormApproval" || index.FormType == "DynamicFormWorkFlowApproval" || index.FormType == "DynamicFormWorkFlow" || index.FormType == "DynamicFormSectionAttributeSection" || index.FormType == "DynamicFormSectionAttrFormulaFunction" || index.FormType == "DynamicFormSectionAttrFormula")
+                            if (index.FormType == "DynamicForm" || index.FormType == "DynamicFormPermission" || index.FormType == "DynamicFormApproval" || index.FormType == "DynamicFormWorkFlowApproval" || index.FormType == "DynamicFormWorkFlow" || index.FormType == "DynamicFormSectionAttributeSection" || index.FormType == "DynamicFormSectionAttrFormulaFunction" || index.FormType == "DynamicFormSectionAttrFormula")
                             {
                                 _dynamicFormApprovalData[i].DisplayName = index.ColumnName == "DynamicFormSectionAttrFormulaMasterFuntionId" ? "SpinEdit Type" : (index.ColumnName == "DynamicFormSectionAttributeId" ? "Dynamic Form Section Attribute" : index.ColumnName);
                             }
                             _dynamicFormApprovalData[i].RowIndex = i + 1;
                             i++;
                         }
-                        var uniqueSess = _dynamicFormApprovalData.Where(w => w.UniqueSessionId != null && (w.FormType == "DynamicFormSectionAttributeSecurity" || w.FormType == "DynamicFormSectionSecurity")).Select(s => s.UniqueSessionId).Distinct().ToList();
+                        var uniqueSess = _dynamicFormApprovalData.Where(w => w.UniqueSessionId != null && (w.FormType == "DynamicFormPermission" || w.FormType == "DynamicFormSectionAttributeSecurity" || w.FormType == "DynamicFormSectionSecurity")).Select(s => s.UniqueSessionId).Distinct().ToList();
                         if (uniqueSess?.Any() == true)
                         {
                             int j = 0;

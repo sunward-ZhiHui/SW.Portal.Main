@@ -18,4 +18,18 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetHRMasterAuditList : PagedRequest, IRequest<List<HRMasterAuditTrail>>
+    {
+        public long? MasterId { get; set; }
+        public string? MasterType { get; set; }
+        public bool? IsDeleted { get; set; } = false;
+        public Guid? SessionId { get; set; }
+        public GetHRMasterAuditList(long? masterId, string? masterType, bool? isDeleted, Guid? SessionId)
+        {
+            this.MasterId = masterId;
+            this.MasterType = masterType;
+            this.IsDeleted = isDeleted;
+            this.SessionId = SessionId;
+        }
+    }
 }

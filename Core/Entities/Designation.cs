@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,5 +26,19 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public long? SectionId { get; set; }
         public long? SubSectionId { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
+        [NotMapped]
+        public string? SectionName { get; set; }
+        [NotMapped]
+        public string? SubSectionName { get; set; }
+        [NotMapped]
+        public string? CompanyName { get; set; }
+        [NotMapped]
+        public string? LevelName { get; set; }
     }
 }

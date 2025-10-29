@@ -28,6 +28,12 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add SubSection" IconCssClass="fa fa-add" Click="@AddSubSection" />
                 <DxMenuItem Text="Reset Department" IconCssClass="fa fa-refresh" Click="@ResetDepartment" Enabled="@isDepartmentEnabled" />
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -79,6 +85,7 @@
             <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
             <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
             <DxGridDataColumn FieldName="Division" MinWidth="80" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
             <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
             <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
             <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
@@ -106,8 +113,8 @@
                                 ValueFieldName="DepartmentId"
                                 Enabled="@isEnabled"
                                 Value="@sections.DepartmentId"
-                                ValueExpression="@(() => sections.DepartmentId )"
-                                ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect,sections))"
+                                ValueExpression="@(() => sections.DepartmentId)"
+                                ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect, sections))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => sections.DepartmentId)" />
@@ -192,8 +199,20 @@
 
 
 </DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Section" MasterId="_selectedItems?.SectionId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
 
+</DxPopup>
 @code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
     string Name = "";
     string Text { get; set; } = "Active";
     bool PanelVisible { get; set; }
@@ -240,6 +259,11 @@
             isDepartmentEnabled = true;
         }
     }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
@@ -252,6 +276,7 @@
             newmaster.SectionCode = "";
             newmaster.Description = "";
             newmaster.ProfileCode = "";
+            newmaster.StatusCodeId = 1;
             if (Type == "Department")
             {
                 var _masters = _sectionItems.FirstOrDefault(f => f.DepartmentId == PlantID);
@@ -312,19 +337,21 @@
 
             EditEnabled = true;
             DeleteEnabled = true;
-            StateHasChanged();
-
-
+            Grid.ClearSelection();
         }
-        // await jsRuntime.InvokeAsync<string>("hideLoading");
+        SelectedDataItems = null;
         PanelVisible = false;
+        StateHasChanged();
+
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editableData = (ViewSection)e.EditModel;
         if (e.IsNew)
         {
-            var request = new CreateSectionCommand
+            try
+            {
+                var request = new CreateSectionCommand
                 {
                     DepartmentId = editableData.DepartmentId,
                     Name = editableData.SectionName,
@@ -336,10 +363,18 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
+                    AddedBy = applicationUser.UserName,
+                    StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeId)?.FirstOrDefault()?.CodeValue,
+                    DepartmentName = _departmentItems?.Where(w => w.DepartmentId == editableData.DepartmentId)?.FirstOrDefault()?.DepartmentName,
                 };
-            await Mediator.Send(request);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+                await Mediator.Send(request);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+            }
         }
         else
         {
@@ -350,13 +385,15 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableData = (ViewSection)e.DataItem;
-        var request = new DeleteSectionCommand(editableData.SectionId);
+        var request = new DeleteSectionCommand(editableData.SectionId, applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
     }
     async Task UpdatePlantAsync(ViewSection editableData)
     {
-        var request = new EditSectionCommand
+        try
+        {
+            var request = new EditSectionCommand
             {
                 DepartmentId = editableData.DepartmentId,
                 SectionId = editableData.SectionId,
@@ -369,10 +406,18 @@
                 AddedDate = editableData.AddedDate,
                 ModifiedByUserId = applicationUser.UserID,
                 ProfileCode = editableData.ProfileCode,
+                ModifiedBy = applicationUser.UserName,
+                StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeId)?.FirstOrDefault()?.CodeValue,
+                DepartmentName = _departmentItems?.Where(w => w.DepartmentId == editableData.DepartmentId)?.FirstOrDefault()?.DepartmentName,
             };
-        await Mediator.Send(request);
-        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await UpdateDataAsync();
+            await Mediator.Send(request);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -388,22 +433,22 @@
         {
 
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
         else
         {
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = false,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -479,7 +524,7 @@
                     if (item is ViewSection section)
                     {
                         // var editableData = (ViewSection)e.DataItem;
-                        var request = new DeleteSectionCommand(section.SectionId);
+                        var request = new DeleteSectionCommand(section.SectionId, applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -546,7 +591,7 @@
             _divisionsItems.Clear();
             _divisionsItems = null;
         }
-       
+
         SelectedDataItems = null;
         _selectedItems = null;
         _selectlst = null;

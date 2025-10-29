@@ -10,10 +10,12 @@ namespace Application.Command.designations
     public class DeleteDesignationCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
+        public long? UserId { get; private set; }
 
-        public DeleteDesignationCommand(Int64 Id)
+        public DeleteDesignationCommand(Int64 Id, long? userId)
         {
             this.Id = Id;
+            UserId = userId;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             return (List<ViewPlants>)await _plantQueryRepository.GetAllAsync();
         }
-        
+
     }
     public class GetAllPlantByNavCompanyHandler : IRequestHandler<GetAllPlantByNavCompanyQuery, List<ViewPlants>>
     {
@@ -35,5 +35,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             return (List<ViewPlants>)await _plantQueryRepository.GetAllByNavCompanyAsync();
         }
+    }
+    public class GetHRMasterAuditListHandler : IRequestHandler<GetHRMasterAuditList, List<HRMasterAuditTrail>>
+    {
+        private readonly IHRMasterAuditTrailQueryRepository _plantQueryRepository;
+        public GetHRMasterAuditListHandler(IHRMasterAuditTrailQueryRepository plantQueryRepository)
+        {
+            _plantQueryRepository = plantQueryRepository;
+        }
+        public async Task<List<HRMasterAuditTrail>> Handle(GetHRMasterAuditList request, CancellationToken cancellationToken)
+        {
+            return (List<HRMasterAuditTrail>)await _plantQueryRepository.GetHRMasterAuditList(request.MasterType, request.MasterId, request.IsDeleted, request.SessionId);
+        }
+
     }
 }

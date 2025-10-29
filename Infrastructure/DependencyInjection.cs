@@ -198,6 +198,7 @@ namespace Infrastructure
             services.AddScoped<IStockInformationMasterQueryRepository, StockInformationMasterQueryRepository>();
             services.AddScoped<IPlanningForProductionProcessByMachineQueryRepository, PlanningForProductionProcessByMachineQueryRepository>();
             services.AddScoped<IDynamicFormSyncQueryRepository, DynamicFormSyncQueryRepository>();
+            services.AddScoped<IHRMasterAuditTrailQueryRepository, HRMasterAuditTrailQueryRepository>();
             return services;
         }
     }

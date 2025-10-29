@@ -10,10 +10,12 @@ namespace Application.Commands
     public class DeletePlantCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
+        public long UserId { get; private set; }
 
-        public DeletePlantCommand(Int64 Id)
+        public DeletePlantCommand(Int64 Id, long userId)
         {
             this.Id = Id;
+            UserId = userId;
         }
     }
 }

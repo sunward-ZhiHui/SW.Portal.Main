@@ -52,7 +52,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormApproval> UpdateDescriptionDynamicFormApprovalField(DynamicFormApproval dynamicFormApproval);
         Task<DynamicFormSectionSecurity> InsertDynamicFormSectionSecurity(DynamicFormSectionSecurity value);
         Task<IReadOnlyList<DynamicFormSectionSecurity>> GetDynamicFormSectionSecurityList(long? Id);
-        Task<long> DeleteDynamicFormSectionSecurity(long? Id, List<long?> Ids,long? UserId);
+        Task<long> DeleteDynamicFormSectionSecurity(long? Id, List<long?> Ids, long? UserId);
+        Task<DynamicFormPermission> GetDynamicFormPermissionCheckAsync(long? dynamicFormId, long? UserId);
         Task<DynamicFormApproved> InsertDynamicFormApproved(DynamicFormApproved dynamicForm);
         Task<DynamicFormApproved> GetDynamicFormApprovedByID(long? dynamicFormDataId, long? approvalUserId);
         Task<DynamicFormData> InsertOrUpdateDynamicFormApproved(DynamicFormData dynamicFormData);
@@ -73,10 +74,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId);
         Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData);
         Task<ViewEmployee> GetEmployeeByUserIdIdAsync(long? userId);
-        Task<DynamicFormSectionAttributeSecurity> InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity value,long? UserId);
+        Task<DynamicFormSectionAttributeSecurity> InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity value, long? UserId);
         Task<IReadOnlyList<DynamicFormSectionAttributeSecurity>> GetDynamicFormSectionAttributeSecurityList(long? Id);
-        Task<long> DeleteDynamicFormSectionAttributeSecurity(long? Id, List<long?> Ids,long? DynamicFormId,long? UserId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataList(List<long?> DynamicFormIDs,long? DynamicFormDataGridId);
+        Task<long> DeleteDynamicFormSectionAttributeSecurity(long? Id, List<long?> Ids, long? DynamicFormId, long? UserId);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataList(List<long?> DynamicFormIDs, long? DynamicFormDataGridId);
         Task<IReadOnlyList<DynamicFormData?>> GetDynamicFormDataApprovalList(long? userId);
 
         Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData);
@@ -142,7 +143,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetDynamicFormWorkFlowApprovalSettingList(long? Id);
         Task<IReadOnlyList<DynamicFormSectionAttributeSecurity>> GetDynamicFormSectionAttributeSecuritySettingList(long? Id);
         Task<IReadOnlyList<DynamicFormSectionAttributeSectionParent>> GetDynamicFormSectionAttributeSectionParentSettings(long? dynamicFormSectionAttributeId);
-        Task<IReadOnlyList<DynamicFormDataAttrUpload>> GetDynamicFormDataAttrUpload(long? DynamicFormSectionAttributeId,long? DynamicFormDataId);
+        Task<IReadOnlyList<DynamicFormDataAttrUpload>> GetDynamicFormDataAttrUpload(long? DynamicFormSectionAttributeId, long? DynamicFormDataId);
         Task<DynamicFormDataAttrUpload> InsertDynamicFormDataAttrUpload(List<DynamicFormDataAttrUpload> value);
         Task<DynamicFormDataUpload> GetDynamicFormDataUploadCheckValidation(long? dynamicFormDataId, long? dynamicFormSectionId);
         Task<DynamicFormDataAttrUpload> DeleteDynamicFormDataAttrUpload(DynamicFormDataAttrUpload dynamicFormDataAttrUpload);
@@ -150,8 +151,13 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMasterList(DynamicFormDataAudit dynamicFormDataAudit);
         Task<DynamicFormData> GetDynamicFormDataOneByDataIdAsync(long? Id);
         Task<DynamicForm> GetDynamicFormDataTableSync(List<DropDownOptionsModel> dropDownOptionsModels, List<object> _dynamicformObjectDataList, AttributeHeaderListModel attributeHeaderListModel, DynamicForm dynamicForm);
-        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditList(long? dynamicFormId,Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditDynamicFormSectionList(List<Guid?> sessionIds,string? FormType);
+        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditList(long? dynamicFormId, Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormAudit>> GetDynamicFormAuditDynamicFormSectionList(List<Guid?> sessionIds, string? FormType);
+
+        Task<DynamicFormPermission> InsertDynamicFormPermission(DynamicFormPermission value);
+        Task<IReadOnlyList<DynamicFormPermission>> GetDynamicFormPermissionList(long? Id);
+        Task<long> DeleteDynamicFormPermission(long? Id, List<long?> Ids, long? UserId);
+        Task<IReadOnlyList<DynamicFormPermission>> GeDynamicFormPermissionListIds(List<long?> Ids);
     }
 
 }

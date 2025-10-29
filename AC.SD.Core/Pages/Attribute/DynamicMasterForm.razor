@@ -44,6 +44,7 @@
                         <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-link" Click="@OpenAuditTrail" Enabled="@IsAuditTrailEnabled" />
+                        <DxMenuItem Text="Add Permission" IconCssClass="fa fa-user-lock" Click="@addPermissionOpen" Enabled="@EditEnabled" />
                         <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                             <Items>
                                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
@@ -327,11 +328,22 @@
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="false"
+         HeaderText="Add Permission"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddDynamicFormPermissions @ref="refAddPermissionForms" SelectedItems="@_dynamicFormData" applicationUser="@applicationUser"></AddDynamicFormPermissions>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     private bool OpenAuditTrailPopUp { get; set; } = false;
+    private AddDynamicFormPermissions refAddPermissionForms { get; set; }
     private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
     private DynamicFormAuditTrail refDynamicFormAuditTrail { get; set; }
-    bool OdataAttrListpopup { get; set; } = false;
+    bool OdataAttrListpopup { get; set; } = false; bool addPermissionEnabled { get; set; } = false;
     private IDisposable? DynamicFormPage7; private DynamicFormReports refDynamicFormReports;
     bool EditEnabled { get; set; } = false; bool IsAuditTrailEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -446,6 +458,11 @@
         {
             await this.HandleValidSubmit();
         }
+    }
+    void addPermissionOpen()
+    {
+        addPermissionEnabled = true;
+        StateHasChanged();
     }
     async Task OnParametersSetLoadAsync()
     {
@@ -685,7 +702,7 @@
                 Name = Data.Name,
                 ScreenID = Data.ScreenID,
                 SessionID = Data.SessionID,
-                SessionId=Data.SessionId,
+                SessionId = Data.SessionId,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
                 StatusCodeID = 1,
@@ -702,7 +719,7 @@
                 AuditUserId = applicationUser.UserID,
                 CompanyName = _plantItems?.Any() == true && Data.CompanyId > 0 ? _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyId)?.PlantCode : null,
                 AddedBy = Data.AddedBy,
-                AddedByUserID=Data.AddedByUserID,
+                AddedByUserID = Data.AddedByUserID,
                 ModifiedBy = applicationUser.UserName,
                 ProfileName = _documentProfileNoList?.Any() == true && Data.ProfileId > 0 ? _documentProfileNoList.FirstOrDefault(f => f.ProfileID == Data.ProfileId)?.Name : null,
                 FileProfileTypeName = fileProfileTypeDocumentsAll?.Any() == true && Data.FileProfileTypeId > 0 ? fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == Data.FileProfileTypeId)?.Name : null,

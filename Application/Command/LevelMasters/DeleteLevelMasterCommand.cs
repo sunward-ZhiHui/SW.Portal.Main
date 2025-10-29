@@ -10,10 +10,11 @@ namespace Application.Command.LeveMasters
     public class DeleteLevelMasterCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
-
-        public DeleteLevelMasterCommand(Int64 Id)
+        public long? UserId { get; private set; }
+        public DeleteLevelMasterCommand(Int64 Id, long? userId)
         {
             this.Id = Id;
+            UserId = userId;
         }
     }
 }

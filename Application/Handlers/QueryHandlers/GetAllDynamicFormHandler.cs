@@ -1843,7 +1843,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormWorkFlow>)await _dynamicFormQueryRepository.GeDynamicFormWorkFlowListIds(request.Ids);
         }
     }
-
+    public class GeDynamicFormPermissionListIdsHandler : IRequestHandler<GeDynamicFormPermissionListIds, List<DynamicFormPermission>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GeDynamicFormPermissionListIdsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormPermission>> Handle(GeDynamicFormPermissionListIds request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormPermission>)await _dynamicFormQueryRepository.GeDynamicFormPermissionListIds(request.Ids);
+        }
+    }
     public class GetOnDynamicFormSyncTablesHandler : IRequestHandler<GetOnDynamicFormSyncTables, DynamicForm>
     {
         private readonly IDynamicFormSyncQueryRepository _dynamicFormQueryRepository;
@@ -1858,4 +1869,60 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class DeleteDynamicFormPermissionHandler : IRequestHandler<DeleteDynamicFormPermission, long>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteDynamicFormPermissionHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDynamicFormPermission request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.DeleteDynamicFormPermission(request.Id, request.Ids, request.UserId);
+        }
+    }
+    public class InsertDynamicFormPermissionHandler : IRequestHandler<InsertDynamicFormPermission, DynamicFormPermission>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormPermissionHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormPermission> Handle(InsertDynamicFormPermission request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormPermission(request.DynamicFormPermission);
+        }
+
+    }
+    public class GetDynamicFormPermissionListHandler : IRequestHandler<GetDynamicFormPermissionList, List<DynamicFormPermission>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormPermissionListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormPermission>> Handle(GetDynamicFormPermissionList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormPermission>)await _dynamicFormQueryRepository.GetDynamicFormPermissionList(request.Id);
+        }
+
+
+    }
+    public class GetDynamicFormPermissionCheckHandler : IRequestHandler<GetDynamicFormPermissionCheck, DynamicFormPermission>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public GetDynamicFormPermissionCheckHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<DynamicFormPermission> Handle(GetDynamicFormPermissionCheck request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.GetDynamicFormPermissionCheckAsync(request.DynamicFormId, request.UserId);
+        }
+    }
+
 }

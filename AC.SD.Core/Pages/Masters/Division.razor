@@ -33,6 +33,12 @@
                 <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
                 @* <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />*@
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -189,8 +195,20 @@
 
 
 </DxPopup>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Division" MasterId="_selectedItems?.DivisionID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
 
+</DxPopup>
 @code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
     string Plantcode = "";
     private List<ViewPlants> _plants;
 
@@ -244,6 +262,11 @@
             isCompanyEnabled = true;
         }
     }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
@@ -271,12 +294,13 @@
 
             EditEnabled = true;
             DeleteEnabled = true;
-            StateHasChanged();
-
-
+            Grid.ClearSelection();
         }
-        // await jsRuntime.InvokeAsync<string>("hideLoading");
+        SelectedDataItems = null;
         PanelVisible = false;
+        StateHasChanged();
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
+
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
@@ -287,7 +311,7 @@
             newData.PlantCode = "";
             newData.Name = "";
             newData.Description = "";
-            newData.StatusCodeID = null;
+            newData.StatusCodeID = 1;
 
             if (Type == "Plants")
             {
@@ -297,8 +321,6 @@
 
                     isEnabled = false;
                     newData.CompanyId = _masters.CompanyId;
-                    // newData.DivisionID = _masters.DivisionID;
-                    // SelectedItemChanged(_masters.CompanyId);
                 }
             }
         }
@@ -308,7 +330,9 @@
         var editableData = (ViewDivision)e.EditModel;
         if (e.IsNew)
         {
-            var request = new CreateDivisionCommand
+            try
+            {
+                var request = new CreateDivisionCommand
                 {
                     Name = editableData.Name,
                     Description = editableData.Description,
@@ -319,10 +343,18 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
+                    AddedBy = applicationUser.UserName,
+                    StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeID)?.FirstOrDefault()?.CodeValue,
+                    CompanyName = _plantItems?.Where(w => w.PlantID == editableData.CompanyId)?.FirstOrDefault()?.PlantCode,
                 };
-            await Mediator.Send(request);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+                await Mediator.Send(request);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+            }
         }
         else
         {
@@ -333,14 +365,16 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableData = (ViewDivision)e.DataItem;
-        var request = new DeleteDivisionCommand(editableData.DivisionID);
+        var request = new DeleteDivisionCommand(editableData.DivisionID, applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewDivision editableData)
     {
-        var request = new EditDivisionCommand
+        try
+        {
+            var request = new EditDivisionCommand
             {
                 DivisionId = editableData.DivisionID,
                 Name = editableData.Name,
@@ -352,10 +386,18 @@
                 CompanyId = editableData.CompanyId,
                 ModifiedByUserId = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
+                ModifiedBy = applicationUser.UserName,
+                StatusCode = _stausItems?.Where(w => w.CodeId == editableData.StatusCodeID)?.FirstOrDefault()?.CodeValue,
+                CompanyName = _plantItems?.Where(w => w.PlantID == editableData.CompanyId)?.FirstOrDefault()?.PlantCode,
             };
-        await Mediator.Send(request);
-        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await UpdateDataAsync();
+            await Mediator.Send(request);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Warning);
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -371,22 +413,22 @@
         {
 
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
         else
         {
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = false,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -466,7 +508,7 @@
                     {
 
                         // var editableData = (ViewDivision)e.DataItem;
-                        var request = new DeleteDivisionCommand(forumdivision.DivisionID);
+                        var request = new DeleteDivisionCommand(forumdivision.DivisionID, applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

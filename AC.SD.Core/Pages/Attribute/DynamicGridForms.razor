@@ -111,7 +111,7 @@
                             DisplayMode="MenuDisplayMode.Desktop">
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                             <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
                             @* @if (IsGridDynamicGridForm == true)
                         {
@@ -138,7 +138,7 @@
                                 DisplayMode="MenuDisplayMode.Desktop">
                             <Items>
                                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Enabled="@EditEnabled" />
                                 @* @if (IsGridDynamicGridForm == true)
                         {
@@ -165,14 +165,16 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-
-                                    <DxMenuItem Text="Save">
-                                        <Items>
-                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                        </Items>
-                                    </DxMenuItem>
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
+                                    @if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save">
+                                            <Items>
+                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                            </Items>
+                                        </DxMenuItem>
+                                    }
                                     <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
                                         <Items>
                                             <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
@@ -213,8 +215,11 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
+                                    @if (AddPermissionEnabled == true || EditPermissionEnabled == true)
+                                    {
+                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternallyWithWorkFlow" Enabled="isWorkflowEnabled" />
+                                    }
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     @*  <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" /> *@
                                     <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
@@ -997,6 +1002,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSection; private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSectionItems;
     bool IsRenameOpens { get; set; } = false; public DynamicFormWorkFlowSection _selectedDynamicFormWorkFlowItems { get; set; }
     public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
@@ -1265,6 +1271,20 @@
     {
         // await JSRuntime.InvokeAsync<string>("hideLoading");
     }
+    async Task PermissionCheckFor()
+    {
+        if (_dynamicform != null && _dynamicform.ID > 0)
+        {
+            AddPermissionEnabled = false; DeletePermissionEnabled = false; EditPermissionEnabled = false;
+            var result = await Mediator.Send(new GetDynamicFormPermissionCheck(_dynamicform.ID, applicationUser.UserID));
+            if (result != null)
+            {
+                AddPermissionEnabled = result.IsAdd.GetValueOrDefault(true);
+                DeletePermissionEnabled = result.IsDelete.GetValueOrDefault(true);
+                EditPermissionEnabled = result.IsEdit.GetValueOrDefault(true);
+            }
+        }
+    }
     async Task loadDynamicForm()
     {
         await onshowLoading(); dynamicFormSectionAttrFormulaFunction1 = new DynamicFormSectionAttrFormulaFunction(); IsGridDynamicGridForm = false; IsGridPrintWithoutGridForm = false; EditEnabled = false; _DynamicFormDataAttrUploadList = new List<DynamicFormDataAttrUpload>();
@@ -1282,6 +1302,7 @@
         }
         if (_dynamicform != null)
         {
+            await PermissionCheckFor();
             AddEnabled = true; plantIds = new List<long>(); plantCode = null;
             //_dynamicFormDropDown = await Mediator.Send(new GetAllDynamicForm(0));
             ActiveTabIndex = 0; isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve"; isButtonClick = "";

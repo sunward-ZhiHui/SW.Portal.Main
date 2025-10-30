@@ -203,7 +203,7 @@ namespace Infrastructure.Repository.Query
         public async Task<SyrupPlanning?> SelectSyruppreparationDataList(long? DynamicFormDataID)
         {
             const string sql = @"select DynamicFormDataID,
-                    [13229_2004_ProductionPlanningProcess] as SyruppreparationProcessName,
+                    [13269_ProductionPlanningProcess] as SyruppreparationProcessName,
                     [13202_Location] as SyruppreparationLocation,
                     [13203_1PreparationfirstVolumnHour] as SyruppreparationFirstVolumnHour,
                     [13204_1PreparationFirstVolumnManpower] as SyruppreparationFirstVolumnManpower,
@@ -2930,6 +2930,8 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                     string durationText = FormatDuration(TimeSpan.FromMinutes(durationMinutesFinal));
                     decimal? durationHours = Math.Round(durationMinutesFinal / 60m, 2);
 
+                    var pred = Convert.ToString(row.Predecessor);   // may be null
+
                     var task = new TaskData
                     {
                         TaskId = (int)taskId,
@@ -2938,7 +2940,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                         EndDate = endDate,
                         Duration = durationText,
                         Room = row.Room is null ? null : Convert.ToString(row.Room),
-                        Predecessor = taskId.ToString(),
+                        Predecessor = string.IsNullOrWhiteSpace(pred) ? null : pred,
                         DurationHours = durationHours,
                         BarColor = row.BarColor
                     };
@@ -4137,7 +4139,7 @@ VALUES
                     TRY_CAST(NULLIF([13229_2009_NoofCampaign], '') AS INT) AS SyrupSimplexNoofCampaign,
 
                     [13229_2004_NextProcessName] AS SyrupSimplexNextProcessName,
-                    [13229_2004_ProductionPlanningProcess] AS SyruppreparationProcessName,
+                    [13269_ProductionPlanningProcess] AS SyruppreparationProcessName,
                     [13202_Location] AS SyruppreparationLocation,
 
                     TRY_CAST(NULLIF([13203_1PreparationfirstVolumnHour], '') AS DECIMAL(18,4)) AS SyruppreparationFirstVolumnHour,

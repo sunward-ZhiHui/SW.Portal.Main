@@ -31,7 +31,7 @@
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Permission" IconCssClass="fa fa-user-lock" Click="@addPermissionOpen" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@AddPermissionEnabled" />
-
+                <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-link" Click="@OpenAuditTrail" Enabled="@IsAuditTrailEnabled" />
                 @*  <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
                 <DxMenuItem Text="OData" IconCssClass="fa fa-link">
                     <Items>
@@ -214,7 +214,22 @@
         <AddDynamicFormPermissions @ref="refAddPermissionForms" SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddDynamicFormPermissions>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@OpenAuditTrailPopUp"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Audit Trail"
+         Closed="EulaPopupClosed"
+         Width="1500px">
+    <BodyContentTemplate>
+        <DynamicFormAuditTrail @ref="refDynamicFormAuditTrail" SessionId="_selectedItems?.SessionID" dynamicFormId="@_selectedItems?.ID"></DynamicFormAuditTrail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    private DynamicFormAuditTrail refDynamicFormAuditTrail { get; set; }
+    bool IsAuditTrailEnabled { get; set; } = false; private bool OpenAuditTrailPopUp { get; set; } = false;
     private AddDynamicFormPermissions refAddPermissionForms { get; set; }
     bool addPermissionEnabled { get; set; } = false;
     private DynamicFormOdataAttrLists refDynamicFormOdataAttrLists { get; set; }
@@ -287,7 +302,7 @@
     {
         try
         {
-            PanelVisible = true; EditCloneEnabled = true;
+            PanelVisible = true; EditCloneEnabled = true; IsAuditTrailEnabled = false;
             EditEnabled = false; DeleteEnabled = false; AddPermissionEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
             //StateHasChanged();
@@ -297,6 +312,7 @@
                 EditEnabled = true;
                 DeleteEnabled = true;
                 _selectedItems = _dynamicForm.FirstOrDefault();
+                IsAuditTrailEnabled = _selectedItems.IsAuditTrail.GetValueOrDefault(false);
                 if (_selectedItems.IsGridForm == false)
                 {
                     EditCloneEnabled = true;
@@ -325,15 +341,19 @@
     }
     async Task OnRowclick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID"); IsAuditTrailEnabled = false;
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true; EditCloneEnabled = true;
+        DeleteEnabled = true; EditCloneEnabled = true; IsAuditTrailEnabled = _selectedItems.IsAuditTrail.GetValueOrDefault(false);
         if (_selectedItems.IsGridForm == false)
         {
             EditCloneEnabled = true;
         }
         await PermissionCheckFor();
+    }
+    void OpenAuditTrail()
+    {
+        OpenAuditTrailPopUp = true;
     }
     void OpenNewForm()
     {
@@ -433,7 +453,7 @@
     {
         OdataAttrListpopup = false;
         Blukdeletepopup = false;
-        DynamicFormReportsBypopup = false;
+        DynamicFormReportsBypopup = false; OpenAuditTrailPopUp = false;
         await UpdateDataAsync();
     }
     async Task bulkDelete(DynamicForm dynamicForm)

@@ -56,12 +56,12 @@
             VirtualScrollingEnabled="true"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
-            
+
             @if (Items != null)
             {
                 if (Items.FormType == "DynamicFormSectionAttributeSecurity" || Items.FormType == "DynamicFormSectionSecurity" || Items.FormType == "DynamicFormPermission")
                 {
-                    <DxGridDataColumn FieldName="RowItemIndex" Caption="No" GroupIndex="0"  MinWidth="10" />
+                    <DxGridDataColumn FieldName="RowItemIndex" Caption="No" GroupIndex="0" MinWidth="10" />
                     <DxGridDataColumn FieldName="Type" Caption="Type" MinWidth="50" />
                 }
                 else
@@ -517,6 +517,10 @@
                             if (index.FormType == "DynamicForm" || index.FormType == "DynamicFormPermission" || index.FormType == "DynamicFormApproval" || index.FormType == "DynamicFormWorkFlowApproval" || index.FormType == "DynamicFormWorkFlow" || index.FormType == "DynamicFormSectionAttributeSection" || index.FormType == "DynamicFormSectionAttrFormulaFunction" || index.FormType == "DynamicFormSectionAttrFormula")
                             {
                                 _dynamicFormApprovalData[i].DisplayName = index.ColumnName == "DynamicFormSectionAttrFormulaMasterFuntionId" ? "SpinEdit Type" : (index.ColumnName == "DynamicFormSectionAttributeId" ? "Dynamic Form Section Attribute" : index.ColumnName);
+                                if (index.ColumnName == "IsAddPermission" || index.ColumnName == "IsEditPermission" || index.ColumnName == "IsDeletePermission")
+                                {
+                                    _dynamicFormApprovalData[i].DisplayName = AddSpacesToCamelCase(index.ColumnName);
+                                }
                             }
                             _dynamicFormApprovalData[i].RowIndex = i + 1;
                             i++;
@@ -531,12 +535,12 @@
                                 var datas = _dynamicFormApprovalData.Where(w => w.UniqueSessionId == ind).ToList();
                                 if (datas?.Any() == true)
                                 {
-                                    
+
                                     foreach (var ind1 in datas)
                                     {
                                         var inx = _dynamicFormApprovalData.IndexOf(ind1);
                                         _dynamicFormApprovalData[inx].RowItemIndex = k;
-                                        
+
                                     }
                                 }
                                 j++;
@@ -552,6 +556,15 @@
         {
 
         }
+    }
+    public static string AddSpacesToCamelCase(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        return string.Concat(
+            input.Select((x, i) => i > 0 && char.IsUpper(x) ? " " + x : x.ToString())
+        );
     }
     void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs e)
     {

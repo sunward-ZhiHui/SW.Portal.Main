@@ -214,6 +214,26 @@
         }
 </style>
 
+@if (_barCss.Count > 0)
+{
+    <style>
+@foreach (var kv in _barCss)
+{
+/* Taskbar body + border (cover multiple Syncfusion builds) */
+@: .e-gantt .@(kv.Key) .e-taskbar{ background-color:@(kv.Value) !important; border-color:@(kv.Value) !important; }
+@: .e-gantt .@(kv.Key) .e-child-taskbar{ background-color:@(kv.Value) !important; border-color:@(kv.Value) !important; }
+@: .e-gantt .@(kv.Key) .e-gantt-child-taskbar{ background-color:@(kv.Value) !important; border-color:@(kv.Value) !important; }
+@: .e-gantt .@(kv.Key) .e-gantt-child-taskbar-inner-div{ background-color:@(kv.Value) !important; border-color:@(kv.Value) !important; }
+
+/* Progress fill (cover multiple builds) */
+@: .e-gantt .@(kv.Key) .e-progressbar{ background-color:@(kv.Value) !important; }
+@: .e-gantt .@(kv.Key) .e-child-progressbar{ background-color:@(kv.Value) !important; }
+@: .e-gantt .@(kv.Key) .e-gantt-child-progressbar-inner-div{ background-color:@(kv.Value) !important; }
+}
+    </style>
+}
+
+
 <div class="card-body">
     <div class="row">
         <DxFormLayout CssClass="w-100">
@@ -298,6 +318,10 @@
 
                     <GanttSplitterSettings Position="30%"></GanttSplitterSettings>
                     <GanttLabelSettings RightLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
+                    <GanttEvents TValue="TaskData"
+                                 QueryChartRowInfo="@( (QueryChartRowInfoEventArgs<TaskData> e) => OnQueryChartRowInfo(e) )" />
+
+
                 </SfGantt>
             }
            
@@ -323,6 +347,23 @@
     private DateTime ProjectEndDate { get; set; } = new DateTime(2021, 4, 2, 20, 0, 0);
     private IReadOnlyList<TaskData> Tasks { get; set; } = Array.Empty<TaskData>();
     private string ProgressBarColor { get; set; } = string.Empty;
+
+    private readonly Dictionary<string, string> _barCss = new();
+
+   private void OnQueryChartRowInfo(QueryChartRowInfoEventArgs<TaskData> args)
+{
+    var d = args.Data;
+    if (d == null || string.IsNullOrWhiteSpace(d.BarColor)) return;
+
+    var cls = $"barcolor-{d.TaskId}";
+    args.Row.AddClass(new[] { cls });
+
+    _barCss[cls] = d.BarColor!;
+    // ensure the <style> block below re-renders after rows report in
+    InvokeAsync(StateHasChanged);
+}
+
+
 
     private IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
     {
@@ -423,6 +464,7 @@
 
     private async Task LoadReportDataAsync()
     {
+         _barCss.Clear();
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
         DateTime productionDay = DateTime.Today;
         TimeSpan shiftStart = TimeSpan.FromHours(8);

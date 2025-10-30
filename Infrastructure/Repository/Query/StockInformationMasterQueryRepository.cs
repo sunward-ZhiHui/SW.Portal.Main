@@ -2939,7 +2939,8 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                         Duration = durationText,
                         Room = row.Room is null ? null : Convert.ToString(row.Room),
                         Predecessor = taskId.ToString(),
-                        DurationHours = durationHours
+                        DurationHours = durationHours,
+                        BarColor = row.BarColor
                     };
 
                     // ✅ build segments (no ref!)

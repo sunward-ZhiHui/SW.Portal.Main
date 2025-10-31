@@ -109,6 +109,8 @@ namespace Core.EntityModels
             public string? NextProcessName { get; set; }
             public string? Notes { get; set; }
             public List<SegmentModel> Segments { get; set; } = new List<SegmentModel>();
+            public string? BarColor { get; set; }
+
         }
         public class SegmentModel
         {

@@ -10,10 +10,14 @@ namespace Application.Command.EmployeeEmailInfos
     public class DeleteEmployeeEmailInfoCommand : IRequest<String>
     {
         public Int64 Id { get; private set; }
+        public long? UserId { get; private set; }
+        public string? UserName { get; private set; }
 
-        public DeleteEmployeeEmailInfoCommand(Int64 Id)
+        public DeleteEmployeeEmailInfoCommand(Int64 Id, long? userId, string? userName)
         {
             this.Id = Id;
+            UserId = userId;
+            UserName = userName;
         }
     }
     public class DeleteEmployeeEmailInfoForwardCommand : IRequest<String>

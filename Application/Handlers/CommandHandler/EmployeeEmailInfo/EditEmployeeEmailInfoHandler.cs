@@ -1,6 +1,6 @@
 ﻿using Application.Command.Departments;
 using Application.Command.EmployeeEmailInfos;
-using Application.Command.EmployeeOtherDutyInformations;
+using Application.Command.EmployeeEmailInfos;
 using Application.Commands;
 using Application.Common.Mapper;
 using Application.Response;
@@ -20,13 +20,16 @@ namespace Application.Handlers.CommandHandler
     {
         private readonly IEmployeeEmailInfoCommandRepository _commandRepository;
         private readonly IEmployeeEmailInfoQueryRepository _queryRepository;
-        public EditEmployeeEmailInfoHandler(IEmployeeEmailInfoCommandRepository customerRepository, IEmployeeEmailInfoQueryRepository customerQueryRepository)
+        private readonly IHRMasterAuditTrailQueryRepository _HRMasterAuditTrailQueryRepository;
+        public EditEmployeeEmailInfoHandler(IEmployeeEmailInfoCommandRepository customerRepository, IEmployeeEmailInfoQueryRepository customerQueryRepository, IHRMasterAuditTrailQueryRepository hRMasterAuditTrailQueryRepository)
         {
             _commandRepository = customerRepository;
             _queryRepository = customerQueryRepository;
+            _HRMasterAuditTrailQueryRepository = hRMasterAuditTrailQueryRepository;
         }
         public async Task<EmployeeEmailInfoResponse> Handle(EditEmployeeEmailInfoCommand request, CancellationToken cancellationToken)
         {
+            var result = await _queryRepository.GetByIdAsync(request.EmployeeEmailInfoID);
             var queryrEntity = RoleMapper.Mapper.Map<EmployeeEmailInfo>(request);
 
             if (queryrEntity is null)
@@ -37,6 +40,38 @@ namespace Application.Handlers.CommandHandler
             try
             {
                 await _commandRepository.UpdateAsync(queryrEntity);
+                var guid = Guid.NewGuid();
+                var uid = Guid.NewGuid();
+
+                if (result != null)
+                {
+                    bool isUpdate = false;
+                    if (result.EmailGuideID != queryrEntity.EmailGuideID)
+                    {
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result.EmailGuideID?.ToString(), queryrEntity?.EmailGuideID?.ToString(), request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "EmailGuideID", uid);
+                        isUpdate = true;
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result.EmailGuide, queryrEntity?.EmailGuide, request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "EmailGuide", uid);
+                    }
+                    if (result.SubscriptionID != queryrEntity?.SubscriptionID)
+                    {
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result.SubscriptionID?.ToString(), queryrEntity?.SubscriptionID?.ToString(), request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "EmailGuideID", uid);
+                        isUpdate = true;
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result.Subscription, queryrEntity?.Subscription, request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "EmailGuide", uid);
+                    }
+                    if (isUpdate)
+                    {
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result?.ModifiedByUserId?.ToString(), queryrEntity?.ModifiedByUserId?.ToString(), request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "ModifiedByUserId", uid);
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", result?.ModifiedDate != null ? result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, queryrEntity?.ModifiedDate != null ? queryrEntity.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "ModifiedDate", uid);
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", null, queryrEntity?.ModifiedBy?.ToString(), request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "ModifiedBy", uid);
+                        uid = Guid.NewGuid();
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Update", queryrEntity?.EmployeeID?.ToString(), queryrEntity?.EmployeeID?.ToString(), request.EmployeeEmailInfoID, guid, request?.ModifiedByUserId, DateTime.Now, false, "EmployeeId", uid);
+                    }
+                }
             }
             catch (Exception exp)
             {

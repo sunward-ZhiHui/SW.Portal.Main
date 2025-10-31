@@ -1,7 +1,10 @@
 ﻿using Application.Response;
+using Core.Entities;
+using Core.Entities.Views;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,6 +79,23 @@ namespace Application.Command.Employees
         public Guid? SessionId { get; set; }
         public int? HeadCount { get; set; }
         public IEnumerable<long?> ReportToIds { get; set; }
+        [NotMapped]
+        public string? LanguageName { get; set; }
+        public string? RoleName { get; set; }
+        public string? LevelName { get; set; }
+        public string? TypeOfEmployeementName { get; set; }
+        public string? AcceptanceStatusName { get; set; }
+        public string? ReportToIdNames { get; set; }
+        [NotMapped]
+        public List<View_ApplicationMasterDetail> View_mainEmployeeStatusItems { get; set; } = new List<View_ApplicationMasterDetail>();
+        [NotMapped]
+        public List<LanguageMaster> LanguageMasterItems {  get; set; }=new List<LanguageMaster>();
+        [NotMapped]
+        public List<ViewEmployee> EmployeeItems { get; set; } = new List<ViewEmployee>();
+        public List<long?> ReportEmpToIds { get; set; } = new List<long?>();
+        public List<long?> OldReportToIds { get; set; } = new List<long?>();
+        [NotMapped]
+        public List<ViewLevel> LevelMasterItems { get; set; } = new List<ViewLevel>();
         public EditEmployeeCommand()
         {
         }

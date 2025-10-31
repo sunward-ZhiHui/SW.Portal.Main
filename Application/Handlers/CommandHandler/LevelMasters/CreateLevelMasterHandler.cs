@@ -35,7 +35,7 @@ namespace Application.Handlers.CommandHandler.LevelMasters
             var data = await _commandRepository.AddAsync(queryEntity);
             var guid = Guid.NewGuid();
             var uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", queryEntity?.Name, null, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null,queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
             uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Name", uid);
             uid = Guid.NewGuid();

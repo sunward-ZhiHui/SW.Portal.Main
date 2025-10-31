@@ -103,7 +103,7 @@
                                             ValueFieldName="DesignationID"
                                             ShowValidationIcon="true"
                                             Value="@employee.DesignationID"
-                                            ValueExpression="@(() => employee.DesignationID )"
+                                            ValueExpression="@(() => employee.DesignationID)"
                                             ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect))" />
                                 <ValidationMessage For="@(() => employee.DesignationID)" />
                             </DxFormLayoutItem>
@@ -302,6 +302,7 @@
     private List<ViewLevel> _leveMasterItems;
     private List<ViewEmployee> _employeeItems;
     private List<View_ApplicationMasterDetail> _view_mainEmployeeStatusItems;
+    private List<EmployeeReportTo> EmployeeReportToItems { get; set; }
     EmployeeResponse employee = new EmployeeResponse();
     ViewEmployee _employeeData = new ViewEmployee();
     IGrid _otherInfoGrid { get; set; }
@@ -315,15 +316,7 @@
     protected override async Task OnInitializedAsync()
     {
         _designationItems = await Mediator.Send(new GetAllDesignationQuery());
-        _employeeData = new ViewEmployee();
-        if (SessionIds != null)
-        {
-            _employeeData = await Mediator.Send(new GetAllEmployeeBySessionQuery(SessionIds));
-            EmployeeIds = _employeeData.EmployeeID;
-            EditEnabledTab = EmployeeIds > 0 ? true : false;
-            await loadEmployeeData(_employeeData);
 
-        }
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _roles = await Mediator.Send(new GetAllRoleQuery());
@@ -341,7 +334,21 @@
         _employeeItems = await Mediator.Send(new GetAllEmployeeByStatusQuery());
         employee.ExpectedJoiningDate = DateTime.Now;
     }
-
+    protected override async Task OnParametersSetAsync()
+    {
+        if (applicationUser != null)
+        {
+            _employeeData = new ViewEmployee();
+            if (SessionIds != null)
+            {
+                _employeeData = await Mediator.Send(new GetAllEmployeeBySessionQuery(SessionIds));
+                EmployeeIds = _employeeData.EmployeeID;
+                EditEnabledTab = EmployeeIds > 0 ? true : false;
+                await loadEmployeeData(_employeeData);
+            }
+        }
+        base.OnParametersSet();
+    }
     void backUrl()
     {
         NavigationManager.NavigateTo("Employees");
@@ -362,6 +369,7 @@
         var employeeReportToItems = await Mediator.Send(new GetEmployeeReportToQuery(_employeeData.EmployeeID));
         if (employeeReportToItems != null)
         {
+            EmployeeReportToItems = employeeReportToItems;
             employee.ReportToIds = employeeReportToItems.Select(s => s.ReportToId).ToList();
         }
         employee.EmployeeID = _employeeData.EmployeeID;
@@ -390,6 +398,12 @@
         employee.HeadCount = _employeeData.HeadCount;
         employee.LanguageID = _employeeData.LanguageID;
         employee.SpeedDial = _employeeData.SpeedDial;
+        employee.AddedByUserID = _employeeData.AddedByUserID;
+        employee.AddedByUser = _employeeData.AddedByUser;
+        employee.AddedDate = _employeeData.AddedDate;
+        employee.ModifiedDate = _employeeData.ModifiedDate;
+        employee.ModifiedByUserID = _employeeData.ModifiedByUserID;
+        employee.SessionId = _employeeData.SessionId;
     }
     void SelectedItemChanged(long? viewDesignations)
     {
@@ -425,13 +439,17 @@
     }
     async Task HandleValidSubmit()
     {
-
-        loading = true;
-        var editableData = employee;
-        if (editableData.EmployeeID > 0)
+        try
         {
-            var request = new EditEmployeeCommand
+            loading = true;
+            var editableData = employee;
+            if (editableData.EmployeeID > 0)
+            {
+                var oldList = EmployeeReportToItems.Select(s => s.ReportToId).ToList();
+                var ids = editableData.ReportToIds.ToList();
+                var request = new EditEmployeeCommand
                 {
+                    SessionId = editableData.SessionId,
                     EmployeeID = editableData.EmployeeID,
                     UserID = editableData.UserID,
                     LoginID = editableData.LoginID,
@@ -442,7 +460,7 @@
                     LanguageID = editableData.LanguageID,
                     SpeedDial = editableData.SpeedDial,
                     ReportToIds = editableData.ReportToIds,
-                    AddedByUserID = applicationUser.UserID,
+                    AddedByUserID = editableData.AddedByUserID > 0 ? editableData.AddedByUserID : applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
                     StatusCodeID = 1,
                     SageID = editableData.SageID,
@@ -461,24 +479,47 @@
                     AcceptanceStatus = editableData.AcceptanceStatus,
                     Extension = editableData.Extension,
                     HeadCount = editableData.HeadCount,
-
-
+                    LanguageName = _languageMasterItems.FirstOrDefault(f => f.LanguageId == editableData.LanguageID)?.Name,
+                    DepartmentName = _departmentItems.FirstOrDefault(f => f.DepartmentId == editableData.DepartmentID)?.DepartmentName,
+                    RoleName = _roles.FirstOrDefault(f => f.RoleID == editableData.RoleID)?.RoleName,
+                    CompanyName = _plantItems.FirstOrDefault(f => f.PlantID == editableData.PlantID)?.PlantCode,
+                    DivisionName = _divisionsItems.FirstOrDefault(f => f.DivisionID == editableData.DivisionID)?.Name,
+                    LevelName = _leveMasterItems.FirstOrDefault(f => f.LevelID == editableData.LevelID)?.Name,
+                    SectionName = _sectionItems.FirstOrDefault(f => f.SectionId == editableData.SectionID)?.SectionName,
+                    SubSectionName = _subSectionItems.FirstOrDefault(f => f.SubSectionId == editableData.SubSectionID)?.SubSectionName,
+                    DesignationName = _designationItems.FirstOrDefault(f => f.DesignationID == editableData.DesignationID)?.Name,
+                    TypeOfEmployeementName = _employmentTypeItems.FirstOrDefault(f => f.CodeId == editableData.TypeOfEmployeement)?.CodeValue,
+                    AcceptanceStatusName = _view_mainEmployeeStatusItems.FirstOrDefault(f => f.ApplicationMasterDetailID == editableData.AcceptanceStatus)?.Value,
+                    AddedByUser = editableData.AddedByUserID > 0 ? editableData.AddedByUser : applicationUser.AddedBy,
+                    ModifiedByUser = applicationUser.UserName,
+                    ReportToIdNames = string.Join(",", _employeeItems.Where(w => editableData.ReportToIds.ToList().Contains(w.UserID)).Select(s => s.FirstName).ToList()),
+                    View_mainEmployeeStatusItems = _view_mainEmployeeStatusItems,
+                    LanguageMasterItems = _languageMasterItems,
+                    LevelMasterItems = _leveMasterItems,
+                    EmployeeItems = _employeeItems,
+                    OldReportToIds = oldList,
+                    ModifiedDate=DateTime.Now
                 };
-            var response = await Mediator.Send(request);
-            if (response.EmployeeID > 0)
-            {
-                onShowPopupMessage("Message", "Employee Updated Successfully");
-                employee.EmployeeID = response.EmployeeID;
-                employee.UserID = response.UserID;
-                employee.SessionId = response.SessionId;
-                EmployeeIds = response.EmployeeID;
-                NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
+                var response = await Mediator.Send(request);
+                if (response.EmployeeID > 0)
+                {
+                    var employeeReportToItems = await Mediator.Send(new GetEmployeeReportToQuery(response.EmployeeID));
+                    if (employeeReportToItems != null)
+                    {
+                        EmployeeReportToItems = employeeReportToItems;
+                    }
+                    onShowPopupMessage("Message", "Employee Updated Successfully");
+                    employee.EmployeeID = response.EmployeeID;
+                    employee.UserID = response.UserID;
+                    employee.SessionId = response.SessionId;
+                    EmployeeIds = response.EmployeeID;
+                    NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
+                }
+                loading = false;
             }
-            loading = false;
-        }
-        else
-        {
-            var request = new CreateEmployeeCommand
+            else
+            {
+                var request = new CreateEmployeeCommand
                 {
                     LoginID = editableData.LoginID,
                     FirstName = editableData.FirstName,
@@ -507,20 +548,38 @@
                     AcceptanceStatus = editableData.AcceptanceStatus,
                     Extension = editableData.Extension,
                     HeadCount = editableData.HeadCount,
-
-
+                    LanguageName = _languageMasterItems.FirstOrDefault(f => f.LanguageId == editableData.LanguageID)?.Name,
+                    DepartmentName = _departmentItems.FirstOrDefault(f => f.DepartmentId == editableData.DepartmentID)?.DepartmentName,
+                    RoleName = _roles.FirstOrDefault(f => f.RoleID == editableData.RoleID)?.RoleName,
+                    CompanyName = _plantItems.FirstOrDefault(f => f.PlantID == editableData.PlantID)?.PlantCode,
+                    DivisionName = _divisionsItems.FirstOrDefault(f => f.DivisionID == editableData.DivisionID)?.Name,
+                    LevelName = _leveMasterItems.FirstOrDefault(f => f.LevelID == editableData.LevelID)?.Name,
+                    SectionName = _sectionItems.FirstOrDefault(f => f.SectionId == editableData.SectionID)?.SectionName,
+                    SubSectionName = _subSectionItems.FirstOrDefault(f => f.SubSectionId == editableData.SubSectionID)?.SubSectionName,
+                    DesignationName = _designationItems.FirstOrDefault(f => f.DesignationID == editableData.DesignationID)?.Name,
+                    TypeOfEmployeementName = _employmentTypeItems.FirstOrDefault(f => f.CodeId == editableData.TypeOfEmployeement)?.CodeValue,
+                    AcceptanceStatusName = _view_mainEmployeeStatusItems.FirstOrDefault(f => f.ApplicationMasterDetailID == editableData.AcceptanceStatus)?.Value,
+                    AddedByUser = applicationUser.UserName,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUser = applicationUser.UserName,
+                    ReportToIdNames = string.Join(",", _employeeItems.Where(w => editableData.ReportToIds.ToList().Contains(w.UserID)).Select(s => s.FirstName).ToList()),
                 };
-            var response = await Mediator.Send(request);
-            if (response.EmployeeID > 0)
-            {
-                onShowPopupMessage("Message", "Employee Added Successfully");
-                employee.EmployeeID = response.EmployeeID;
-                employee.UserID = response.UserID;
-                employee.SessionId = response.SessionId;
-                EmployeeIds = response.EmployeeID;
-                NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
+                var response = await Mediator.Send(request);
+                if (response.EmployeeID > 0)
+                {
+                    onShowPopupMessage("Message", "Employee Added Successfully");
+                    employee.EmployeeID = response.EmployeeID;
+                    employee.UserID = response.UserID;
+                    employee.SessionId = response.SessionId;
+                    EmployeeIds = response.EmployeeID;
+                    NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
+                }
+                loading = false;
             }
-            loading = false;
+        }
+        catch (Exception ex)
+        {
+
         }
     }
     private async void onShowPopupMessage(string headerText, string bodyText)

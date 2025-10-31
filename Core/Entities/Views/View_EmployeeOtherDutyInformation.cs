@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,15 +32,17 @@ namespace Core.Entities.Views
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public string EmployeeName { get; set; }
-        public string DepartmentName { get; set; }
-        public string DesignationName { get; set; }
-        public string SectionName { get; set; }
-        public string SubSectionName { get; set; }
-        public string DivisionName { get; set; }
-        public string CompanyName { get; set; }
-        public string LevelName { get; set; }
-        public string DutyType { get; set; }
-        public string StatusCode { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DesignationName { get; set; }
+        public string? SectionName { get; set; }
+        public string? SubSectionName { get; set; }
+        public string? DivisionName { get; set; }
+        public string? CompanyName { get; set; }
+        public string? LevelName { get; set; }
+        public string? DutyType { get; set; }
+        public string? StatusCode { get; set; }
+        public string? AddedBy { get; set; }
+        public string? ModifiedBy { get; set; }
     }
 }

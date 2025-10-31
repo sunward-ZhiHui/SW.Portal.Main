@@ -190,20 +190,24 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeICTHardInformationCommand
-                {
-                    CompanyId = editablePlant.CompanyId,
-                    EmployeeId = EmployeeIds,
-                    HardwareId = editablePlant.HardwareId,
-                    LoginId = editablePlant.LoginId,
-                    Password = editablePlant.Password,
-                    StatusCodeId = editablePlant.StatusCodeId,
-                    AddedByUserId = applicationUser.UserID,
-                    ModifiedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    Name = editablePlant.Name,
-                    Instruction = editablePlant.Instruction,
-                };
+            {
+                CompanyId = editablePlant.CompanyId,
+                EmployeeId = EmployeeIds,
+                HardwareId = editablePlant.HardwareId,
+                LoginId = editablePlant.LoginId,
+                Password = editablePlant.Password,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                Name = editablePlant.Name,
+                Instruction = editablePlant.Instruction,
+                CompanyName = _plantItems.FirstOrDefault(f => f.PlantID == editablePlant.CompanyId)?.PlantCode,
+                StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+                AddedBy = applicationUser.UserName,
+                ModifiedBy = applicationUser.UserName,
+            };
             await Mediator.Send(request);
             await UpdateDataAsyncIctInfoHard();
         }
@@ -215,7 +219,7 @@
     async Task Grid_DataItemDeletingIctInfoHard(GridDataItemDeletingEventArgs e)
     {
         var editablePlant = (View_EmployeeICTHardInformation)e.DataItem;
-        var request = new DeleteEmployeeICTHardInformationCommand(editablePlant.EmployeeIctHardinformationId);
+        var request = new DeleteEmployeeICTHardInformationCommand(editablePlant.EmployeeIctHardinformationId,applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfoHard();
         IctHardInfoGrid.SetFocusedRowIndex(0);
@@ -223,21 +227,25 @@
     async Task UpdatePlantAsyncIctInfoHard(View_EmployeeICTHardInformation editablePlant)
     {
         var request = new EditEmployeeICTHardInformationCommand
-            {
-                EmployeeIctHardinformationId = editablePlant.EmployeeIctHardinformationId,
-                CompanyId = editablePlant.CompanyId,
-                EmployeeId = EmployeeIds,
-                HardwareId = editablePlant.HardwareId,
-                LoginId = editablePlant.LoginId,
-                Password = editablePlant.Password,
-                StatusCodeId = editablePlant.StatusCodeId,
-                AddedByUserId = editablePlant.AddedByUserId,
-                ModifiedByUserId = applicationUser.UserID,
-                AddedDate = editablePlant.AddedDate,
-                ModifiedDate = DateTime.Now,
-                Name = editablePlant.Name,
-                Instruction = editablePlant.Instruction,
-            };
+        {
+            EmployeeIctHardinformationId = editablePlant.EmployeeIctHardinformationId,
+            CompanyId = editablePlant.CompanyId,
+            EmployeeId = EmployeeIds,
+            HardwareId = editablePlant.HardwareId,
+            LoginId = editablePlant.LoginId,
+            Password = editablePlant.Password,
+            StatusCodeId = editablePlant.StatusCodeId,
+            AddedByUserId = editablePlant.AddedByUserId,
+            ModifiedByUserId = applicationUser.UserID,
+            AddedDate = editablePlant.AddedDate,
+            ModifiedDate = DateTime.Now,
+            Name = editablePlant.Name,
+            Instruction = editablePlant.Instruction,
+            CompanyName = _plantItems.FirstOrDefault(f => f.PlantID == editablePlant.CompanyId)?.PlantCode,
+            StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+            AddedBy = editablePlant.AddedBy,
+            ModifiedBy = applicationUser.UserName,
+        };
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfoHard();
     }

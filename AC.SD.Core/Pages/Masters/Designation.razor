@@ -30,12 +30,12 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelmaster" />
                 <DxMenuItem Text="Reset Subsection" IconCssClass="fa fa-refresh" Click="@ResetSubSection" Enabled="@isSubsectionEnabled" />
-                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+               @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
                     </Items>
-                </DxMenuItem>
+                </DxMenuItem> *@
             </Items>
         </DxMenu>
     </div>

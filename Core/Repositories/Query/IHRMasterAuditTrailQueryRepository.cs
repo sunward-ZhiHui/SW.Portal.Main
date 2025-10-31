@@ -15,6 +15,6 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task InsertHRMasterAuditTrail(string? Type, string? FormType, string? PreValue, string? CurrentValue, long? HRMasterSetID, Guid? SessionId, long? AuditUserId, DateTime? AuditDate, bool? IsDeleted, string? columnName, Guid? UniqueSessionId = null);
-        Task<IReadOnlyList<HRMasterAuditTrail>> GetHRMasterAuditList(string? MasterType, long? MasterId, bool? IsDeleted, Guid? SessionId);
+        Task<IReadOnlyList<HRMasterAuditTrail>> GetHRMasterAuditList(string? MasterType, long? MasterId, bool? IsDeleted, Guid? SessionId, string? AddTypeId = "");
     }
 }

@@ -35,5 +35,9 @@ namespace Core.Entities
         public string? Status { get; set; }
         [NotMapped]
         public List<string>? ColumnsToUpdate { get; set; }
+        [NotMapped]
+        public string? DepartmentName { get; set; }
+        [NotMapped]
+        public string? ModifiedByUser { get; set; }
     }
 }

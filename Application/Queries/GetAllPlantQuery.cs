@@ -24,12 +24,14 @@ namespace Application.Queries
         public string? MasterType { get; set; }
         public bool? IsDeleted { get; set; } = false;
         public Guid? SessionId { get; set; }
-        public GetHRMasterAuditList(long? masterId, string? masterType, bool? isDeleted, Guid? SessionId)
+        public string? AddTypeId { get; set; }
+        public GetHRMasterAuditList(long? masterId, string? masterType, bool? isDeleted, Guid? SessionId, string? addTypeId = "")
         {
             this.MasterId = masterId;
             this.MasterType = masterType;
             this.IsDeleted = isDeleted;
             this.SessionId = SessionId;
+            this.AddTypeId = addTypeId;
         }
     }
 }

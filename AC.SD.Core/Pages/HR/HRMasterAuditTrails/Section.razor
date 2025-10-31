@@ -1,0 +1,148 @@
+﻿@using Application.Command.Sections;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+@inject NavigationManager NavigationManager
+
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_sectionItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="SectionId"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+        <Columns>
+            <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="Division" MinWidth="80" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Section" MasterId="_selectedItems?.SectionId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
+    bool PanelVisible { get; set; }
+    private List<ViewSection> _sectionItems;
+    IGrid Grid { get; set; }
+    private ViewSection _selectedItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
+
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        var model = await Mediator.Send(new GetAllSectionQuery());
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
+        _sectionItems = model;
+        if (_sectionItems.Count > 0)
+        {
+            _selectedItems = _sectionItems.FirstOrDefault();
+            Grid.ClearSelection();
+        }
+        PanelVisible = false;
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SectionId");
+        _selectedItems = _sectionItems.FirstOrDefault(f => f.SectionId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_sectionItems != null)
+        {
+            _sectionItems.Clear();
+            _sectionItems = null;
+        }
+        _selectedItems = null;
+    }
+}

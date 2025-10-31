@@ -26,7 +26,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ApplicationUserRole WHERE UserId = @Id";
+                var query = "SELECT t1.*,t2.RoleName FROM ApplicationUserRole t1 LEFT JOIN ApplicationRole t2 ON t1.RoleID=t2.RoleID\r\n WHERE t1.UserId = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", id, DbType.Int64);
 

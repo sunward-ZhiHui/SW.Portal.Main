@@ -74,17 +74,19 @@ namespace Infrastructure.Repository.Query
                 throw new NotImplementedException();
             }
         }
-        public async Task<IReadOnlyList<HRMasterAuditTrail>> GetHRMasterAuditList(string? MasterType, long? MasterId, bool? IsDeleted, Guid? SessionId)
+        public async Task<IReadOnlyList<HRMasterAuditTrail>> GetHRMasterAuditList(string? MasterType, long? MasterId, bool? IsDeleted, Guid? SessionId, string? AddTypeId = "")
         {
             try
             {
+                List<HRMasterAuditTrail> HRMasterAuditTrail = new List<HRMasterAuditTrail>();
                 using (var connection = CreateConnection())
                 {
+                    var masterTypes = MasterType?.Split(",").ToList();
                     var parameters = new DynamicParameters();
-                    parameters.Add("MasterType", MasterType, DbType.String);
+                    parameters.Add("@MasterType", masterTypes);
                     parameters.Add("IsDeleted", IsDeleted);
                     parameters.Add("HRMasterSetId", MasterId);
-                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId') AND t1.Type=@MasterType AND t1.IsDeleted=@IsDeleted\r";
+                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
                     if (IsDeleted == false)
                     {
                         query += "\rAND t1.HRMasterSetId=@HRMasterSetId\r";
@@ -92,13 +94,69 @@ namespace Infrastructure.Repository.Query
                     query += "\rorder by t1.AuditDate desc\r";
                     try
                     {
-                        return (await connection.QueryAsync<HRMasterAuditTrail>(query, parameters)).ToList();
+                        HRMasterAuditTrail = (await connection.QueryAsync<HRMasterAuditTrail>(query, parameters)).ToList();
+
                     }
                     catch (Exception exp)
                     {
                         throw (new ApplicationException(exp.Message));
                     }
                 }
+                if (HRMasterAuditTrail?.Any() == true && !string.IsNullOrEmpty(AddTypeId))
+                {
+                    var ids = HRMasterAuditTrail.FirstOrDefault()?.HRMasterSetId;
+                    if (ids > 0)
+                    {
+                        var result = await GetHRMasterAuditSubList(MasterType, ids, AddTypeId);
+                        if (result != null)
+                        {
+                            HRMasterAuditTrail.AddRange(result);
+                        }
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(AddTypeId))
+                    {
+                        HRMasterAuditTrail=new List<HRMasterAuditTrail>();
+                        var result = await GetHRMasterAuditSubList(MasterType, MasterId, AddTypeId);
+                        if (result != null)
+                        {
+                            HRMasterAuditTrail.AddRange(result);
+                        }
+                    }
+                }
+                return HRMasterAuditTrail;
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<List<HRMasterAuditTrail>> GetHRMasterAuditSubList(string? MasterType, long? MasterId, string? AddTypeId = "")
+        {
+            try
+            {
+                List<HRMasterAuditTrail> HRMasterAuditTrail = new List<HRMasterAuditTrail>();
+                using (var connection = CreateConnection())
+                {
+                    var masterTypes = MasterType?.Split(",").ToList();
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@MasterType", masterTypes);
+                    parameters.Add("AddTypeId", AddTypeId, DbType.String);
+                    parameters.Add("HRMasterSetId", MasterId);
+                    var query = "select t1.* from HRMasterAuditTrail t1  where t1.HRMasterSetID IN(select t2.HRMasterSetID from HRMasterAuditTrail t2 where t2.ColumnName=@AddTypeId  AND (t2.CurrentValue=@HRMasterSetId OR t2.PreValue=@HRMasterSetId) group by t2.HRMasterSetID \r\n)AND t1.ColumnName NOT LIKE '%Id' order by t1.AuditDate desc";
+                    try
+                    {
+                        HRMasterAuditTrail = (await connection.QueryAsync<HRMasterAuditTrail>(query, parameters)).ToList();
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+                return HRMasterAuditTrail;
             }
             catch (Exception exp)
             {

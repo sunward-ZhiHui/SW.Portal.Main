@@ -83,7 +83,7 @@ namespace Application.Response
         public DateTime? ModifiedDate { get; set; }
         public string CompanyName { get; set; }
         public int? HeadCount { get; set; }
-        public IEnumerable<long?> ReportToIds { get; set; }
+        public IEnumerable<long?> ReportToIds { get; set; }=new List<long?>();
         public Guid? SessionId { get; set; }
     }
 }

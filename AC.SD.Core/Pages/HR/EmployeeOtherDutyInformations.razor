@@ -72,17 +72,16 @@
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="DesignationID"
-                             Value="@CurrentDesignation"
-                             ValueExpression="@(() => CurrentDesignation )"
-                            ValueChanged="@((ViewDesignation depSelect) => SelectedItemOtherChanged(depSelect))"
-                            ></DxComboBox>
+                            Value="@responseOtherData.DesignationId"
+                            ValueExpression="@(() => responseOtherData.DesignationId)"
+                            ValueChanged="@((long? depSelect) => SelectedItemOtherChanged(depSelect, responseOtherData))"></DxComboBox>
                 <ValidationMessage For="@(() => responseOtherData.DesignationId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department" ColSpanMd="6">
                 <DxComboBox Data="@_departmentItems"
                             NullText="Select Department..."
                             SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
                             @bind-Value="@employeeOtherDutyInformationResponse.DepartmentId" ReadOnly="true" />
@@ -171,7 +170,7 @@
 </DxGrid>
 
 @code {
-    ViewDesignation CurrentDesignation  { get; set; }
+    ViewDesignation CurrentDesignation { get; set; }
     [Parameter]
     public long? EmployeeIds { get; set; }
     private View_EmployeeOtherDutyInformation _employeeOtherDutyInfoselectedItems;
@@ -198,7 +197,7 @@
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        CurrentDesignation =null;
+        CurrentDesignation = null;
         if (EmployeeIds > 0)
         {
             AddEnabledOtherDuty = true;
@@ -220,10 +219,20 @@
             await UpdateDataAsync();
         }
     }
-    void SelectedItemOtherChanged(ViewDesignation viewDesignation)
+    void SelectedItemOtherChanged(long? id, View_EmployeeOtherDutyInformation view_EmployeeOtherDutyInformation)
     {
         CurrentDesignation = null;
+        view_EmployeeOtherDutyInformation.DesignationId = id;
+        employeeOtherDutyInformationResponse.DesignationId = id;
         employeeOtherDutyInformationResponse.DesignationId = null;
+        employeeOtherDutyInformationResponse.DepartmentId = null;
+        employeeOtherDutyInformationResponse.CompanyId = null;
+        employeeOtherDutyInformationResponse.DivisionId = null;
+        employeeOtherDutyInformationResponse.LevelId = null;
+        employeeOtherDutyInformationResponse.SectionId = null;
+        employeeOtherDutyInformationResponse.SubSectionId = null;
+        employeeOtherDutyInformationResponse.DesignationId = null;
+        var viewDesignation = _designationItems.FirstOrDefault(f => f.DesignationID == id);
         if (viewDesignation != null)
         {
             CurrentDesignation = viewDesignation;
@@ -296,7 +305,7 @@
                 var des = _designationItems.FirstOrDefault(f => f.DesignationID == newplant.DesignationId);
                 if (des != null)
                 {
-                    SelectedItemOtherChanged(des);
+                    SelectedItemOtherChanged(newplant.DesignationId, newplant);
                 }
                 else
                 {
@@ -318,19 +327,23 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeOtherDutyInformationCommand
-                {
-                    EmployeeId = EmployeeIds,
-                    DesignationId = editablePlant.DesignationId,
-                    DutyTypeId = editablePlant.DutyTypeId,
-                    HeadCount = editablePlant.HeadCount,
-                    StartDate = editablePlant.StartDate,
-                    EndDate = editablePlant.EndDate,
-                    StatusCodeId = editablePlant.StatusCodeId,
-                    AddedByUserId = applicationUser.UserID,
-                    ModifiedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                };
+            {
+                EmployeeId = EmployeeIds,
+                DesignationId = editablePlant.DesignationId,
+                DutyTypeId = editablePlant.DutyTypeId,
+                HeadCount = editablePlant.HeadCount,
+                StartDate = editablePlant.StartDate,
+                EndDate = editablePlant.EndDate,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                AddedBy = applicationUser.UserName,
+                DutyTypeName = _view_ApplicationMasterDetails.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.DutyTypeId)?.Value,
+                StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+                DesignationName = _designationItems.FirstOrDefault(f => f.DesignationID == editablePlant.DesignationId)?.Name,
+            };
             await Mediator.Send(request);
             await UpdateDataAsync();
         }
@@ -343,7 +356,7 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editablePlant = (View_EmployeeOtherDutyInformation)e.DataItem;
-        var request = new DeleteEmployeeOtherDutyInformationCommand(editablePlant.EmployeeOtherDutyInformationId);
+        var request = new DeleteEmployeeOtherDutyInformationCommand(editablePlant.EmployeeOtherDutyInformationId,applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -351,20 +364,25 @@
     async Task UpdatePlantAsync(View_EmployeeOtherDutyInformation editablePlant)
     {
         var request = new EditEmployeeOtherDutyInformationCommand
-            {
-                EmployeeOtherDutyInformationId = editablePlant.EmployeeOtherDutyInformationId,
-                EmployeeId = EmployeeIds,
-                DesignationId = editablePlant.DesignationId,
-                DutyTypeId = editablePlant.DutyTypeId,
-                HeadCount = editablePlant.HeadCount,
-                StartDate = editablePlant.StartDate,
-                EndDate = editablePlant.EndDate,
-                StatusCodeId = editablePlant.StatusCodeId,
-                AddedByUserId = applicationUser.UserID,
-                ModifiedByUserId = editablePlant.ModifiedByUserId,
-                AddedDate = DateTime.Now,
-                ModifiedDate = editablePlant.ModifiedDate,
-            };
+        {
+            EmployeeOtherDutyInformationId = editablePlant.EmployeeOtherDutyInformationId,
+            EmployeeId = EmployeeIds,
+            DesignationId = editablePlant.DesignationId,
+            DutyTypeId = editablePlant.DutyTypeId,
+            HeadCount = editablePlant.HeadCount,
+            StartDate = editablePlant.StartDate,
+            EndDate = editablePlant.EndDate,
+            StatusCodeId = editablePlant.StatusCodeId,
+            AddedByUserId = editablePlant.AddedByUserId,
+            ModifiedDate = DateTime.Now,
+            AddedDate = editablePlant.AddedDate,
+            DutyTypeName = _view_ApplicationMasterDetails.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.DutyTypeId)?.Value,
+            StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+            AddedBy = editablePlant.AddedBy,
+            ModifiedBy = applicationUser.UserName,
+            ModifiedByUserId = applicationUser.UserID,
+            DesignationName = _designationItems.FirstOrDefault(f => f.DesignationID == editablePlant.DesignationId)?.Name,
+        };
         await Mediator.Send(request);
         await UpdateDataAsync();
     }

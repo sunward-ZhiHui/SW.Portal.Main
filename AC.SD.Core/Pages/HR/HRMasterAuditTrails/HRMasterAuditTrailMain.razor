@@ -1,0 +1,38 @@
+﻿@page "/HrMasterAuditTrail"
+
+
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Company">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Plants></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Plants>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Division">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Division></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Division>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Department">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Department></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Department>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Section">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Section></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Section>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Subsection">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.SubSection></AC.SD.Core.Pages.HR.HRMasterAuditTrails.SubSection>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Designation">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Designation></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Designation>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="LevelMaster">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.LevelMaster></AC.SD.Core.Pages.HR.HRMasterAuditTrails.LevelMaster>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Employee">
+                <AC.SD.Core.Pages.HR.HRMasterAuditTrails.Employees></AC.SD.Core.Pages.HR.HRMasterAuditTrails.Employees>
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    [Parameter]
+    public int ActiveTabIndex { get; set; } = 0;
+
+}

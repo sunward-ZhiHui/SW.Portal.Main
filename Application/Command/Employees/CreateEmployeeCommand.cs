@@ -1,7 +1,9 @@
 ﻿using Application.Response;
+using Core.Entities.Views;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,7 +77,14 @@ namespace Application.Command.Employees
         public string CompanyName { get; set; }
         public Guid? SessionId { get; set; }
         public int? HeadCount { get; set; }
-        public IEnumerable<long?> ReportToIds { get; set; }
+        public IEnumerable<long?> ReportToIds { get; set; }=new List<long?>();
+        public string? LanguageName { get; set; }
+        public string? RoleName { get; set; }
+        public string? LevelName { get; set; }
+        public string? TypeOfEmployeementName { get; set; }
+        public string? AcceptanceStatusName { get; set; }
+        public string? ReportToIdNames {  get; set; }
+        
         public CreateEmployeeCommand()
         {
         }

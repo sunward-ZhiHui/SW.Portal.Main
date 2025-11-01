@@ -137,6 +137,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ApplicationUser> GetAllAppUserByIDAsync(long? UserID)
+        {
+            try
+            {
+                var query = " select t1.*,t2.Name as DepartmentName,t3.UserName as ModifiedByUser from ApplicationUser t1 \r\nLEFT JOIN Department t2 ON t1.DepartmentID=t2.DepartmentID\r\nLEFT JOIN ApplicationUser t3 ON t1.ModifiedByUserID=t3.UserID Where t1.UserID = @UserID";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ViewEmployee> ResetEmployeePasswordAsync(ViewEmployee viewEmployee)
         {
             try

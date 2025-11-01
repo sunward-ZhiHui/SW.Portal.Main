@@ -45,7 +45,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<HRMasterAuditTrail>> Handle(GetHRMasterAuditList request, CancellationToken cancellationToken)
         {
-            return (List<HRMasterAuditTrail>)await _plantQueryRepository.GetHRMasterAuditList(request.MasterType, request.MasterId, request.IsDeleted, request.SessionId);
+            return (List<HRMasterAuditTrail>)await _plantQueryRepository.GetHRMasterAuditList(request.MasterType, request.MasterId, request.IsDeleted, request.SessionId,request.AddTypeId);
         }
 
     }

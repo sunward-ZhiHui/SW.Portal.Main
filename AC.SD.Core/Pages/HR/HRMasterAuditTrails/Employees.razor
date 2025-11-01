@@ -11,7 +11,6 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject NavigationManager NavigationManager
-@page "/Employees"
 @inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
 
@@ -22,46 +21,25 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
-               @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
                     </Items>
-                </DxMenuItem> *@
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
 </div>
-@*@if (_employeeItems == null)
-{
-    <div class="spinner"></div>
-}
-else
-{*@
-
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    @* <div class="align-self-end pl-2 pb-2">
-        <DxButton Text="Column Chooser"
-                  RenderStyle="ButtonRenderStyle.Secondary"
-                  IconCssClass="btn-column-chooser"
-                  Click="ColumnChooserButton_Click" />
-    </div>
-   *@
-
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_employeeItems"
             KeyFieldName="EmployeeID"
-            EditModelSaving="Grid_EditModelSaving"
-            DataItemDeleting="Grid_DataItemDeleting"
             CustomizeElement="Grid_CustomizeElement"
             ShowSearchBox="true"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -71,7 +49,7 @@ else
             PageSize="20"
             VirtualScrollingEnabled="true"
             SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
             AutoExpandAllGroupRows="true"
             CssClass="ch-360"
             style="height: calc(100vh - 200px);"
@@ -81,7 +59,6 @@ else
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="EmployeeID" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="SageID" MinWidth="80" />
             <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
@@ -98,20 +75,6 @@ else
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedByUser" Width="10%" />
-            @* <DxGridCommandColumn Width="150px" NewButtonVisible="true" EditButtonVisible="false" DeleteButtonVisible="false">
-            <HeaderTemplate>
-                <DxButton Click="@NewEmployeeForm" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained"  Text="Add" />
-            </HeaderTemplate>
-            <CellDisplayTemplate>
-                @{
-                    
-                    //<DxButton Click="() => Grid.ShowDataItemDeleteConfirmation(context.DataItem)"
-                    //      Text="Delete" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
-                    <NavLink href="javascrtpit:void(0);" @onclick="@(() => EditEmployeeOnPage((ViewEmployee)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary">Edit</NavLink>
-                }
-            </CellDisplayTemplate>
-        </DxGridCommandColumn>*@
-
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
@@ -133,37 +96,22 @@ else
     public bool? IsDeleted { get; set; } = false;
     bool AuditLogPopUp { get; set; } = false;
     private List<ViewEmployee> _employeeItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
     private ViewEmployee _selectedItems;
     IGrid Grid { get; set; }
-    bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        // await jsRuntime.InvokeAsync<string>("showLoading");
-        //  await Task.Run(LoadEmployeesAsync);
         PanelVisible = true;
         _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
         PanelVisible = false;
-        //   await jsRuntime.InvokeAsync<string>("hideLoading");
         if (_employeeItems.Count > 0)
         {
-
             _selectedItems = _employeeItems.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
             StateHasChanged();
         }
 
     }
-    private async Task LoadEmployeesAsync()
-    {
-        //System.Threading.Thread.Sleep(10);
-        //_employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
-        // Retrieve data from the server and initialize
-        // Employees property which the View will bind
-    }
+
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeID");
@@ -176,59 +124,11 @@ else
         IsDeleted = isdeleted;
         AuditLogPopUp = true;
     }
-    void addNew()
-    {
-
-        NavigationManager.NavigateTo("Employees/EmployeeForm");
-    }
-    void addEdit()
-    {
-        //Grid.StartEditDataItemAsync(_selectedItems);
-        NavigationManager.NavigateTo("Employees/EmployeeForm/" + _selectedItems.SessionId + "");
-
-    }
-    void addDelete()
-    {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-
-    }
-    async Task UpdateDataAsync()
-    {
-        await jsRuntime.InvokeAsync<string>("showLoading");
-
-        _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
-        await jsRuntime.InvokeAsync<string>("hideLoading");
-    }
     void NewEmployeeForm(MouseEventArgs args)
     {
         NavigationManager.NavigateTo("Employees/EmployeeForm");
     }
 
-    void EditEmployeeOnPage(ViewEmployee viewEmployee)
-    {
-        NavigationManager.NavigateTo("Employees/EmployeeForm/" + viewEmployee.SessionId + "");
-    }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
-
-    }
-    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
-    {
-
-
-    }
-    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
-    {
-
-    }
-    async Task UpdatePlantAsync(ViewPlants editablePlant)
-    {
-
-    }
-    public void ShowDetails(int plantId)
-    {
-
-    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -237,20 +137,6 @@ else
         }
 
     }
-    async Task ExportToExcel()
-    {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-        {
-            ExportSelectedRowsOnly = true,
-            CustomizeCell = OnCustomizeCell
-        });
-    }
-    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
-    {
-        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
-            args.Formatting.Font = new XlCellFont() { Italic = true };
-        args.Handled = true;
-    }
     public async ValueTask DisposeAsync()
     {
         if (_employeeItems != null)
@@ -258,25 +144,7 @@ else
             _employeeItems.Clear();
             _employeeItems = null;
         }
-
-
         _selectedItems = null;
 
     }
-    //void ColumnChooserButton_Click()
-    //{
-    //    Grid.ShowColumnChooser();
-    //}
-    ////void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
-    //{
-    //    if (e.DataColumn.FieldName == "FirstName")
-    //    {CustomizeFilterMenu="OnCustomizeFilterMenu"
-    //        e.DataItems.ForEach(di =>
-    //        {
-    //            long? CustomerID = _employeeItems.Where(c =>
-    //                c.FirstName == di.Value.ToString()).FirstOrDefault()?.EmployeeID;
-    //            di.DisplayText = di.DisplayText + " (EmployeeID " + CustomerID + ")";
-    //        });
-    //    }
-    //}
 }

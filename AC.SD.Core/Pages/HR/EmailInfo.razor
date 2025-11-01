@@ -59,7 +59,7 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Email Guide" ColSpanMd="6">
                 <DxComboBox Data="@_view_ApplicationMasterDetailsEmailGuide"
-                            NullText="Select Duty TYpe..."
+                            NullText="Select Email Guide..."
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
@@ -69,7 +69,7 @@
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Subscription" ColSpanMd="6">
                 <DxComboBox Data="@_view_ApplicationMasterDetailsSubscription"
-                            NullText="Select Duty TYpe..."
+                            NullText="Select Subscription..."
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
@@ -324,11 +324,16 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeEmailInfoCommand
-                {
-                    EmployeeID = EmployeeIds,
-                    SubscriptionID = editablePlant.SubscriptionID,
-                    EmailGuideID = editablePlant.EmailGuideID,
-                };
+            {
+                EmployeeID = EmployeeIds,
+                SubscriptionID = editablePlant.SubscriptionID,
+                EmailGuideID = editablePlant.EmailGuideID,
+                AddedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                AddedBy = applicationUser.UserName,
+                Subscription = _view_ApplicationMasterDetailsSubscription.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.SubscriptionID)?.Value,
+                EmailGuide = _view_ApplicationMasterDetailsEmailGuide.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.EmailGuideID)?.Value,
+            };
             await Mediator.Send(request);
             await UpdateDataAsyncEmailInfo();
         }
@@ -341,7 +346,7 @@
     async Task Grid_DataItemDeletingEmailInfo(GridDataItemDeletingEventArgs e)
     {
         var editablePlant = (View_EmployeeEmailInfo)e.DataItem;
-        var request = new DeleteEmployeeEmailInfoCommand(editablePlant.EmployeeEmailInfoID);
+        var request = new DeleteEmployeeEmailInfoCommand(editablePlant.EmployeeEmailInfoID,applicationUser.UserID,applicationUser.UserName);
         await Mediator.Send(request);
         await UpdateDataAsyncEmailInfo();
         EmailGrid.SetFocusedRowIndex(0);
@@ -349,12 +354,17 @@
     async Task UpdatePlantAsyncEmailInfo(View_EmployeeEmailInfo editablePlant)
     {
         var request = new EditEmployeeEmailInfoCommand
-            {
-                EmployeeEmailInfoID = editablePlant.EmployeeEmailInfoID,
-                EmployeeID = EmployeeIds,
-                SubscriptionID = editablePlant.SubscriptionID,
-                EmailGuideID = editablePlant.EmailGuideID,
-            };
+        {
+            EmployeeEmailInfoID = editablePlant.EmployeeEmailInfoID,
+            EmployeeID = EmployeeIds,
+            SubscriptionID = editablePlant.SubscriptionID,
+            EmailGuideID = editablePlant.EmailGuideID,
+            ModifiedDate = DateTime.Now,
+            ModifiedBy = applicationUser.UserName,
+            ModifiedByUserId = applicationUser.UserID,
+            Subscription = _view_ApplicationMasterDetailsSubscription.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.SubscriptionID)?.Value,
+            EmailGuide = _view_ApplicationMasterDetailsEmailGuide.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.EmailGuideID)?.Value,
+        };
         await Mediator.Send(request);
         await UpdateDataAsyncEmailInfo();
     }
@@ -427,10 +437,10 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeEmailInfoForwardCommand
-                {
-                    EmployeeEmailInfoID = employeeEmailInfoID,
-                    EmailAddress = editablePlant.EmailAddress,
-                };
+            {
+                EmployeeEmailInfoID = employeeEmailInfoID,
+                EmailAddress = editablePlant.EmailAddress,
+            };
             await Mediator.Send(request);
             await UpdateDataEmailAsync();
         }
@@ -451,11 +461,11 @@
     async Task UpdatePlantAsyncEmail(EmployeeEmailInfoForward editablePlant)
     {
         var request = new EditEmployeeEmailInfoForwardCommand
-            {
-                EmployeeEmailInfoForwardID = editablePlant.EmployeeEmailInfoForwardID,
-                EmployeeEmailInfoID = employeeEmailInfoID,
-                EmailAddress = editablePlant.EmailAddress,
-            };
+        {
+            EmployeeEmailInfoForwardID = editablePlant.EmployeeEmailInfoForwardID,
+            EmployeeEmailInfoID = employeeEmailInfoID,
+            EmailAddress = editablePlant.EmailAddress,
+        };
         await Mediator.Send(request);
         await UpdateDataEmailAsync();
     }
@@ -535,12 +545,12 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeEmailInfoAuthorityCommand
-                {
-                    EmployeeEmailInfoID = employeeEmailInfoID,
-                    Name = editablePlant.Name,
-                    Description = editablePlant.Description,
-                    Purpose = editablePlant.Purpose,
-                };
+            {
+                EmployeeEmailInfoID = employeeEmailInfoID,
+                Name = editablePlant.Name,
+                Description = editablePlant.Description,
+                Purpose = editablePlant.Purpose,
+            };
             await Mediator.Send(request);
             await UpdateDataEmailAuthAsync();
         }
@@ -560,13 +570,13 @@
     async Task UpdatePlantAsyncEmailAuth(EmployeeEmailInfoAuthority editablePlant)
     {
         var request = new EditEmployeeEmailInfoAuthorityCommand
-            {
-                EmployeeEmailInfoAuthorityID = editablePlant.EmployeeEmailInfoAuthorityID,
-                EmployeeEmailInfoID = employeeEmailInfoID,
-                Name = editablePlant.Name,
-                Description = editablePlant.Description,
-                Purpose = editablePlant.Purpose,
-            };
+        {
+            EmployeeEmailInfoAuthorityID = editablePlant.EmployeeEmailInfoAuthorityID,
+            EmployeeEmailInfoID = employeeEmailInfoID,
+            Name = editablePlant.Name,
+            Description = editablePlant.Description,
+            Purpose = editablePlant.Purpose,
+        };
         await Mediator.Send(request);
         await UpdateDataEmailAuthAsync();
     }

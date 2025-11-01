@@ -29,12 +29,12 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add Section" IconCssClass="fa fa-add" Click="@AddSection" />
                 <DxMenuItem Text="Reset Division" IconCssClass="fa fa-refresh" Click="@ResetDivision" Enabled="@isDivisionEnabled" />
-                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+               @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
                     </Items>
-                </DxMenuItem>
+                </DxMenuItem> *@
             </Items>
         </DxMenu>
     </div>

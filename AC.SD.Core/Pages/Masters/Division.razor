@@ -33,12 +33,12 @@
                 <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
                 @* <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />*@
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
-                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                @* <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
                     </Items>
-                </DxMenuItem>
+                </DxMenuItem> *@
             </Items>
         </DxMenu>
     </div>

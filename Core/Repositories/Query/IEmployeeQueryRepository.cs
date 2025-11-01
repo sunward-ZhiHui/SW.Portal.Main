@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<ViewEmployee> DeleteEmployeeReportAsync(long? EmployeeId);
         Task<IReadOnlyList<ApplicationPermission>> GetAllApplicationPermissionAsync(Int64 RoleId);
         Task<IReadOnlyList<ViewEmployee>> GetAllUserWithoutStatusAsync();
+        Task<ApplicationUser> GetAllAppUserByIDAsync(long? UserID);
 
     }
     public interface IEmployeeReportTQueryoRepository : IQueryRepository<EmployeeReportTo>

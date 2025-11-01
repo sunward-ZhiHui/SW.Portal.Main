@@ -194,18 +194,23 @@
         if (e.IsNew)
         {
             var request = new CreateEmployeeICTInformationCommand
-                {
-                    EmployeeId = EmployeeIds,
-                    SoftwareId = editablePlant.SoftwareId,
-                    LoginId = editablePlant.LoginId,
-                    Password = editablePlant.Password,
-                    StatusCodeId = editablePlant.StatusCodeId,
-                    AddedByUserId = applicationUser.UserID,
-                    ModifiedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    RoleId = editablePlant.RoleId,
-                };
+            {
+                EmployeeId = EmployeeIds,
+                SoftwareId = editablePlant.SoftwareId,
+                LoginId = editablePlant.LoginId,
+                Password = editablePlant.Password,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                RoleId = editablePlant.RoleId,
+                RoleName = _rolesItems.FirstOrDefault(f => f.RoleID == editablePlant.RoleId)?.RoleName,
+                StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+                AddedBy = applicationUser.UserName,
+                ModifiedBy = applicationUser.UserName,
+                SoftwareName = _view_ApplicationMasterDetailsSoftware.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.SoftwareId)?.Value
+            };
             await Mediator.Send(request);
             await UpdateDataAsyncIctInfo();
         }
@@ -217,7 +222,7 @@
     async Task Grid_DataItemDeletingIctInfo(GridDataItemDeletingEventArgs e)
     {
         var editablePlant = (View_EmployeeICTInformation)e.DataItem;
-        var request = new DeleteEmployeeICTInformationCommand(editablePlant.EmployeeIctinformationId);
+        var request = new DeleteEmployeeICTInformationCommand(editablePlant.EmployeeIctinformationId, applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfo();
         IctInfoGrid.SetFocusedRowIndex(0);
@@ -225,19 +230,24 @@
     async Task UpdatePlantAsyncIctInfo(View_EmployeeICTInformation editablePlant)
     {
         var request = new EditEmployeeICTInformationCommand
-            {
-                EmployeeIctinformationId = editablePlant.EmployeeIctinformationId,
-                EmployeeId = EmployeeIds,
-                SoftwareId = editablePlant.SoftwareId,
-                LoginId = editablePlant.LoginId,
-                Password = editablePlant.Password,
-                StatusCodeId = editablePlant.StatusCodeId,
-                AddedByUserId = editablePlant.AddedByUserId,
-                ModifiedByUserId = applicationUser.UserID,
-                AddedDate = editablePlant.AddedDate,
-                ModifiedDate = DateTime.Now,
-                RoleId = editablePlant.RoleId,
-            };
+        {
+            EmployeeIctinformationId = editablePlant.EmployeeIctinformationId,
+            EmployeeId = EmployeeIds,
+            SoftwareId = editablePlant.SoftwareId,
+            LoginId = editablePlant.LoginId,
+            Password = editablePlant.Password,
+            StatusCodeId = editablePlant.StatusCodeId,
+            AddedByUserId = editablePlant.AddedByUserId,
+            ModifiedByUserId = applicationUser.UserID,
+            AddedDate = editablePlant.AddedDate,
+            ModifiedDate = DateTime.Now,
+            RoleId = editablePlant.RoleId,
+            RoleName = _rolesItems.FirstOrDefault(f => f.RoleID == editablePlant.RoleId)?.RoleName,
+            StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+            AddedBy = editablePlant.AddedBy,
+            ModifiedBy = applicationUser.UserName,
+            SoftwareName = _view_ApplicationMasterDetailsSoftware.FirstOrDefault(f => f.ApplicationMasterDetailID == editablePlant.SoftwareId)?.Value
+        };
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfo();
     }

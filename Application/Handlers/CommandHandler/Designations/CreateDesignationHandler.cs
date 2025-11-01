@@ -37,7 +37,7 @@ namespace Application.Handlers.CommandHandler.Designations
             var uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.Code, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Code", uid);
             uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", queryEntity?.Name, null, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null,queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
             uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Name", uid);
             uid = Guid.NewGuid();

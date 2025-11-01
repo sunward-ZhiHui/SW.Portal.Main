@@ -274,12 +274,9 @@
                          DataSource="@Tasks"
                          Height="80vh"
                          Width="100%"
-                         DurationUnit="DurationUnit.Hour"
-                         HighlightWeekends="true"
                          ProjectStartDate="@ProjectStartDate"
-                         ProjectEndDate="@ProjectEndDate"
-                         TimelineSettings="@TimelineSettings"
-                         DayWorkingTime="@DayWorkingTimes"
+                         ProjectEndDate="@ProjectEndDate"  
+                         DurationUnit="DurationUnit.Hour"
                          TaskbarHeight="20"
                          RowHeight="38"
                          CssClass="gantt-halfhour-grid"
@@ -290,34 +287,31 @@
                                      Name="TaskName"
                                      StartDate="StartDate"
                                      EndDate="EndDate"
+                                     Duration="DurationHours"
                                      Progress="Progress"
                                      ParentID="ParentId"
                                      Dependency="Predecessor">
                     </GanttTaskFields>
 
                     <GanttColumns>
-                        <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
+                        <GanttColumn Field="TaskId" HeaderText="ID" Width="70"></GanttColumn>
                         <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
                         <GanttColumn Field="DurationHours" HeaderText="Duration" Width="70"></GanttColumn>
                         <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
                     </GanttColumns>
-                    @if (ShowMarkers)
-                    {
-                        <GanttEventMarkers>
-                            @foreach (var day in EachDay(ProjectStartDate, ProjectEndDate))
-                            {
-                                var w = GetLunchWindow(day);
-                                <GanttEventMarker Day="@w.start" Label="Lunch start" CssClass="e-lunch-marker-start"></GanttEventMarker>
-                                <GanttEventMarker Day="@w.end" Label="Lunch end" CssClass="e-lunch-marker-end"></GanttEventMarker>
-                            }
-                        </GanttEventMarkers>
-                    }
-                    <GanttSegmentFields PrimaryKey="id" ForeignKey="TaskId" StartDate="StartDate" EndDate="EndDate"
-                    Duration="Duration" TValue="TaskData" TSegments="SegmentModel" DataSource="SegmentCollection"></GanttSegmentFields>
 
+                    <GanttDayWorkingTimeCollection>
+                    <GanttDayWorkingTime From="0" To="24"></GanttDayWorkingTime>
+                </GanttDayWorkingTimeCollection> 
+                  
+                   
 
                     <GanttSplitterSettings Position="30%"></GanttSplitterSettings>
                     <GanttLabelSettings RightLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
+                    <GanttTimelineSettings TimelineViewMode="TimelineViewMode.Day" TimelineUnitSize="50">
+                    <GanttTopTierSettings Unit="TimelineViewMode.Day" Format="@TopFormat"></GanttTopTierSettings>
+                    <GanttBottomTierSettings Unit="TimelineViewMode.Hour" Format="@BottomFormat"></GanttBottomTierSettings>
+                </GanttTimelineSettings>
                     <GanttEvents TValue="TaskData"
                                  QueryChartRowInfo="@( (QueryChartRowInfoEventArgs<TaskData> e) => OnQueryChartRowInfo(e) )" />
 
@@ -330,6 +324,11 @@
 </div>
 
 @code {
+     public string TopFormat { get; set; } = "MMM dd, yyyy";
+    public string BottomFormat { get; set; } = "hh tt";
+    private SfGantt<TaskData>? GanttInstance;
+    private List<Object>? toolbarItems;
+       DateTime nowLocal = DateTime.Now;
     private long? SelectDynamicFormDataID { get; set; }
     DateTime? DateTimeValue { get; set; }
     int? SelectedWeekOfMonth { get; set; }
@@ -461,6 +460,19 @@
     {        
         return (day == DayOfWeek.Sunday) ? 6 : ((int)day - 1);
     }
+     private static (DateTime start, DateTime end) GetCurrentWorkWeekWindow(DateTime nowLocal, TimeSpan shiftStart, TimeSpan shiftEnd)
+    {
+        // Make Monday = 0, Tuesday = 1, ... Sunday = 6
+        int diff = ((int)nowLocal.DayOfWeek + 6) % 7;
+
+        var monday = nowLocal.Date.AddDays(-diff);
+        var friday = monday.AddDays(4);
+
+        var start = monday + shiftStart; // Monday 08:00
+        var end   = friday + shiftEnd;   // Friday 20:00
+
+        return (start, end);
+    }
 
     private async Task LoadReportDataAsync()
     {
@@ -473,12 +485,18 @@
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
 
+         (var weekStart, var weekEnd) = GetCurrentWorkWeekWindow(nowLocal, shiftStart, shiftEnd);
+        ProjectStartDate = weekStart;
+        ProjectEndDate   = weekEnd;
+
+        productionDay = weekStart;
+
         var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(
             profileNo, productionDay, shiftStart,
             SelectDynamicFormDataID, SelectedWeekOfMonth, SelectedMonth, SelectedYear);
 
         Tasks = readOnly.ToList();
-        SegmentCollection = StockQueryRepo.FlattenSegments(Tasks);
+        //SegmentCollection = StockQueryRepo.FlattenSegments(Tasks);
 
         var startCandidates = Tasks.Where(t => t.StartDate.HasValue).Select(t => t.StartDate!.Value);
         var endCandidates = Tasks.Where(t => t.EndDate.HasValue).Select(t => t.EndDate!.Value);

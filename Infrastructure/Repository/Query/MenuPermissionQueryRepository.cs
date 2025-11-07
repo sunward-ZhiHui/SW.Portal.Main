@@ -26,7 +26,7 @@ namespace Infrastructure.Repository.Query
             {
                 var dynamicForm = new List<DynamicForm>();
                 var menuList = new List<PortalMenuModel>();
-                var permissionQuery = @"Select  * from view_UserPermission where   UserID = @UserID AND  IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder;";
+                var permissionQuery = @"Select  * from view_UserPermission where   UserID = @UserID  AND IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder;";
                 var DashboardQuery = @"Select  * from ApplicationPermission where PermissionID>=60001;";
                 var FormQuery = @"select ID,SessionID,Name,ScreenID,IsDeleted from DynamicForm where (IsDeleted is null OR IsDeleted=0);";
                 var parameters = new DynamicParameters();
@@ -103,6 +103,7 @@ namespace Infrastructure.Repository.Query
                                 UniqueSessionID = m.UniqueSessionID,
                                 PermissionID = m.PermissionID,
                                 PermissionURL = m.PermissionURL,
+                                IsPermissionForm= m.IsPermissionForm,
                             };
                             menuList.Add(menu);
                         });

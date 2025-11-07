@@ -7,6 +7,7 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
@@ -21,12 +22,12 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="Add Division" IconCssClass="fa fa-add" Click="@AddDivision" />
-               @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" Enabled="@ExportEnabled" />
+                <DxMenuItem Text="Add Division" IconCssClass="fa fa-add" Click="@AddDivision" Enabled="@AddEnabled" />
+                @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
@@ -182,8 +183,8 @@
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
     private ViewPlants? _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool ExportEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -192,13 +193,17 @@
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     private ViewPlants _selectlst;
-    
+    private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if (applicationUser != null && applicationUser.UserID > 0)
+        {
+            portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+        }
         PanelVisible = false;
         await UpdateDataAsync();
     }
@@ -225,6 +230,10 @@
             DeleteEnabled = true;
             Grid.ClearSelection();
         }
+        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         StateHasChanged();
 
@@ -257,7 +266,11 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     void addDelete()
     {
@@ -422,7 +435,7 @@
         }
         else
         {
-            EditEnabled = true;
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
 
         }
 

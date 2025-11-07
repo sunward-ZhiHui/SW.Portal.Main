@@ -298,6 +298,8 @@
                     TicketMonth = MonthTypeModels?.MonthData,
                     PrevTopUpNoOfMonth=s.PrevTopUpNoOfMonth,
                     IsUpdateTopUpNoOfMonth = s.IsUpdateTopUpNoOfMonth,
+                    PrevUnChangeTopUpNoOfMonth=s.PrevUnChangeTopUpNoOfMonth,
+                    SimulationTicketCalculationId = s.SimulationTicketCalculationId.GetValueOrDefault(0)
                 });
             });
             var result = await Mediator.Send(new InsertOrUpdateSimulationTicketCalculation(simulationTicketCalculations, simulationTicketCalculationChild));

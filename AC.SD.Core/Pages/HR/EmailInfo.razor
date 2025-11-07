@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
@@ -234,6 +235,7 @@
     bool PopupEmailInfoAuthorityVisible { get; set; }
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsEmailGuide;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSubscription;
+    private List<PortalMenuModel> portalMenuModels { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     IGrid EmailGrid { get; set; }
     IGrid GridEmail { get; set; }
@@ -247,6 +249,10 @@
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             _view_ApplicationMasterDetailsEmailGuide = await Mediator.Send(new GetAllApplicationMasterDetailQuery(327));
             _view_ApplicationMasterDetailsSubscription = await Mediator.Send(new GetAllApplicationMasterDetailQuery(328));
+            if (applicationUser != null && applicationUser.UserID > 0)
+            {
+                portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+            }
             await UpdateDataAsyncEmailInfo();
         }
     }
@@ -260,8 +266,14 @@
             DeleteEnabledEmailInfo = true;
             ForwardToEnabledEmailInfo = true;
             AuthorityEnabledEmailInfo = true;
-            StateHasChanged();
+
         }
+        AddEnabledEmailInfo = portalMenuModels.Any(f => f.PermissionID == 60048);
+        EditEnabledEmailInfo = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledEmailInfo = portalMenuModels.Any(f => f.PermissionID == 60050);
+        ForwardToEnabledEmailInfo = EditEnabledEmailInfo;
+        AuthorityEnabledEmailInfo = EditEnabledEmailInfo;
+        StateHasChanged();
     }
     void OnRowEmailInfoClick(GridRowClickEventArgs e)
     {
@@ -280,7 +292,11 @@
     }
     void addEditEmailInfo()
     {
-        EmailGrid.StartEditDataItemAsync(_emailInfoItemsselectedItems);
+        EditEnabledEmailInfo = portalMenuModels.Any(f => f.PermissionID == 60049);
+        if (EditEnabledEmailInfo == true)
+        {
+            EmailGrid.StartEditDataItemAsync(_emailInfoItemsselectedItems);
+        }
     }
     void addDeleteEmilInfo()
     {

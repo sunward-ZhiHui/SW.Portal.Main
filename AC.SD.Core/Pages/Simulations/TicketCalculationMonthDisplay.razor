@@ -26,6 +26,7 @@
                     <tr>
                         <th>Item No</th>
                         <th>@tickectCalItemModel?.MonthHS</th>
+                        <th>Prev Top up no of  month</th>
                         <th>Top up no of  month</th>
                         <th>AC in Units</th>
                         <th>Batch Size</th>
@@ -45,7 +46,7 @@
                             <tr style="@(item.ItemId == _selectedItems.ItemId ? "background-color:yellow" : "")">
                                 <td>@item.ItemNo</td>
                                 <td>@item.MonthHs?.ToString("N2")</td>
-                                @* <td>@item.TopUpNoOfMonth?.ToString("N2")</td> *@
+                                <td>@item.PrevUnChangeTopUpNoOfMonth?.ToString("N2")</td>
                                 <td @onclick="() => OnOpenTextBox(item)">
                                     @if (item.IsEditingTopUp)
                                     {
@@ -69,24 +70,24 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                         <td>Total</td>
                         <td>Round Down</td>
                         <td>Round Up</td>
                     </tr>
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                         <td>@(tickectCalItemModel?.NoOfTicketDecimalSums != null ? tickectCalItemModel.NoOfTicketDecimalSums?.ToString("N2") : (decimal?)null)</td>
                         <td>@(tickectCalItemModel?.RoundDown1 != null ? tickectCalItemModel.RoundDown1?.ToString("N2") : (decimal?)null)</td>
                         <td>@(tickectCalItemModel?.RoundUp1 != null ? tickectCalItemModel.RoundUp1?.ToString("N2") : (decimal?)null)</td>
                     </tr>
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                         <td>Evenly Top up</td>
                         <td>Evenly Top up</td>
                     </tr>
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                         <td>@(tickectCalItemModel?.EvenlyTopUp != null ? tickectCalItemModel.EvenlyTopUp?.ToString("N2") : (decimal?)null)</td>
                         <td>@(tickectCalItemModel?.EvenlyDownUp != null ? tickectCalItemModel.EvenlyDownUp?.ToString("N2") : (decimal?)null)</td>
                     </tr>

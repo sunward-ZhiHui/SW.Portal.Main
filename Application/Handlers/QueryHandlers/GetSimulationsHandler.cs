@@ -98,4 +98,42 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetSimulationTicketCalculationVesionNoHandler : IRequestHandler<GetSimulationTicketCalculationVesionNo, List<SimulationTicketCalculation>>
+    {
+        private readonly ISimulationQueryRepository _queryRepository;
+        public GetSimulationTicketCalculationVesionNoHandler(ISimulationQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<SimulationTicketCalculation>> Handle(GetSimulationTicketCalculationVesionNo request, CancellationToken cancellationToken)
+        {
+            return (List<SimulationTicketCalculation>)await _queryRepository.GetSimulationTicketCalculationVesionNo();
+        }
+    }
+    public class GetSimulationTicketCalculationNotChangesVesionNoHandler : IRequestHandler<GetSimulationTicketCalculationNotChangesVesionNo, List<SimulationTicketCalculation>>
+    {
+        private readonly ISimulationQueryRepository _queryRepository;
+        public GetSimulationTicketCalculationNotChangesVesionNoHandler(ISimulationQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<SimulationTicketCalculation>> Handle(GetSimulationTicketCalculationNotChangesVesionNo request, CancellationToken cancellationToken)
+        {
+            return (List<SimulationTicketCalculation>)await _queryRepository.GetSimulationTicketCalculationNotChangesVesionNo(request.VersionNo);
+        }
+    }
+    public class InsertOrUpdateSimulationTicketCalculationNoVersionChangesHandler : IRequestHandler<InsertOrUpdateSimulationTicketCalculationNoVersionChanges, SimulationTicketCalculation>
+    {
+        private readonly ISimulationQueryRepository _queryRepository;
+        public InsertOrUpdateSimulationTicketCalculationNoVersionChangesHandler(ISimulationQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<SimulationTicketCalculation> Handle(InsertOrUpdateSimulationTicketCalculationNoVersionChanges request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateSimulationTicketCalculationNoVersionChanges(request.SimulationTicketCalculation, request.SimulationTicketCalculationOne);
+
+        }
+    }
 }

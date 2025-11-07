@@ -56,4 +56,28 @@ namespace Application.Queries
             this.SimulationTicketCalculationChild = simulationTicketCalculationChild;
         }
     }
+    public class InsertOrUpdateSimulationTicketCalculationNoVersionChanges : SimulationTicketCalculation, IRequest<SimulationTicketCalculation>
+    {
+        public List<SimulationTicketCalculation> SimulationTicketCalculation { get; private set; }
+        public SimulationTicketCalculation? SimulationTicketCalculationOne { get; private set; }
+        public InsertOrUpdateSimulationTicketCalculationNoVersionChanges(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculation? simulationTicketCalculation)
+        {
+            this.SimulationTicketCalculation = simulationTicketCalculations;
+            this.SimulationTicketCalculationOne = simulationTicketCalculation;
+        }
+    }
+    public class GetSimulationTicketCalculationVesionNo : PagedRequest, IRequest<List<SimulationTicketCalculation>>
+    {
+       
+    }
+    public class GetSimulationTicketCalculationNotChangesVesionNo : PagedRequest, IRequest<List<SimulationTicketCalculation>>
+    {
+        public string? VersionNo { get; private set; }
+        public GetSimulationTicketCalculationNotChangesVesionNo(string? versionNo)
+        {
+            this.VersionNo = versionNo;
+        }
+    }
+
+
 }

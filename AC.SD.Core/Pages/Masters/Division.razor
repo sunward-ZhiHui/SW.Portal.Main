@@ -8,6 +8,7 @@
 @using Application.Response;
 @using Microsoft.JSInterop;
 @inject IJSRuntime jsRuntime
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
@@ -26,11 +27,11 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" Enabled="@ExportEnabled" />
+                <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" Enabled="@AddEnabled" />
                 @* <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />*@
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
                 @* <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
@@ -226,13 +227,13 @@
     private List<CodeMaster>? _stausItems;
     private List<ViewPlants>? _plantItems;
     private ViewDivision? _selectedItems;
-    bool EditEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool ExportEnabled { get; set; } = false;
     DxPopup? popup;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
     bool MessageVisible { get; set; }
-    bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     IGrid? Grid { get; set; }
@@ -243,7 +244,7 @@
     bool isCompanyEnabled { get; set; } = false;
     // private ViewPlants? _selectItems;
     private ViewPlants _selectplant;
-
+    private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -254,13 +255,17 @@
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         // await jsRuntime.InvokeAsync<string>("hideLoading");
-
+        if (applicationUser != null && applicationUser.UserID > 0)
+        {
+            portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+        }
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Plants")
         {
             isCompanyEnabled = true;
         }
+
     }
     void viewAuditLog(bool isdeleted)
     {
@@ -298,6 +303,10 @@
         }
         SelectedDataItems = null;
         PanelVisible = false;
+        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         StateHasChanged();
         // await jsRuntime.InvokeAsync<string>("hideLoading");
 
@@ -455,26 +464,11 @@
     }
     void addEdit()
     {
-        //if (SelectedDataItems.Count == 1)
-        //{
-
-        //    foreach (object item in SelectedDataItems)
-        //    {
-
-        //        if (item is ViewDivision viewDivision)
-        //        {
-
-        //            _selectlst = _divisions.FirstOrDefault(f => f.DivisionID == viewDivision.DivisionID);
-
-
-        //        }
-        //    }
-        //    Grid.StartEditDataItemAsync(_selectlst);
-        //}
-        //else
-        //  {
-        Grid.StartEditDataItemAsync(_selectedItems);
-        // }
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
@@ -539,7 +533,7 @@
         }
         else
         {
-            EditEnabled = true;
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
         }
 
     }

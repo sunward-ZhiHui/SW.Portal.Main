@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="card w-100" style="margin-bottom:10px;">
@@ -174,9 +175,8 @@
     [Parameter]
     public long? EmployeeIds { get; set; }
     private View_EmployeeOtherDutyInformation _employeeOtherDutyInfoselectedItems;
-    bool EditEnabledOtherDuty { get; set; } = false;
-    bool DeleteEnabledOtherDuty { get; set; } = false;
-    bool AddEnabledOtherDuty { get; set; } = false;
+    bool EditEnabledOtherDuty { get; set; } = false; bool AddEnabledOtherDuty { get; set; } = false;
+    bool DeleteEnabledOtherDuty { get; set; } = false; bool ExportEnabledOtherDuty { get; set; } = false;
     private List<View_EmployeeOtherDutyInformation> _employeeOtherDutyInfoItems;
     View_EmployeeOtherDutyInformation employeeOtherDutyInformationResponse = new View_EmployeeOtherDutyInformation();
     private List<LanguageMaster> _languageMasterItems;
@@ -193,7 +193,7 @@
     private List<ViewEmployee> _employeeItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
     public ApplicationUser applicationUser { get; private set; }
-
+    private List<PortalMenuModel> portalMenuModels { get; set; }
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -202,6 +202,10 @@
         {
             AddEnabledOtherDuty = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            if (applicationUser != null && applicationUser.UserID > 0)
+            {
+                portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+            }
             var model = await Mediator.Send(new GetAllPlantQuery());
             var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
             _stausItems = models;
@@ -263,7 +267,12 @@
     }
     void addEditOtherDuty()
     {
-        Grid.StartEditDataItemAsync(_employeeOtherDutyInfoselectedItems);
+        EditEnabledOtherDuty = portalMenuModels.Any(f => f.PermissionID == 60049);
+        if (EditEnabledOtherDuty == true)
+        {
+            Grid.StartEditDataItemAsync(_employeeOtherDutyInfoselectedItems);
+        }
+        
     }
     void addDeleteOtherDuty()
     {
@@ -278,8 +287,13 @@
             _employeeOtherDutyInfoselectedItems = _employeeOtherDutyInfoItems.FirstOrDefault();
             EditEnabledOtherDuty = true;
             DeleteEnabledOtherDuty = true;
-            StateHasChanged();
+           
         }
+        AddEnabledOtherDuty = portalMenuModels.Any(f => f.PermissionID == 60048);
+        EditEnabledOtherDuty = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledOtherDuty = portalMenuModels.Any(f => f.PermissionID == 60050);
+        ExportEnabledOtherDuty = portalMenuModels.Any(f => f.PermissionID == 60051);
+        StateHasChanged();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

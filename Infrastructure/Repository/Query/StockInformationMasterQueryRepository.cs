@@ -2971,7 +2971,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
         public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart, long? DynamicFormDataID = null, int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null)
         {
             var startDateTime = productionDay.Date + shiftStart;
-            const string procName = "dbo.sp_GetProductionGanttv";
+            const string procName = "dbo.sp_GetProductionGantt";
 
             using var conn = CreateConnection();
             if (conn is SqlConnection sconn) await sconn.OpenAsync();
@@ -2985,7 +2985,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                     {
                         ProfileNo = profileNo,
                         StartDateTimeParam = startDateTime,
-                        DynamicFormDataID,
+                        MethodCodeID = DynamicFormDataID,
                         WeekOfMonthParam = SelectedWeekOfMonth,
                         MonthParam = SelectedMonth,
                         YearParam = SelectedYear
@@ -3013,17 +3013,20 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                             parentId = pid;
                     }
 
+                    var pred = Convert.ToString(row.Predecessor);   
+
                     var task = new TaskData
                     {
                         TaskId = (int)row.TaskId,
                         TaskName = row.TaskName,
                         StartDate = startDate, 
-                        //EndDate = endDate,
+                        EndDate = endDate,
                         Duration = row.Duration.ToString(),
                         Room = row.Room is null ? null : Convert.ToString(row.Room),                      
                         DurationHours = row.Duration,
                         ParentId = (int?)parentId,
-                        BarColor = row.BarColor
+                        BarColor = row.BarColor,
+                        Predecessor = string.IsNullOrWhiteSpace(pred) ? null : pred
                     };
 
                     results.Add(task);

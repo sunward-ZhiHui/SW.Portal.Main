@@ -247,7 +247,7 @@
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="MethodName"
-                            ValueFieldName="DynamicFormDataID"
+                            ValueFieldName="MethodCodeID"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             @bind-Value="@SelectDynamicFormDataID" ShowValidationIcon="true">
                 </DxComboBox>
@@ -270,7 +270,7 @@
         <div class="row">
             @if(Tasks != null)
             {
-                <SfGantt TValue="TaskData"
+                <SfGantt @ref="GanttInstance"  TValue="TaskData"
                          DataSource="@Tasks"
                          Height="80vh"
                          Width="100%"
@@ -295,16 +295,29 @@
 
                     <GanttColumns>
                         <GanttColumn Field="TaskId" HeaderText="ID" Width="70"></GanttColumn>
-                        <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
+                        <GanttColumn Field="TaskName" HeaderText="Process Name" MinWidth="400" ></GanttColumn>
+                        <GanttColumn Field="StartDate" HeaderText="Start Date" Width="120"></GanttColumn>
+                        <GanttColumn Field="EndDate" HeaderText="End Date" Width="120"></GanttColumn>
                         <GanttColumn Field="DurationHours" HeaderText="Duration" Width="70"></GanttColumn>
-                        <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
+                        <GanttColumn Field="Room" HeaderText="Room" MinWidth="120"></GanttColumn>
                     </GanttColumns>
 
                     <GanttDayWorkingTimeCollection>
-                    <GanttDayWorkingTime From="0" To="24"></GanttDayWorkingTime>
+                    <GanttDayWorkingTime From="8" To="12.5"></GanttDayWorkingTime>
+                    <GanttDayWorkingTime From="14" To="20"></GanttDayWorkingTime>
                 </GanttDayWorkingTimeCollection> 
                   
-                   
+                    @if (ShowMarkers)
+                    {
+                        <GanttEventMarkers>
+                            @foreach (var day in EachDay(ProjectStartDate, ProjectEndDate))
+                            {
+                                var w = GetLunchWindow(day);
+                                <GanttEventMarker Day="@w.start" Label="Lunch start" CssClass="e-lunch-marker-start"></GanttEventMarker>
+                                <GanttEventMarker Day="@w.end" Label="Lunch end" CssClass="e-lunch-marker-end"></GanttEventMarker>
+                            }
+                        </GanttEventMarkers>
+                    }
 
                     <GanttSplitterSettings Position="30%"></GanttSplitterSettings>
                     <GanttLabelSettings RightLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
@@ -476,6 +489,7 @@
 
     private async Task LoadReportDataAsync()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
          _barCss.Clear();
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
         DateTime productionDay = DateTime.Today;
@@ -508,6 +522,11 @@
             ProjectStartDate = minStart.AddMinutes(-30);
             ProjectEndDate = maxEnd.AddMinutes(+30);
         }
+        await InvokeAsync(StateHasChanged);
+        if (GanttInstance != null)
+            await GanttInstance.RefreshAsync();
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
 
@@ -576,7 +595,7 @@
                     EndDate = start.AddMinutes(preLunchWorked), // ends exactly at lunch start in the crossing case
                     Room = t.Room,
                     Progress = t.Progress,
-                    ParentId = parentId,
+                    ParentId = (int)parentId,
                     Predecessor = t.Predecessor
                 };
             }
@@ -604,7 +623,7 @@
                     EndDate = seg2End,
                     Room = t.Room,
                     Progress = t.Progress,
-                    ParentId = parentId,
+                    ParentId = (int)parentId,
                     Predecessor = seg2Pred
                 };
             }

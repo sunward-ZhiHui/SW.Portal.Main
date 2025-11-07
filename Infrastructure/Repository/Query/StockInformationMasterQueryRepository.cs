@@ -2815,7 +2815,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
             if (minutes > 0) parts.Add($"{minutes}m");
             return string.Join(" ", parts);
         }
-        private static (DateTime LStart, DateTime LEnd)? GetLunchWindow(DateTime when)
+        private static (DateTime LStart, DateTime LEnd)? GetLunchWindowold(DateTime when)
         {
             var day = when.Date;
             bool isFriday = when.DayOfWeek == DayOfWeek.Friday;
@@ -2827,8 +2827,96 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
 
             return (lunchStart, lunchEnd);
         }
-       
-        private static (List<SegmentModel> Segments, int NextId) BuildSegmentsForTask(int taskId, DateTime start, DateTime end, int nextSegId)
+        private static (DateTime LStart, DateTime LEnd) GetLunchWindow(DateTime day)
+        {
+            var ls = day.Date + LunchStart_Default;
+            var le = (day.DayOfWeek == DayOfWeek.Friday) ? day.Date + LunchEnd_Friday : day.Date + LunchEnd_Default;
+            return (ls, le);
+        }
+
+        private static List<SegmentModel>? BuildSegmentsForTask(long taskId, DateTime start, DateTime end, ref int nextId)
+        {
+            // Cross-day (e.g., 20:00 → 02:00) -> DON'T split; let the task draw as one bar
+            if (start.Date != end.Date) return null;
+
+            (DateTime ls, DateTime le) = GetLunchWindow(start.Date);
+
+            // no overlap with lunch
+            if (end <= ls || start >= le) return null;
+
+            var segs = new List<SegmentModel>();
+
+            // piece before lunch
+            if (start < ls)
+            {
+                var segEnd = end < ls ? end : ls;
+                if (segEnd > start)
+                    segs.Add(new SegmentModel { Id = nextId++, TaskId = (int)taskId, StartDate = start, EndDate = segEnd });
+            }
+
+            // piece after lunch
+            if (end > le)
+            {
+                var segStart = start < le ? le : start;
+                if (end > segStart)
+                    segs.Add(new SegmentModel { Id = nextId++, TaskId = (int)taskId, StartDate = segStart, EndDate = end });
+            }
+
+            return segs.Count == 0 ? (List<SegmentModel>?)null : segs;
+        }
+
+        private static List<SegmentModel>? BuildSegmentsForTask_v(long taskId, DateTime start, DateTime end, ref int nextId)
+        {
+            // Cross-day → no segments (draw as one bar)
+            if (start.Date != end.Date) return null;
+
+            (DateTime ls, DateTime le) = GetLunchWindow(start.Date);
+
+            // No lunch overlap → no segments
+            if (end <= ls || start >= le) return null;
+
+            var list = new List<SegmentModel>();
+
+            // Before lunch piece
+            if (start < ls)
+            {
+                var segEnd = end < ls ? end : ls;
+                if (segEnd > start)
+                {
+                    list.Add(new SegmentModel
+                    {
+                        Id = nextId++,               // UNIQUE ID
+                        TaskId = (int)taskId,
+                        StartDate = start,
+                        EndDate = segEnd
+                    });
+                }
+            }
+
+            // After lunch piece
+            if (end > le)
+            {
+                var segStart = start < le ? le : start;
+                if (end > segStart)
+                {
+                    list.Add(new SegmentModel
+                    {
+                        Id = nextId++,               // UNIQUE ID
+                        TaskId = (int)taskId,
+                        StartDate = segStart,
+                        EndDate = end
+                    });
+                }
+            }
+
+            return list.Count == 0 ? null : list;
+        }
+        private static readonly TimeSpan LunchStart_Default = TimeSpan.FromHours(12.5); // 12:30
+        private static readonly TimeSpan LunchEnd_Default = TimeSpan.FromHours(13.5); // 13:30
+        private static readonly TimeSpan LunchEnd_Friday = TimeSpan.FromHours(14.5); // 14:30
+
+
+        private static (List<SegmentModel> Segments, int NextId) BuildSegmentsForTaskold(int taskId, DateTime start, DateTime end, int nextSegId)
         {
             var segments = new List<SegmentModel>();
             int currentId = nextSegId;
@@ -2842,7 +2930,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                 var endOfDay = cursor.Date.AddDays(1);
                 var sliceEnd = end < endOfDay ? end : endOfDay;
 
-                var (lunchStart, lunchEnd) = GetLunchWindow(cursor).Value;
+                (DateTime lunchStart, DateTime lunchEnd) = GetLunchWindow(start.Date);
 
                 // Before lunch
                 var preStart = cursor;
@@ -2869,7 +2957,7 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                 var hours = Math.Round(span.TotalHours, 2);
                 segments.Add(new SegmentModel
                 {
-                    id = currentId++,
+                    Id = currentId++,
                     TaskId = taskId,
                     StartDate = s,
                     EndDate = e,
@@ -2877,12 +2965,84 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                 });
             }
         }
+        public List<SegmentModel> FlattenSegmentsold(IEnumerable<TaskData> tasks) => tasks?.SelectMany(t => t.Segments ?? Enumerable.Empty<SegmentModel>()).ToList() ?? new List<SegmentModel>();
         public List<SegmentModel> FlattenSegments(IEnumerable<TaskData> tasks) => tasks?.SelectMany(t => t.Segments ?? Enumerable.Empty<SegmentModel>()).ToList() ?? new List<SegmentModel>();
 
-        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo,DateTime productionDay,TimeSpan shiftStart,long? DynamicFormDataID = null,int? SelectedWeekOfMonth = null,int? SelectedMonth = null,int? SelectedYear = null)
+        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncList(string profileNo, DateTime productionDay, TimeSpan shiftStart, long? DynamicFormDataID = null, int? SelectedWeekOfMonth = null, int? SelectedMonth = null, int? SelectedYear = null)
         {
             var startDateTime = productionDay.Date + shiftStart;
             const string procName = "dbo.sp_GetProductionGantt";
+
+            using var conn = CreateConnection();
+            if (conn is SqlConnection sconn) await sconn.OpenAsync();
+            else if (conn.State == ConnectionState.Closed) conn.Open();
+
+            try
+            {
+                var rows = (await conn.QueryAsync(
+                    procName,
+                    new
+                    {
+                        ProfileNo = profileNo,
+                        StartDateTimeParam = startDateTime,
+                        MethodCodeID = DynamicFormDataID,
+                        WeekOfMonthParam = SelectedWeekOfMonth,
+                        MonthParam = SelectedMonth,
+                        YearParam = SelectedYear
+                    },
+                    commandType: CommandType.StoredProcedure
+                )).ToList();
+
+                var results = new List<TaskData>(rows.Count);          
+
+                foreach (var row in rows)
+                {
+                    long taskId = row.TaskId is null ? 0L : Convert.ToInt64(row.TaskId);
+                    string? taskName = Convert.ToString(row.TaskName);
+
+                    DateTime sd, ed;
+                    DateTime? startDate = DateTime.TryParse(Convert.ToString(row.StartDate), out sd) ? sd : (DateTime?)null;
+                    DateTime? endDate = DateTime.TryParse(Convert.ToString(row.EndDate), out ed) ? ed : (DateTime?)null;
+
+                    long? parentId = null;
+                    long pid;
+                    if (row.ParentId != null)
+                    {
+
+                        if (long.TryParse(Convert.ToString(row.ParentId), out pid))
+                            parentId = pid;
+                    }
+
+                    var pred = Convert.ToString(row.Predecessor);   
+
+                    var task = new TaskData
+                    {
+                        TaskId = (int)row.TaskId,
+                        TaskName = row.TaskName,
+                        StartDate = startDate, 
+                        EndDate = endDate,
+                        Duration = row.Duration.ToString(),
+                        Room = row.Room is null ? null : Convert.ToString(row.Room),                      
+                        DurationHours = row.Duration,
+                        ParentId = (int?)parentId,
+                        BarColor = row.BarColor,
+                        Predecessor = string.IsNullOrWhiteSpace(pred) ? null : pred
+                    };
+
+                    results.Add(task);
+                }
+
+                return results.AsReadOnly();
+            }
+            finally
+            {
+                if (conn.State != ConnectionState.Closed) conn.Close();
+            }
+        }
+        public async Task<IReadOnlyList<TaskData>> GetProductionGanttAsyncListvdvdvdvd(string profileNo,DateTime productionDay,TimeSpan shiftStart,long? DynamicFormDataID = null,int? SelectedWeekOfMonth = null,int? SelectedMonth = null,int? SelectedYear = null)
+        {
+            var startDateTime = productionDay.Date + shiftStart;
+            const string procName = "dbo.sp_GetProductionGanttv";
 
             using var conn = CreateConnection();
             if (conn is SqlConnection sconn) await sconn.OpenAsync();
@@ -2938,20 +3098,23 @@ WHERE (@ProfileNo IS NULL OR ProfileNo = @ProfileNo)
                         TaskName = taskName,
                         StartDate = startDate,
                         EndDate = endDate,
-                        Duration = durationText,
+                        Duration = row.Duration.ToString(),
                         Room = row.Room is null ? null : Convert.ToString(row.Room),
                         Predecessor = string.IsNullOrWhiteSpace(pred) ? null : pred,
-                        DurationHours = durationHours,
+                        DurationHours = row.Duration,
                         BarColor = row.BarColor
                     };
 
-                    // ✅ build segments (no ref!)
+                    // ✅ build segments
                     if (startDate.HasValue && endDate.HasValue)
                     {
-                        var segResult = BuildSegmentsForTask(task.TaskId, startDate.Value, endDate.Value, nextSegmentId);
-                        task.Segments.AddRange(segResult.Segments);
-                        nextSegmentId = segResult.NextId;
+                        // Only create segments when lunch overlap exists (same-day); return null otherwise
+                        var segs = BuildSegmentsForTask(task.TaskId, startDate.Value, endDate.Value, ref nextSegmentId);
+                        if (segs != null && segs.Count > 0)
+                            task.Segments.AddRange(segs);
                     }
+
+
 
                     results.Add(task);
                 }

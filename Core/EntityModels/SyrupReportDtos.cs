@@ -114,7 +114,7 @@ namespace Core.EntityModels
         }
         public class SegmentModel
         {
-            public int id { get; set; }
+            public int Id { get; set; }
             public int TaskId { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }

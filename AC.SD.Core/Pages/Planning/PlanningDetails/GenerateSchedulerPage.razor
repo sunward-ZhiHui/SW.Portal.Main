@@ -247,7 +247,7 @@
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="MethodName"
-                            ValueFieldName="DynamicFormDataID"
+                            ValueFieldName="MethodCodeID"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             @bind-Value="@SelectDynamicFormDataID" ShowValidationIcon="true">
                 </DxComboBox>
@@ -270,16 +270,13 @@
         <div class="row">
             @if(Tasks != null)
             {
-                <SfGantt TValue="TaskData"
+                <SfGantt @ref="GanttInstance"  TValue="TaskData"
                          DataSource="@Tasks"
                          Height="80vh"
                          Width="100%"
-                         DurationUnit="DurationUnit.Hour"
-                         HighlightWeekends="true"
                          ProjectStartDate="@ProjectStartDate"
-                         ProjectEndDate="@ProjectEndDate"
-                         TimelineSettings="@TimelineSettings"
-                         DayWorkingTime="@DayWorkingTimes"
+                         ProjectEndDate="@ProjectEndDate"  
+                         DurationUnit="DurationUnit.Hour"
                          TaskbarHeight="20"
                          RowHeight="38"
                          CssClass="gantt-halfhour-grid"
@@ -290,17 +287,26 @@
                                      Name="TaskName"
                                      StartDate="StartDate"
                                      EndDate="EndDate"
+                                     Duration="DurationHours"
                                      Progress="Progress"
                                      ParentID="ParentId"
                                      Dependency="Predecessor">
                     </GanttTaskFields>
 
                     <GanttColumns>
-                        <GanttColumn Field="TaskId" HeaderText="ID" Visible="false" Width="70"></GanttColumn>
-                        <GanttColumn Field="TaskName" HeaderText="Process Name" Width="260"></GanttColumn>
+                        <GanttColumn Field="TaskId" HeaderText="ID" Width="70"></GanttColumn>
+                        <GanttColumn Field="TaskName" HeaderText="Process Name" MinWidth="400" ></GanttColumn>
+                        <GanttColumn Field="StartDate" HeaderText="Start Date" Width="120"></GanttColumn>
+                        <GanttColumn Field="EndDate" HeaderText="End Date" Width="120"></GanttColumn>
                         <GanttColumn Field="DurationHours" HeaderText="Duration" Width="70"></GanttColumn>
-                        <GanttColumn Field="Room" HeaderText="Room"></GanttColumn>
+                        <GanttColumn Field="Room" HeaderText="Room" MinWidth="120"></GanttColumn>
                     </GanttColumns>
+
+                    <GanttDayWorkingTimeCollection>
+                    <GanttDayWorkingTime From="8" To="12.5"></GanttDayWorkingTime>
+                    <GanttDayWorkingTime From="14" To="20"></GanttDayWorkingTime>
+                </GanttDayWorkingTimeCollection> 
+                  
                     @if (ShowMarkers)
                     {
                         <GanttEventMarkers>
@@ -312,12 +318,13 @@
                             }
                         </GanttEventMarkers>
                     }
-                    <GanttSegmentFields PrimaryKey="id" ForeignKey="TaskId" StartDate="StartDate" EndDate="EndDate"
-                    Duration="Duration" TValue="TaskData" TSegments="SegmentModel" DataSource="SegmentCollection"></GanttSegmentFields>
-
 
                     <GanttSplitterSettings Position="30%"></GanttSplitterSettings>
                     <GanttLabelSettings RightLabel="TaskName" TValue="TaskData"></GanttLabelSettings>
+                    <GanttTimelineSettings TimelineViewMode="TimelineViewMode.Day" TimelineUnitSize="50">
+                    <GanttTopTierSettings Unit="TimelineViewMode.Day" Format="@TopFormat"></GanttTopTierSettings>
+                    <GanttBottomTierSettings Unit="TimelineViewMode.Hour" Format="@BottomFormat"></GanttBottomTierSettings>
+                </GanttTimelineSettings>
                     <GanttEvents TValue="TaskData"
                                  QueryChartRowInfo="@( (QueryChartRowInfoEventArgs<TaskData> e) => OnQueryChartRowInfo(e) )" />
 
@@ -330,6 +337,11 @@
 </div>
 
 @code {
+     public string TopFormat { get; set; } = "MMM dd, yyyy";
+    public string BottomFormat { get; set; } = "hh tt";
+    private SfGantt<TaskData>? GanttInstance;
+    private List<Object>? toolbarItems;
+       DateTime nowLocal = DateTime.Now;
     private long? SelectDynamicFormDataID { get; set; }
     DateTime? DateTimeValue { get; set; }
     int? SelectedWeekOfMonth { get; set; }
@@ -461,9 +473,23 @@
     {        
         return (day == DayOfWeek.Sunday) ? 6 : ((int)day - 1);
     }
+     private static (DateTime start, DateTime end) GetCurrentWorkWeekWindow(DateTime nowLocal, TimeSpan shiftStart, TimeSpan shiftEnd)
+    {
+        // Make Monday = 0, Tuesday = 1, ... Sunday = 6
+        int diff = ((int)nowLocal.DayOfWeek + 6) % 7;
+
+        var monday = nowLocal.Date.AddDays(-diff);
+        var friday = monday.AddDays(4);
+
+        var start = monday + shiftStart; // Monday 08:00
+        var end   = friday + shiftEnd;   // Friday 20:00
+
+        return (start, end);
+    }
 
     private async Task LoadReportDataAsync()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
          _barCss.Clear();
         string profileNo = SyrupPlanningData?.ProfileNo ?? string.Empty;
         DateTime productionDay = DateTime.Today;
@@ -473,12 +499,18 @@
         ProjectStartDate = productionDay.Date + shiftStart;
         ProjectEndDate = productionDay.Date + shiftEnd;
 
+         (var weekStart, var weekEnd) = GetCurrentWorkWeekWindow(nowLocal, shiftStart, shiftEnd);
+        ProjectStartDate = weekStart;
+        ProjectEndDate   = weekEnd;
+
+        productionDay = weekStart;
+
         var readOnly = await StockQueryRepo.GetProductionGanttAsyncList(
             profileNo, productionDay, shiftStart,
             SelectDynamicFormDataID, SelectedWeekOfMonth, SelectedMonth, SelectedYear);
 
         Tasks = readOnly.ToList();
-        SegmentCollection = StockQueryRepo.FlattenSegments(Tasks);
+        //SegmentCollection = StockQueryRepo.FlattenSegments(Tasks);
 
         var startCandidates = Tasks.Where(t => t.StartDate.HasValue).Select(t => t.StartDate!.Value);
         var endCandidates = Tasks.Where(t => t.EndDate.HasValue).Select(t => t.EndDate!.Value);
@@ -490,6 +522,11 @@
             ProjectStartDate = minStart.AddMinutes(-30);
             ProjectEndDate = maxEnd.AddMinutes(+30);
         }
+        await InvokeAsync(StateHasChanged);
+        if (GanttInstance != null)
+            await GanttInstance.RefreshAsync();
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
 
@@ -558,7 +595,7 @@
                     EndDate = start.AddMinutes(preLunchWorked), // ends exactly at lunch start in the crossing case
                     Room = t.Room,
                     Progress = t.Progress,
-                    ParentId = parentId,
+                    ParentId = (int)parentId,
                     Predecessor = t.Predecessor
                 };
             }
@@ -586,7 +623,7 @@
                     EndDate = seg2End,
                     Room = t.Room,
                     Progress = t.Progress,
-                    ParentId = parentId,
+                    ParentId = (int)parentId,
                     Predecessor = seg2Pred
                 };
             }

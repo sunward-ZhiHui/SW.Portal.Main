@@ -60,7 +60,7 @@ namespace Application.Handlers.CommandHandler.Employee
             applicationUser.LastPasswordChanged = app.LastPasswordChanged;
             applicationUser.LastAccessDate = app.LastAccessDate;
             applicationUser.Locked = app.Locked;
-
+            applicationUser.UserID=app.UserID;
             var guid = Guid.NewGuid();
             var uid = Guid.NewGuid();
             await _commandApplicationRepository.UpdateAsync(applicationUser);

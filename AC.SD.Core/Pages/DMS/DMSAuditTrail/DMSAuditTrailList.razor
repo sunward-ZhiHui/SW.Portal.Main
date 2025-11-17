@@ -1,0 +1,23 @@
+﻿@page "/DMSAuditTrailList"
+
+
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Profile">
+                <AC.SD.Core.Pages.DMS.DMSAuditTrail.DocumentProfileNoSeriesList></AC.SD.Core.Pages.DMS.DMSAuditTrail.DocumentProfileNoSeriesList>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Roles">
+                <AC.SD.Core.Pages.DMS.DMSAuditTrail.DocumentRolesList></AC.SD.Core.Pages.DMS.DMSAuditTrail.DocumentRolesList>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="SW Library">
+                <AC.SD.Core.Pages.DMS.DMSAuditTrail.DMSLibraryList></AC.SD.Core.Pages.DMS.DMSAuditTrail.DMSLibraryList>
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    [Parameter]
+    public int ActiveTabIndex { get; set; } = 0;
+
+}

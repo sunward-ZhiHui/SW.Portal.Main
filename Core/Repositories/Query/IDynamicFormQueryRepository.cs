@@ -39,6 +39,7 @@ namespace Core.Repositories.Query
         Task<long> InsertDynamicFormAttributeSection(long dynamicFormSectionId, IEnumerable<AttributeHeader> attributeIds, long? userId);
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
+        Task<DynamicFormData> GetDynamicFormDataBySessionAllIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
         Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);

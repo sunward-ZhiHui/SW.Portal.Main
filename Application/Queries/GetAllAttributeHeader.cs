@@ -307,5 +307,13 @@ namespace Application.Queries
     public class GetAttributeHeaderDataSource1 : PagedRequest, IRequest<List<object>>
     {
     }
-
+    public class GetDynamicFormDataGridList : PagedRequest, IRequest<List<AttributeHeader>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormDataGridList(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    
 }

@@ -35,5 +35,6 @@ namespace Core.Entities
         [Required(ErrorMessage = "Users is Required")]
         [SelectUserGropupUserCustomValidation]
         public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
+        public List<string?> SelectUser { get; set; } = new List<string?>();
     }
 }

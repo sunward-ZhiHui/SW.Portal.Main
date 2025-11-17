@@ -1,7 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using MediatR;
- 
+
 
 namespace Application.Queries
 {
@@ -20,9 +20,11 @@ namespace Application.Queries
     public class DeleteUserGroup : UserGroup, IRequest<UserGroup>
     {
         public UserGroup UserGroup { get; private set; }
-        public DeleteUserGroup(UserGroup userGroup)
+        public long? UserId { get; private set; }
+        public DeleteUserGroup(UserGroup userGroup, long? userId)
         {
             this.UserGroup = userGroup;
+            this.UserId = userId;
         }
     }
 }

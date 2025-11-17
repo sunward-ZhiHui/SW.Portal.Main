@@ -15,7 +15,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<UserGroup>> GetAllAsync();
         Task<UserGroup> InsertOrUpdateUserGroup(UserGroup userGroup);
-        Task<UserGroup> DeleteUserGroup(UserGroup value);
+        Task<UserGroup> DeleteUserGroup(UserGroup value,long? UserId);
         UserGroup GetUserGroupNameCheckValidation(string? value, long id);
     }
 }

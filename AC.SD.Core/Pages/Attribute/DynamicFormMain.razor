@@ -1,29 +1,269 @@
-﻿@page "/dynamicMainForm"
-@page "/dynamicMainForm/{ScreenId}"
-@using Application.Queries
-@using MediatR
-@using global::Core.Entities
-@using global::Core.Repositories.Query
-@inject IMediator Mediator
-@inject ILocalStorageService<ApplicationUser> _localStorageService
-@code {
-    public ApplicationUser applicationUser { get; private set; }
-    [Parameter]
-    public string? ScreenId { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if (!string.IsNullOrEmpty(ScreenId))
-        {
-            //ScreenID columnName in DynamicForm Table
-            var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation(ScreenId));
-            if (result != null && result.ID > 0)
-            {
-                await Mediator.Send(new GetOnDynamicFormSyncTables(result, applicationUser.UserID));
+﻿@page "/audit-export"
+@using ClosedXML.Excel
+@using DevExpress.Blazor
+@using System.IO
+@inject IJSRuntime JS
+
+<h3>Audit Grid with Export</h3>
+<script>
+    window.BlazorDownloadFile = (fileName, base64Data) => {
+      const link = document.createElement('a');
+      link.href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + base64Data;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    };
+</script>
+
+<DxLoadingPanel @bind-Visible="PanelVisibleApproval"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid7" Data="@_dynamicFormApprovalData"
+            ShowGroupPanel="true"
+            ShowGroupedColumns="true"
+            ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="RowIndex"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            FocusedRowChanged="OnRowApprovalClick"
+            AllowSelectRowByClick="true"
+            style="height: calc(60vh);"
+            CustomizeElement="Grid_CustomizeApprovalElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            VirtualScrollingEnabled="true"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+
+        <Columns>
+            <DxGridDataColumn FieldName="RowIndex" Caption="No" MinWidth="5" />
+            <DxGridDataColumn FieldName="HeaderDisplayName" Caption="Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="FormType" Caption="Form Type" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditUser" Caption="Audit User" MinWidth="50" />
+            <DxGridDataColumn FieldName="AuditDate" Caption="Audit Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (HRMasterAuditTrail)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AuditDate.HasValue && item.AuditDate != DateTime.MinValue)
+                        {
+                            startDate = item.AuditDate?.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FormType" />
+        </TotalSummary>
+
+        <DetailRowTemplate>
+            <!-- This component displays details in the UI. We will replicate its info in Excel export. -->
+            @{
+                var item = (HRMasterAuditTrail)context.DataItem;
             }
+            <div class="detail-grid-container">
+                <DxDataGrid Data="@AllItems.Where(d => d.RowIndex == item.RowIndex)">
+                    <Columns>
+                        <DxDataGridColumn Field="@nameof(GridDetailItem.RowNo)" Caption="No" Width="60" />
+                        <DxDataGridColumn Field="@nameof(GridDetailItem.HeaderDisplayName)" Caption="Label Name" />
+                        <DxDataGridColumn Field="@nameof(GridDetailItem.PreValue)" Caption="Pre Value" />
+                        <DxDataGridColumn Field="@nameof(GridDetailItem.CurrentValue)" Caption="Current Value" />
+                        <DxDataGridColumn Field="@nameof(GridDetailItem.IsDeleted)" Caption="Is Deleted" />
+                    </Columns>
+                </DxDataGrid>
+            </div>
+        </DetailRowTemplate>
+    </DxGrid>
+
+    <div style="margin-top:10px">
+        <DxButton Text="Export Excel (with details)" Click="@ExportXlsx_Click" />
+    </div>
+</DxLoadingPanel>
+
+@code {
+    // Grid reference
+    DxGrid Grid7;
+
+    // Sample in-memory data; replace these with your actual data source/population.
+    List<HRMasterAuditTrail> _dynamicFormApprovalData = new();
+    List<GridDetailItem> AllItems = new();
+
+    bool PanelVisibleApproval = false;
+
+    protected override void OnInitialized()
+    {
+        // populate sample master rows
+        _dynamicFormApprovalData = new List<HRMasterAuditTrail>
+        {
+            new HRMasterAuditTrail { RowIndex = 1, HeaderDisplayName = "776767", FormType = "Update", AuditUser = "Crt", AuditDate = DateTime.Parse("2025-11-12 16:39:23") },
+            new HRMasterAuditTrail { RowIndex = 2, HeaderDisplayName = "123456", FormType = "Create", AuditUser = "Amy", AuditDate = DateTime.Now.AddDays(-1) }
+        };
+
+        // populate sample detail rows linked by RowIndex
+        AllItems = new List<GridDetailItem>
+        {
+            new GridDetailItem { RowIndex = 1, RowNo = 1, HeaderDisplayName = "Name", PreValue = "67uyuyuyuy", CurrentValue = "776767", IsDeleted = false },
+            new GridDetailItem { RowIndex = 1, RowNo = 2, HeaderDisplayName = "Added Date", PreValue = "12-Nov-2025 04:11:47 PM", CurrentValue = "12-Nov-2025 04:39:23 PM", IsDeleted = false },
+            new GridDetailItem { RowIndex = 1, RowNo = 3, HeaderDisplayName = "Added By", PreValue = "Crt", CurrentValue = "Crt", IsDeleted = false },
+
+            new GridDetailItem { RowIndex = 2, RowNo = 1, HeaderDisplayName = "Name", PreValue = "", CurrentValue = "123456", IsDeleted = false }
+        };
+    }
+
+    // Example: when a user clicks a row — placeholder implementation
+    void OnRowApprovalClick(GridFocusedRowChangedEventArgs args)
+    {
+        // implement as needed
+    }
+
+    // Customize element placeholder
+    void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs args)
+    {
+    }
+
+    // --- Export routine using ClosedXML ---
+    async Task ExportXlsx_Click()
+    {
+        PanelVisibleApproval = true;
+        try
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Audit Export");
+
+            // Master grid header
+            var masterHeaders = new[] { "No", "Name", "Form Type", "Audit User", "Audit Date" };
+            for (int c = 0; c < masterHeaders.Length; c++)
+                ws.Cell(1, c + 1).Value = masterHeaders[c];
+
+            var headerRange = ws.Range(1, 1, 1, masterHeaders.Length);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.SetBackgroundColor(XLColor.LightGray);
+            headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Row(1).Height = 22;
+
+            int currentRow = 2;
+
+            // iterate master rows in the same order your grid displays
+            foreach (var master in _dynamicFormApprovalData)
+            {
+                // Write master row
+                ws.Cell(currentRow, 1).Value = master.RowIndex;
+                ws.Cell(currentRow, 2).Value = master.HeaderDisplayName;
+                ws.Cell(currentRow, 3).Value = master.FormType;
+                ws.Cell(currentRow, 4).Value = master.AuditUser;
+                ws.Cell(currentRow, 5).Value = master.AuditDate.HasValue
+                    ? master.AuditDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt")
+                    : string.Empty;
+
+                // Style master row
+                ws.Row(currentRow).Style.Font.Bold = true;
+                ws.Row(currentRow).OutlineLevel = 0;
+
+                int masterRowNumber = currentRow;
+                currentRow++;
+
+                // Related details (AllItems linked by RowIndex)
+                var relatedDetails = AllItems.Where(d => d.RowIndex == master.RowIndex).ToList();
+                if (relatedDetails.Any())
+                {
+                    // Detail header (purple)
+                    var detailHeaderCols = new[] { "No", "Label Name", "Pre Value", "Current Value", "Is Deleted" };
+                    for (int c = 0; c < detailHeaderCols.Length; c++)
+                        ws.Cell(currentRow, c + 1).Value = detailHeaderCols[c];
+
+                    var dhRange = ws.Range(currentRow, 1, currentRow, detailHeaderCols.Length);
+                    dhRange.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#6A1B9A")); // purple like screenshot
+                    dhRange.Style.Font.FontColor = XLColor.White;
+                    dhRange.Style.Font.Bold = true;
+                    dhRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Row(currentRow).Height = 18;
+
+                    currentRow++;
+
+                    int detailStartRow = currentRow;
+                    int idx = 1;
+                    foreach (var d in relatedDetails)
+                    {
+                        ws.Cell(currentRow, 1).Value = d.RowNo;
+                        ws.Cell(currentRow, 2).Value = d.HeaderDisplayName ?? "";
+                        ws.Cell(currentRow, 3).Value = d.PreValue ?? "";
+                        ws.Cell(currentRow, 4).Value = d.CurrentValue ?? "";
+                        ws.Cell(currentRow, 5).Value = d.IsDeleted ? "✓" : "";
+
+                        ws.Row(currentRow).Style.Alignment.WrapText = true;
+                        ws.Row(currentRow).AdjustToContents();
+
+                        currentRow++;
+                        idx++;
+                    }
+
+                    int detailEndRow = currentRow - 1;
+
+                    // border around details region (including detail header)
+                    ws.Range(detailStartRow - 1, 1, detailEndRow, detailHeaderCols.Length)
+                      .Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                    // Group the header + detail rows under the master row for collapsing in Excel
+                    ws.Rows(detailStartRow - 1, detailEndRow).Group();
+                    for (int r = detailStartRow - 1; r <= detailEndRow; r++)
+                        ws.Row(r).OutlineLevel = 1;
+                }
+
+                // continue to next master
+            }
+
+            // Autofit columns
+            ws.Columns().AdjustToContents();
+
+            // Save to memory and download
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            var bytes = ms.ToArray();
+            var base64 = Convert.ToBase64String(bytes);
+            var fileName = $"AuditExport_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            await JS.InvokeVoidAsync("BlazorDownloadFile", fileName, base64);
+        }
+        finally
+        {
+            PanelVisibleApproval = false;
         }
     }
+
+    // --- Data models (use your real models instead) ---
+    public class HRMasterAuditTrail
+    {
+        public int RowIndex { get; set; }
+        public string HeaderDisplayName { get; set; }
+        public string FormType { get; set; }
+        public string AuditUser { get; set; }
+        public DateTime? AuditDate { get; set; }
+    }
+
+    public class GridDetailItem
+    {
+        public int RowIndex { get; set; } // links to master RowIndex
+        public int RowNo { get; set; }
+        public string HeaderDisplayName { get; set; }
+        public string PreValue { get; set; }
+        public string CurrentValue { get; set; }
+        public bool IsDeleted { get; set; }
+    }
 }
+
+
 
 
 

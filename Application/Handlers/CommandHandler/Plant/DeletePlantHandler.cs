@@ -41,7 +41,7 @@ namespace Application.Handlers.CommandHandler
                     var uid = Guid.NewGuid();
                     await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Delete", result.PlantCode,null, queryEntity?.PlantID, guid, request?.UserId, DateTime.Now, true, "PlantCode", uid);
                     uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Delete", result.PlantCode, null, queryEntity?.PlantID, guid, request?.UserId, DateTime.Now, true, "DisplayName", uid);
+                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Delete", result.PlantCode, result.PlantCode, queryEntity?.PlantID, guid, request?.UserId, DateTime.Now, true, "DisplayName", uid);
 
                     uid = Guid.NewGuid();
                     await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Delete", result.Description, null, queryEntity?.PlantID, guid, request?.UserId, DateTime.Now, true, "Description", uid);

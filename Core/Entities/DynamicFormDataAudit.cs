@@ -37,5 +37,7 @@ namespace Core.Entities
         public long? CountData { get; set; }
         [NotMapped]
         public List<DynamicFormDataAudit> DynamicFormDataAudits { get; set; }=new List<DynamicFormDataAudit>();
+
+        public long? DynamicFormDataGridID { get; set; }
     }
 }

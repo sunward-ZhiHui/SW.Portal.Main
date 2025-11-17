@@ -6,6 +6,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
@@ -28,7 +29,7 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
-                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                     <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                     <DxMenuItem Text="Permission" Enabled="@EditEnabled">
@@ -77,7 +78,7 @@
                 <DxGridDataColumn FieldName="DocumentRoleName" Caption="Role Name" />
                 <DxGridDataColumn FieldName="DocumentRoleDescription" Caption="Role Description" />
                 <DxGridDataColumn FieldName="AddedBy" />
-                <DxGridDataColumn FieldName="AddedDate" >
+                <DxGridDataColumn FieldName="AddedDate">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentRole)context.DataItem;
@@ -91,7 +92,7 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="ModifiedBy" />
-                <DxGridDataColumn FieldName="ModifiedDate" >
+                <DxGridDataColumn FieldName="ModifiedDate">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentRole)context.DataItem;
@@ -208,11 +209,11 @@
     bool ExportSelectedRowsOnly { get; set; }
     bool PopupVisibleSecurityAccess { get; set; } = false;
     bool PanelVisible { get; set; }
-    bool EditEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool ExportEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private DocumentRole? _selectedItems;
     private List<CodeMaster> _stausItems;
-    bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     DxPopup? popup;
     string? Name;
@@ -221,11 +222,15 @@
     bool deletepopup { get; set; } = false;
     [Parameter]
     public Action<bool?> RevokeBack { get; set; }
-    string? DeleteerrorMessage;
+    string? DeleteerrorMessage; private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (applicationUser != null && applicationUser.UserID > 0)
+        {
+            portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+        }
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
@@ -242,8 +247,13 @@
                 EditEnabled = true; DeleteEnabled = true;
                 Grid.SetFocusedRowIndex(0);
                 Grid.ClearSelection();
-                StateHasChanged();
+
             }
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60207);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60208);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60209);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60210);
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -287,7 +297,7 @@
         {
             if (_selectedItems != null)
             {
-                var request = new DeleteDocumentPermissions(_selectedItems.DocumentRoleId);
+                var request = new DeleteDocumentPermissions(_selectedItems.DocumentRoleId,applicationUser.UserID);
                 await Mediator.Send(request);
                 deletepopup = false;
                 toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -318,16 +328,19 @@
     async Task AddOrUpdate(DocumentRole editablePlant)
     {
         var request = new InsertOrUpdateDocumentRole
-            {
-                DocumentRoleId = editablePlant.DocumentRoleId,
-                DocumentRoleName = editablePlant.DocumentRoleName,
-                DocumentRoleDescription = editablePlant.DocumentRoleDescription,
-                StatusCodeId = editablePlant.StatusCodeId,
-                AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
-                ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
-                AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
-                ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
-            };
+        {
+            DocumentRoleId = editablePlant.DocumentRoleId,
+            DocumentRoleName = editablePlant.DocumentRoleName,
+            DocumentRoleDescription = editablePlant.DocumentRoleDescription,
+            StatusCodeId = editablePlant.StatusCodeId,
+            AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
+            ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
+            AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
+            ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
+            StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
+            AddedBy = applicationUser.UserName,
+            ModifiedBy = applicationUser.UserName,
+        };
         await Mediator.Send(request);
         await UpdateDataAsync();
     }
@@ -363,14 +376,19 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60208);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentRoleId");
         _selectedItems = _documentRole.FirstOrDefault(f => f.DocumentRoleId == (long?)UniqueId);
         Name = _selectedItems.DocumentRoleName;
-        EditEnabled = true; DeleteEnabled = true;
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60208);
+        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60209);
         StateHasChanged();
     }
     public async Task OnRowDoubleClick(GridRowClickEventArgs e)
@@ -398,7 +416,7 @@
                 {
                     if (item is DocumentRole plants)
                     {
-                        var request = new DeleteDocumentRole(plants);
+                        var request = new DeleteDocumentRole(plants,applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -424,31 +442,31 @@
         {
 
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
         else
         {
             await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
+            {
 
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
+                ExportSelectedRowsOnly = false,
+                CustomizeCell = OnCustomizeCell
 
-                });
+            });
         }
     }
     async Task ExportXls_Click()
     {
         await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
-                CustomizeCell = OnCustomizeCell
-            });
+        {
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+            CustomizeCell = OnCustomizeCell
+        });
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {

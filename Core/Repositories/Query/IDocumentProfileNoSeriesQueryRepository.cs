@@ -18,7 +18,7 @@ namespace Core.Repositories.Query
         Task<DocumentProfileNoSeriesModel> InsertOrUpdateDocumentProfileNoSeries(DocumentProfileNoSeriesModel value);
         DocumentProfileNoSeriesModel GetProfileNameCheckValidation(string? value, long id);
         Task<long?> GetDocumentNoSeriesCount(long? id);
-        Task<DocumentProfileNoSeriesModel> DeleteDocumentProfileNoSeries(DocumentProfileNoSeriesModel documentProfileNoSeriesModel);
+        Task<DocumentProfileNoSeriesModel> DeleteDocumentProfileNoSeries(DocumentProfileNoSeriesModel documentProfileNoSeriesModel,long? UserId);
         DocumentProfileNoSeriesModel GetAbbreviationCheckValidation(string? value, string? Abbreviation, long id);
         Task<IReadOnlyList<DocumentNoSeries>> GetAllDocumentNoSeriesAsync(DocumentProfileNoSeriesModel documentProfileNoSeriesModel);
 

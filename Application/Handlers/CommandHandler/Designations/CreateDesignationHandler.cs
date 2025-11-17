@@ -37,7 +37,7 @@ namespace Application.Handlers.CommandHandler.Designations
             var uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.Code, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Code", uid);
             uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null,queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", queryEntity?.Name, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
             uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Name", uid);
             uid = Guid.NewGuid();
@@ -65,11 +65,11 @@ namespace Application.Handlers.CommandHandler.Designations
             uid = Guid.NewGuid();
             await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.StatusCode, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "StatusCode", uid);
             uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.ModifiedByUserId?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "ModifiedByUserID", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.AddedByUserId?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedByUserId", uid);
             uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.ModifiedDate != null ? queryEntity.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "ModifiedDate", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.AddedDate != null ? queryEntity.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedDate", uid);
             uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.ModifiedBy, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "ModifiedBy", uid);
+            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Add", null, queryEntity?.AddedBy, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedBy", uid);
 
 
             var response = new DesignationResponse

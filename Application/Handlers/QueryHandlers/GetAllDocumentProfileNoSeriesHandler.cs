@@ -85,7 +85,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<DocumentProfileNoSeriesModel> Handle(DeleteDocumentProfileNoSeries request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.DeleteDocumentProfileNoSeries(request.DocumentProfileNoSeriesModel);
+            return await _queryRepository.DeleteDocumentProfileNoSeries(request.DocumentProfileNoSeriesModel,request.UserId);
         }
     }
     public class GetAllDocumentNoSeriesHandler : IRequestHandler<GetAllDocumentNoSeriesQuery, List<DocumentNoSeries>>

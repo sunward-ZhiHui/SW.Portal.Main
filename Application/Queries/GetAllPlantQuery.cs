@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,17 @@ namespace Application.Queries
             this.IsDeleted = isDeleted;
             this.SessionId = SessionId;
             this.AddTypeId = addTypeId;
+        }
+    }
+    public class GetHRMasterSWAuditList : PagedRequest, IRequest<List<FileProfileTypeModel>>
+    {
+        public string? MasterType { get; set; }
+        public bool? IsDeleted { get; set; } = false;
+        
+        public GetHRMasterSWAuditList(string? masterType, bool? isDeleted)
+        {
+            this.MasterType = masterType;
+            this.IsDeleted = isDeleted;
         }
     }
 }

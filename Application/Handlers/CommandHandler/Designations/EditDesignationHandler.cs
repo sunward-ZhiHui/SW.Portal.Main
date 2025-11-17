@@ -115,7 +115,7 @@ namespace Application.Handlers.CommandHandler
                     if (isUpdate)
                     {
                         uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Update", queryrEntity?.Name,null, queryrEntity?.DesignationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DisplayName", uid);
+                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Update", queryrEntity?.Name, queryrEntity?.Name, queryrEntity?.DesignationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DisplayName", uid);
                         uid = Guid.NewGuid();
                         await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Designation", "Update", result.ModifiedByUserID?.ToString(), queryrEntity?.ModifiedByUserId?.ToString(), queryrEntity?.DesignationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "ModifiedByUserID", uid);
                         uid = Guid.NewGuid();

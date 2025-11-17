@@ -19,18 +19,18 @@
     }
 
 </style>
-@page "/documentprofiles"
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" Enabled="@ExportEnabled" />
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
             </Items>
         </DxMenu>
     </div>
@@ -53,7 +53,6 @@
         CssClass="ch-360"
         style="height: calc(100vh - 270px);"
         FocusedRowEnabled="true"
-        RowDoubleClick="OnRowDoubleClick"
         RowClick="OnRowClick"
         VirtualScrollingEnabled="true"
         AllowSelectRowByClick="true">
@@ -72,83 +71,56 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
-<DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="CRT"
-         Closed="EulaPopupClosed"
-         CloseOnEscape="false"
-         Width="300px">
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <p>
-            Do you want to delete
-        </p>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPages"  DisplayName="@_selectedItems?.Name" MasterType="DocumentProfileNoSeries" MasterId="_selectedItems?.ProfileID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
-    </FooterContentTemplate>
+
 </DxPopup>
 @code {
-    bool Blukdeletepopup { get; set; } = false;
-    bool AddEnabled { get; set; } = false;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false; bool ExportEnabled { get; set; } = false;
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
     private List<DocumentProfileNoSeriesModel> _resultItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser applicationUser { get; private set; }
-    private List<PortalMenuModel> portalMenuModels { get; set; }
     private DocumentProfileNoSeriesModel? _selectedItems;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if (applicationUser != null && applicationUser.UserID > 0)
-        {
-            portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
-        }
         await loadData();
-        
+
+    }
+    void OnBackPages()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
     }
     async Task loadData()
     {
-        AddEnabled = true; EditEnabled = false; DeleteEnabled = false;
         _resultItems = await Mediator.Send(new GetDocumentProfileNoSeriesQuery());
         if (_resultItems != null && _resultItems.Count() > 0)
         {
-            EditEnabled = true; DeleteEnabled = true;
             _selectedItems = _resultItems.FirstOrDefault();
-            var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
-            if (ProfileCount > 0)
-            {
-                DeleteEnabled = false;
-            }
 
         }
-
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60212);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60213);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60214);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60215);
         StateHasChanged();
     }
     async Task OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProfileID");
         _selectedItems = _resultItems.FirstOrDefault(f => f.ProfileID == (long?)UniqueId);
-        EditEnabled = true; DeleteEnabled = true;
-        var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60213);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60214);
-        if (ProfileCount > 0)
-        {
-            DeleteEnabled = false;
-        }
         StateHasChanged();
-    }
-    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
-    {
-        await OnRowClick(e);
-        addEdit();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -162,61 +134,15 @@
     {
         NavigationManager.NavigateTo("documentprofiles/documentprofilesForm");
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
-    {
-        Blukdeletepopup = false;
-        // await loadData();
-    }
-    void addEdit()
-    {
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60213);
-        if (EditEnabled == true)
-        {
-            if (_selectedItems != null)
-            {
-                NavigationManager.NavigateTo("documentprofiles/documentprofilesForm/" + _selectedItems.SessionId);
-            }
-        }
-    }
-    async Task bulkDelete()
-    {
-        try
-        {
-            var request = new DeleteDocumentProfileNoSeries(_selectedItems,applicationUser.UserID);
-            await Mediator.Send(request);
-            Blukdeletepopup = false;
-            toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await loadData();
-        }
-        catch (Exception eq)
-        {
-            Blukdeletepopup = false;
-            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
-        }
-    }
-    async Task addDelete()
-    {
-        if (_selectedItems != null)
-        {
-            var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
-            if (ProfileCount > 0)
-            {
-                toastService.ShowToast("Profile is in use.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
-                Blukdeletepopup = true;
-            }
-        }
-    }
+
     async Task ExportXlsx_Click()
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
+        {
 
-                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
-                CustomizeCell = OnCustomizeCell
-            });
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+            CustomizeCell = OnCustomizeCell
+        });
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {

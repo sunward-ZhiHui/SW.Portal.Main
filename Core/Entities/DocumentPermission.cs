@@ -48,5 +48,8 @@ namespace Core.Entities
         public bool? IsEditFolder { get; set; } = false;
         public bool? IsDeleteFolder { get; set; } = false;
         public bool? IsReserveProfileNumber { get; set; } = false;
+        public string? ModifiedBy { get; set; }
+        public string? AddedBy { get; set; }
+        public string? DocumentRoleName { get; set; }
     }
 }

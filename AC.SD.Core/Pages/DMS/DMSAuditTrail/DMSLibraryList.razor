@@ -1,0 +1,198 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+
+
+<div id="NavHeader">
+    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                        <Items>
+                            <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                            <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                        </Items>
+                    </DxMenuItem>
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_documentRole"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="FileProfileTypeId"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridDataColumn FieldName="FileProfileTypeId" Visible="false" />
+                <DxGridDataColumn FieldName="Name" Caption="Name" />
+                <DxGridDataColumn FieldName="Description" Caption="Description" />
+                <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" />
+                <DxGridDataColumn FieldName="AddedDate">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (FileProfileTypeModel)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                            {
+                                startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ModifiedByUser" Caption="Modified By" />
+                <DxGridDataColumn FieldName="ModifiedDate">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (FileProfileTypeModel)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                            {
+                                startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPages" MasterType="FileProfileType" MasterId="_selectedItems?.FileProfileTypeId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
+
+</DxPopup>
+@code {
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
+    private AddOrEditDocumentPermission? refAddOrEditDocumentPermission;
+    private List<FileProfileTypeModel> _documentRole;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private FileProfileTypeModel? _selectedItems;
+    public ApplicationUser applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true; 
+            _documentRole = await Mediator.Send(new GetHRMasterSWAuditList("FileProfileType",false));
+            PanelVisible = false;
+            if (_documentRole.Count > 0)
+            {
+                _selectedItems = _documentRole.FirstOrDefault();
+
+                Grid.SetFocusedRowIndex(0);
+                Grid.ClearSelection();
+
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void OnBackPages()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        _selectedItems = _documentRole.FirstOrDefault(f => f.FileProfileTypeId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        refAddOrEditDocumentPermission?.DisposeAsync();
+        _documentRole?.Clear();
+        SelectedDataItems = null;
+        _selectedItems = null;
+        //GC.SuppressFinalize(this);
+    }
+}

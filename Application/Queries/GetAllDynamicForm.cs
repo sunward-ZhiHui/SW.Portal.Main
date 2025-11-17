@@ -208,6 +208,16 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
+    public class GetDynamicFormDataBySessionAllId : PagedRequest, IRequest<DynamicFormData>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetDynamicFormDataBySessionAllId(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
+    
     public class GetDynamicFormDataBySessionOne : PagedRequest, IRequest<DynamicFormData>
     {
         public Guid? SesionId { get; set; }

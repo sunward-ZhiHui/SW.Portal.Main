@@ -15,7 +15,7 @@ namespace Core.Repositories.Query
       
           Task<DocumentsModel> GetAllFileProfileDocumentSessionId(long FileProfileTypeID);
         Task<IReadOnlyList<Fileprofiletype>> GetFileprofiletypeAsync();
-        Task<long?> DeleteFileProfileType(long? fileProfileTypeId);
+        Task<long?> DeleteFileProfileType(long? fileProfileTypeId,long? UserId);
         Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
         Task<DocumentTypeModel> GetAllSelectedFileAsync(DocumentSearchModel documentSearchModel);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
@@ -53,12 +53,12 @@ namespace Core.Repositories.Query
         Task<DocumentUserRoleModel> UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel);
         Task<IReadOnlyList<DocumentRole>> GetDocumentRoleList();
         Task<DocumentRole> InsertOrUpdateDocumentRole(DocumentRole documentRole);
-        Task<DocumentRole> DeleteDocumentRole(DocumentRole documentRole);
+        Task<DocumentRole> DeleteDocumentRole(DocumentRole documentRole,long? UserId);
         FileProfileTypeModel GeFileProfileTypeNameCheckValidation(string? value, long id);
         DocumentRole GetDocumentRoleNameCheckValidation(string? value, long id);
         Task<DocumentPermission> GetDocumentPermissionData(long? id);
         Task<DocumentPermission> InsertOrUpdateDocumentPermission(DocumentPermission documentPermission);
-        Task<long?> DeleteDocumentPermissions(long? Id);
+        Task<long?> DeleteDocumentPermissions(long? Id,long? UserId);
         Task<IReadOnlyList<DocumentDmsShare>> GetDocumentDMSShareList(Guid? docSessionID);
         Task<DocumentDmsShare> InsertOrUpdateDocumentDmsShare(DocumentDmsShare documentDmsShare);
         Task<DocumentDmsShare> DeleteDocumentDmsShare(DocumentDmsShare value);

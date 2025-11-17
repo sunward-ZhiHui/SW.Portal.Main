@@ -422,9 +422,118 @@
                             _dynamicFormApprovalData.Add(d);
                         });
                     }
+
+
+                    List<Guid?> DynamicFormPermissionIds = _dynamicFormApprovalDatas.Where(w => w.FormType == "DynamicFormPermission").Select(s => s.SessionId).Distinct().ToList();
+                    var DynamicFormPermissionData = await Mediator.Send(new GetDynamicFormAuditDynamicFormSectionList(DynamicFormPermissionIds, "DynamicFormPermission"));
+
+                    if (DynamicFormPermissionData != null && DynamicFormPermissionData.Count() > 0)
+                    {
+                        DynamicFormPermissionData.ForEach(d =>
+                        {
+                            d.DisplayName = d.ColumnName == "UserId" ? "User Name" : d.ColumnName;
+                            if (d.Type == "Delete")
+                            {
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.PreValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.PreValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.PreValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.PreValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.PreValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.PreValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Add")
+                            {
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long preId) && preId > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == preId)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long preIds) && preIds > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == preIds)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long preIdl) && preIdl > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == preIdl)?.Name;
+                                }
+                            }
+                            if (d.Type == "Update")
+                            {
+                                if ((d.ColumnName == "UserId" || d.ColumnName == "UserGroupId" || d.ColumnName == "LevelId") && !string.IsNullOrEmpty(d.PreValue))
+                                {
+                                    var preValueData = d.PreValue.Split('-'); // no need for null-coalescing, already checked
+                                    string preName = string.Empty;
+
+                                    // Map first part (UserID → FirstName)
+                                    if (_usersList?.Any() == true && preValueData.Length > 0 && long.TryParse(preValueData[0], out long preV) && preV > 0)
+                                    {
+                                        preName = _usersList.FirstOrDefault(f => f.UserID == preV)?.FirstName ?? string.Empty;
+                                    }
+
+                                    // Handle second part (if exists)
+                                    string secondPart = preValueData.Length > 1 ? preValueData[1] : "0";
+                                    string secondPartName = string.Empty;
+                                    if (long.TryParse(secondPart, out long secondPartV) && secondPartV > 0)
+                                    {
+                                        var getType = DynamicFormPermissionData.Where(w => w.ColumnName == "UserType").FirstOrDefault();
+                                        if (getType != null)
+                                        {
+                                            if (getType.PreValue == "UserGroup" && _userGroupsList?.Any() == true)
+                                            {
+                                                secondPartName = _userGroupsList.FirstOrDefault(f => f.UserGroupId == secondPartV)?.Name;
+                                            }
+                                            if (getType.PreValue == "Level" && _levelMasterLists?.Any() == true)
+                                            {
+                                                secondPartName = _levelMasterLists.FirstOrDefault(f => f.LevelID == secondPartV)?.Name;
+                                            }
+                                        }
+                                    }
+
+                                    // Decide what PreValue should finally hold
+                                    d.PreValue = !string.IsNullOrEmpty(secondPartName) ? $"{preName} - {secondPartName}" : preName;
+                                }
+
+                                if (d.ColumnName == "UserId" && _usersList?.Any() == true && long.TryParse(d.CurrentValue, out long curV) && curV > 0)
+                                {
+                                    d.DisplayName = "User Name";
+                                    d.CurrentValue = _usersList.FirstOrDefault(f => f.UserID == curV)?.FirstName;
+                                }
+                                if (d.ColumnName == "UserGroupId" && _userGroupsList?.Any() == true && long.TryParse(d.CurrentValue, out long curV1) && curV1 > 0)
+                                {
+                                    d.DisplayName = "User Group";
+                                    d.CurrentValue = _userGroupsList.FirstOrDefault(f => f.UserGroupId == curV1)?.Name;
+                                }
+                                if (d.ColumnName == "LevelId" && _levelMasterLists?.Any() == true && long.TryParse(d.CurrentValue, out long curV2) && curV2 > 0)
+                                {
+                                    d.DisplayName = "Level Master";
+                                    d.CurrentValue = _levelMasterLists.FirstOrDefault(f => f.LevelID == curV2)?.Name;
+                                }
+
+                            }
+                            if (d.ColumnName == "DynamicFormSectionAttributeId")
+                            {
+                                d.DisplayName = "DynamicForm Section Attribute";
+                            }
+                            d.IsFormDeleted = d.IsDeleted;
+
+                            _dynamicFormApprovalData.Add(d);
+                        });
+                    }
+
                     var listData = _dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormSectionAttributeSection" || w.FormType == "DynamicFormSectionAttrFormula" || w.FormType == "DynamicFormSectionAttrFormulaFunction") && w.DynamicFormSectionAttributeId > 0).ToList();
 
-                    listData.AddRange(_dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicForm" || w.FormType == "DynamicFormPermission" || w.FormType == "DynamicFormApproval" || w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormWorkFlowApproval") && (w.ColumnName != "DynamicFormWorkFlowId" && w.ColumnName != "DynamicFormId" && w.ColumnName != "ApprovalUserId" && w.ColumnName != "UserId" && w.ColumnName != "SelectDynamicFormSectionId")).ToList());
+                    listData.AddRange(_dynamicFormApprovalDatas.Where(w => (w.FormType == "DynamicForm"  || w.FormType == "DynamicFormApproval" || w.FormType == "DynamicFormWorkFlow" || w.FormType == "DynamicFormWorkFlowApproval") && (w.ColumnName != "DynamicFormWorkFlowId" && w.ColumnName != "DynamicFormId" && w.ColumnName != "ApprovalUserId" && w.ColumnName != "UserId" && w.ColumnName != "SelectDynamicFormSectionId")).ToList());
                     if (listData != null && listData.Count() > 0)
                     {
                         foreach (var indexData in listData)

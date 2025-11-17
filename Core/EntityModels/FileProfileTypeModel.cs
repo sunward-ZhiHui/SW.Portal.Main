@@ -49,5 +49,6 @@ namespace Core.EntityModels
         public int? IsdynamicFormExits { get; set; } = 0;
         public bool? IsDuplicateUpload { get; set; } = false;
         public bool? IsAllowWaterMark { get; set; } = false;
+        public string? DynamicFormName { get; set; }
     }
 }

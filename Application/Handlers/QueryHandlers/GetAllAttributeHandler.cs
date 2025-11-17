@@ -446,4 +446,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<object>)await _attrubutequeryRepository.GetAttributeHeaderDataSource1();
         }
     }
+    public class GetDynamicFormDataGridListHandler : IRequestHandler<GetDynamicFormDataGridList, List<AttributeHeader>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetDynamicFormDataGridListHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeHeader>> Handle(GetDynamicFormDataGridList request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetDynamicFormDataGridList(request.DynamicFormId);
+        }
+    }
+    
 }

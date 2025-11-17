@@ -373,6 +373,20 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormDataBySessionAllIdHandler : IRequestHandler<GetDynamicFormDataBySessionAllId, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataBySessionAllIdHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormData> Handle(GetDynamicFormDataBySessionAllId request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormDataBySessionAllIdAsync(request.SesionId);
+        }
+
+
+    }
     public class GetDynamicFormDataOneBySessionIdHandler : IRequestHandler<GetDynamicFormDataBySessionOne, DynamicFormData>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;

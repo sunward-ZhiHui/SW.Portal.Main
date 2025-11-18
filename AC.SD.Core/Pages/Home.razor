@@ -19,8 +19,10 @@
 @{
     RenderFragment<PortalMenuModel> DemoProduct = (info) =>
     @<div class="col-xl-4 col-lg-6 col-xs-12">
-    <a class="demo-product" href="DocFile/@info.Component" target="_blank">        
-            @* @onclick="() =>NavigateToPage(info.Name)" *@
+        <a class="demo-product"
+           href="DocFile/@(string.IsNullOrWhiteSpace(info.Component) ? "Default.pdf" : info.Component)"
+           target="_blank">
+
             <div class="flex-grow-1 text-body">
                 <h2>@info.Title</h2>
                 <span class="demo-product-info">@info.Description</span>
@@ -28,6 +30,7 @@
         </a>
     </div>;
 }
+
 
 <div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
     <h1 class="mb-4">Sunward Portal System</h1>

@@ -103,6 +103,7 @@ namespace Infrastructure.Repository.Query
                                 UniqueSessionID = m.UniqueSessionID,
                                 PermissionID = m.PermissionID,
                                 PermissionURL = m.PermissionURL,
+                                Description = m.PermissionURL,
                             };
                             menuList.Add(menu);
                         });
@@ -208,6 +209,7 @@ namespace Infrastructure.Repository.Query
                                     Icon = ch.Icon,
                                     Items = null,
                                     ScreenID = ch.ScreenID,
+                                    Description = ch.PermissionURL,
                                 };
 
                                 if (pchilds.Count > 0)

@@ -1,0 +1,113 @@
+﻿@page "/home"
+
+@using Application.Queries;
+@using Application.Response;
+@using Application.Handlers;
+
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using MediatR
+@using Microsoft.AspNetCore.Components;
+@inject IMediator Mediator
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService;
+
+@inject DemoConfiguration Configuration;
+@inject DemoThemeService Themes;
+@inject NavigationManager NavigationManager;
+
+@{
+    RenderFragment<PortalMenuModel> DemoProduct = (info) =>
+    @<div class="col-xl-4 col-lg-6 col-xs-12">
+    <a class="demo-product" href="DocFile/@info.Component" target="_blank">        
+            @* @onclick="() =>NavigateToPage(info.Name)" *@
+            <div class="flex-grow-1 text-body">
+                <h2>@info.Title</h2>
+                <span class="demo-product-info">@info.Description</span>
+            </div>
+        </a>
+    </div>;
+}
+
+<div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
+    <h1 class="mb-4">Sunward Portal System</h1>
+    <p>The <a href="https://portal.sunwardpharma.com:8423/" target="_blank"> Sunward Portal System</a> is developed to crt Starting with the manufacturing of pharmaceutical products of dosage forms such as liquids (for ingestion and external administration), creams, plain and coated tablets, and capsules, we are today one of the largest generic pharmaceutical manufacturers in Singapore.</p>
+    <p>Should you have any questions about the software or any support, please email <a href="mailto:support@crt-insights.com" tabindex="-1">support@crt-insights.com</a>. We will be happy to follow-up.</p>   
+
+    <div class="row mb-3">
+        @if (portalMenuModel != null)
+        {
+            @foreach (var info in portalMenuModel)
+            {
+                @DemoProduct.Invoke(info)
+            }
+        }
+    </div>
+</div>
+
+@* <h2 class="mb-4">Getting Started</h2>
+
+<p>
+    New to System? First time using this software? Review to the following resources and hit-the-ground running…
+</p>
+
+<ul>
+    <li><a href="_content/Novato/files/Initial_Setup_Document.pdf" target="_blank">Set up your Environment</a></li>
+
+</ul>
+
+<h2 class="my-4">Helpful Resources</h2>
+
+<p>
+    To gain more insight into the system, consult the following documentation.
+</p>
+
+<ul>
+    <li><a href="_content/Novato/files/RRDevRequirement.pdf" target="_blank">System Requirement Documents</a></li>
+    <li><a href="_content/Novato/files/RR_Management_System_Training.pdf" target="_blank">Training Slides</a></li>
+    <li><a href="_content/Novato/files/RR_UAT_Document.pdf" target="_blank">Test Scripts</a></li>
+
+</ul> *@
+
+@* <h2 class="my-4">Troubleshooting</h2>
+
+<p>
+    Need help or require more information? Explore the <a href="https://docs.devexpress.com/Blazor/401608/troubleshooting" target="_blank">Troubleshooting</a> help topic or submit your support inquiries via the <a href="https://supportcenter.devexpress.com/" target="_blank">DevExpress Support Center</a> for assistance.
+</p>
+ *@
+@code {
+    public List<PortalMenuModel> portalMenuModel { get; set; }
+
+ 
+
+    protected override async Task OnInitializedAsync()
+    {
+        portalMenuModel = new List<PortalMenuModel>();
+        var applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        // Do NOT redeclare here
+        var result = await Mediator.Send(new GetAllApplicationPermissionQuery(applicationUser.UserID));
+
+        var hideMenus = new List<string>
+        {
+            null,
+            "My Day",
+            "Notify JD",
+            "Notify PA"
+        };
+
+        // Assign filtered result to the class-level variable
+        portalMenuModel = result
+            .Where(x => !hideMenus.Contains(x.Title))
+            .ToList();
+
+        await base.OnInitializedAsync();
+    }
+
+
+
+    private void NavigateToPage(string url)
+    {
+        NavigationManager.NavigateTo(url);
+    }
+}

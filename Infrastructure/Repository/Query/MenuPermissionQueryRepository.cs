@@ -104,6 +104,7 @@ namespace Infrastructure.Repository.Query
                                 PermissionID = m.PermissionID,
                                 PermissionURL = m.PermissionURL,
                                 IsPermissionForm= m.IsPermissionForm,
+                                Description = m.PermissionURL,
                             };
                             menuList.Add(menu);
                         });
@@ -209,6 +210,7 @@ namespace Infrastructure.Repository.Query
                                     Icon = ch.Icon,
                                     Items = null,
                                     ScreenID = ch.ScreenID,
+                                    Description = ch.PermissionURL,
                                 };
 
                                 if (pchilds.Count > 0)

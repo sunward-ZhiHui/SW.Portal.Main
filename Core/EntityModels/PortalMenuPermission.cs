@@ -29,6 +29,7 @@ namespace Core.EntityModels
         public Guid UniqueSessionID { get; set; }
         public string? PermissionURL { get; set; }
         public bool? IsPermissionForm { get; set; }
+        public string? Description { get; set; }
     }
     public class BreadcrumbModel
     {

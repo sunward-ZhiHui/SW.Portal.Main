@@ -153,6 +153,12 @@
 
             @*  <DxButton Click="@ToggleEmailSwitcherPanel" IconCssClass="fa fa-envelope"></DxButton> *@
 
+            <a href="/home" title="Info"
+               class="fa fa-info-circle"
+               style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white; margin-top: -2px;">
+            </a>
+
+
             <span class="fa fa-envelope" @onclick="() => ToggleEmailSwitcherPanel()" title="Email Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="emailnotifcationcount">@_emailNotificationCount</span>
             </span>

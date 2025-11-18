@@ -27,7 +27,7 @@
 </div> *@
 
 <div class="items">
-   @*  <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default" AllowTabReorder="false" ScrollMode="TabsScrollMode.Auto" ActiveTabIndex="@ActiveTabIndex" TabClosing="TabClosing">
+    @*  <DxTabs CssClass="w-100" RenderMode="TabsRenderMode.Default" AllowTabReorder="false" ScrollMode="TabsScrollMode.Auto" ActiveTabIndex="@ActiveTabIndex" TabClosing="TabClosing">
         <DxTabPage TabIconCssClass="tabs-icon-home tabs-icon" Click="@OnHomeClick" />
 
         @foreach (var item in breadcrumbs)
@@ -76,7 +76,7 @@
     </BodyContentTemplate>
     <FooterContentTemplate>
         <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Dashboard" Click="@(() => goDashBoard())" />
-        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() =>PopupVisible=false)" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => PopupVisible = false)" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
@@ -103,7 +103,6 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (applicationUser == null)
         {
-
             var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);
 
 
@@ -274,36 +273,38 @@
             StateHasChanged();
             return;
         }
-
-        var menulisting = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
-        if (menulisting is null || !menulisting.Any())
-            return;
-
-        var validMenuItems = menulisting.Where(f => !string.IsNullOrWhiteSpace(f.Name)).ToList();
-
-        PortalMenuModel pageItem = validMenuItems
-            .FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
-
-        if (pageItem == null && Guid.TryParse(currentPageName, out var currentGuid))
+        if (applicationUser != null)
         {
-            pageItem = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
-            if (pageItem != null)
+            var menulisting = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+            if (menulisting is null || !menulisting.Any())
+                return;
+
+            var validMenuItems = menulisting.Where(f => !string.IsNullOrWhiteSpace(f.Name)).ToList();
+
+            PortalMenuModel pageItem = validMenuItems
+                .FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
+
+            if (pageItem == null && Guid.TryParse(currentPageName, out var currentGuid))
             {
-                selectedItem = $"{pageItem.Name}/{pageItem.UniqueSessionID}";
+                pageItem = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
+                if (pageItem != null)
+                {
+                    selectedItem = $"{pageItem.Name}/{pageItem.UniqueSessionID}";
+                }
             }
+            else if (pageItem != null)
+            {
+                selectedItem = pageItem.Name;
+            }
+
+            if (pageItem == null)
+                return;
+
+            string url = selectedItem;
+            AddBreadcrumbIfNotExists(pageItem, url, selectedItem);
+
+            ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
         }
-        else if (pageItem != null)
-        {
-            selectedItem = pageItem.Name;
-        }
-
-        if (pageItem == null)
-            return;
-
-        string url = selectedItem;
-        AddBreadcrumbIfNotExists(pageItem, url, selectedItem);
-
-        ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
         StateHasChanged();
     }
 
@@ -381,7 +382,7 @@
             {
                 var validMenuItems = menulisting.Where(f => !string.IsNullOrEmpty(f.Name)).ToList();
                 var currentPage = validMenuItems.FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
-                               
+
 
                 //var currentPage = menulisting.FirstOrDefault(f => f.Name.Equals(currentPageName, StringComparison.OrdinalIgnoreCase));
                 if (currentPage != null)
@@ -411,7 +412,7 @@
 
                     ActiveTabIndex = breadcrumbs.FindIndex(i => i.Name == selectedItem) + 1;
                     StateHasChanged();
-                }  
+                }
                 else if (Guid.TryParse(currentPageName, out var currentGuid))
                 {
                     var sessionlst = menulisting.FirstOrDefault(f => f.UniqueSessionID == currentGuid);
@@ -449,7 +450,7 @@
     }
 
 
-   
+
 
     async Task TabClosing(TabCloseEventArgs args)
     {

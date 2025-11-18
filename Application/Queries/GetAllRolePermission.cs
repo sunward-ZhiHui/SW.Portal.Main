@@ -24,10 +24,12 @@ namespace Application.Queries
     public class DeleteRolePermissionQuery : ApplicationRole, IRequest<long>
     {
         public long ID { get; set; }
+        public long? UserId { get; set; }
 
-        public DeleteRolePermissionQuery(long Id)
+        public DeleteRolePermissionQuery(long Id, long? userId)
         {
             this.ID = Id;
+            UserId = userId;
         }
     }
     public class GetAllRolePermissionSelectedLst : PagedRequest, IRequest<List<ApplicationPermission>>

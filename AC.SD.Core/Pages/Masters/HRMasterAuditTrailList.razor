@@ -254,7 +254,8 @@
         try
         {
             using var wb = new XLWorkbook();
-            var ws = wb.Worksheets.Add(MasterType);
+            string output = MasterType[..Math.Min(20, MasterType.Length)];
+            var ws = wb.Worksheets.Add(output);
 
             var masterHeaders = new[] { "No", "Name", "Form Type", "Audit User", "Audit Date" };
             for (int c = 0; c < masterHeaders.Length; c++)
@@ -305,6 +306,7 @@
                     int idx = 1;
                     foreach (var d in relatedDetails)
                     {
+                        d.IsDeleted = d.FormType == "Removed" ? true : d.IsDeleted;
                         d.RowIndex1 = idx;
                         d.HeaderDisplayName = AddSpacesToPascalCase(d.ColumnName);
                         ws.Cell(currentRow, 1).Value = d.RowIndex1;

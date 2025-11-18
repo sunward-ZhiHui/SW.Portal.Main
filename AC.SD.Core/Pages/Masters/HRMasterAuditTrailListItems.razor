@@ -107,6 +107,7 @@
                     int i = 1;
                     dynamicFormApprovalData.ForEach(f =>
                     {
+                        f.IsDeleted = f.FormType == "Removed" ? true : f.IsDeleted;
                         f.RowIndex1 = i++;
                         f.DisplayName = AddSpacesToPascalCase(f.ColumnName);
 

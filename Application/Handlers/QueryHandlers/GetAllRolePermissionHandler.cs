@@ -65,7 +65,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteRolePermissionQuery request, CancellationToken cancellationToken)
         {
-            var req = await _rolepermissionQueryRepository.Delete(request.ID);
+            var req = await _rolepermissionQueryRepository.Delete(request.ID,request.UserId);
             return req;
         }
     }

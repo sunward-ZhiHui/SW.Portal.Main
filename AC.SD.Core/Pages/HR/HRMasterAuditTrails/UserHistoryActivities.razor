@@ -1,0 +1,138 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_plants"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="LoginSessionHistoryId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+        <Columns>
+            <DxGridDataColumn FieldName="LoginSessionHistoryId" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="UserName" Caption="User" MinWidth="80" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="80" />
+            <DxGridDataColumn FieldName="LoginTime" Caption="Login Time" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (LoginSessionHistory)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.LoginTime)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="LogoutType" Caption="Type" MinWidth="80" />
+            <DxGridDataColumn FieldName="LastActivityTime" Caption="LastActivity Time" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (LoginSessionHistory)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.LastActivityTime)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="LogoutTime" Caption="Logout Time" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (LoginSessionHistory)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.LogoutTime)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsActive" Caption="Is Active" MinWidth="80" />
+            <DxGridDataColumn FieldName="IpAddress" Caption="Ip" MinWidth="80" />
+            <DxGridDataColumn FieldName="UserAgent" Caption="Agent" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (LoginSessionHistory)context.DataItem;
+                    }
+                    @GetBrowserName(item?.UserAgent)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="UserName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool AuditLogPopUp { get; set; } = false;
+    bool PanelVisible { get; set; }
+    private List<LoginSessionHistory> _plants;
+    IGrid Grid { get; set; }
+    private LoginSessionHistory? _selectedItems;
+
+    public ApplicationUser applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _plants = await Mediator.Send(new GetAllLoginSessionHistoryQuery());
+        PanelVisible = false;
+        if (_plants.Count > 0)
+        {
+            _selectedItems = _plants.FirstOrDefault();
+        }
+        StateHasChanged();
+
+    }
+    private string GetBrowserName(string? ua)
+    {
+        if (string.IsNullOrEmpty(ua)) return "Unknown";
+        if (ua.Contains("Edg")) return "Microsoft Edge";
+        if (ua.Contains("Chrome") && !ua.Contains("Edg")) return "Chrome";
+        if (ua.Contains("Firefox")) return "Firefox";
+        if (ua.Contains("Safari") && !ua.Contains("Chrome")) return "Safari";
+        if (ua.Contains("OPR") || ua.Contains("Opera")) return "Opera";
+        return "Unknown";
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "LoginSessionHistoryId");
+        _selectedItems = _plants.FirstOrDefault(f => f.LoginSessionHistoryId == (long?)UniqueId);
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_plants != null)
+        {
+            _plants.Clear();
+            _plants = null;
+        }
+        _selectedItems = null;
+    }
+}

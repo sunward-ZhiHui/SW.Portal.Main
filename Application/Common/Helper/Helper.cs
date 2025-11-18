@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Helper
 {
-    public  class Helper
+    public class Helper
     {
         public static string FormatDateTime(DateTime? dateTime)
         {
             // Define your desired date format here
-            return dateTime?.ToString("dd-MMM-yyyy hh.mm tt");
+            if (dateTime != null && dateTime != DateTime.MinValue)
+
+            {
+                return dateTime?.ToString("dd-MMM-yyyy hh.mm tt");
+            }
+            return string.Empty;
         }
         public static string FormatNewDateTime(DateTime? dateTime)
         {

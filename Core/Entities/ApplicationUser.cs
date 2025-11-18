@@ -39,5 +39,7 @@ namespace Core.Entities
         public string? DepartmentName { get; set; }
         [NotMapped]
         public string? ModifiedByUser { get; set; }
+        [NotMapped]
+        public Guid? SessionLogin {  get; set; }
     }
 }

@@ -20,5 +20,9 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<INPCalendarPivotModel>> GetSimulationAddhocV5(DateRangeModel dateRangeModel);
         Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculation(List<SimulationTicketCalculation> value, SimulationTicketCalculationChild simulationTicketCalculationChild);
         Task<IReadOnlyList<SimulationTicketCalculation>> GetAllSimulationTicketCalculation();
+        Task<IReadOnlyList<SimulationTicketCalculation>> GetSimulationTicketCalculationVesionNo();
+        SimulationTicketCalculation GetSimulationTicketCalculationVersionNoExitsCheckValidation(string? VesionNo);
+        Task<IReadOnlyList<SimulationTicketCalculation>> GetSimulationTicketCalculationNotChangesVesionNo(string? VesionNo);
+        Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculationNoVersionChanges(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculation?  simulationTicketCalculation);
     }
 }

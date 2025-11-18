@@ -91,6 +91,10 @@
         if (applicationUser != null)
         {
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+            if (portalMenuModel?.Any() == true)
+            {
+                portalMenuModel = portalMenuModel.Where(w => w.IsPermissionForm != true).ToList();
+            }
         }
 
         UpdateSelection(); 

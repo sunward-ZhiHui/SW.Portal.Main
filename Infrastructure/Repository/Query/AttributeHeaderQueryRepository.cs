@@ -122,6 +122,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<AttributeHeader>> GetDynamicFormDataGridList(long? ID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", ID);
+
+                var query = "select t4.*,t5.Name as DynamicFormName from DynamicFormSectionAttribute t1 \r\nJOIN DynamicFormSection t2 ON t2.DynamicFormSectionID=t1.DynamicFormSectionID\r\nJOIN DynamicForm t3 ON t3.ID=t2.DynamicFormID\r\nJOIN AttributeHeader t4 ON t4.AttributeID=t1.AttributeID\r\nJOIN DynamicForm t5 ON t5.ID=t4.DynamicFormID\r\nwhere (t2.IsDeleted is null OR t2.IsDeleted=0)AND (t3.IsDeleted is null OR t3.IsDeleted=0) AND t3.ID=@ID \r\nAND (t4.IsDeleted=0 OR t4.IsDeleted IS NULL) AND t4.ControlTypeID=2712";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<AttributeHeader>> GetAllAsync(long ID)
         {
             try

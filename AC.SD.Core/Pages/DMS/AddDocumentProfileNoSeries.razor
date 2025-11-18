@@ -64,7 +64,7 @@
                                                 Enabled="@isEnabled"
                                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                 Value="@Data.CompanyId"
-                                                ValueExpression="@(() => Data.CompanyId )"
+                                                ValueExpression="@(() => Data.CompanyId)"
                                                 ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
                                                 ShowValidationIcon="true">
                                         <Columns>
@@ -136,7 +136,7 @@
                                     <DxTextBox @bind-Text="@Data.GroupAbbreviation" Enabled="@isEnabled" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
                                     <ValidationMessage For="@(() => Data.GroupAbbreviation)" />
                                 </DxFormLayoutItem>
-                               @*   <DxFormLayoutItem Caption="Category" ColSpanMd="6">
+                                @*   <DxFormLayoutItem Caption="Category" ColSpanMd="6">
                                      <DxComboBox Data="@_categoriesItems"
                                                  NullText="Select Category..."
                                                  SearchMode="ListSearchMode.AutoSearch"
@@ -173,7 +173,7 @@
                                 <DxFormLayoutItem Caption="No Series with Organisation Info?" ColSpanMd="6">
                                     <DxRadioGroup Items="@RadioButtonOptions"
                                                   Value="@Data.IsNoSerieswithOrganisationinfoValue"
-                                                  ValueExpression="@(() => Data.IsNoSerieswithOrganisationinfoValue )"
+                                                  ValueExpression="@(() => Data.IsNoSerieswithOrganisationinfoValue)"
                                                   ValueChanged="@((string value) => OnNoSerieswithOrganisationInfoValueChanged(value))"
                                                   Layout="RadioGroupLayout.Horizontal"
                                                   Enabled="@isEnabled"
@@ -196,7 +196,7 @@
                                 <DxFormLayoutItem Caption="Profile Abbreviation" ColSpanMd="6">
                                     <DxRadioGroup Items="@RadioButtonOptions"
                                                   Value="@Data.AbbreviationRequiredValue"
-                                                  ValueExpression="@(() => Data.AbbreviationRequiredValue )"
+                                                  ValueExpression="@(() => Data.AbbreviationRequiredValue)"
                                                   ValueChanged="@((string value) => OnProfileAbbreviationValueChanged(value))"
                                                   Layout="RadioGroupLayout.Horizontal"
                                                   Enabled="@isEnabled"
@@ -205,13 +205,13 @@
                                 <DxFormLayoutItem Caption="Group Abbreviation" ColSpanMd="6">
                                     <DxRadioGroup Items="@RadioButtonOptions"
                                                   Value="@Data.IsGroupAbbreviationValue"
-                                                  ValueExpression="@(() => Data.IsGroupAbbreviationValue )"
+                                                  ValueExpression="@(() => Data.IsGroupAbbreviationValue)"
                                                   ValueChanged="@((string value) => OnGroupAbbreviationValueChanged(value))"
                                                   Layout="RadioGroupLayout.Horizontal"
                                                   Enabled="@isEnabled"
                                                   CssClass="dx-demo-radio-group" />
                                 </DxFormLayoutItem>
-                                 @* <DxFormLayoutItem Caption="Category Abbreviation" ColSpanMd="6">
+                                @* <DxFormLayoutItem Caption="Category Abbreviation" ColSpanMd="6">
                                      <DxRadioGroup Items="@RadioButtonOptions"
                                                    Value="@Data.IsCategoryAbbreviationValue"
                                                    ValueExpression="@(() => Data.IsCategoryAbbreviationValue )"
@@ -265,7 +265,7 @@
                                 <DxFormLayoutItem Caption="Starting With Year" ColSpanMd="6">
                                     <DxRadioGroup Items="@RadioButtonOptions"
                                                   Value="@Data.StartWithYearValue"
-                                                  ValueExpression="@(() => Data.StartWithYearValue )"
+                                                  ValueExpression="@(() => Data.StartWithYearValue)"
                                                   ValueChanged="@((string value) => OnStartWithYearValueChanged(value))"
                                                   Layout="RadioGroupLayout.Horizontal"
                                                   Enabled="@isEnabled"
@@ -274,7 +274,7 @@
                                 <DxFormLayoutItem Caption="Translation Requires?" ColSpanMd="6">
                                     <DxRadioGroup Items="@RadioButtonOptions"
                                                   Value="@Data.TranslationRequiredValue"
-                                                  ValueExpression="@(() => Data.TranslationRequiredValue )"
+                                                  ValueExpression="@(() => Data.TranslationRequiredValue)"
                                                   ValueChanged="@((string value) => OnTranslationRequiredValueChanged(value))"
                                                   Layout="RadioGroupLayout.Horizontal"
                                                   Enabled="@isEnabled"
@@ -555,6 +555,12 @@
         Data.EstablishNoSeriesCodeIDs = new List<long?>() { 0 };
         Data.NoOfDigit = 1;
         Data.StartingNo = "1"; Data.IsSampleDocNoEnabled = false;
+        Data.CompanyName = null;
+        Data.DepartmentName = null;
+        Data.ProfileType = null;
+        Data.GroupName = null;
+        Data.CategoryName = null;Data.StatusCode = null;
+        Data.AddedByUser = _applicationUser.UserName; Data.ModifiedByUser = _applicationUser.UserName;
         StateHasChanged();
     }
     async Task SubmitFormExternally()
@@ -568,6 +574,13 @@
                     Data.IsSampleDocNoEnabled = isEnabled;
                     generateNumberSeries();
                 }
+
+                Data.CompanyName = _plantItems?.FirstOrDefault(f => f.PlantID == Data.CompanyId)?.PlantCode;
+                Data.DepartmentName = _departmentAllItems?.FirstOrDefault(f => f.DepartmentId == Data.DeparmentId)?.DepartmentName;
+                Data.ProfileType = _ProfileTypeList?.FirstOrDefault(f => f.CodeId == Data.ProfileTypeId)?.CodeValue;
+                Data.GroupName = _groupsItems?.FirstOrDefault(f => f.ApplicationMasterDetailID == Data.GroupId)?.Value;
+                Data.CategoryName = _categoriesItems?.FirstOrDefault(f => f.ApplicationMasterDetailID == Data.CategoryId)?.Value;
+                Data.StatusCode = _StatusCodeList.FirstOrDefault(f => f.CodeId == Data.StatusCodeID)?.CodeValue;
                 long profileId = Data.ProfileID;
                 var result = await Mediator.Send(new InsertOrUpdateDocumentProfileNoSeries(Data));
                 if (profileId > 0)

@@ -74,7 +74,7 @@
          ShowCloseButton="true"
          MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList MasterType="Plant" MasterId="_selectedItems?.PlantID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPage" MasterType="Plant" MasterId="_selectedItems?.PlantID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
     </BodyContentTemplate>
 
 </DxPopup>
@@ -92,6 +92,11 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
+    }
+    void OnBackPage()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
     }
     void viewAuditLog(bool isdeleted)
     {

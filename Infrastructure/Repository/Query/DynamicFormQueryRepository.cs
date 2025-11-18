@@ -3231,8 +3231,12 @@ t1.DynamicFormSectionID,
                         {
                             await InsertAuditTrail(dynamicFormData, preData);
                         }
-                        //await CreateDynamicTable1(dynamicFormData, insert);
-                        return dynamicFormData;
+                        else
+                        {
+                            await InsertAuditTrail(dynamicFormData, preData);
+                        }
+                            //await CreateDynamicTable1(dynamicFormData, insert);
+                            return dynamicFormData;
                     }
 
 
@@ -4028,10 +4032,14 @@ t1.DynamicFormSectionID,
 
                         Guid? SessionId = Guid.NewGuid();
 
-                        dynamic PrevDatajsonObj = new object();
-                        if (PrevData.DynamicFormItem != null && IsValidJson(PrevData.DynamicFormItem))
+                        dynamic PrevDatajsonObj = new object(); dynamic PrevDatajsonObjs = new JObject();
+                        if (PrevData != null)
                         {
-                            PrevDatajsonObj = JsonConvert.DeserializeObject(PrevData.DynamicFormItem);
+                            if (PrevData.DynamicFormItem != null && IsValidJson(PrevData.DynamicFormItem))
+                            {
+                                PrevDatajsonObjs = JsonConvert.DeserializeObject<JObject>(PrevData.DynamicFormItem);
+                                PrevDatajsonObj = JsonConvert.DeserializeObject(PrevData.DynamicFormItem);
+                            }
                         }
                         dynamic CurrentDatajsonObj = new object();
                         if (CurrentData.DynamicFormItem != null && IsValidJson(CurrentData.DynamicFormItem))
@@ -4059,21 +4067,27 @@ t1.DynamicFormSectionID,
                                     }
                                     var spliData = itemKey.Split("_");
                                     string? PreValueSet = null;
-                                    var GetKeyName = PrevDatajsonObj?.ContainsKey(itemKey);
-                                    if (GetKeyName == true)
+                                    if (PrevDatajsonObjs is JObject obj && !obj.HasValues)
                                     {
-                                        var itemValueData = PrevDatajsonObj[itemKey];
-                                        if (itemValueData is JArray)
+                                    }
+                                    else
+                                    { 
+                                        var GetKeyName = PrevDatajsonObj?.ContainsKey(itemKey);
+                                        if (GetKeyName == true)
                                         {
-                                            List<long?> listDatas = itemValueData.ToObject<List<long?>>();
-                                            if (listDatas != null && listDatas.Count() > 0)
+                                            var itemValueData = PrevDatajsonObj[itemKey];
+                                            if (itemValueData is JArray)
                                             {
-                                                PreValueSet = string.Join(",", listDatas);
+                                                List<long?> listDatas = itemValueData.ToObject<List<long?>>();
+                                                if (listDatas != null && listDatas.Count() > 0)
+                                                {
+                                                    PreValueSet = string.Join(",", listDatas);
+                                                }
                                             }
-                                        }
-                                        else
-                                        {
-                                            PreValueSet = (string)PrevDatajsonObj[itemKey];
+                                            else
+                                            {
+                                                PreValueSet = (string)PrevDatajsonObj[itemKey];
+                                            }
                                         }
                                     }
                                     if (itemValue != PreValueSet)
@@ -4083,9 +4097,9 @@ t1.DynamicFormSectionID,
                                         parameters.Add("DynamicFormDataId", CurrentData.DynamicFormDataId);
                                         parameters.Add("AuditUserId", CurrentData.ModifiedByUserID);
                                         parameters.Add("AuditDateTime", DateTime.Now, DbType.DateTime);
-                                        parameters.Add("PreUserID", PrevData.ModifiedByUserID);
-                                        parameters.Add("PreUpdateDate", PrevData.ModifiedDate, DbType.DateTime);
-                                        parameters.Add("PrevData", PrevData.DynamicFormItem, DbType.String);
+                                        parameters.Add("PreUserID", PrevData?.ModifiedByUserID);
+                                        parameters.Add("PreUpdateDate", PrevData?.ModifiedDate, DbType.DateTime);
+                                        parameters.Add("PrevData", PrevData?.DynamicFormItem, DbType.String);
                                         parameters.Add("CurrentData", CurrentData.DynamicFormItem, DbType.String);
                                         parameters.Add("SessionId", SessionId, DbType.Guid);
                                         parameters.Add("CurrentValueId", itemValue, DbType.String);
@@ -4201,6 +4215,59 @@ t1.DynamicFormSectionID,
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
                     "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormData = await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                    if (dynamicFormData != null)
+                    {
+                        parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                        var query1 = "select t1.*,(case when t1.LockedUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName,(case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as LockedUser from DynamicFormDataSectionLock t1\r\nJOIN Employee t2 ON t2.UserID=t1.LockedUserID Where t1.DynamicFormDataId=@DynamicFormDataId;";
+                        dynamicFormData.DynamicFormDataSectionLock = (await connection.QueryAsync<DynamicFormDataSectionLock>(query1, parameters)).ToList();
+                        if (dynamicFormData.SessionId != null)
+                        {
+                            var _activityEmailTopics = await GetActivityEmailTopicList("'" + dynamicFormData.SessionId.ToString() + "'");
+                            var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == dynamicFormData.SessionId);
+                            if (_activityEmailTopicsOne != null)
+                            {
+                                dynamicFormData.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
+                                if (_activityEmailTopicsOne.EmailTopicSessionId != null)
+                                {
+                                    if (_activityEmailTopicsOne.IsDraft == false)
+                                    {
+                                        dynamicFormData.IsDraft = false;
+                                    }
+                                    if (_activityEmailTopicsOne.IsDraft == true)
+                                    {
+                                        dynamicFormData.IsDraft = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                return dynamicFormData;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormData> GetDynamicFormDataBySessionAllIdAsync(Guid? SessionId)
+        {
+            try
+            {
+                DynamicFormData dynamicFormData = new DynamicFormData();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.DynamicFormDataID,\r\nt1.DynamicFormID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.DynamicFormItem,\r\nt1.IsSendApproval,\r\nt1.FileProfileSessionID,\r\nt1.ProfileID,\r\nt1.ProfileNo,\r\nt1.DynamicFormDataGridID,\r\nt1.IsDeleted,\r\nt1.SortOrderByNo,\r\nt1.GridSortOrderByNo,\r\nt1.DynamicFormSectionGridAttributeID,\r\nt1.IsLocked,\r\nt1.LockedUserID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) ELSE null END) as AddedBy,(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) ELSE null END) as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
+                    "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId AND t7.IsLatest=1 AND (t7.IsDelete IS NULL OR t7.IsDelete=0)) as isDocuments\r\n" +
+                    "from DynamicFormData t1 \r\n" +
+                    "JOIN Employee t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN Employee t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                    "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
+                    "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE  t1.SessionId=@SessionId";
                 using (var connection = CreateConnection())
                 {
                     dynamicFormData = await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
@@ -6547,7 +6614,7 @@ t1.DynamicFormSectionID,
                     foreach (var index in dynamicFormSectionSecurities)
                     {
                         var UniqueSessionId = Guid.NewGuid();
-                        await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.DynamicFormId.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "DynamicFormId", UniqueSessionId);
+                       // await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.DynamicFormId.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "DynamicFormId", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.Type != null ? index.Type.ToString() : null, null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "Type", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.UserId > 0 ? index.UserId.ToString() : null, null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "UserId", UniqueSessionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormPermission", index.IsAdd.ToString(), null, res?.DynamicFormId, index.DynamicFormPermissionId, sesId, UserId, DateTime.Now, true, "IsAddPermission", UniqueSessionId);
@@ -11271,7 +11338,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "Select Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
+                var query = "Select Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.ProfileNo,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
                     "(select TOP(1) t7.AuditDateTime from DynamicFormDataAudit t7 where t7.Sessionid=t1.Sessionid order by t7.DynamicFormDataAuditId asc)as AuditDateTime,\r\n" +
                     "(select TOP(1) t6.PreUpdateDate from DynamicFormDataAudit t6 where t6.Sessionid=t1.Sessionid order by t6.DynamicFormDataAuditId asc)as PreUpdateDate,\r\n" +
                     "(select TOP(1) t4.PreUserID from DynamicFormDataAudit t4 where t4.Sessionid=t1.Sessionid order by t4.DynamicFormDataAuditId asc)as PreUserID,\r\n" +
@@ -11279,7 +11346,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                     "(select TOP(1) t3.DynamicFormDataId from DynamicFormDataAudit t3 where t3.Sessionid=t1.Sessionid order by t3.DynamicFormDataAuditId asc)as DynamicFormDataId,\r\n" +
                     "(select TOP(1) t2.DynamicFormDataAuditId from DynamicFormDataAudit t2 where t2.Sessionid=t1.Sessionid order by t2.DynamicFormDataAuditId asc)as DynamicFormDataAuditId from DynamicFormDataAudit t1  group by t1.Sessionid)tt1\r\n" +
                     "JOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID\n\r" +
-                    "JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
+                    "LEFT JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
                     "JOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId where tt2.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
@@ -11302,7 +11369,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 if (SessionId != null && SessionId.Count > 0)
                 {
                     string? SessionIds = string.Join(',', SessionId.Select(i => $"'{i}'"));
-                    var query = "Select tt2.SessionId as DynamicFormDataSessionId,Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
+                    var query = "Select tt2.SessionId as DynamicFormDataSessionId,Row_Number() Over (Order By tt1.DynamicFormDataAuditId desc) As RowNum,tt1.*,tt5.SessionID as DynamicFormSessionID,tt2.ProfileNo,tt2.DynamicFormID,tt3.UserName as PreUser,tt4.UserName as AuditUser from (select t1.Sessionid,\r\n" +
                     "(select TOP(1) t7.AuditDateTime from DynamicFormDataAudit t7 where t7.Sessionid=t1.Sessionid order by t7.DynamicFormDataAuditId asc)as AuditDateTime,\r\n" +
                     "(select TOP(1) t6.PreUpdateDate from DynamicFormDataAudit t6 where t6.Sessionid=t1.Sessionid order by t6.DynamicFormDataAuditId asc)as PreUpdateDate,\r\n" +
                     "(select TOP(1) t4.PreUserID from DynamicFormDataAudit t4 where t4.Sessionid=t1.Sessionid order by t4.DynamicFormDataAuditId asc)as PreUserID,\r\n" +
@@ -11310,7 +11377,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                     "(select TOP(1) t3.DynamicFormDataId from DynamicFormDataAudit t3 where t3.Sessionid=t1.Sessionid order by t3.DynamicFormDataAuditId asc)as DynamicFormDataId,\r\n" +
                     "(select TOP(1) t2.DynamicFormDataAuditId from DynamicFormDataAudit t2 where t2.Sessionid=t1.Sessionid order by t2.DynamicFormDataAuditId asc)as DynamicFormDataAuditId from DynamicFormDataAudit t1  group by t1.Sessionid)tt1\r\n" +
                     "JOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID\n\r" +
-                    "JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
+                    "LEFT JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
                     "JOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId where tt2.SessionId in(" + SessionIds + ")";
 
                     using (var connection = CreateConnection())
@@ -11333,8 +11400,9 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 var parameters = new DynamicParameters();
                 parameters.Add("AuditUserId", dynamicFormDataAudit.AuditUserId);
                 parameters.Add("DynamicFormId", dynamicFormDataAudit.DynamicFormId);
-                parameters.Add("AuditDateTime", dynamicFormDataAudit.AuditDateTime);
-                var filterQuery = ""; var AuditfilterQuery = "";
+                parameters.Add("AuditDateTime", dynamicFormDataAudit.AuditDateTime,DbType.DateTime);
+                parameters.Add("DynamicFormDataGridID", dynamicFormDataAudit.DynamicFormDataGridID);
+                var filterQuery = ""; var AuditfilterQuery = ""; var SubfilterQuery = "";
                 if (dynamicFormDataAudit.AuditUserId != null)
                 {
                     AuditfilterQuery = "\rAND t1.AuditUserID=@AuditUserId\r";
@@ -11344,12 +11412,16 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                     var to = dynamicFormDataAudit.AuditDateTime.Value.ToString("yyyy-MM-dd");
                     filterQuery += "\rAND CAST(t1.AuditDateTime AS Date)='" + to + "'\r";
                 }
+                if (dynamicFormDataAudit.DynamicFormDataGridID >0)
+                {
+                    SubfilterQuery += "\rAND tt2.DynamicFormDataGridID=@DynamicFormDataGridID\r";
+                }
                 //var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where t1.AuditUserID=@AuditUserId " + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId AND (tt2.IsDeleted is null OR tt2.IsDeleted=0)\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
-                var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where 1=1" + AuditfilterQuery + "\r" + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId \r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+                var query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where 1=1" + AuditfilterQuery + "\r" + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId "+ SubfilterQuery + "\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID AND (tt5.IsDeleted is null OR tt5.IsDeleted=0) AND tt5.ID=@DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID=ttt2.DynamicFormDataAuditID\r\nLEFT JOIN ApplicationUser tt6 ON tt6.UserID=tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
 
                 if (dynamicFormDataAudit.IsDeleted == true)
                 {
-                    query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where 1=1" + AuditfilterQuery + "\r" + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID = tt1.DynamicFormDataId AND tt2.IsDeleted = 1\r\nJOIN DynamicForm tt5 ON tt5.ID = tt2.DynamicFormID AND(tt5.IsDeleted is null OR tt5.IsDeleted = 0) AND tt5.ID = @DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID = tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID = ttt2.DynamicFormDataAuditID\r\nJOIN ApplicationUser tt6 ON tt6.UserID = tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
+                    query = "Select Row_Number() Over (Order By tt3.DynamicFormDataAuditId desc) As RowNum,ttt2.*,tt6.UserName as PreUser,tt3.AuditDateTime,tt3.PreUpdateDate from(Select tt1.*,\r\ntt2.IsDeleted,tt2.ProfileNo,tt2.SessionID as DynamicFormDataSessionID,tt5.SessionID as DynamicFormSessionID,tt2.DynamicFormID,tt5.Name as DynmaicForm,tt4.UserName as AuditUser\r\nfrom(select t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID,COUNT(*) as CountData,(Select Top(1) t2.DynamicFormDataAuditID  \r\n\r\nfrom DynamicFormDataAudit t2 where t2.AuditUserID=t1.AuditUserID AND t2.DynamicFormDataID=t1.DynamicFormDataID AND t2.SessionID=t1.SessionID) as DynamicFormDataAuditID\r\nfrom  DynamicFormDataAudit t1 where 1=1" + AuditfilterQuery + "\r" + filterQuery + "  group by t1.DynamicFormDataID,t1.AuditUserID,t1.SessionID)tt1\r\nJOIN DynamicFormData tt2 ON tt2.DynamicFormDataID = tt1.DynamicFormDataId "+ SubfilterQuery + " AND tt2.IsDeleted = 1\r\nJOIN DynamicForm tt5 ON tt5.ID = tt2.DynamicFormID AND(tt5.IsDeleted is null OR tt5.IsDeleted = 0) AND tt5.ID = @DynamicFormId\r\nJOIN ApplicationUser tt4 ON tt4.UserID = tt1.AuditUserId)ttt2\r\nJOIN DynamicFormDataAudit tt3 ON tt3.DynamicFormDataAuditID = ttt2.DynamicFormDataAuditID\r\nLEFT JOIN ApplicationUser tt6 ON tt6.UserID = tt3.PreUserID order by tt3.AuditDateTime desc\r\n\r\n";
                 }
                 using (var connection = CreateConnection())
                 {
@@ -11369,7 +11441,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 List<DynamicFormDataAudit> dynamicFormDataAudits = new List<DynamicFormDataAudit>();
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t2.IsDeleted,Row_Number() Over (Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId=@SessionId";
+                var query = "select t2.IsDeleted,Row_Number() Over (Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -11391,7 +11463,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 if (SessionId != null && SessionId.Count > 0)
                 {
                     string? SessionIds = string.Join(',', SessionId.Select(i => $"'{i}'"));
-                    var query = "select t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId in(" + SessionIds + ")";
+                    var query = "select t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID where t1.SessionId in(" + SessionIds + ")";
 
                     using (var connection = CreateConnection())
                     {

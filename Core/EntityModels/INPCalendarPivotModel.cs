@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.CustomValidations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -585,7 +586,7 @@ namespace Core.EntityModels
 
         public decimal? MonthHs { get; set; }
         public decimal? TopUpNoOfMonth { get; set; }
-        public bool? IsUpdateTopUpNoOfMonth { get; set; }=false;
+        public bool? IsUpdateTopUpNoOfMonth { get; set; } = false;
         public decimal? PrevTopUpNoOfMonth { get; set; }
         public decimal? AddNoOfTicket { get; set; }
         public decimal? NoOfTicketWholeNo { get; set; }
@@ -603,7 +604,8 @@ namespace Core.EntityModels
         public decimal? AdditionalAc { get; set; }
         public decimal? NewHoldingStock { get; set; }
         public bool IsEditingTopUp { get; set; } = false;
-
+        public decimal? PrevUnChangeTopUpNoOfMonth { get; set; }
+        public long? SimulationTicketCalculationId { get; set; }
     }
     public class MonthTypeModel
     {
@@ -1129,9 +1131,25 @@ namespace Core.EntityModels
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public Guid? SessionId {  get; set; }
+        public Guid? SessionId { get; set; }
         public decimal? PrevTopUpNoOfMonth { get; set; }
         public bool? IsUpdateTopUpNoOfMonth { get; set; } = false;
+        public bool? IsVersion { get; set; } = false;
+        [Required(ErrorMessage = "Version No is required")]
+        [SimulationTicketCalculationVersionNoCustomValidation]
+        public string? VersionNo { get; set; }
+        public string? VersionDescription { get; set; }
+        public long? IndexNo { get; set; }
+        public string? AddedBy { get; set; }
+        public string? AddedDates { get; set; }
+        public string? ItemNo { get; set; }
+        public string? Description { get; set; }
+        public string? Description2 { get; set; }
+        public string? TicketMonths { get; set; }
+        public string? MethodName { get; set; }
+        public bool IsEditingTopUp { get; set; } = false;
+        public decimal? PrevUnChangeTopUpNoOfMonth { get; set; }
+        public bool? IsAddPreviousLastVersion { get; set; }=false;
     }
     public class SimulationTicketCalculationChild
     {

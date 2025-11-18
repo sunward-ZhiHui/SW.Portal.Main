@@ -338,13 +338,37 @@
     {
         if (applicationUser != null)
         {
-            _employeeData = new ViewEmployee();
-            if (SessionIds != null)
+            if (applicationUser.UserID > 0)
             {
-                _employeeData = await Mediator.Send(new GetAllEmployeeBySessionQuery(SessionIds));
-                EmployeeIds = _employeeData.EmployeeID;
-                EditEnabledTab = EmployeeIds > 0 ? true : false;
-                await loadEmployeeData(_employeeData);
+                var portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+                var AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60048);
+                var EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60049);
+                _employeeData = new ViewEmployee();
+                if (SessionIds != null)
+                {
+                    if (EditEnabled == true)
+                    {
+                        _employeeData = await Mediator.Send(new GetAllEmployeeBySessionQuery(SessionIds));
+                        EmployeeIds = _employeeData.EmployeeID;
+                        EditEnabledTab = EmployeeIds > 0 ? true : false;
+                        await loadEmployeeData(_employeeData);
+                    }
+                    else
+                    {
+                        backUrl();
+                    }
+                }
+                else
+                {
+                    if (AddEnabled == true)
+                    {
+
+                    }
+                    else
+                    {
+                        backUrl();
+                    }
+                }
             }
         }
         base.OnParametersSet();
@@ -498,7 +522,7 @@
                     LevelMasterItems = _leveMasterItems,
                     EmployeeItems = _employeeItems,
                     OldReportToIds = oldList,
-                    ModifiedDate=DateTime.Now
+                    ModifiedDate = DateTime.Now
                 };
                 var response = await Mediator.Send(request);
                 if (response.EmployeeID > 0)

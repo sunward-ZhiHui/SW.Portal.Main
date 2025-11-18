@@ -1,8 +1,11 @@
 ﻿using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Helpers;
 using Core.Repositories.Query;
 using Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using org.matheval;
+using System;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,8 +15,6 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System;
-using org.matheval;
 using Expression = org.matheval.Expression;
 namespace Core.Entities.CustomValidations
 {
@@ -255,7 +256,7 @@ namespace Core.Entities.CustomValidations
             var datas = (DynamicFormWorkFlow)validationContext.ObjectInstance;
             if (value != null)
             {
-                if (datas.IsAnomalyStatus == false && datas.IsMultipleUser==true)
+                if (datas.IsAnomalyStatus == false && datas.IsMultipleUser == true)
                 {
                     if (datas.SelectUserIDs == null)
                     {
@@ -496,6 +497,35 @@ namespace Core.Entities.CustomValidations
                 return ValidationResult.Success;
             }
 
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class SimulationTicketCalculationVersionNoCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
+
+        public SimulationTicketCalculationVersionNoCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (SimulationTicketCalculation)validationContext.ObjectInstance;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<ISimulationQueryRepository>();
+                    var results = service.GetSimulationTicketCalculationVersionNoExitsCheckValidation(datas.VersionNo);
+                    if (results != null)
+                    {
+                        return new ValidationResult("Version No already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
         }
     }
 }

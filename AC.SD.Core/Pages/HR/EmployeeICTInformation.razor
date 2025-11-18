@@ -8,6 +8,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
@@ -117,13 +118,17 @@
     private View_EmployeeICTInformation _employeeICTInfoselectedItems;
     bool EditEnabledIctInfo { get; set; } = false;
     bool DeleteEnabledIctInfo { get; set; } = false;
-    bool AddEnabledIctInfo { get; set; } = false;
+    bool AddEnabledIctInfo { get; set; } = false; private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         if (EmployeeIds > 0)
         {
             AddEnabledIctInfo = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            if (applicationUser != null && applicationUser.UserID > 0)
+            {
+                portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+            }
             _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
             _rolesItems = await Mediator.Send(new GetAllRoleQuery());
             _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
@@ -138,15 +143,19 @@
             _employeeICTInfoselectedItems = _employeeICTInformationItems.FirstOrDefault();
             EditEnabledIctInfo = true;
             DeleteEnabledIctInfo = true;
-            StateHasChanged();
+
         }
+        AddEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60048);
+        EditEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60050);
+        StateHasChanged();
     }
     void OnRowIctInfoClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeIctinformationId");
         _employeeICTInfoselectedItems = _employeeICTInformationItems.FirstOrDefault(f => f.EmployeeIctinformationId == (long?)UniqueId);
-        EditEnabledIctInfo = true;
-        DeleteEnabledIctInfo = true;
+        EditEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60050);
         StateHasChanged();
 
     }
@@ -162,7 +171,11 @@
     }
     void addEditIctInfo()
     {
-        IctInfoGrid.StartEditDataItemAsync(_employeeICTInfoselectedItems);
+        EditEnabledIctInfo = portalMenuModels.Any(f => f.PermissionID == 60049);
+        if (EditEnabledIctInfo == true)
+        {
+            IctInfoGrid.StartEditDataItemAsync(_employeeICTInfoselectedItems);
+        }
 
     }
     void addDeleteIctInfo()

@@ -1,5 +1,4 @@
-﻿@using Application.Command.Departments;
-@using Application.Commands;
+﻿@using Application.Commands;
 @using Application.Queries;
 @using MediatR
 @using global::Core.Entities.Views;
@@ -7,13 +6,10 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
-@inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
-
 
 
 
@@ -33,19 +29,16 @@
         </DxMenu>
     </div>
 </div>
-
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-
-    <DxGrid @ref="Grid"
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
-            Data="_departmentItems"
-            KeyFieldName="DepartmentId"
-            CustomizeElement="Grid_CustomizeElement"
+            Data="_plants"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="UserGroupId"
             ShowSearchBox="true"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -55,27 +48,50 @@
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
             AutoExpandAllGroupRows="true"
-            CssClass="ch-360  " style="height: calc(100vh - 270px);"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
             AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
         <Columns>
-            <DxGridDataColumn FieldName="DepartmentId" MinWidth="80" Visible="false" />
-            <DxGridDataColumn FieldName="Index" Visible="false" Caption="#" Width="35px"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
-            <DxGridDataColumn FieldName="Division" MinWidth="80" />
-            <DxGridDataColumn FieldName="DepartmentName" Caption="Name" MinWidth="80" />
-            <DxGridDataColumn FieldName="DepartmentCode" Caption="Code" MinWidth="80" />
-            <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+            <DxGridDataColumn FieldName="Name" Caption="Name" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" />
+            <DxGridDataColumn FieldName="AddedBy" />
+            <DxGridDataColumn FieldName="AddedDate">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (UserGroup)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedBy" />
+            <DxGridDataColumn FieldName="ModifiedDate">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (UserGroup)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="StatusCode" />
         </Columns>
 
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
         </TotalSummary>
     </DxGrid>
-
 </DxLoadingPanel>
-
 <DxPopup @bind-Visible="@AuditLogPopUp"
          ShowFooter="false"
          HeaderText="Audit Log"
@@ -83,22 +99,23 @@
          ShowCloseButton="true"
          MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPage" MasterType="Department" MasterId="_selectedItems?.DepartmentId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPage" MasterType="UserGroup" MasterId="_selectedItems?.UserGroupId" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
     </BodyContentTemplate>
 
 </DxPopup>
 @code {
     bool AuditLogPopUp { get; set; } = false;
     public bool? IsDeleted { get; set; } = false;
-    IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
+    private List<UserGroup> _plants;
+    IGrid Grid { get; set; }
+    private UserGroup? _selectedItems;
 
-    private List<ViewDepartment> _departmentItems;
-
-    private ViewDepartment _selectedItems;
+    public ApplicationUser applicationUser { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
     void OnBackPage()
@@ -114,40 +131,29 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        var model = await Mediator.Send(new GetAllDepartmentQuery());
+        _plants = await Mediator.Send(new GetAllUserGroupsQuery());
         PanelVisible = false;
-        for (int i = 0; i < model.Count; i++)
+        if (_plants.Count > 0)
         {
-            model[i].Index = i + 1;
-        }
-        _departmentItems = model;
-        if (_departmentItems.Count > 0)
-        {
-            _selectedItems = _departmentItems.FirstOrDefault();
-            Grid.ClearSelection();
+            _selectedItems = _plants.FirstOrDefault();
         }
         StateHasChanged();
+
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DepartmentId");
-        _selectedItems = _departmentItems.FirstOrDefault(f => f.DepartmentId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserGroupId");
+        _selectedItems = _plants.FirstOrDefault(f => f.UserGroupId == (long?)UniqueId);
+        StateHasChanged();
     }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-    }
+
     public async ValueTask DisposeAsync()
     {
-        if (_departmentItems != null)
+        if (_plants != null)
         {
-            _departmentItems.Clear();
-            _departmentItems = null;
+            _plants.Clear();
+            _plants = null;
         }
         _selectedItems = null;
     }
 }
-

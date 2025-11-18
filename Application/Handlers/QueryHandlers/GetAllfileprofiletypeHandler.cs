@@ -25,7 +25,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<long?> Handle(DeleteFileProfileType request, CancellationToken cancellationToken)
         {
-            return await _fileprofileQueryRepository.DeleteFileProfileType(request.FileProfileTypeID);
+            return await _fileprofileQueryRepository.DeleteFileProfileType(request.FileProfileTypeID,request.UserId);
         }
 
     }
@@ -737,7 +737,7 @@ namespace Application.Handlers.QueryHandlers
             }
             public async Task<DocumentRole> Handle(DeleteDocumentRole request, CancellationToken cancellationToken)
             {
-                return await _fileprofileQueryRepository.DeleteDocumentRole(request.DocumentRole);
+                return await _fileprofileQueryRepository.DeleteDocumentRole(request.DocumentRole,request.UserId);
             }
 
         }
@@ -774,7 +774,7 @@ namespace Application.Handlers.QueryHandlers
             }
             public async Task<long?> Handle(DeleteDocumentPermissions request, CancellationToken cancellationToken)
             {
-                return await _fileprofileQueryRepository.DeleteDocumentPermissions(request.Id);
+                return await _fileprofileQueryRepository.DeleteDocumentPermissions(request.Id,request.UserId);
             }
 
         }

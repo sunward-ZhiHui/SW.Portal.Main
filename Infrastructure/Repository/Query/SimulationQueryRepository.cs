@@ -37,11 +37,56 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<SimulationTicketCalculation>> GetAllSimulationTicketCalculation()
+        public async Task<IReadOnlyList<SimulationTicketCalculation>> GetSimulationTicketCalculationNotChangesVesionNo(string? VersionNo)
         {
             try
             {
-                var query = "SELECT SimulationTicketCalculationId,MethodCodeId,ItemId,MonthType,MonthName,TicketMonth,TopUpNoOfMonth,IsUpdateTopUpNoOfMonth FROM SimulationTicketCalculation where IsUpdateTopUpNoOfMonth=1;";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("VersionNo", VersionNo, DbType.String);
+
+                var query = "select FORMAT(t1.AddedDate, 'MMM-yyyy') as AddedDates,FORMAT(t1.TicketMonth, 'MMM-yyyy') as TicketMonths,t1.*,t2.No as ItemNo,t2.Description,t2.Description2,t3.MethodName,t4.UserName as AddedBy from SimulationTicketCalculation t1\r\n" +
+                     "LEFT JOIN NAVItems t2 ON t1.ItemID=t2.ItemId \r\n" +
+                     "LEFT JOIN NavMethodCode t3 ON t1.MethodCodeID=t3.MethodCodeID \r\n" +
+                     "LEFT JOIN ApplicationUser t4 ON t1.AddedByUserID=t4.UserID where t1.IsVersion!=1 " + (!string.IsNullOrEmpty(VersionNo) ? "\rAND t1.VersionNo = @VersionNo\r" : "") + " AND t1.IsUpdateTopUpNoOfMonth=1";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<SimulationTicketCalculation>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<SimulationTicketCalculation>> GetSimulationTicketCalculationNotChangesVesionNoOne(string? VersionNo)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("VersionNo", VersionNo, DbType.String);
+
+                var query = "select FORMAT(t1.AddedDate, 'MMM-yyyy') as AddedDates,FORMAT(t1.TicketMonth, 'MMM-yyyy') as TicketMonths,t1.*,t2.No as ItemNo,t2.Description,t2.Description2,t3.MethodName,t4.UserName as AddedBy from SimulationTicketCalculation t1\r\n" +
+                     "LEFT JOIN NAVItems t2 ON t1.ItemID=t2.ItemId \r\n" +
+                     "LEFT JOIN NavMethodCode t3 ON t1.MethodCodeID=t3.MethodCodeID \r\n" +
+                     "LEFT JOIN ApplicationUser t4 ON t1.AddedByUserID=t4.UserID where t1.IsVersion=1 " + (!string.IsNullOrEmpty(VersionNo) ? "\rAND t1.VersionNo = @VersionNo\r" : "") + " AND t1.IsUpdateTopUpNoOfMonth=1";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<SimulationTicketCalculation>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<SimulationTicketCalculation>> GetSimulationTicketCalculationVesionNo()
+        {
+            try
+            {
+
+                var query = "SELECT \r\n    ROW_NUMBER() OVER (ORDER BY t.VersionNo) AS [IndexNo],\r\n    t.VersionNo,\r\n    t.VersionDescription,\r\n    t.AddedByUserID,\r\n    t2.UserName AS AddedBy,\r\n    t.AddedDate as AddedDates\r\nFROM (\r\n    SELECT  \r\n        t1.VersionNo, \r\n        t1.VersionDescription,\r\n        t1.AddedByUserID,\r\n        FORMAT(t1.AddedDate, 'dd-MMM-yyyy') AS AddedDate\r\n    FROM SimulationTicketCalculation t1\r\n    WHERE t1.IsVersion = 1\r\n    GROUP BY \r\n        t1.VersionNo, \r\n        t1.VersionDescription, \r\n        t1.AddedByUserID, \r\n        FORMAT(t1.AddedDate, 'dd-MMM-yyyy')\r\n) AS t\r\nJOIN ApplicationUser t2 ON t2.UserID = t.AddedByUserID\r\nORDER BY t.VersionNo;\r\n";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<SimulationTicketCalculation>(query)).ToList();
@@ -52,6 +97,222 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public SimulationTicketCalculation GetSimulationTicketCalculationVersionNoExitsCheckValidation(string? VersionNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("VersionNo", VersionNo, DbType.String);
+                query = "select * from SimulationTicketCalculation where VersionNo=@VersionNo\n\r";
+
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<SimulationTicketCalculation>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<SimulationTicketCalculation>> GetAllSimulationTicketCalculation()
+        {
+            try
+            {
+                var query = "SELECT VersionNo,IsVersion,SimulationTicketCalculationId,MethodCodeId,ItemId,MonthType,MonthName,TicketMonth,TopUpNoOfMonth,IsUpdateTopUpNoOfMonth FROM SimulationTicketCalculation where IsUpdateTopUpNoOfMonth=1;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<SimulationTicketCalculation>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculationNoVersionChanges(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculation? simulationTicketCalculation)
+        {
+            simulationTicketCalculation.SimulationTicketCalculationId = 1;
+            var result = await GetSimulationTicketCalculationVesionNo();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (simulationTicketCalculations?.Any() == true)
+                        {
+                            foreach (var value in simulationTicketCalculations)
+                            {
+                                var parameters = new DynamicParameters();
+                                parameters.Add("SimulationTicketCalculationId", value.SimulationTicketCalculationId);
+                                parameters.Add("MethodCodeId", value.MethodCodeId);
+                                parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                                parameters.Add("ItemId", value.ItemId);
+                                parameters.Add("MonthType", value.MonthType, DbType.String);
+                                parameters.Add("MonthName", value.MonthName, DbType.String);
+                                parameters.Add("TicketMonth", value.TicketMonth, DbType.DateTime);
+                                parameters.Add("AcUnits", value.AcUnits);
+                                parameters.Add("BatchSize", value.BatchSize);
+                                parameters.Add("PackSize", value.PackSize);
+                                parameters.Add("MonthHS", value.MonthHS);
+                                parameters.Add("TopUpNoOfMonth", value.TopUpNoOfMonth);
+                                parameters.Add("AddNoOfTicket", value.AddNoOfTicket);
+                                parameters.Add("NoOfTicketWholeNo", value.NoOfTicketWholeNo);
+                                parameters.Add("NoOfTicketDecimal", value.NoOfTicketDecimal);
+                                parameters.Add("FinalSplitTicket1", value.FinalSplitTicket1);
+                                parameters.Add("FinalSplitTicket2", value.FinalSplitTicket2);
+                                parameters.Add("SplitAfterAddWholeTicket", value.SplitAfterAddWholeTicket);
+                                parameters.Add("StockValue", value.StockValue);
+                                parameters.Add("StockInWholeNo", value.StockInWholeNo);
+                                parameters.Add("BalanceInStock", value.BalanceInStock);
+                                parameters.Add("BalanceStockInBulk", value.BalanceStockInBulk);
+                                parameters.Add("AdditionalTickets", value.AdditionalTickets);
+                                parameters.Add("AdditionalAc", value.AdditionalAc);
+                                parameters.Add("NewHoldingStock", value.NewHoldingStock);
+                                parameters.Add("Month1", value.Month1);
+                                parameters.Add("Month2", value.Month2);
+                                parameters.Add("Month3", value.Month3);
+                                parameters.Add("Month4", value.Month4);
+                                parameters.Add("Month5", value.Month5);
+                                parameters.Add("Month6", value.Month6);
+                                parameters.Add("Month7", value.Month7);
+                                parameters.Add("AddedByUserID", value.AddedByUserId);
+                                parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                                parameters.Add("ModifiedByUserID", simulationTicketCalculation.AddedByUserId);
+                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("PrevTopUpNoOfMonth", value.PrevTopUpNoOfMonth);
+                                parameters.Add("IsUpdateTopUpNoOfMonth", value.IsUpdateTopUpNoOfMonth);
+                                parameters.Add("IsVersion", simulationTicketCalculation.IsVersion);
+                                parameters.Add("VersionNo", simulationTicketCalculation.VersionNo?.Trim(), DbType.String);
+                                parameters.Add("VersionDescription", simulationTicketCalculation.VersionDescription, DbType.String);
+
+                                if (value.SimulationTicketCalculationId > 0)
+                                {
+                                    var query = "UPDATE SimulationTicketCalculation SET IsVersion=@IsVersion,VersionDescription=@VersionDescription,VersionNo=@VersionNo,IsUpdateTopUpNoOfMonth=@IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth=@PrevTopUpNoOfMonth,SessionId=@SessionId,Month7=@Month7,Month6=@Month6,Month5=@Month5,Month4=@Month4,Month3=@Month3,Month2=@Month2,Month1=@Month1,NewHoldingStock=@NewHoldingStock,AdditionalAc=@AdditionalAc,AdditionalTickets=@AdditionalTickets,BalanceStockInBulk=@BalanceStockInBulk,BalanceInStock=@BalanceInStock,StockInWholeNo=@StockInWholeNo,StockValue=@StockValue,SplitAfterAddWholeTicket=@SplitAfterAddWholeTicket,FinalSplitTicket2=@FinalSplitTicket2,FinalSplitTicket1=@FinalSplitTicket1,NoOfTicketDecimal=@NoOfTicketDecimal,NoOfTicketWholeNo=@NoOfTicketWholeNo,AddNoOfTicket=@AddNoOfTicket,TopUpNoOfMonth=@TopUpNoOfMonth,MonthHS=@MonthHS,PackSize=@PackSize,BatchSize=@BatchSize,AcUnits=@AcUnits,MethodCodeId=@MethodCodeId,ItemId=@ItemId,MonthType=@MonthType,MonthName=@MonthName,TicketMonth = @TicketMonth,AddedDate=@AddedDate,AddedByUserID=@AddedByUserID,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE SimulationTicketCalculationId = @SimulationTicketCalculationId";
+
+                                    await connection.ExecuteAsync(query, parameters);
+                                }
+
+                            }
+
+                        }
+                        if (simulationTicketCalculation.IsAddPreviousLastVersion == true)
+                        {
+                            await InsertOrUpdateSimulationTicketCalculationPrevious(simulationTicketCalculations, simulationTicketCalculation, result);
+                        }
+                        return simulationTicketCalculation;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculationPrevious(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculation simulationTicketCalculationChild, IReadOnlyList<SimulationTicketCalculation> result)
+        {
+            SimulationTicketCalculation simulationTicketCalculation = new SimulationTicketCalculation();
+            simulationTicketCalculation.SimulationTicketCalculationId = 1;
+
+            result = result != null ? result.ToList() : new List<SimulationTicketCalculation>();
+            List<SimulationTicketCalculation> res = new List<SimulationTicketCalculation>();
+            if (result.Count() > 0)
+            {
+                var res1 = await GetSimulationTicketCalculationNotChangesVesionNoOne(result.OrderByDescending(o => o.VersionNo).FirstOrDefault()?.VersionNo);
+                res = res1.ToList();
+            }
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        Guid? SessionId = Guid.NewGuid();
+                        simulationTicketCalculations = simulationTicketCalculations.Where(w => w.IsUpdateTopUpNoOfMonth == true).ToList();
+
+                        if (res?.Any() == true)
+                        {
+                            foreach (var value in res)
+                            {
+                                var exits = simulationTicketCalculations.FirstOrDefault(f => f.MethodCodeId == value.MethodCodeId && f.ItemId == value.ItemId && f.TicketMonth != null && f.TicketMonth.Value.Month == value.TicketMonth.Value.Month && f.TicketMonth.Value.Year == value.TicketMonth.Value.Year);
+                                if (exits == null)
+                                {
+                                    var parameters = new DynamicParameters();
+                                    parameters.Add("SimulationTicketCalculationId", value.SimulationTicketCalculationId);
+                                    parameters.Add("MethodCodeId", value.MethodCodeId);
+                                    parameters.Add("SessionId", SessionId, DbType.Guid);
+                                    parameters.Add("ItemId", value.ItemId);
+                                    parameters.Add("MonthType", value.MonthType, DbType.String);
+                                    parameters.Add("MonthName", value.MonthName, DbType.String);
+                                    parameters.Add("TicketMonth", value.TicketMonth, DbType.DateTime);
+                                    parameters.Add("AcUnits", value.AcUnits);
+                                    parameters.Add("BatchSize", value.BatchSize);
+                                    parameters.Add("PackSize", value.PackSize);
+                                    parameters.Add("MonthHS", value.MonthHS);
+                                    parameters.Add("TopUpNoOfMonth", value.TopUpNoOfMonth);
+                                    parameters.Add("AddNoOfTicket", value.AddNoOfTicket);
+                                    parameters.Add("NoOfTicketWholeNo", value.NoOfTicketWholeNo);
+                                    parameters.Add("NoOfTicketDecimal", value.NoOfTicketDecimal);
+                                    parameters.Add("FinalSplitTicket1", value.FinalSplitTicket1);
+                                    parameters.Add("FinalSplitTicket2", value.FinalSplitTicket2);
+                                    parameters.Add("SplitAfterAddWholeTicket", value.SplitAfterAddWholeTicket);
+                                    parameters.Add("StockValue", value.StockValue);
+                                    parameters.Add("StockInWholeNo", value.StockInWholeNo);
+                                    parameters.Add("BalanceInStock", value.BalanceInStock);
+                                    parameters.Add("BalanceStockInBulk", value.BalanceStockInBulk);
+                                    parameters.Add("AdditionalTickets", value.AdditionalTickets);
+                                    parameters.Add("AdditionalAc", value.AdditionalAc);
+                                    parameters.Add("NewHoldingStock", value.NewHoldingStock);
+                                    parameters.Add("Month1", value.Month1);
+                                    parameters.Add("Month2", value.Month2);
+                                    parameters.Add("Month3", value.Month3);
+                                    parameters.Add("Month4", value.Month4);
+                                    parameters.Add("Month5", value.Month5);
+                                    parameters.Add("Month6", value.Month6);
+                                    parameters.Add("Month7", value.Month7);
+                                    parameters.Add("AddedByUserID", simulationTicketCalculationChild.AddedByUserId);
+                                    parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                                    parameters.Add("ModifiedByUserID", simulationTicketCalculationChild.AddedByUserId);
+                                    parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                                    parameters.Add("PrevTopUpNoOfMonth", value.PrevTopUpNoOfMonth);
+                                    parameters.Add("IsUpdateTopUpNoOfMonth", value.IsUpdateTopUpNoOfMonth);
+                                    parameters.Add("IsVersion", simulationTicketCalculationChild.IsVersion);
+                                    parameters.Add("VersionNo", simulationTicketCalculationChild.VersionNo?.Trim(), DbType.String);
+                                    parameters.Add("VersionDescription", simulationTicketCalculationChild.VersionDescription, DbType.String);
+                                    var query = "INSERT INTO SimulationTicketCalculation(ModifiedDate,VersionDescription,VersionNo,IsVersion,IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth,SessionId,Month7,Month6,Month5,Month4,Month3,Month2,Month1,NewHoldingStock,AdditionalAc,AdditionalTickets,BalanceStockInBulk,BalanceInStock,StockInWholeNo,StockValue,SplitAfterAddWholeTicket,FinalSplitTicket2,FinalSplitTicket1,NoOfTicketDecimal,NoOfTicketWholeNo,AddNoOfTicket,TopUpNoOfMonth,MonthHS,PackSize,BatchSize,AcUnits,MethodCodeId,ItemId,MonthType,MonthName,TicketMonth,AddedByUserID,AddedDate)  OUTPUT INSERTED.SimulationTicketCalculationId  VALUES" +
+                                            "(@ModifiedDate,@VersionDescription,@VersionNo,@IsVersion,@IsUpdateTopUpNoOfMonth,@PrevTopUpNoOfMonth,@SessionId,@Month7,@Month6,@Month5,@Month4,@Month3,@Month2,@Month1,@NewHoldingStock,@AdditionalAc,@AdditionalTickets,@BalanceStockInBulk,@BalanceInStock,@StockInWholeNo,@StockValue,@SplitAfterAddWholeTicket,@FinalSplitTicket2,@FinalSplitTicket1,@NoOfTicketDecimal,@NoOfTicketWholeNo,@AddNoOfTicket,@TopUpNoOfMonth,@MonthHS,@PackSize,@BatchSize,@AcUnits,@MethodCodeId,@ItemId,@MonthType,@MonthName,@TicketMonth,@AddedByUserID,@AddedDate)";
+
+                                    value.SimulationTicketCalculationId = await connection.ExecuteScalarAsync<long>(query, parameters);
+                                }
+
+                            }
+                        }
+                        return simulationTicketCalculation;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public async Task<SimulationTicketCalculation> InsertOrUpdateSimulationTicketCalculation(List<SimulationTicketCalculation> simulationTicketCalculations, SimulationTicketCalculationChild simulationTicketCalculationChild)
         {
             SimulationTicketCalculation simulationTicketCalculation = new SimulationTicketCalculation();
@@ -63,6 +324,7 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         Guid? SessionId = Guid.NewGuid();
+                        simulationTicketCalculations = simulationTicketCalculations.Where(w => w.IsUpdateTopUpNoOfMonth == true).ToList();
                         var parameters1 = new DynamicParameters();
                         parameters1.Add("MethodCodeId", simulationTicketCalculationChild.MethodCodeId);
                         parameters1.Add("MonthType", simulationTicketCalculationChild.MonthType, DbType.String);
@@ -70,9 +332,9 @@ namespace Infrastructure.Repository.Query
                         parameters1.Add("TicketMonth", simulationTicketCalculationChild.TicketMonth, DbType.DateTime);
                         var month = simulationTicketCalculationChild.TicketMonth.Value.Month;
                         var year = simulationTicketCalculationChild.TicketMonth.Value.Year;
-                        //var query11 = "DELETE FROM SimulationTicketCalculation WHERE  MONTH(TicketMonth) = " + month + " AND YEAR(TicketMonth)=" + year + " AND MethodCodeId= @MethodCodeId AND MonthName=@MonthName;";
-                        // query11 += "DELETE FROM SimulationTicketCalculationChild WHERE  MONTH(TicketMonth) = " + month + " AND YEAR(TicketMonth)=" + year + " AND MethodCodeId= @MethodCodeId AND MonthName=@MonthName;";
-                        //await connection.QuerySingleOrDefaultAsync<long>(query11, parameters1);
+                        // var query11 = "DELETE FROM SimulationTicketCalculationChild WHERE  MONTH(TicketMonth) = " + month + " AND YEAR(TicketMonth)=" + year + " AND MethodCodeId= @MethodCodeId AND MonthName=@MonthName;";
+                        // await connection.QuerySingleOrDefaultAsync<long>(query11, parameters1);
+
                         if (simulationTicketCalculations?.Any() == true)
                         {
                             foreach (var value in simulationTicketCalculations)
@@ -116,31 +378,36 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
                                 parameters.Add("PrevTopUpNoOfMonth", value.PrevTopUpNoOfMonth);
                                 parameters.Add("IsUpdateTopUpNoOfMonth", value.IsUpdateTopUpNoOfMonth);
-                                if (value.MonthType == "Month1" && value.IsUpdateTopUpNoOfMonth == true)
-                                {
-                                    var parameterss = new DynamicParameters();
-                                    parameterss.Add("MethodCodeId", value.MethodCodeId);
-                                    parameterss.Add("ItemId", value.ItemId);
-                                    parameterss.Add("ModifiedByUserID", value.AddedByUserId);
-                                    parameterss.Add("ModifiedDate", value.AddedDate, DbType.DateTime);
-                                    var query11 = "Update SimulationTicketCalculation SET ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,IsUpdateTopUpNoOfMonth=0 WHERE ItemId= @ItemId AND MethodCodeId=@MethodCodeId;";
-                                    await connection.QuerySingleOrDefaultAsync<long>(query11, parameterss);
-                                }
+                                parameters.Add("IsVersion", value.IsVersion);
+                                parameters.Add("VersionNo", value.VersionNo?.Trim(), DbType.String);
+                                parameters.Add("VersionDescription", value.VersionDescription, DbType.String);
                                 if (value.SimulationTicketCalculationId > 0)
                                 {
-                                    var query = "UPDATE SimulationTicketCalculation SET IsUpdateTopUpNoOfMonth=@IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth=@PrevTopUpNoOfMonth,SessionId=@SessionId,Month7=@Month7,Month6=@Month6,Month5=@Month5,Month4=@Month4,Month3=@Month3,Month2=@Month2,Month1=@Month1,NewHoldingStock=@NewHoldingStock,AdditionalAc=@AdditionalAc,AdditionalTickets=@AdditionalTickets,BalanceStockInBulk=@BalanceStockInBulk,BalanceInStock=@BalanceInStock,StockInWholeNo=@StockInWholeNo,StockValue=@StockValue,SplitAfterAddWholeTicket=@SplitAfterAddWholeTicket,FinalSplitTicket2=@FinalSplitTicket2,FinalSplitTicket1=@FinalSplitTicket1,NoOfTicketDecimal=@NoOfTicketDecimal,NoOfTicketWholeNo=@NoOfTicketWholeNo,AddNoOfTicket=@AddNoOfTicket,TopUpNoOfMonth=@TopUpNoOfMonth,MonthHS=@MonthHS,PackSize=@PackSize,BatchSize=@BatchSize,AcUnits=@AcUnits,MethodCodeId=@MethodCodeId,ItemId=@ItemId,MonthType=@MonthType,MonthName=@MonthName,TicketMonth = @TicketMonth,AddedDate=@AddedDate,AddedByUserID=@AddedByUserID,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE SimulationTicketCalculationId = @SimulationTicketCalculationId";
+                                    var query = "UPDATE SimulationTicketCalculation SET VersionDescription=@VersionDescription,VersionNo=@VersionNo,IsUpdateTopUpNoOfMonth=@IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth=@PrevTopUpNoOfMonth,SessionId=@SessionId,Month7=@Month7,Month6=@Month6,Month5=@Month5,Month4=@Month4,Month3=@Month3,Month2=@Month2,Month1=@Month1,NewHoldingStock=@NewHoldingStock,AdditionalAc=@AdditionalAc,AdditionalTickets=@AdditionalTickets,BalanceStockInBulk=@BalanceStockInBulk,BalanceInStock=@BalanceInStock,StockInWholeNo=@StockInWholeNo,StockValue=@StockValue,SplitAfterAddWholeTicket=@SplitAfterAddWholeTicket,FinalSplitTicket2=@FinalSplitTicket2,FinalSplitTicket1=@FinalSplitTicket1,NoOfTicketDecimal=@NoOfTicketDecimal,NoOfTicketWholeNo=@NoOfTicketWholeNo,AddNoOfTicket=@AddNoOfTicket,TopUpNoOfMonth=@TopUpNoOfMonth,MonthHS=@MonthHS,PackSize=@PackSize,BatchSize=@BatchSize,AcUnits=@AcUnits,MethodCodeId=@MethodCodeId,ItemId=@ItemId,MonthType=@MonthType,MonthName=@MonthName,TicketMonth = @TicketMonth,AddedDate=@AddedDate,AddedByUserID=@AddedByUserID,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE SimulationTicketCalculationId = @SimulationTicketCalculationId";
 
                                     await connection.ExecuteAsync(query, parameters);
                                 }
                                 else
                                 {
-                                    var query = "INSERT INTO SimulationTicketCalculation(IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth,SessionId,Month7,Month6,Month5,Month4,Month3,Month2,Month1,NewHoldingStock,AdditionalAc,AdditionalTickets,BalanceStockInBulk,BalanceInStock,StockInWholeNo,StockValue,SplitAfterAddWholeTicket,FinalSplitTicket2,FinalSplitTicket1,NoOfTicketDecimal,NoOfTicketWholeNo,AddNoOfTicket,TopUpNoOfMonth,MonthHS,PackSize,BatchSize,AcUnits,MethodCodeId,ItemId,MonthType,MonthName,TicketMonth,AddedByUserID,AddedDate)  OUTPUT INSERTED.SimulationTicketCalculationId  VALUES" +
-                                        "(@IsUpdateTopUpNoOfMonth,@PrevTopUpNoOfMonth,@SessionId,@Month7,@Month6,@Month5,@Month4,@Month3,@Month2,@Month1,@NewHoldingStock,@AdditionalAc,@AdditionalTickets,@BalanceStockInBulk,@BalanceInStock,@StockInWholeNo,@StockValue,@SplitAfterAddWholeTicket,@FinalSplitTicket2,@FinalSplitTicket1,@NoOfTicketDecimal,@NoOfTicketWholeNo,@AddNoOfTicket,@TopUpNoOfMonth,@MonthHS,@PackSize,@BatchSize,@AcUnits,@MethodCodeId,@ItemId,@MonthType,@MonthName,@TicketMonth,@AddedByUserID,@AddedDate)";
+                                    /*if (value.PrevUnChangeTopUpNoOfMonth != null)
+                                    {
+                                        var query = "UPDATE SimulationTicketCalculation SET VersionDescription=@VersionDescription,VersionNo=@VersionNo,IsUpdateTopUpNoOfMonth=@IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth=@PrevTopUpNoOfMonth,SessionId=@SessionId,Month7=@Month7,Month6=@Month6,Month5=@Month5,Month4=@Month4,Month3=@Month3,Month2=@Month2,Month1=@Month1,NewHoldingStock=@NewHoldingStock,AdditionalAc=@AdditionalAc,AdditionalTickets=@AdditionalTickets,BalanceStockInBulk=@BalanceStockInBulk,BalanceInStock=@BalanceInStock,StockInWholeNo=@StockInWholeNo,StockValue=@StockValue,SplitAfterAddWholeTicket=@SplitAfterAddWholeTicket,FinalSplitTicket2=@FinalSplitTicket2,FinalSplitTicket1=@FinalSplitTicket1,NoOfTicketDecimal=@NoOfTicketDecimal,NoOfTicketWholeNo=@NoOfTicketWholeNo,AddNoOfTicket=@AddNoOfTicket,TopUpNoOfMonth=@TopUpNoOfMonth,MonthHS=@MonthHS,PackSize=@PackSize,BatchSize=@BatchSize,AcUnits=@AcUnits,MethodCodeId=@MethodCodeId,ItemId=@ItemId,MonthType=@MonthType,MonthName=@MonthName,TicketMonth = @TicketMonth,AddedDate=@AddedDate,AddedByUserID=@AddedByUserID,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE SimulationTicketCalculationId = @SimulationTicketCalculationId";
+
+                                        await connection.ExecuteAsync(query, parameters);
+                                    }
+                                    else
+                                    {*/
+                                    var query = "INSERT INTO SimulationTicketCalculation(VersionDescription,VersionNo,IsVersion,IsUpdateTopUpNoOfMonth,PrevTopUpNoOfMonth,SessionId,Month7,Month6,Month5,Month4,Month3,Month2,Month1,NewHoldingStock,AdditionalAc,AdditionalTickets,BalanceStockInBulk,BalanceInStock,StockInWholeNo,StockValue,SplitAfterAddWholeTicket,FinalSplitTicket2,FinalSplitTicket1,NoOfTicketDecimal,NoOfTicketWholeNo,AddNoOfTicket,TopUpNoOfMonth,MonthHS,PackSize,BatchSize,AcUnits,MethodCodeId,ItemId,MonthType,MonthName,TicketMonth,AddedByUserID,AddedDate)  OUTPUT INSERTED.SimulationTicketCalculationId  VALUES" +
+                                        "(@VersionDescription,@VersionNo,@IsVersion,@IsUpdateTopUpNoOfMonth,@PrevTopUpNoOfMonth,@SessionId,@Month7,@Month6,@Month5,@Month4,@Month3,@Month2,@Month1,@NewHoldingStock,@AdditionalAc,@AdditionalTickets,@BalanceStockInBulk,@BalanceInStock,@StockInWholeNo,@StockValue,@SplitAfterAddWholeTicket,@FinalSplitTicket2,@FinalSplitTicket1,@NoOfTicketDecimal,@NoOfTicketWholeNo,@AddNoOfTicket,@TopUpNoOfMonth,@MonthHS,@PackSize,@BatchSize,@AcUnits,@MethodCodeId,@ItemId,@MonthType,@MonthName,@TicketMonth,@AddedByUserID,@AddedDate)";
 
                                     value.SimulationTicketCalculationId = await connection.ExecuteScalarAsync<long>(query, parameters);
+
                                 }
                             }
-                            await InsertOrUpdateSimulationTicketCalculationChild(simulationTicketCalculationChild, SessionId);
+                            // if (simulationTicketCalculationChild != null && simulationTicketCalculationChild.MethodCodeId > 0)
+                            //{
+                            //await InsertOrUpdateSimulationTicketCalculationChild(simulationTicketCalculationChild, SessionId);
+                            // }
                         }
                         return simulationTicketCalculation;
                     }

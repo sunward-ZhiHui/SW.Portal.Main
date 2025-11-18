@@ -8,6 +8,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/employeeOther"
@@ -116,7 +117,7 @@
     private View_EmployeeICTHardInformation _employeeICTHardInfoselectedItems;
     bool EditEnabledIctHard { get; set; } = false;
     bool DeleteEnabledIctHard { get; set; } = false;
-    bool AddEnabledIctHard { get; set; } = false;
+    bool AddEnabledIctHard { get; set; } = false; private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         if (EmployeeIds > 0)
@@ -124,6 +125,10 @@
             AddEnabledIctHard = true;
             _plantItems = await Mediator.Send(new GetAllPlantQuery());
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            if (applicationUser != null && applicationUser.UserID > 0)
+            {
+                portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+            }
             _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
             _rolesItems = await Mediator.Send(new GetAllRoleQuery());
             _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
@@ -138,14 +143,19 @@
             _employeeICTHardInfoselectedItems = _employeeICTHardInformationItems.FirstOrDefault();
             DeleteEnabledIctHard = true;
             EditEnabledIctHard = true;
-            StateHasChanged();
+
         }
+        AddEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60048);
+        EditEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60050);
+        StateHasChanged();
     }
     void OnRowIctHardClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeIctHardinformationId");
         _employeeICTHardInfoselectedItems = _employeeICTHardInformationItems.FirstOrDefault(f => f.EmployeeIctHardinformationId == (long?)UniqueId);
-
+        EditEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60049);
+        DeleteEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60050);
     }
     void OnRowIctHardDoubleClick(GridRowClickEventArgs e)
     {
@@ -159,7 +169,11 @@
     }
     void addEditIctHard()
     {
-        IctHardInfoGrid.StartEditDataItemAsync(_employeeICTHardInfoselectedItems);
+        EditEnabledIctHard = portalMenuModels.Any(f => f.PermissionID == 60049);
+        if (EditEnabledIctHard == true)
+        {
+            IctHardInfoGrid.StartEditDataItemAsync(_employeeICTHardInfoselectedItems);
+        }
     }
     void addDeleteIctHard()
     {

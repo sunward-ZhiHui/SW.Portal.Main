@@ -1,5 +1,4 @@
-﻿@page "/DynamicFormAudit"
-@using System.Dynamic;
+﻿@using System.Dynamic;
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -34,33 +33,7 @@
 <div style="margin-bottom:10px;">
     <EditForm EditContext="this._editContext" Context="EditFormContext">
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="4">
-                <DxComboBox Data="@_dynamicForm"
-                            NullText="Select Dynamic Form..."
-                            ListRenderMode="ListRenderMode.Virtual"
-                            SearchMode="ListSearchMode.AutoSearch"
-                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            TextFieldName="Name"
-                            ValueFieldName="ID"
-                            Value="@DataAudit.DynamicFormId"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            ValueExpression="@(() => DataAudit.DynamicFormId)"
-                            ValueChanged="@((long? plantData) => SelectedFormChanged(plantData))"
-                            ShowValidationIcon="true">
-                    <Columns>
-                        <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
-                                            Caption="Name"
-                                            Width="180px" />
-                        <DxListEditorColumn FieldName="@nameof(DynamicForm.CompanyName)"
-                                            Caption="Company Name" />
-                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ProfileName)"
-                                            Caption="Profile" />
-                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
-                                            Caption="Screen Name" />
-                    </Columns>
-                </DxComboBox>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="User List" ColSpanMd="4">
+            <DxFormLayoutItem Caption="User List" ColSpanMd="6">
                 <DxComboBox Data="@_usersList"
                             NullText="Select User..."
                             ListRenderMode="ListRenderMode.Virtual"
@@ -83,7 +56,7 @@
                     </Columns>
                 </DxComboBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Audit Date" ColSpanMd="3">
+            <DxFormLayoutItem Caption="Audit Date" ColSpanMd="5">
                 <DxDateEdit NullText="Select a Audit Date..." Date="@DataAudit.AuditDateTime" DateExpression="@(() => DataAudit.AuditDateTime)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="" ColSpanMd="1">
@@ -170,6 +143,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    [Parameter]
+    public long? DynamicFormId { get; set; }
+    [Parameter]
+    public long? DynamicFormDataGridID { get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = false; bool EditEnabled { get; set; } = false; bool GridAttrPopUp { get; set; } = false; bool SubEditEnabled { get; set; } = false;
     private DynamicFormDataAudit _selectedItems;
@@ -179,7 +156,7 @@
     EditContext _editContext;
     private List<DynamicForm> _dynamicForm; private List<ViewEmployee>? _usersList;
     public List<PortalMenuModel> portalMenuModel { get; set; }
-    public List<AttributeHeader> AttributeGridHeaderList { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(DataAudit);
@@ -187,14 +164,22 @@
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        await loadData();
     }
     async Task loadData()
     {
-        EditEnabled = false;
+        DataAudit.DynamicFormId = DynamicFormId;
+        EditEnabled = false; SubEditEnabled = false;
         _DynamicFormDataAuditList = new List<DynamicFormDataAudit>();
         PanelVisible = true;
-        if (DataAudit.DynamicFormId > 0)
+        var results= await Mediator.Send(new GetDynamicFormDataGridList(DynamicFormId));
+        if (results?.Any()==true)
         {
+            SubEditEnabled = true;
+        }
+        if (DataAudit.DynamicFormId > 0 && DynamicFormDataGridID > 0)
+        {
+            DataAudit.DynamicFormDataGridID = DynamicFormDataGridID;
             _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditMasterList(DataAudit));
             if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
             {
@@ -205,30 +190,10 @@
         PanelVisible = false;
         StateHasChanged();
     }
-    async Task loadListData(long? DynamicFormId)
-    {
-        SubEditEnabled = false;
-        AttributeGridHeaderList = new List<AttributeHeader>();
-        if (DynamicFormId > 0)
-        {
-            AttributeGridHeaderList = await Mediator.Send(new GetDynamicFormDataGridList(DynamicFormId));
-            if (AttributeGridHeaderList?.Any()==true)
-            {
-                SubEditEnabled = true;
-            }
-        }
-        StateHasChanged();
-    }
     void EulaPopupClosed()
     {
         GridAttrPopUp = false;
         StateHasChanged();
-    }
-    async Task SelectedFormChanged(long? dynamicFormId)
-    {
-        DataAudit.DynamicFormId = dynamicFormId;
-        await loadListData(dynamicFormId);
-        await loadData();
     }
     async Task OnDateChanged(DateTime? auditDateTime)
     {
@@ -251,7 +216,7 @@
         _selectedItems = _DynamicFormDataAuditList.FirstOrDefault(f => f.RowNum == (long?)UniqueId);
         EditEnabled = true;
     }
-    
+
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)

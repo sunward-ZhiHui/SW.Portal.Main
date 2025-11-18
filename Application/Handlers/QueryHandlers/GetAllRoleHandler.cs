@@ -15,7 +15,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         public GetAllRoleHandler(IRoleQueryRepository roleQueryRepository, IQueryRepository<ApplicationRole> queryRepository)
         {
             _roleQueryRepository = roleQueryRepository;
-            _queryRepository= queryRepository;
+            _queryRepository = queryRepository;
         }
         public async Task<List<ApplicationRole>> Handle(GetAllRoleQuery request, CancellationToken cancellationToken)
         {
@@ -57,7 +57,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<UserGroup> Handle(DeleteUserGroup request, CancellationToken cancellationToken)
         {
-            return await _userGroupQueryRepository.DeleteUserGroup(request.UserGroup);
+            return await _userGroupQueryRepository.DeleteUserGroup(request.UserGroup, request.UserId);
         }
 
     }

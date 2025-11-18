@@ -86,7 +86,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("@MasterType", masterTypes);
                     parameters.Add("IsDeleted", IsDeleted);
                     parameters.Add("HRMasterSetId", MasterId);
-                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
+                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
                     if (IsDeleted == false)
                     {
                         query += "\rAND t1.HRMasterSetId=@HRMasterSetId\r";
@@ -149,6 +149,34 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         HRMasterAuditTrail = (await connection.QueryAsync<HRMasterAuditTrail>(query, parameters)).ToList();
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+                return HRMasterAuditTrail;
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<FileProfileTypeModel>> GetHRMasterSWAuditList(string? MasterType, bool? IsDeleted)
+        {
+            try
+            {
+                List<FileProfileTypeModel> HRMasterAuditTrail = new List<FileProfileTypeModel>();
+                using (var connection = CreateConnection())
+                {
+                    var masterTypes = MasterType?.Split(",").ToList();
+                    var parameters = new DynamicParameters();
+                    parameters.Add("MasterType", MasterType);
+                    var query = "select tt1.HRMasterSetID as FileProfileTypeID,t2.Name as Name,t2.ParentID,t2.Description,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser,t2.AddedDate,t3.ModifiedDate from(select t1.HRMasterSetID from HRMasterAuditTrail t1 where t1.Type=@MasterType AND (t1.IsDeleted is null OR t1.IsDeleted=0) group By t1.HRMasterSetID)tt1\r\nLEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=tt1.HRMasterSetID\r\nLEFT JOIN ApplicationUser t3 ON t3.UserID=t2.AddedByUserID\r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t2.ModifiedByUserID";
+                    try
+                    {
+                        HRMasterAuditTrail = (await connection.QueryAsync<FileProfileTypeModel>(query, parameters)).ToList();
 
                     }
                     catch (Exception exp)

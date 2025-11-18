@@ -46,9 +46,12 @@ namespace Application.Queries
     public class DeleteDocumentProfileNoSeries : DocumentProfileNoSeriesModel, IRequest<DocumentProfileNoSeriesModel>
     {
         public DocumentProfileNoSeriesModel DocumentProfileNoSeriesModel { get; set; }
-        public DeleteDocumentProfileNoSeries(DocumentProfileNoSeriesModel documentProfileNoSeriesModel)
+        public long? UserId {  get; set; }
+
+        public DeleteDocumentProfileNoSeries(DocumentProfileNoSeriesModel documentProfileNoSeriesModel, long? userId)
         {
             this.DocumentProfileNoSeriesModel = documentProfileNoSeriesModel;
+            UserId = userId;
         }
     }
     public class GetAllDocumentNoSeriesQuery : PagedRequest, IRequest<List<DocumentNoSeries>>

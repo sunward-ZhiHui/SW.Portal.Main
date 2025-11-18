@@ -1,0 +1,344 @@
+﻿@using System.Collections
+@using Application.Queries
+@using global::Core.Entities
+@using global::Core.EntityModels
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@using Syncfusion.Blazor.Buttons
+
+<style scoped>
+    .table-container {
+        max-height: 800px; /* Visible height for the scroll area */
+        /*  overflow-y: auto;  */ /* Enable vertical scroll */
+        border: 1px solid #ccc;
+        position: relative;
+    }
+
+        /* Basic table setup */
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+    /* --- Sticky Group Header --- */
+    .group-header {
+        position: sticky;
+        top: 0;
+        background-color: #eaeaea;
+        font-weight: bold;
+        font-size: 15px;
+        text-align: left;
+        z-index: 3; /* Ensure it stays above other sticky items */
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* --- Sticky Column Headers --- */
+    .table-container thead tr:not(.group-header) th {
+        position: sticky;
+        top: 30px; /* Push below the group header */
+        background-color: #f9f9f9;
+        z-index: 2;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* --- Body Cells --- */
+    .table-container tbody td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* --- Sticky Footer --- */
+    .table-container tfoot td {
+        position: sticky;
+        bottom: 0;
+        background-color: #f2f2f2;
+        z-index: 2;
+        padding: 8px;
+        border-top: 1px solid #ccc;
+    }
+
+    .table-container table {
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .table-container td, .table-container th {
+        border: 1px solid #ddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .table-container tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .table-container th {
+        background-color: #e6e6e6;
+        font-weight: bold;
+    }
+
+    .month-header {
+        background-color: #f7e3d0;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table-container input[type="text"] {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: right;
+        padding: 2px 4px;
+    }
+</style>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <div class="col-lg-12 control-section" style="padding:10px;width:100%;height:400px;">
+        <div class="table-container">
+            <table id="tt1">
+                <thead>
+
+                    <tr>
+                        <th>Method Code</th>
+                        <th>Item No</th>
+                        <th>Ticket Month</th>
+                        <th>Prev TopUp No Of Month</th>
+                        <th>Top up no of  month</th>
+                        <th>AC in Units</th>
+                        <th>Batch Size</th>
+                        <th>Added By</th>
+                        <th>Added Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_SimulationTicketCalculationItems?.Any() == true)
+                    {
+                        foreach (var item in _SimulationTicketCalculationItems)
+                        {
+
+                            <tr>
+                                <td>@item.MethodName</td>
+                                <td>@item.ItemNo</td>
+                                <td>@item.TicketMonths</td>
+                                <td>@item.PrevTopUpNoOfMonth?.ToString("N2")</td>
+                                <td @onclick="() => OnOpenTextBox(item)">
+                                    @if (item.IsEditingTopUp)
+                                    {
+                                        <input type="text" class="form-control form-control-sm text-end" value="@(item.TopUpNoOfMonth?.ToString("N2"))" @onblur="() => BlurTopUpOfMonth()" @onchange="(e => SaveTopUpNoOfMonth(item, e))" style="width:100px;" autofocus />
+                                    }
+                                    else
+                                    {
+                                        @item.TopUpNoOfMonth?.ToString("N2")
+                                    }
+                                </td>
+                                <td>@item.AcUnits?.ToString("N2")</td>
+                                <td>@item.BatchSize?.ToString("N2")</td>
+                                <td>@item.AddedBy</td>
+                                <td>@item.AddedDates</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" align="left">No records found</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div class="mt-3">
+        <SfButton CssClass="e-info ml-2" OnClick="openUpdateTicket">Update Changes Ticket</SfButton>
+    </div>
+</DxLoadingPanel>
+@* <DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Update"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure update ticket?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup> *@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Update"
+         Closed="EulaPopupClosed"
+         Width="500px">
+    <BodyContentTemplate Context="Context1">
+        <p>
+            Are you sure create version?
+        </p>
+        <EditForm EditContext="this._editContext" Context="EditFormContext" style="@displayName">
+            <DataAnnotationsValidator />
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Version No" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@simulationTicketCalculation.VersionNo" />
+                    <ValidationMessage For="@(() => simulationTicketCalculation.VersionNo)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                    <DxMemo @bind-Text="@simulationTicketCalculation.VersionDescription" Rows="5" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Add Previous Last Version" ColSpanMd="12">
+                    <DxCheckBox @bind-Checked="@simulationTicketCalculation.IsAddPreviousLastVersion" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditForm>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="((e) => OnNoClose())" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    EditContext _editContext; string? displayName = "display:none;";
+    bool Blukdeletepopup { get; set; } = false;
+    IGrid Grid { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    private List<SimulationTicketCalculation>? _SimulationTicketCalculationItems;
+    SimulationTicketCalculation simulationTicketCalculation = new SimulationTicketCalculation();
+    bool PanelVisible { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(simulationTicketCalculation);
+        PanelVisible = true;
+        _SimulationTicketCalculationItems = await Mediator.Send(new GetSimulationTicketCalculationNotChangesVesionNo(string.Empty));
+        PanelVisible = false;
+    }
+    private void OnOpenTextBox(SimulationTicketCalculation item)
+    {
+        foreach (var s in _SimulationTicketCalculationItems)
+        {
+            if (item.MethodCodeId == s.MethodCodeId && item.ItemId == s.ItemId)
+            {
+                s.IsEditingTopUp = true;
+            }
+            else
+            {
+                s.IsEditingTopUp = false;
+            }
+        }
+    }
+    async Task OnNoClose()
+    {
+        if (string.IsNullOrEmpty(displayName))
+        {
+
+            if (simulationTicketCalculation.IsVersion == true)
+            {
+
+                simulationTicketCalculation.IsVersion = false;
+                simulationTicketCalculation.VersionNo = string.Empty;
+                simulationTicketCalculation.VersionDescription = string.Empty;
+                displayName = "display:none;";
+                //await InsertDataItems();
+            }
+            else
+            {
+                Blukdeletepopup = false;
+            }
+        }
+        else
+        {
+            displayName = "display:none;";
+            simulationTicketCalculation.IsVersion = false;
+            simulationTicketCalculation.VersionNo = string.Empty;
+            simulationTicketCalculation.VersionDescription = string.Empty;
+            await InsertDataItems();
+        }
+        StateHasChanged();
+    }
+    private async Task SaveTopUpNoOfMonth(SimulationTicketCalculation item, ChangeEventArgs e)
+    {
+        if (decimal.TryParse(Convert.ToString(e.Value), out decimal newValue))
+        {
+            item.IsUpdateTopUpNoOfMonth = true;
+            item.TopUpNoOfMonth = newValue;
+        }
+
+        // Hide textbox and show text again
+        item.IsEditingTopUp = false;
+        // Optionally trigger calculations or refresh totals
+        StateHasChanged();
+
+    }
+    void openUpdateTicket()
+    {
+        Blukdeletepopup = true;
+        StateHasChanged();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+        StateHasChanged();
+    }
+    private void BlurTopUpOfMonth()
+    {
+        foreach (var s in _SimulationTicketCalculationItems)
+        {
+            s.IsEditingTopUp = false;
+        }
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await InsertDataItems();
+        }
+        else
+        {
+
+        }
+    }
+    async Task bulkDelete()
+    {
+        if (string.IsNullOrEmpty(displayName))
+        {
+            simulationTicketCalculation.IsVersion = true;
+            await SubmitFormExternally();
+        }
+        else
+        {
+            simulationTicketCalculation.IsVersion = true;
+            displayName = "";
+        }
+        StateHasChanged();
+    }
+    public async Task InsertDataItems()
+    {
+        simulationTicketCalculation.AddedByUserId=applicationUser.UserID;
+        simulationTicketCalculation.ModifiedByUserId = applicationUser.UserID;
+        var result = await Mediator.Send(new InsertOrUpdateSimulationTicketCalculationNoVersionChanges(_SimulationTicketCalculationItems, simulationTicketCalculation));
+        if (result.SimulationTicketCalculationId > 0)
+        {
+            toastService.ShowToast("Ticket Updated Successfully." + (simulationTicketCalculation.IsVersion == true ? "Version created Successfully" : ""), AC.SD.Core.Services.ToastLevel.Success);
+            Blukdeletepopup = false;
+            simulationTicketCalculation.IsVersion = false;
+            simulationTicketCalculation.VersionNo = string.Empty;
+            simulationTicketCalculation.VersionDescription = string.Empty;
+            RevokeBack?.Invoke();
+        }
+
+        StateHasChanged();
+    }
+}

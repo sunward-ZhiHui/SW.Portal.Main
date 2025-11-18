@@ -70,7 +70,7 @@ namespace Application.Handlers.CommandHandler
                 if (isUpdate)
                 {
                     uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Update", queryrEntity?.PlantCode, null, queryrEntity?.PlantID, guid, queryrEntity?.ModifiedByUserID, DateTime.Now, false, "DisplayName", uid);
+                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Update", queryrEntity?.PlantCode, queryrEntity?.PlantCode, queryrEntity?.PlantID, guid, queryrEntity?.ModifiedByUserID, DateTime.Now, false, "DisplayName", uid);
 
                     uid = Guid.NewGuid();
                     await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Update", result.ModifiedByUserID?.ToString(), queryrEntity?.ModifiedByUserID?.ToString(), queryrEntity?.PlantID, guid, queryrEntity?.ModifiedByUserID, DateTime.Now, false, "ModifiedByUserID", uid);

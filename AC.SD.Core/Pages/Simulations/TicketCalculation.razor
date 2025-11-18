@@ -26,6 +26,60 @@
         </div>
     </div>
 </div>
+<div class="col-md-12">
+    <div style="border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <EditForm EditContext="this._editContext" Context="EditFormContext">
+                        <DataAnnotationsValidator />
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Version No" ColSpanMd="4">
+
+                                <DxComboBox Data="@_VersionItems"
+                                            NullText="Select Version..."
+                                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            TextFieldName="VersionNo"
+                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                            ValueFieldName="IndexNo"
+                                            Value="@simulationTicketCalculation.IndexNo"
+                                            ValueExpression="@(() => simulationTicketCalculation.IndexNo)"
+                                            ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(SimulationTicketCalculation.IndexNo)"
+                                                            Caption="No"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(SimulationTicketCalculation.VersionNo)"
+                                                            Caption="Version No" />
+                                        <DxListEditorColumn FieldName="@nameof(SimulationTicketCalculation.VersionDescription)"
+                                                            Caption="Description" />
+                                        <DxListEditorColumn FieldName="@nameof(SimulationTicketCalculation.AddedBy)"
+                                                            Caption="Added By" />
+                                        <DxListEditorColumn FieldName="@nameof(SimulationTicketCalculation.AddedDates)"
+                                                            Caption="Added Date" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => simulationTicketCalculation.IndexNo)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" ColSpanMd="4">
+                                <DxButton RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained" Click="@OnClickButton"
+                                          Text="View Changes" />
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+
+                    </EditForm>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -233,12 +287,25 @@
     </BodyContentTemplate>
 
 </DxPopup>
+<DxPopup @bind-Visible="@ViewChangesPopUp"
+         ShowFooter="false"
+         HeaderText="View Ticket Changes"
+         CloseOnOutsideClick="false"
+         Closed="EulaPopupClosed"
+         MinWidth="300" MinHeight="300" MaxWidth="1500px" MaxHeight="1000px"
+         CloseOnEscape="false" ShowCloseButton="true">
+    <BodyContentTemplate>
+        <TicketCalculationViewChangesMonth applicationUser="@applicationUser" RevokeBack="ClosePopUpVersion"></TicketCalculationViewChangesMonth>
+    </BodyContentTemplate>
+
+</DxPopup>
 @code {
+    EditContext _editContext; SimulationTicketCalculation simulationTicketCalculation = new SimulationTicketCalculation();
     private List<StockInformationMaster> _stockinfoMasterList;
     private bool TicketCalculationMonthPopUp { get; set; }
-    private List<ViewPlants>? _plantItems;
+    private List<ViewPlants>? _plantItems; private List<SimulationTicketCalculation>? _VersionItems;
     private List<NavMethodCodeModel>? _navMethodCodeModeltems;
-    bool IsFilterOpen { get; set; } = false;
+    bool IsFilterOpen { get; set; } = false; bool ViewChangesPopUp { get; set; } = false;
     bool PanelVisible { get; set; } = true;
     private List<INPCalendarPivotModel> _BarChartItems = new List<INPCalendarPivotModel>();
     private List<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
@@ -259,10 +326,12 @@
     string? MonthName { get; set; }
     public decimal? MonthData { get; set; }
     public string? MonthType { get; set; }
+    private List<SimulationTicketCalculation>? _SimulationTicketCalculationItems;
     public StockInformationMaster stockInformationMaster { get; set; }
     TickectCalItemModel TickectCalItemModels = new TickectCalItemModel(); List<MonthTypeModel> monthTypeModels = new List<MonthTypeModel>(); MonthTypeModel MonthTypeModelData = new MonthTypeModel();
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(simulationTicketCalculation);
         PanelVisible = true;
         dateRangeModel.StockMonth = DateTime.Now;
         dateRangeModel.CompanyId = 1; dateRangeModel.VersionId = null;
@@ -270,6 +339,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         _navMethodCodeModeltems = await Mediator.Send(new GetAllNavMethodCode());
+        await loadVersionItems();
         for (long i = 1; i <= 10; i++)
         {
             DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
@@ -281,11 +351,164 @@
         _stockinfoMasterList = await Mediator.Send(new GetAllStockInformationMasterQuery());
         await onLoadData();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async Task loadVersionItems()
     {
-        InvokeAsync(onLoadData);
+        _VersionItems = await Mediator.Send(new GetSimulationTicketCalculationVesionNo());
+    }
+    void OnClickButton()
+    {
+        ViewChangesPopUp = true;
+        StateHasChanged();
+    }
+    void ClosePopUpVersion()
+    {
+        ViewChangesPopUp = false;
+        StateHasChanged();
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        if (simulationTicketCalculation.IndexNo > 0)
+        {
+            await loadItemDataList(simulationTicketCalculation.IndexNo);
+        }
+        else
+        {
+            await onLoadData();
+        }
         TicketCalculationMonthPopUp = false;
         StateHasChanged();
+    }
+    async Task SelectedItemPlantChanged(long? PlantsData)
+    {
+        simulationTicketCalculation.IndexNo = PlantsData;
+        await loadItemDataList(PlantsData);
+
+    }
+    async Task loadItemDataList(long? PlantsData)
+    {
+        await onLoadData();
+        if (PlantsData > 0 && _VersionItems?.Any() == true)
+        {
+            string? versionNo = _VersionItems.FirstOrDefault(f => f.IndexNo == PlantsData)?.VersionNo;
+            if (_simulationItems != null && _simulationItems.Count() > 0 && !string.IsNullOrEmpty(versionNo))
+            {
+                var _SimulationTicketCalculationItemsData = _SimulationTicketCalculationItems?.Any() == true ? _SimulationTicketCalculationItems.Where(w => w.VersionNo == versionNo).ToList() : new List<SimulationTicketCalculation>();
+                _simulationItems.ForEach(s =>
+                {
+                    var monthTypeYear1 = monthTypeModels.Where(w => w.MonthType == Month1).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth1_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month1 && w.TicketMonth.Value.Year == monthTypeYear1).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth1_ != null)
+                    {
+                        s.ProductionProjected1_ = TopUpNoOfMonth1_ ?? s.ProductionProjected1_;
+                        s.ProductionProjected2_ = ((s.ProductionProjected1_ ?? 0) - 1);
+                        s.ProductionProjected3_ = ((s.ProductionProjected2_ ?? 0) - 1);
+                        s.ProductionProjected4_ = ((s.ProductionProjected3_ ?? 0) - 1);
+                        s.ProductionProjected5_ = ((s.ProductionProjected4_ ?? 0) - 1);
+                        s.ProductionProjected6_ = ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        // s.ProductionProjected1_ = TopUpNoOfMonth1_;
+
+                    }
+                    var monthTypeYear2 = monthTypeModels.Where(w => w.MonthType == Month2).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth2_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month2 && w.TicketMonth.Value.Year == monthTypeYear2).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth2_ != null)
+                    {
+                        s.ProductionProjected2_ = TopUpNoOfMonth2_ ?? ((s.ProductionProjected1_ ?? 0) - 1);
+                        s.ProductionProjected3_ = ((s.ProductionProjected2_ ?? 0) - 1);
+                        s.ProductionProjected4_ = ((s.ProductionProjected3_ ?? 0) - 1);
+                        s.ProductionProjected5_ = ((s.ProductionProjected4_ ?? 0) - 1);
+                        s.ProductionProjected6_ = ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        //s.ProductionProjected2_ = TopUpNoOfMonth2_;
+
+                    }
+
+                    var monthTypeYear3 = monthTypeModels.Where(w => w.MonthType == Month3).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth3_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month3 && w.TicketMonth.Value.Year == monthTypeYear3).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth3_ != null)
+                    {
+
+                        s.ProductionProjected3_ = TopUpNoOfMonth3_ ?? ((s.ProductionProjected2_ ?? 0) - 1);
+                        s.ProductionProjected4_ = ((s.ProductionProjected3_ ?? 0) - 1);
+                        s.ProductionProjected5_ = ((s.ProductionProjected4_ ?? 0) - 1);
+                        s.ProductionProjected6_ = ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        // s.ProductionProjected3_ = TopUpNoOfMonth3_;
+
+                    }
+
+                    var monthTypeYear4 = monthTypeModels.Where(w => w.MonthType == Month4).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth4_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month4 && w.TicketMonth.Value.Year == monthTypeYear4).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth4_ != null)
+                    {
+                        s.ProductionProjected4_ = TopUpNoOfMonth4_ ?? ((s.ProductionProjected3_ ?? 0) - 1);
+                        s.ProductionProjected5_ = ((s.ProductionProjected4_ ?? 0) - 1);
+                        s.ProductionProjected6_ = ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        // s.ProductionProjected4_ = TopUpNoOfMonth4_;
+
+                    }
+                    var monthTypeYear5 = monthTypeModels.Where(w => w.MonthType == Month5).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth5_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month5 && w.TicketMonth.Value.Year == monthTypeYear5).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth5_ != null)
+                    {
+                        s.ProductionProjected5_ = TopUpNoOfMonth5_ ?? ((s.ProductionProjected4_ ?? 0) - 1);
+                        s.ProductionProjected6_ = ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        // s.ProductionProjected5_ = TopUpNoOfMonth5_;
+
+                    }
+
+                    var monthTypeYear6 = monthTypeModels.Where(w => w.MonthType == Month6).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth6_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month6 && w.TicketMonth.Value.Year == monthTypeYear6).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth6_ != null)
+                    {
+                        s.ProductionProjected6_ = TopUpNoOfMonth6_ ?? ((s.ProductionProjected5_ ?? 0) - 1);
+                        s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                    else
+                    {
+                        // s.ProductionProjected6_ = TopUpNoOfMonth6_;
+
+                    }
+
+                    var monthTypeYear7 = monthTypeModels.Where(w => w.MonthType == Month7).FirstOrDefault()?.MonthData?.Year;
+                    decimal? TopUpNoOfMonth7_ = _SimulationTicketCalculationItemsData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month7 && w.TicketMonth.Value.Year == monthTypeYear7).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
+                    if (TopUpNoOfMonth7_ != null)
+                    {
+                        s.ProductionProjected7_ = TopUpNoOfMonth7_;
+                    }
+                    else
+                    {
+                        // s.ProductionProjected7_ = ((s.ProductionProjected6_ ?? 0) - 1);
+                    }
+                });
+                PanelVisible = false;
+            }
+            else
+            {
+                PanelVisible = false;
+            }
+        }
+        else
+        {
+
+        }
     }
     private void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -368,17 +591,18 @@
                     s.TopUpNoOfMonth = value.TopUpNoOfMonth;
                 }
             });
-            LoadDataItem(true);
+            await LoadDataItem(true);
         }
     }
-    public void loadAddItem()
+    public async Task loadAddItem()
     {
         _simulationItemsList = new List<INPCalendarPivotModel>();
         _simulationItemsList = _simulationItems.Where(w => w.MethodCodeId == _selectedItems.MethodCodeId).ToList();
-        LoadDataItem(false);
+        await LoadDataItem(false);
     }
-    public void LoadDataItem(bool isBack)
+    public async Task LoadDataItem(bool isBack)
     {
+        var resultItems = await Mediator.Send(new GetSimulationTicketCalculationNotChangesVesionNo(string.Empty));
         decimal? value1 = null;
         decimal? value2 = null;
         if (stockInformationMaster != null && stockInformationMaster.StockInformationMasterID > 0)
@@ -390,6 +614,8 @@
         {
             _simulationItemsList.ForEach(s =>
             {
+                s.SimulationTicketCalculationId = resultItems?.FirstOrDefault(f => f.MonthType == MonthType && f.MethodCodeId == s.MethodCodeId && f.ItemId == s.ItemId && f.IsVersion == false && f.IsUpdateTopUpNoOfMonth == true)?.SimulationTicketCalculationId;
+                s.PrevUnChangeTopUpNoOfMonth = resultItems?.FirstOrDefault(f => f.MonthType == MonthType && f.MethodCodeId == s.MethodCodeId && f.ItemId == s.ItemId && f.IsVersion == false && f.IsUpdateTopUpNoOfMonth == true)?.TopUpNoOfMonth;
                 s.BatchSizeValue = 900000; decimal? TickValue = 0;
                 s.MonthHs = null;
                 s.TopUpNoOfMonth = isBack ? s.TopUpNoOfMonth : null;
@@ -622,7 +848,7 @@
     async Task onLoadData()
     {
         PanelVisible = true;
-        var startDate = dateRangeModel.StockMonth;
+        var startDate = dateRangeModel.StockMonth; _SimulationTicketCalculationItems = new List<SimulationTicketCalculation>();
         var makeDate = dateRangeModel.StockMonth.AddDays(-1);
         Stbheader = "Stock balance as at " + makeDate.ToString("dd-MMM-yyyy");
         makeDate = makeDate.AddMonths(-1);
@@ -701,51 +927,15 @@
         }
 
         _simulationItems = await Mediator.Send(new GetAllSimulationMidMonthQuery(dateRangeModel));
-        var resultData = await Mediator.Send(new GetAllSimulationTicketCalculation());
-        if (_simulationItems != null && _simulationItems.Count() > 0)
-        {
-            resultData = resultData?.Any() == true ? resultData : new List<SimulationTicketCalculation>();
-            _simulationItems.ForEach(s =>
-            {
-                var monthTypeYear1 = monthTypeModels.Where(w => w.MonthType == Month1).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth1_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth==true &&  w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month1 && w.TicketMonth.Value.Year == monthTypeYear1).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected1_ = TopUpNoOfMonth1_ ?? s.ProductionProjected1_;
+        _SimulationTicketCalculationItems = await Mediator.Send(new GetAllSimulationTicketCalculation());
 
-                var monthTypeYear2 = monthTypeModels.Where(w => w.MonthType == Month2).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth2_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month2 && w.TicketMonth.Value.Year == monthTypeYear2).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected2_ = TopUpNoOfMonth2_ ?? ((s.ProductionProjected1_ ?? 0) - 1);
-
-                var monthTypeYear3 = monthTypeModels.Where(w => w.MonthType == Month3).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth3_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month3 && w.TicketMonth.Value.Year == monthTypeYear3).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected3_ = TopUpNoOfMonth3_ ?? ((s.ProductionProjected2_ ?? 0) - 1);
-
-                var monthTypeYear4 = monthTypeModels.Where(w => w.MonthType == Month4).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth4_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month4 && w.TicketMonth.Value.Year == monthTypeYear4).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected4_ = TopUpNoOfMonth4_ ?? ((s.ProductionProjected3_ ?? 0) - 1);
-
-                var monthTypeYear5 = monthTypeModels.Where(w => w.MonthType == Month5).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth5_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month5 && w.TicketMonth.Value.Year == monthTypeYear5).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected5_ = TopUpNoOfMonth5_ ?? ((s.ProductionProjected4_ ?? 0) - 1);
-
-                var monthTypeYear6 = monthTypeModels.Where(w => w.MonthType == Month6).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth6_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month6 && w.TicketMonth.Value.Year == monthTypeYear6).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected6_ = TopUpNoOfMonth6_ ?? ((s.ProductionProjected5_ ?? 0) - 1);
-
-                var monthTypeYear7 = monthTypeModels.Where(w => w.MonthType == Month7).FirstOrDefault()?.MonthData?.Year;
-                decimal? TopUpNoOfMonth7_ = resultData.Where(w => w.IsUpdateTopUpNoOfMonth == true && w.MethodCodeId == s.MethodCodeId && w.ItemId == s.ItemId && w.MonthName == Month7 && w.TicketMonth.Value.Year == monthTypeYear7).OrderByDescending(o => o.SimulationTicketCalculationId).FirstOrDefault()?.TopUpNoOfMonth;
-                s.ProductionProjected7_ = TopUpNoOfMonth7_ ?? ((s.ProductionProjected6_ ?? 0) - 1);
-            });
-            PanelVisible = false;
-        }
-        else
-        {
-            PanelVisible = false;
-        }
         var satCatId = _salesCategoryItems.FirstOrDefault(w => w.Id == dateRangeModel.SalesCategoryId)?.Text;
         if (!string.IsNullOrEmpty(satCatId) && _stockinfoMasterList?.Any() == true)
         {
             stockInformationMaster = _stockinfoMasterList.Where(w => w.PlanningCategoryDescName != null && w.PlanningCategoryDescName.ToLower() == satCatId.ToLower()).FirstOrDefault();
         }
+        await loadVersionItems();
+        PanelVisible = false;
         StateHasChanged();
         //Grid.AutoFitColumnWidths();
     }
@@ -756,7 +946,14 @@
     }
     async Task OnFilterDocuments()
     {
-        await onLoadData();
+        if (simulationTicketCalculation.IndexNo > 0)
+        {
+            await loadItemDataList(simulationTicketCalculation.IndexNo);
+        }
+        else
+        {
+            await onLoadData();
+        }
     }
     async Task OnClearFilterDocuments()
     {
@@ -767,7 +964,14 @@
         dateRangeModel.IsSteroid = null;
         dateRangeModel.SalesCategoryId = 4;
         dateRangeModel.MethodCodeId = null;
-        await onLoadData();
+        if (simulationTicketCalculation.IndexNo > 0)
+        {
+            await loadItemDataList(simulationTicketCalculation.IndexNo);
+        }
+        else
+        {
+            await onLoadData();
+        }
         StateHasChanged();
     }
     void CheckedVisibleChanged(bool value)

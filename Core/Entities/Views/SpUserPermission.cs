@@ -30,5 +30,6 @@ namespace Core.Entities.Views
         public bool IsPermissionURL { get; set; }
         public Guid UniqueSessionID { get; set; }
         public long? UserId { get; set; }
+        public bool IsPermissionForm { get; set; }
     }
 }

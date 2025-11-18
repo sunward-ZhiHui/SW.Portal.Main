@@ -172,6 +172,8 @@
                 Data.AddedDate = _fileProfileTypeData.AddedDate;
                 Data.AddedByUserID = _fileProfileTypeData.AddedByUserID;
                 Data.ModifiedDate = _fileProfileTypeData.ModifiedDate;
+                Data.AddedByUser = _fileProfileTypeData.AddedByUser;
+                Data.ModifiedByUser = _fileProfileTypeData.ModifiedByUser;
                 Data.ModifiedByUserID = _fileProfileTypeData.ModifiedByUserID;
                 Data.Description = _fileProfileTypeData.Description;
                 Data.IsExpiryDate = _fileProfileTypeData.IsExpiryDate;
@@ -210,10 +212,14 @@
     {
         loading = true;
         Data.AddedByUserID = Data.FileProfileTypeId > 0 ? Data.AddedByUserID : _applicationUser.UserID;
+        Data.AddedByUser = Data.FileProfileTypeId > 0 ? Data.AddedByUser : _applicationUser.UserName;
         Data.AddedDate = Data.FileProfileTypeId > 0 ? Data.AddedDate : DateTime.Now;
         Data.ModifiedByUserID = _applicationUser.UserID;
         Data.ModifiedDate = DateTime.Now;
         var fileProfileTypeId = Data.FileProfileTypeId;
+        Data.ProfileName = _documentProfileNoList?.FirstOrDefault(f => f.ProfileID == Data.ProfileId)?.Name;
+        Data.ShelfLifeDurationStatus = _shelfLifeDurationItems?.FirstOrDefault(f => f.CodeId == Data.ShelfLifeDurationId)?.CodeValue;
+        Data.DynamicFormName = _dynamicForm?.FirstOrDefault(f => f.ID == Data.DynamicFormId)?.Name;
         var response = await Mediator.Send(new InsertOrUpdateFileProfileType(Data));
         if (fileProfileTypeId > 0)
         {

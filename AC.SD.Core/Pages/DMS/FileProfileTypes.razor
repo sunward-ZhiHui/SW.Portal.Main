@@ -2167,7 +2167,7 @@
     {
         if (DeletefileProfileTypeId > 0)
         {
-            var response = await Mediator.Send(new DeleteFileProfileType(DeletefileProfileTypeId));
+            var response = await Mediator.Send(new DeleteFileProfileType(DeletefileProfileTypeId,applicationUser.UserID));
             if (response > 0)
             {
                 Blukdeletepopup = false;

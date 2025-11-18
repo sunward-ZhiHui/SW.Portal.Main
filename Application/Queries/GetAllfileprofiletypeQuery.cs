@@ -43,9 +43,11 @@ namespace Application.Queries
     public class DeleteFileProfileType : PagedRequest, IRequest<long?>
     {
         public long? FileProfileTypeID { get; private set; }
-        public DeleteFileProfileType(long? fileProfileTypeID)
+        public long? UserId { get; private set; }
+        public DeleteFileProfileType(long? fileProfileTypeID, long? userId)
         {
             this.FileProfileTypeID = fileProfileTypeID;
+            UserId = userId;
         }
     }
 
@@ -424,9 +426,11 @@ namespace Application.Queries
     public class DeleteDocumentRole : DocumentRole, IRequest<DocumentRole>
     {
         public DocumentRole DocumentRole { get; private set; }
-        public DeleteDocumentRole(DocumentRole documentRole)
+        public long? UserId { get; private set; }
+        public DeleteDocumentRole(DocumentRole documentRole,long? userId)
         {
             this.DocumentRole = documentRole;
+            this.UserId = userId;   
         }
     }
     public class GetDocumentPermissionData : DocumentRole, IRequest<DocumentPermission>
@@ -440,9 +444,11 @@ namespace Application.Queries
     public class DeleteDocumentPermissions : PagedRequest, IRequest<long?>
     {
         public long? Id { get; private set; }
-        public DeleteDocumentPermissions(long? id)
+        public long? UserId { get; set; }
+        public DeleteDocumentPermissions(long? id,long? userId)
         {
             this.Id = id;
+            this.UserId = userId;
         }
     }
 

@@ -8,6 +8,7 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
+@using global::Core.EntityModels
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
@@ -23,10 +24,10 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" Enabled="@ExportEnabled" />
                 <DxMenuItem Text="Reset Designation" IconCssClass="fa fa-refresh" Click="@ResetDesignation" Enabled="@isDesignationEnabled" />
                 @* <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
@@ -218,8 +219,8 @@
     private ViewLevel _selectedItems;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool ExportEnabled { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
@@ -228,7 +229,7 @@
     bool isEnabled { get; set; } = true;
     bool isDesignationEnabled { get; set; } = false;
     private ViewDesignation _selectdesignation;
-    private ViewPlants _selectplant;
+    private ViewPlants _selectplant; private List<PortalMenuModel> portalMenuModels { get; set; }
     protected override async Task OnInitializedAsync()
     {
         //await jsRuntime.InvokeAsync<string>("showLoading");
@@ -239,7 +240,10 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         // await jsRuntime.InvokeAsync<string>("hideLoading");
-
+        if (applicationUser != null && applicationUser.UserID > 0)
+        {
+            portalMenuModels = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser?.UserID));
+        }
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Designation")
@@ -284,6 +288,10 @@
             DeleteEnabled = true;
             Grid.ClearSelection();
         }
+        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         PanelVisible = false;
         StateHasChanged();
@@ -469,26 +477,11 @@
     }
     void addEdit()
     {
-        //if (SelectedDataItems.Count == 1)
-        //{
-
-        //    foreach (object item in SelectedDataItems)
-        //    {
-
-        //        if (item is ViewLevel viewLevel)
-        //        {
-
-        //            _selectlst = _levelItems.FirstOrDefault(f => f.LevelID == viewLevel.LevelID);
-
-
-        //        }
-        //    }
-        //    Grid.StartEditDataItemAsync(_selectlst);
-        //}
-        //else
-        //{
-        Grid.StartEditDataItemAsync(_selectedItems);
-        // }
+        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     void addDelete()
     {
@@ -537,7 +530,7 @@
         }
         else
         {
-            EditEnabled = true;
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
         }
 
     }

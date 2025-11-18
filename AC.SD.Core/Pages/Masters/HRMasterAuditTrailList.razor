@@ -12,7 +12,20 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
+@using ClosedXML.Excel
+@using System.IO
+@inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+<script>
+    window.BlazorDownloadFile = (fileName, base64Data) => {
+      const link = document.createElement('a');
+      link.href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + base64Data;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    };
+</script>
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
         <div class="card-body p-0">
@@ -23,6 +36,7 @@
                         DisplayMode="MenuDisplayMode.Auto">
 
                     <Items>
+                        <DxMenuItem Position="ItemPosition.Start" Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
                         <DxMenuItem Position="ItemPosition.Start" Text="Audit Trail" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog())" />
                         <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
                     </Items>
@@ -33,9 +47,9 @@
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Auto">
-
                     <Items>
-                        <DxMenuItem Position="ItemPosition.Start" Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                        <DxMenuItem Position="ItemPosition.Start" Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
                     </Items>
                 </DxMenu>
             }
@@ -105,7 +119,7 @@
          ShowCloseButton="true"
          MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList AddTypeId="@AddTypeId" MasterType="@(IsAll == true ? MasterType : _selectedItems?.Type)" MasterId="_selectedItems?.HRMasterSetId"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="onBack1" AddTypeId="@AddTypeId" MasterType="@(IsAll == true ? MasterType : _selectedItems?.Type)" MasterId="_selectedItems?.HRMasterSetId"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
     </BodyContentTemplate>
 
 </DxPopup>
@@ -122,6 +136,10 @@
     public bool? IsAll { get; set; } = false;
     [Parameter]
     public string? AddTypeId { get; set; } = "";
+    [Parameter]
+    public string? DisplayName { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
     bool PanelVisibleApproval { get; set; }
     bool IsEnabled { get; set; } = false;
     private List<HRMasterAuditTrail>? _dynamicFormApprovalData; private List<HRMasterAuditTrail>? AllItems;
@@ -133,12 +151,21 @@
         await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
-    async Task ExportXlsx_Click()
+    // async Task ExportXlsx_Click()
+    // {
+    //     await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+    //     {
+    //         ExportSelectedRowsOnly = ExportSelectedRowsOnly
+    //     });
+    // }
+    void onBack()
     {
-        await Grid7.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-        {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
-        });
+        RevokeBack?.Invoke();
+    }
+    void onBack1()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
     }
     void viewAuditLog()
     {
@@ -175,7 +202,7 @@
                                 data.RowIndex = i++;
                                 if (!string.IsNullOrEmpty(AddTypeId))
                                 {
-                                    data.HeaderDisplayName = data?.Type;
+                                    data.HeaderDisplayName = data?.Type + "-" + AllItems.FirstOrDefault(f => f.SessionId == index && f.ColumnName == "DisplayName")?.PreValue;
                                 }
                                 else
                                 {
@@ -220,5 +247,103 @@
     public async ValueTask DisposeAsync()
     {
         ClearData();
+    }
+    async Task ExportXlsx_Click()
+    {
+        PanelVisibleApproval = true;
+        try
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add(MasterType);
+
+            var masterHeaders = new[] { "No", "Name", "Form Type", "Audit User", "Audit Date" };
+            for (int c = 0; c < masterHeaders.Length; c++)
+                ws.Cell(1, c + 1).Value = masterHeaders[c];
+
+            var headerRange = ws.Range(1, 1, 1, masterHeaders.Length);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.SetBackgroundColor(XLColor.LightGray);
+            headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Row(1).Height = 22;
+
+            int currentRow = 2;
+
+            foreach (var master in _dynamicFormApprovalData)
+            {
+                // Write master row
+                ws.Cell(currentRow, 1).Value = master.RowIndex;
+                ws.Cell(currentRow, 2).Value = master.HeaderDisplayName;
+                ws.Cell(currentRow, 3).Value = master.FormType;
+                ws.Cell(currentRow, 4).Value = master.AuditUser;
+                ws.Cell(currentRow, 5).Value = master.AuditDate.HasValue
+                    ? master.AuditDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt")
+                    : string.Empty;
+
+                ws.Row(currentRow).Style.Font.Bold = true;
+                ws.Row(currentRow).OutlineLevel = 0;
+
+                int masterRowNumber = currentRow;
+                currentRow++;
+
+                var relatedDetails = AllItems.Where(d => d.SessionId == master.SessionId && d.ColumnName != "DisplayName").OrderBy(o => o.HRMasterAuditTrailID).ToList();
+                if (relatedDetails.Any())
+                {
+                    var detailHeaderCols = new[] { "No", "Label Name", "Pre Value", "Current Value", "Is Deleted" };
+                    for (int c = 0; c < detailHeaderCols.Length; c++)
+                        ws.Cell(currentRow, c + 1).Value = detailHeaderCols[c];
+
+                    var dhRange = ws.Range(currentRow, 1, currentRow, detailHeaderCols.Length);
+                    dhRange.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#6A1B9A")); // purple like screenshot
+                    dhRange.Style.Font.FontColor = XLColor.White;
+                    dhRange.Style.Font.Bold = true;
+                    dhRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Row(currentRow).Height = 18;
+
+                    currentRow++;
+
+                    int detailStartRow = currentRow;
+                    int idx = 1;
+                    foreach (var d in relatedDetails)
+                    {
+                        d.RowIndex1 = idx;
+                        d.HeaderDisplayName = AddSpacesToPascalCase(d.ColumnName);
+                        ws.Cell(currentRow, 1).Value = d.RowIndex1;
+                        ws.Cell(currentRow, 2).Value = d.HeaderDisplayName ?? "";
+                        ws.Cell(currentRow, 3).Value = d.PreValue ?? "";
+                        ws.Cell(currentRow, 4).Value = d.CurrentValue ?? "";
+                        ws.Cell(currentRow, 5).Value = d.IsDeleted.Value ? "✓" : "";
+
+                        ws.Row(currentRow).Style.Alignment.WrapText = true;
+                        ws.Row(currentRow).AdjustToContents();
+
+                        currentRow++;
+                        idx++;
+                    }
+
+                    int detailEndRow = currentRow - 1;
+
+                    ws.Range(detailStartRow - 1, 1, detailEndRow, detailHeaderCols.Length)
+                      .Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                    ws.Rows(detailStartRow - 1, detailEndRow).Group();
+                    for (int r = detailStartRow - 1; r <= detailEndRow; r++)
+                        ws.Row(r).OutlineLevel = 1;
+                }
+            }
+
+            ws.Columns().AdjustToContents();
+
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            var bytes = ms.ToArray();
+            var base64 = Convert.ToBase64String(bytes);
+            var fileName = "AuditExport_" + MasterType + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx";
+
+            await JS.InvokeVoidAsync("BlazorDownloadFile", fileName, base64);
+        }
+        finally
+        {
+            PanelVisibleApproval = false;
+        }
     }
 }

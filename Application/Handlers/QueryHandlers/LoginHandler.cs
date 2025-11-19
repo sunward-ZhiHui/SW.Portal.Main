@@ -6,6 +6,7 @@ using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Data;
 using System.Linq;
@@ -21,14 +22,17 @@ namespace CMS.Application.Handlers.QueryHandlers
         private ILocalStorageService<ApplicationUser> _localStorageService;
         private Blazored.SessionStorage.ISessionStorageService _sessionStorage;
         private string _userKey = "user";
-
+        private readonly IConfiguration _configuration;
+        public ILoginSessionHistoryQueryRepository _iLoginSessionHistoryQueryRepository;
         // public ApplicationUser User { get; private set; }
 
-        public LoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService, Blazored.SessionStorage.ISessionStorageService sessionStorage)
+        public LoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService, Blazored.SessionStorage.ISessionStorageService sessionStorage, ILoginSessionHistoryQueryRepository loginSessionHistory, IConfiguration configuration)
         {
             _applicationUserQueryRepository = applicationUserQueryRepository;
             _localStorageService = localStorageService;
             _sessionStorage = sessionStorage;
+            _iLoginSessionHistoryQueryRepository = loginSessionHistory;
+            _configuration = configuration;
         }
 
         public async Task<ApplicationUser> Handle(LoginRequest request, CancellationToken cancellationToken)
@@ -51,7 +55,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             {
                 if (newEntity.Locked == false && newEntity.InvalidAttempts == 0)
                 {
-                    await  _sessionStorage.SetItemAsync("UserID", newEntity.UserID);
+                    int SessionIdleTime = _configuration.GetValue<int>("SessionIdleTime");
+                    if (SessionIdleTime > 0)
+                    {
+                        var SessionLogin = Guid.NewGuid();
+                        LoginSessionHistory loginSessionHistory = new LoginSessionHistory();
+                        loginSessionHistory.SessionId = SessionLogin;
+                        loginSessionHistory.UserId = newEntity.UserID;
+                        loginSessionHistory.LoginType = "Login";
+                        newEntity.SessionLogin = SessionLogin;
+                        await _iLoginSessionHistoryQueryRepository.InsertLoginSessionHistory(loginSessionHistory);
+                    }
+                    await _sessionStorage.SetItemAsync("UserID", newEntity.UserID);
                     await _localStorageService.SetItem(_userKey, newEntity);
                 }
             }
@@ -92,7 +107,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(UpdateOutlookLoginQuery request, CancellationToken cancellationToken)
         {
-            return await _applicationUserQueryRepository.UpdateGenericAsync(request, request.ColumnsToUpdate);            
+            return await _applicationUserQueryRepository.UpdateGenericAsync(request, request.ColumnsToUpdate);
         }
 
     }
@@ -141,7 +156,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<ApplicationUser> Handle(UnsetLockedRequest request, CancellationToken cancellationToken)
         {
-            var newEntity = await _applicationUserQueryRepository.UnLockedPassword(request.LoginID, request.NewPassword,request.Locked);
+            var newEntity = await _applicationUserQueryRepository.UnLockedPassword(request.LoginID, request.NewPassword, request.Locked);
             return newEntity;
         }
 

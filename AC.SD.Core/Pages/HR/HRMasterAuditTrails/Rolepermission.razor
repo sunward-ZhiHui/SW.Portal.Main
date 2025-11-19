@@ -1,0 +1,152 @@
+﻿@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                    <Items>
+                        <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
+                        <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
+                    </Items>
+                </DxMenuItem>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="_RoleGrid"
+            Data="_rolePermission"
+            KeyFieldName="RoleID"
+            EditMode="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            EditorRenderMode="GridEditorRenderMode.Integrated"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
+            RowClick="OnRowClick"
+            VirtualScrollingEnabled="true"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            CssClass="ch-360"
+            style="height: calc(100vh - 220px);">
+        <Columns>
+            <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
+            <DxGridDataColumn FieldName="RoleDescription" MinWidth="80" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var rolePermission = (ApplicationRole)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@rolePermission.RoleName" />
+                    <ValidationMessage For="@(() => rolePermission.RoleName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@rolePermission.RoleDescription" />
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+
+
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@AuditLogPopUp"
+         ShowFooter="false"
+         HeaderText="Audit Log"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         MinWidth="500" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Masters.HRMasterAuditTrailList RevokeBack="OnBackPage" MasterType="ApplicationRole,ApplicationRolePermission" MasterId="_selectedItems?.RoleID" IsDeleted="@IsDeleted"></AC.SD.Core.Pages.Masters.HRMasterAuditTrailList>
+    </BodyContentTemplate>
+
+</DxPopup>
+
+@code {
+
+    bool PanelVisible { get; set; }
+    private List<ApplicationPermission> _rolePermissionSelecteditem { get; set; }
+    private List<ApplicationRole> _rolePermission { get; set; }
+    IGrid _RoleGrid { get; set; }
+    private ApplicationRole? _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    bool AuditLogPopUp { get; set; } = false;
+    public bool? IsDeleted { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+        PanelVisible = false;
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _rolePermission = await Mediator.Send(new GetAllRolePermission());
+        if (_rolePermission.Count > 0)
+        {
+            _selectedItems = _rolePermission.FirstOrDefault();
+        }
+        PanelVisible = false;
+    }
+    void OnBackPage()
+    {
+        AuditLogPopUp = false;
+        StateHasChanged();
+    }
+    void viewAuditLog(bool isdeleted)
+    {
+        IsDeleted = isdeleted;
+        AuditLogPopUp = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
+        _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+    }
+
+}

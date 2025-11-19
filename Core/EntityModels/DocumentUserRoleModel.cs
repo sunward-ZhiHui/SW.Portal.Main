@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,13 @@ namespace Core.EntityModels
         public string? FullName { get; set; }
         public long? SelectFileProfileTypeId { get; set; }
         public bool IsUpdateAllDocument { get; set; } = false;
+        public long? AddedByUserID { get; set; }
+        public string? AddedByUser { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public string? ModifiedByUser { get; set; }
+        public long? ModifiedByUserID { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string? UserType { get; set; }
 
     }
     public class LeveMasterUsersModel

@@ -86,7 +86,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("@MasterType", masterTypes);
                     parameters.Add("IsDeleted", IsDeleted);
                     parameters.Add("HRMasterSetId", MasterId);
-                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
+                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId','PermissionID') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
                     if (IsDeleted == false)
                     {
                         query += "\rAND t1.HRMasterSetId=@HRMasterSetId\r";

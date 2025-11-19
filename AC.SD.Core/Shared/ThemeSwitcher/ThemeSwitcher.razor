@@ -168,23 +168,34 @@
             await ShownChanged.InvokeAsync(shown);
         }
     }
-
+    async Task UpdateLogOutActivitys()
+    {
+        if (applicationUser != null && applicationUser?.UserID > 0 && applicationUser?.SessionLogin != null)
+        {
+            LoginSessionHistory insertLoginSessionHistory = new LoginSessionHistory();
+            insertLoginSessionHistory.UserId = applicationUser?.UserID;
+            insertLoginSessionHistory.LogoutType = "Logout";
+            insertLoginSessionHistory.IsActive = false;
+            insertLoginSessionHistory.SessionId = applicationUser?.SessionLogin;
+            var rstdata = await Mediator.Send(new UpdateLogOutActivity(insertLoginSessionHistory));
+        }
+    }
     private async void logout()
     {
         var pushToken = await _localStorageService.GetItemOne("PushToken");
         if (pushToken != null)
         {
             var rstdata = await Mediator.Send(new DeletePushTokenID(pushToken));
-
-
             if(rstdata > 0)
             {
+                await UpdateLogOutActivitys();
                 await _localStorageService.RemoveItem("user");
                 NavigationManager.NavigateTo($"account/logout");
                 StateHasChanged();
             }
             else
             {
+                await UpdateLogOutActivitys();
                 await _localStorageService.RemoveItem("user");
                 NavigationManager.NavigateTo($"account/logout");
                 StateHasChanged();
@@ -192,12 +203,11 @@
         }
         else
         {
+            await UpdateLogOutActivitys();
             await _localStorageService.RemoveItem("user");
             NavigationManager.NavigateTo($"account/logout");
             StateHasChanged();
         }
-
-       
     }
 
     protected override void OnAfterRender(bool firstRender) {

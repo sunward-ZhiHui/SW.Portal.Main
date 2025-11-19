@@ -31,7 +31,7 @@
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
                                                 Value="@Data.RoleID"
-                                                ValueExpression="@(() => Data.RoleID )"
+                                                ValueExpression="@(() => Data.RoleID)"
                                                 ValueChanged="@((long? depSelect) => SelectedItemRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
@@ -52,7 +52,7 @@
                                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               EditFormat="{0}-{1}-{3}"
                                               Values="@Data.SelectUserIDs"
-                                              ValuesExpression="@(() => Data.SelectUserIDs )"
+                                              ValuesExpression="@(() => Data.SelectUserIDs)"
                                               ValuesChanged="@((IEnumerable<long> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
@@ -89,7 +89,7 @@
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
                                                 Value="@Data.UserGroupRoleID"
-                                                ValueExpression="@(() => Data.UserGroupRoleID )"
+                                                ValueExpression="@(() => Data.UserGroupRoleID)"
                                                 ValueChanged="@((long? depSelect) => SelectedItemUserGroupRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
@@ -109,7 +109,7 @@
                                               SearchMode="ListSearchMode.AutoSearch"
                                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               Values="@Data.SelectUserGroupIDs"
-                                              ValuesExpression="@(() => Data.SelectUserGroupIDs )"
+                                              ValuesExpression="@(() => Data.SelectUserGroupIDs)"
                                               ValuesChanged="@((IEnumerable<long> values) => onSelectedUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
@@ -143,7 +143,7 @@
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
                                                 Value="@Data.LevelRoleID"
-                                                ValueExpression="@(() => Data.LevelRoleID )"
+                                                ValueExpression="@(() => Data.LevelRoleID)"
                                                 ValueChanged="@((long? depSelect) => SelectedItemLevelRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
@@ -161,7 +161,7 @@
                                               ValueFieldName="LevelID"
                                               TextFieldName="Name"
                                               Values="@Data.SelectLevelMasterIDs"
-                                              ValuesExpression="@(() => Data.SelectLevelMasterIDs )"
+                                              ValuesExpression="@(() => Data.SelectLevelMasterIDs)"
                                               ValuesChanged="@((IEnumerable<long> values) => onSelectedLevelItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
@@ -225,7 +225,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpen = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsOpen = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -248,7 +248,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpenUserGroup = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsOpenUserGroup = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -271,7 +271,7 @@
     <FooterContentTemplate>
         <div class="w-100">
             <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpenLevel = false) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(() => IsOpenLevel = false) />
             </div>
         </div>
     </FooterContentTemplate>
@@ -296,7 +296,7 @@
                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                 DisplayMode="MenuDisplayMode.Auto">
                             <Items>
-                                <DxMenuItem Text="Select & Close" IconCssClass="fa fa-reply" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+                                <DxMenuItem Text="Select & Close" IconCssClass="fa fa-reply" Click=@(() => IsFileProfileTypeFilterDocOpen = false) />
                                 @* <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) /> *@
                                 <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
                                 <DxMenuItem Text="Collapse All" IconCssClass="fa fa-expand" Click=@collapseTreeAll />
@@ -330,7 +330,7 @@
                                 @{
                                     var rolePermission = (DocumentsModel)Context1.DataItem;
                                 }
-                                <DxCheckBox Checked="@rolePermission.Checked" CheckedExpression="@(() => rolePermission.Checked)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value,rolePermission))"></DxCheckBox>
+                                <DxCheckBox Checked="@rolePermission.Checked" CheckedExpression="@(() => rolePermission.Checked)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value, rolePermission))"></DxCheckBox>
                             </CellDisplayTemplate>
                         </DxTreeListDataColumn>
                         <DxTreeListDataColumn FieldName="FileName" Width="90%" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
@@ -708,6 +708,7 @@
                 saveEnabled = false;
                 DocumentUserRoleModel Data1 = new DocumentUserRoleModel();
                 Data1.RoleID = Data.RoleID;
+                Data1.RoleName = _documentRoleList?.FirstOrDefault(f => f.DocumentRoleId == Data1.RoleID)?.DocumentRoleName;
                 Data1.UserGroupRoleID = Data.UserGroupRoleID;
                 Data1.LevelRoleID = Data.LevelRoleID;
                 Data1.Type = Data.Type;
@@ -717,6 +718,10 @@
                 Data1.DocumentID = Data.DocumentID;
                 Data1.IsUpdateAllDocument = Data.IsUpdateAllDocument;
                 Data1.FileProfileTypeId = Data.FileProfileTypeId;
+                Data1.AddedByUser = _applicationUser?.UserName;
+                Data1.AddedByUserID = _applicationUser.UserID;
+                Data1.ModifiedByUser = _applicationUser?.UserName;
+                Data1.ModifiedByUserID = _applicationUser.UserID;
                 if (count == 0)
                 {
                     List<long?> ids = new List<long?>();

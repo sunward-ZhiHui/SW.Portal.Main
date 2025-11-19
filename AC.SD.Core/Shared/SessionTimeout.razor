@@ -1,0 +1,166 @@
+﻿@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+@using Application.Queries
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using MediatR
+@using global::Core.Entities
+@using global::Core.Repositories.Query
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@code {
+    public ApplicationUser _applicationUser { get; private set; }
+    public int sessionIdleTime { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await checkSession();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            int sessionIdleTimes;
+            if (!int.TryParse(Configuration["SessionIdleTime"], out sessionIdleTimes))
+            {
+                sessionIdleTimes = 0; // default value
+            }
+            sessionIdleTime = sessionIdleTimes;
+            if (sessionIdleTime > 0)
+            {
+                await JS.InvokeVoidAsync("idleTimer.start",
+                    DotNetObjectReference.Create(this),
+                    sessionIdleTime // idle minutes
+                );
+            }
+        }
+    }
+    public static double GetMinutes(DateTime d1, DateTime d2)
+    {
+        return (d2 - d1).TotalMinutes;
+    }
+    public async Task checkSession()
+    {
+        int sessionIdleTime;
+        if (!int.TryParse(Configuration["SessionIdleTime"], out sessionIdleTime))
+        {
+            sessionIdleTime = 0; // default value
+        }
+        if (sessionIdleTime > 0 && _applicationUser != null && _applicationUser?.UserID > 0 && _applicationUser?.SessionLogin != null)
+        {
+            var sessionHis = await Mediator.Send(new GetLoginSessionHistoryOne(_applicationUser?.SessionLogin, _applicationUser?.UserID));
+            if (sessionHis != null)
+            {
+                if (sessionHis.IsActive == true && sessionHis.SessionId != null && sessionHis.LastActivityTime != null)
+                {
+                    var idleTime = GetMinutes(sessionHis.LastActivityTime.Value, DateTime.Now);
+                    if (idleTime >= sessionIdleTime)
+                    {
+                        LoginSessionHistory insertLoginSessionHistory = new LoginSessionHistory();
+                        insertLoginSessionHistory.UserId = _applicationUser?.UserID;
+                        insertLoginSessionHistory.LogoutType = "Idle TimeOut";
+                        insertLoginSessionHistory.IsActive = false;
+                        insertLoginSessionHistory.SessionId = _applicationUser?.SessionLogin;
+                        var rstdata = await Mediator.Send(new UpdateLogOutActivity(insertLoginSessionHistory));
+                        await LogOutActivitys();
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            else
+            {
+                await LogOutActivitys();
+            }
+        }
+    }
+    private async Task LogOutActivitys()
+    {
+        var pushToken = await _localStorageService.GetItemOne("PushToken");
+        if (pushToken != null)
+        {
+            var rstdata = await Mediator.Send(new DeletePushTokenID(pushToken));
+            if (rstdata > 0)
+            {
+                await _localStorageService.RemoveItem("user");
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
+            }
+            else
+            {
+                await _localStorageService.RemoveItem("user");
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            await _localStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo($"account/logout");
+            StateHasChanged();
+        }
+    }
+    [JSInvokable]
+    public async Task UpdateLastActivity()
+    {
+        if (_applicationUser != null && _applicationUser?.UserID > 0 && _applicationUser?.SessionLogin != null && sessionIdleTime > 0)
+        {
+            LoginSessionHistory insertLoginSessionHistory = new LoginSessionHistory();
+            insertLoginSessionHistory.UserId = _applicationUser?.UserID;
+            insertLoginSessionHistory.LogoutType = "Update Activity";
+            insertLoginSessionHistory.SessionId = _applicationUser?.SessionLogin;
+            var rstdata = await Mediator.Send(new UpdateLastActivity(insertLoginSessionHistory));
+        }
+    }
+    [JSInvokable]
+    public async Task AutoLogout()
+    {
+        await logout();
+    }
+    async Task UpdateLogOutActivitys()
+    {
+        if (_applicationUser != null && _applicationUser?.UserID > 0 && _applicationUser?.SessionLogin != null && sessionIdleTime > 0)
+        {
+            LoginSessionHistory insertLoginSessionHistory = new LoginSessionHistory();
+            insertLoginSessionHistory.UserId = _applicationUser?.UserID;
+            insertLoginSessionHistory.LogoutType = "Auto Logout";
+            insertLoginSessionHistory.IsActive = false;
+            insertLoginSessionHistory.SessionId = _applicationUser?.SessionLogin;
+            var rstdata = await Mediator.Send(new UpdateLogOutActivity(insertLoginSessionHistory));
+        }
+    }
+    private async Task logout()
+    {
+        var pushToken = await _localStorageService.GetItemOne("PushToken");
+        if (pushToken != null)
+        {
+            var rstdata = await Mediator.Send(new DeletePushTokenID(pushToken));
+            if (rstdata > 0)
+            {
+                await UpdateLogOutActivitys();
+                await _localStorageService.RemoveItem("user");
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
+            }
+            else
+            {
+                await UpdateLogOutActivitys();
+                await _localStorageService.RemoveItem("user");
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            await UpdateLogOutActivitys();
+            await _localStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo($"account/logout");
+            StateHasChanged();
+        }
+
+
+    }
+}

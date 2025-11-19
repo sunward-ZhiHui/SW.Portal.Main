@@ -204,11 +204,18 @@
             string pIDs = string.Join(",", permissionids);
             var editModel = new ApplicationRolePermission();
             var createReq = new CreateApplicationRolePermissionQuery
-                {
+            {
 
-                    RoleID = _selectedItems.RoleID,
-                    PermissionIDs = pIDs
-                };
+                RoleID = _selectedItems.RoleID,
+                PermissionIDs = pIDs,
+                AddedByUserID = applicationUser?.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedByUserID = applicationUser?.UserID,
+                ModifiedDate = DateTime.Now,
+                AddedBy = applicationUser?.UserName,
+                ModifiedBy = applicationUser?.UserName,
+                RolePermissionName = _rolePermission?.FirstOrDefault(f => f.RoleID == _selectedItems.RoleID)?.RoleName,
+            };
 
             var result = await Mediator.Send(createReq);
             toastService.ShowToast("RolePermission Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -295,14 +302,18 @@
 
                 var createReq = new CreateRolePermissionQuery
 
-                    {
-                        RoleName = editModel.RoleName,
-                        RoleDescription = editModel.RoleDescription,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        //  SessionId = Guid.NewGuid()
-                    };
+                {
+                    RoleName = editModel.RoleName,
+                    RoleDescription = editModel.RoleDescription,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedBy = applicationUser.UserName,
+                    ModifiedByUserID = applicationUser.UserID,
+                    StatusCode = "Active",
+                    AddedBy = applicationUser.UserName,
+                    ModifiedDate = DateTime.Now,
+                };
                 var result = await Mediator.Send(createReq);
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
@@ -321,17 +332,18 @@
             else
             {
                 var UpdateReq = new EditRolePermissionQuery
-                    {
-                        RoleID = editModel.RoleID,
-                        RoleName = editModel.RoleName,
-                        RoleDescription = editModel.RoleDescription,
-                        StatusCodeID = editModel.StatusCodeID,
-                        AddedByUserID = editModel.AddedByUserID,
-                        AddedDate = editModel.AddedDate,
-                        SessionId = editModel.SessionId,
-                        ModifiedByUserID = applicationUser.UserID,
-                        ModifiedDate = DateTime.Now,
-                    };
+                {
+                    RoleID = editModel.RoleID,
+                    RoleName = editModel.RoleName,
+                    RoleDescription = editModel.RoleDescription,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedByUserID = editModel.AddedByUserID > 0 ? editModel.AddedByUserID : applicationUser?.UserID,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+                    SessionId = editModel.SessionId,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedBy = applicationUser.UserName
+                };
 
                 var ans = await Mediator.Send(UpdateReq);
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -351,7 +363,7 @@
     {
         var editModel = (ApplicationRole)e.DataItem;
 
-        var request = new DeleteRolePermissionQuery(editModel.RoleID);
+        var request = new DeleteRolePermissionQuery(editModel.RoleID, applicationUser?.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -444,7 +456,7 @@
                     if (item is ApplicationRole rolePermission)
                     {
 
-                        var request = new DeleteRolePermissionQuery(rolePermission.RoleID);
+                        var request = new DeleteRolePermissionQuery(rolePermission.RoleID, applicationUser?.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         await UpdateDataAsync();

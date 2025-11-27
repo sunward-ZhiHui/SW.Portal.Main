@@ -574,7 +574,7 @@
                     Data.IsSampleDocNoEnabled = isEnabled;
                     generateNumberSeries();
                 }
-
+                Data.ModifiedByUserID = _applicationUser.UserID;Data.ModifiedDate = DateTime.Now;
                 Data.CompanyName = _plantItems?.FirstOrDefault(f => f.PlantID == Data.CompanyId)?.PlantCode;
                 Data.DepartmentName = _departmentAllItems?.FirstOrDefault(f => f.DepartmentId == Data.DeparmentId)?.DepartmentName;
                 Data.ProfileType = _ProfileTypeList?.FirstOrDefault(f => f.CodeId == Data.ProfileTypeId)?.CodeValue;

@@ -112,6 +112,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<Employee>> GetUserGroupUserEmployee()
+        {
+            try
+            {
+                var query = "select  * from Employee";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Employee>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<UserGroup> InsertOrUpdateUserGroup(UserGroup value)
         {
             try
@@ -132,27 +148,25 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsTms", value.IsTms);
                         if (value.UserGroupId > 0)
                         {
+                            var res = await GetUserGroupUserEmployee();
                             var result = await GetAllOne(value.UserGroupId);
                             var query = " UPDATE UserGroup SET Name = @Name,Description =@Description,\n\r" +
                                 "ModifiedByUserID=@ModifiedByUserID,IsTms=@IsTms,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID\n\r" +
                                 "WHERE UserGroupId = @UserGroupId";
                             await connection.ExecuteAsync(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
                             var userId = value.ModifiedByUserId;
                             if (result != null)
                             {
-                                bool isUpdate = false;
+                                bool isUpdate = false; List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                                 if (result?.Name != value?.Name)
                                 {
                                     isUpdate = true;
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.Name, value?.Name, value.UserGroupId, guid, userId, DateTime.Now, false, "Name", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, CurrentValue = value?.Name, ColumnName = "Name" });
                                 }
                                 if (result?.Description != value?.Description)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.Description, value?.Description, value.UserGroupId, guid, userId, DateTime.Now, false, "Description", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Description, CurrentValue = value?.Description, ColumnName = "Description" });
                                 }
                                 var newList = value?.SelectUserIDs.ToList();
                                 newList = newList != null ? newList : new List<long?>();
@@ -163,34 +177,39 @@ namespace Infrastructure.Repository.Query
                                 string oldValues = string.Empty; string newValues = string.Empty;
                                 if (added.Any() || removed.Any())
                                 {
+                                    oldValues = string.Join(",", res.Where(w => oldList.Contains(w.UserId)).Select(w => w.FirstName));
+                                    newValues = string.Join(",", res.Where(w => newList.Contains(w.UserId)).Select(w => w.FirstName));
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result.SelectUser.Any() ? string.Join(",", result?.SelectUser.ToList()) : null, value.SelectUser.Any() ? string.Join(",", value?.SelectUser.ToList()) : null, value.UserGroupId, guid, userId, DateTime.Now, false, "User", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result.SelectUserIDs.Any() ? string.Join(",", result?.SelectUserIDs.ToList()) : null, value.SelectUserIDs.Any() ? string.Join(",", value?.SelectUserIDs.ToList()) : null, value.UserGroupId, guid, userId, DateTime.Now, false, "UserId", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = oldList?.Any() == true ? string.Join(",", oldList) : null, CurrentValue = newList?.Any() == true ? string.Join(",", newList) : null, ColumnName = "UserId" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = oldValues, CurrentValue = newValues, ColumnName = "User" });
                                 }
 
                                 if (result?.StatusCodeId != value?.StatusCodeId)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.StatusCodeId?.ToString(), value?.StatusCodeId?.ToString(), value.UserGroupId, guid, userId, DateTime.Now, false, "StatusCodeID", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", value?.StatusCode, value?.StatusCode, value.UserGroupId, guid, userId, DateTime.Now, false, "StatusCode", uid);
-
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), CurrentValue = value?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, CurrentValue = value?.StatusCode, ColumnName = "StatusCode" });
                                 }
                                 if (isUpdate)
                                 {
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", value?.Name, value?.Name, value.UserGroupId, guid, userId, DateTime.Now, false, "DisplayName", uid);
-
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.ModifiedByUserId?.ToString(), value?.ModifiedByUserId?.ToString(), value.UserGroupId, guid, userId, DateTime.Now, false, "ModifiedByUserId", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value?.ModifiedDate != null ? value.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value.UserGroupId, guid, userId, DateTime.Now, false, "ModifiedDate", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Update", result?.ModifiedBy, value?.ModifiedBy, value.UserGroupId, guid, userId, DateTime.Now, false, "ModifiedBy", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, CurrentValue = value?.Name, ColumnName = "DisplayName" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), CurrentValue = value?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserID" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = value?.ModifiedDate != null ? value.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, CurrentValue = value?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
                                 }
+                                if (auditList.Count() > 0)
+                                {
+                                    HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                    {
+                                        HRMasterAuditTrailItems = auditList,
+                                        Type = "UserGroup",
+                                        FormType = "Update",
+                                        HRMasterSetId = result?.UserGroupId,
+                                        AuditUserId = userId,
+                                    };
+                                    await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                                }
+
                             }
                         }
                         else
@@ -200,33 +219,30 @@ namespace Infrastructure.Repository.Query
                                 "(@Name,@Description,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsTms)";
 
                             value.UserGroupId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
-                            var userId = value.AddedByUserId;
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.Name, value.UserGroupId, guid, userId, DateTime.Now, false, "Name", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.Description, value.UserGroupId, guid, userId, DateTime.Now, false, "Description", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", value?.Name, value?.Name, value.UserGroupId, guid, userId, DateTime.Now, false, "DisplayName", uid);
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null,value.SelectUser.Any() ? string.Join(",", value?.SelectUser.ToList()) : null, value.UserGroupId, guid, userId, DateTime.Now, false, "User", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null,value.SelectUserIDs.Any() ? string.Join(",", value?.SelectUserIDs.ToList()) : null, value.UserGroupId, guid, userId, DateTime.Now, false, "UserId", uid);
-
-
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.StatusCodeId?.ToString(), value.UserGroupId, guid, userId, DateTime.Now, false, "StatusCodeID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.StatusCode, value.UserGroupId, guid, userId, DateTime.Now, false, "StatusCode", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.AddedByUserId?.ToString(), value.UserGroupId, guid, userId, DateTime.Now, false, "AddedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.AddedDate != null ? value.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value.UserGroupId, guid, userId, DateTime.Now, false, "AddedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Add", null, value?.AddedBy, value.UserGroupId, guid, userId, DateTime.Now, false, "AddedBy", uid);
-
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.Name, ColumnName = "Name" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = value?.Name, CurrentValue = value?.Name, ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.Description, ColumnName = "Description" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value.SelectUser.Any() ? string.Join(",", value?.SelectUser.ToList()) : null, ColumnName = "User" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value.SelectUserIDs.Any() ? string.Join(",", value?.SelectUserIDs.ToList()) : null, ColumnName = "UserId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.StatusCode, ColumnName = "StatusCode" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedByUserId?.ToString(), ColumnName = "AddedByUserId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedDate != null ? value.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedBy?.ToString(), ColumnName = "AddedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "UserGroup",
+                                    FormType = "Add",
+                                    HRMasterSetId = value?.UserGroupId,
+                                    AuditUserId = value?.AddedByUserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
                         }
                         var userList = await GetUserGroupUserByUserGroupID(value.UserGroupId);
                         if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
@@ -331,33 +347,34 @@ namespace Infrastructure.Repository.Query
                         var query = "DELETE FROM UserGroupUser WHERE UserGroupId= @UserGroupId;";
                         query += "DELETE FROM UserGroup WHERE UserGroupId= @UserGroupId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
+                        if (result != null)
+                        {
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
 
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.Name, null, value.UserGroupId, guid, userId, DateTime.Now, true, "Name", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.Description, null, value.UserGroupId, guid, userId, DateTime.Now, true, "Description", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.Name, result?.Name, value.UserGroupId, guid, userId, DateTime.Now, true, "DisplayName", uid);
-
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result.SelectUser.Any() ? string.Join(",", result?.SelectUser.ToList()) : null, null, value.UserGroupId, guid, userId, DateTime.Now, true, "User", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result.SelectUserIDs.Any() ? string.Join(",", result?.SelectUserIDs.ToList()) : null, null, value.UserGroupId, guid, userId, DateTime.Now, true, "UserId", uid);
-
-
-
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.StatusCodeId?.ToString(), null, value.UserGroupId, guid, userId, DateTime.Now, true, "StatusCodeID", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.StatusCode, null, value.UserGroupId, guid, userId, DateTime.Now, true, "StatusCode", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.ModifiedByUserId?.ToString(), null, value.UserGroupId, guid, userId, DateTime.Now, true, "ModifiedByUserId", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, null, value.UserGroupId, guid, userId, DateTime.Now, true, "ModifiedDate", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("UserGroup", "Delete", result?.ModifiedBy, null, value.UserGroupId, guid, userId, DateTime.Now, true, "ModifiedBy", uid);
-
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, ColumnName = "Name" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, CurrentValue = result?.Name, ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.Description, ColumnName = "Description" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result.SelectUser.Any() ? string.Join(",", result?.SelectUser.ToList()) : null, ColumnName = "User" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result.SelectUserIDs.Any() ? string.Join(",", result?.SelectUserIDs.ToList()) : null, ColumnName = "UserId" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, ColumnName = "StatusCode" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "UserGroup",
+                                    FormType = "Delete",
+                                    HRMasterSetId = result?.UserGroupId,
+                                    IsDeleted = true,
+                                    AuditUserId = userId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
+                        }
                         return value;
                     }
                     catch (Exception exp)

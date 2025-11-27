@@ -265,7 +265,7 @@
         {
             model[i].Index = i + 1;
         }
-        _levelItems = model;
+         _levelItems = model;
         if (PlantID != null && PlantID != -1)
         {
             if (Type == "designation")
@@ -280,18 +280,19 @@
 
             }
         }
-        if (_levelItems.Count > 0)
+        if (_levelItems?.Any() == true)
         {
             _selectedItems = _levelItems.FirstOrDefault();
 
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.ClearSelection();
+
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         PanelVisible = false;
         StateHasChanged();
@@ -376,7 +377,7 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableData = (ViewLevel)e.DataItem;
-        var request = new DeleteLevelMasterCommand(editableData.LevelID,applicationUser.UserID);
+        var request = new DeleteLevelMasterCommand(editableData.LevelID, applicationUser.UserID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -500,7 +501,7 @@
                     {
 
                         //var editableData = (ViewLevel)e.DataItem;
-                        var request = new DeleteLevelMasterCommand(forumlevel.LevelID,applicationUser.UserID);
+                        var request = new DeleteLevelMasterCommand(forumlevel.LevelID, applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

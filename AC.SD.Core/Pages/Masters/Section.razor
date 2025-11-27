@@ -336,18 +336,19 @@
             }
 
         }
-        if (_sectionItems.Count > 0)
+        if (_sectionItems?.Any() == true)
         {
             _selectedItems = _sectionItems.FirstOrDefault();
 
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.ClearSelection();
+
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         PanelVisible = false;
         StateHasChanged();

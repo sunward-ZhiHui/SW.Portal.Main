@@ -155,18 +155,17 @@ else
         _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
         PanelVisible = false;
         //   await jsRuntime.InvokeAsync<string>("hideLoading");
-        if (_employeeItems.Count > 0)
+        if (_employeeItems?.Any() == true)
         {
 
             _selectedItems = _employeeItems.FirstOrDefault();
             EditEnabled = true;
             DeleteEnabled = true;
-           
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60048);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60049);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60050);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60051);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60048);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60049);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60050);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60051);
         StateHasChanged();
     }
     private async Task LoadEmployeesAsync()

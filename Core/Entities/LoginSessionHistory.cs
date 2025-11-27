@@ -28,5 +28,7 @@ namespace Core.Entities
         public string? DesignationName { get; set; }
         [NotMapped]
         public string? EmployeeName { get; set; }
+        [NotMapped]
+        public double? IdleTime { get; set; }
     }
 }

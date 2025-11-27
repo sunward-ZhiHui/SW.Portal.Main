@@ -46,7 +46,7 @@ namespace Infrastructure.Repository.Query
                 if (_dynamicForm != null && _dynamicForm?.ID > 0)
                 {
                     DynamicFormSearch dynamicFormSearch1 = new DynamicFormSearch(); List<DropDownOptionsModel> dataColumnNamesSync = new List<DropDownOptionsModel>();
-                    var _dynamicformDataListItems = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch1);
+                    var _dynamicformDataListItems = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch1,false);
                     var _AttributeHeadersDetails = await _attrubutequeryRepository.GetAllAttributeNameAsync(_dynamicForm, UserId, false, true, false);
                     List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
                     var DataSourceTablelists = _AttributeHeadersDetails.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();

@@ -245,7 +245,7 @@
         PanelVisible = true; EditEnabled = false; DeleteEnabled = false; Name = string.Empty;
         _userGroupLists = await Mediator.Send(new GetAllUserGroupsQuery());
         PanelVisible = false;
-        if (_userGroupLists.Count > 0)
+        if (_userGroupLists?.Any() == true)
         {
             _selectedItems = _userGroupLists.FirstOrDefault();
             Name = _selectedItems.Name;
@@ -253,11 +253,12 @@
             Grid.SetFocusedRowIndex(0);
             Grid.ClearSelection();
 
+
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60028);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60029);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60065);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60066);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60028);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60029);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60065);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60066);
         StateHasChanged();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)

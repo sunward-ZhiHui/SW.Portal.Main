@@ -110,6 +110,10 @@ namespace Core.Entities
         public long? DynamicFormApprovedId { get; set; }
         public List<AddTempSectionAttribute> AddTempSectionAttributes { get; set; } = new List<AddTempSectionAttribute>();
         public bool? IsNotDelete { get; set; } = false;
+        public Guid? AuditSessionId { get; set; }
+        public Guid? AuditParentSessionId {  get; set; }
+        public long? DynamicFormSectionAttributeId { get; set; }
+        public string? DynamicAttributeName{ get; set; }
     }
     public class DynamicFormProfile
     {

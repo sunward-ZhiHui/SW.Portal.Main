@@ -977,7 +977,7 @@
     }
     async Task loadDynamicFormDataLists()
     {
-        var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch)));
+        var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch,false)));
         await Task.WhenAll(_dynamicformDataLists);
         _dynamicformDataList = await _dynamicformDataLists.Result;
     }
@@ -2706,7 +2706,7 @@
     {
         try
         {
-            var request = new DeleteDynamicFormData(_selectedItems);
+            var request = new DeleteDynamicFormData(_selectedItems,applicationUser?.UserID);
             var result = await Mediator.Send(request);
             if (result.IsNotDelete == true)
             {
@@ -3323,7 +3323,7 @@
     {
         PanelVisible = true; SyncTablepopup = false;
         DynamicFormSearch dynamicFormSearch1 = new DynamicFormSearch();
-        var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch1)));
+        var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch1,false)));
         var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, false)));
         await Task.WhenAll(_dynamicformDataLists, _AttributeHeaders);
         var _dynamicformDataListItems = await _dynamicformDataLists.Result;

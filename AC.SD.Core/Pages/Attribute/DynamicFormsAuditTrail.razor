@@ -40,6 +40,7 @@
             VirtualScrollingEnabled="true">
 
         <Columns>
+            <DxGridDataColumn FieldName="IsRecordDeleted" Caption="Record Deleted" MinWidth="10" />
             <DxGridDataColumn FieldName="RowNum" Caption="Row Num" MinWidth="20" />
             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="10" />
             <DxGridDataColumn FieldName="PreUser" MinWidth="50" Caption="Prev User" />
@@ -85,6 +86,8 @@
     bool PanelVisible { get; set; } = true; bool EditEnabled { get; set; } = false; private DynamicFormDataAudit _selectedItems;
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public DynamicFormDataAudit DynamicFormDataAuditGridData { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     public List<DynamicFormDataAudit> _DynamicFormDataAuditList { get; set; }
     protected override async Task OnInitializedAsync()
@@ -94,15 +97,27 @@
     }
     async Task loadData()
     {
-        EditEnabled = false;
-        _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditList(SessionId));
-        if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+        Guid? sessIds = SessionId ?? DynamicFormDataAuditGridData?.SessionId;
+
+        if (sessIds.HasValue)
         {
-            _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
-            EditEnabled = true;
+            EditEnabled = false;
+
+            bool isGridAudit = DynamicFormDataAuditGridData?.SessionId.HasValue ?? false;
+
+            _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditList(sessIds.Value, isGridAudit, DynamicFormDataAuditGridData));
+
+            if (_DynamicFormDataAuditList?.Count > 0)
+            {
+                _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+                EditEnabled = true;
+            }
         }
+
         PanelVisible = false;
+
         StateHasChanged();
+
     }
     void OnRowclick(GridRowClickEventArgs e)
     {
@@ -115,6 +130,14 @@
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.DataCell)
+        {
+            var isDeletedCheck = (DynamicFormDataAudit)Grid.GetDataItem(e.VisibleIndex);
+            if (isDeletedCheck.IsRecordDeleted == true)
+            {
+                e.Style = "text-decoration:line-through;color:red;";
+            }
         }
     }
     public async ValueTask DisposeAsync()

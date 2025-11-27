@@ -64,7 +64,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                                                                                            border-collapse: collapse;*/
+                                                                                                                                                                                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -111,7 +111,25 @@
     <h4>@_dynamicform?.Name</h4>
 </div>
 <div class="card" style="margin-top: 5px;padding: 5px;">
-   
+    <div class="card-body p-0">
+        <div class="row" style="padding-bottom:10px;">
+            <div class="">
+
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
+                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                        <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
+                    </Items>
+                </DxMenu>
+
+
+            </div>
+
+        </div>
+    </div>
 
     <div class="card cw-480" style="@mainStyle" id="htmlPdfPrint">
         <div class="card-header text-center py-3" style="@displayNonePrintForm">
@@ -119,7 +137,7 @@
         </div>
         <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
             <DxTabPage Text="Form">
-                
+
                 <div class="card-body" style="margin-top:5px;">
                     <DxFormLayout CssClass="w-100">
                         <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
@@ -129,7 +147,7 @@
                                     <div>
                                         Profile No
                                     </div>
-                                    
+
                                 </HeaderContentTemplate>
                                 <Items>
                                     <DxFormLayoutItem Caption="Login From" ColSpanMd="@colSpanMd">
@@ -5445,7 +5463,7 @@
         var isWorkSection = _dynamicFormWorkFlowSectionNoWorkFlow.Where(m => m.DynamicFormSectionId == a.DynamicFormSectionId).FirstOrDefault();
         layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
         layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
-        layoutItemBuilder.AddAttribute(i + 1, "Expanded",true);
+        layoutItemBuilder.AddAttribute(i + 1, "Expanded", true);
         layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
         layoutItemBuilder.AddAttribute(i + 1, "CssClass", "FormLayoutGroupCss");
 
@@ -5524,17 +5542,17 @@
                         }
                         else
                         {
-                           // b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                           // b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                            // b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                            // b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
                         }
                         a.DynamicFormDataSectionLock = sectionLock;
                         b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
                     }
                     else
                     {
-                      //  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
-                       // b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                      //  b.AddAttribute(i + 1, "class", "fa fa-unlock");
+                        //  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                        // b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                        //  b.AddAttribute(i + 1, "class", "fa fa-unlock");
                     }
                     if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
                     {

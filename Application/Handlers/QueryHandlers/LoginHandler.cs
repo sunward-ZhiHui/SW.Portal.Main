@@ -65,6 +65,7 @@ namespace CMS.Application.Handlers.QueryHandlers
                         loginSessionHistory.LoginType = "Login";
                         newEntity.SessionLogin = SessionLogin;
                         await _iLoginSessionHistoryQueryRepository.InsertLoginSessionHistory(loginSessionHistory);
+                        
                     }
                     await _sessionStorage.SetItemAsync("UserID", newEntity.UserID);
                     await _localStorageService.SetItem(_userKey, newEntity);

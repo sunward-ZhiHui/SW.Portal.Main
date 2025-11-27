@@ -240,7 +240,7 @@
             PanelVisible = true; EditEnabled = false; DeleteEnabled = false; Name = string.Empty;
             _documentRole = await Mediator.Send(new GetDocumentRoleList());
             PanelVisible = false;
-            if (_documentRole.Count > 0)
+            if (_documentRole?.Any() == true)
             {
                 _selectedItems = _documentRole.FirstOrDefault();
                 Name = _selectedItems.DocumentRoleName;
@@ -248,11 +248,12 @@
                 Grid.SetFocusedRowIndex(0);
                 Grid.ClearSelection();
 
+
+                AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60207);
+                EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60208);
+                DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60209);
+                ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60210);
             }
-            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60207);
-            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60208);
-            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60209);
-            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60210);
             StateHasChanged();
         }
         catch (Exception ex)
@@ -297,7 +298,7 @@
         {
             if (_selectedItems != null)
             {
-                var request = new DeleteDocumentPermissions(_selectedItems.DocumentRoleId,applicationUser.UserID);
+                var request = new DeleteDocumentPermissions(_selectedItems.DocumentRoleId, applicationUser.UserID);
                 await Mediator.Send(request);
                 deletepopup = false;
                 toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -334,9 +335,9 @@
             DocumentRoleDescription = editablePlant.DocumentRoleDescription,
             StatusCodeId = editablePlant.StatusCodeId,
             AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
-            ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
+            ModifiedDate = DateTime.Now,
             AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
-            ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
+            ModifiedByUserId = applicationUser.UserID,
             StatusCode = _stausItems.FirstOrDefault(f => f.CodeId == editablePlant.StatusCodeId)?.CodeValue,
             AddedBy = applicationUser.UserName,
             ModifiedBy = applicationUser.UserName,
@@ -416,7 +417,7 @@
                 {
                     if (item is DocumentRole plants)
                     {
-                        var request = new DeleteDocumentRole(plants,applicationUser.UserID);
+                        var request = new DeleteDocumentRole(plants, applicationUser.UserID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

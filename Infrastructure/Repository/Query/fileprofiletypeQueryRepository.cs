@@ -8,6 +8,7 @@ using DevExpress.Internal;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service;
@@ -1930,69 +1931,64 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("DeleteByUserID", UserId);
                         parameters.Add("DeleteByDate", DateTime.Now, DbType.DateTime);
                         var query = "Update FileProfileType SET IsDelete=@IsDelete,DeleteByDate=@DeleteByDate,DeleteByUserID=@DeleteByUserID WHERE FileProfileTypeID= @FileProfileTypeID";
-                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters); ;
                         if (result != null)
                         {
-
-
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result.ProfileId?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ProfileId", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result.ProfileName, null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ProfileName", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result.Name, null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "Name", uid);
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ProfileId?.ToString(), ColumnName = "ProfileId" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ProfileName, ColumnName = "ProfileName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, ColumnName = "Name" });
                             if (!string.IsNullOrEmpty(result.Description))
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result.Description, null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "Description", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.Description, ColumnName = "Description" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.IsExpiryDate?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "IsExpiryDate", uid);
-
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.IsDuplicateUpload?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "IsDuplicateUpload", uid);
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.IsAllowWaterMark?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "IsAllowWaterMark", uid);
-
+                            if (result?.IsExpiryDate == true)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsExpiryDate?.ToString(), ColumnName = "IsExpiryDate" });
+                            }
+                            if (result?.IsDuplicateUpload == true)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsDuplicateUpload?.ToString(), ColumnName = "IsDuplicateUpload" });
+                            }
+                            if (result?.IsAllowWaterMark == true)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsAllowWaterMark?.ToString(), ColumnName = "IsAllowWaterMark" });
+                            }
                             if (result?.ShelfLifeDurationId > 0)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ShelfLifeDurationId?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ShelfLifeDurationId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ShelfLifeDurationStatus?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ShelfLifeDurationStatus", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDurationId?.ToString(), ColumnName = "ShelfLifeDurationId" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDurationStatus?.ToString(), ColumnName = "ShelfLifeDurationStatus" });
                             }
                             if (result?.DynamicFormId > 0)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.DynamicFormId?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "DynamicFormId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.DynamicFormName?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "DynamicForm", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DynamicFormId?.ToString(), ColumnName = "DynamicFormId" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DynamicFormName?.ToString(), ColumnName = "DynamicFormName" });
                             }
-                            if (result?.ShelfLifeDurationId != null)
+                            if (result?.ShelfLifeDuration != null)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ShelfLifeDuration?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ShelfLifeDuration", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDuration?.ToString(), ColumnName = "ShelfLifeDuration" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result.ParentId?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ParentId", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.Name, result?.Name, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "DisplayName", uid);
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ModifiedByUserID?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ModifiedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ModifiedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Delete", result?.ModifiedByUser?.ToString(), null, result.FileProfileTypeId, guid, UserId, DateTime.Now, true, "ModifiedBy", uid);
-
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ParentId?.ToString(), ColumnName = "ParentId" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name?.ToString(), CurrentValue = result?.Name?.ToString(), ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserID?.ToString(), ColumnName = "ModifiedByUserID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUser?.ToString(), ColumnName = "ModifiedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "FileProfileType",
+                                    FormType = "Delete",
+                                    HRMasterSetId = result?.FileProfileTypeId,
+                                    IsDeleted = true,
+                                    AuditUserId = UserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
                         }
-
                         return fileProfileTypeId;
+
                     }
                     catch (Exception exp)
                     {
@@ -2318,62 +2314,67 @@ namespace Infrastructure.Repository.Query
                                "@IsAllowMobileUpload,@IsDocumentAccess,@ShelfLifeDuration,@ShelfLifeDurationId,@Hints,@IsEnableCreateTask,@IsCreateByYear,@IsCreateByMonth," +
                                "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId,@IsDuplicateUpload)";
                             value.FileProfileTypeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
+
+
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                             if (value.ProfileId > 0)
                             {
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ProfileId?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ProfileId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ProfileName, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ProfileName", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ProfileId?.ToString(), ColumnName = "ProfileId" });
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ProfileName?.ToString(), ColumnName = "ProfileName" });
                             }
                             if (!string.IsNullOrEmpty(value.Name))
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.Name, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "Name", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", value?.Name, value?.Name, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "DisplayName", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.Name?.ToString(), ColumnName = "Name" });
                             }
                             if (!string.IsNullOrEmpty(value.Description))
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.Description, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "Description", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.Description?.ToString(), ColumnName = "Description" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.IsExpiryDate?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "IsExpiryDate", uid);
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.IsDuplicateUpload?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "IsDuplicateUpload", uid);
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.IsAllowWaterMark?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "IsAllowWaterMark", uid);
-                            if (value.ShelfLifeDurationId > 0)
+                            if (value?.IsExpiryDate == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ShelfLifeDurationId?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ShelfLifeDurationId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ShelfLifeDurationStatus, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ShelfLifeDurationStatus", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.IsExpiryDate?.ToString(), ColumnName = "IsExpiryDate" });
                             }
-                            if (value.DynamicFormId > 0)
+                            if (value?.IsDuplicateUpload == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.DynamicFormId?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "DynamicFormId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.DynamicFormName, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "DynamicForm", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.IsDuplicateUpload?.ToString(), ColumnName = "IsDuplicateUpload" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ParentId?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ParentId", uid);
+                            if (value?.IsAllowWaterMark == true)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.IsAllowWaterMark?.ToString(), ColumnName = "IsAllowWaterMark" });
+                            }
+                            if (value?.ShelfLifeDurationId > 0)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ShelfLifeDurationId?.ToString(), ColumnName = "ShelfLifeDurationId" });
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ShelfLifeDurationStatus?.ToString(), ColumnName = "ShelfLifeDurationStatus" });
+                            }
+                            if (value?.DynamicFormId > 0)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.DynamicFormId?.ToString(), ColumnName = "DynamicFormId" });
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.DynamicFormName?.ToString(), ColumnName = "DynamicFormName" });
+                            }
+                            if (value?.ShelfLifeDuration != null)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ShelfLifeDuration?.ToString(), ColumnName = "ShelfLifeDuration" });
+                            }
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.ShelfLifeDuration?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "ShelfLifeDuration", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.AddedByUserID?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "AddedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.AddedDate != null ? value.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "AddedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Add", null, value?.AddedByUser?.ToString(), value.FileProfileTypeId, guid, value?.AddedByUserID, DateTime.Now, false, "AddedBy", uid);
+                            auditList.Add(new HRMasterAuditTrail { PreValue = value?.Name?.ToString(), CurrentValue = value?.Name?.ToString(), ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.ParentId?.ToString(), ColumnName = "ParentId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedByUserID?.ToString(), ColumnName = "AddedByUserID" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedDate != null ? value.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = value?.AddedByUser?.ToString(), ColumnName = "AddedByUser" });
 
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "FileProfileType",
+                                    FormType = "Add",
+                                    HRMasterSetId = value?.FileProfileTypeId,
+                                    AuditUserId = value?.AddedByUserID,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
                         }
                         else
                         {
@@ -2385,87 +2386,79 @@ namespace Infrastructure.Repository.Query
                                 "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId,DynamicFormId=@DynamicFormId " +
                                 "WHERE FileProfileTypeId=@FileProfileTypeId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
+
                             if (result != null)
                             {
+                                List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                                 bool isUpdate = false;
                                 if (value.ProfileId != result.ProfileId)
                                 {
                                     isUpdate = true;
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result.ProfileId?.ToString(), value?.ProfileId?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ProfileId", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result.ProfileName, value?.ProfileName, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ProfileName", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ProfileId?.ToString(), CurrentValue = value?.ProfileId?.ToString(), ColumnName = "ProfileId" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ProfileName, CurrentValue = value?.ProfileName?.ToString(), ColumnName = "ProfileName" });
                                 }
-                                // if (value.Name != result.Name)
-                                // {
-                                isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result.Name, value?.Name, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "Name", uid);
-
-                                // }
-                                if (value.Description != result.Description)
+                                if (value?.Name != result?.Name)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result.Description, value?.Description, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "Description", uid);
-
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name, CurrentValue = value?.Name?.ToString(), ColumnName = "Name" });
                                 }
-                                if (value.IsExpiryDate != result.IsExpiryDate)
+                                if (value?.Description != result?.Description)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.IsExpiryDate?.ToString(), value?.IsExpiryDate?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "IsExpiryDate", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Description, CurrentValue = value?.Description?.ToString(), ColumnName = "Description" });
                                 }
-                                if (value.IsDuplicateUpload != result.IsDuplicateUpload)
+                                if (value?.IsExpiryDate != result?.IsExpiryDate)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.IsDuplicateUpload?.ToString(), value?.IsDuplicateUpload?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "IsDuplicateUpload", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsExpiryDate?.ToString(), CurrentValue = value?.IsExpiryDate?.ToString(), ColumnName = "IsExpiryDate" });
                                 }
-                                if (value.IsAllowWaterMark != result.IsAllowWaterMark)
+                                if (value?.IsDuplicateUpload != result?.IsDuplicateUpload)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.IsAllowWaterMark?.ToString(), value?.IsAllowWaterMark?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "IsAllowWaterMark", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsDuplicateUpload?.ToString(), CurrentValue = value?.IsDuplicateUpload?.ToString(), ColumnName = "IsDuplicateUpload" });
                                 }
-                                if (value.ShelfLifeDurationId != result?.ShelfLifeDurationId)
+                                if (value?.IsAllowWaterMark != result?.IsAllowWaterMark)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ShelfLifeDurationId?.ToString(), value?.ShelfLifeDurationId?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ShelfLifeDurationId", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ShelfLifeDurationStatus?.ToString(), value?.ShelfLifeDurationStatus, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ShelfLifeDurationStatus", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsAllowWaterMark?.ToString(), CurrentValue = value?.IsAllowWaterMark?.ToString(), ColumnName = "IsAllowWaterMark" });
                                 }
-                                if (value.DynamicFormId != result?.DynamicFormId)
+                                if (value?.ShelfLifeDurationId != result?.ShelfLifeDurationId)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.DynamicFormId?.ToString(), value?.DynamicFormId?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "DynamicFormId", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.DynamicFormName?.ToString(), value?.DynamicFormName, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "DynamicForm", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDurationId?.ToString(), CurrentValue = value?.ShelfLifeDurationId?.ToString(), ColumnName = "ShelfLifeDurationId" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDurationStatus?.ToString(), CurrentValue = value?.ShelfLifeDurationStatus?.ToString(), ColumnName = "ShelfLifeDurationStatus" });
                                 }
-                                if (value.ShelfLifeDuration != result?.ShelfLifeDuration)
+                                if (value?.DynamicFormId != result?.DynamicFormId)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ShelfLifeDuration?.ToString(), value?.ShelfLifeDuration?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ShelfLifeDuration", uid);
-
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DynamicFormId?.ToString(), CurrentValue = value?.DynamicFormId?.ToString(), ColumnName = "DynamicFormId" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DynamicFormName?.ToString(), CurrentValue = value?.DynamicFormName?.ToString(), ColumnName = "DynamicFormName" });
+                                }
+                                if (value?.ShelfLifeDuration != result?.ShelfLifeDuration)
+                                {
+                                    isUpdate = true;
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ShelfLifeDuration?.ToString(), CurrentValue = value?.ShelfLifeDuration?.ToString(), ColumnName = "ShelfLifeDuration" });
                                 }
                                 if (isUpdate)
                                 {
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", value?.Name, value?.Name, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "DisplayName", uid);
-
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.Name?.ToString(), CurrentValue = value?.Name?.ToString(), ColumnName = "DisplayName" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ParentId?.ToString(), CurrentValue = result?.ParentId?.ToString(), ColumnName = "ParentId" });
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result.ParentId?.ToString(), value?.ParentId?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ParentId", uid);
-
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ModifiedByUserID?.ToString(), value?.ModifiedByUserID?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ModifiedByUserID", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value?.ModifiedDate != null ? value.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ModifiedDate", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("FileProfileType", "Update", result?.ModifiedByUser?.ToString(), value?.ModifiedByUser?.ToString(), value.FileProfileTypeId, guid, value?.ModifiedByUserID, DateTime.Now, false, "ModifiedBy", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserID?.ToString(), CurrentValue = result?.ModifiedByUserID?.ToString(), ColumnName = "ModifiedByUserID" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = value?.ModifiedDate != null ? value.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUser, CurrentValue = value?.ModifiedByUser?.ToString(), ColumnName = "ModifiedBy" });
+                                }
+                                if (auditList.Count() > 0)
+                                {
+                                    HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                    {
+                                        HRMasterAuditTrailItems = auditList,
+                                        Type = "FileProfileType",
+                                        FormType = "Update",
+                                        HRMasterSetId = result?.FileProfileTypeId,
+                                        AuditUserId = value?.ModifiedByUserID,
+                                    };
+                                    await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
                                 }
                             }
                         }
@@ -2916,43 +2909,45 @@ namespace Infrastructure.Repository.Query
                                 "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID\n\r" +
                                 "WHERE DocumentRoleId = @DocumentRoleId";
                             await connection.ExecuteAsync(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
                             if (result != null)
                             {
-                                bool isUpdate = false;
-                                if (result.DocumentRoleName != documentRole.DocumentRoleName)
+                                bool isUpdate = false; List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                                if (result?.DocumentRoleName != documentRole?.DocumentRoleName)
                                 {
                                     isUpdate = true;
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.DocumentRoleName, documentRole?.DocumentRoleName, documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "DocumentRoleName", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleName, CurrentValue = documentRole?.DocumentRoleName, ColumnName = "DocumentRoleName" });
                                 }
-                                if (result.DocumentRoleDescription != documentRole.DocumentRoleDescription)
+                                if (result?.DocumentRoleDescription != documentRole?.DocumentRoleDescription)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.DocumentRoleDescription, documentRole?.DocumentRoleDescription, documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "DocumentRoleDescription", uid);
-
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleDescription, CurrentValue = documentRole?.DocumentRoleDescription, ColumnName = "DocumentRoleDescription" });
                                 }
-                                if (result.StatusCodeId != documentRole.StatusCodeId)
+                                if (result?.StatusCodeId != documentRole?.StatusCodeId)
                                 {
                                     isUpdate = true;
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.StatusCodeId?.ToString(), documentRole?.StatusCodeId?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "StatusCodeID", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.StatusCode, documentRole?.StatusCode, documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "StatusCode", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), CurrentValue = documentRole?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, CurrentValue = documentRole?.StatusCode, ColumnName = "StatusCode" });
                                 }
                                 if (isUpdate)
                                 {
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", documentRole?.DocumentRoleName, documentRole?.DocumentRoleName, documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "DisplayName", uid);
-
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.ModifiedByUserId?.ToString(), documentRole?.ModifiedByUserId?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "ModifiedByUserId", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentRole?.ModifiedDate != null ? documentRole.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "ModifiedDate", uid);
-                                    uid = Guid.NewGuid();
-                                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Update", result?.ModifiedBy, documentRole?.ModifiedBy?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.ModifiedByUserId, DateTime.Now, false, "ModifiedBy", uid);
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = documentRole?.DocumentRoleName, CurrentValue = documentRole?.DocumentRoleName, ColumnName = "DisplayName" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), CurrentValue = result?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserID" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = documentRole?.ModifiedDate != null ? documentRole.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, CurrentValue = documentRole?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
                                 }
+                                if (auditList.Count() > 0)
+                                {
+                                    HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                    {
+                                        HRMasterAuditTrailItems = auditList,
+                                        Type = "DocumentRole",
+                                        FormType = "Update",
+                                        HRMasterSetId = result?.DocumentRoleId,
+                                        AuditUserId = documentRole?.ModifiedByUserId,
+                                    };
+                                    await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                                }
+
                             }
 
                         }
@@ -2963,32 +2958,38 @@ namespace Infrastructure.Repository.Query
                                 "(@DocumentRoleName,@DocumentRoleDescription,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
 
                             documentRole.DocumentRoleId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                             if (!string.IsNullOrEmpty(documentRole.DocumentRoleName))
                             {
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.DocumentRoleName, documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "DocumentRoleName", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.DocumentRoleName, ColumnName = "DocumentRoleName" });
                             }
-                            if (!string.IsNullOrEmpty(documentRole.DocumentRoleDescription))
+                            if (!string.IsNullOrEmpty(documentRole?.DocumentRoleDescription))
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.DocumentRoleDescription, documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "DocumentRoleDescription", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.DocumentRoleDescription, ColumnName = "DocumentRoleDescription" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", documentRole?.DocumentRoleName, documentRole?.DocumentRoleName, documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
+                            if (documentRole?.StatusCodeId > 0)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.StatusCode, ColumnName = "StatusCode" });
+                            }
+                            auditList.Add(new HRMasterAuditTrail { PreValue = documentRole?.DocumentRoleName, CurrentValue = documentRole?.DocumentRoleName, ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.AddedByUserId?.ToString(), ColumnName = "AddedByUserId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.AddedDate != null ? documentRole.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentRole?.AddedBy?.ToString(), ColumnName = "AddedBy" });
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.StatusCodeId?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "StatusCodeID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.StatusCode, documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "StatusCode", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.AddedByUserId?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "AddedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.AddedDate != null ? documentRole.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "AddedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Add", null, documentRole?.AddedBy?.ToString(), documentRole.DocumentRoleId, guid, documentRole?.AddedByUserId, DateTime.Now, false, "AddedBy", uid);
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "DocumentRole",
+                                    FormType = "Add",
+                                    HRMasterSetId = documentRole?.DocumentRoleId,
+                                    AuditUserId = documentRole?.AddedByUserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
+
 
                         }
 
@@ -3010,7 +3011,7 @@ namespace Infrastructure.Repository.Query
                 throw new NotImplementedException();
             }
         }
-        public async Task<DocumentRole> DeleteDocumentRole(DocumentRole value,long? UserId)
+        public async Task<DocumentRole> DeleteDocumentRole(DocumentRole value, long? UserId)
         {
             try
             {
@@ -3019,40 +3020,47 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var documentRole = await GetDocumentRoleData(value.DocumentRoleId);
+                        var result = await GetDocumentRoleData(value.DocumentRoleId);
                         var parameters = new DynamicParameters();
                         parameters.Add("DocumentRoleId", value.DocumentRoleId);
                         var query = "DELETE FROM DocumentRole WHERE " +
                             "DocumentRoleId= @DocumentRoleId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                        if (documentRole != null)
+                        if (result != null)
                         {
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
-                            if (!string.IsNullOrEmpty(documentRole.DocumentRoleName))
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                            if (!string.IsNullOrEmpty(result.DocumentRoleName))
                             {
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.DocumentRoleName, null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "DocumentRoleName", uid);
-
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleName, ColumnName = "DocumentRoleName" });
                             }
-                            if (!string.IsNullOrEmpty(documentRole.DocumentRoleDescription))
+                            if (!string.IsNullOrEmpty(result?.DocumentRoleDescription))
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.DocumentRoleDescription, null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "DocumentRoleDescription", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleDescription, ColumnName = "DocumentRoleDescription" });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.DocumentRoleName, documentRole?.DocumentRoleName, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "DisplayName", uid);
+                            if (result?.StatusCodeId > 0)
+                            {
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), ColumnName = "StatusCodeID" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, ColumnName = "StatusCode" });
+                            }
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = result?.DocumentRoleName, PreValue = result?.DocumentRoleName, ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, ColumnName = "ModifiedBy" });
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.StatusCodeId?.ToString(), null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "StatusCodeID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.StatusCode, null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "StatusCode", uid);
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "DocumentRole",
+                                    FormType = "Delete",
+                                    HRMasterSetId = result?.DocumentRoleId,
+                                    IsDeleted = true,
+                                    AuditUserId = UserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.ModifiedByUserId?.ToString(), null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "AddedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.ModifiedDate != null ? documentRole.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "AddedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentRole", "Delete", documentRole?.ModifiedBy?.ToString(), null, documentRole.DocumentRoleId, guid, UserId, DateTime.Now, true, "AddedBy", uid);
 
                         }
                         return value;
@@ -3141,7 +3149,7 @@ namespace Infrastructure.Repository.Query
 
                         if (documentPermission.DocumentPermissionId > 0)
                         {
-                            var result = await GetDocumentPermissionOne(documentPermission.DocumentPermissionId);
+                            var result = await GetDocumentPermissionOne(documentPermission.DocumentRoleId);
                             var query = " UPDATE DocumentPermission SET DocumentRoleId=@DocumentRoleId,\n\r" +
                                 "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,\n\r" +
                                 "IsRead=@IsRead,IsCreateFolder=@IsCreateFolder,IsCreateDocument=@IsCreateDocument,\r\n" +
@@ -3155,105 +3163,108 @@ namespace Infrastructure.Repository.Query
                                 "IsDeleteFolder=@IsDeleteFolder,IsReserveProfileNumber=@IsReserveProfileNumber\r\n" +
                                 "WHERE DocumentPermissionId = @DocumentPermissionId";
                             await connection.ExecuteAsync(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
 
-                            bool isUpdate = false;
+                            bool isUpdate = false; List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
 
                             if (documentPermission?.IsCreateFolder != result?.IsCreateFolder)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsCreateFolder?.ToString(), documentPermission?.IsCreateFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsCreateFolder", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsCreateFolder?.ToString(), CurrentValue = documentPermission?.IsCreateFolder?.ToString(), ColumnName = nameof(result.IsCreateFolder) });
                             }
                             if (documentPermission?.IsEditFolder != result?.IsEditFolder)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsEditFolder?.ToString(), documentPermission?.IsEditFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsEditFolder", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsEditFolder?.ToString(), CurrentValue = documentPermission?.IsEditFolder?.ToString(), ColumnName = nameof(result.IsEditFolder) });
                             }
                             if (documentPermission?.IsDeleteFolder != result?.IsDeleteFolder)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsDeleteFolder?.ToString(), documentPermission?.IsDeleteFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsDeleteFolder", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsDeleteFolder?.ToString(), CurrentValue = documentPermission?.IsDeleteFolder?.ToString(), ColumnName = nameof(result.IsDeleteFolder) });
                             }
                             if (documentPermission?.IsGrantAdminPermission != result?.IsGrantAdminPermission)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsGrantAdminPermission?.ToString(), documentPermission?.IsGrantAdminPermission?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsGrantAdminPermission", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsGrantAdminPermission?.ToString(), CurrentValue = documentPermission?.IsGrantAdminPermission?.ToString(), ColumnName = nameof(result.IsGrantAdminPermission) });
                             }
                             if (documentPermission?.IsCreateDocument != result?.IsCreateDocument)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsCreateDocument?.ToString(), documentPermission?.IsCreateDocument?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsCreateDocument", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsCreateDocument?.ToString(), CurrentValue = documentPermission?.IsCreateDocument?.ToString(), ColumnName = nameof(result.IsCreateDocument) });
                             }
                             if (documentPermission?.IsReserveProfileNumber != result?.IsReserveProfileNumber)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsReserveProfileNumber?.ToString(), documentPermission?.IsReserveProfileNumber?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsReserveProfileNumber", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsReserveProfileNumber?.ToString(), CurrentValue = documentPermission?.IsReserveProfileNumber?.ToString(), ColumnName = nameof(result.IsReserveProfileNumber) });
                             }
                             if (documentPermission?.IsRead != result?.IsRead)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsRead?.ToString(), documentPermission?.IsRead?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsRead", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsRead?.ToString(), CurrentValue = documentPermission?.IsRead?.ToString(), ColumnName = nameof(result.IsRead) });
                             }
                             if (documentPermission?.IsEdit != result?.IsEdit)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsEdit?.ToString(), documentPermission?.IsEdit?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsEdit", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsEdit?.ToString(), CurrentValue = documentPermission?.IsEdit?.ToString(), ColumnName = nameof(result.IsEdit) });
                             }
                             if (documentPermission?.IsRename != result?.IsRename)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsRename?.ToString(), documentPermission?.IsRename?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsRename", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsRename?.ToString(), CurrentValue = documentPermission?.IsRename?.ToString(), ColumnName = nameof(result.IsRename) });
                             }
                             if (documentPermission?.IsUpdateDocument != result?.IsUpdateDocument)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsUpdateDocument?.ToString(), documentPermission?.IsUpdateDocument?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsUpdateDocument", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsUpdateDocument?.ToString(), CurrentValue = documentPermission?.IsUpdateDocument?.ToString(), ColumnName = nameof(result.IsUpdateDocument) });
                             }
                             if (documentPermission?.IsCopy != result?.IsCopy)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsCopy?.ToString(), documentPermission?.IsCopy?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsCopy", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsCopy?.ToString(), CurrentValue = documentPermission?.IsCopy?.ToString(), ColumnName = nameof(result.IsCopy) });
                             }
                             if (documentPermission?.IsShare != result?.IsShare)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsShare?.ToString(), documentPermission?.IsShare?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsShare", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsShare?.ToString(), CurrentValue = documentPermission?.IsShare?.ToString(), ColumnName = nameof(result.IsShare) });
                             }
                             if (documentPermission?.IsMove != result?.IsMove)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsMove?.ToString(), documentPermission?.IsMove?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsMove", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsMove?.ToString(), CurrentValue = documentPermission?.IsMove?.ToString(), ColumnName = nameof(result.IsMove) });
                             }
                             if (documentPermission?.IsDelete != result?.IsDelete)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsDelete?.ToString(), documentPermission?.IsDelete?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsDelete", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsDelete?.ToString(), CurrentValue = documentPermission?.IsDelete?.ToString(), ColumnName = nameof(result.IsDelete) });
                             }
                             if (documentPermission?.IsListVersion != result?.IsListVersion)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsListVersion?.ToString(), documentPermission?.IsListVersion?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsListVersion", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsListVersion?.ToString(), CurrentValue = documentPermission?.IsListVersion?.ToString(), ColumnName = nameof(result.IsListVersion) });
                             }
                             if (documentPermission?.IsEnableProfileTypeInfo != result?.IsEnableProfileTypeInfo)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.IsEnableProfileTypeInfo?.ToString(), documentPermission?.IsEnableProfileTypeInfo?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "IsEnableProfileTypeInfo", uid);
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.IsEnableProfileTypeInfo?.ToString(), CurrentValue = documentPermission?.IsEnableProfileTypeInfo?.ToString(), ColumnName = nameof(result.IsEnableProfileTypeInfo) });
                             }
                             if (isUpdate)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.DocumentRoleName?.ToString(), result?.DocumentRoleName?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "DisplayName", uid);
-
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.DocumentRoleId?.ToString(), documentPermission?.DocumentRoleId?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "DocumentRoleId", uid);
-
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.ModifiedByUserId?.ToString(), documentPermission?.ModifiedByUserId?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "ModifiedByUserId", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentPermission?.ModifiedDate != null ? documentPermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "ModifiedDate", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Update", result?.ModifiedBy?.ToString(), documentPermission?.ModifiedBy?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.ModifiedByUserId, DateTime.Now, false, "ModifiedBy", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleName, CurrentValue = result?.DocumentRoleName, ColumnName = "DisplayName" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.DocumentRoleId?.ToString(), CurrentValue = result?.DocumentRoleId?.ToString(), ColumnName = "DocumentRoleId" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), CurrentValue = documentPermission?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserID" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = documentPermission?.ModifiedDate != null ? documentPermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, CurrentValue = documentPermission?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                            }
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "DocumentPermission",
+                                    FormType = "Update",
+                                    HRMasterSetId = documentPermission?.DocumentRoleId,
+                                    AuditUserId = documentPermission?.ModifiedByUserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
                             }
                         }
                         else
@@ -3273,102 +3284,91 @@ namespace Infrastructure.Repository.Query
                                 "@IsEnableProfileTypeInfo,\r\n@IsShare,\r\n@IsCloseDocument,\r\n@IsEditFolder,\r\n@IsDeleteFolder,@IsReserveProfileNumber)";
 
                             documentPermission.DocumentPermissionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                            var guid = Guid.NewGuid();
-                            var uid = Guid.NewGuid();
-                            var result = await GetDocumentPermissionOne(documentPermission.DocumentPermissionId);
 
+                            var result = await GetDocumentPermissionOne(documentPermission.DocumentRoleId);
 
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                             if (documentPermission?.IsCreateFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsCreateFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsCreateFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsCreateFolder?.ToString(), ColumnName = nameof(result.IsCreateFolder) });
                             }
                             if (documentPermission?.IsEditFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsEditFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsEditFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsEditFolder?.ToString(), ColumnName = nameof(result.IsEditFolder) });
                             }
                             if (documentPermission?.IsDeleteFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsDeleteFolder?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsDeleteFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsDeleteFolder?.ToString(), ColumnName = nameof(result.IsDeleteFolder) });
                             }
                             if (documentPermission?.IsGrantAdminPermission == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsGrantAdminPermission?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsGrantAdminPermission", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsGrantAdminPermission?.ToString(), ColumnName = nameof(result.IsGrantAdminPermission) });
                             }
                             if (documentPermission?.IsCreateDocument == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsCreateDocument?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsCreateDocument", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsCreateDocument?.ToString(), ColumnName = nameof(result.IsCreateDocument) });
                             }
                             if (documentPermission?.IsReserveProfileNumber == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsReserveProfileNumber?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsReserveProfileNumber", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsReserveProfileNumber?.ToString(), ColumnName = nameof(result.IsReserveProfileNumber) });
                             }
                             if (documentPermission?.IsRead == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsCreateDocument?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsRead", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsRead?.ToString(), ColumnName = nameof(result.IsRead) });
                             }
                             if (documentPermission?.IsEdit == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsEdit?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsEdit", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsEdit?.ToString(), ColumnName = nameof(result.IsEdit) });
                             }
                             if (documentPermission?.IsRename == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsRename?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsRename", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsRename?.ToString(), ColumnName = nameof(result.IsRename) });
                             }
                             if (documentPermission?.IsUpdateDocument == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsUpdateDocument?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsUpdateDocument", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsUpdateDocument?.ToString(), ColumnName = nameof(result.IsUpdateDocument) });
                             }
                             if (documentPermission?.IsCopy == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsCopy?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsCopy", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsCopy?.ToString(), ColumnName = nameof(result.IsCopy) });
                             }
                             if (documentPermission?.IsShare == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsShare?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsShare", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsShare?.ToString(), ColumnName = nameof(result.IsShare) });
                             }
                             if (documentPermission?.IsMove == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsMove?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsMove", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsMove?.ToString(), ColumnName = nameof(result.IsMove) });
                             }
                             if (documentPermission?.IsDelete == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsDelete?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsDelete", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsDelete?.ToString(), ColumnName = nameof(result.IsDelete) });
                             }
                             if (documentPermission?.IsListVersion == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsListVersion?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsListVersion", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsListVersion?.ToString(), ColumnName = nameof(result.IsListVersion) });
                             }
                             if (documentPermission?.IsEnableProfileTypeInfo == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.IsEnableProfileTypeInfo?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "IsEnableProfileTypeInfo", uid);
+                                auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.IsEnableProfileTypeInfo?.ToString(), ColumnName = nameof(result.IsEnableProfileTypeInfo) });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.DocumentRoleId?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "DocumentRoleId", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", result?.DocumentRoleName?.ToString(), result?.DocumentRoleName?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.AddedByUserId?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "AddedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.AddedDate != null ? documentPermission.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "AddedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Add", null, documentPermission?.AddedBy?.ToString(), documentPermission.DocumentRoleId, guid, documentPermission?.AddedByUserId, DateTime.Now, false, "AddedBy", uid);
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.DocumentRoleId?.ToString(), ColumnName = "DocumentRoleId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = result?.DocumentRoleName?.ToString(), PreValue = result?.DocumentRoleName?.ToString(), ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.AddedByUserId?.ToString(), ColumnName = "AddedByUserId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.AddedDate != null ? documentPermission.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.AddedBy?.ToString(), ColumnName = "AddedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "DocumentPermission",
+                                    FormType = "Add",
+                                    HRMasterSetId = documentPermission?.DocumentRoleId,
+                                    AuditUserId = documentPermission?.AddedByUserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
                         }
 
                         return documentPermission;
@@ -3389,7 +3389,7 @@ namespace Infrastructure.Repository.Query
                 throw new NotImplementedException();
             }
         }
-        public async Task<long?> DeleteDocumentPermissions(long? Id,long? UserId)
+        public async Task<long?> DeleteDocumentPermissions(long? Id, long? UserId)
         {
             try
             {
@@ -3404,103 +3404,93 @@ namespace Infrastructure.Repository.Query
                         var query = "DELETE FROM DocumentPermission WHERE " +
                             "DocumentRoleId= @DocumentRoleId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
 
                         if (documentPermission != null)
                         {
-
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                             if (documentPermission?.IsCreateFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsCreateFolder?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsCreateFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsCreateFolder?.ToString(), ColumnName = nameof(documentPermission.IsCreateFolder) });
                             }
                             if (documentPermission?.IsEditFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsEditFolder?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsEditFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsEditFolder?.ToString(), ColumnName = nameof(documentPermission.IsEditFolder) });
                             }
                             if (documentPermission?.IsDeleteFolder == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsDeleteFolder?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsDeleteFolder", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsDeleteFolder?.ToString(), ColumnName = nameof(documentPermission.IsDeleteFolder) });
                             }
                             if (documentPermission?.IsGrantAdminPermission == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsGrantAdminPermission?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsGrantAdminPermission", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsGrantAdminPermission?.ToString(), ColumnName = nameof(documentPermission.IsGrantAdminPermission) });
                             }
                             if (documentPermission?.IsCreateDocument == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsCreateDocument?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsCreateDocument", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsCreateDocument?.ToString(), ColumnName = nameof(documentPermission.IsCreateDocument) });
                             }
                             if (documentPermission?.IsReserveProfileNumber == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsReserveProfileNumber?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsReserveProfileNumber", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsReserveProfileNumber?.ToString(), ColumnName = nameof(documentPermission.IsReserveProfileNumber) });
                             }
                             if (documentPermission?.IsRead == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsCreateDocument?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsRead", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsRead?.ToString(), ColumnName = nameof(documentPermission.IsRead) });
                             }
                             if (documentPermission?.IsEdit == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsEdit?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsEdit", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsEdit?.ToString(), ColumnName = nameof(documentPermission.IsEdit) });
                             }
                             if (documentPermission?.IsRename == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsRename?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsRename", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsRename?.ToString(), ColumnName = nameof(documentPermission.IsRename) });
                             }
                             if (documentPermission?.IsUpdateDocument == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsUpdateDocument?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsUpdateDocument", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsUpdateDocument?.ToString(), ColumnName = nameof(documentPermission.IsUpdateDocument) });
                             }
                             if (documentPermission?.IsCopy == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsCopy?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsCopy", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsCopy?.ToString(), ColumnName = nameof(documentPermission.IsCopy) });
                             }
                             if (documentPermission?.IsShare == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsShare?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsShare", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsShare?.ToString(), ColumnName = nameof(documentPermission.IsShare) });
                             }
                             if (documentPermission?.IsMove == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsMove?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsMove", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsMove?.ToString(), ColumnName = nameof(documentPermission.IsMove) });
                             }
                             if (documentPermission?.IsDelete == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsDelete?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsDelete", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsDelete?.ToString(), ColumnName = nameof(documentPermission.IsDelete) });
                             }
                             if (documentPermission?.IsListVersion == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsListVersion?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsListVersion", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsListVersion?.ToString(), ColumnName = nameof(documentPermission.IsListVersion) });
                             }
                             if (documentPermission?.IsEnableProfileTypeInfo == true)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.IsEnableProfileTypeInfo?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "IsEnableProfileTypeInfo", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.IsEnableProfileTypeInfo?.ToString(), ColumnName = nameof(documentPermission.IsEnableProfileTypeInfo) });
                             }
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.DocumentRoleId?.ToString(), documentPermission?.DocumentRoleId?.ToString(), documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "DocumentRoleId", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.DocumentRoleName?.ToString(), documentPermission?.DocumentRoleName?.ToString(), documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "DisplayName", uid);
+                            auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.DocumentRoleId?.ToString(), CurrentValue = documentPermission?.DocumentRoleId?.ToString(), ColumnName = "DocumentRoleId" });
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = documentPermission?.DocumentRoleName?.ToString(), PreValue = documentPermission?.DocumentRoleName?.ToString(), ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserId" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.ModifiedDate != null ? documentPermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = documentPermission?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "DocumentPermission",
+                                    FormType = "Delete",
+                                    IsDeleted = true,
+                                    HRMasterSetId = documentPermission?.DocumentRoleId,
+                                    AuditUserId = UserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
 
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.ModifiedByUserId?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "ModifiedByUserId", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.ModifiedDate != null ? documentPermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "ModifiedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("DocumentPermission", "Delete", documentPermission?.ModifiedBy?.ToString(), null, documentPermission.DocumentRoleId, guid, UserId, DateTime.Now, true, "ModifiedBy", uid);
                         }
                         return Id;
                     }

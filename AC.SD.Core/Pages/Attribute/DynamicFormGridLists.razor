@@ -280,7 +280,7 @@
          Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
     <BodyContentTemplate>
-        <DynamicGridForms @ref="refDynamicGridForms" isMainLocked="@isMainLocked" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
+        <DynamicGridForms @ref="refDynamicGridForms" DynamicFormSectionGridAttributeData="@DynamicFormSectionGridAttributeData" AuditParentSessionId="@AuditParentSessionId" isMainLocked="@isMainLocked" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -376,6 +376,10 @@
     public bool IsShow { get; set; } = true;
     [Parameter]
     public bool? isMainLocked { get; set; }
+    [Parameter]
+    public Guid? AuditParentSessionId { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute DynamicFormSectionGridAttributeData { get; set; }
     public Guid? SessionIds { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
@@ -509,7 +513,7 @@
                 _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1)); _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                 if (_dynamicForm != null && applicationUser != null)
                 {
-                    await PermissionCheckFor();
+
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false, true, true));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -587,33 +591,33 @@
                         {
                             dataColumnNames = dataColumnNames.OrderBy(o => o.OrderBy).ToList();
                         }
-                        if (_dynamicForm.IsApproval == true)
+                        if (_dynamicForm!=null && _dynamicForm.IsApproval == true)
                         {
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
                         }
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
-                        if (_dynamicForm.IsApproval == true)
+                        if (_dynamicForm!=null && _dynamicForm.IsApproval == true)
                         {
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                         }
                     }
                     else
                     {
-                        if (_dynamicForm.IsApproval == true)
+                        if (_dynamicForm != null && _dynamicForm.IsApproval == true)
                         {
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
                         }
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
-                        if (_dynamicForm.IsApproval == true)
+                        if (_dynamicForm!=null && _dynamicForm.IsApproval == true)
                         {
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                         }
                     }
                     if (DynamicFormDataGridId > 0)
                     {
-                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId, null, dynamicFormSearch));
+                        _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm?.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId, null, dynamicFormSearch,false));
                         _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                         if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                         {
@@ -1379,7 +1383,9 @@
                 if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
                 {
                     Items = new ObservableCollection<object>(_dynamicformObjectDataList);
+                    await PermissionCheckFor();
                 }
+
                 PanelVisible = false;
                 StateHasChanged();
             }
@@ -1995,7 +2001,10 @@
     }
     void addDetailDelete()
     {
-        Blukdeletepopup = true;
+        if (_selectedItems != null)
+        {
+            Blukdeletepopup = true;
+        }
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
@@ -2029,17 +2038,21 @@
     {
         try
         {
-            var request = new DeleteDynamicFormData(_selectedItems);
-            var result = await Mediator.Send(request);
-            if (result.IsNotDelete == true)
+            if (_selectedItems != null)
             {
-                toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
-                Blukdeletepopup = false;
-                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
+                _selectedItems.AuditParentSessionId = AuditParentSessionId;
+                var request = new DeleteDynamicFormData(_selectedItems, applicationUser?.UserID);
+                var result = await Mediator.Send(request);
+                if (result.IsNotDelete == true)
+                {
+                    toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                else
+                {
+                    Blukdeletepopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await UpdateDataAsync();
+                }
             }
         }
         catch (Exception eq)

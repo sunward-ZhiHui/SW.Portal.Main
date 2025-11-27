@@ -29,7 +29,7 @@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" Enabled="@ExportEnabled" />
                 <DxMenuItem Text="Add Designation" IconCssClass="fa fa-add" Click="@AddDesignation" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Reset section" IconCssClass="fa fa-refresh" Click="@ResetSection" Enabled="@issectionEnabled" />
-               @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
+                @*  <DxMenuItem Text="Audit Log" IconCssClass="fa fa-info-circle">
                     <Items>
                         <DxMenuItem Text="Current Records" IconCssClass="fa fa-info-circle" Click="@(() => viewAuditLog(false))" />
                         <DxMenuItem Text="Deleted Records" IconCssClass="fa fa-remove" Click="@(() => viewAuditLog(true))" />
@@ -341,18 +341,19 @@
                 sectionName = _selectsec.SectionName;
             }
         }
-        if (_subsectionItems.Count > 0)
+        if (_subsectionItems?.Any() == true)
         {
             _selectedItems = _subsectionItems.FirstOrDefault();
 
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.ClearSelection();
+
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         PanelVisible = false;
         StateHasChanged();

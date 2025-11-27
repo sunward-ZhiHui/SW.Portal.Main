@@ -223,6 +223,14 @@
         {
             e.CssClass = "alt-item";
         }
+        if (e.ElementType == GridElementType.DataCell)
+        {
+            var isDeletedCheck = (DynamicFormDataAudit)Grid.GetDataItem(e.VisibleIndex);
+            if (isDeletedCheck.IsRecordDeleted == true)
+            {
+                e.Style = "text-decoration:line-through;color:red;";
+            }
+        }
     }
     void OpenNewGridForm()
     {

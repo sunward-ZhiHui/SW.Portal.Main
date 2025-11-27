@@ -52,7 +52,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                            border-collapse: collapse;*/
+                                                                                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -1002,6 +1002,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    public Guid? AuditSessionId { get; set; } = Guid.NewGuid();
     bool AddPermissionEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false; bool DeletePermissionEnabled { get; set; } = false;
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSection; private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSectionItems;
     bool IsRenameOpens { get; set; } = false; public DynamicFormWorkFlowSection _selectedDynamicFormWorkFlowItems { get; set; }
@@ -1052,6 +1053,10 @@
     public long? DynamicFormSectionGridAttributeId { get; set; }
     [Parameter]
     public bool? isMainLocked { get; set; }
+    [Parameter]
+    public Guid? AuditParentSessionId { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute DynamicFormSectionGridAttributeData { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
     private bool loading;
     public bool IsDescriptionOpen { get; set; } = false;
@@ -3817,6 +3822,7 @@
                 dynamicFormData.DynamicFormId = _dynamicform.ID;
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var editReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -3838,6 +3844,11 @@
                         DynamicFormDataGridId = DynamicFormDataGridId,
                         IsDynamicFormDataGrid = true,
                         DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId,
+                        AuditSessionId = AuditSessionId,
+                        AuditParentSessionId = AuditParentSessionId,
+                        DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
+                        DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
+                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -3870,6 +3881,7 @@
                             _dynamicformData.ProfileId = result.ProfileId; _dynamicformData.ProfileNo = result.ProfileNo;
                             isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
                         }
+
                         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         loading = false; WithWorkFlowStartPopup = false;
                         //await onApproved();
@@ -3878,6 +3890,7 @@
                 }
                 else
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var createReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -3896,6 +3909,11 @@
                         DynamicFormDataGridId = DynamicFormDataGridId,
                         IsDynamicFormDataGrid = true,
                         DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId,
+                        AuditSessionId = AuditSessionId,
+                        AuditParentSessionId = AuditParentSessionId,
+                        DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
+                        DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
+                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
@@ -3953,6 +3971,7 @@
                 dynamicFormData.DynamicFormId = _dynamicform.ID;
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var editReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -3974,6 +3993,11 @@
                         DynamicFormDataGridId = DynamicFormDataGridId,
                         IsDynamicFormDataGrid = true,
                         DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId,
+                        AuditSessionId = AuditSessionId,
+                        AuditParentSessionId = AuditParentSessionId,
+                        DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
+                        DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
+                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -4014,6 +4038,7 @@
                 }
                 else
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var createReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -4032,6 +4057,11 @@
                         DynamicFormDataGridId = DynamicFormDataGridId,
                         IsDynamicFormDataGrid = true,
                         DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId,
+                        AuditSessionId = AuditSessionId,
+                        AuditParentSessionId = AuditParentSessionId,
+                        DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
+                        DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
+                        DynamicAttributeName = DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
@@ -5879,6 +5909,8 @@
                             editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
                             editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
                             editor.AddAttribute(j + 1, "isMainLocked", isLocked);
+                            editor.AddAttribute(j + 1, "AuditParentSessionId", AuditSessionId);
+                            editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeData", s);
                             if (isAccessOnly == true)
                             {
                                 editor.AddAttribute(j + 1, "IsReadonly", isReadonly);

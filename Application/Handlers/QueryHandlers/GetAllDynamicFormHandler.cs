@@ -424,7 +424,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId, request.DynamicFormSearch);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId, request.DynamicFormSearch,request.IsDelete);
         }
 
 
@@ -440,7 +440,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<DynamicFormData> Handle(DeleteDynamicFormData request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormData(request.DynamicFormData);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormData(request.DynamicFormData,request.UserId);
         }
     }
     public class GetDynamicFormApprovalHandler : IRequestHandler<GetDynamicFormApproval, List<DynamicFormApproval>>
@@ -1584,7 +1584,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId);
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId,request.IsGridAudit,request.DynamicFormDataAuditGridData);
         }
     }
     public class GetDynamicFormDataAuditMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditMultipleList, List<DynamicFormDataAudit>>

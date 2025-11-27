@@ -41,8 +41,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
         Task<DynamicFormData> GetDynamicFormDataBySessionAllIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch);
-        Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch,bool IsDelete);
+        Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData,long? UserId);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
         Task<DynamicFormApproved> InsertOrUpdateDynamicFormDataApproved(DynamicFormApproved dynamicFormApproved);
@@ -135,7 +135,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeGridSequenceSortOrder(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<DynamicFormSectionAttribute> UpdateDynamicFormSectionAttributeAllByCheckBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<long> DeleteDynamicFormDataAssignUser(long? Id, List<long?> Ids);
-        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? sessionId);
+        Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditList(Guid? sessionId,bool IsGridAudit, DynamicFormDataAudit DynamicFormDataAuditGridData);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditMultipleList(List<Guid?> SessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionList(Guid? SessionId);
         Task<IReadOnlyList<DynamicFormDataAudit>> GetDynamicFormDataAuditBySessionMultipleList(List<Guid?> SessionId);

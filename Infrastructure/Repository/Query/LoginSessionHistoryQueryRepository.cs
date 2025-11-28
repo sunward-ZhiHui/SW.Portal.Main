@@ -146,13 +146,22 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        
+                        DateTime? LastActivityTime = null;
+                        if (loginSessionHistory.IdleTime > 0)
+                        {
+                            string ab = "-" + loginSessionHistory.IdleTime;
+                            double value = Convert.ToDouble(ab);
+                            LastActivityTime = DateTime.Now.AddMinutes(value);
+                        }
                         var parameters = new DynamicParameters();
                         parameters.Add("SessionId", loginSessionHistory.SessionId, DbType.Guid);
                         parameters.Add("LogoutType", loginSessionHistory.LogoutType, DbType.String);
                         parameters.Add("LogoutTime", DateTime.Now, DbType.DateTime);
+                        parameters.Add("LastActivityTime", LastActivityTime, DbType.DateTime);
                         parameters.Add("IsActive", loginSessionHistory.IsActive == true ? true : false);
                         parameters.Add("UserId", loginSessionHistory.UserId);
-                        var query = "update LoginSessionHistory set IsActive=@IsActive,LogoutType=@LogoutType,LogoutTime=@LogoutTime where IsActive=1 AND  SessionId=@SessionId AND UserId=@UserId";
+                        var query = "update LoginSessionHistory set LastActivityTime=@LastActivityTime,IsActive=@IsActive,LogoutType=@LogoutType,LogoutTime=@LogoutTime where IsActive=1 AND  SessionId=@SessionId AND UserId=@UserId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return loginSessionHistory;
                     }

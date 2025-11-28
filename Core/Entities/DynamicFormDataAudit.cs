@@ -28,16 +28,24 @@ namespace Core.Entities
         public string? AuditUser { get; set; }
         public string? PreUser { get; set; }
         public long? RowNum { get; set; }
-        public string? DisplayName {  get; set; }  
-        public Guid? DynamicFormSessionId {  get; set; }
-        public bool? IsDeleted { get; set; }=false;
+        public string? DisplayName { get; set; }
+        public Guid? DynamicFormSessionId { get; set; }
+        public bool? IsDeleted { get; set; } = false;
         public string? DynamicFormName { get; set; }
         public string? ProfileNo { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
         public long? CountData { get; set; }
         [NotMapped]
-        public List<DynamicFormDataAudit> DynamicFormDataAudits { get; set; }=new List<DynamicFormDataAudit>();
+        public List<DynamicFormDataAudit> DynamicFormDataAudits { get; set; } = new List<DynamicFormDataAudit>();
 
         public long? DynamicFormDataGridID { get; set; }
+        public string? ControlType { get; set; }
+        public int? ControlTypeId { get; set; }
+        public long? DynamicFormSectionAttributeMainGridId { get; set; }
+        public long? DynamicFormDataMainGridAuditID { get; set; }
+        public long? DynamicFormGridDropDownId { get; set; }
+        public bool? IsRecordDeleted { get; set; } = false;
+        public Guid? AuditParentSessionId { get; set; }
+        public string? SubProfileNo { get; set; }
     }
 }

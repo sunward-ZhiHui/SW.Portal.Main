@@ -10,7 +10,7 @@
 @using AC.SD.Core.Data.Account;
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@inject IJSRuntime JS
 @using System.ComponentModel.DataAnnotations
 @*@using Microsoft.AspNetCore.Components.Authorization*@
 @using Microsoft.AspNetCore.Identity
@@ -328,7 +328,7 @@
                 //StateHasChanged();               
 
             }
-
+            await JS.InvokeVoidAsync("idleTimer.reset");
         }
         catch(Exception ex)
         {

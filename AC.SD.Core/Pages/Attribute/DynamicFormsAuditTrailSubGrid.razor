@@ -32,7 +32,7 @@
                 }
                 else
                 {
-                   <div>No grid found.</div>
+                    <div>No grid found.</div>
                 }
             </DxFormLayoutTabPages>
         </DxFormLayout>
@@ -69,7 +69,7 @@
         RenderFragment item = b =>
         {
             b.OpenComponent<DxFormLayoutTabPage>(0);
-            b.AddAttribute(1, "Caption", dropDownOptionsList.DynamicFormName);
+            b.AddAttribute(1, "Caption", dropDownOptionsList.SectionName + "-" + dropDownOptionsList.DynamicFormName);
             b.AddAttribute(2, "ChildContent", (RenderFragment)((tabPageBuilder) =>
             {
                 tabPageBuilder.OpenComponent<AC.SD.Core.Pages.Attribute.DynamicFormAuditMasterListSubGrid>(1);

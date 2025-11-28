@@ -965,7 +965,7 @@
                                         FormSessionIds = FormSessionId;
                                     }
 
-                                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds, dynamicFormSearch)));
+                                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, dynamicFormSectionGridAttributeId, FormSessionIds, dynamicFormSearch,true)));
                                     await Task.WhenAll(_dynamicformDataLists);
                                     _dynamicformDataList = await _dynamicformDataLists.Result;
 
@@ -1062,7 +1062,8 @@
                 {
                     if (s.ControlTypeId == 2712)
                     {
-                        objectData[attrName] = s.DynamicFormSessionId;
+                        objectData[attrName] = string.Empty;
+                        //objectData[attrName] = s.DynamicFormSessionId;
                     }
                     else
                     {
@@ -1591,7 +1592,8 @@
                 {
                     if (s.ControlTypeId == 2712)
                     {
-                        objectData[attrName] = s.DynamicFormSessionId;
+                        objectData[attrName] =string.Empty;
+                        //objectData[attrName] = s.DynamicFormSessionId;
                     }
                     else
                     {

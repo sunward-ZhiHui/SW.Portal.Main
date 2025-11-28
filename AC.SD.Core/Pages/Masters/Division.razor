@@ -293,20 +293,21 @@
 
 
         }
-        if (_divisions.Count > 0)
+        if (_divisions?.Any() == true)
         {
             _selectedItems = _divisions.FirstOrDefault();
 
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.ClearSelection();
+
+            SelectedDataItems = null;
+            PanelVisible = false;
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         }
-        SelectedDataItems = null;
-        PanelVisible = false;
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         StateHasChanged();
         // await jsRuntime.InvokeAsync<string>("hideLoading");
 

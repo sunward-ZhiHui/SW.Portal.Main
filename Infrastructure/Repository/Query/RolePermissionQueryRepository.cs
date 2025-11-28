@@ -96,28 +96,33 @@ namespace Infrastructure.Repository.Query
 
                         var plantData = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.RoleName, plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "RoleName", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", rolepermission?.RoleName, rolepermission?.RoleName, plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "DisplayName", uid);
+                        List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                        if (!string.IsNullOrEmpty(rolepermission?.RoleName))
+                        {
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.RoleName, ColumnName = "RoleName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.RoleName, CurrentValue = rolepermission?.RoleName, ColumnName = "DisplayName" });
+                        }
                         if (!string.IsNullOrEmpty(rolepermission?.RoleDescription))
                         {
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.RoleDescription, plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "RoleDescription", uid);
-
+                            auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.RoleDescription, ColumnName = "RoleDescription" });
                         }
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.StatusCodeID?.ToString(), plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "StatusCodeID", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.StatusCode, plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "StatusCode", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.AddedByUserID?.ToString(), plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "AddedByUserID", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.AddedDate != null ? rolepermission.AddedDate.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "AddedDate", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Add", null, rolepermission?.AddedBy?.ToString(), plantData, guid, rolepermission?.AddedByUserID, DateTime.Now, false, "AddedBy", uid);
-
+                        auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.StatusCodeID?.ToString(), ColumnName = "StatusCodeID" });
+                        auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.StatusCode, ColumnName = "StatusCode" });
+                        auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.AddedByUserID?.ToString(), ColumnName = "AddedByUserID" });
+                        auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.AddedDate != null ? rolepermission.AddedDate.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+                        auditList.Add(new HRMasterAuditTrail { CurrentValue = rolepermission?.AddedBy?.ToString(), ColumnName = "AddedBy" });
+                        if (auditList.Count() > 0)
+                        {
+                            HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                            {
+                                HRMasterAuditTrailItems = auditList,
+                                Type = "ApplicationRole",
+                                FormType = "Add",
+                                HRMasterSetId = plantData,
+                                AuditUserId = rolepermission?.AddedByUserID,
+                            };
+                            await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                        }
                         return plantData;
                     }
 
@@ -163,40 +168,43 @@ namespace Infrastructure.Repository.Query
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         bool isUpdate = false;
-
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
                         if (result != null)
                         {
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                             if (rolepermission?.RoleName != result?.RoleName)
                             {
                                 isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", rolepermission?.RoleName, rolepermission?.RoleName, rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "RoleName", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.RoleName, CurrentValue = rolepermission?.RoleName, ColumnName = "RoleName" });
                             }
                             if (rolepermission?.RoleDescription != result?.RoleDescription)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.RoleDescription, rolepermission?.RoleDescription, rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "RoleDescription", uid);
-
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.RoleDescription, CurrentValue = rolepermission?.RoleDescription, ColumnName = "RoleDescription" });
                             }
                             if (rolepermission?.StatusCodeID != result?.StatusCodeID)
                             {
-                                uid = Guid.NewGuid(); isUpdate = true;
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.StatusCodeID?.ToString(), rolepermission?.StatusCodeID?.ToString(), rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "StatusCodeID", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.StatusCode, rolepermission?.StatusCode, rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "StatusCode", uid);
-
+                                isUpdate = true;
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeID?.ToString(), CurrentValue = rolepermission?.StatusCodeID?.ToString(), ColumnName = "StatusCodeID" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, CurrentValue = rolepermission?.StatusCode, ColumnName = "StatusCode" });
                             }
                             if (isUpdate)
                             {
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", rolepermission?.RoleName, rolepermission?.RoleName, rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "DisplayName", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.ModifiedByUserID?.ToString(), rolepermission?.ModifiedByUserID?.ToString(), rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "ModifiedByUserID", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, rolepermission?.ModifiedDate != null ? rolepermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "ModifiedDate", uid);
-                                uid = Guid.NewGuid();
-                                await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Update", result?.ModifiedBy?.ToString(), rolepermission?.ModifiedBy?.ToString(), rolepermission.RoleID, guid, rolepermission?.ModifiedByUserID, DateTime.Now, false, "ModifiedBy", uid);
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.RoleName, CurrentValue = rolepermission?.RoleName, ColumnName = "DisplayName" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserID?.ToString(), CurrentValue = rolepermission?.ModifiedByUserID?.ToString(), ColumnName = "ModifiedByUserID" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = rolepermission?.ModifiedDate != null ? rolepermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                                auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, CurrentValue = rolepermission?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                            }
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "ApplicationRole",
+                                    FormType = "Update",
+                                    HRMasterSetId = rolepermission?.RoleID,
+                                    AuditUserId = rolepermission?.ModifiedByUserID,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
                             }
                         }
                         return rowsAffected;
@@ -235,31 +243,32 @@ namespace Infrastructure.Repository.Query
 
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
-                        var guid = Guid.NewGuid();
-                        var uid = Guid.NewGuid();
                         if (rolepermission != null)
                         {
+                            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
 
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.RoleName, rolepermission?.RoleName, rolepermission.RoleID, guid, UserId, DateTime.Now, true, "RoleName", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.RoleDescription, rolepermission?.RoleDescription, rolepermission.RoleID, guid, UserId, DateTime.Now, true, "RoleDescription", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.StatusCodeID?.ToString(), rolepermission?.StatusCodeID?.ToString(), rolepermission.RoleID, guid, UserId, DateTime.Now, true, "StatusCodeID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.StatusCode, rolepermission?.StatusCode, rolepermission.RoleID, guid, UserId, DateTime.Now, true, "StatusCode", uid);
-
-
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.RoleName, rolepermission?.RoleName, rolepermission.RoleID, guid, UserId, DateTime.Now, true, "DisplayName", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.ModifiedByUserID?.ToString(), rolepermission?.ModifiedByUserID?.ToString(), rolepermission.RoleID, guid, UserId, DateTime.Now, true, "ModifiedByUserID", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.ModifiedDate != null ? rolepermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, rolepermission?.ModifiedDate != null ? rolepermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, rolepermission.RoleID, guid, UserId, DateTime.Now, true, "ModifiedDate", uid);
-                            uid = Guid.NewGuid();
-                            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("ApplicationRole", "Delete", rolepermission?.ModifiedBy?.ToString(), rolepermission?.ModifiedBy?.ToString(), rolepermission.RoleID, guid, UserId, DateTime.Now, true, "ModifiedBy", uid);
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.RoleName, ColumnName = "RoleName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.RoleName, CurrentValue = rolepermission?.RoleName, ColumnName = "DisplayName" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.RoleDescription, ColumnName = "RoleDescription" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.StatusCodeID?.ToString(), ColumnName = "StatusCodeID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.StatusCode, ColumnName = "StatusCode" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.ModifiedByUserID?.ToString(), ColumnName = "ModifiedByUserID" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.ModifiedDate != null ? rolepermission.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                            auditList.Add(new HRMasterAuditTrail { PreValue = rolepermission?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                            if (auditList.Count() > 0)
+                            {
+                                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                                {
+                                    HRMasterAuditTrailItems = auditList,
+                                    Type = "ApplicationRole",
+                                    FormType = "Delete",
+                                    HRMasterSetId = rolepermission?.RoleID,
+                                    IsDeleted = true,
+                                    AuditUserId = UserId,
+                                };
+                                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                            }
                         }
-
-
                         return rowsAffected;
                     }
                     catch (Exception exp)

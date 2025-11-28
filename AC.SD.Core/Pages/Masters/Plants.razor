@@ -222,18 +222,19 @@
         }
         _plants = model;
         PanelVisible = false;
-        if (_plants.Count > 0)
+        if (_plants?.Any() == true)
         {
             _selectedItems = _plants.FirstOrDefault();
 
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.ClearSelection();
+
+            AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
+            EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
+            DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
+            ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         }
-        AddEnabled = portalMenuModels.Any(f => f.PermissionID == 60043);
-        EditEnabled = portalMenuModels.Any(f => f.PermissionID == 60044);
-        DeleteEnabled = portalMenuModels.Any(f => f.PermissionID == 60045);
-        ExportEnabled = portalMenuModels.Any(f => f.PermissionID == 60046);
         SelectedDataItems = null;
         StateHasChanged();
 

@@ -33,6 +33,79 @@ namespace Infrastructure.Repository.Query
         {
             _auditLogQueryRepository = auditLogQueryRepository;
         }
+        public DataTable ToDataTable(HRMasterAuditTrail? list)
+        {
+            list.SessionId = list.SessionId ?? Guid.NewGuid();
+            var dt = new DataTable();
+            dt.Columns.Add("UniqueSessionId", typeof(Guid));
+            dt.Columns.Add("ColumnName", typeof(string));
+            dt.Columns.Add("PreValue", typeof(string));
+            dt.Columns.Add("CurrentValue", typeof(string));
+            dt.Columns.Add("HRMasterSetID", typeof(long));
+            dt.Columns.Add("SessionID", typeof(Guid));
+            dt.Columns.Add("AuditUserID", typeof(long));
+            dt.Columns.Add("AuditDate", typeof(DateTime));
+            dt.Columns.Add("IsDeleted", typeof(bool));
+            dt.Columns.Add("Type", typeof(string));
+            dt.Columns.Add("FormType", typeof(string));
+
+            foreach (var a in list.HRMasterAuditTrailItems)
+            {
+                dt.Rows.Add(
+                    a.UniqueSessionId != null ? a.UniqueSessionId : Guid.NewGuid(),
+                    a.ColumnName,
+                    a.PreValue,
+                    a.CurrentValue,
+                    list.HRMasterSetId,
+                    list.SessionId,
+                    list.AuditUserId,
+                    list.AuditDate != null ? list.AuditDate : DateTime.Now,
+                    list.IsDeleted ?? false,
+                    list.Type,
+                    !string.IsNullOrEmpty(a.FormType) ? a.FormType : list.FormType
+
+                );
+            }
+            return dt;
+        }
+        public async Task BulkInsertAudit(HRMasterAuditTrail auditList)
+        {
+            try
+            {
+                if (auditList.HRMasterAuditTrailItems?.Any() == true)
+                {
+                    var dt = ToDataTable(auditList);
+
+                    using (var connection = (SqlConnection)CreateConnection())
+                    {
+                        await connection.OpenAsync();
+
+                        using (var bulk = new SqlBulkCopy(connection))
+                        {
+                            bulk.DestinationTableName = "HRMasterAuditTrail";
+
+                            bulk.ColumnMappings.Add("UniqueSessionId", "UniqueSessionId");
+                            bulk.ColumnMappings.Add("ColumnName", "ColumnName");
+                            bulk.ColumnMappings.Add("PreValue", "PreValue");
+                            bulk.ColumnMappings.Add("CurrentValue", "CurrentValue");
+                            bulk.ColumnMappings.Add("HRMasterSetId", "HRMasterSetID");
+                            bulk.ColumnMappings.Add("SessionId", "SessionID");
+                            bulk.ColumnMappings.Add("AuditUserId", "AuditUserID");
+                            bulk.ColumnMappings.Add("AuditDate", "AuditDate");
+                            bulk.ColumnMappings.Add("IsDeleted", "IsDeleted");
+                            bulk.ColumnMappings.Add("Type", "Type");
+                            bulk.ColumnMappings.Add("FormType", "FormType");
+                            await bulk.WriteToServerAsync(dt);
+                        }
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public async Task InsertHRMasterAuditTrail(string? Type, string? FormType, string? PreValue, string? CurrentValue, long? HRMasterSetID, Guid? SessionId, long? AuditUserId, DateTime? AuditDate, bool? IsDeleted, string? columnName, Guid? UniqueSessionId = null)
         {
             try
@@ -86,7 +159,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("@MasterType", masterTypes);
                     parameters.Add("IsDeleted", IsDeleted);
                     parameters.Add("HRMasterSetId", MasterId);
-                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId','PermissionID') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
+                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName NOT LIKE '%Id' AND t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId','PermissionID') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
                     if (IsDeleted == false)
                     {
                         query += "\rAND t1.HRMasterSetId=@HRMasterSetId\r";
@@ -118,7 +191,7 @@ namespace Infrastructure.Repository.Query
                 {
                     if (!string.IsNullOrEmpty(AddTypeId))
                     {
-                        HRMasterAuditTrail=new List<HRMasterAuditTrail>();
+                        HRMasterAuditTrail = new List<HRMasterAuditTrail>();
                         var result = await GetHRMasterAuditSubList(MasterType, MasterId, AddTypeId);
                         if (result != null)
                         {

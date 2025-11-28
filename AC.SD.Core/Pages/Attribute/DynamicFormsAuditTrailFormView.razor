@@ -15,7 +15,11 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
 
-
+<style scoped>
+    .hideDetailButton .dxbl-grid-expand-button-cell .dxbl-grid-expand-button {
+        visibility: hidden;
+    }
+</style>
 
 <DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
                 IsContentBlocked="true"
@@ -91,7 +95,15 @@
             </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-
+        <DetailRowTemplate>
+            @{
+                var itemData = (DynamicFormDataAudit)context.DataItem;
+            }
+            @if (itemData.ControlTypeId == 2712)
+            {
+                <DynamicFormsAuditTrail DynamicFormDataAuditGridData="@itemData" />
+            }
+        </DetailRowTemplate>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DisplayName" />
         </TotalSummary>
@@ -110,6 +122,7 @@
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
     private DynamicFormDataAudit _selectedItems; bool EditEnabled { get; set; } = false; private DynamicForm _dynamicForm; private AttributeHeaderListModel _AttributeHeader;
     IDictionary<string, object> objectData = new ExpandoObject(); IDictionary<string, object> pobjectData = new ExpandoObject();
+    public List<DynamicFormDataAudit> dynamicFormDataAudits { get; set; } = new List<DynamicFormDataAudit>();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -128,66 +141,101 @@
             await Task.WhenAll(_AttributeHeaders);
             _AttributeHeader = await _AttributeHeaders.Result;
         }
-        _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditBySessionList(Items.SessionId));
-        if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+        if (Items.IsRecordDeleted == true)
         {
-            var res = _DynamicFormDataAuditList.Where(w => w.CurrentData != null).FirstOrDefault();
-            await getSetList(res);
-            var vids = objectData.Cast<dynamic>().ToList(); var pids = pobjectData.Cast<dynamic>().ToList();
-            _DynamicFormDataAuditList.ForEach(a =>
+            if (Items.PrevData != null && IsValidJson(Items.PrevData))
             {
-                string value = vids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
-                if (!string.IsNullOrEmpty(value))
-                {
-                    setCurrentDisplayValue(value, a.AttributeId);
-                }
-                string pvalue = pids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
-                if (!string.IsNullOrEmpty(pvalue))
-                {
-                    setPreviousDisplayValue(pvalue, a.AttributeId);
-                }
-                var typeName = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                if (typeName != null && typeName.ControlTypeId == 2715)
-                {
-                    // var _attributeGroupCheckBoxes = _AttributeHeader.AttributeGroupCheckBoxes.Where(s => s.AttributeId == typeName.AttributeId).ToList();
-                    // if (_attributeGroupCheckBoxes.Count() > 0)
-                    // {
-                    //     _attributeGroupCheckBoxes.ForEach(r =>
-                    //     {
-                    //         var nameData = a.DynamicFormSectionAttributeId + "_" + typeName.AttributeId + "_" + r.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                    //         if (nameData == a.AttributeId )
-                    //         {
-                    //             setCurrentDisplayValue(r.Value, nameData);
-                    //         }
-                    //         if (nameData == a.AttributeId)
-                    //         {
-                    //             setPreviousDisplayValue(r.Value, nameData);
-                    //         }
-                    //     });
-                    // }
-                }
-            });
 
-            List<DynamicFormDataAudit> _DynamicFormDataAuditLists = new List<DynamicFormDataAudit>();
+                List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
+                var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
+                dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
+                ApplicationMasterIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
+                ApplicationMasterParentIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
+                if (ApplicationMasterIds.Count > 0)
+                {
+                    dataSourceTableIds.Add("ApplicationMaster");
+                }
+                if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
+                {
+                    dataSourceTableIds.Add("ApplicationMasterParent");
+                }
+                var PlantDependencySubAttributeDetailss = Task.Factory.StartNew(() => Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>())));
+                await Task.WhenAll(PlantDependencySubAttributeDetailss);
+                PlantDependencySubAttributeDetails = await PlantDependencySubAttributeDetailss.Result;
+                var pjsonObjs = JsonConvert.DeserializeObject(Items.PrevData);
+                getPreDataList(pjsonObjs);
+                long j = 1;
+                if (dynamicFormDataAudits?.Any() == true)
+                {
+                    _DynamicFormDataAuditList = new List<DynamicFormDataAudit>();
+                    dynamicFormDataAudits.ForEach(a =>
+                    {
+                        if (!string.IsNullOrEmpty(a.PreValue))
+                        {
+                            long k = j++;
+                            a.RowNum = k;
+                            a.DynamicFormDataAuditId = k;
+                            a.IsRecordDeleted = Items.IsRecordDeleted;
+                            _DynamicFormDataAuditList.Add(a);
+                        }
+                    });
+                    _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+                    EditEnabled = true;
+                }
+            }
+        }
+        else
+        {
+            _DynamicFormDataAuditList = await Mediator.Send(new GetDynamicFormDataAuditBySessionList(Items.SessionId));
             if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
             {
-                _DynamicFormDataAuditList.ForEach(f =>
+                var res = _DynamicFormDataAuditList.Where(w => w.CurrentData != null).FirstOrDefault();
+                await getSetList(res);
+                var vids = objectData.Cast<dynamic>().ToList(); var pids = pobjectData.Cast<dynamic>().ToList();
+                _DynamicFormDataAuditList.ForEach(a =>
                 {
-                    if (string.IsNullOrEmpty(f.CurrentValue) && string.IsNullOrEmpty(f.PreValue))
+                    string value = vids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
+                    if (!string.IsNullOrEmpty(value))
                     {
-                        //_DynamicFormDataAuditList.Remove(f);
+                        setCurrentDisplayValue(value, a.AttributeId);
                     }
-                    else
+                    string pvalue = pids.Where(w => w.Key == a.AttributeId).FirstOrDefault()?.Value;
+                    if (!string.IsNullOrEmpty(pvalue))
                     {
-                        _DynamicFormDataAuditLists.Add(f);
+                        setPreviousDisplayValue(pvalue, a.AttributeId);
                     }
                 });
-            }
-            if (_DynamicFormDataAuditLists != null && _DynamicFormDataAuditLists.Count() > 0)
-            {
-                _DynamicFormDataAuditList = _DynamicFormDataAuditLists;
-                _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
-                EditEnabled = true;
+
+                List<DynamicFormDataAudit> _DynamicFormDataAuditLists = new List<DynamicFormDataAudit>();
+                if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
+                {
+                    _DynamicFormDataAuditList.ForEach(f =>
+                    {
+                        if (string.IsNullOrEmpty(f.CurrentValue) && string.IsNullOrEmpty(f.PreValue))
+                        {
+                            //_DynamicFormDataAuditList.Remove(f);
+                        }
+                        else
+                        {
+                            _DynamicFormDataAuditLists.Add(f);
+                        }
+                        var res = _AttributeHeader.DynamicFormSectionAttribute?.FirstOrDefault(w => w.DynamicFormSectionAttributeId == f.DynamicFormSectionAttributeId);
+                        f.ControlType = res?.ControlType;
+                        f.ControlTypeId = res?.ControlTypeId;
+                        f.DynamicFormGridDropDownId = res?.DynamicFormGridDropDownId;
+                        if (res != null && res.ControlTypeId == 2712)
+                        {
+                            f.CurrentValue = null; f.PreValue = null;
+                        }
+
+                    });
+                }
+                if (_DynamicFormDataAuditLists != null && _DynamicFormDataAuditLists.Count() > 0)
+                {
+                    _DynamicFormDataAuditList = _DynamicFormDataAuditLists;
+                    _selectedItems = _DynamicFormDataAuditList.FirstOrDefault();
+                    EditEnabled = true;
+                }
             }
         }
         PanelAttibuteVisible = false;
@@ -310,7 +358,7 @@
                         _attributeGroupCheckBoxes.ForEach(z =>
                         {
                             var nameData = a.DynamicFormSectionAttributeId + "_" + a.AttributeId + "_" + z.AttributeGroupCheckBoxId + "_GroupCheckBox";
-                           setDisplayName(z.Value, nameData);
+                            setDisplayName(z.Value, nameData);
                             if (z.SubAttributeHeaders.Count() > 0)
                             {
                                 z.SubAttributeHeaders.ForEach(dd =>
@@ -425,7 +473,7 @@
                     {
                         if (s.ControlTypeId == 2712)
                         {
-                            objectData[attrName] = s.DynamicFormSessionId;
+                            objectData[attrName] = s.DynamicFormSessionId?.ToString();
                         }
                         else
                         {
@@ -860,7 +908,7 @@
                                                 if (r.IsTextBox == true)
                                                 {
                                                     string? values = itemValueA == null ? string.Empty : (string)itemValueA;
-                                                    
+
                                                     loadSubHeaders(r.SubAttributeHeaders, s, jsonObj, objectData);
                                                 }
                                                 else
@@ -926,7 +974,7 @@
                     {
                         if (s.ControlTypeId == 2712)
                         {
-                            objectData[attrName] = s.DynamicFormSessionId;
+                            objectData[attrName] = s.DynamicFormSessionId?.ToString();
                         }
                         else
                         {
@@ -1018,7 +1066,8 @@
                    {
                        if (s.ControlTypeId == 2712)
                        {
-                           pobjectData[attrName] = s.DynamicFormSessionId;
+                           pobjectData[attrName] = s.DynamicFormSessionId?.ToString();
+                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = s.DisplayName });
                        }
                        else
                        {
@@ -1040,10 +1089,13 @@
                                            if (s.IsMultiple == true || s.ControlType == "TagBox")
                                            {
                                                var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                               pobjectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                               var names = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                               pobjectData[nameData] = names;
+                                               dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = names, DisplayName = ab.ApplicationMasterName });
                                            }
                                            else
                                            {
+                                               dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = ab.ApplicationMasterName });
                                                pobjectData[nameData] = string.Empty;
                                            }
                                        }
@@ -1054,6 +1106,7 @@
                                                long? values = itemValue == null ? -1 : (long)itemValue;
                                                var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                                                pobjectData[nameData] = listss;
+                                               dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = ab.ApplicationMasterName });
                                            }
                                            else
                                            {
@@ -1062,10 +1115,12 @@
                                                    long? values = itemValue == null ? -1 : (long)itemValue;
                                                    var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                                                    pobjectData[nameData] = listss;
+                                                   dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = ab.ApplicationMasterName });
                                                }
                                                else
                                                {
                                                    pobjectData[nameData] = string.Empty;
+                                                   dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = ab.ApplicationMasterName });
                                                }
                                            }
                                        }
@@ -1123,6 +1178,7 @@
                                                }
                                            }
                                            pobjectData[appendDependency] = displayNames;
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames, DisplayName = ab.ApplicationMasterName });
                                        }
                                    }
                                });
@@ -1188,6 +1244,7 @@
                                                }
                                            }
                                        }
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames, DisplayName = ab.ApplicationMasterName });
                                        pobjectData[appendDependency] = displayNames;
                                    }
 
@@ -1251,6 +1308,7 @@
                                            });
                                        }
                                        pobjectData[attrName] = displayNames.TrimEnd(',');
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames.TrimEnd(','), DisplayName = s.DisplayName });
                                    }
                                    else
                                    {
@@ -1259,7 +1317,9 @@
                                        {
                                            listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                        }
-                                       pobjectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                       var namesq = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                       pobjectData[attrName] = namesq;
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = namesq.TrimEnd(','), DisplayName = s.DisplayName });
                                    }
                                }
                                else
@@ -1306,6 +1366,7 @@
                                                    }
                                                }
                                                pobjectData[attrName] = displayNames;
+                                               dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames.TrimEnd(','), DisplayName = s.DisplayName });
                                            }
                                            else
                                            {
@@ -1314,12 +1375,15 @@
                                                {
                                                    listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                }
-                                               pobjectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                               var na = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                               dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na, DisplayName = s.DisplayName });
+                                               pobjectData[attrName] = na;
                                            }
                                        }
                                        else
                                        {
                                            pobjectData[attrName] = string.Empty;
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = s.DisplayName });
                                        }
                                        if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
                                        {
@@ -1341,10 +1405,13 @@
                                                            {
                                                                listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
                                                            }
-                                                           pobjectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                           var nae = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = nae, DisplayName = dd.DisplayName });
+                                                           pobjectData[nameData] = nae;
                                                        }
                                                        else
                                                        {
+                                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = dd.DisplayName });
                                                            pobjectData[nameData] = string.Empty;
                                                        }
                                                    }
@@ -1356,6 +1423,7 @@
                                                        {
                                                            listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
                                                        }
+                                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = dd.DisplayName });
                                                        pobjectData[nameData] = listss;
                                                    }
                                                }
@@ -1386,11 +1454,14 @@
                                            {
                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                            }
-                                           pobjectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                           var listss = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                           pobjectData[attrName] = listss;
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = s.DisplayName });
                                        }
                                        else
                                        {
                                            pobjectData[attrName] = string.Empty;
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = s.DisplayName });
                                        }
                                    }
                                    else if (s.ControlType == "DateEdit")
@@ -1401,6 +1472,7 @@
                                        {
                                            startDate = values?.ToString("dd-MMM-yyyy");
                                        }
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = startDate, DisplayName = s.DisplayName });
                                        pobjectData[attrName] = startDate;
                                    }
                                    else if (s.ControlType == "TimeEdit")
@@ -1412,9 +1484,11 @@
                                            DateTime dateTimes = new DateTime();
                                            var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
                                            pobjectData[attrName] = dd1.ToString("hh:mm tt");
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = dd1.ToString("hh:mm tt"), DisplayName = s.DisplayName });
                                        }
                                        else
                                        {
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = s.DisplayName });
                                            pobjectData[attrName] = "";
                                        }
                                    }
@@ -1424,17 +1498,20 @@
                                        {
                                            decimal? values = itemValue == null ? null : (decimal)itemValue;
                                            pobjectData[attrName] = values != null ? values.ToString() : "";
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values != null ? values.ToString() : "", DisplayName = s.DisplayName });
                                        }
                                        else
                                        {
                                            int? values = itemValue == null ? null : (int)itemValue;
                                            pobjectData[attrName] = values != null ? values.ToString() : "";
+                                           dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values != null ? values.ToString() : "", DisplayName = s.DisplayName });
                                        }
                                    }
                                    else if (s.ControlType == "CheckBox")
                                    {
                                        bool? values = itemValue == null ? false : (bool)itemValue;
                                        pobjectData[attrName] = values == true ? "Checked" : "";
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values == true ? "Checked" : "", DisplayName = s.DisplayName });
                                        loadPrevSubHeaders(s.SubAttributeHeaders, s, jsonObj, pobjectData);
                                    }
                                    else if (s.ControlType == "GroupCheckBox")
@@ -1459,6 +1536,7 @@
                                                    {
                                                        bool? valuesA = itemValueA == null ? false : (bool?)itemValueA;
                                                        pobjectData[nameData] = valuesA == true ? "Checked" : "";
+                                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = valuesA == true ? "Checked" : "", DisplayName = r.Value });
                                                        if (valuesA == true)
                                                        {
                                                            valuesData += "<li>" + r.Value + "</li>";
@@ -1472,12 +1550,14 @@
                                                }
                                            });
                                            valuesData += "</ul>";
+                                           // dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = valuesData.TrimEnd(','), DisplayName = s.DisplayName });
                                            pobjectData[attrName] = valuesData.TrimEnd(',');
                                        }
 
                                    }
                                    else
                                    {
+                                       dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = (string)itemValue, DisplayName = s.DisplayName });
                                        pobjectData[attrName] = (string)itemValue;
                                    }
 
@@ -1490,7 +1570,7 @@
                    {
                        if (s.ControlTypeId == 2712)
                        {
-                           pobjectData[attrName] = s.DynamicFormSessionId;
+                           pobjectData[attrName] = s.DynamicFormSessionId?.ToString();
                        }
                        else
                        {
@@ -1880,6 +1960,7 @@
                                      }
                                  });
                              }
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames.TrimEnd(','), DisplayName = d.Description });
                              pobjectData[subAttrName] = displayNames.TrimEnd(',');
                          }
                          else
@@ -1891,7 +1972,9 @@
                                  {
                                      listName = d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null).Select(s => s.NameList).ToList();
                                  }
-                                 pobjectData[subAttrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                 var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = d.Description });
+                                 pobjectData[subAttrName] = na1;
                              }
                          }
                      }
@@ -1905,10 +1988,13 @@
                              {
                                  listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values).Select(s => s.NameList).ToList();
                              }
-                             pobjectData[subAttrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                             var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = d.Description });
+                             pobjectData[subAttrName] = na1;
                          }
                          else
                          {
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = d.Description });
                              pobjectData[subAttrName] = string.Empty;
                          }
                      }
@@ -1916,11 +2002,13 @@
                      {
                          if (d.ControlType == "TextBox" || d.ControlType == "Memo")
                          {
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = (string)itemValues, DisplayName = d.Description });
                              pobjectData[subAttrName] = (string)itemValues;
 
                          }
                          else if (d.ControlType == "QR Code")
                          {
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = (string)itemValues, DisplayName = d.Description });
                              pobjectData[subAttrName] = (string)itemValues;
 
                          }
@@ -1966,6 +2054,7 @@
                                              }
                                          }
                                      }
+                                     dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = displayNames, DisplayName = d.Description });
                                      pobjectData[subAttrName] = displayNames;
                                  }
                                  else
@@ -1975,11 +2064,14 @@
                                      {
                                          listName = d.SubAttributeDetails.Where(a => a.AttributeDetailID == values && a.AttributeDetailName != null).Select(s => s.NameList).ToList();
                                      }
-                                     pobjectData[subAttrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                     var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                     pobjectData[subAttrName] = na1;
+                                     dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = d.Description });
                                  }
                              }
                              else
                              {
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = d.Description });
                                  pobjectData[subAttrName] = string.Empty;
                              }
                          }
@@ -1987,6 +2079,7 @@
                          {
                              bool? values = itemValues == null ? false : (bool)itemValues;
                              pobjectData[subAttrName] = values == true ? "Checked" : "";
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values == true ? "Checked" : "", DisplayName = d.Description });
                          }
                          else if (d.ControlType == "DateEdit")
                          {
@@ -1996,6 +2089,7 @@
                              {
                                  startDate = values?.ToString("dd-MMM-yyyy");
                              }
+                             dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = startDate, DisplayName = d.Description });
                              pobjectData[subAttrName] = startDate;
                          }
                          else if (d.ControlType == "TimeEdit")
@@ -2007,9 +2101,11 @@
                                  DateTime dateTimes = new DateTime();
                                  var dd1 = dateTimes.AddHours(hrs).AddMinutes(min).AddSeconds(sec);
                                  pobjectData[subAttrName] = dd1.ToString("hh:mm tt");
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = dd1.ToString("hh:mm tt"), DisplayName = d.Description });
                              }
                              else
                              {
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = d.Description });
                                  pobjectData[subAttrName] = "";
                              }
                          }
@@ -2017,13 +2113,16 @@
                          {
                              if (d.IsAttributeSpinEditType == "decimal")
                              {
+
                                  decimal? values = itemValues == null ? null : (decimal)itemValues;
                                  pobjectData[subAttrName] = values != null ? values.ToString() : "";
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values != null ? values.ToString() : "", DisplayName = d.Description });
                              }
                              else
                              {
                                  int? values = itemValues == null ? null : (int)itemValues;
                                  pobjectData[subAttrName] = values != null ? values.ToString() : "";
+                                 dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = values != null ? values.ToString() : "", DisplayName = d.Description });
                              }
                          }
                      }
@@ -2043,7 +2142,10 @@
                                  if (d.IsMultiple == true || d.ControlType == "TagBox")
                                  {
                                      var listName = d.SubAttributeDetails != null ? d.SubAttributeDetails.Where(a => listDatas.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                     pobjectData[appendAppMaster] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+
+                                     var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                     pobjectData[appendAppMaster] = na1;
+                                     dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = ab.ApplicationMasterName });
                                  }
                              }
                              else
@@ -2052,7 +2154,9 @@
                                  {
                                      long? values = itemValues == null ? null : (long)itemValues;
                                      var listName = d.SubAttributeDetails != null ? d.SubAttributeDetails.Where(a => values == a.AttributeDetailID && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                     pobjectData[appendAppMaster] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                     var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                     pobjectData[appendAppMaster] = na1;
+                                     dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = ab.ApplicationMasterName });
                                  }
                                  else
                                  {
@@ -2060,7 +2164,9 @@
                                      {
                                          long? values = itemValues == null ? null : (long)itemValues;
                                          var listName = d.SubAttributeDetails != null ? d.SubAttributeDetails.Where(a => values == a.AttributeDetailID && a.AttributeDetailName != null && a.DropDownTypeId == d.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                         pobjectData[appendAppMaster] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                         var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                         pobjectData[appendAppMaster] = na1;
+                                         dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = ab.ApplicationMasterName });
                                      }
                                  }
                              }
@@ -2076,6 +2182,12 @@
     void loadApplicationMasterParentPrevData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> pobjectData)
     {
         var SubNamess = jsonObj.ContainsKey(nameData);
+        var parts = nameData.Split("_");
+        string? disname = null;
+        if (parts != null && parts.Length > 1 && long.TryParse(parts[1], out long codeId))
+        {
+            disname = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(r => r.ApplicationMasterParentCodeId == long.Parse(parts[1]))?.ApplicationMasterName;
+        }
         if (SubNamess == true)
         {
             var itemValue = jsonObj[nameData];
@@ -2085,10 +2197,13 @@
                 if (s.IsMultiple == true || s.ControlType == "TagBox")
                 {
                     var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                    pobjectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                    var na1 = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                    pobjectData[nameData] = na1;
+                    dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = na1, DisplayName = disname });
                 }
                 else
                 {
+                    dynamicFormDataAudits.Add(new DynamicFormDataAudit { DisplayName = disname });
                     pobjectData[nameData] = string.Empty;
                 }
             }
@@ -2099,6 +2214,7 @@
                     long? values = itemValue == null ? -1 : (long)itemValue;
                     var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                     pobjectData[nameData] = listss;
+                    dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = disname });
                 }
                 else
                 {
@@ -2107,9 +2223,11 @@
                         long? values = itemValue == null ? -1 : (long)itemValue;
                         var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                         pobjectData[nameData] = listss;
+                        dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = listss, DisplayName = disname });
                     }
                     else
                     {
+                        dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = disname });
                         pobjectData[nameData] = string.Empty;
                     }
                 }
@@ -2117,6 +2235,7 @@
         }
         else
         {
+            dynamicFormDataAudits.Add(new DynamicFormDataAudit { PreValue = string.Empty, DisplayName = disname });
             pobjectData[nameData] = string.Empty;
         }
 
@@ -2216,6 +2335,32 @@
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.DataRow)
+        {
+            // Get ControlTypeId for this row
+            var value = (int?)e.Grid.GetRowValue(e.VisibleIndex, "ControlTypeId");
+            var IsRecordDeleted = (bool?)e.Grid.GetRowValue(e.VisibleIndex, "IsRecordDeleted");
+            if (value > 0)
+            {
+                if (value is int controlTypeId)
+                {
+
+                    if (controlTypeId != 2712)
+                    {
+
+                        // Add a CSS class to this row
+                        e.CssClass = string.IsNullOrEmpty(e.CssClass)
+                            ? "hideDetailButton"
+                            : $"{e.CssClass} hideDetailButton";
+                    }
+
+                }
+            }
+            else
+            {
+                e.CssClass = "hideDetailButton";
+            }
         }
     }
     public async ValueTask DisposeAsync()

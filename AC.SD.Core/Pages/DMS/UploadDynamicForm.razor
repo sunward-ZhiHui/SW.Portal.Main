@@ -49,7 +49,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                        border-collapse: collapse;*/
+                                                                                                                            border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -987,6 +987,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    public Guid? AuditSessionId { get; set; } = Guid.NewGuid();
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSection; private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlowSectionItems;
     bool IsRenameOpens { get; set; } = false; public DynamicFormWorkFlowSection _selectedDynamicFormWorkFlowItems { get; set; }
     public List<DynamicFormWorkFlowMultipleUser> DynamicFormWorkFlowMultipleUsers { get; set; } = new List<DynamicFormWorkFlowMultipleUser>();
@@ -3851,6 +3852,7 @@
                 dynamicFormData.DynamicFormId = _dynamicform.ID;
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var editReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -3870,6 +3872,7 @@
                         IsSendApproval = IsSendApproval,
                         FileProfileSessionID = MainSessionId,
                         DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
+                        AuditSessionId = AuditSessionId,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -3910,6 +3913,7 @@
                 }
                 else
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var createReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -3925,11 +3929,12 @@
                         AttributeHeader = _AttributeHeader,
                         ObjectData = Data,
                         IsSendApproval = IsSendApproval,
+                        AuditSessionId = AuditSessionId,
                     };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
                     {
-                        IsUploadEnabled = true;
+                        IsUploadEnabled = true; 
                         toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         dynamicFormDataId = result.DynamicFormDataId;
                         dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
@@ -3982,6 +3987,7 @@
                 dynamicFormData.DynamicFormId = _dynamicform.ID;
                 if (dynamicFormData.DynamicFormDataId > 0)
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var editReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -4001,6 +4007,7 @@
                         IsSendApproval = IsSendApproval,
                         FileProfileSessionID = MainSessionId,
                         DynamicFormDataGridId = _dynamicformData.DynamicFormDataGridId,
+                        AuditSessionId = AuditSessionId,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -4037,6 +4044,7 @@
                 }
                 else
                 {
+                    AuditSessionId = Guid.NewGuid();
                     var createReq = new InsertOrUpdateDynamicFormData
                     {
                         DynamicFormProfile = Datas,
@@ -4053,13 +4061,14 @@
                         ObjectData = Data,
                         IsSendApproval = IsSendApproval,
                         FileProfileSessionID = MainSessionId,
+                        AuditSessionId = AuditSessionId,
                     };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
                     {
                         IsUploadEnabled = true;
                         toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        dynamicFormDataId = result.DynamicFormDataId;
+                        dynamicFormDataId = result.DynamicFormDataId; 
                         dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
                         if (IsSendApproval == true)
                         {
@@ -5899,7 +5908,9 @@
                            editor.OpenComponent<AC.SD.Core.Pages.Attribute.DynamicFormGridLists>(j + 1);
                            editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
                            editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
+                           editor.AddAttribute(j + 1, "AuditParentSessionId", AuditSessionId);
                            editor.AddAttribute(j + 1, "isMainLocked", isLocked);
+                           editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeData", s);
                            if (isAccessOnly == true)
                            {
                                editor.AddAttribute(j + 1, "IsReadonly", isReadonly);

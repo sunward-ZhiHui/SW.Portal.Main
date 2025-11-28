@@ -16,7 +16,7 @@
 
         function resetTimer() {
             idleTime = 0;
-            sendLastActivityIfNeeded();
+           // sendLastActivityIfNeeded();
         }
 
         // reset on activity
@@ -35,5 +35,9 @@
                 dotnetHelper.invokeMethodAsync("AutoLogout");
             }
         }, interval);
+    },
+    reset: function () {
+        // Hard reset everything
+        this.start(this._dotnetHelper, this._idleMinutes);
     }
 };

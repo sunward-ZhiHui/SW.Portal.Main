@@ -41,7 +41,21 @@ namespace Infrastructure.Repository.Query
         {
             _fileprofiletypeQueryRepository = fileprofiletypeQueryRepository ?? throw new ArgumentNullException(nameof(fileprofiletypeQueryRepository));
         }
-
+        /// <summary>
+        /// Deletes an email conversation record from the <c>EmailConversations</c> table
+        /// using the provided conversation details.
+        /// </summary>
+        /// <param name="forumConversations">
+        /// The <see cref="EmailConversations"/> model containing the conversation ID and
+        /// related metadata required for the delete operation.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete command.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing
+        /// the delete query. The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Delete(EmailConversations forumConversations)
         {
             try
@@ -75,7 +89,20 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }        
+        }
+        /// <summary>
+        /// Retrieves all email conversations associated with the specified session ID.
+        /// </summary>
+        /// <param name="SessionId">
+        /// The unique session identifier used to filter conversations.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> belonging to the provided session.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while establishing the database connection or executing the query.
+        /// The original exception is included for debugging.
+        /// </exception>
         public async Task<List<EmailConversations>> GetBySessionConversationList(string SessionId)
         {
             try
@@ -97,7 +124,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves a list of employees who are not yet participants in a specific conversation.
+        /// Only active (non-resigned) employees are returned.
+        /// </summary>
+        /// <param name="ConversationId">
+        /// The identifier of the conversation for which eligible participants are retrieved.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ViewEmployee"/> objects representing employees
+        /// who can be added to the conversation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database or query-related error occurs. 
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<ViewEmployee>> GetAddConversationPListAsync(long ConversationId)
         {
             try
@@ -115,7 +156,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves a list of employees who are not currently participants for a specific topic.
+        /// Only employees who are active (not resigned) are included.
+        /// </summary>
+        /// <param name="topicId">
+        /// The topic identifier used to filter existing participants.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ViewEmployee"/> objects representing employees
+        /// who are eligible to be added as participants for the topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while connecting to the database or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId)
         {
             try
@@ -133,8 +188,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
-         public async Task<List<UserNotification>> GetUserTokenListAsync(long userId)
+        /// <summary>
+        /// Retrieves the list of notification tokens for a specific user,
+        /// excluding devices of type <c>IPIR</c>.
+        /// </summary>
+        /// <param name="userId">
+        /// The identifier of the user whose notification tokens are requested.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="UserNotification"/> records associated with the user.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while connecting to the database or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
+        public async Task<List<UserNotification>> GetUserTokenListAsync(long userId)
         {
             try
             {
@@ -152,6 +220,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of employees assigned to a conversation (To + CC).
+        /// </summary>
+        /// <param name="convId">
+        /// The identifier of the conversation whose assigned employees are required.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="ViewEmployee"/> representing all assigned users for the conversation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during database connection or query execution.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long convId)
         {
             try
@@ -315,6 +396,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of all participants assigned to a specific topic,
+        /// including user details such as name, designation, and company.
+        /// </summary>
+        /// <param name="topicId">
+        /// The identifier of the topic for which participant details are requested.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailAssignToList"/> containing participant information.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown if an error occurs while establishing the connection or executing the query.
+        /// </exception>
         public async Task<List<EmailAssignToList>> GetAllAssignToListAsync(long topicId)
         {
             try
@@ -338,6 +432,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of users assigned as primary recipients (To) for a specific topic.
+        /// </summary>
+        /// <param name="topicId">
+        /// The identifier of the topic whose To-user list is required.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailTopicTo"/> representing users assigned in the To-category.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database or query error occurs. The original exception is preserved as the inner exception.
+        /// </exception>
         public async Task<List<EmailTopicTo>> GetTopicToListAsync(long topicId)
         {
             try
@@ -357,7 +463,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Deletes a participant from a topic by invoking the 
+        /// <c>sp_Ins_EmailTopicParticipant</c> stored procedure in DELETE mode.
+        /// </summary>
+        /// <param name="topicParticipant">
+        /// The <see cref="TopicParticipant"/> model containing the participant ID
+        /// to be removed from the topic.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete operation, as returned by the stored procedure.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while connecting to the database or executing the stored procedure.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public long DeleteParticipant(TopicParticipant topicParticipant)
         {
             try
@@ -410,7 +530,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
+        /// <summary>
+        /// Retrieves the complete list of discussion messages for a specified topic.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The topic identifier used to filter conversation messages.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> representing all discussions
+        /// associated with the given topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetFullDiscussionListAsync(long TopicId)
         {
             try
@@ -636,7 +769,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
+        /// <summary>
+        /// Retrieves the list of unread email notifications for a specific user
+        /// by executing the <c>sp_Select_Email_UnRead_Notification</c> stored procedure.
+        /// </summary>
+        /// <param name="UserId">
+        /// The identifier of the user whose unread notifications are to be retrieved.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> representing unread notifications.
+        /// If an error occurs, an empty list is returned.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Does not throw directly—any exception is caught and results in an empty list.
+        /// </exception>
         public async Task<List<EmailConversations>> GetUnReadNotificationAsync(long UserId)
         {
             try
@@ -657,7 +803,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
+        /// <summary>
+        /// Retrieves the total count of email notifications for a specific user
+        /// by executing the <c>sp_Select_Email_NotificationCount</c> stored procedure.
+        /// </summary>
+        /// <param name="UserId">
+        /// The identifier of the user whose total notification count is requested.
+        /// </param>
+        /// <returns>
+        /// The total number of notifications for the user.  
+        /// Returns <c>0</c> if an error occurs.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Does not throw directly—any exception is caught and the method returns <c>0</c>.
+        /// </exception>
         public async Task<long> GetTotalNotificationCountAsync(long UserId)
         {
             try
@@ -1146,7 +1305,24 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the main discussion details for a topic when activity email entries exist,
+        /// including participant, dynamic form, notification, and copy link information.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose discussion header is being retrieved.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the current user, used to filter participation and notification data.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> containing the main conversation records
+        /// and related metadata for the specified topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while establishing the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>>  GetReplyQuery1ListAsync(long? TopicId, long? UserId)
         {
             try
@@ -1189,7 +1365,24 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the main discussion details for a topic when there are no related activity email entries,
+        /// including participant, notification, and copy link information.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose discussion header is being retrieved.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the current user, used to filter participation and notification data.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> containing the main conversation records
+        /// and related metadata for the specified topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetReplyQuery2ListAsync(long? TopicId,long? UserId)
         {
             try
@@ -1233,7 +1426,24 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        /// <summary>
+        /// Retrieves the full discussion details for printing, including replies, documents,
+        /// assignment lists, and related metadata for a given topic and user.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose discussion is to be printed.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the current user, used for filtering and permission checks.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> representing the main topic conversations
+        /// with populated reply lists, documents, and assignment information.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing queries or populating related data such as replies,
+        /// documents, or assignment lists. The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetPrintReplyDiscussionListAsync(long TopicId, long UserId)
         {
             try
@@ -1299,7 +1509,24 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the main discussion details for a topic for on-screen display,
+        /// including reply count, documents (with permission checks), and assignment lists.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose discussion is being loaded.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the current user, used for filtering and permission checks.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailConversations"/> representing the main topic conversations
+        /// enriched with reply count, documents, and assignment information.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying data or populating related information.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetReplyDiscussionListAsync(long TopicId, long UserId)
         {
             try
@@ -1392,8 +1619,30 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             {
                 throw new Exception(exp.Message, exp);
             }
-        }       
-      
+        }
+        /// <summary>
+        /// Retrieves a paged list of replies for a specific conversation,
+        /// including notification and copy link information, filtered by transfer rules.
+        /// </summary>
+        /// <param name="replyId">
+        /// The identifier of the parent conversation whose replies are being requested.
+        /// </param>
+        /// <param name="userId">
+        /// The identifier of the current user, used for notification and transfer filters.
+        /// </param>
+        /// <param name="pageNumber">
+        /// The page number (1-based) to retrieve.
+        /// </param>
+        /// <param name="pageSize">
+        /// The number of records to retrieve per page.
+        /// </param>
+        /// <returns>
+        /// A paged list of <see cref="EmailConversations"/> representing replies to the specified conversation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the paged query. 
+        /// The original exception is wrapped with an additional error message.
+        /// </exception>
         public async Task<List<EmailConversations>> GetReplyListPaged(long replyId, long userId, int pageNumber, int pageSize)
         {
             try
@@ -1434,7 +1683,29 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception($"Error fetching replies: {ex.Message}", ex);
             }
         }
-
+        /// <summary>
+        /// Retrieves a paged list of replies for a specific conversation without transfer filtering,
+        /// including notification and copy link information.
+        /// </summary>
+        /// <param name="replyId">
+        /// The identifier of the parent conversation whose replies are being requested.
+        /// </param>
+        /// <param name="userId">
+        /// The identifier of the current user, used when resolving notification information.
+        /// </param>
+        /// <param name="pageNumber">
+        /// The page number (1-based) to retrieve.
+        /// </param>
+        /// <param name="pageSize">
+        /// The number of records to retrieve per page.
+        /// </param>
+        /// <returns>
+        /// A paged list of <see cref="EmailConversations"/> representing replies to the specified conversation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the paged query. 
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetReplyListPaged1(long replyId, long userId, int pageNumber, int pageSize)
         {
             try
@@ -1466,7 +1737,31 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(ex.Message, ex);
             }
         }
-
+        /// <summary>
+        /// Retrieves a paged list of replies for a specific conversation and enriches each reply
+        /// with related documents and assignment lists.
+        /// </summary>
+        /// <param name="ReplyId">
+        /// The identifier of the parent conversation whose replies are requested.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the current user, used for permission checks and related data.
+        /// </param>
+        /// <param name="currentPage">
+        /// The current page number (1-based) to retrieve.
+        /// </param>
+        /// <param name="pageSize">
+        /// The number of records to retrieve per page.
+        /// </param>
+        /// <returns>
+        /// A paged list of <see cref="EmailConversations"/> replies enriched with documents and
+        /// assignment information for each reply.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while retrieving replies or populating related data
+        /// such as documents or assignment lists. The original exception is included
+        /// as the inner exception.
+        /// </exception>
         public async Task<List<EmailConversations>> GetReplyListPagedAsync(long ReplyId, long UserId,int currentPage,int pageSize)
         {
 
@@ -1763,6 +2058,19 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of assigned users (To) for the specified conversations.
+        /// </summary>
+        /// <param name="Ids">
+        /// A list of conversation IDs used to filter To-assignments.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailAssignToList"/> entries containing user information and topic references.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while connecting to the database or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailAssignToList>> GetAssignToList(List<int> Ids)
         {
             try
@@ -1785,7 +2093,19 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the list of assigned users (CC) for the specified conversations.
+        /// </summary>
+        /// <param name="Ids">
+        /// A list of conversation IDs used to filter CC assignments.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailAssignToList"/> entries containing user information and topic references.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while establishing a database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailAssignToList>> GetAssignCCList(List<int> Ids)
         {
             try
@@ -1808,7 +2128,21 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the list of document metadata for the specified session identifiers,
+        /// restricted to the latest version of each document.
+        /// </summary>
+        /// <param name="sessionids">
+        /// A list of session IDs used to filter associated documents.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailDocumentModel"/> entries containing document metadata
+        /// such as ID, file name, type, size, and path.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailDocumentModel>> GetDocumentList(List<Guid?> sessionids)
         {
             try
@@ -1828,7 +2162,25 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             {
                 throw new Exception(exp.Message, exp);
             }
-        }       
+        }
+        /// <summary>
+        /// Retrieves the list of documents for the specified session identifiers and
+        /// evaluates view permissions for the given user based on file profile rules.
+        /// </summary>
+        /// <param name="sessionids">
+        /// A list of session IDs used to filter associated documents.
+        /// </param>
+        /// <param name="userId">
+        /// The identifier of the user for whom document view permissions are being evaluated.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailDocumentModel"/> entries, each with the <c>IsView</c> flag
+        /// indicating whether the user is allowed to view the document.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying documents or evaluating permissions.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailDocumentModel>> GetCheckPermissionDocumentList(List<Guid?> sessionids, long? userId)
         {
             try
@@ -2597,6 +2949,21 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
         {
             return "ok";
         }
+        /// <summary>
+        /// Inserts a new email conversation record into the <c>EmailConversations</c> table
+        /// and returns the newly created conversation ID.
+        /// </summary>
+        /// <param name="forumConversations">
+        /// The <see cref="EmailConversations"/> model containing topic, message, participant,
+        /// due date, priority, user type, and audit information for the new conversation.
+        /// </param>
+        /// <returns>
+        /// The identifier (<c>ID</c>) of the newly inserted email conversation record.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while building parameters, connecting to the database,
+        /// or executing the insert statement. The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Insert(EmailConversations forumConversations)
         {
             try
@@ -2690,6 +3057,21 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts a new assignment record into <c>EmailConversationAssignTo</c>
+        /// linking a conversation, topic, and user.
+        /// </summary>
+        /// <param name="conversationAssignTo">
+        /// The <see cref="EmailConversationAssignTo"/> model containing conversation ID,
+        /// topic ID, user ID, and audit information.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation (typically <c>1</c> on success).
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while constructing parameters, connecting to the database,
+        /// or executing the insert statement. The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> InsertAssignTo(EmailConversationAssignTo conversationAssignTo)
         {
             try
@@ -2843,6 +3225,20 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts a new email notification record into the <c>EmailNotifications</c> table.
+        /// </summary>
+        /// <param name="forumNotifications">
+        /// The <see cref="EmailNotifications"/> model containing user, conversation,
+        /// topic, timestamp, and read-status information for the notification.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation (typically <c>1</c> on success).
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during parameter preparation, database connection,
+        /// or SQL execution. The inner exception contains the detailed error information.
+        /// </exception>
         public async Task<long> InsertEmailNotifications(EmailNotifications forumNotifications)
         {
             try
@@ -2878,6 +3274,21 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Updates an existing record in the <c>EmailConversations</c> table,
+        /// modifying topic, message, participant, and reply details.
+        /// </summary>
+        /// <param name="forumConversations">
+        /// The <see cref="EmailConversations"/> model containing the updated values
+        /// along with the <c>ID</c> of the conversation to update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while assigning parameters, connecting to the database,
+        /// or executing the update statement. The inner exception provides error details.
+        /// </exception>
 
         public async Task<long> Update(EmailConversations forumConversations)
         {

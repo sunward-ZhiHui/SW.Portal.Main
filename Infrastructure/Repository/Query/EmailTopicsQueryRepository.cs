@@ -203,6 +203,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of users involved in a conversation for the purpose
+        /// of sending request emails, including the primary user (ToIds) and
+        /// aggregated CC user IDs (CcIds).
+        /// </summary>
+        /// <param name="ConId">
+        /// The identifier of the conversation for which the email CC list is requested.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="RequestEmail"/> objects containing ToIds and CcIds.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the query fails or the database connection cannot be created.
+        /// </exception>
         public async Task<List<RequestEmail>> RequestEmailToCCList(long ConId)
         {
             try
@@ -228,6 +242,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of participants for a given conversation
+        /// to determine the users who should receive request emails.
+        /// </summary>
+        /// <param name="ConversationID">
+        /// The identifier of the conversation whose participants are being retrieved.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="RequestEmail"/> objects containing the participant user IDs.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database or query execution error occurs.
+        /// </exception>
         public async Task<List<RequestEmail>> RequestEmailParticipantList(long ConversationID)
         {
 
@@ -248,6 +275,19 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Retrieves the list of users who are directly assigned (To list)
+        /// in a conversation for sending request emails.
+        /// </summary>
+        /// <param name="ConId">
+        /// The conversation identifier used to fetch assigned users.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="RequestEmail"/> objects containing the direct ToIds.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown if the database connection or query execution fails.
+        /// </exception>
         public async Task<List<RequestEmail>> RequestEmailToOnlyList(long ConId)
         {
             try
@@ -749,7 +789,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Sets the pin status ("Lock") for a topic's first conversation 
+        /// for a specific user in the EmailConversationParticipant table.
+        /// </summary>
+        /// <param name="id">The Topic ID.</param>
+        /// <param name="UserId">The User ID for whom the pin should be applied.</param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the update fails or a database error occurs.
+        /// </exception>
         public async Task<long> SetPinTopicToList(long id, long UserId)
         {
             try
@@ -791,6 +842,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Marks all notifications as read for the specified user 
+        /// where the conversation is a reply of the given conversation ID
+        /// or matches the conversation ID itself.
+        /// </summary>
+        /// <param name="id">The Conversation ID or Parent Reply ID.</param>
+        /// <param name="userId">The User ID whose notifications should be updated.</param>
+        /// <returns>
+        /// The number of updated notification records.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during execution.
+        /// </exception>
         public async Task<long> UpdateMarkasAllReadList(long id, long userId)
         {
             try
@@ -822,7 +886,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Marks an individual notification as read based on its notification ID.
+        /// </summary>
+        /// <param name="id">The EmailNotification ID.</param>
+        /// <returns>
+        /// The number of rows affected.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the update fails.
+        /// </exception>
         public async Task<long> UpdateMarkasReadList(long id)
         {
             try
@@ -853,6 +926,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Marks an individual notification as unread using its notification ID.
+        /// </summary>
+        /// <param name="id">The EmailNotification ID.</param>
+        /// <returns>
+        /// The number of affected rows.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database or update error occurs.
+        /// </exception>
         public async Task<long> UpdateMarkasunReadList(long id)
         {
             try
@@ -884,6 +967,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Removes the pin status for a topic's first conversation 
+        /// for a specified user in the EmailConversationParticipant table.
+        /// </summary>
+        /// <param name="id">The Topic ID.</param>
+        /// <param name="UserId">The User ID whose pin status should be cleared.</param>
+        /// <returns>
+        /// The number of rows affected.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the unpin operation fails.
+        /// </exception>
         public async Task<long> UnSetPinTopicToList(long id, long UserId)
         {
             try
@@ -1164,6 +1259,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves all sub-topic conversations under a specific topic based on 
+        /// search text, user permissions, and notification counts.
+        /// </summary>
+        /// <param name="TopicId">The ID of the main topic.</param>
+        /// <param name="UserId">The user ID for filtering assigned/accessible conversations.</param>
+        /// <param name="SearchTxt">
+        /// A free-text search value that filters by start date, user name, 
+        /// remarks, follow status, or sub-topic name.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailTopics"/> that match the search criteria.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the query execution fails.
+        /// </exception>
         public async Task<List<EmailTopics>> GetSubTopicSearchAllList(long TopicId, long UserId, string SearchTxt)
         {
             try
@@ -1232,6 +1343,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of sub-topics assigned in the "To" list for the given topic,
+        /// filtered by user and search text.  
+        /// Data is returned from the stored procedure <c>sp_Select_Sub_EmailTopicList</c>
+        /// using the <c>SUB_SELECT_TO</c> option.
+        /// </summary>
+        /// <param name="TopicId">The main Topic ID.</param>
+        /// <param name="UserId">The User ID requesting sub-topic access.</param>
+        /// <param name="SearchTxt">Search keyword to filter sub-topics.</param>
+        /// <returns>
+        /// A list of <see cref="EmailTopics"/> assigned in the “To” category.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the stored procedure execution fails.
+        /// </exception>
 
         public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId, string SearchTxt)
         {
@@ -1261,7 +1387,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the list of sub-topics assigned in the "CC" list for the given topic,
+        /// filtered by user and search text.  
+        /// Calls the stored procedure <c>sp_Select_Sub_EmailTopicList</c>
+        /// using the <c>SUB_SELECT_CC</c> option.
+        /// </summary>
+        /// <param name="TopicId">The main Topic ID.</param>
+        /// <param name="UserId">The User ID requesting data.</param>
+        /// <param name="SearchTxt">Search keyword to match sub-topic fields.</param>
+        /// <returns>
+        /// A list of <see cref="EmailTopics"/> assigned in the “CC” category.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when database access or stored procedure execution fails.
+        /// </exception>
         public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId, string SearchTxt)
         {
             try
@@ -2039,6 +2179,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts a new Email Topic record into the database using the 
+        /// <c>sp_Ins_EmailTopics</c> stored procedure.  
+        /// Populates the required parameters, executes the insert operation, 
+        /// and optionally triggers Dynamic Form email processing if applicable.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The EmailTopics model containing all necessary fields required 
+        /// for inserting a new email topic record.
+        /// </param>
+        /// <returns>
+        /// Returns the newly created EmailTopicId (long) generated from the database.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during parameter assignment, database 
+        /// connection, insert execution, or Dynamic Form processing. 
+        /// Includes the original exception for debugging.
+        /// </exception>
+
         public long Insert(EmailTopics EmailTopics)
         {
             try
@@ -2373,6 +2532,22 @@ namespace Infrastructure.Repository.Query
                 }
             }
         }
+        /// <summary>
+        /// Retrieves record for a PA email by session identifier and type.
+        /// </summary>
+        /// <param name="sessionId">
+        /// The unique session identifier used to locate the EmailNotifyPA record.
+        /// </param>
+        /// <param name="Type">
+        /// The type used to filter the EmailNotifyPA record (for example, PA, HR, etc.).
+        /// </param>
+        /// <returns>
+        /// An <see cref="EmailNotifyPA"/> instance if a matching record is found; otherwise <c>null</c>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included for debugging purposes.
+        /// </exception>
         public async Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId, string Type)
         {
             try
@@ -2392,6 +2567,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves record for a PA email by session identifier,
+        /// without filtering by type (used for print or generic retrieval scenarios).
+        /// </summary>
+        /// <param name="sessionId">
+        /// The unique session identifier used to locate the EmailNotifyPA record.
+        /// </param>
+        /// <returns>
+        /// An <see cref="EmailNotifyPA"/> instance if a matching record is found; otherwise <c>null</c>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included for debugging.
+        /// </exception>
         public async Task<EmailNotifyPA> GetByIdNotifyPAPrintAsync(Guid sessionId)
         {
             try
@@ -2411,6 +2600,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        /// <summary>
+        /// Retrieves a list of PA email  filtered by type,
+        /// including related information such as added user, category, and email dates.
+        /// </summary>
+        /// <param name="Type">
+        /// The  type used to filter EmailNotifyPA records.  
+        /// If <c>null</c>, the behavior depends on the database query logic.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailNotifyPA"/> records that match the specified type
+        /// and are not marked as deleted.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is wrapped for easier troubleshooting.
+        /// </exception>
         public async Task<List<EmailNotifyPA>> GetNotifyPAAsync(string? Type)
         {
             try
@@ -2439,6 +2645,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Updates an existing PA email  record in the <c>EmailNotifyPA</c> table.
+        /// </summary>
+        /// <param name="emailNotifyPA">
+        /// The <see cref="EmailNotifyPA"/> model containing the updated values,
+        /// including the primary key <c>ID</c> used to locate the record.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// Typically returns 1 if the update was successful, or 0 if no record was updated.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateNotifyPAAsync(EmailNotifyPA emailNotifyPA)
         {
             try
@@ -2475,7 +2696,22 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-
+        /// <summary>
+        /// Creates a new entry in the <c>EmailNotifyPA</c> table.
+        /// </summary>
+        /// <param name="emailNotifyPA">
+        /// The <see cref="EmailNotifyPA"/> model containing the details required to insert
+        /// a new PA record, including type, page, description, and session information.
+        /// </param>
+        /// <returns>
+        /// Returns the number of rows affected by the insert operation.
+        /// Typically returns <c>1</c> on success.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while preparing parameters, establishing the database
+        /// connection, or executing the insert query. The original exception is included 
+        /// as the inner exception for troubleshooting.
+        /// </exception>
         public async Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA)
         {
             try
@@ -2527,6 +2763,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Creates a new user tag entry for an email topic in the <c>EmailTopicUserTags</c> table.
+        /// </summary>
+        /// <param name="emailActivityCatgorys">
+        /// The <see cref="EmailActivityCatgorys"/> model containing the user tag, topic reference,
+        /// and audit information (added by and added date).
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation. Typically <c>1</c> on success.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the insert query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -2561,6 +2811,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Updates an existing user tag for an email topic in the <c>EmailTopicUserTags</c> table.
+        /// </summary>
+        /// <param name="emailActivityCatgorys">
+        /// The <see cref="EmailActivityCatgorys"/> model containing the updated user tag value
+        /// and the corresponding user tag identifier.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -2593,7 +2857,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-
+        /// <summary>
+        /// Creates a new timeline event entry for an email document/topic in the <c>EmailTimelineEvent</c> table.
+        /// </summary>
+        /// <param name="emailTimelineEvent">
+        /// The <see cref="EmailTimelineEvent"/> model containing document, topic, conversation,
+        /// description, and audit information.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation. Typically <c>1</c> on success.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the insert query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> CreateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent)
         {
             try
@@ -2630,6 +2907,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Updates an existing email timeline event in the <c>EmailTimelineEvent</c> table.
+        /// </summary>
+        /// <param name="emailTimelineEvent">
+        /// The <see cref="EmailTimelineEvent"/> model containing the updated description and
+        /// audit information, along with the event identifier.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent)
         {
             try
@@ -2667,6 +2958,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Retrieves all email timeline events for a specific document,
+        /// including the user name of the person who added each event.
+        /// </summary>
+        /// <param name="DocumentId">
+        /// The identifier of the document for which timeline events should be retrieved.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailTimelineEvent"/> records associated with the given document.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<EmailTimelineEvent>> GetEmailTimelineEvent(long DocumentId)
         {
             try
@@ -2691,6 +2996,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Updates the due date of an email topic in the <c>EmailTopics</c> table.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The <see cref="EmailTopics"/> model containing the topic identifier and the new due date.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateDueDate(EmailTopics EmailTopics)
         {
             try
@@ -2726,6 +3044,24 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+
+        /// <summary>
+        /// Updates the due date and related metadata for an email conversation and its topic,
+        /// and records the change in the due date history and tag tables.
+        /// </summary>
+        /// <param name="emailConversations">
+        /// The <see cref="EmailConversations"/> model containing due date, number of days,
+        /// topic information, tag values, and audit fields used for the update and history records.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the main conversation update operation.
+        /// Additional updates (topic, tags, history) are also executed but not included in this count.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while calculating the expiry due date, creating the database
+        /// connection, or executing any of the related SQL commands. The original exception is included
+        /// as the inner exception.
+        /// </exception>
         public async Task<long> UpdateSubjectDueDate(EmailConversations emailConversations)
         {
             try
@@ -2838,7 +3174,29 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-
+        /// <summary>
+        /// Inserts a new user tag for an email topic into the <c>EmailTopicUserTags</c> table.
+        /// This is a helper method used when no existing user tag is found for the given topic and user.
+        /// </summary>
+        /// <param name="topicId">
+        /// The identifier of the email topic associated with the user tag.
+        /// </param>
+        /// <param name="userTag">
+        /// The user tag text to be stored.
+        /// </param>
+        /// <param name="userId">
+        /// The identifier of the user adding the tag (used for audit fields).
+        /// </param>
+        /// <param name="date">
+        /// The date and time when the tag is added or modified.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the insert query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         private async Task<int> InsertUserTag(long topicId, string? userTag, long? userId, DateTime? date)
         {
             using (var connection = CreateConnection())
@@ -3003,6 +3361,19 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Updates an email topic by adding closing remarks and marking the topic status as <c>closed</c>.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The <see cref="EmailTopics"/> model containing the topic identifier and remarks used for closing the topic.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while establishing the database connection or executing the update command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateTopicClose(EmailTopics EmailTopics)
         {
             try
@@ -3034,6 +3405,21 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Archives a topic for a specific group participant by updating the 
+        /// <c>EmailConversationParticipant</c> table.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The <see cref="EmailTopics"/> model containing the topic identifier and 
+        /// the user performing the archive operation.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the archive update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while establishing the database connection 
+        /// or executing the archive update query. The original exception is preserved.
+        /// </exception>
         public async Task<long> UpdateTopicGroupArchive(EmailTopics EmailTopics)
         {
             try
@@ -3066,6 +3452,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Archives a topic for a specific user and marks related unread notifications as read.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The <see cref="EmailTopics"/> model containing the topic ID and the user performing the action.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected in the <c>EmailConversationParticipant</c> table.
+        /// Notification updates are executed separately.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while updating archive status or marking notifications as read.
+        /// The original exception is included for debugging.
+        /// </exception>
         public async Task<long> UpdateTopicArchive(EmailTopics EmailTopics)
         {
             try
@@ -3105,6 +3505,20 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        /// <summary>
+        /// Removes the archive flag for a specific user on a given topic,
+        /// making the topic visible again for that user.
+        /// </summary>
+        /// <param name="EmailTopics">
+        /// The <see cref="EmailTopics"/> model containing the topic ID and the user performing the unarchive action.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the unarchive update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while updating the unarchive status.  
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateTopicUnArchive(EmailTopics EmailTopics)
         {
             try
@@ -3309,7 +3723,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the list of documents associated with a dynamic form for the specified session.
+        /// </summary>
+        /// <param name="sessionId">
+        /// The unique session identifier used to filter dynamic form documents.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="Documents"/> records linked to the given dynamic form session.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<Documents>> GetDynamicFormDocumentListAsync(Guid sessionId)
         {
             try
@@ -3332,6 +3758,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the list of documents uploaded for a specific email creation session.
+        /// </summary>
+        /// <param name="sessionId">
+        /// The unique session identifier used to filter documents.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="Documents"/> records associated with the provided session ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId)
         {
             try
@@ -3354,7 +3793,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Deletes a document record from the <c>Documents</c> table based on its identifier.
+        /// </summary>
+        /// <param name="id">
+        /// The unique identifier of the document to be deleted.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the delete command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Delete(long id)
         {
             try
@@ -3390,6 +3841,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Marks a PA notification record as deleted by setting the <c>IsDelete</c> flag.
+        /// </summary>
+        /// <param name="id">
+        /// The unique identifier of the <c>EmailNotifyPA</c> record to be marked as deleted.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> DeleteNotify(long id)
         {
             try
@@ -3425,6 +3889,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts multiple user tag mappings for a topic, after clearing existing mappings
+        /// in the <c>EmailUserTagMultiple</c> table.
+        /// </summary>
+        /// <param name="emailActivityCatgorys">
+        /// The <see cref="EmailActivityCatgorys"/> model containing the topic ID, collection of user tag IDs,
+        /// and audit information (added by and added date).
+        /// </param>
+        /// <returns>
+        /// The topic identifier (<c>TopicId</c>) associated with the inserted mappings.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing delete/insert commands.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -3471,7 +3950,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
-
+        /// <summary>
+        /// Retrieves a user tag record (in lower case) from the <c>EmailTopicUserTags</c> table
+        /// based on the specified tag text.
+        /// </summary>
+        /// <param name="Usertag">
+        /// The user tag text to search for.
+        /// </param>
+        /// <returns>
+        /// An <see cref="EmailActivityCatgorys"/> instance containing the matching user tag,
+        /// or <c>null</c> if no record is found.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public EmailActivityCatgorys GetUserAsync(string Usertag)
         {
             try
@@ -3494,7 +3987,21 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-
+        /// <summary>
+        /// Updates the comment and audit information for a NotifyPA  record
+        /// identified by session ID.
+        /// </summary>
+        /// <param name="emailNotifyPA">
+        /// The <see cref="EmailNotifyPA"/> model containing the session ID, new comment,
+        /// and modification audit fields.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateCommentNotifyPAAsync(EmailNotifyPA emailNotifyPA)
         {
             try
@@ -3554,7 +4061,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves a list of copied email conversation references for a given topic ID.
+        /// </summary>
+        /// <param name="ID">
+        /// The identifier of the email topic used to find related copied conversations.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailTopics"/> objects containing copied conversation identifiers
+        /// for the specified topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async  Task<List<EmailTopics>> GetByCopyEmailList(long ID)
         {
             try
@@ -3576,7 +4096,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the list of email copy link records for a specific conversation.
+        /// </summary>
+        /// <param name="ConversationID">
+        /// The identifier of the email conversation whose copy links are to be retrieved.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="EmailCopyLink"/> objects associated with the given conversation ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async  Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID)
         {
             try
@@ -3602,6 +4134,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        /// <summary>
+        /// Inserts a transfer history record for an email conversation into the <c>TransferEmailHistory</c> table.
+        /// </summary>
+        /// <param name="transferEmailHistory">
+        /// The <see cref="TransferEmailHistory"/> model containing source, destination, topic,
+        /// conversation and user information, along with audit fields.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation. Typically <c>1</c> on success.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the insert command.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async  Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory)
         {
             try
@@ -3641,7 +4187,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves the transfer history records for emails received by a specific user.
+        /// </summary>
+        /// <param name="ID">
+        /// The identifier of the user (ToId) whose transfer history is to be retrieved.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="TransferEmailHistory"/> records including topic name
+        /// and user names for from, to, and transfer-by users.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async  Task<IReadOnlyList<TransferEmailHistory>> GetEmailHistoryList(long ID)
         {
             try
@@ -3665,6 +4224,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        /// <summary>
+        /// Retrieves all conversation IDs from <c>EmailConversations</c> where the description is <c>null</c>.
+        /// </summary>
+        /// <returns>
+        /// A list of integer IDs representing conversations without a description.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// </exception>
         public async Task<List<int>> GetAllIdsAsync()
         {
             var query = "SELECT Id FROM EmailConversations where Description is null";
@@ -3676,6 +4245,18 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        /// <summary>
+        /// Retrieves the file data (as a byte array) for a specific email conversation record.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the email conversation whose file data is requested.
+        /// </param>
+        /// <returns>
+        /// A byte array containing the file data, or an empty array if no data is found.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// </exception>
         public async Task<byte[]> GetFileDataByIdAsync(int id)
         {
             var parameters = new DynamicParameters();
@@ -3689,7 +4270,21 @@ namespace Infrastructure.Repository.Query
                 return result ?? Array.Empty<byte>();
             }
         }
-
+        /// <summary>
+        /// Updates the description for a specific email conversation record.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the email conversation to be updated.
+        /// </param>
+        /// <param name="description">
+        /// The new description text to set for the conversation.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the update command.
+        /// </exception>
         public async Task UpdateDescriptionAsync(int id, string description)
         {
             var parameters = new DynamicParameters();

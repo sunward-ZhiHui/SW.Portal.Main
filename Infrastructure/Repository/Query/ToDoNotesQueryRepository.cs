@@ -18,7 +18,21 @@ namespace Infrastructure.Repository.Query
         public ToDoNotesQueryRepository(IConfiguration configuration) : base(configuration)
         {
         }
-
+        /// <summary>
+        /// Retrieves the distinct list of notes created by a specific user,
+        /// returning one entry per unique note text.
+        /// </summary>
+        /// <param name="userId">
+        /// The identifier of the user whose notes are requested.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ToDoNotes"/> where each record represents
+        /// a distinct note with its minimum ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<ToDoNotes>> GetAllAsync(long userId)
         {
             try
@@ -38,6 +52,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves all to-do notes for a user, optionally filtered by topic.
+        /// </summary>
+        /// <param name="UserID">
+        /// The identifier of the user whose to-do notes are requested.
+        /// </param>
+        /// <param name="TopicId">
+        /// The topic identifier to filter notes by.  
+        /// If <c>0</c>, only notes without a topic (or topic ID 0) are returned.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ToDoNotes"/> matching the user and topic criteria,
+        /// ordered by completion status (completed last).
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query or opening the connection.
+        /// </exception>
         public async Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserID,long TopicId)
         {
             try
@@ -62,7 +93,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Inserts a new to-do note into the <c>ToDoNotes</c> table, with initial status set to <c>Open</c>.
+        /// </summary>
+        /// <param name="ToDoNotes">
+        /// The <see cref="ToDoNotes"/> model containing topic, note text, status, session,
+        /// and audit information.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation (typically <c>1</c> on success).
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while connecting to the database or executing the insert statement.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Insert(ToDoNotes ToDoNotes)
         {
             try
@@ -107,6 +151,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        /// <summary>
+        /// Updates the text and audit information of an existing to-do note.
+        /// </summary>
+        /// <param name="ToDoNotes">
+        /// The <see cref="ToDoNotes"/> model containing the note ID and updated values.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the update query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateAsync(ToDoNotes ToDoNotes)
         {
             try
@@ -146,6 +203,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        /// <summary>
+        /// Updates all notes that match a specific existing note value,
+        /// replacing it with a new note text and updating audit information.
+        /// </summary>
+        /// <param name="selectNotes">
+        /// The current note text to search for and update.
+        /// </param>
+        /// <param name="Notes">
+        /// The new note text to save.
+        /// </param>
+        /// <param name="userid">
+        /// The identifier of the user performing the update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation, returned as a string.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the update query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<string> UpdateNoteAsync(string selectNotes, string Notes, long userid)
         {
             try
@@ -187,6 +264,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        /// <summary>
+        /// Marks a to-do note as completed by updating its <c>Completed</c> status to <c>Completed</c>.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the note to mark as completed.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while updating the record in the database.
+        /// </exception>
         public async Task<long> DeleteAsync(long id)
         {
             try
@@ -220,6 +309,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Permanently deletes a to-do note and its history from the database.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the note to delete.
+        /// </param>
+        /// <returns>
+        /// The ID of the deleted note, returned after the delete operation completes.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the delete statements.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Delete(long id)
         {
             try
@@ -251,6 +353,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Marks a completed to-do note as incomplete by setting its <c>Completed</c>
+        /// status back to <c>Open</c>.
+        /// </summary>
+        /// <param name="incompleteid">
+        /// The identifier of the note to reopen.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while updating the note status.
+        /// </exception>
         public async Task<long> IncompleteAsync(long incompleteid)
         {
             try
@@ -286,7 +401,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves all notes for a user that match the specified note text,
+        /// including related topic and subtopic information.
+        /// </summary>
+        /// <param name="UserId">
+        /// The identifier of the user whose notes are requested.
+        /// </param>
+        /// <param name="notes">
+        /// The note text to filter by.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ToDoNotes"/> including topic and subtopic details
+        /// for matching notes.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query.
+        /// </exception>
         public async Task<IReadOnlyList<ToDoNotes>> GetAllNotesAsync(long UserId, string notes)
         {
             try

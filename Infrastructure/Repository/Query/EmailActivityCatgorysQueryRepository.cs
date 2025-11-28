@@ -20,7 +20,17 @@ namespace Infrastructure.Repository.Query
         public EmailActivityCatgorysQueryRepository(IConfiguration configuration) : base(configuration)
         {
         }
-
+        /// <summary>
+        /// Retrieves the distinct list of activity category names from <c>EmailActivityCatgorys</c>.
+        /// </summary>
+        /// <returns>
+        /// A read-only list of <see cref="EmailActivityCatgorys"/> where each record represents
+        /// a distinct category name with its minimum ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while creating the database connection or executing the query.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllAsync()
         {
             try
@@ -38,6 +48,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        /// <summary>
+        /// Retrieves all activity categories for a specific topic, including group, category,
+        /// and action display names and any multiple action names.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose activity categories are being retrieved.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="EmailActivityCatgorys"/> populated with group, category,
+        /// action names, and related action name list.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying the database or populating action names.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllTopicCategoryAsync(long TopicId)
         {
             try
@@ -80,6 +106,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves all action tag IDs associated with a specific topic from <c>EmailActionTagMultiple</c>.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose action tags are requested.
+        /// </param>
+        /// <returns>
+        /// A list of action tag IDs (<see cref="long"/>) associated with the topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query.
+        /// </exception>
         public async Task<List<long>> GetActionTagMultipleAsync(long TopicId)
         {
             try
@@ -98,7 +136,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        /// <summary>
+        /// Retrieves the tag lock status for a topic from the first root conversation (ReplyId = 0).
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose tag lock information is requested.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the tag lock is enabled; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying the database.
+        /// </exception>
         public async Task<bool> GetTagLockInfoAsync(long TopicId)
         {
             try
@@ -118,7 +167,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Inserts a new activity category for a topic and manages its related action tags
+        /// in the <c>EmailActionTagMultiple</c> table.
+        /// </summary>
+        /// <param name="emailActivityCatgorys">
+        /// The <see cref="EmailActivityCatgorys"/> model containing topic, tags, description,
+        /// status, and audit information, along with action tag IDs.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the insert operation in <c>EmailActivityCatgorys</c>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while deleting or inserting action tags or inserting the activity category.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -183,6 +246,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        /// <summary>
+        /// Updates an existing activity category for a topic and refreshes its related action tags
+        /// in the <c>EmailActionTagMultiple</c> table.
+        /// </summary>
+        /// <param name="emailActivityCatgorys">
+        /// The <see cref="EmailActivityCatgorys"/> model containing updated tag, description,
+        /// status, and audit information, along with action tag IDs.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while updating action tags or the activity category.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -247,6 +325,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        /// <summary>
+        /// Deletes an activity category by ID and removes all related action tags for the topic.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the activity category to delete.
+        /// </param>
+        /// <param name="TopicId">
+        /// The topic identifier used to delete related records in <c>EmailActionTagMultiple</c>.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete operation in <c>EmailActivityCatgorys</c>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while deleting action tags or the activity category.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> DeleteAsync(long id, long TopicId)
         {
             try
@@ -280,7 +374,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves all activity categories for a specific topic from <c>EmailActivityCatgorys</c>.
+        /// </summary>
+        /// <param name="TopicId">
+        /// The identifier of the topic whose activity category records are requested.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="EmailActivityCatgorys"/> for the given topic.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query.
+        /// </exception>
         public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllemailCategoryAsync(long TopicId)
         {
             
@@ -301,7 +406,22 @@ namespace Infrastructure.Repository.Query
                 }
             
         }
-        
+        /// <summary>
+        /// Retrieves user tag records for a specific topic and user from <c>EmailUserTagMultiple</c>
+        /// and <c>EmailTopicUserTags</c>.
+        /// </summary>
+        /// <param name="TopicID">
+        /// The identifier of the topic whose user tags are requested.
+        /// </param>
+        /// <param name="UserID">
+        /// The identifier of the user who added the tags.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailActivityCatgorys"/> representing user tag mappings for the topic and user.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying the database.
+        /// </exception>
         public async Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID)
         {
             try
@@ -326,7 +446,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves all distinct user tags created by a specific user from <c>EmailTopicUserTags</c>.
+        /// </summary>
+        /// <param name="UserID">
+        /// The identifier of the user whose user tags are requested.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailActivityCatgorys"/> where each record represents a distinct user tag
+        /// and its minimum ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the database query.
+        /// </exception>
         public async Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID)
         {
             try
@@ -345,8 +477,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-        public  async Task<string> UpdateOtherAsync(string othertag,string Name, long ModifiedByUserID)
+        /// <summary>
+        /// Updates all activity category records that have a specific "other" name,
+        /// replacing it with a new name and updating audit information.
+        /// </summary>
+        /// <param name="othertag">
+        /// The existing name value to be replaced.
+        /// </param>
+        /// <param name="Name">
+        /// The new name to set for matching records.
+        /// </param>
+        /// <param name="ModifiedByUserID">
+        /// The identifier of the user performing the update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected, returned as a string.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the update query.
+        /// </exception>
+        public async Task<string> UpdateOtherAsync(string othertag,string Name, long ModifiedByUserID)
         {
             try
             {
@@ -378,6 +528,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        /// <summary>
+        /// Updates the name of a specific activity category by ID and sets modification audit information.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the activity category to update.
+        /// </param>
+        /// <param name="Name">
+        /// The new name to set for the activity category.
+        /// </param>
+        /// <param name="ModifiedByUserID">
+        /// The identifier of the user performing the update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected, returned as a string.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the update query.
+        /// </exception>
         public async Task<string> UpdateOtherTagAsync(long id, string Name, long ModifiedByUserID)
         {
             try
@@ -410,6 +579,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Updates all occurrences of a specific user tag value in <c>EmailTopicUserTags</c>
+        /// with a new value.
+        /// </summary>
+        /// <param name="userTag">
+        /// The existing user tag value to be updated.
+        /// </param>
+        /// <param name="Name">
+        /// The new user tag value to set.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected, returned as a string.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the update statement.
+        /// </exception>
         public async Task<string> UpdateuserAsync(string userTag, string Name)
         {
             try
@@ -440,6 +625,21 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        /// <summary>
+        /// Deletes a user tag by its text value for a specific user in <c>EmailTopicUserTags</c>.
+        /// </summary>
+        /// <param name="UserID">
+        /// The identifier of the user who owns the tag.
+        /// </param>
+        /// <param name="UserTag">
+        /// The text of the user tag to delete.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the delete query.
+        /// </exception>
         public async Task<long> DeleteUserTagNameAsync(long UserID, string UserTag)
         {
             try
@@ -470,7 +670,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Deletes a specific user tag mapping from <c>EmailUserTagMultiple</c>
+        /// for a given topic, user, and tag ID.
+        /// </summary>
+        /// <param name="Topicid">
+        /// The identifier of the topic associated with the mapping.
+        /// </param>
+        /// <param name="UserID">
+        /// The identifier of the user who owns the mapping.
+        /// </param>
+        /// <param name="UserTagID">
+        /// The identifier of the user tag to remove from the mapping.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the delete operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the delete query.
+        /// </exception>
         public async Task<long> DeleteUserTagAsync(long Topicid,long UserID,long UserTagID)
         {
             try
@@ -502,6 +720,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        /// <summary>
+        /// Deletes all mappings for a specific user tag and then deletes the tag itself
+        /// from <c>EmailUserTagMultiple</c> and <c>EmailTopicUserTags</c>.
+        /// </summary>
+        /// <param name="ID">
+        /// The identifier of the user tag in <c>EmailTopicUserTags</c>.
+        /// </param>
+        /// <param name="UserID">
+        /// The identifier of the user who owns the tag.
+        /// </param>
+        /// <param name="tagid">
+        /// The identifier of the user tag used in <c>EmailUserTagMultiple</c>.
+        /// </param>
+        /// <returns>
+        /// The total number of rows affected by both delete operations.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the delete statements.
+        /// </exception>
         public async Task<long> DeleteUserAllTagAsync(long ID, long UserID, long tagid)
         {
             try
@@ -538,7 +776,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves all activity category records with a specific "other" name,
+        /// including the associated topic name.
+        /// </summary>
+        /// <param name="Others">
+        /// The name value used to filter activity categories.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailActivityCatgorys"/> records including topic information
+        /// for the given name.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while querying the database.
+        /// </exception>
         public async Task<List<EmailActivityCatgorys>> GetAllOthersAsync(string Others)
         {
             try
@@ -559,6 +810,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves all user tag multiple mappings for a specific user tag ID
+        /// from <c>EmailUserTagMultiple</c>.
+        /// </summary>
+        /// <param name="UserTagID">
+        /// The identifier of the user tag whose mappings are requested.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailActivityCatgorys"/> records representing mappings
+        /// for the specified user tag ID.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query.
+        /// </exception>
         public async Task<List<EmailActivityCatgorys>> GetAllUserlistAsync(long UserTagID)
         {
             try
@@ -578,7 +843,23 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
+        /// <summary>
+        /// Retrieves all topic mappings for a given user tag and user,
+        /// including topic and tag details.
+        /// </summary>
+        /// <param name="UserTag">
+        /// The user tag text whose mappings are requested.
+        /// </param>
+        /// <param name="UserID">
+        /// The identifier of the user who owns the tag.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EmailActivityCatgorys"/> representing topics and mappings
+        /// associated with the given user tag and user.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs while executing the query.
+        /// </exception>
         public async  Task<List<EmailActivityCatgorys>> GetAllUsersAsync(string UserTag, long UserID)
         {
             try

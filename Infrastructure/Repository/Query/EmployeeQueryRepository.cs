@@ -154,6 +154,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Resets an employee's login password to the default value ("1234").
+        /// </summary>
+        /// <param name="viewEmployee">
+        /// The employee object containing the <c>UserID</c> for which the password needs to be reset.
+        /// </param>
+        /// <returns>
+        /// Returns the updated <see cref="ViewEmployee"/> record after resetting the password.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during the database update or while retrieving the employee details.
+        /// </exception>
         public async Task<ViewEmployee> ResetEmployeePasswordAsync(ViewEmployee viewEmployee)
         {
             try
@@ -236,7 +248,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Retrieves all application permissions assigned to a specific role.
+        /// </summary>
+        /// <param name="RoleId">
+        /// The ID of the role for which permissions should be retrieved.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ApplicationPermission"/> containing
+        /// the permissions associated with the given role.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database or execution error occurs.
+        /// </exception>
         public async Task<IReadOnlyList<ApplicationPermission>> GetAllApplicationPermissionAsync(Int64 RoleId)
         {
             try

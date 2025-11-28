@@ -194,6 +194,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Generates an automatic document profile number based on the metadata
+        /// provided in the <see cref="DocumentsUploadModel"/>.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="DocumentsUploadModel"/> containing user, profile, department,
+        /// section, file-type, company, and session details required to generate
+        /// a unique document profile number.
+        /// </param>
+        /// <returns>
+        /// A <see cref="string"/> representing the generated document profile auto number.
+        /// </returns>
+        /// <remarks>
+        /// This method maps <paramref name="value"/> properties into a
+        /// <see cref="DocumentNoSeriesModel"/> and invokes the
+        /// <c>GenerateDocumentProfileAutoNumber</c> service to produce the profile number.
+        /// </remarks>
+        /// <exception cref="Exception">
+        /// Propagates any exception thrown by the underlying auto-number
+        /// generation logic.
+        /// </exception>
         private async Task<string> GenerateDocumentProfileAutoNumber(DocumentsUploadModel value)
         {
             DocumentNoSeriesModel documentNoSeriesModel = new DocumentNoSeriesModel();
@@ -275,6 +296,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Updates a specific document record by setting its <c>IsLatest</c> flag to 0,
+        /// indicating that the document is no longer the latest version.
+        /// </summary>
+        /// <param name="DocumentId">
+        /// The unique identifier of the document that needs to be updated.
+        /// </param>
+        /// <returns>
+        /// Returns the same <see cref="long"/> DocumentId upon successful update,
+        /// or <c>null</c> if the provided DocumentId is null.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during database execution or query processing.
+        /// </exception>
         public async Task<long?> UpdateDocumentIsLastet(long? DocumentId)
         {
             try

@@ -41,6 +41,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts a new record or updates an existing record in the specified table
+        /// based on the primary key value.
+        /// </summary>
+        /// <param name="TableName">
+        /// The name of the database table to insert into or update.
+        /// </param>
+        /// <param name="PrimareyKeyName">
+        /// The name of the primary key column in the table.
+        /// </param>
+        /// <param name="PrimareyKeyId">
+        /// The primary key value.  
+        /// If greater than <c>0</c>, an UPDATE is performed; otherwise, an INSERT is performed.
+        /// </param>
+        /// <param name="parameters">
+        /// The <see cref="DynamicParameters"/> containing column names and values
+        /// used to build the INSERT or UPDATE statement.
+        /// </param>
+        /// <returns>
+        /// The primary key value of the affected record.  
+        /// For inserts, this is the newly generated identity value;  
+        /// for updates, it returns the existing <paramref name="PrimareyKeyId"/>.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when SQL generation or execution fails.  
+        /// The original exception is included as the inner exception.
+        /// </exception>
         private async Task<long> InsertOrUpdate(string? TableName, string? PrimareyKeyName, long PrimareyKeyId, DynamicParameters parameters)
         {
             try
@@ -103,6 +130,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Inserts a new sales order or updates an existing one in the <c>SalesOrder</c> table.
+        /// Also generates a profile number when creating a new sales order.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="SalesOrderModel"/> containing sales order header data such as
+        /// profile, customer, dates, shipping info, and audit fields.
+        /// </param>
+        /// <returns>
+        /// The updated <see cref="SalesOrderModel"/> instance, including the assigned
+        /// <c>SalesOrderId</c> and generated <c>ProfileName</c> (if newly created).
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when parameter preparation, document number generation,
+        /// or database execution fails.  
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<SalesOrderModel> InsertOrUpdateSalesOrder(SalesOrderModel value)
         {
             try
@@ -165,6 +209,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Deletes a sales order and all related records from dependent tables,
+        /// including <c>SalesOrderProduct</c> and <c>SowithOutBlanketOrder</c>.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="SalesOrderModel"/> containing the <c>SalesOrderId</c>
+        /// of the record to delete.
+        /// </param>
+        /// <returns>
+        /// The same <see cref="SalesOrderModel"/> instance that was passed in,
+        /// after the delete operation completes.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database error occurs while deleting the sales order or its related data.
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<SalesOrderModel> DeleteSalesOrder(SalesOrderModel value)
         {
             try

@@ -263,7 +263,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        /// <summary>
+        /// Retrieves all documents linked to a specific To-Do item based on its session identifier.
+        /// </summary>
+        /// <param name="SessionId">
+        /// The session identifier associated with the To-Do item.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="Documents"/> belonging to the specified session.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a database connection or query execution error occurs. 
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(string SessionId)
         {
             try
@@ -282,6 +294,19 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        /// <summary>
+        /// Retrieves the full To-Do notes history for a given session,
+        /// including main topic, subtopic, and note details.
+        /// </summary>
+        /// <param name="SessionId">
+        /// The session identifier used to filter To-Do history records.
+        /// </param>
+        /// <returns>
+        /// A read-only list of <see cref="ToDoNotesHistory"/> including related subject and topic information.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during database query execution.
+        /// </exception>
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetByToDoSessionIdAsync(Guid SessionId)
         {
             try
@@ -304,7 +329,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        /// <summary>
+        /// Retrieves the complete history of a specific To-Do note for a user,
+        /// including assigned users, participant details, and completion status.
+        /// </summary>
+        /// <param name="NotesId">
+        /// The identifier of the To-Do note whose history is requested.
+        /// </param>
+        /// <param name="UserId">
+        /// The identifier of the user who created the To-Do note.
+        /// </param>
+        /// <returns>
+        /// A complete list of <see cref="ToDoNotesHistory"/> objects including participant and user assignment details.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when a failure occurs while fetching records or processing user lists.
+        /// </exception>
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetAllToDoNotesHistoryAsync(long NotesId,long UserId)
         {
             try
@@ -643,7 +683,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
+        /// <summary>
+        /// Updates the status of a To-Do note history entry to <c>'close'</c>
+        /// based on the provided identifier.
+        /// </summary>
+        /// <param name="ID">
+        /// The unique identifier of the To-Do note history record to update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update operation.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when the database operation fails.  
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> StatusUpdateAsync(long ID)
         {
             try
@@ -674,7 +727,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        /// <summary>
+        /// Updates the status of a To-Do note history record associated with users,
+        /// marking it as <c>'close'</c>.
+        /// </summary>
+        /// <param name="ID">
+        /// The identifier of the To-Do notes history entry to update.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the update.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// Thrown when an error occurs during query execution.  
+        /// The original exception is included as the inner exception.
+        /// </exception>
         public async Task<long> StatusUpdateNotesUsersAsync(long ID)
         {
             try

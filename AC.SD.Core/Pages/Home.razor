@@ -88,30 +88,19 @@
     {
         portalMenuModel = new List<PortalMenuModel>();
         var applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
-        // Do NOT redeclare here
+       
         var result = await Mediator.Send(new GetAllApplicationPermissionQuery(applicationUser.UserID));
 
-        var hideMenus = new List<string>
-        {
-            null,
-            "My Day",
-            "Notify JD",
-            "Notify PA",
-            "Dashboard",
-            "DashboardPages",
-            "Registration",
-            "Incident Report",
-            "SPC",
-            "Reports",
-            "Form",
-            "Company Catlog"
-        };
+        var hideByPermissionId = new List<long?>
+            {
+                60000,60002, 60220, 60005, 60006, 60001,
+                60280, 60600, 60601, 60080, 60240, 60140
+            };       
 
-        // Assign filtered result to the class-level variable
         portalMenuModel = result
-            .Where(x => !hideMenus.Contains(x.Title))
-            .ToList();
+                 .Where(x => x.PermissionID == null || !hideByPermissionId.Contains(x.PermissionID))
+                 .ToList();
+
 
         await base.OnInitializedAsync();
     }

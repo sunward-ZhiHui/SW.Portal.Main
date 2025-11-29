@@ -184,6 +184,7 @@ namespace Infrastructure.Repository.Query
                         var menu = new PortalMenuModel
                         {
                             Header = m.PermissionName,
+                            PermissionID = m.PermissionID,
                             Title = null,
                             Group = null,
                             Component = null,
@@ -203,6 +204,7 @@ namespace Infrastructure.Repository.Query
                                 var childmenu = new PortalMenuModel
                                 {
                                     Title = ch.PermissionName,
+                                    PermissionID = ch.PermissionID,
                                     Group = ch.PermissionGroup,
                                     Component = ch.Component,
                                     Name = ch.Name,

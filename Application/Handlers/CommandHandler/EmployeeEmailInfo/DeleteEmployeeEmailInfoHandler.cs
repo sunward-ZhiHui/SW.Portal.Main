@@ -29,28 +29,32 @@ namespace Application.Handlers.CommandHandler
             {
                 var result = await _queryRepository.GetByIdAsync(request.Id);
                 var queryEntity = result;
-                var guid = Guid.NewGuid();
-                var uid = Guid.NewGuid();
 
                 if (result != null)
                 {
+                    List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                     var date = DateTime.Now;
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", result.SubscriptionID?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "SubscriptionID", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", result.Subscription, null, request.Id, guid, request?.UserId, DateTime.Now, true, "Subscription", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", result?.EmailGuideID?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "EmailGuideID", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", result?.EmailGuide, null, request.Id, guid, request?.UserId, DateTime.Now, true, "EmailGuide", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", request.UserId.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedByUserId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", date.ToString("dd-MMM-yyyy hh:mm:ss tt"), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", request.UserName, null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedBy", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeEmailInfo", "Delete", result?.EmployeeID?.ToString(), result?.EmployeeID?.ToString(), request.Id, guid, request?.UserId, DateTime.Now, true, "EmployeeId", uid);
-
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.EmailGuideID?.ToString(), ColumnName = "EmailGuideID" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.Subscription?.ToString(), ColumnName = "Subscription" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.EmailGuideID?.ToString(), ColumnName = "EmailGuideID" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.EmailGuide?.ToString(), ColumnName = "EmailGuide" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = request.UserId?.ToString(), ColumnName = "ModifiedByUserId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.EmployeeID?.ToString(), ColumnName = "EmployeeID" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = date != null ? date.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = request.UserName?.ToString(), ColumnName = "ModifiedBy" });
+                    if (auditList.Count() > 0)
+                    {
+                        HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                        {
+                            HRMasterAuditTrailItems = auditList,
+                            Type = "EmployeeEmailInfo",
+                            FormType = "Delete",
+                            HRMasterSetId = result?.EmployeeEmailInfoID,
+                            IsDeleted = true,
+                            AuditUserId = request?.UserId,
+                        };
+                        await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                    }
                 }
                 var data = new EmployeeEmailInfo
                 {

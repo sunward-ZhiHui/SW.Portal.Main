@@ -80,6 +80,10 @@ namespace Core.Entities
         public int? IndexNo {  get; set; }
         public bool? IsAuditTrail { get; set; } = false;
         public long? UserId { get; set; }
+        [NotMapped]
+        public int? IsReleaseCount { get; set; }
+        [NotMapped]
+        public int? IsReleaseUsers { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

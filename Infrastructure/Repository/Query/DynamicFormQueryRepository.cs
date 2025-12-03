@@ -3147,10 +3147,19 @@ t1.DynamicFormSectionID,
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId);
                 var query = "select t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeId,t1.SessionID,t1.DynamicFormDataGridID,t2.SessionID as DynamicFormSessionID,t3.SessionID as DynamicFormSectionGridAttributeSessionId from DynamicFormData t1\r\nLEFT JOIN DynamicFormData t2  ON t2.DynamicFormDataID=t1.DynamicFormDataGridID\r\nLEFT JOIN DynamicFormSectionAttribute t3  ON t3.DynamicFormSectionAttributeID=t1.DynamicFormSectionGridAttributeID\r\nwhere t1.SessionID=@SessionId;";
+                query += ";WITH R AS\r\n(\r\n    SELECT \r\n        t1.*,\r\n        CASE \r\n            WHEN t1.UserID > 0 THEN \r\n                CONCAT(\r\n                    CASE \r\n                        WHEN t2.NickName IS NULL OR t2.NickName = '' \r\n                            THEN '' \r\n                        ELSE CONCAT(t2.NickName, ' | ') \r\n                    END,\r\n                    t2.FirstName,\r\n                    CASE \r\n                        WHEN t2.LastName IS NULL OR t2.LastName = '' \r\n                            THEN '' \r\n                        ELSE '-' \r\n                    END,\r\n                    t2.LastName\r\n                )\r\n            ELSE NULL\r\n        END AS ReleaseUser,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.DynamicFormDataId, t1.DynamicFormSectionID\r\n            ORDER BY t1.ModifiedDate DESC, t1.DynamicFormDataSectionSecurityReleaseID DESC\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease t1\r\n    JOIN Employee t2 ON t2.UserID = t1.UserID\r\n\tJOIN DynamicFormData t3 ON t3.DynamicFormDataID=t1.DynamicFormDataID\r\n    WHERE t3.SessionID =@SessionId\r\n)\r\nSELECT *\r\nFROM R\r\nWHERE rn = 1;";
+                var result = new DynamicFormData();
                 using (var connection = CreateConnection())
                 {
-                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    result = results.Read<DynamicFormData>().ToList().FirstOrDefault();
+                    var res = results.Read<DynamicFormDataSectionSecurityRelease>().ToList();
+                    if(result!=null)
+                    {
+                        result.DynamicFormDataSectionSecurityRelease = res;
+                    }
                 }
+                return result;
             }
             catch (Exception exp)
             {
@@ -4287,7 +4296,11 @@ t1.DynamicFormSectionID,
                     {
                         parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
                         var query1 = "select t1.*,(case when t1.LockedUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName,(case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as LockedUser from DynamicFormDataSectionLock t1\r\nJOIN Employee t2 ON t2.UserID=t1.LockedUserID Where t1.DynamicFormDataId=@DynamicFormDataId;";
-                        dynamicFormData.DynamicFormDataSectionLock = (await connection.QueryAsync<DynamicFormDataSectionLock>(query1, parameters)).ToList();
+                        //query1 += "select t1.*,(case when t1.UserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  '' ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName,(case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as ReleaseUser from DynamicFormDataSectionSecurityRelease t1\r\nJOIN Employee t2 ON t2.UserID=t1.UserID Where t1.DynamicFormDataId=@DynamicFormDataId";
+                        query1 += ";WITH R AS\r\n(\r\n    SELECT \r\n        t1.*,\r\n        CASE \r\n            WHEN t1.UserID > 0 THEN \r\n                CONCAT(\r\n                    CASE \r\n                        WHEN t2.NickName IS NULL OR t2.NickName = '' \r\n                            THEN '' \r\n                        ELSE CONCAT(t2.NickName, ' | ') \r\n                    END,\r\n                    t2.FirstName,\r\n                    CASE \r\n                        WHEN t2.LastName IS NULL OR t2.LastName = '' \r\n                            THEN '' \r\n                        ELSE '-' \r\n                    END,\r\n                    t2.LastName\r\n                )\r\n            ELSE NULL\r\n        END AS ReleaseUser,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.DynamicFormDataId, t1.DynamicFormSectionID\r\n            ORDER BY t1.ModifiedDate DESC, t1.DynamicFormDataSectionSecurityReleaseID DESC\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease t1\r\n    JOIN Employee t2 \r\n        ON t2.UserID = t1.UserID\r\n    WHERE t1.DynamicFormDataId =@DynamicFormDataId\r\n)\r\nSELECT *\r\nFROM R\r\nWHERE rn = 1;";
+                        var results = await connection.QueryMultipleAsync(query1, parameters);
+                        dynamicFormData.DynamicFormDataSectionLock = results.Read<DynamicFormDataSectionLock>().ToList();
+                        dynamicFormData.DynamicFormDataSectionSecurityRelease = results.Read<DynamicFormDataSectionSecurityRelease>().ToList();
                         if (dynamicFormData.SessionId != null)
                         {
                             var _activityEmailTopics = await GetActivityEmailTopicList("'" + dynamicFormData.SessionId.ToString() + "'");
@@ -4340,7 +4353,11 @@ t1.DynamicFormSectionID,
                     {
                         parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
                         var query1 = "select t1.*,(case when t1.LockedUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName,(case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as LockedUser from DynamicFormDataSectionLock t1\r\nJOIN Employee t2 ON t2.UserID=t1.LockedUserID Where t1.DynamicFormDataId=@DynamicFormDataId;";
-                        dynamicFormData.DynamicFormDataSectionLock = (await connection.QueryAsync<DynamicFormDataSectionLock>(query1, parameters)).ToList();
+                        // query1 += "select t1.*,(case when t1.UserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  '' ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName,(case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as ReleaseUser from DynamicFormDataSectionSecurityRelease t1\r\nJOIN Employee t2 ON t2.UserID=t1.UserID Where t1.DynamicFormDataId=@DynamicFormDataId";
+                        query1 += ";WITH R AS\r\n(\r\n    SELECT \r\n        t1.*,\r\n        CASE \r\n            WHEN t1.UserID > 0 THEN \r\n                CONCAT(\r\n                    CASE \r\n                        WHEN t2.NickName IS NULL OR t2.NickName = '' \r\n                            THEN '' \r\n                        ELSE CONCAT(t2.NickName, ' | ') \r\n                    END,\r\n                    t2.FirstName,\r\n                    CASE \r\n                        WHEN t2.LastName IS NULL OR t2.LastName = '' \r\n                            THEN '' \r\n                        ELSE '-' \r\n                    END,\r\n                    t2.LastName\r\n                )\r\n            ELSE NULL\r\n        END AS ReleaseUser,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.DynamicFormDataId, t1.DynamicFormSectionID\r\n            ORDER BY t1.ModifiedDate DESC, t1.DynamicFormDataSectionSecurityReleaseID DESC\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease t1\r\n    JOIN Employee t2 \r\n        ON t2.UserID = t1.UserID\r\n    WHERE t1.DynamicFormDataId =@DynamicFormDataId\r\n)\r\nSELECT *\r\nFROM R\r\nWHERE rn = 1;";
+                        var results = await connection.QueryMultipleAsync(query1, parameters);
+                        dynamicFormData.DynamicFormDataSectionLock = results.Read<DynamicFormDataSectionLock>().ToList();
+                        dynamicFormData.DynamicFormDataSectionSecurityRelease = results.Read<DynamicFormDataSectionSecurityRelease>().ToList();
                         if (dynamicFormData.SessionId != null)
                         {
                             var _activityEmailTopics = await GetActivityEmailTopicList("'" + dynamicFormData.SessionId.ToString() + "'");
@@ -4477,6 +4494,30 @@ t1.DynamicFormSectionID,
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataSectionSecurityRelease>> GeDynamicFormDataSectionSecurityReleaseListAsync(List<long> dynamicFormDataIds)
+        {
+
+            try
+            {
+                List<DynamicFormDataSectionSecurityRelease> dynamicFormDataSectionLocks = new List<DynamicFormDataSectionSecurityRelease>();
+                dynamicFormDataIds = dynamicFormDataIds != null && dynamicFormDataIds.Count > 0 ? dynamicFormDataIds : new List<long>() { -1 };
+                var parameters = new DynamicParameters();
+                parameters.Add("@DynamicFormDataIDs", dynamicFormDataIds);
+                var query = ";WITH Latest AS\r\n(\r\n    SELECT \r\n        t1.*,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.DynamicFormSectionID\r\n            ORDER BY t1.DynamicFormDataSectionSecurityReleaseID DESC, t1.DynamicFormDataSectionSecurityReleaseID DESC\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease t1\r\n    " +
+                    "WHERE t1.DynamicFormDataID IN @DynamicFormDataIDs)\r\nSELECT *\r\nFROM Latest\r\nWHERE rn = 1;";
+                // var query = "select  * from DynamicFormDataSectionLock where DynamicFormDataId in(" + string.Join(',', dynamicFormDataIds) + ");";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormDataSectionSecurityRelease>(query, parameters)).ToList();
+                    dynamicFormDataSectionLocks = result != null && result.Count() > 0 ? result : new List<DynamicFormDataSectionSecurityRelease>();
+                }
+                return dynamicFormDataSectionLocks;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId, Guid? DynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch, bool isDelete)
         {
             try
@@ -4487,18 +4528,20 @@ t1.DynamicFormSectionID,
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
                 parameters.Add("DynamicFormDataSessionId", DynamicFormDataSessionId, DbType.Guid);
-                var query = "select t5.IsApproval,(case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  ''\r\n ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID," +
-                    "(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName, (case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as AddedBy," +
-                    "(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
-                    "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
-                    "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
-                    "from DynamicFormData t1\r\n" +
-                    "JOIN Employee t2 ON t2.UserID = t1.AddedByUserID\r\n" +
-                    "LEFT JOIN Employee t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
-                     "LEFT JOIN Employee t33 ON t33.UserID = t1.LockedUserId\r\n" +
-                    "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
-                    "LEFT JOIN DynamicFormSectionAttribute t6 ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n" +
-                    "WHERE 1=1 AND t1.DynamicFormId =@DynamicFormId\r\n";
+                /* var query = "select t5.IsApproval,(case when t1.LockedUserId>0 Then CONCAT(case when t33.NickName is NULL OR  t33.NickName='' then  ''\r\n ELSE  CONCAT(t33.NickName,' | ') END,t33.FirstName, (case when t33.LastName is Null OR t33.LastName='' then '' ELSE '-' END),t33.LastName) ELSE null END) as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID," +
+                     "(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL OR  t2.NickName='' then  ''\r\n ELSE  CONCAT(t2.NickName,' | ') END,t2.FirstName, (case when t2.LastName is Null OR t2.LastName='' then '' ELSE '-' END),t2.LastName) ELSE null END) as AddedBy," +
+                     "(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL OR  t3.NickName='' then  ''\r\n ELSE  CONCAT(t3.NickName,' | ') END,t3.FirstName, (case when t3.LastName is Null OR t3.LastName='' then '' ELSE '-' END),t3.LastName) ELSE null END) as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
+                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
+                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
+                     "from DynamicFormData t1\r\n" +
+                     "JOIN Employee t2 ON t2.UserID = t1.AddedByUserID\r\n" +
+                     "LEFT JOIN Employee t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
+                      "LEFT JOIN Employee t33 ON t33.UserID = t1.LockedUserId\r\n" +
+                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
+                     "LEFT JOIN DynamicFormSectionAttribute t6 ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n" +
+                     "WHERE 1=1 AND t1.DynamicFormId =@DynamicFormId\r\n";*/
+                var query = "\r\nSELECT\r\n    t5.IsApproval,\r\n    CASE \r\n        WHEN t1.LockedUserId > 0 THEN \r\n            CONCAT(\r\n                CASE \r\n                    WHEN t33.NickName IS NULL OR t33.NickName = '' \r\n                        THEN '' \r\n                    ELSE CONCAT(t33.NickName, ' | ') \r\n                END,\r\n                t33.FirstName,\r\n                CASE \r\n                    WHEN t33.LastName IS NULL OR t33.LastName = '' \r\n                        THEN '' \r\n                    ELSE '-' \r\n                END,\r\n                t33.LastName\r\n            )\r\n        ELSE NULL\r\n    END AS LockedUser,\r\n    t1.LockedUserId,\r\n    CASE WHEN t1.IsLocked IS NULL THEN 0 ELSE t1.IsLocked END AS IsLocked,\r\n    t1.DynamicFormDataID,\r\n    t1.DynamicFormSectionGridAttributeID,\r\n    t1.DynamicFormID,\r\n    t1.SessionID,\r\n    t1.StatusCodeID,\r\n    t1.AddedByUserID,\r\n    t6.SessionID AS DynamicFormSectionGridAttributeSessionId,\r\n    t1.AddedDate,\r\n    t1.ModifiedByUserID,\r\n    t1.ModifiedDate,\r\n    t1.DynamicFormItem,\r\n    t1.IsSendApproval,\r\n    t1.FileProfileSessionID,\r\n    t1.ProfileID,\r\n    t1.ProfileNo,\r\n    t1.DynamicFormDataGridID,\r\n    t1.IsDeleted,\r\n    t1.SortOrderByNo,\r\n    t1.GridSortOrderByNo,\r\n    t1.DynamicFormSectionGridAttributeID,\r\n    CASE \r\n        WHEN t1.AddedByUserID > 0 THEN \r\n            CONCAT(\r\n                CASE \r\n                    WHEN t2.NickName IS NULL OR t2.NickName = '' \r\n                        THEN '' \r\n                    ELSE CONCAT(t2.NickName, ' | ') \r\n                END,\r\n                t2.FirstName,\r\n                CASE \r\n                    WHEN t2.LastName IS NULL OR t2.LastName = '' \r\n                        THEN '' \r\n                    ELSE '-' \r\n                END,\r\n                t2.LastName\r\n            )\r\n        ELSE NULL\r\n    END AS AddedBy,\r\n    CASE \r\n        WHEN t1.ModifiedByUserID > 0 THEN \r\n            CONCAT(\r\n                CASE \r\n                    WHEN t3.NickName IS NULL OR t3.NickName = '' \r\n                        THEN '' \r\n                    ELSE CONCAT(t3.NickName, ' | ') \r\n                END,\r\n                t3.FirstName,\r\n                CASE \r\n                    WHEN t3.LastName IS NULL OR t3.LastName = '' \r\n                        THEN '' \r\n                    ELSE '-' \r\n                END,\r\n                t3.LastName\r\n            )\r\n        ELSE NULL\r\n    END AS ModifiedBy,\r\n    t5.FileProfileTypeId,\r\n    t5.Name,\r\n    t5.ScreenID,\r\n\r\n    -- pre-aggregated doc count (instead of scalar subquery)\r\n    ISNULL(doc.IsFileprofileTypeDocument, 0) AS IsFileprofileTypeDocument,\r\n\r\n    CASE WHEN t1.DynamicFormDataGridID > 0 THEN 1 ELSE 0 END AS IsDynamicFormDataGrid\r\nFROM DynamicFormData t1\r\nJOIN Employee t2 \r\n    ON t2.UserID = t1.AddedByUserID\r\nLEFT JOIN Employee t3 \r\n    ON t3.UserID = t1.ModifiedByUserID\r\nLEFT JOIN Employee t33 \r\n    ON t33.UserID = t1.LockedUserId\r\nJOIN DynamicForm t5 \r\n    ON t5.ID = t1.DynamicFormID\r\nLEFT JOIN DynamicFormSectionAttribute t6 \r\n    ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n\r\n-- ⬇️ this replaces the correlated COUNT subquery\r\nLEFT JOIN (\r\n    SELECT \r\n        ddu.DynamicFormDataID,\r\n        COUNT(doc.DocumentID) AS IsFileprofileTypeDocument\r\n    FROM DynamicFormDataUpload ddu\r\n    JOIN Documents doc \r\n        ON ddu.SessionID = doc.SessionID\r\n    WHERE \r\n        doc.IsLatest = 1\r\n        AND (doc.IsDelete IS NULL OR doc.IsDelete = 0)\r\n    GROUP BY ddu.DynamicFormDataID\r\n) doc\r\n    ON doc.DynamicFormDataID = t1.DynamicFormDataID\r\n\r\n" +
+                    "WHERE \r\n    t1.DynamicFormId = @DynamicFormId\r\n";
                 if (isDelete == false)
                 {
                     query += "AND (t1.IsDeleted=0 or t1.IsDeleted is null)\r\n";
@@ -4555,8 +4598,10 @@ t1.DynamicFormSectionID,
                     var dynamicFormDataIDs = result.Where(w => w.IsSendApproval == true).Select(a => a.DynamicFormDataId).ToList();
                     var resultData = await GetDynamicFormApprovedByAll(dynamicFormDataIDs);
                     var _activityEmailTopics = await GetActivityEmailTopicList(lists);
+                    var isReleaseList = await GeDynamicFormDataSectionSecurityReleaseListAsync(dynamicFormDataIDss);
                     result.ForEach(s =>
                     {
+                        s.DynamicFormDataSectionSecurityRelease = isReleaseList.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == s.SessionId);
                         s.DynamicFormDataSectionLock = lockItems.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
                         if (_activityEmailTopicsOne != null)
@@ -5904,14 +5949,14 @@ t1.DynamicFormSectionID,
                         var parameters = new DynamicParameters();
                         parameters.Add("IsReadWrite", value.IsReadWrite);
                         parameters.Add("IsReadOnly", value.IsReadOnly);
-                        parameters.Add("IsVisible", value.IsVisible);
+                        parameters.Add("IsVisible", value.IsVisible); parameters.Add("IsRelease", value.IsRelease);
                         parameters.Add("Type", value.Type, DbType.String);
                         parameters.Add("DynamicFormSectionId", value.DynamicFormSectionId);
                         query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                         var sesId = Guid.NewGuid();
-                        if (value.IsVisible == true)
+                        if (value.IsVisible == true || value.IsRelease == true)
                         {
-                            if (value.IsReadOnly == true || value.IsReadWrite == true)
+                            if (value.IsReadOnly == true || value.IsReadWrite == true || value.IsRelease == true)
                             {
                                 if (value.Type == "User")
                                 {
@@ -5928,13 +5973,26 @@ t1.DynamicFormSectionID,
                                                     var parameters1 = new DynamicParameters();
                                                     parameters1 = parameters;
                                                     parameters1.Add("UserId", item);
-                                                    var query1 = "INSERT INTO [DynamicFormSectionSecurity](Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                        "VALUES (@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId);\r\n";
+                                                    var query1 = "INSERT INTO [DynamicFormSectionSecurity](Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,IsRelease) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                        "VALUES (@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId,@IsRelease);\r\n";
                                                     var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                     var UniqueSessionId = Guid.NewGuid();
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                    if (value.IsReadOnly == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsReadWrite == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsVisible == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsRelease == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsRelease.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
                                                     await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId, value.DynamicFormSectionId);
                                                     await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, item.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserId", UniqueSessionId, value.DynamicFormSectionId);
                                                     //await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.DynamicFormSectionId > 0 ? value.DynamicFormSectionId.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "DynamicFormSectionId", UniqueSessionId, value.DynamicFormSectionId);
@@ -5961,6 +6019,12 @@ t1.DynamicFormSectionID,
 
                                                         isUpdate = true;
                                                     }
+                                                    if (counts.IsRelease != value.IsRelease)
+                                                    {
+                                                        await InsertDynamicFormAudit("Update", "DynamicFormSectionSecurity", counts.IsRelease.ToString(), value.IsRelease.ToString(), value.DynamicFormId, counts.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+
+                                                        isUpdate = true;
+                                                    }
                                                     if (isUpdate)
                                                     {
                                                         var preType = counts?.Type; string? preValueData = counts?.UserId > 0 ? counts.UserId.ToString() : string.Empty;
@@ -5982,7 +6046,7 @@ t1.DynamicFormSectionID,
                                                     parameters1.Add("UserId", item);
                                                     parameters1.Add("UserGroupId", null);
                                                     parameters1.Add("LevelId", null);
-                                                    var query1 = " UPDATE DynamicFormSectionSecurity SET UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                                                    var query1 = " UPDATE DynamicFormSectionSecurity SET IsRelease=@IsRelease,UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                                     await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                 }
                                             }
@@ -6007,13 +6071,26 @@ t1.DynamicFormSectionID,
                                                         parameters1 = parameters;
                                                         parameters1.Add("UserId", s.UserId);
                                                         parameters1.Add("UserGroupId", s.UserGroupId);
-                                                        var query1 = "INSERT INTO [DynamicFormSectionSecurity](Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                            "VALUES (@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId,@UserGroupId);\r\n";
+                                                        var query1 = "INSERT INTO [DynamicFormSectionSecurity](IsRelease,Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                            "VALUES (@IsRelease,@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId,@UserGroupId);\r\n";
                                                         var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                         var UniqueSessionId = Guid.NewGuid();
-                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
-                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
-                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                        if (value.IsReadOnly == true)
+                                                        {
+                                                            await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
+                                                        }
+                                                        if (value.IsReadWrite == true)
+                                                        {
+                                                            await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
+                                                        }
+                                                        if (value.IsVisible == true)
+                                                        {
+                                                            await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                        }
+                                                        if (value.IsRelease == true)
+                                                        {
+                                                            await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsRelease.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+                                                        }
                                                         await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId, value.DynamicFormSectionId);
                                                         await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, s.UserGroupId > 0 ? s.UserGroupId.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserGroupId", UniqueSessionId, value.DynamicFormSectionId);
                                                         await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, s.UserId > 0 ? s.UserId.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserId", UniqueSessionId, value.DynamicFormSectionId);
@@ -6041,6 +6118,12 @@ t1.DynamicFormSectionID,
 
                                                             isUpdate = true;
                                                         }
+                                                        if (counts.IsRelease != value.IsRelease)
+                                                        {
+                                                            await InsertDynamicFormAudit("Update", "DynamicFormSectionSecurity", counts.IsRelease.ToString(), value.IsRelease.ToString(), value.DynamicFormId, counts.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+
+                                                            isUpdate = true;
+                                                        }
                                                         if (isUpdate)
                                                         {
                                                             var preType = counts?.Type; string? preValueData = counts?.UserId > 0 ? counts.UserId.ToString() : string.Empty;
@@ -6062,7 +6145,7 @@ t1.DynamicFormSectionID,
                                                         parameters1.Add("UserId", s.UserId);
                                                         parameters1.Add("UserGroupId", s.UserGroupId);
                                                         parameters1.Add("LevelId", null);
-                                                        var query1 = " UPDATE DynamicFormSectionSecurity SET UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                                                        var query1 = " UPDATE DynamicFormSectionSecurity SET IsRelease=@IsRelease,UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                                         await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                     }
                                                 }
@@ -6085,13 +6168,26 @@ t1.DynamicFormSectionID,
                                                     parameters1 = parameters;
                                                     parameters1.Add("UserId", s.UserId);
                                                     parameters1.Add("LevelId", s.LevelId);
-                                                    var query1 = "INSERT INTO [DynamicFormSectionSecurity](Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                       "VALUES (@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId,@LevelId);\r\n";
+                                                    var query1 = "INSERT INTO [DynamicFormSectionSecurity](IsRelease,Type,IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                       "VALUES (@IsRelease,@Type,@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId,@UserId,@LevelId);\r\n";
                                                     var ids = await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                     var UniqueSessionId = Guid.NewGuid();
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
-                                                    await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                    if (value.IsReadOnly == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadOnly.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadOnly", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsReadWrite == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsReadWrite.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsReadWrite", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsVisible == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsVisible.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsVisible", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
+                                                    if (value.IsRelease == true)
+                                                    {
+                                                        await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.IsRelease.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+                                                    }
                                                     await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, value.Type != null ? value.Type.ToString() : null, value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "Type", UniqueSessionId, value.DynamicFormSectionId);
                                                     await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, s.LevelId.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "LevelId", UniqueSessionId, value.DynamicFormSectionId);
                                                     await InsertDynamicFormAudit("Add", "DynamicFormSectionSecurity", string.Empty, s.UserId.ToString(), value.DynamicFormId, ids, sesId, UserId, DateTime.Now, false, "UserId", UniqueSessionId, value.DynamicFormSectionId);
@@ -6119,6 +6215,12 @@ t1.DynamicFormSectionID,
 
                                                         isUpdate = true;
                                                     }
+                                                    if (counts.IsRelease != value.IsRelease)
+                                                    {
+                                                        await InsertDynamicFormAudit("Update", "DynamicFormSectionSecurity", counts.IsRelease.ToString(), value.IsRelease.ToString(), value.DynamicFormId, counts.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, false, "IsRelease", UniqueSessionId, value.DynamicFormSectionId);
+
+                                                        isUpdate = true;
+                                                    }
                                                     if (isUpdate)
                                                     {
                                                         var preType = counts?.Type; string? preValueData = counts?.UserId > 0 ? counts.UserId.ToString() : string.Empty;
@@ -6140,7 +6242,7 @@ t1.DynamicFormSectionID,
                                                     parameters1.Add("UserId", s.UserId);
                                                     parameters1.Add("UserGroupId", null);
                                                     parameters1.Add("LevelId", s.LevelId);
-                                                    var query1 = "UPDATE DynamicFormSectionSecurity SET UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                                                    var query1 = "UPDATE DynamicFormSectionSecurity SET IsRelease=@IsRelease,UserId=@UserId,UserGroupId=@UserGroupId,LevelId=@LevelId,Type=@Type,IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                                     await connection.QuerySingleOrDefaultAsync<long>(query1, parameters1);
                                                 }
                                             }
@@ -6174,7 +6276,7 @@ t1.DynamicFormSectionID,
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", Id);
-                var query = "select t1.DynamicFormSectionSecurityID,\r\nt1.DynamicFormSectionID,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt1.IsReadWrite,\r\nt1.IsReadOnly,\r\nt1.IsVisible,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.SectionName,\r\n" +
+                var query = "select t1.IsRelease,t1.DynamicFormSectionSecurityID,\r\nt1.DynamicFormSectionID,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt1.IsReadWrite,\r\nt1.IsReadOnly,\r\nt1.IsVisible,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.SectionName,\r\n" +
                     "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
                     "t8.Name as DesignationName,\r\n" +
                     "CONCAT(case when t6.NickName is NULL OR  t6.NickName='' then  ''\r\n ELSE  CONCAT(t6.NickName,' | ') END,t6.FirstName, (case when t6.LastName is Null OR t6.LastName='' then '' ELSE '-' END),t6.LastName) as FullName\r\n" +
@@ -6215,9 +6317,22 @@ t1.DynamicFormSectionID,
                         await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.DynamicFormSectionId.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "DynamicFormSectionId", UniqueSessionId, index.DynamicFormSectionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.Type != null ? index.Type.ToString() : null, null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "Type", UniqueSessionId, index.DynamicFormSectionId);
                         await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.UserId > 0 ? index.UserId.ToString() : null, null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "UserId", UniqueSessionId, index.DynamicFormSectionId);
-                        await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsReadWrite.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsReadWrite", UniqueSessionId, index.DynamicFormSectionId);
-                        await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsReadOnly.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsReadOnly", UniqueSessionId, index.DynamicFormSectionId);
-                        await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsVisible.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsVisible", UniqueSessionId, index.DynamicFormSectionId);
+                        if (index.IsReadWrite == true)
+                        {
+                            await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsReadWrite.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsReadWrite", UniqueSessionId, index.DynamicFormSectionId);
+                        }
+                        if (index.IsReadOnly == true)
+                        {
+                            await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsReadOnly.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsReadOnly", UniqueSessionId, index.DynamicFormSectionId);
+                        }
+                        if (index.IsVisible == true)
+                        {
+                            await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsVisible.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsVisible", UniqueSessionId, index.DynamicFormSectionId);
+                        }
+                        if (index.IsRelease == true)
+                        {
+                            await InsertDynamicFormAudit("Delete", "DynamicFormSectionSecurity", index.IsRelease.ToString(), null, res?.DynamicFormId, index.DynamicFormSectionSecurityId, sesId, UserId, DateTime.Now, true, "IsRelease", UniqueSessionId, index.DynamicFormSectionId);
+                        }
                     }
                 }
             }
@@ -10575,6 +10690,72 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormDataSectionSecurityRelease> GetDynamicFormDataSectionSecurityReleaseListOne(DynamicFormDataSectionSecurityRelease dynamicFormDataSectionLock)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", dynamicFormDataSectionLock.DynamicFormDataId);
+                parameters.Add("DynamicFormSectionId", dynamicFormDataSectionLock.DynamicFormSectionId);
+                parameters.Add("UserId", dynamicFormDataSectionLock.UserId);
+                var query = string.Empty;
+                query += "select  * from DynamicFormDataSectionSecurityRelease where DynamicFormDataId=@DynamicFormDataId AND DynamicFormSectionId=@DynamicFormSectionId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataSectionSecurityRelease>(query, parameters)).FirstOrDefault();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataSectionSecurityRelease> UpdateDynamicFormDataSectionSecurityRelease(DynamicFormDataSectionSecurityRelease value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        // var exits = await GetDynamicFormDataSectionSecurityReleaseListOne(value);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", value.DynamicFormDataId);
+                        parameters.Add("DynamicFormSectionId", value.DynamicFormSectionId);
+                        parameters.Add("IsRelease", value.IsRelease == true ? true : null);
+                        parameters.Add("UserId", value.UserId);
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("AddedByUserID", value.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        // if (exits == null)
+                        //{
+                        var query = "INSERT INTO DynamicFormDataSectionSecurityRelease(ModifiedDate,AddedDate,AddedByUserID,ModifiedByUserID,DynamicFormDataId,DynamicFormSectionId,IsRelease,UserId) OUTPUT INSERTED.DynamicFormDataSectionSecurityReleaseId VALUES " +
+                        "(@ModifiedDate,@AddedDate,@AddedByUserID,@ModifiedByUserID,@DynamicFormDataId,@DynamicFormSectionId,@IsRelease,@UserId)";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        // }
+                        // else
+                        //{
+                        //   var query = "update DynamicFormDataSectionSecurityRelease set UserId=@UserId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,IsRelease=@IsRelease where DynamicFormSectionId=@DynamicFormSectionId AND DynamicFormDataId=@DynamicFormDataId\r\n;";
+                        //  var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        //}
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
         public async Task<DynamicFormDataSectionLock> UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock value)
         {
             try
@@ -11435,7 +11616,11 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                       "JOIN DynamicFormData tt2 ON tt2.DynamicFormDataID=tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 ON tt5.ID=tt2.DynamicFormID\n\r" +
                       "LEFT JOIN ApplicationUser tt3 ON tt3.UserID=tt1.PreUserID\r\n" +
                       "JOIN ApplicationUser tt4 ON tt4.UserID=tt1.AuditUserId where tt2.SessionId=@SessionId";*/
-                var query = ";WITH FirstAuditPerSession AS\r\n(\r\n    SELECT\r\n        t1.SessionId,\r\n        t1.AuditDateTime,\r\n        t1.PreUpdateDate,\r\n        t1.PreUserID,\r\n        t1.AuditUserId,\r\n        t1.DynamicFormDataId,\r\n        t1.DynamicFormDataAuditId,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.SessionId\r\n            ORDER BY t1.DynamicFormDataAuditId ASC  \r\n        ) AS rn\r\n    FROM DynamicFormDataAudit t1\r\n),\r\ntt1 AS\r\n(\r\n    SELECT\r\n        SessionId,\r\n        AuditDateTime,\r\n        PreUpdateDate,\r\n        PreUserID,\r\n        AuditUserId,\r\n        DynamicFormDataId,\r\n        DynamicFormDataAuditId\r\n    FROM FirstAuditPerSession\r\n    WHERE rn = 1  \r\n)\r\nSELECT\r\n    ROW_NUMBER() OVER (ORDER BY tt1.DynamicFormDataAuditId DESC) AS RowNum,\r\n    tt1.*,\r\n    tt5.SessionID AS DynamicFormSessionID,\r\n    tt2.ProfileNo,\r\n\ttt2.SessionID as DynamicFormDataSessionID,\r\n    tt2.DynamicFormID,\r\n    tt3.UserName AS PreUser,\r\n    tt4.UserName AS AuditUser\r\nFROM tt1\r\nJOIN DynamicFormData tt2\r\n    ON tt2.DynamicFormDataID = tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5\r\n    ON tt5.ID = tt2.DynamicFormID\r\nLEFT JOIN ApplicationUser tt3\r\n    ON tt3.UserID = tt1.PreUserID\r\nJOIN ApplicationUser tt4\r\n    ON tt4.UserID = tt1.AuditUserId\r\nWHERE tt2.SessionId = @SessionId;\r\n";
+                // var query = ";WITH FirstAuditPerSession AS\r\n(\r\n    SELECT\r\n        t1.SessionId,\r\n        t1.AuditDateTime,\r\n        t1.PreUpdateDate,\r\n        t1.PreUserID,\r\n        t1.AuditUserId,\r\n        t1.DynamicFormDataId,\r\n        t1.DynamicFormDataAuditId,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.SessionId\r\n            ORDER BY t1.DynamicFormDataAuditId ASC  \r\n        ) AS rn\r\n    FROM DynamicFormDataAudit t1\r\n),\r\ntt1 AS\r\n(\r\n    SELECT\r\n        SessionId,\r\n        AuditDateTime,\r\n        PreUpdateDate,\r\n        PreUserID,\r\n        AuditUserId,\r\n        DynamicFormDataId,\r\n        DynamicFormDataAuditId\r\n    FROM FirstAuditPerSession\r\n    WHERE rn = 1  \r\n)\r\nSELECT\r\n    ROW_NUMBER() OVER (ORDER BY tt1.DynamicFormDataAuditId DESC) AS RowNum,\r\n    tt1.*,\r\n    tt5.SessionID AS DynamicFormSessionID,\r\n    tt2.ProfileNo,\r\n\ttt2.SessionID as DynamicFormDataSessionID,\r\n    tt2.DynamicFormID,\r\n    tt3.UserName AS PreUser,\r\n    tt4.UserName AS AuditUser\r\nFROM tt1\r\nJOIN DynamicFormData tt2\r\n    ON tt2.DynamicFormDataID = tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5\r\n    ON tt5.ID = tt2.DynamicFormID\r\nLEFT JOIN ApplicationUser tt3\r\n    ON tt3.UserID = tt1.PreUserID\r\nJOIN ApplicationUser tt4\r\n    ON tt4.UserID = tt1.AuditUserId\r\nWHERE tt2.SessionId = @SessionId;\r\n";
+                var query = ";WITH FirstAuditPerSession AS\r\n(\r\n    SELECT\r\n        t1.DynamicFormSectionAttributeID,\r\n        t1.SessionId,\r\n        t1.AuditDateTime,\r\n        t1.PreUpdateDate,\r\n        t1.PreUserID,\r\n        t1.AuditUserId,\r\n        t1.DynamicFormDataId,\r\n        t1.DynamicFormDataAuditId,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.SessionId\r\n            ORDER BY t1.DynamicFormDataAuditId ASC\r\n        ) AS rn\r\n    FROM DynamicFormDataAudit t1\r\n),\r\ntt1 AS\r\n(\r\n    SELECT\r\n        DynamicFormSectionAttributeID,\r\n        SessionId,\r\n        AuditDateTime,\r\n        PreUpdateDate,\r\n        PreUserID,\r\n        AuditUserId,\r\n        DynamicFormDataId,\r\n        DynamicFormDataAuditId\r\n    FROM FirstAuditPerSession\r\n    WHERE rn = 1\r\n),\r\n-- 🔹 latest IsRelease per (DynamicFormDataID, DynamicFormSectionID)\r\nReleaseCTE AS\r\n(\r\n    SELECT\r\n        r.DynamicFormDataID,\r\n        r.DynamicFormSectionID,\r\n        r.IsRelease,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY r.DynamicFormDataID, r.DynamicFormSectionID\r\n            ORDER BY r.DynamicFormDataSectionSecurityReleaseID DESC   -- latest\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease r\r\n)\r\nSELECT\r\n    ROW_NUMBER() OVER (ORDER BY tt1.DynamicFormDataAuditId DESC) AS RowNum,\r\n    tt1.*,\r\n    tt5.SessionID AS DynamicFormSessionID,\r\n    tt2.ProfileNo,\r\n    tt2.SessionID AS DynamicFormDataSessionID,\r\n    tt2.DynamicFormID,\r\n    tt3.UserName AS PreUser,\r\n    tt4.UserName AS AuditUser,\r\n    tt6.DynamicFormSectionID,\r\n    rel.IsRelease AS IsReleases\r\nFROM tt1\r\nJOIN DynamicFormData tt2\r\n    ON tt2.DynamicFormDataID = tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5\r\n    ON tt5.ID = tt2.DynamicFormID\r\nLEFT JOIN ApplicationUser tt3\r\n    ON tt3.UserID = tt1.PreUserID\r\nJOIN ApplicationUser tt4\r\n    ON tt4.UserID = tt1.AuditUserId\r\nLEFT JOIN DynamicFormSectionAttribute tt7\r\n    ON tt7.DynamicFormSectionAttributeID = tt1.DynamicFormSectionAttributeID\r\n" +
+                    "LEFT JOIN DynamicFormSection tt6\r\n    ON tt6.DynamicFormSectionID = tt7.DynamicFormSectionID\r\n" +
+                    "LEFT JOIN ReleaseCTE rel\r\n    ON rel.DynamicFormDataID = tt1.DynamicFormDataID\r\n   " +
+                    "AND rel.DynamicFormSectionID = tt6.DynamicFormSectionID\r\n   AND rel.rn = 1  \r\nWHERE 1=1 AND\r tt2.SessionId = @SessionId;\r\n";
                 if (IsGridAudit)
                 {
                     query = "WITH tt1 AS (\r\n    SELECT \r\n        t1.*,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY t1.SessionID \r\n            ORDER BY t1.DynamicFormDataAuditId\r\n        ) AS rn\r\n    FROM DynamicFormDataAudit t1 \r\n    WHERE t1.AuditParentSessionID = @SessionId\r\n)\r\nSELECT \r\n    ROW_NUMBER() OVER (ORDER BY tt1.DynamicFormDataAuditId DESC) AS RowNum, \r\n    tt1.*,\r\n    tt5.SessionID AS DynamicFormSessionID,\r\n    tt2.ProfileNo,\r\n\ttt2.SessionID as DynamicFormDataSessionID,\r\n    tt2.DynamicFormID,\r\n    tt3.UserName AS PreUser,\r\n    tt4.UserName AS AuditUser\r\nFROM tt1\r\nJOIN DynamicFormData tt2 \r\n    ON tt2.DynamicFormDataID = tt1.DynamicFormDataId\r\nJOIN DynamicForm tt5 \r\n    ON tt5.ID = tt2.DynamicFormID\r\nLEFT JOIN ApplicationUser tt3 \r\n    ON tt3.UserID = tt1.PreUserID\r\nJOIN ApplicationUser tt4 \r\n    ON tt4.UserID = tt1.AuditUserId\r\nWHERE tt1.rn = 1 AND tt5.ID=@DynamicFormGridDropDownId;\r\n";
@@ -11595,9 +11780,14 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
                 var parameters = new DynamicParameters();
                 if (SessionId != null && SessionId.Count > 0)
                 {
+                    parameters.Add("@SessionIds", SessionId);
                     string? SessionIds = string.Join(',', SessionId.Select(i => $"'{i}'"));
-                    var query = "select t5.DynamicFormID as DynamicFormGridDropDownId,t5.ControlTypeID,t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 LEFT JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID LEFT JOIN AttributeHeader t5 ON t5.AttributeID=t2.AttributeID where t1.SessionId in(" + SessionIds + ");";
-                    query += "select  t5.ProfileNo,t5.DynamicFormID as DynamicFormGridDropDownId,t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 LEFT JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID LEFT JOIN DynamicFormData t5 ON t5.DynamicFormDataID=t1.DynamicFormDataID where t1.AuditParentSessionID in(" + SessionIds + ");";
+                    // var query = "select t5.DynamicFormID as DynamicFormGridDropDownId,t5.ControlTypeID,t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 LEFT JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID LEFT JOIN AttributeHeader t5 ON t5.AttributeID=t2.AttributeID where t1.SessionId in(" + SessionIds + ");";
+                    var query = ";WITH ReleaseCTE AS\r\n(\r\n    SELECT\r\n        r.DynamicFormDataID,\r\n        r.DynamicFormSectionID,\r\n        r.IsRelease,\r\n        ROW_NUMBER() OVER (\r\n            PARTITION BY r.DynamicFormDataID, r.DynamicFormSectionID\r\n            ORDER BY r.DynamicFormDataSectionSecurityReleaseID DESC  -- latest first\r\n        ) AS rn\r\n    FROM DynamicFormDataSectionSecurityRelease r\r\n)\r\nSELECT\r\n    t6.DynamicFormSectionID,\r\n    rel.IsRelease AS IsReleases,\r\n    t5.DynamicFormID AS DynamicFormGridDropDownId,\r\n    t5.ControlTypeID,\r\n    t2.IsDeleted,\r\n    ROW_NUMBER() OVER (PARTITION BY t1.SessionId ORDER BY t1.DynamicFormDataAuditId DESC) AS RowNum,\r\n    t1.*,\r\n    t2.DisplayName,\r\n    t3.UserName AS AuditUser,\r\n    t4.UserName AS PreUser\r\nFROM DynamicFormDataAudit t1\r\nLEFT JOIN DynamicFormSectionAttribute t2 \r\n    ON t1.DynamicFormSectionAttributeID = t2.DynamicFormSectionAttributeID\r\nLEFT JOIN DynamicFormSection t6 \r\n    ON t6.DynamicFormSectionID = t2.DynamicFormSectionID\r\n" +
+                        "JOIN ApplicationUser t3 \r\n    ON t3.UserID = t1.AuditUserID\r\nLEFT JOIN ApplicationUser t4 \r\n    ON t4.UserID = t1.PreUserID\r\n" +
+                        "LEFT JOIN AttributeHeader t5 \r\n    ON t5.AttributeID = t2.AttributeID\r\nLEFT JOIN ReleaseCTE rel\r\n    ON rel.DynamicFormDataID = t1.DynamicFormDataID\r\n   AND rel.DynamicFormSectionID = t6.DynamicFormSectionID\r\n   AND rel.rn = 1                             -- only latest release row\r\nWHERE \r\n    t1.SessionId IN @SessionIds\r\n;                    -- 🔸 only get IsRelease records\r\n";
+                    query += "select  t5.ProfileNo,t5.DynamicFormID as DynamicFormGridDropDownId,t2.IsDeleted,Row_Number() Over (PARTITION BY t1.SessionId Order By t1.DynamicFormDataAuditId desc) As RowNum,t1.*,t2.DisplayName,t3.UserName as AuditUser,t4.UserName as PreUser from DynamicFormDataAudit t1 LEFT JOIN DynamicFormSectionAttribute t2 ON t1.DynamicFormSectionAttributeID=t2.DynamicFormSectionAttributeID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.AuditUserID LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.PreUserID LEFT JOIN DynamicFormData t5 ON t5.DynamicFormDataID=t1.DynamicFormDataID\r" +
+                        "where t1.AuditParentSessionID in @SessionIds;";
 
                     using (var connection = CreateConnection())
                     {
@@ -11652,7 +11842,7 @@ where t1.DynamicFormWorkFlowFormId in @FormIds;
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", Id);
-                var query = "select t9.Name as SectionName,t1.DynamicFormSectionSecurityID,\r\nt1.DynamicFormSectionID,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt1.IsReadWrite,\r\nt1.IsReadOnly,\r\nt1.IsVisible,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.SectionName,\r\n" +
+                var query = "select t1.IsRelease,t9.Name as SectionName,t1.DynamicFormSectionSecurityID,\r\nt1.DynamicFormSectionID,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt1.IsReadWrite,\r\nt1.IsReadOnly,\r\nt1.IsVisible,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.SectionName,\r\n" +
                     "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
                     "t8.Name as DesignationName,\r\n" +
                     "CONCAT(case when t6.NickName is NULL OR  t6.NickName='' then  ''\r\n ELSE  CONCAT(t6.NickName,' | ') END,t6.FirstName, (case when t6.LastName is Null OR t6.LastName='' then '' ELSE '-' END),t6.LastName) as FullName\r\n" +

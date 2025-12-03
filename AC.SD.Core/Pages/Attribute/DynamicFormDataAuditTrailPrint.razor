@@ -10,164 +10,171 @@
 @inject IJSRuntime JSRuntime;
 @if (_DynamicFormDataAuditList != null && _DynamicFormDataAuditList.Count() > 0)
 {
-    <h3 style=" text-align: center;padding:5px;">Audit Trail</h3>
+    
     foreach (var itemData in _DynamicFormDataAuditList)
     {
-        <!-- Group 1 -->
-        <div style="background-color: #fff;border: 1px solid #ddd;box-shadow: 0 1px 5px rgba(0,0,0,0.05);border-radius: 6px; margin-bottom: 30px;padding: 15px;border-radius: 6px;">
-            <div style="background-color: #e5e7eb;padding: 10px;font-weight: bold;border-radius: 4px;margin-bottom: 10px;">
-                @{
-                    var startDate = string.Empty;
-                    if (itemData.PreUpdateDate != DateTime.MinValue)
-                    {
-                        startDate = itemData.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
-                    }
-                    var startDates = string.Empty;
-                    if (itemData.AuditDateTime.HasValue && itemData.AuditDateTime != DateTime.MinValue)
-                    {
-                        startDates = itemData.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
-                    }
-                }
-                Row Num: @itemData.RowNum | Prev User: @itemData.PreUser | Prev Update Date: @startDate | Audit User: @itemData.AuditUser| Audit Date: @startDates
-            </div>
-            <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Deleted</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Row Num</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Value</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Current Value</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev User</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Update</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit User</th>
-                        <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (itemData.DynamicFormDataAudits.Count() > 0)
-                    {
-                        foreach (var itemDatas in itemData.DynamicFormDataAudits)
+        @if (itemData.DynamicFormDataAudits.Count() > 0)
+        {
+            if(itemData.RowNum==1)
+            {
+                <h3 style=" text-align: center;padding:5px;">Audit Trail</h3>
+            }
+            <!-- Group 1 -->
+            <div style="background-color: #fff;border: 1px solid #ddd;box-shadow: 0 1px 5px rgba(0,0,0,0.05);border-radius: 6px; margin-bottom: 30px;padding: 15px;border-radius: 6px;">
+                <div style="background-color: #e5e7eb;padding: 10px;font-weight: bold;border-radius: 4px;margin-bottom: 10px;">
+                    @{
+                        var startDate = string.Empty;
+                        if (itemData.PreUpdateDate != DateTime.MinValue)
                         {
-                            var subGridFrom = _DynamicFormDataAuditSubAllLists.Where(w => w.AuditParentSessionId == itemDatas.SessionId && w.DynamicFormGridDropDownId == itemDatas.DynamicFormGridDropDownId).ToList();
-                            var startDate1 = string.Empty;
-                            if (itemDatas.PreUpdateDate != DateTime.MinValue)
-                            {
-                                startDate1 = itemDatas.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
-                            }
-                            var startDates1 = string.Empty;
-                            if (itemDatas.AuditDateTime.HasValue && itemDatas.AuditDateTime != DateTime.MinValue)
-                            {
-                                startDates1 = itemDatas.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
-                            }
-                            <tr>
-                                @if (itemDatas.IsDeleted == true)
-                                {
-                                    <td style="border:1px solid;padding:8px;"><input type="checkbox" checked disabled /></td>
-                                }
-                                else
-                                {
-                                    <td style="border:1px solid;padding:8px;"><input type="checkbox" disabled /></td>
-                                }
-                                <td style="border:1px solid;padding:8px;">@itemDatas.RowNum</td>
-                                <td style="border:1px solid;padding:8px;">@itemDatas.DisplayName</td>
-                                <td style="border:1px solid;padding:8px;">@(itemDatas.ControlTypeId == 2712 ? itemDatas.SubProfileNo : itemDatas.PreValue)</td>
-                                <td style="border:1px solid;padding:8px;">@itemDatas.CurrentValue</td>
-                                <td style="border:1px solid;padding:8px;">@itemDatas.PreUser</td>
-                                <td style="border:1px solid;padding:8px;">@startDate1</td>
-                                <td style="border:1px solid;padding:8px;">@itemDatas.AuditUser</td>
-                                <td style="border:1px solid;padding:8px;">@startDates1</td>
-                            </tr>
+                            startDate = itemData.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                        }
+                        var startDates = string.Empty;
+                        if (itemData.AuditDateTime.HasValue && itemData.AuditDateTime != DateTime.MinValue)
+                        {
+                            startDates = itemData.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
                         }
                     }
-                </tbody>
-            </table>
-            @if (itemData.DynamicFormDataAudits.Count() > 0)
-            {
-                foreach (var itemDatas in itemData.DynamicFormDataAudits)
-                {
-                    var subGridFrom = _DynamicFormDataAuditSubAllLists.Where(w => w.AuditParentSessionId == itemDatas.SessionId && w.DynamicFormGridDropDownId == itemDatas.DynamicFormGridDropDownId).OrderByDescending(o => o.AuditDateTime).ToList();
-                    if (subGridFrom?.Any() == true)
-                    {
-                        int k1 = 1;
-                        foreach (var data1 in subGridFrom)
+                    Row Num: @itemData.RowNum | Prev User: @itemData.PreUser | Prev Update Date: @startDate | Audit User: @itemData.AuditUser| Audit Date: @startDates
+                </div>
+                <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Deleted</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Row Num</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Value</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Current Value</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev User</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Update</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit User</th>
+                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (itemData.DynamicFormDataAudits.Count() > 0)
                         {
-
-                            <div style="background-color: #fff;border: 1px solid #ddd;box-shadow: 0 1px 5px rgba(0,0,0,0.05);border-radius: 6px; margin-bottom: 30px;padding: 15px;border-radius: 6px;">
-                                <div style="@(data1.IsRecordDeleted == true ? "color:red;" : (data1.PreUserId > 0 ? "color:orange;" : "color:green;"))background-color: #e5e7eb;padding: 10px;font-weight: bold;border-radius: 4px;margin-bottom: 10px;">
-                                    @{
-                                        var startDate2 = string.Empty;
-                                        if (data1.PreUpdateDate != DateTime.MinValue)
-                                        {
-                                            startDate2 = data1.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
-                                        }
-                                        var startDates2 = string.Empty;
-                                        if (data1.AuditDateTime.HasValue && data1.AuditDateTime != DateTime.MinValue)
-                                        {
-                                            startDates2 = data1.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
-                                        }
+                            foreach (var itemDatas in itemData.DynamicFormDataAudits)
+                            {
+                                var subGridFrom = _DynamicFormDataAuditSubAllLists.Where(w => w.AuditParentSessionId == itemDatas.SessionId && w.DynamicFormGridDropDownId == itemDatas.DynamicFormGridDropDownId).ToList();
+                                var startDate1 = string.Empty;
+                                if (itemDatas.PreUpdateDate != DateTime.MinValue)
+                                {
+                                    startDate1 = itemDatas.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                                }
+                                var startDates1 = string.Empty;
+                                if (itemDatas.AuditDateTime.HasValue && itemDatas.AuditDateTime != DateTime.MinValue)
+                                {
+                                    startDates1 = itemDatas.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
+                                }
+                                <tr>
+                                    @if (itemDatas.IsDeleted == true)
+                                    {
+                                        <td style="border:1px solid;padding:8px;"><input type="checkbox" checked disabled /></td>
                                     }
-                                    Row Num:@itemDatas.RowNum  |Label: @itemDatas.DisplayName |Profile No: @data1.ProfileNo | Prev User: @data1.PreUser | Prev Update Date: @startDate2 | Audit User: @data1.AuditUser| Audit Date: @startDates2
-                                </div>
-                                <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Record Deleted</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Row Num</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Value</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Current Value</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev User</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Update</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit User</th>
-                                            <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (data1.DynamicFormDataAudits.Count() > 0)
-                                        {
-                                            int j1 = 1;
-                                            foreach (var data2 in data1.DynamicFormDataAudits)
+                                    else
+                                    {
+                                        <td style="border:1px solid;padding:8px;"><input type="checkbox" disabled /></td>
+                                    }
+                                    <td style="border:1px solid;padding:8px;">@itemDatas.RowNum</td>
+                                    <td style="border:1px solid;padding:8px;">@itemDatas.DisplayName</td>
+                                    <td style="border:1px solid;padding:8px;">@(itemDatas.ControlTypeId == 2712 ? itemDatas.SubProfileNo : itemDatas.PreValue)</td>
+                                    <td style="border:1px solid;padding:8px;">@itemDatas.CurrentValue</td>
+                                    <td style="border:1px solid;padding:8px;">@itemDatas.PreUser</td>
+                                    <td style="border:1px solid;padding:8px;">@startDate1</td>
+                                    <td style="border:1px solid;padding:8px;">@itemDatas.AuditUser</td>
+                                    <td style="border:1px solid;padding:8px;">@startDates1</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                @if (itemData.DynamicFormDataAudits.Count() > 0)
+                {
+                    foreach (var itemDatas in itemData.DynamicFormDataAudits)
+                    {
+                        var subGridFrom = _DynamicFormDataAuditSubAllLists.Where(w => w.AuditParentSessionId == itemDatas.SessionId && w.DynamicFormGridDropDownId == itemDatas.DynamicFormGridDropDownId).OrderByDescending(o => o.AuditDateTime).ToList();
+                        if (subGridFrom?.Any() == true)
+                        {
+                            int k1 = 1;
+                            foreach (var data1 in subGridFrom)
+                            {
+
+                                <div style="background-color: #fff;border: 1px solid #ddd;box-shadow: 0 1px 5px rgba(0,0,0,0.05);border-radius: 6px; margin-bottom: 30px;padding: 15px;border-radius: 6px;">
+                                    <div style="@(data1.IsRecordDeleted == true ? "color:red;" : (data1.PreUserId > 0 ? "color:orange;" : "color:green;"))background-color: #e5e7eb;padding: 10px;font-weight: bold;border-radius: 4px;margin-bottom: 10px;">
+                                        @{
+                                            var startDate2 = string.Empty;
+                                            if (data1.PreUpdateDate != DateTime.MinValue)
                                             {
-                                                var startDate12 = string.Empty;
-                                                if (data2.PreUpdateDate != DateTime.MinValue)
-                                                {
-                                                    startDate12 = data2.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
-                                                }
-                                                var startDates12 = string.Empty;
-                                                if (data2.AuditDateTime.HasValue && data2.AuditDateTime != DateTime.MinValue)
-                                                {
-                                                    startDates12 = data2.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
-                                                }
-                                                <tr>
-                                                    @if (data2.IsRecordDeleted == true)
-                                                    {
-                                                        <td style="border:1px solid;padding:8px;"><input type="checkbox" checked disabled /></td>
-                                                    }
-                                                    else
-                                                    {
-                                                        <td style="border:1px solid;padding:8px;"><input type="checkbox" disabled /></td>
-                                                    }
-                                                    <td style="border:1px solid;padding:8px;">@(j1++)</td>
-                                                    <td style="border:1px solid;padding:8px;">@data2.DisplayName</td>
-                                                    <td style="border:1px solid;padding:8px;">@(data2.ControlTypeId == 2712 ? data2.SubProfileNo : data2.PreValue)</td>
-                                                    <td style="border:1px solid;padding:8px;">@data2.CurrentValue</td>
-                                                    <td style="border:1px solid;padding:8px;">@data2.PreUser</td>
-                                                    <td style="border:1px solid;padding:8px;">@startDate12</td>
-                                                    <td style="border:1px solid;padding:8px;">@data2.AuditUser</td>
-                                                    <td style="border:1px solid;padding:8px;">@startDates12</td>
-                                                </tr>
+                                                startDate2 = data1.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                                            }
+                                            var startDates2 = string.Empty;
+                                            if (data1.AuditDateTime.HasValue && data1.AuditDateTime != DateTime.MinValue)
+                                            {
+                                                startDates2 = data1.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
                                             }
                                         }
-                                    </tbody>
-                                </table>
-                            </div>
+                                        Row Num:@itemDatas.RowNum  |Label: @itemDatas.DisplayName |Profile No: @data1.ProfileNo | Prev User: @data1.PreUser | Prev Update Date: @startDate2 | Audit User: @data1.AuditUser| Audit Date: @startDates2
+                                    </div>
+                                    <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Record Deleted</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Row Num</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Label Name</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Value</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Current Value</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev User</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Prev Update</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit User</th>
+                                                <th style="text-align:left; border:1px solid;padding:8px;font-weight:bold;">Audit Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (data1.DynamicFormDataAudits.Count() > 0)
+                                            {
+                                                int j1 = 1;
+                                                foreach (var data2 in data1.DynamicFormDataAudits)
+                                                {
+                                                    var startDate12 = string.Empty;
+                                                    if (data2.PreUpdateDate != DateTime.MinValue)
+                                                    {
+                                                        startDate12 = data2.PreUpdateDate?.ToString("dd-MMM-yyyy hh:mm tt");
+                                                    }
+                                                    var startDates12 = string.Empty;
+                                                    if (data2.AuditDateTime.HasValue && data2.AuditDateTime != DateTime.MinValue)
+                                                    {
+                                                        startDates12 = data2.AuditDateTime?.ToString("dd-MMM-yyyy hh:mm tt");
+                                                    }
+                                                    <tr>
+                                                        @if (data2.IsRecordDeleted == true)
+                                                        {
+                                                            <td style="border:1px solid;padding:8px;"><input type="checkbox" checked disabled /></td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td style="border:1px solid;padding:8px;"><input type="checkbox" disabled /></td>
+                                                        }
+                                                        <td style="border:1px solid;padding:8px;">@(j1++)</td>
+                                                        <td style="border:1px solid;padding:8px;">@data2.DisplayName</td>
+                                                        <td style="border:1px solid;padding:8px;">@(data2.ControlTypeId == 2712 ? data2.SubProfileNo : data2.PreValue)</td>
+                                                        <td style="border:1px solid;padding:8px;">@data2.CurrentValue</td>
+                                                        <td style="border:1px solid;padding:8px;">@data2.PreUser</td>
+                                                        <td style="border:1px solid;padding:8px;">@startDate12</td>
+                                                        <td style="border:1px solid;padding:8px;">@data2.AuditUser</td>
+                                                        <td style="border:1px solid;padding:8px;">@startDates12</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
                         }
                     }
                 }
-            }
 
-        </div>
+            </div>
+        }
     }
 }
 @code {
@@ -175,6 +182,8 @@
     public Guid? FormSessionIds { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public bool IsSubRelease { get; set; } = false;
     public DynamicForm _dynamicForm { get; set; }
     public ApplicationUser? applicationUser { get; set; }
     // private AttributeHeaderListModel _AttributeHeader;
@@ -215,6 +224,7 @@
             {
                 await JSRuntime.InvokeAsync<string>("showLoading");
                 var resultData = await Mediator.Send(new GetDynamicFormDataAuditBySessionMultipleList(_DynamicFormDataAuditList.Select(z => z.SessionId).Distinct().ToList()));
+                resultData = resultData?.Any() == true ? resultData.Where(w => w.IsReleases == true).ToList() : new List<DynamicFormDataAudit>();
                 foreach (var w in _DynamicFormDataAuditList)
                 {
                     objectData = new ExpandoObject(); pobjectData = new ExpandoObject();
@@ -258,9 +268,10 @@
                     }
                     w.DynamicFormDataAudits = _DynamicFormDataAuditLists;
                 }
-                await loadSubGridItems(SubGridData, DynamicFormDataAuditss);
-                await JSRuntime.InvokeAsync<string>("hideLoading");
             }
+            await loadSubGridItems(SubGridData, DynamicFormDataAuditss);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+
 
         }
         await JSRuntime.InvokeAsync<string>("hideLoading");

@@ -217,7 +217,7 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
-    
+
     public class GetDynamicFormDataBySessionOne : PagedRequest, IRequest<DynamicFormData>
     {
         public Guid? SesionId { get; set; }
@@ -243,7 +243,7 @@ namespace Application.Queries
         public long? DynamicFormSectionGridAttributeId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
         public DynamicFormSearch DynamicFormSearch { get; set; }
-        public bool IsDelete {  get; set; }
+        public bool IsDelete { get; set; }
         public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId, Guid? dynamicFormDataSessionId, DynamicFormSearch dynamicFormSearch, bool isDelete)
         {
             this.Id = id;
@@ -786,6 +786,16 @@ namespace Application.Queries
         }
 
     }
+    public class UpdateDynamicFormDataSectionSecurityRelease : DynamicFormDataSectionLock, IRequest<DynamicFormDataSectionSecurityRelease>
+    {
+        public DynamicFormDataSectionSecurityRelease DynamicFormDataSectionSecurityRelease { get; set; }
+        public UpdateDynamicFormDataSectionSecurityRelease(DynamicFormDataSectionSecurityRelease dynamicFormDataSectionSecurityRelease)
+        {
+            this.DynamicFormDataSectionSecurityRelease = dynamicFormDataSectionSecurityRelease;
+        }
+
+    }
+
     public class InsertCloneDynamicForm : PagedRequest, IRequest<DynamicForm>
     {
         public DynamicForm DynamicForm { get; set; }
@@ -922,8 +932,8 @@ namespace Application.Queries
     public class GetDynamicFormDataAuditList : PagedRequest, IRequest<List<DynamicFormDataAudit>>
     {
         public Guid? SessionId { get; private set; }
-        public bool IsGridAudit {  get; private set; }
-        public DynamicFormDataAudit DynamicFormDataAuditGridData {  get; private set; }
+        public bool IsGridAudit { get; private set; }
+        public DynamicFormDataAudit DynamicFormDataAuditGridData { get; private set; }
         public GetDynamicFormDataAuditList(Guid? sessionId, bool isGridAudit, DynamicFormDataAudit dynamicFormDataAuditGridData)
         {
             this.SessionId = sessionId;
@@ -1117,7 +1127,7 @@ namespace Application.Queries
     {
         public DynamicForm? DynamicForm { get; set; }
         public long? UserId { get; set; }
-        public GetOnDynamicFormSyncTables(DynamicForm? dynamicForm,long? userId)
+        public GetOnDynamicFormSyncTables(DynamicForm? dynamicForm, long? userId)
         {
             this.DynamicForm = dynamicForm;
             this.UserId = userId;

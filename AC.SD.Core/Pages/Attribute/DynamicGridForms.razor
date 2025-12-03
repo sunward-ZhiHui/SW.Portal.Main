@@ -52,7 +52,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                border-collapse: collapse;*/
+                                                                                                                                                    border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -748,6 +748,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkSectionLock())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@IsSecurityReleaseOpen"
+         ShowFooter="true"
+         HeaderText="Release"
+         ShowCloseButton="true"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to @SectionLockedName this Section?
+        </p>
+        <span style="font-weight:bold;">@dynamicFormDataSectionSecurityRelease?.SectionName</span>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkSectionSecurityRelease())" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@createEmailpopup"
          ShowFooter="true"
          ShowCloseButton="true"
@@ -1133,6 +1150,7 @@
     private string? displayNoneGridPrintForm { get; set; } = "display:none;";
     private string? mainGridStyle { get; set; } = "height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;";
     public List<DynamicFormDataAttrUpload> _DynamicFormDataAttrUploadList { get; set; } = new List<DynamicFormDataAttrUpload>();
+    DynamicFormDataSectionSecurityRelease dynamicFormDataSectionSecurityRelease = new DynamicFormDataSectionSecurityRelease(); bool IsSecurityReleaseOpen { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -2530,9 +2548,49 @@
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
         createAuditpopup = false;
-        lockpopup = false;
+        lockpopup = false; IsSecurityReleaseOpen = false;
         createEmailpopup = false; imageUploadPopup = false; WithWorkFlowStartPopup = false;
         StateHasChanged();
+    }
+    async Task bulkSectionSecurityRelease()
+    {
+        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        {
+            var result = await Mediator.Send(new UpdateDynamicFormDataSectionSecurityRelease(dynamicFormDataSectionSecurityRelease));
+            IsSecurityReleaseOpen = false;
+            if (result.DynamicFormDataId > 0)
+            {
+                if (dynamicFormDataSectionSecurityRelease.IsRelease == true)
+                {
+                    toastService.ShowToast("Realease successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+                else
+                {
+                    toastService.ShowToast("Realease Cancelled successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+
+            }
+
+        }
+        StateHasChanged();
+    }
+    void OnDynamicFormDataSectionSecurityReleaseClick(DynamicFormSection dynamicFormSection, bool IsRelease)
+    {
+        if (_dynamicformData != null)
+        {
+            dynamicFormDataSectionSecurityRelease.DynamicFormSectionId = dynamicFormSection.DynamicFormSectionId;
+            dynamicFormDataSectionSecurityRelease.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+            dynamicFormDataSectionSecurityRelease.UserId = applicationUser.UserID;
+            dynamicFormDataSectionSecurityRelease.IsRelease = IsRelease;
+            dynamicFormDataSectionSecurityRelease.ModifiedByUserID = applicationUser.UserID;
+            dynamicFormDataSectionSecurityRelease.AddedByUserID = applicationUser.UserID;
+            dynamicFormDataSectionSecurityRelease.SectionName = dynamicFormSection.SectionName;
+            SectionLockedName = IsRelease == true ? "Release" : "Cancel a Release";
+            IsSecurityReleaseOpen = true;
+            StateHasChanged();
+        }
     }
     void backImageUpload()
     {
@@ -3848,7 +3906,7 @@
                         AuditParentSessionId = AuditParentSessionId,
                         DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
                         DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
-                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
+                        DynamicAttributeName = DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -3913,7 +3971,7 @@
                         AuditParentSessionId = AuditParentSessionId,
                         DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
                         DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
-                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
+                        DynamicAttributeName = DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
@@ -3997,7 +4055,7 @@
                         AuditParentSessionId = AuditParentSessionId,
                         DynamicFormGridId = DynamicFormSectionGridAttributeData.DynamicFormId,
                         DynamicFormSectionAttributeId = DynamicFormSectionGridAttributeData.DynamicFormSectionAttributeId,
-                        DynamicAttributeName= DynamicFormSectionGridAttributeData.DynamicAttributeName,
+                        DynamicAttributeName = DynamicFormSectionGridAttributeData.DynamicAttributeName,
                     };
 
                     var result = await Mediator.Send(editReq);
@@ -5717,6 +5775,44 @@
                        }
                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                        {
+                           var securityRelease = _dynamicformData?.DynamicFormDataSectionSecurityRelease.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+
+                           bool IsRelease = a.IsReleaseCount > 0 ? a.IsReleaseUsers > 0 : true;
+                           if (IsRelease)
+                           {
+                               if (securityRelease == null || securityRelease?.IsRelease == false)
+                               {
+                                   b.OpenElement(i + 1, "i");
+                                   b.AddAttribute(i + 1, "title", "Click to release");
+                                   b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, true)));
+                                   b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                                   b.AddAttribute(i + 1, "class", "fa fa-refresh");
+                                   b.AddAttribute(i + 1, "aria-hidden", true);
+                                   b.CloseElement();
+                               }
+                               else
+                               {
+                                   b.OpenElement(i + 1, "i");
+                                   b.AddAttribute(i + 1, "title",  $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
+                                   b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                                   b.AddAttribute(i + 1, "class", "fa fa-check-square");
+                                   b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, false)));
+                                   b.AddAttribute(i + 1, "aria-hidden", true);
+                                   b.CloseElement();
+                               }
+                           }
+                           else
+                           {
+                               if (securityRelease != null && securityRelease?.IsRelease == true)
+                               {
+                                   b.OpenElement(i + 1, "i");
+                                   b.AddAttribute(i + 1, "title", $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
+                                   b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                                   b.AddAttribute(i + 1, "class", "fa fa-check-square");
+                                   b.AddAttribute(i + 1, "aria-hidden", true);
+                                   b.CloseElement();
+                               }
+                           }
                            if (_dynamicformData.IsLocked != true)
                            {
                                var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);

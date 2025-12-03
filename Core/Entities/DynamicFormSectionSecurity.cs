@@ -22,7 +22,9 @@ namespace Core.Entities
         public bool IsReadOnly { get; set; } = false;
         [NotMapped]
         public bool IsVisible { get; set; } = false;
-        
+        [NotMapped]
+        public bool IsRelease { get; set; } = false;
+
         [NotMapped]
         public string? UserGroup { get; set; }
         [NotMapped]
@@ -44,7 +46,7 @@ namespace Core.Entities
         [NotMapped]
         public string? FullName { get; set; }
         [NotMapped]
-        public IEnumerable<long?> SelectUserIDs { get; set; }=new List<long?>();
+        public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
         [NotMapped]
         public IEnumerable<long?> SelectUserGroupIDs { get; set; } = new List<long?>();
         [NotMapped]
@@ -54,5 +56,20 @@ namespace Core.Entities
         public string? FormName { get; set; }
         public long? DynamicFormId { get; set; }
         public long? AuditUserId { get; set; }
+    }
+    public class DynamicFormDataSectionSecurityRelease
+    {
+        [Key]
+        public long DynamicFormDataSectionSecurityReleaseId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public long? UserId { get; set; }
+        public bool IsRelease { get; set; } = false;
+        public DateTime AddedDate { get; set; }
+        public long? ModifiedByUserID { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public long? AddedByUserID { get; set; }
+        public string? ReleaseUser { get; set; }
+        public string? SectionName { get; set; }
     }
 }

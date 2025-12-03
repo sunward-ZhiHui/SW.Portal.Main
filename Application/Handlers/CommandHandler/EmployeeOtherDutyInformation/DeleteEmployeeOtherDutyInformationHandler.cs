@@ -34,35 +34,40 @@ namespace Application.Handlers.CommandHandler
                     EmployeeOtherDutyInformationId = request.Id,
                     AddedByUserId = queryEntity.AddedByUserId,
                 };
-                var guid = Guid.NewGuid();
-                var uid = Guid.NewGuid();
 
                 if (result != null)
                 {
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result.DesignationId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "DesignationId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result.DesignationName, null, request.Id, guid, request?.UserId, DateTime.Now, true, "DesignationName", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.StartDate != null ? result.StartDate.Value.ToString("dd-MMM-yyyy") : null, null, request.Id, guid, request?.UserId, DateTime.Now, true, "StartDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.EndDate != null ? result.EndDate.Value.ToString("dd-MMM-yyyy") : null, null, request.Id, guid, request?.UserId, DateTime.Now, true, "EndDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.DutyTypeId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "DutyTypeId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.DutyType, null, request.Id, guid, request?.UserId, DateTime.Now, true, "DutyTypeName", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.StatusCodeId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCodeID", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.StatusCode, null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCode", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.ModifiedByUserId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedByUserId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.ModifiedDate != null ? result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.ModifiedBy, null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedBy", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Delete", result?.EmployeeId?.ToString(), result?.EmployeeId?.ToString(), request.Id, guid, request?.UserId, DateTime.Now, true, "EmployeeId", uid);
+                    List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DesignationId?.ToString(), ColumnName = "DesignationId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DesignationName?.ToString(), ColumnName = "DesignationName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StartDate != null ? result?.StartDate.Value.ToString("dd-MMM-yyyy") : null, ColumnName = "StartDate" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.EndDate != null ? result?.EndDate.Value.ToString("dd-MMM-yyyy") : null, ColumnName = "EndDate" });
 
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DutyTypeId?.ToString(), ColumnName = "DutyTypeId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.DutyType?.ToString(), ColumnName = "DutyType" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, ColumnName = "StatusCode" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId.ToString(), ColumnName = "ModifiedByUserId" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt"), ColumnName = "ModifiedDate" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, ColumnName = "ModifiedBy" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.EmployeeId?.ToString(), ColumnName = "EmployeeId" });
+                    if (auditList.Count() > 0)
+                    {
+                        HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                        {
+                            HRMasterAuditTrailItems = auditList,
+                            Type = "EmployeeOtherDutyInformation",
+                            FormType = "Delete",
+                            HRMasterSetId = result?.EmployeeOtherDutyInformationId,
+                            IsDeleted = true,
+                            AuditUserId = request?.UserId,
+                        };
+                        await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                    }
                 }
                 await _commandRepository.DeleteAsync(data);
 

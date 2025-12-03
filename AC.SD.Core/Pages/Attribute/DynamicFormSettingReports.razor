@@ -653,6 +653,7 @@
         headers.Add("Is Visible");
         headers.Add("Read & Write");
         headers.Add("Read Only");
+        headers.Add("Release");
         headersAdd(titleRow, headers);
         sheetData.AppendChild(titleRow);
         if (_documentUserRoleLists != null && _documentUserRoleLists.Count() > 0)
@@ -679,6 +680,7 @@
                         row.AppendChild(addCellValues("String", i.IsVisible.ToString()));
                         row.AppendChild(addCellValues("String", i.IsReadWrite.ToString()));
                         row.AppendChild(addCellValues("String", i.IsReadOnly.ToString()));
+                        row.AppendChild(addCellValues("String", i.IsRelease.ToString()));
                         if (_documentUserRoleListss.IndexOf(i) == _documentUserRoleListss.Count - 1)
                         {
 

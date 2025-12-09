@@ -116,6 +116,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormWorkFlowForm> InsertDynamicFormWorkFlowForm(DynamicFormWorkFlowForm value);
         Task<DynamicFormWorkFlowForm> DeleteDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm);
         Task<DynamicFormDataSectionLock> UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock value);
+        Task<DynamicFormDataSectionSecurityRelease> UpdateDynamicFormDataSectionSecurityRelease(DynamicFormDataSectionSecurityRelease value);
         Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeForSpinEditAsync(long? dynamicFormId);
         Task<DynamicFormSectionAttribute> UpdateFormulaTextBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
         Task<DynamicFormReportItems> InsertDynamicFormEmailSubCont(IEnumerable<DynamicFormReportItems> subjectData, IEnumerable<DynamicFormReportItems> contentData, Guid? SessionId);

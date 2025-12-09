@@ -39,58 +39,57 @@ namespace Application.Handlers.CommandHandler
             {
                 var result = await _queryRepository.GetByIdAsync(queryrEntity.EmployeeOtherDutyInformationId);
                 await _commandRepository.UpdateAsync(queryrEntity);
-                var guid = Guid.NewGuid();
-                var uid = Guid.NewGuid();
 
                 if (result != null)
                 {
-                    bool isUpdate = false;
+                    bool isUpdate = false; List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                     if (result.DesignationId != queryrEntity.DesignationId)
                     {
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result.DesignationId?.ToString(), queryrEntity?.DesignationId?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DesignationId", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result.DesignationId?.ToString(), CurrentValue = queryrEntity?.DesignationId?.ToString()?.ToString(), ColumnName = "DesignationId" });
                         isUpdate = true;
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result.DesignationName, queryrEntity?.DesignationName, request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DesignationName", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result.DesignationName?.ToString(), CurrentValue = queryrEntity?.DesignationName?.ToString(), ColumnName = "DesignationName" });
                     }
                     if (queryrEntity?.StartDate != result.StartDate)
                     {
                         isUpdate = true;
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.StartDate != null ? result.StartDate.Value.ToString("dd-MMM-yyyy") : null, queryrEntity?.StartDate != null ? queryrEntity.StartDate.Value.ToString("dd-MMM-yyyy") : null, request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "StartDate", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.StartDate != null ? result.StartDate.Value.ToString("dd-MMM-yyyy") : null, CurrentValue = queryrEntity?.StartDate != null ? queryrEntity.StartDate.Value.ToString("dd-MMM-yyyy") : null, ColumnName = "StartDate" });
+
                     }
                     if (queryrEntity?.EndDate != result?.EndDate)
                     {
                         isUpdate = true;
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.EndDate != null ? result.EndDate.Value.ToString("dd-MMM-yyyy") : null, queryrEntity?.EndDate != null ? queryrEntity.EndDate.Value.ToString("dd-MMM-yyyy") : null, request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "EndDate", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.EndDate != null ? result.EndDate.Value.ToString("dd-MMM-yyyy") : null, CurrentValue = queryrEntity?.EndDate != null ? queryrEntity.EndDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "EndDate" });
                     }
                     if (queryrEntity?.DutyTypeId != result?.DutyTypeId)
                     {
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result.DutyTypeId?.ToString(), CurrentValue = queryrEntity?.DutyTypeId?.ToString()?.ToString(), ColumnName = "DutyTypeId" });
                         isUpdate = true;
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.DutyTypeId?.ToString(), queryrEntity?.DutyTypeId?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DutyTypeId", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.DutyType, queryrEntity?.DutyTypeName?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "DutyTypeName", uid);
-
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result.DutyType?.ToString(), CurrentValue = queryrEntity?.DutyTypeName?.ToString(), ColumnName = "DutyType" });
                     }
                     if (queryrEntity?.StatusCodeId != result?.StatusCodeId)
                     {
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString()?.ToString(), CurrentValue = queryrEntity?.StatusCodeId?.ToString()?.ToString(), ColumnName = "StatusCodeId" });
                         isUpdate = true;
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.StatusCodeId?.ToString(), queryrEntity?.StatusCodeId.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "StatusCodeID", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.StatusCode, queryrEntity?.StatusCode, request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "StatusCode", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode?.ToString(), CurrentValue = queryrEntity?.StatusCode?.ToString(), ColumnName = "StatusCode" });
                     }
                     if (isUpdate)
                     {
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.ModifiedByUserId?.ToString(), queryrEntity?.ModifiedByUserId?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "AddedByUserID", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.ModifiedDate != null ? result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, queryrEntity?.ModifiedDate != null ? queryrEntity.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "ModifiedDate", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.ModifiedBy, queryrEntity?.ModifiedBy?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "ModifiedBy", uid);
-                        uid = Guid.NewGuid();
-                        await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeOtherDutyInformation", "Update", result?.EmployeeId?.ToString(), queryrEntity?.EmployeeId?.ToString(), request.EmployeeOtherDutyInformationId, guid, queryrEntity?.ModifiedByUserId, DateTime.Now, false, "EmployeeId", uid);
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId?.ToString(), CurrentValue = queryrEntity?.ModifiedByUserId?.ToString(), ColumnName = "ModifiedByUserId" });
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate != null ? result.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = queryrEntity?.ModifiedDate != null ? queryrEntity.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, CurrentValue = queryrEntity?.ModifiedBy?.ToString(), ColumnName = "ModifiedBy" });
+                        auditList.Add(new HRMasterAuditTrail { PreValue = result?.EmployeeId?.ToString(), CurrentValue = queryrEntity?.EmployeeId?.ToString(), ColumnName = "EmployeeId" });
+                    }
+                    if (auditList.Count() > 0)
+                    {
+                        HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                        {
+                            HRMasterAuditTrailItems = auditList,
+                            Type = "EmployeeOtherDutyInformation",
+                            FormType = "Update",
+                            HRMasterSetId = result?.EmployeeOtherDutyInformationId,
+                            AuditUserId = queryrEntity?.ModifiedByUserId,
+                        };
+                        await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
                     }
                 }
             }

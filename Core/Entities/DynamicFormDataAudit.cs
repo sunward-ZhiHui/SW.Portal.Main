@@ -47,5 +47,7 @@ namespace Core.Entities
         public bool? IsRecordDeleted { get; set; } = false;
         public Guid? AuditParentSessionId { get; set; }
         public string? SubProfileNo { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public bool? IsReleases { get; set; } = false;
     }
 }

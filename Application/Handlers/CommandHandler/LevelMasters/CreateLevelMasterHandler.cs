@@ -33,30 +33,31 @@ namespace Application.Handlers.CommandHandler.LevelMasters
             }
 
             var data = await _commandRepository.AddAsync(queryEntity);
-            var guid = Guid.NewGuid();
-            var uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", queryEntity?.Name, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DisplayName", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.Name, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "Name", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.CompanyId?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "CompanyId", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.CompanyName?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "CompanyName", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.DivisionID?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DivisionID", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.DivisionName, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "DivisionName", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.StatusCodeId.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "StatusCodeID", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.StatusCode, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "StatusCode", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.AddedByUserId?.ToString(), data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedByUserId", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.AddedDate != null ? queryEntity.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedDate", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("LevelMaster", "Add", null, queryEntity?.AddedBy, data, guid, queryEntity?.AddedByUserId, DateTime.Now, false, "AddedBy", uid);
+            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.Name, ColumnName = "Name" });
+            auditList.Add(new HRMasterAuditTrail { PreValue = queryEntity?.Name, CurrentValue = queryEntity?.Name, ColumnName = "DisplayName" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.CompanyId?.ToString(), ColumnName = "CompanyId" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.CompanyName, ColumnName = "CompanyName" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.DivisionID?.ToString(), ColumnName = "DivisionID" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.DivisionName, ColumnName = "DivisionName" });
 
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.StatusCodeId.ToString(), ColumnName = "StatusCodeId" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.StatusCode, ColumnName = "StatusCode" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.AddedByUserId?.ToString(), ColumnName = "AddedByUserId" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.AddedDate != null ? queryEntity.AddedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = queryEntity?.AddedBy?.ToString(), ColumnName = "AddedBy" });
+            if (auditList.Count() > 0)
+            {
+                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                {
+                    HRMasterAuditTrailItems = auditList,
+                    Type = "LevelMaster",
+                    FormType = "Add",
+                    HRMasterSetId = data,
+                    AuditUserId = queryEntity?.AddedByUserId,
+                };
+                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+            }
             var response = new LevelMasterResponse
             {
                 LevelID = queryEntity.LevelId,

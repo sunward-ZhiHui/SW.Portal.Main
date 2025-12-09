@@ -23,6 +23,10 @@
                         <DxCheckBox Checked="@Data.IsReadOnly" Enabled="IsReadOnlyEnabled" CheckedExpression="@(() => Data.IsReadOnly)" CheckedChanged="@((bool value) => CheckedReadOnlyChanged(value))">ReadOnly</DxCheckBox>
 
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="2">
+                        <DxCheckBox Checked="@Data.IsRelease" CheckedExpression="@(() => Data.IsRelease)" CheckedChanged="@((bool value) => CheckedIsReleasePrintChanged(value))">Release</DxCheckBox>
+
+                    </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
         </div>
@@ -167,7 +171,7 @@
     private bool loading;
     bool Checked { get; set; } = true;
     bool IsReadWriteEnabled { get; set; } = true;
-    bool IsReadOnlyEnabled { get; set; } = true;
+    bool IsReadOnlyEnabled { get; set; } = true; 
     private string MyID = "myidPerSection";
     DynamicFormSectionSecurity Data = new DynamicFormSectionSecurity();
     private List<ViewEmployee>? _usersList { get; set; }
@@ -184,11 +188,11 @@
         _userGroupsList = await Mediator.Send(new GetUserGroups());
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         IsReadWriteEnabled = false;
-        IsReadOnlyEnabled = false;
+        IsReadOnlyEnabled = false; 
         if (Data.IsVisible == true)
         {
             IsReadWriteEnabled = true;
-            IsReadOnlyEnabled = true;
+            IsReadOnlyEnabled = true;// IsIsReleasePrintOnlyEnabled = true;
         }
         Data.Type = "User";
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
@@ -196,7 +200,7 @@
     void CheckedVisibleChanged(bool value)
     {
         IsReadWriteEnabled = false;
-        IsReadOnlyEnabled = false;
+        IsReadOnlyEnabled = false; 
         Data.IsReadOnly = false;
         Data.IsReadWrite = false;
         Data.IsVisible = value;
@@ -220,6 +224,11 @@
         Data.IsReadWrite = false;
         StateHasChanged();
     }
+    void CheckedIsReleasePrintChanged(bool value)
+    {
+        Data.IsRelease = value;
+        StateHasChanged();
+    }
     async Task OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 0)
@@ -240,17 +249,17 @@
     }
     void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
     {
-      //  ActiveTabSecIndex = 0;
+        //  ActiveTabSecIndex = 0;
         StateHasChanged();
     }
     void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-       // ActiveTabSecIndex = 1;
+        // ActiveTabSecIndex = 1;
         StateHasChanged();
     }
     void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
     {
-       // ActiveTabSecIndex = 2;
+        // ActiveTabSecIndex = 2;
         StateHasChanged();
     }
     async Task HandleValidSubmit()
@@ -258,9 +267,9 @@
         var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
         var userGroupCount = Data.SelectUserGroupIDs == null ? 0 : Data.SelectUserGroupIDs.Count();
         var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
-        if (Data.IsReadWrite == false && Data.IsReadOnly == false)
+        if (Data.IsReadWrite == false && Data.IsReadOnly == false && Data.IsRelease == false)
         {
-            toastService.ShowToast("Read & Write or ReadOnly checkbox select anyone", AC.SD.Core.Services.ToastLevel.Error);
+            toastService.ShowToast("Read & Write or ReadOnly or Release checkbox select anyone", AC.SD.Core.Services.ToastLevel.Error);
         }
         else if (Data.Type == "User" && userCount == 0)
         {

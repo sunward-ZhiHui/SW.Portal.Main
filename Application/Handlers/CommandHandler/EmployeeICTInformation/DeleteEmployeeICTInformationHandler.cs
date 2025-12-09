@@ -37,33 +37,34 @@ namespace Application.Handlers.CommandHandler
                 };
                 var result = queryEntity;
                 await _commandRepository.DeleteAsync(data);
-                var guid = Guid.NewGuid();
-                var uid = Guid.NewGuid();
+
                 if (result != null)
                 {
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result.SoftwareId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "SoftwareId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result.SoftwareName, null, request.Id, guid, request?.UserId, DateTime.Now, true, "SoftwareName", uid);
-
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result.Password, null, request.Id, guid, request?.UserId, DateTime.Now, true, "Password", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.RoleId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "RoleId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.RoleName, null, request.Id, guid, request?.UserId, DateTime.Now, true, "RoleName", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.StatusCodeId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCodeId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.StatusCode, null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCode", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.ModifiedByUserId.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedByUserId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt"), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.ModifiedBy, null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedBy", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTInformation", "Delete", result?.EmployeeId?.ToString(), queryEntity?.EmployeeId?.ToString(), request.Id, guid, request?.UserId, DateTime.Now, true, "EmployeeId", uid);
-
+                    List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.SoftwareId?.ToString(), ColumnName = "SoftwareId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.SoftwareName, ColumnName = "SoftwareName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.Password, ColumnName = "Password" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.RoleId?.ToString(), ColumnName = "RoleId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.RoleName, ColumnName = "RoleName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), ColumnName = "StatusCodeId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, ColumnName = "StatusCode" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId.ToString(), ColumnName = "ModifiedByUserId" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt"), ColumnName = "ModifiedDate" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, ColumnName = "ModifiedBy" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.EmployeeId?.ToString(), ColumnName = "EmployeeId" });
+                    if (auditList.Count() > 0)
+                    {
+                        HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                        {
+                            HRMasterAuditTrailItems = auditList,
+                            Type = "EmployeeICTInformation",
+                            FormType = "Delete",
+                            HRMasterSetId = result?.EmployeeIctinformationId,
+                            IsDeleted = true,
+                            AuditUserId = request?.UserId,
+                        };
+                        await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                    }
                 }
             }
             catch (Exception exp)
@@ -100,30 +101,43 @@ namespace Application.Handlers.CommandHandler
                 var result = queryEntity;
                 await _commandRepository.DeleteAsync(data);
                 var guid = Guid.NewGuid();
-                var uid = Guid.NewGuid();
+
                 if (result != null)
                 {
+                    List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
                     var date = DateTime.Now;
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result.Name?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "Name", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result.Password, null, request.Id, guid, request?.UserId, DateTime.Now, true, "Password", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.CompanyId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "CompanyId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.PlantCode, null, request.Id, guid, request?.UserId, DateTime.Now, true, "PlantCode", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.StatusCodeId?.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCodeId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.StatusCode, null, request.Id, guid, request?.UserId, DateTime.Now, true, "StatusCode", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.ModifiedByUserId.ToString(), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedByUserId", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt"), null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedDate", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.ModifiedBy, null, request.Id, guid, request?.UserId, DateTime.Now, true, "ModifiedBy", uid);
-                    uid = Guid.NewGuid();
-                    await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("EmployeeICTHardInformation", "Delete", result?.EmployeeId?.ToString(), queryEntity?.EmployeeId?.ToString(), request.Id, guid, request?.UserId, DateTime.Now, true, "EmployeeId", uid);
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.Name?.ToString(), ColumnName = "Name" });
 
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result.Password, ColumnName = "Password" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.CompanyId?.ToString(), ColumnName = "CompanyId" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.PlantCode, ColumnName = "PlantCode" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCodeId?.ToString(), ColumnName = "StatusCodeId" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.StatusCode, ColumnName = "StatusCode" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedByUserId.ToString(), ColumnName = "ModifiedByUserId" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt"), ColumnName = "ModifiedDate" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.ModifiedBy, ColumnName = "ModifiedBy" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = result?.EmployeeId?.ToString(), ColumnName = "EmployeeId" });
+                    if (auditList.Count() > 0)
+                    {
+                        HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                        {
+                            HRMasterAuditTrailItems = auditList,
+                            Type = "EmployeeICTHardInformation",
+                            FormType = "Delete",
+                            HRMasterSetId = result?.EmployeeIctHardinformationId,
+                            IsDeleted = true,
+                            AuditUserId = request?.UserId,
+                        };
+                        await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+                    }
                 }
             }
             catch (Exception exp)

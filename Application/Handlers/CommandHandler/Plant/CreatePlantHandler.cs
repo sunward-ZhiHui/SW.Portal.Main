@@ -33,24 +33,27 @@ namespace Application.Handlers.CommandHandler.Plants
             }
 
             var plantData = await _commandRepository.AddAsync(customerEntity);
-            var guid = Guid.NewGuid();
-            var uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", customerEntity?.PlantCode, customerEntity?.PlantCode, plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "DisplayName", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.PlantCode, plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "PlantCode", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.Description, plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "Description", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.StatusCodeID?.ToString(), plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "StatusCodeID", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.StatusCode, plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "StatusCode", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.AddedByUserID?.ToString(), plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "AddedByUserID", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.AddedDate != null ? customerEntity.AddedDate.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "AddedDate", uid);
-            uid = Guid.NewGuid();
-            await _HRMasterAuditTrailQueryRepository.InsertHRMasterAuditTrail("Plant", "Add", null, customerEntity?.AddedBy?.ToString(), plantData, guid, customerEntity?.AddedByUserID, DateTime.Now, false, "AddedBy", uid);
-
+            List<HRMasterAuditTrail?> auditList = new List<HRMasterAuditTrail?>();
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.PlantCode, ColumnName = "PlantCode" });
+            auditList.Add(new HRMasterAuditTrail { PreValue = customerEntity?.PlantCode, CurrentValue = customerEntity?.PlantCode, ColumnName = "DisplayName" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.Description, ColumnName = "Description" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.StatusCodeID?.ToString(), ColumnName = "StatusCodeID" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.StatusCode, ColumnName = "StatusCode" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.AddedByUserID?.ToString(), ColumnName = "AddedByUserId" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.AddedDate != null ? customerEntity.AddedDate.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "AddedDate" });
+            auditList.Add(new HRMasterAuditTrail { CurrentValue = customerEntity?.AddedBy?.ToString(), ColumnName = "AddedBy" });
+            if (auditList.Count() > 0)
+            {
+                HRMasterAuditTrail hRMasterAuditTrail = new HRMasterAuditTrail()
+                {
+                    HRMasterAuditTrailItems = auditList,
+                    Type = "Plant",
+                    FormType = "Add",
+                    HRMasterSetId = plantData,
+                    AuditUserId = customerEntity?.AddedByUserID,
+                };
+                await _HRMasterAuditTrailQueryRepository.BulkInsertAudit(hRMasterAuditTrail);
+            }
             var response = new PlantResponse
             {
                 PlantID = (long)plantData,

@@ -424,7 +424,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId, request.DynamicFormSearch,request.IsDelete);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId, request.DynamicFormDataSessionId, request.DynamicFormSearch, request.IsDelete);
         }
 
 
@@ -440,7 +440,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<DynamicFormData> Handle(DeleteDynamicFormData request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormData(request.DynamicFormData,request.UserId);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormData(request.DynamicFormData, request.UserId);
         }
     }
     public class GetDynamicFormApprovalHandler : IRequestHandler<GetDynamicFormApproval, List<DynamicFormApproval>>
@@ -1322,6 +1322,21 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateDynamicFormDataSectionSecurityReleaseHandler : IRequestHandler<UpdateDynamicFormDataSectionSecurityRelease, DynamicFormDataSectionSecurityRelease>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormDataSectionSecurityReleaseHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataSectionSecurityRelease> Handle(UpdateDynamicFormDataSectionSecurityRelease request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormDataSectionSecurityRelease(request.DynamicFormDataSectionSecurityRelease);
+
+
+        }
+    }
     public class InsertCloneDynamicFormHandler : IRequestHandler<InsertCloneDynamicForm, DynamicForm>
     {
         private readonly IDynamicFormDataQueryRepository _queryRepository;
@@ -1584,7 +1599,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataAudit>> Handle(GetDynamicFormDataAuditList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId,request.IsGridAudit,request.DynamicFormDataAuditGridData);
+            return (List<DynamicFormDataAudit>)await _dynamicFormQueryRepository.GetDynamicFormDataAuditList(request.SessionId, request.IsGridAudit, request.DynamicFormDataAuditGridData);
         }
     }
     public class GetDynamicFormDataAuditMultipleListHandler : IRequestHandler<GetDynamicFormDataAuditMultipleList, List<DynamicFormDataAudit>>

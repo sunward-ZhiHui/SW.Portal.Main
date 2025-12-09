@@ -114,6 +114,7 @@ namespace Core.Entities
         public Guid? AuditParentSessionId {  get; set; }
         public long? DynamicFormSectionAttributeId { get; set; }
         public string? DynamicAttributeName{ get; set; }
+        public List<DynamicFormDataSectionSecurityRelease> DynamicFormDataSectionSecurityRelease { get; set; } = new List<DynamicFormDataSectionSecurityRelease>();
     }
     public class DynamicFormProfile
     {

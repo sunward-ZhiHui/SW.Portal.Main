@@ -998,24 +998,30 @@ namespace Infrastructure.Repository.Query
                 {
                     using (var connection = CreateConnection())
                     {
-                        var query = "select t1.IsAutoNumberEnabled,t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
-                            "(select t4.IsVisible from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsVisible," +
-                            "(select t4.IsReadOnly from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadOnly," +
-                            "(select t4.IsReadWrite from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadWrite," +
-                            "(select COUNT(t2.UserID) from DynamicFormSectionSecurity t2 Where t2.DynamicFormSectionID=t1.DynamicFormSectionID) as IsPermissionCount," +
-                            "(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=" + UserId + " AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID) as IsLoginUsers," +
-                            "(select COUNT(t5.UserID) from DynamicFormSectionWorkFlow t5 Where t5.UserID=" + UserId + " AND  t5.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowByUser,\r\n" +
-                            "(select COUNT(t6.DynamicFormSectionID) from DynamicFormSectionWorkFlow t6 Where  t6.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowBy " +
-                            "from DynamicFormSection t1\n\r" +
-                             "JOIN DynamicForm t10 ON t1.DynamicFormID=t10.ID\r\n" +
-                            "where\r";
+                        var query = "";
+                        /* var query = "select t1.IsAutoNumberEnabled,t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
+                             "(select t4.IsVisible from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.IsVisible=1) as IsVisible," +
+                             "(select t4.IsReadOnly from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.IsVisible=1) as IsReadOnly," +
+                             "(select t4.IsReadWrite from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.IsVisible=1 ) as IsReadWrite," +
+                             "(select COUNT(t2.UserID) from DynamicFormSectionSecurity t2 Where t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.IsVisible=1) as IsPermissionCount," +
+                             "(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=" + UserId + " AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.IsVisible=1) as IsLoginUsers," +
+                             "(select COUNT(t5.UserID) from DynamicFormSectionWorkFlow t5 Where t5.UserID=" + UserId + " AND  t5.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowByUser,\r\n" +
+                             "(select COUNT(t6.DynamicFormSectionID) from DynamicFormSectionWorkFlow t6 Where  t6.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowBy " +
+                             "from DynamicFormSection t1\n\r" +
+                              "JOIN DynamicForm t10 ON t1.DynamicFormID=t10.ID\r\n" +
+                             "where\r";
+                         if (isNoDelete == true)
+                         {
+                             query += "\r(t1.IsDeleted = 0 or t1.IsDeleted is null) AND(t10.IsDeleted = 0 or t10.IsDeleted is null) AND\r";
+                         }
+
+                         query += "\rt1.DynamicFormID = " + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";*/
+                        query += "DECLARE @UserId INT = " + UserId + ";        -- pass from app\r\nDECLARE @DynamicFormId INT = " + dynamicForm.ID + ";\r\n\r\nSELECT\r\n    t1.IsAutoNumberEnabled,\r\n    t1.DynamicFormSectionID,\r\n    t1.SectionName,\r\n    t1.SessionID,\r\n    t1.StatusCodeID,\r\n    t1.Instruction,\r\n    t1.AddedByUserID,\r\n    t1.AddedDate,\r\n    t1.ModifiedByUserID,\r\n    t1.ModifiedDate,\r\n    t1.SortOrderBy,\r\n\r\n    -- per-login user flags (cast back to bit)\r\n    IsVisible       = CAST(ISNULL(secAgg.IsVisible, 0) AS bit),\r\n    IsReadOnly      = CAST(ISNULL(secAgg.IsReadOnly, 0) AS bit),\r\n    IsReadWrite     = CAST(ISNULL(secAgg.IsReadWrite, 0) AS bit),\r\n\r\n    -- counts from security\r\n    IsPermissionCount = ISNULL(secAgg.IsPermissionCount, 0),\r\n    IsLoginUsers      = ISNULL(secAgg.IsLoginUsers, 0),\r\n    IsReleaseCount    = ISNULL(secAgg.IsReleaseCount, 0),\r\n    IsReleaseUsers  = ISNULL(secAgg.IsReleaseUsers, 0),\r\n\r\n    -- workflow counts\r\n    IsWorkFlowByUser  = ISNULL(wfAgg.IsWorkFlowByUser, 0),\r\n    IsWorkFlowBy      = ISNULL(wfAgg.IsWorkFlowBy, 0)\r\n\r\nFROM DynamicFormSection t1\r\nJOIN DynamicForm t10\r\n    ON t1.DynamicFormID = t10.ID\r\n\r\n-- aggregate all security info per section\r\nLEFT JOIN (\r\n    SELECT \r\n        s.DynamicFormSectionID,\r\n\r\n        -- these were scalar subqueries in your code\r\n        IsVisible      = MAX(CASE WHEN s.UserID = @UserId AND s.IsVisible = 1 \r\n                                  THEN 1 ELSE 0 END),\r\n        IsReadOnly     = MAX(CASE WHEN s.UserID = @UserId AND s.IsVisible = 1 \r\n                                  THEN CASE WHEN s.IsReadOnly  = 1 THEN 1 ELSE 0 END END),\r\n        IsReadWrite    = MAX(CASE WHEN s.UserID = @UserId AND s.IsVisible = 1 \r\n                                  THEN CASE WHEN s.IsReadWrite = 1 THEN 1 ELSE 0 END END),\r\n\r\n        -- counts\r\n        IsPermissionCount = COUNT(CASE WHEN s.IsVisible = 1 THEN 1 END),                        -- all users\r\n        IsLoginUsers      = COUNT(CASE WHEN s.UserID = @UserId AND s.IsVisible = 1 THEN 1 END), -- this user\r\n\r\n        IsReleaseCount    = COUNT(CASE WHEN s.IsRelease = 1 THEN 1 END),                        -- all users\r\n        IsReleaseUsers  = COUNT(CASE WHEN s.UserID = @UserId AND s.IsRelease = 1 THEN 1 END)  -- this user\r\n    FROM DynamicFormSectionSecurity s\r\n    GROUP BY s.DynamicFormSectionID\r\n) secAgg\r\n    ON secAgg.DynamicFormSectionID = t1.DynamicFormSectionID\r\n\r\n-- aggregate workflow per section\r\nLEFT JOIN (\r\n    SELECT\r\n        w.DynamicFormSectionID,\r\n        IsWorkFlowByUser = COUNT(CASE WHEN w.UserID = @UserId THEN 1 END),\r\n        IsWorkFlowBy     = COUNT(w.DynamicFormSectionID)\r\n    FROM DynamicFormSectionWorkFlow w\r\n    GROUP BY w.DynamicFormSectionID\r\n) wfAgg\r\n    ON wfAgg.DynamicFormSectionID = t1.DynamicFormSectionID\r\n\r\nWHERE 1=1 AND \r\n";
                         if (isNoDelete == true)
                         {
-                            query += "\r(t1.IsDeleted = 0 or t1.IsDeleted is null) AND(t10.IsDeleted = 0 or t10.IsDeleted is null) AND\r";
+                            query += "(t1.IsDeleted = 0 OR t1.IsDeleted IS NULL)\r\n    AND (t10.IsDeleted = 0 OR t10.IsDeleted IS NULL)\r\nAND\r";
                         }
-
-                        query += "\rt1.DynamicFormID = " + dynamicForm.ID + " order by  t1.SortOrderBy asc;\n\r";
-
+                        query += "\nt1.DynamicFormID = @DynamicFormId\r\n\r\nORDER BY t1.SortOrderBy ASC;\r\n";
                         query += "select t1.GridDisplaySeqNo,(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,t1.IsDynamicFormGridDropdown,t1.GridDropDownDynamicFormID,t12.Name as GridDropDownDynamicFormName,t1.DynamicFormSectionAttributeID,t1.DynamicFormSectionID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.AttributeID,t1.SortOrderBy,t1.ColSpan,t1.DisplayName,t1.IsMultiple,t1.IsRequired,t1.RequiredMessage,t1.IsSpinEditType,t1.FormUsedCount,t1.IsDisplayTableHeader,t1.FormToolTips,t1.IsVisible,t1.RadioLayout,t1.IsRadioCheckRemarks,t1.RemarksLabelName,t1.IsDeleted,t1.IsPlantLoadDependency,t1.PlantDropDownWithOtherDataSourceID,t1.PlantDropDownWithOtherDataSourceLabelName,t1.PlantDropDownWithOtherDataSourceIDs,t1.IsSetDefaultValue,t1.IsDefaultReadOnly,t1.ApplicationMasterID,t1.ApplicationMasterIDs,t1.IsDisplayDropDownHeader\n\r" +
                             ",(case when t1.IsDependencyMultiple is NULL then  0 ELSE t1.IsDependencyMultiple END) as IsDependencyMultiple,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t11.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t9.sessionId as DynamicFormSessionId,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId," +
                             "t8.DisplayName as DataSourceDisplayName,\r\n" +
@@ -6248,12 +6254,12 @@ namespace Infrastructure.Repository.Query
                 if (_dynamicFormGrids != null && _dynamicFormGrids.ID > 0 && dynamicFormDatas != null && dynamicFormDatas.DynamicFormDataId > 0)
                 {
                     long? dynamicFormSectionAttributeId = dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.DynamicFormSectionAttributeId > 0 ? dynamicFormSectionAttribute.DynamicFormSectionAttributeId : null;
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId, null, dynamicFormSearch,false);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicFormGrids.ID, 0, dynamicFormDatas.DynamicFormDataId, dynamicFormSectionAttributeId, null, dynamicFormSearch, false);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 else
                 {
-                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch,false);
+                    var _dynamicformDataLists = await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(_dynamicForm.ID, 0, -1, null, null, dynamicFormSearch, false);
                     _dynamicformDataList = _dynamicformDataLists != null ? _dynamicformDataLists.ToList() : new List<DynamicFormData>();
                 }
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)

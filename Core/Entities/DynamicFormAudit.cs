@@ -19,17 +19,18 @@ namespace Core.Entities
         public long? AuditUserId { get; set; }
         public string? UserName { get; set; }
         public DateTime? AuditDate { get; set; }
-        public bool? IsDeleted { get; set; }=false;
+        public bool? IsDeleted { get; set; } = false;
         public string? ColumnName { get; set; }
-        public string? AuditUser {  get; set; }
+        public string? AuditUser { get; set; }
         public string? DynamicFormName { get; set; }
         public int? RowIndex { get; set; }
-        public string? DisplayName {  get; set; }
+        public string? DisplayName { get; set; }
         public bool? IsFormDeleted { get; set; } = false;
-        public long? DynamicFormSectionId {  get; set; }
-        public long? DynamicFormSectionAttributeId {  get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public long? DynamicFormSectionAttributeId { get; set; }
         public string? FormDisplayType { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public int? RowItemIndex { get; set; }
+        public List<DynamicFormAudit> DynamicFormAudits { get; set; } = new List<DynamicFormAudit>();
     }
 }

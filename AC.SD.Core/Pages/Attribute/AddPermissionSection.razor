@@ -23,10 +23,10 @@
                         <DxCheckBox Checked="@Data.IsReadOnly" Enabled="IsReadOnlyEnabled" CheckedExpression="@(() => Data.IsReadOnly)" CheckedChanged="@((bool value) => CheckedReadOnlyChanged(value))">ReadOnly</DxCheckBox>
 
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="" ColSpanMd="2">
+                    @* <DxFormLayoutItem Caption="" ColSpanMd="2">
                         <DxCheckBox Checked="@Data.IsRelease" CheckedExpression="@(() => Data.IsRelease)" CheckedChanged="@((bool value) => CheckedIsReleasePrintChanged(value))">Release</DxCheckBox>
 
-                    </DxFormLayoutItem>
+                    </DxFormLayoutItem> *@
                 </DxFormLayout>
             </EditForm>
         </div>
@@ -267,7 +267,8 @@
         var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
         var userGroupCount = Data.SelectUserGroupIDs == null ? 0 : Data.SelectUserGroupIDs.Count();
         var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
-        if (Data.IsReadWrite == false && Data.IsReadOnly == false && Data.IsRelease == false)
+       // if (Data.IsReadWrite == false && Data.IsReadOnly == false && Data.IsRelease == false)
+        if (Data.IsReadWrite == false && Data.IsReadOnly == false)
         {
             toastService.ShowToast("Read & Write or ReadOnly or Release checkbox select anyone", AC.SD.Core.Services.ToastLevel.Error);
         }

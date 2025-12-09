@@ -21,9 +21,9 @@
 
             @if (item != null)
             {
-                bool isRelease = DynamicMainFormData?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == item.DynamicFormSectionId)?.IsRelease ?? false;
-                if (isRelease)
-                {
+               // bool isRelease = DynamicMainFormData?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == item.DynamicFormSectionId)?.IsRelease ?? false;
+                //if (isRelease)
+                //{
                     var _DynamicFormSections = _AttributeHeader.DynamicFormSection.Where(w => w.DynamicFormId == item.DynamicFormGridDropDownId).ToList();
                     var dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == item.DynamicFormGridDropDownId).ToList();
                     var DynamicFormSectionAttributeIds = dynamicFormSectionAttributeList.Select(v => v.DynamicFormSectionAttributeId).ToList();
@@ -259,7 +259,7 @@
 
                         }
                     }
-                }
+               // }
 
             }
         </div>

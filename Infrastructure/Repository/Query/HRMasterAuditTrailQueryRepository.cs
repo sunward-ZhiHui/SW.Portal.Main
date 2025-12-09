@@ -154,12 +154,22 @@ namespace Infrastructure.Repository.Query
                 List<HRMasterAuditTrail> HRMasterAuditTrail = new List<HRMasterAuditTrail>();
                 using (var connection = CreateConnection())
                 {
+                    string query1 = "\rt1.ColumnName NOT LIKE '%Id'\r";
+                    if (!string.IsNullOrEmpty(MasterType))
+                    {
+                        var names = MasterType.ToLower().Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                        if (names?.Any() == true && names.Contains("applicationrolepermission"))
+                        {
+                            query1 = "\r(t1.ColumnName NOT LIKE '%Id' OR t1.ColumnName='PermissionID') AND t1.ColumnName!='PermissionName' \r";
+                        }
+                    }
                     var masterTypes = MasterType?.Split(",").ToList();
                     var parameters = new DynamicParameters();
                     parameters.Add("@MasterType", masterTypes);
                     parameters.Add("IsDeleted", IsDeleted);
                     parameters.Add("HRMasterSetId", MasterId);
-                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where t1.ColumnName NOT LIKE '%Id' AND t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId','PermissionID') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
+                    var query = "select t1.*,t2.UserName as AuditUser from HRMasterAuditTrail t1 JOIN ApplicationUser t2 ON t2.UserId=t1.AuditUserId where " + query1 + " AND t1.ColumnName not in('ReportToIds','PlantId','CompanyId','DivisionID','StatusCodeID','ModifiedByUserID','SubSectionId','SectionID','DepartmentId','AddedByUserID','LevelId','TypeOfEmployeement','LanguageID','RoleID','PlantID','DesignationID','SectionID','SubSectionID','LevelID','AcceptanceStatus','DynamicFormId','ProfileId','ParentId','UserId','ShelfLifeDurationID','DocumentRoleId') AND t1.Type IN @MasterType AND t1.IsDeleted=@IsDeleted\r";
                     if (IsDeleted == false)
                     {
                         query += "\rAND t1.HRMasterSetId=@HRMasterSetId\r";
@@ -264,6 +274,31 @@ namespace Infrastructure.Repository.Query
                 throw (new ApplicationException(exp.Message));
             }
         }
-    }
+        public async Task<IReadOnlyList<ApplicationPermission>> GetHRMasterApplicationPermissionAuditList()
+        {
+            try
+            {
+                List<ApplicationPermission> HRMasterAuditTrail = new List<ApplicationPermission>();
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    var query = "select * from ApplicationPermission where PermissionID>60000";
+                    try
+                    {
+                        HRMasterAuditTrail = (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
 
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+                return HRMasterAuditTrail;
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+    }
 }

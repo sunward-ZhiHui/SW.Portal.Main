@@ -5775,44 +5775,44 @@
                       }
                       if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
                       {
-                          var securityRelease = _dynamicformData?.DynamicFormDataSectionSecurityRelease.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+                          // var securityRelease = _dynamicformData?.DynamicFormDataSectionSecurityRelease.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
 
-                          bool IsRelease = a.IsReleaseCount > 0 ? a.IsReleaseUsers > 0 : true;
-                          if (IsRelease)
-                          {
-                              if (securityRelease == null || securityRelease?.IsRelease == false)
-                              {
-                                  b.OpenElement(i + 1, "i");
-                                  b.AddAttribute(i + 1, "title", "Click to release");
-                                  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, true)));
-                                  b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                                  b.AddAttribute(i + 1, "class", "fa fa-refresh");
-                                  b.AddAttribute(i + 1, "aria-hidden", true);
-                                  b.CloseElement();
-                              }
-                              else
-                              {
-                                  b.OpenElement(i + 1, "i");
-                                  b.AddAttribute(i + 1, "title",  $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
-                                  b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                                  b.AddAttribute(i + 1, "class", "fa fa-check-square");
-                                  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, false)));
-                                  b.AddAttribute(i + 1, "aria-hidden", true);
-                                  b.CloseElement();
-                              }
-                          }
-                          else
-                          {
-                              if (securityRelease != null && securityRelease?.IsRelease == true)
-                              {
-                                  b.OpenElement(i + 1, "i");
-                                  b.AddAttribute(i + 1, "title", $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
-                                  b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                                  b.AddAttribute(i + 1, "class", "fa fa-check-square");
-                                  b.AddAttribute(i + 1, "aria-hidden", true);
-                                  b.CloseElement();
-                              }
-                          }
+                          // bool IsRelease = a.IsReleaseCount > 0 ? a.IsReleaseUsers > 0 : true;
+                          // if (IsRelease)
+                          // {
+                          //     if (securityRelease == null || securityRelease?.IsRelease == false)
+                          //     {
+                          //         b.OpenElement(i + 1, "i");
+                          //         b.AddAttribute(i + 1, "title", "Click to release");
+                          //         b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, true)));
+                          //         b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                          //         b.AddAttribute(i + 1, "class", "fa fa-refresh");
+                          //         b.AddAttribute(i + 1, "aria-hidden", true);
+                          //         b.CloseElement();
+                          //     }
+                          //     else
+                          //     {
+                          //         b.OpenElement(i + 1, "i");
+                          //         b.AddAttribute(i + 1, "title",  $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
+                          //         b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                          //         b.AddAttribute(i + 1, "class", "fa fa-check-square");
+                          //         b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormDataSectionSecurityReleaseClick(a, false)));
+                          //         b.AddAttribute(i + 1, "aria-hidden", true);
+                          //         b.CloseElement();
+                          //     }
+                          // }
+                          // else
+                          // {
+                          //     if (securityRelease != null && securityRelease?.IsRelease == true)
+                          //     {
+                          //         b.OpenElement(i + 1, "i");
+                          //         b.AddAttribute(i + 1, "title", $"Release By: {securityRelease?.ReleaseUser}\nDate: {securityRelease?.ModifiedDate?.ToString("dd-MMM-yyyy hh:mm:ss tt")}");
+                          //         b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                          //         b.AddAttribute(i + 1, "class", "fa fa-check-square");
+                          //         b.AddAttribute(i + 1, "aria-hidden", true);
+                          //         b.CloseElement();
+                          //     }
+                          // }
                           if (_dynamicformData.IsLocked != true)
                           {
                               var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);

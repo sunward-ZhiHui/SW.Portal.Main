@@ -18,5 +18,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<HRMasterAuditTrail>> GetHRMasterAuditList(string? MasterType, long? MasterId, bool? IsDeleted, Guid? SessionId, string? AddTypeId = "");
         Task<IReadOnlyList<FileProfileTypeModel>> GetHRMasterSWAuditList(string? MasterType, bool? IsDeleted);
         Task BulkInsertAudit(HRMasterAuditTrail auditList);
+        Task<IReadOnlyList<ApplicationPermission>> GetHRMasterApplicationPermissionAuditList();
     }
 }

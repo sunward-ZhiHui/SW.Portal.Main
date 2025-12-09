@@ -29,5 +29,7 @@ namespace Core.Entities
         public string? HeaderDisplayName { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public List<HRMasterAuditTrail?> HRMasterAuditTrailItems { get; set; } = new List<HRMasterAuditTrail?>();
+        public string? PermissionPrevDisplayName { get; set; }
+        public string? PermissionCurrentDisplayName { get; set; }
     }
 }

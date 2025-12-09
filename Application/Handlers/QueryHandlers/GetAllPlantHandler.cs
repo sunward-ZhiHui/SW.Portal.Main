@@ -63,4 +63,17 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetHRMasterApplicationPermissionAuditListHandler : IRequestHandler<GetHRMasterApplicationPermissionAuditList, List<ApplicationPermission>>
+    {
+        private readonly IHRMasterAuditTrailQueryRepository _plantQueryRepository;
+        public GetHRMasterApplicationPermissionAuditListHandler(IHRMasterAuditTrailQueryRepository plantQueryRepository)
+        {
+            _plantQueryRepository = plantQueryRepository;
+        }
+        public async Task<List<ApplicationPermission>> Handle(GetHRMasterApplicationPermissionAuditList request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _plantQueryRepository.GetHRMasterApplicationPermissionAuditList();
+        }
+
+    }
 }

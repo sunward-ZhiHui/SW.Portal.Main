@@ -39,11 +39,16 @@ namespace Application.Queries
     {
         public string? MasterType { get; set; }
         public bool? IsDeleted { get; set; } = false;
-        
+
         public GetHRMasterSWAuditList(string? masterType, bool? isDeleted)
         {
             this.MasterType = masterType;
             this.IsDeleted = isDeleted;
         }
     }
+    public class GetHRMasterApplicationPermissionAuditList : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+
+    }
+
 }

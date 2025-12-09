@@ -167,9 +167,9 @@
 
                                     @foreach (var s in _AttributeHeader.DynamicFormSection)
                                     {
-                                        bool isRelease = j?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == s.DynamicFormSectionId)?.IsRelease ?? false;
-                                        if (isRelease)
-                                        {
+                                       // bool isRelease = j?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == s.DynamicFormSectionId)?.IsRelease ?? false;
+                                       // if (isRelease)
+                                       // {
                                             <table style="font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;">
                                                 <tr>
                                                     <th style="text-align:center;border:1px solid;padding:8px;font-weight:bold;">@s.SectionName</th>
@@ -273,7 +273,7 @@
                                                     </table>
                                                 }
                                             }
-                                        }
+                                       // }
                                     }
                                 }
 
@@ -383,9 +383,9 @@
                 {
                     _AttributeHeader.DynamicFormSection.ForEach(s =>
                     {
-                        bool isRelease = _dynamicformDataList[0]?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == s.DynamicFormSectionId)?.IsRelease ?? false;
-                        if (isRelease)
-                        {
+                      //  bool isRelease = _dynamicformDataList[0]?.DynamicFormDataSectionSecurityRelease?.FirstOrDefault(z => z.DynamicFormSectionId == s.DynamicFormSectionId)?.IsRelease ?? false;
+                      //  if (isRelease)
+                      //  {
                             query += "<table style=\"font-family:Times New Roman;font-size:12px;border-collapse:collapse;width:100%;\">";
                             query += "<tr>";
                             query += "<th style=\"text-align:center;border:1px solid;padding:8px;font-weight:bold;\">" + s.SectionName + "</th>";
@@ -489,7 +489,7 @@
                     });
                                 query += "</table>";
                             }
-                        }
+                       // }
                     });
                     @((MarkupString)query
                             )

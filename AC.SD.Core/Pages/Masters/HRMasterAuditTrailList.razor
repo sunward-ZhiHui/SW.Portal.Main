@@ -124,7 +124,7 @@
 
 </DxPopup>
 @code {
-    bool AuditLogPopUp { get; set; } = false;
+    bool AuditLogPopUp { get; set; } = false; bool IsPermissionExits { get; set; } = false;
     bool ExportSelectedRowsOnly { get; set; }
     [Parameter]
     public long? MasterId { get; set; }
@@ -142,14 +142,16 @@
     public Action RevokeBack { get; set; }
     bool PanelVisibleApproval { get; set; }
     bool IsEnabled { get; set; } = false;
-    private List<HRMasterAuditTrail>? _dynamicFormApprovalData; private List<HRMasterAuditTrail>? AllItems;
+    private List<HRMasterAuditTrail>? _dynamicFormApprovalData; private List<ApplicationPermission>? _applicationPermission;
     IGrid? Grid7 { get; set; }
-    private HRMasterAuditTrail _selectedItems;
+    private HRMasterAuditTrail _selectedItems; private List<HRMasterAuditTrail>? AllItems;
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-        await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        await UpdateDataAsync();
+
     }
     // async Task ExportXlsx_Click()
     // {
@@ -179,6 +181,47 @@
         // Insert space before each capital letter, except the first
         return Regex.Replace(input, "(?<!^)([A-Z])", " $1");
     }
+    private string GetFileProfileTypePath(List<ApplicationPermission> foldersListItem, long? id)
+    {
+        string foldersList = "";
+        var foldersListItems = foldersListItem.Where(t => t.PermissionID == id).ToList();
+        ApplicationPermission fileprofile = new ApplicationPermission();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                if (s != null)
+                {
+                    List<string> FolderPathLists = new List<string>();
+                    ApplicationPermission fileProfileTypeModel = new ApplicationPermission();
+                    fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                    FolderPathLists.Add(s.PermissionName);
+                    foldersList = string.Join(" / ", FolderPathLists);
+                }
+            });
+        }
+        return foldersList;
+    }
+    private ApplicationPermission GetProfileTypeName(List<ApplicationPermission> foldersListItems, ApplicationPermission s, List<string> foldersModel, ApplicationPermission fileProfileTypeModel)
+    {
+        if (s != null)
+        {
+            if (s.ParentID != null)
+            {
+                var items = foldersListItems.FirstOrDefault(f => f.PermissionID == s.ParentID);
+                if (items != null)
+                {
+                    GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+                    foldersModel.Add(items?.PermissionName);
+                }
+            }
+            else if (s.ParentID == null)
+            {
+                fileProfileTypeModel.ParentID = foldersListItems.FirstOrDefault(f => f.PermissionID == s.PermissionID)?.PermissionID;
+            }
+        }
+        return fileProfileTypeModel;
+    }
     async Task UpdateDataAsync()
     {
         try
@@ -189,6 +232,40 @@
                 AllItems = await Mediator.Send(new GetHRMasterAuditList(MasterId, MasterType, IsDeleted, null, AddTypeId));
                 if (AllItems?.Any() == true)
                 {
+                    if (!string.IsNullOrEmpty(MasterType))
+                    {
+                        var names = MasterType.ToLower().Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+                        if (names?.Any() == true && names.Contains("applicationrolepermission"))
+                        {
+                            IsPermissionExits = true;
+                            _applicationPermission = await Mediator.Send(new GetHRMasterApplicationPermissionAuditList());
+                        }
+                    }
+                    foreach (var index in AllItems)
+                    {
+                        if (!string.IsNullOrEmpty(index.Type) && index.Type.ToLower() == "applicationrolepermission")
+                        {
+
+                            if (!string.IsNullOrEmpty(index.PreValue) && index.ColumnName == "PermissionID")
+                            {
+                                if (long.TryParse(index.PreValue, out long parsedId))
+                                {
+                                    var lists = GetFileProfileTypePath(_applicationPermission, parsedId);
+                                    index.PreValue = lists;
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(index.CurrentValue) && index.ColumnName == "PermissionID")
+                            {
+                                if (long.TryParse(index.CurrentValue, out long parsedId1))
+                                {
+                                    var listss = GetFileProfileTypePath(_applicationPermission, parsedId1);
+                                    index.CurrentValue = listss;
+                                }
+                            }
+                        }
+                        index.ColumnName = index.ColumnName == "PermissionID" ? "PermissionName" : index.ColumnName;
+                    }
+
                     int i = 1;
                     var sessionIds = AllItems.OrderByDescending(o => o.AuditDate).Select(s => s.SessionId).Distinct().ToList();
                     if (sessionIds?.Any() == true)

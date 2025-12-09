@@ -224,7 +224,8 @@
             {
                 await JSRuntime.InvokeAsync<string>("showLoading");
                 var resultData = await Mediator.Send(new GetDynamicFormDataAuditBySessionMultipleList(_DynamicFormDataAuditList.Select(z => z.SessionId).Distinct().ToList()));
-                resultData = resultData?.Any() == true ? resultData.Where(w => w.IsReleases == true).ToList() : new List<DynamicFormDataAudit>();
+               // resultData = resultData?.Any() == true ? resultData.Where(w => w.IsReleases == true).ToList() : new List<DynamicFormDataAudit>();
+                resultData = resultData?.Any() == true ? resultData.ToList() : new List<DynamicFormDataAudit>();
                 foreach (var w in _DynamicFormDataAuditList)
                 {
                     objectData = new ExpandoObject(); pobjectData = new ExpandoObject();

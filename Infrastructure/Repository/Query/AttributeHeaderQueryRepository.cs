@@ -1198,7 +1198,7 @@ namespace Infrastructure.Repository.Query
                         if (DynamicFormIds != null && DynamicFormIds.Count > 0)
                         {
                             DynamicFormIds = DynamicFormIds.Distinct().ToList();
-                            attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(DynamicFormIds, UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, false);
+                            attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(DynamicFormIds, UserId, dynamicForm.CompanyId, plantCode, applicationMasters, applicationMasterParent, null, true);
                         }
                         // }
                         var dataSourceList = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(dynamicForm.CompanyId, dataSourceTableIds, plantCode, applicationMasterIds, ApplicationMasterParentIds);
@@ -1760,56 +1760,56 @@ namespace Infrastructure.Repository.Query
                                                 if (b.ApplicationMaster != null && b.ApplicationMaster.Count() > 0)
                                                 {
                                                     b.ApplicationMaster.ForEach(ab =>
-                                                         {
-                                                             var setNameData = ab.ApplicationMasterCodeId + "_AppMaster";
-                                                             var keysetNameDataExits = ((IDictionary<string, object>)dict).ContainsKey(setNameData);
-                                                             var nameData = b.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                                             var SubNamess = jsonObj.ContainsKey(nameData);
-                                                             if (SubNamess == true)
-                                                             {
-                                                                 var itemValue = jsonObj[nameData];
-                                                                 if (itemValue is JArray)
-                                                                 {
-                                                                     List<long?> listData = itemValue.ToObject<List<long?>>();
-                                                                     if (b.IsMultiple == true || b.ControlType == "TagBox")
-                                                                     {
-                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == b.DataSourceTable).Select(s => s.FullName).ToList() : new List<string?>();
-                                                                         dict[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
-                                                                     }
-                                                                     else
-                                                                     {
-                                                                         dict[nameData] = string.Empty;
-                                                                     }
-                                                                 }
-                                                                 else
-                                                                 {
-                                                                     if (b.ControlType == "ComboBox")
-                                                                     {
-                                                                         long? values = itemValue == null ? -1 : (long)itemValue;
-                                                                         var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
-                                                                         dict[nameData] = listss;
-                                                                         if (keysetNameDataExits == false)
-                                                                         {
-                                                                             dict[setNameData] = values > 0 ? values : 0;
-                                                                         }
-                                                                     }
-                                                                     else
-                                                                     {
-                                                                         if (b.ControlType == "ListBox" && b.IsMultiple == false)
-                                                                         {
-                                                                             long? values = itemValue == null ? -1 : (long)itemValue;
-                                                                             var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
-                                                                             dict[nameData] = listss;
-                                                                         }
-                                                                         else
-                                                                         {
-                                                                             dict[nameData] = string.Empty;
-                                                                         }
-                                                                     }
-                                                                 }
-                                                             }
+                                                    {
+                                                        var setNameData = ab.ApplicationMasterCodeId + "_AppMaster";
+                                                        var keysetNameDataExits = ((IDictionary<string, object>)dict).ContainsKey(setNameData);
+                                                        var nameData = b.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                                        var SubNamess = jsonObj.ContainsKey(nameData);
+                                                        if (SubNamess == true)
+                                                        {
+                                                            var itemValue = jsonObj[nameData];
+                                                            if (itemValue is JArray)
+                                                            {
+                                                                List<long?> listData = itemValue.ToObject<List<long?>>();
+                                                                if (b.IsMultiple == true || b.ControlType == "TagBox")
+                                                                {
+                                                                    var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == b.DataSourceTable).Select(s => s.FullName).ToList() : new List<string?>();
+                                                                    dict[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                }
+                                                                else
+                                                                {
+                                                                    dict[nameData] = string.Empty;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (b.ControlType == "ComboBox")
+                                                                {
+                                                                    long? values = itemValue == null ? -1 : (long)itemValue;
+                                                                    var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
+                                                                    dict[nameData] = listss;
+                                                                    if (keysetNameDataExits == false)
+                                                                    {
+                                                                        dict[setNameData] = values > 0 ? values : 0;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    if (b.ControlType == "ListBox" && b.IsMultiple == false)
+                                                                    {
+                                                                        long? values = itemValue == null ? -1 : (long)itemValue;
+                                                                        var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == b.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.FullName : string.Empty;
+                                                                        dict[nameData] = listss;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        dict[nameData] = string.Empty;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
 
-                                                         });
+                                                    });
                                                 }
                                             }
                                             else if (b.DataSourceTable == "ApplicationMasterParent")
@@ -1817,17 +1817,17 @@ namespace Infrastructure.Repository.Query
                                                 dict[attrName] = string.Empty;
                                                 List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
                                                 b.ApplicationMasterParents.ForEach(ab =>
-                                                     {
-                                                         nameDatas.Add(ab);
-                                                         RemoveApplicationMasterParentSingleNameItem(ab, b, nameDatas, applicationMasterParent);
+                                                {
+                                                    nameDatas.Add(ab);
+                                                    RemoveApplicationMasterParentSingleNameItem(ab, b, nameDatas, applicationMasterParent);
 
-                                                     });
+                                                });
                                                 if (nameDatas != null && nameDatas.Count() > 0)
                                                 {
                                                     nameDatas.ForEach(n =>
-                                                         {
-                                                             loadApplicationMasterParentData(jsonObj, b, n, dict, PlantDependencySubAttributeDetails);
-                                                         });
+                                                    {
+                                                        loadApplicationMasterParentData(jsonObj, b, n, dict, PlantDependencySubAttributeDetails);
+                                                    });
                                                 }
                                             }
                                             else
@@ -1874,6 +1874,10 @@ namespace Infrastructure.Repository.Query
                                                                     else if (b.DataSourceTable == "FinishedProdOrderLine" || b.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || b.DataSourceTable == "Location")
                                                                     {
                                                                         listName.Add(n?.NameList);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "Designation1")
+                                                                    {
+                                                                        listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                     }
                                                                     else
                                                                     {
@@ -1926,6 +1930,10 @@ namespace Infrastructure.Repository.Query
                                                                                     {
                                                                                         listName.Add(n?.NameList);
                                                                                     }
+                                                                                    else if (b.DataSourceTable == "Designation1")
+                                                                                    {
+                                                                                        listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                                    }
                                                                                     else
                                                                                     {
                                                                                         listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -1976,6 +1984,10 @@ namespace Infrastructure.Repository.Query
                                                                     else if (b.DataSourceTable == "FinishedProdOrderLine" || b.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || b.DataSourceTable == "Location")
                                                                     {
                                                                         listName.Add(n?.NameList);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "Designation1")
+                                                                    {
+                                                                        listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                     }
                                                                     else
                                                                     {
@@ -2082,10 +2094,10 @@ namespace Infrastructure.Repository.Query
                                             {
                                                 dict[attrName] = string.Empty;
                                                 b.AttributeHeaderDataSource.ForEach(dd =>
-                                                     {
-                                                         var nameData = b.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                                         dict[nameData] = string.Empty;
-                                                     });
+                                                {
+                                                    var nameData = b.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                                    dict[nameData] = string.Empty;
+                                                });
                                             }
                                             else
                                             {
@@ -2095,10 +2107,10 @@ namespace Infrastructure.Repository.Query
                                                     if (b.ApplicationMaster.Count() > 0)
                                                     {
                                                         b.ApplicationMaster.ForEach(ab =>
-                                                             {
-                                                                 var nameData = b.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                                                 dict[nameData] = string.Empty;
-                                                             });
+                                                        {
+                                                            var nameData = b.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                                                            dict[nameData] = string.Empty;
+                                                        });
                                                     }
                                                 }
                                                 else if (b.DataSourceTable == "ApplicationMasterParent")
@@ -2106,10 +2118,10 @@ namespace Infrastructure.Repository.Query
                                                     dict[attrName] = string.Empty;
                                                     List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
                                                     b.ApplicationMasterParents.ForEach(ab =>
-                                                         {
-                                                             nameDatas.Add(ab);
-                                                             RemoveApplicationMasterParentSingleNameItem(ab, b, nameDatas, applicationMasterParent);
-                                                         });
+                                                    {
+                                                        nameDatas.Add(ab);
+                                                        RemoveApplicationMasterParentSingleNameItem(ab, b, nameDatas, applicationMasterParent);
+                                                    });
                                                     if (nameDatas != null && nameDatas.Count() > 0)
                                                     {
                                                         nameDatas.ForEach(n =>
@@ -4391,6 +4403,10 @@ namespace Infrastructure.Repository.Query
                                                                 {
                                                                     listName.Add(n?.NameList);
                                                                 }
+                                                                else if (s.DataSourceTable == "Designation1")
+                                                                {
+                                                                    listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                }
                                                                 else
                                                                 {
                                                                     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4486,6 +4502,10 @@ namespace Infrastructure.Repository.Query
                                                                         {
                                                                             listName.Add(n?.NameList);
                                                                         }
+                                                                        else if (s.DataSourceTable == "Designation1")
+                                                                        {
+                                                                            listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                        }
                                                                         else
                                                                         {
                                                                             listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4572,6 +4592,10 @@ namespace Infrastructure.Repository.Query
                                                                                     {
                                                                                         listName.Add(n?.NameList);
                                                                                     }
+                                                                                    else if (s.DataSourceTable == "Designation1")
+                                                                                    {
+                                                                                        listName.Add((n?.DepartmentName + "|" + n?.Section+ "|" + n?.Subsection+ "|" + n?.Designation).TrimEnd('|'));
+                                                                                    }
                                                                                     else
                                                                                     {
                                                                                         listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4625,6 +4649,10 @@ namespace Infrastructure.Repository.Query
                                                                             else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
                                                                             {
                                                                                 listName.Add(n?.NameList);
+                                                                            }
+                                                                            else if (s.DataSourceTable == "Designation1")
+                                                                            {
+                                                                                listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                             }
                                                                             else
                                                                             {
@@ -4684,6 +4712,10 @@ namespace Infrastructure.Repository.Query
                                                                 else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
                                                                 {
                                                                     listName.Add(n?.NameList);
+                                                                }
+                                                                else if (s.DataSourceTable == "Designation1")
+                                                                {
+                                                                    listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                 }
                                                                 else
                                                                 {
@@ -7176,6 +7208,10 @@ namespace Infrastructure.Repository.Query
                                                 {
                                                     listName.Add(n?.NameList);
                                                 }
+                                                else if (d.DataSourceTable == "Designation1")
+                                                {
+                                                    listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                }
                                                 else
                                                 {
                                                     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -7225,6 +7261,10 @@ namespace Infrastructure.Repository.Query
                                         else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
                                         {
                                             listName.Add(n?.NameList);
+                                        }
+                                        else if (d.DataSourceTable == "Designation1")
+                                        {
+                                            listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                         }
                                         else
                                         {
@@ -7348,6 +7388,10 @@ namespace Infrastructure.Repository.Query
                                                     else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
                                                     {
                                                         listName.Add(n?.NameList);
+                                                    }
+                                                    else if (d.DataSourceTable == "Designation1")
+                                                    {
+                                                        listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                     }
                                                     else
                                                     {

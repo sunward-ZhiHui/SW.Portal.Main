@@ -73,6 +73,11 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetDesignationDataSource(CompanyId, plantCode, plantIds);
                 }
+                if (dataSourceTableIds.Contains("Designation1"))
+                {
+                    i++;
+                    query += GetDesignation1DataSource(CompanyId, plantCode, plantIds);
+                }
                 if (dataSourceTableIds.Contains("Section"))
                 {
                     i++;
@@ -169,6 +174,11 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetSOPDropdownView();
                 }
+                if (dataSourceTableIds.Contains("PackagingMaterialInProd"))
+                {
+                    i++;
+                    query += GetPackagingMaterialInProd();
+                }
                 if (dataSourceTableIds.Contains("NavMethodCode"))
                 {
                     i++;
@@ -219,7 +229,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "SELECT CONCAT('SOP_',DataId) as AttributeDetailNameId,'SOP' as DropDownTypeId, DataId as AttributeDetailID,ProfileNo, SOPNo as AttributeDetailName,Description,VersionNo,FORMAT(EffectiveDate, 'dd-MMM-yyyy') as EffectiveDate,FORMAT(ReviewDate, 'dd-MMM-yyyy')  as ReviewDate FROM [VMSUNPRT02].[SW_Int_LIVE].[dbo].[SOPDropdownView];\n\r";
+                query += "SELECT CONCAT('SOP_',DataId) as AttributeDetailNameId,'SOP' as DropDownTypeId, DataId as AttributeDetailID,ProfileNo, SOPNo as AttributeDetailName,Description,VersionNo,FORMAT(EffectiveDate, 'dd-MMM-yyyy') as EffectiveDate,FORMAT(ReviewDate, 'dd-MMM-yyyy')  as ReviewDate FROM [VMSUNPRT01].[SW_Int_LIVE].[dbo].[SOPDropdownView];\n\r";
                 return query;
             }
             catch (Exception exp)
@@ -249,6 +259,28 @@ namespace Infrastructure.Repository.Query
                 //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
                 //}
                 //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        private string GetPackagingMaterialInProd()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @"  SELECT CONCAT('NIE_',DataId) as AttributeDetailNameId,'PackagingMaterialInProd' as DropDownTypeId, DataId as AttributeDetailID,
+	                            DataId as AttributeDetailName, ItemNo, Description, Description2, QcRefNo
+                                from(
+		                            select distinct ROW_NUMBER ()over(order by [QC Ref_ No_]) as DataId ,[QC Ref_ No_] as QcRefNo, [Item No_] AS ItemNo, Description, [Description 2] as Description2
+		                            from (
+			                            select distinct [QC Ref_ No_],[Item No_], Description, [Description 2] 
+			                            from  [SW_Int_LIVE].[dbo].[NAVItemEntryWithRemView]
+		                            ) d
+	                            )T1;";
                 return query;
             }
             catch (Exception exp)
@@ -345,22 +377,24 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName,t4.Name as DepartmentName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN Department t4 ON t4.DepartmentID=t1.DepartmentID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r\n";
+                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,case when t1.AcceptanceStatus = 691 then 'Active' when t1.AcceptanceStatus = 692 then 'Resign' else '' end as Status,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName,t4.Name as DepartmentName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN Department t4 ON t4.DepartmentID=t1.DepartmentID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
+                        //query += "where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
+                        query += "where  t1.PlantId in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId=" + CompanyId + ";\r\n";
+                        //query += "Where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId=" + CompanyId + ";\r\n";
+                        query += "Where t1.PlantId=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "WHERE (ag.Value!='Resign' or ag.Value is null);\r\n";
+                   // query += "WHERE (ag.Value!='Resign' or ag.Value is null);\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -464,6 +498,42 @@ namespace Infrastructure.Repository.Query
                     else
                     {
                         query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += ";\r\n";
+                }
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetDesignation1DataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            // var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('Desig-',DesignationID) as AttributeDetailNameId, \r\n\t'Designation1' as DropDownTypeId, DesignationID as AttributeDetailID,\r\n\tCompanyID as CompanyId, PlantCode as CompanyName, Name as AttributeDetailName,\r\n\tCONCAT(Name,'||',Description) as Description ,\r\n\tDepartmentName as DepartmentName, SectionName as Section, SubSectionName as Subsection, Name as Designation\r\n\tfrom view_Designation\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "Where CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else

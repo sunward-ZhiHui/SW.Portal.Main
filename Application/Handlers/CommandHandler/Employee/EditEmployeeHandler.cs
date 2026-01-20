@@ -122,7 +122,7 @@ namespace Application.Handlers.CommandHandler.Employee
                 applicationUserRoles.RoleId = request.RoleID.Value;
                 var applicationData = await _commandApplicationUserRoleRepository.AddAsync(applicationUserRoles);
                 auditList.Add(new HRMasterAuditTrail { CurrentValue = request?.RoleID?.ToString(), ColumnName = "RoleID" });
-                auditList.Add(new HRMasterAuditTrail {  CurrentValue = request?.RoleName.ToString(), ColumnName = "RoleName" });
+                auditList.Add(new HRMasterAuditTrail { CurrentValue = request?.RoleName.ToString(), ColumnName = "RoleName" });
             }
 
             var emp = await _employeeQueryRepository.GetAllByIdAsync(request.EmployeeID);
@@ -186,129 +186,129 @@ namespace Application.Handlers.CommandHandler.Employee
                 if (emp.FirstName != request.FirstName)
                 {
                     isUpdate = false;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.FirstName.ToString(), CurrentValue = request?.FirstName.ToString(), ColumnName = "FirstName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.FirstName?.ToString(), CurrentValue = request?.FirstName?.ToString(), ColumnName = "FirstName" });
 
                 }
-                if (emp.LastName != request?.LastName)
+                if (emp?.LastName != request?.LastName)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.LastName.ToString(), CurrentValue = request?.LastName.ToString(), ColumnName = "LastName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.LastName?.ToString(), CurrentValue = request?.LastName?.ToString(), ColumnName = "LastName" });
                 }
-                if (emp.NickName != request?.NickName)
+                if (emp?.NickName != request?.NickName)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.NickName.ToString(), CurrentValue = request?.NickName.ToString(), ColumnName = "NickName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.NickName?.ToString(), CurrentValue = request?.NickName?.ToString(), ColumnName = "NickName" });
                 }
-                if (emp.SageID != request?.SageID)
+                if (emp?.SageID != request?.SageID)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SageID.ToString(), CurrentValue = request?.SageID.ToString(), ColumnName = "SageIDName" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SageID?.ToString(), CurrentValue = request?.SageID?.ToString(), ColumnName = "SageIDName" });
                 }
-                if (emp.Gender != request?.Gender)
+                if (emp?.Gender != request?.Gender)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Gender.ToString(), CurrentValue = request?.Gender.ToString(), ColumnName = "Gender" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Gender?.ToString(), CurrentValue = request?.Gender?.ToString(), ColumnName = "Gender" });
                 }
-                if (emp.Email != request?.Email)
+                if (emp?.Email != request?.Email)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Email.ToString(), CurrentValue = request?.Email.ToString(), ColumnName = "Email" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Email?.ToString(), CurrentValue = request?.Email?.ToString(), ColumnName = "Email" });
                 }
-                if (emp.JobTitle != request?.JobTitle)
+                if (emp?.JobTitle != request?.JobTitle)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.JobTitle.ToString(), CurrentValue = request?.JobTitle.ToString(), ColumnName = "JobTitle" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.JobTitle?.ToString(), CurrentValue = request?.JobTitle?.ToString(), ColumnName = "JobTitle" });
                 }
-                if (request?.ExpectedJoiningDate != emp.ExpectedJoiningDate)
+                if (request?.ExpectedJoiningDate != emp?.ExpectedJoiningDate)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.ExpectedJoiningDate != null ? emp.ExpectedJoiningDate.Value.ToString("dd-MMM-yyyy") : null,CurrentValue = request?.ExpectedJoiningDate != null ? request.ExpectedJoiningDate.Value.ToString("dd-MMM-yyyy") : null, ColumnName = "ExpectedJoiningDate" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.ExpectedJoiningDate != null ? emp.ExpectedJoiningDate.Value.ToString("dd-MMM-yyyy") : null, CurrentValue = request?.ExpectedJoiningDate != null ? request.ExpectedJoiningDate.Value.ToString("dd-MMM-yyyy") : null, ColumnName = "ExpectedJoiningDate" });
 
                 }
-                if (emp.Extension != request?.Extension)
+                if (emp?.Extension != request?.Extension)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Extension.ToString(), CurrentValue = request?.Extension.ToString(), ColumnName = "Extension" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.Extension?.ToString(), CurrentValue = request?.Extension?.ToString(), ColumnName = "Extension" });
                 }
-                if (emp.SpeedDial != request?.SpeedDial)
+                if (emp?.SpeedDial != request?.SpeedDial)
                 {
                     isUpdate = true;
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SpeedDial.ToString(), CurrentValue = request?.SpeedDial.ToString(), ColumnName = "SpeedDial" });
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SpeedDial?.ToString(), CurrentValue = request?.SpeedDial?.ToString(), ColumnName = "SpeedDial" });
                 }
-                if (request?.PlantID != emp.PlantID)
+                if (request?.PlantID != emp?.PlantID)
                 {
                     isUpdate = true;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.PlantID?.ToString(), CurrentValue = request?.PlantID?.ToString(), ColumnName = "PlantID" });
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.CompanyName.ToString(), CurrentValue = request?.CompanyName.ToString(), ColumnName = "CompanyName" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.PlantID?.ToString(), CurrentValue = request?.PlantID?.ToString(), ColumnName = "PlantID" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.CompanyName?.ToString(), CurrentValue = request?.CompanyName?.ToString(), ColumnName = "CompanyName" });
                 }
 
-                if (request?.DepartmentID != emp.DepartmentID)
+                if (request?.DepartmentID != emp?.DepartmentID)
                 {
                     isUpdate = true;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.DepartmentID?.ToString(), CurrentValue = request?.DepartmentID?.ToString(), ColumnName = "DepartmentID" });
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.DepartmentName.ToString(), CurrentValue = request?.DepartmentName, ColumnName = "DepartmentName" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.DepartmentID?.ToString(), CurrentValue = request?.DepartmentID?.ToString(), ColumnName = "DepartmentID" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.DepartmentName?.ToString(), CurrentValue = request?.DepartmentName, ColumnName = "DepartmentName" });
                 }
-                if (request?.DesignationID != emp.DesignationID)
+                if (request?.DesignationID != emp?.DesignationID)
                 {
                     isUpdate = true;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.DesignationID?.ToString(), CurrentValue = request?.DesignationID?.ToString(), ColumnName = "DesignationID" });
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.DesignationName.ToString(), CurrentValue = request?.DesignationName.ToString(), ColumnName = "DesignationName" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.DesignationID?.ToString(), CurrentValue = request?.DesignationID?.ToString(), ColumnName = "DesignationID" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.DesignationName?.ToString(), CurrentValue = request?.DesignationName?.ToString(), ColumnName = "DesignationName" });
                 }
-                if (request?.SectionID != emp.SectionID)
+                if (request?.SectionID != emp?.SectionID)
                 {
                     isUpdate = true;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.SectionID?.ToString(), CurrentValue = request?.SectionID?.ToString(), ColumnName = "SectionID" });
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SectionName.ToString(), CurrentValue = request?.SectionName.ToString(), ColumnName = "SectionName" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SectionID?.ToString(), CurrentValue = request?.SectionID?.ToString(), ColumnName = "SectionID" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SectionName?.ToString(), CurrentValue = request?.SectionName?.ToString(), ColumnName = "SectionName" });
                 }
-                if (request?.SubSectionID != emp.SubSectionID)
+                if (request?.SubSectionID != emp?.SubSectionID)
                 {
                     isUpdate = true;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.SubSectionID?.ToString(), CurrentValue = request?.SubSectionID?.ToString(), ColumnName = "SubSectionID" });
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SubSectionName.ToString(), CurrentValue = request?.SubSectionName.ToString(), ColumnName = "SubSectionName" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SubSectionID?.ToString(), CurrentValue = request?.SubSectionID?.ToString(), ColumnName = "SubSectionID" });
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.SubSectionName?.ToString(), CurrentValue = request?.SubSectionName?.ToString(), ColumnName = "SubSectionName" });
                 }
-                if (request?.LevelID != emp.LevelID)
+                if (request?.LevelID != emp?.LevelID)
                 {
                     isUpdate = true;
-                    var Names = request?.LevelMasterItems.FirstOrDefault(x => x.LevelID == emp.LevelID)?.Name;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.LevelID?.ToString(), CurrentValue = request?.LevelID?.ToString(), ColumnName = "LevelID" });
-                    
+                    var Names = request?.LevelMasterItems.FirstOrDefault(x => x.LevelID == emp?.LevelID)?.Name;
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.LevelID?.ToString(), CurrentValue = request?.LevelID?.ToString(), ColumnName = "LevelID" });
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = Names, CurrentValue = request?.LevelName, ColumnName = "LevelName" });
                 }
-                if (request?.TypeOfEmployeement != emp.TypeOfEmployeement)
+                if (request?.TypeOfEmployeement != emp?.TypeOfEmployeement)
                 {
                     isUpdate = true;
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = request?.TypeOfEmployeement?.ToString(), CurrentValue = null, ColumnName = "TypeOfEmployeement" });
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = request?.TypeOfEmployeementName, CurrentValue = null, ColumnName = "TypeOfEmployeementName" });
                 }
-                if (request?.AcceptanceStatus != emp.AcceptanceStatus)
+                if (request?.AcceptanceStatus != emp?.AcceptanceStatus)
                 {
                     isUpdate = true;
                     var Names = request?.View_mainEmployeeStatusItems.FirstOrDefault(x => x.StatusCodeId == emp.AcceptanceStatus)?.Value;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.AcceptanceStatus?.ToString(), CurrentValue = request?.AcceptanceStatus?.ToString(), ColumnName = "AcceptanceStatus" });
-                    
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.AcceptanceStatus?.ToString(), CurrentValue = request?.AcceptanceStatus?.ToString(), ColumnName = "AcceptanceStatus" });
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = Names, CurrentValue = request?.AcceptanceStatusName, ColumnName = "AcceptanceStatusName" });
                 }
-                if (request?.LanguageID != emp.LanguageID)
+                if (request?.LanguageID != emp?.LanguageID)
                 {
                     isUpdate = true;
                     var Names = request?.LanguageMasterItems.FirstOrDefault(x => x.LanguageId == emp.LanguageID)?.Name;
-                    
-                    auditList.Add(new HRMasterAuditTrail { PreValue = emp.LanguageID?.ToString(), CurrentValue = request?.LanguageID?.ToString(), ColumnName = "LanguageID" });
-                    
+
+                    auditList.Add(new HRMasterAuditTrail { PreValue = emp?.LanguageID?.ToString(), CurrentValue = request?.LanguageID?.ToString(), ColumnName = "LanguageID" });
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = request?.LanguageName, CurrentValue = null, ColumnName = "LanguageName" });
                 }
                 var newList = request?.ReportToIds.ToList();
@@ -323,21 +323,21 @@ namespace Application.Handlers.CommandHandler.Employee
                     isUpdate = true;
                     oldValues = string.Join(",", request.EmployeeItems.Where(w => oldList.Contains(w.UserID)).Select(w => w.FirstName));
                     newValues = string.Join(",", request.EmployeeItems.Where(w => newList.Contains(w.UserID)).Select(w => w.FirstName));
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = oldList?.Any() == true ? string.Join(",", oldList) : null, CurrentValue = newList?.Any() == true ? string.Join(",", newList) : null, ColumnName = "ReportToIds" });
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = oldValues, CurrentValue = newValues, ColumnName = "ReportToIdNames" });
                 }
                 if (isUpdate)
                 {
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = request?.FirstName, CurrentValue = request?.FirstName, ColumnName = "DisplayName" });
 
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = emp?.ModifiedByUserID?.ToString(), CurrentValue = request?.ModifiedByUserID?.ToString(), ColumnName = "ModifiedByUserID" });
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = emp?.ModifiedDate != null ? emp?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, CurrentValue = request?.ModifiedDate != null ? request?.ModifiedDate.Value.ToString("dd-MMM-yyyy hh:mm:ss tt") : null, ColumnName = "ModifiedDate" });
-                    
+
                     auditList.Add(new HRMasterAuditTrail { PreValue = emp?.ModifiedByUser?.ToString(), CurrentValue = request?.ModifiedByUser?.ToString(), ColumnName = "ModifiedBy" });
                 }
                 if (auditList.Count() > 0)

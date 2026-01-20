@@ -7171,6 +7171,10 @@
                              {
                                  editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                              }
+                             else if (s.DataSourceTable == "PackagingMaterialInProd")
+                             {
+                                 editor.AddAttribute(j + 1, "EditFormat", "{1}|{2}|{3}|{4}");
+                             }
                              else
                              {
                                  editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -7216,7 +7220,7 @@
                                  layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                                  layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                                  layoutItemBuilders.CloseComponent();
-                                 if (s.DataSourceTable != "SOP")
+                                 if (s.DataSourceTable != "SOP" && s.DataSourceTable != "PackagingMaterialInProd" && s.DataSourceTable != "Designation1")
                                  {
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -7225,7 +7229,7 @@
                                  }
                                  if (s.DropDownTypeId == "Data Source")
                                  {
-                                     if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                     if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "PackagingMaterialInProd" || s.DataSourceTable == "Designation1")
                                      {
                                      }
                                      else
@@ -7306,6 +7310,25 @@
                                      layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
                                      layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                                      layoutItemBuilders.CloseComponent();
+                                 } 
+                                 if (s.DataSourceTable == "PackagingMaterialInProd")
+                                 {
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(7, "FieldName", "ItemNo");
+                                     layoutItemBuilders.AddAttribute(7, "Caption", "Item No");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                                     layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(9, "FieldName", "Description2");
+                                     layoutItemBuilders.AddAttribute(9, "Caption", "Description2");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(10, "FieldName", "QcRefNo");
+                                     layoutItemBuilders.AddAttribute(10, "Caption", "QC Ref No");
+                                     layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "Employee")
                                  {
@@ -7316,6 +7339,10 @@
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                                      layoutItemBuilders.AddAttribute(8, "FieldName", "DepartmentName");
                                      layoutItemBuilders.AddAttribute(8, "Caption", "Department");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                                     layoutItemBuilders.AddAttribute(9, "FieldName", "Status");
+                                     layoutItemBuilders.AddAttribute(9, "Caption", "Status");
                                      layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
@@ -7377,6 +7404,26 @@
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                      layoutItemBuilders.AddAttribute(10, "FieldName", "CompanyName");
                                      layoutItemBuilders.AddAttribute(10, "Caption", "Company");
+                                     layoutItemBuilders.CloseComponent();
+                                 }
+                                 if (s.DataSourceTable == "Designation1")
+                                 {
+
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                     layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                                     layoutItemBuilders.AddAttribute(1, "Caption", "Department");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(2, "FieldName", "Section");
+                                     layoutItemBuilders.AddAttribute(2, "Caption", "Section");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(3, "FieldName", "Subsection");
+                                     layoutItemBuilders.AddAttribute(3, "Caption", "Sub Section");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                                     layoutItemBuilders.AddAttribute(3, "FieldName", "Subsection");
+                                     layoutItemBuilders.AddAttribute(3, "Caption", "Sub Section");
                                      layoutItemBuilders.CloseComponent();
                                  }
 
@@ -8213,6 +8260,10 @@
                                    else if (ff.DataSourceTable == "ReleaseProdOrderLine" || ff.DataSourceTable == "AllProdOrderLine")
                                    {
                                        editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{4}|{5}");
+                                   }
+                                   else if (ff.DataSourceTable == "PackagingMaterialInProd")
+                                   {
+                                       editor11.AddAttribute(d + 1, "EditFormat", "{1}|{2}|{3}|{4}");
                                    }
                                    else
                                    {

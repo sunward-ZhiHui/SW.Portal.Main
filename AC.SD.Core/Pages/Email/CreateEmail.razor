@@ -95,7 +95,7 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled="@BackEnabled" />
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onClearAll" />
-                        <DxMenuItem Text="Sent" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
+                        <DxMenuItem Text="Send" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
                             <div class="d-flex">
                                 <DxWaitIndicator Visible="isSending" />
                                 <span class="mx-2">@Message</span>

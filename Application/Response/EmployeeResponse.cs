@@ -30,12 +30,12 @@ namespace Application.Response
         [Required(ErrorMessage = "Gender is Required")]
         public string Gender { get; set; }
         public string JobTitle { get; set; }
-        [EmailAddress(ErrorMessage = "Invalid Email Address")]
+        //[EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Employeement Type is Required")]
 
         public int? TypeOfEmployeement { get; set; }
-        [Required(ErrorMessage = "Language is Required")]
+        //[Required(ErrorMessage = "Language is Required")]
         public long? LanguageID { get; set; }
         [Required(ErrorMessage = "User Role is Required")]
         public long? RoleID { get; set; }

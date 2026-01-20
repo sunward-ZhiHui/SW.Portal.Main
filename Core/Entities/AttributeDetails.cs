@@ -60,6 +60,7 @@ namespace Core.Entities
         public string? Status { get; set; }
         public string? FullName { get; set; }
         public string? QcRefNo { get; set; }
+        public string? ItemNo { get; set; }
         public long? AttributeGroupCheckBoxId { get; set; }
         public string? ProfileNo { get; set; }
         public string? EffectiveDate { get; set; }
@@ -68,7 +69,10 @@ namespace Core.Entities
         public string? DefaultBatchSize { get; set; }
         public string? BatchUnitSize { get; set; }
         public string? AvailableBatchSize { get; set; }
-
+        public string? Section { get; set; }
+        public string? Subsection { get; set; }
+        public string? Designation { get; set; }
+         
     }
     public class DataSourceAttributeDetails
     {

@@ -62,7 +62,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                                                                                                                                                    border-collapse: collapse;*/
+                                                                                                                                                                                                                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -990,7 +990,7 @@
          Closed="EulaPopupLockClosed"
          Width="1500px">
     <BodyContentTemplate>
-        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId"></DynamicFormsAuditTrail>
+        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId" DynamicFormSessionId="@SessionId"></DynamicFormsAuditTrail>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -7136,6 +7136,11 @@
                          }
                          else
                          {
+                             if (s.DataSourceTable == "Employee")
+                             {
+                                 long? empId = (_dynamicformData != null && valueData is long v) ? v : 0;
+                                 attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                             }
                              if (valueData == null && s.IsSetDefaultValue == true)
                              {
                                  if (s.DataSourceTable == "Employee")
@@ -7229,7 +7234,7 @@
                                  }
                                  if (s.DropDownTypeId == "Data Source")
                                  {
-                                     if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "PackagingMaterialInProd" || s.DataSourceTable == "Designation1")
+                                     if (s.DataSourceTable == "NavMethodCode" || s.DataSourceTable == "SOP" || s.DataSourceTable == "AllProdOrderLine" || s.DataSourceTable == "ReleaseProdOrderLine" || s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "PackagingMaterialInProd" || s.DataSourceTable == "Designation1" || s.DataSourceTable == "NAVItemBatchInfoView" || s.DataSourceTable == "NAVInProgressProdOrderView")
                                      {
                                      }
                                      else
@@ -7310,7 +7315,7 @@
                                      layoutItemBuilders.AddAttribute(11, "FieldName", "ReviewDate");
                                      layoutItemBuilders.AddAttribute(11, "Caption", "Review Date");
                                      layoutItemBuilders.CloseComponent();
-                                 } 
+                                 }
                                  if (s.DataSourceTable == "PackagingMaterialInProd")
                                  {
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -7328,6 +7333,29 @@
                                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                                      layoutItemBuilders.AddAttribute(10, "FieldName", "QcRefNo");
                                      layoutItemBuilders.AddAttribute(10, "Caption", "QC Ref No");
+                                     layoutItemBuilders.CloseComponent();
+                                 }
+                                 if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                 {
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(7, "FieldName", "ItemNo");
+                                     layoutItemBuilders.AddAttribute(7, "Caption", "Item No");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                     layoutItemBuilders.AddAttribute(8, "FieldName", "Description");
+                                     layoutItemBuilders.AddAttribute(8, "Caption", "Description");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(9, "FieldName", "Description2");
+                                     layoutItemBuilders.AddAttribute(9, "Caption", "Description2");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(10, "FieldName", "BatchNo");
+                                     layoutItemBuilders.AddAttribute(10, "Caption", "BatchNo");
+                                     layoutItemBuilders.CloseComponent();
+                                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                     layoutItemBuilders.AddAttribute(11, "FieldName", "ReplanRefNo");
+                                     layoutItemBuilders.AddAttribute(11, "Caption", "Replan Ref No");
                                      layoutItemBuilders.CloseComponent();
                                  }
                                  if (s.DataSourceTable == "Employee")
@@ -7594,6 +7622,19 @@
                          }
                          else
                          {
+                             if (s.DataSourceTable == "Employee")
+                             {
+                                 List<long?> empIds = new List<long?>();
+                                 if (valueData != null)
+                                 {
+                                     IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueData;
+                                     if (valueDatas != null)
+                                     {
+                                         empIds = valueDatas.ToList();
+                                     }
+                                 }
+                                 attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                             }
                              if (valueData == null && s.IsSetDefaultValue == true)
                              {
                                  if (s.DataSourceTable == "Employee")
@@ -7892,6 +7933,27 @@
                      }
                      else if (s.ControlType == "ListBox")
                      {
+                         if (s.DataSourceTable == "Employee")
+                         {
+                             if (s.IsMultiple == true)
+                             {
+                                 List<long?> empIds = new List<long?>();
+                                 if (valueData != null)
+                                 {
+                                     IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueData;
+                                     if (valueDatas != null)
+                                     {
+                                         empIds = valueDatas.ToList();
+                                     }
+                                 }
+                                 attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                             }
+                             else
+                             {
+                                 long? empId = (_dynamicformData != null && valueData is long v) ? v : 0;
+                                 attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                             }
+                         }
                          if (valueData == null && s.IsSetDefaultValue == true)
                          {
                              if (s.DataSourceTable == "Employee")
@@ -8240,12 +8302,34 @@
                                        }
                                    }
                                    editor11.CloseElement();
+                                   if (ff.DataSourceTable == "Employee")
+                                   {
+                                       if (s.IsDependencyMultiple == true)
+                                       {
+                                           List<long?> empIds = new List<long?>();
+                                           if (valueDataDependency != null)
+                                           {
+                                               IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                                               if (valueDatas != null)
+                                               {
+                                                   empIds = valueDatas.ToList();
+                                               }
+                                           }
+                                           aatrDetails = aatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                                       }
+                                       else
+                                       {
+                                           long? empId = (_dynamicformData != null && valueDataDependency is long v) ? v : 0;
+                                           aatrDetails = aatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                                       }
+                                   }
                                    if (s.IsDependencyMultiple == true)
                                    {
                                        editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);
                                    }
                                    else
                                    {
+
                                        editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(d + 1);
                                    }
                                    editor11.AddAttribute(d + 1, "Data", aatrDetails);
@@ -9155,6 +9239,11 @@
                         }
                         else
                         {
+                            if (q.DataSourceTable == "Employee")
+                            {
+                                long? empId = (_dynamicformData != null && valueDataSub is long v) ? v : 0;
+                                subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                            }
                             editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
                             editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                             if (q.DataSourceTable == "Employee")
@@ -9534,6 +9623,19 @@
                         }
                         else
                         {
+                            if (q.DataSourceTable == "Employee")
+                            {
+                                List<long?> empIds = new List<long?>();
+                                if (valueDataSub != null)
+                                {
+                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                    if (valueDatas != null)
+                                    {
+                                        empIds = valueDatas.ToList();
+                                    }
+                                }
+                                subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                            }
                             editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
                             editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                             if (q.DataSourceTable == "Employee")
@@ -9796,6 +9898,27 @@
                     }
                     else if (q.ControlType == "ListBox")
                     {
+                        if (q.DataSourceTable == "Employee")
+                        {
+                            if (q.IsMultiple == true)
+                            {
+                                List<long?> empIds = new List<long?>();
+                                if (valueDataSub != null)
+                                {
+                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                    if (valueDatas != null)
+                                    {
+                                        empIds = valueDatas.ToList();
+                                    }
+                                }
+                                subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                            }
+                            else
+                            {
+                                long? empId = (_dynamicformData != null && valueDataSub is long v) ? v : 0;
+                                subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                            }
+                        }
                         editor1.OpenComponent<DxListBox<AttributeDetails, long?>>(m + 1);
                         editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                         editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");

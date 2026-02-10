@@ -49,7 +49,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                                                                    border-collapse: collapse;*/
+                                                                                                                                        border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -6667,6 +6667,11 @@
                        }
                        else
                        {
+                           if (s.DataSourceTable == "Employee")
+                           {
+                               long? empId = (_dynamicformData != null && valueData is long v) ? v : 0;
+                               attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                           }
                            if (valueData == null && s.IsSetDefaultValue == true)
                            {
                                if (s.DataSourceTable == "Employee")
@@ -7077,6 +7082,19 @@
                        }
                        else
                        {
+                           if (s.DataSourceTable == "Employee")
+                           {
+                               List<long?> empIds = new List<long?>();
+                               if (valueData != null)
+                               {
+                                   IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueData;
+                                   if (valueDatas != null)
+                                   {
+                                       empIds = valueDatas.ToList();
+                                   }
+                               }
+                               attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                           }
                            if (valueData == null && s.IsSetDefaultValue == true)
                            {
                                if (s.DataSourceTable == "Employee")
@@ -7375,6 +7393,27 @@
                    }
                    else if (s.ControlType == "ListBox")
                    {
+                       if (s.DataSourceTable == "Employee")
+                       {
+                           if (s.IsMultiple == true)
+                           {
+                               List<long?> empIds = new List<long?>();
+                               if (valueData != null)
+                               {
+                                   IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueData;
+                                   if (valueDatas != null)
+                                   {
+                                       empIds = valueDatas.ToList();
+                                   }
+                               }
+                               attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                           }
+                           else
+                           {
+                               long? empId = (_dynamicformData != null && valueData is long v) ? v : 0;
+                               attributeDetailss = attributeDetailss.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                           }
+                       }
                        if (valueData == null && s.IsSetDefaultValue == true)
                        {
                            if (s.DataSourceTable == "Employee")
@@ -7723,6 +7762,27 @@
                   }
               }
               editor11.CloseElement();
+              if (ff.DataSourceTable == "Employee")
+              {
+                  if (s.IsDependencyMultiple == true)
+                  {
+                      List<long?> empIds = new List<long?>();
+                      if (valueDataDependency != null)
+                      {
+                          IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                          if (valueDatas != null)
+                          {
+                              empIds = valueDatas.ToList();
+                          }
+                      }
+                      aatrDetails = aatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                  }
+                  else
+                  {
+                      long? empId = (_dynamicformData != null && valueDataDependency is long v) ? v : 0;
+                      aatrDetails = aatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                  }
+              }
               if (s.IsDependencyMultiple == true)
               {
                   editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);
@@ -8628,6 +8688,11 @@
                       }
                       else
                       {
+                          if (q.DataSourceTable == "Employee")
+                          {
+                              long? empId = (_dynamicformData != null && valueDataSub is long v) ? v : 0;
+                              subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                          }
                           editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
                           editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                           if (q.DataSourceTable == "Employee")
@@ -9007,6 +9072,19 @@
                       }
                       else
                       {
+                          if (q.DataSourceTable == "Employee")
+                          {
+                              List<long?> empIds = new List<long?>();
+                              if (valueDataSub != null)
+                              {
+                                  IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                  if (valueDatas != null)
+                                  {
+                                      empIds = valueDatas.ToList();
+                                  }
+                              }
+                              subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                          }
                           editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
                           editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                           if (q.DataSourceTable == "Employee")
@@ -9269,6 +9347,27 @@
                   }
                   else if (q.ControlType == "ListBox")
                   {
+                      if (q.DataSourceTable == "Employee")
+                      {
+                          if (q.IsMultiple == true)
+                          {
+                              List<long?> empIds = new List<long?>();
+                              if (valueDataSub != null)
+                              {
+                                  IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                  if (valueDatas != null)
+                                  {
+                                      empIds = valueDatas.ToList();
+                                  }
+                              }
+                              subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || empIds.Contains(w.AttributeDetailID)).ToList();
+                          }
+                          else
+                          {
+                              long? empId = (_dynamicformData != null && valueDataSub is long v) ? v : 0;
+                              subaatrDetails = subaatrDetails.Where(w => w.EmpStatus == "Active" || (empId > 0 && w.AttributeDetailID == empId)).ToList();
+                          }
+                      }
                       editor1.OpenComponent<DxListBox<AttributeDetails, long?>>(m + 1);
                       editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                       editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");

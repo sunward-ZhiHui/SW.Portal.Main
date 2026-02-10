@@ -17,7 +17,7 @@ namespace Core.Entities
         public string? LoginID { get; set; }
         public string? LoginPassword { get; set; }
         [Required(ErrorMessage = "Please enter your password.")]
-        public string UserName { get; set; }    
+        public string UserName { get; set; }
         public string UserCode { get; set; }
         public int InvalidAttempts { get; set; }
         public bool Locked { get; set; }
@@ -40,6 +40,8 @@ namespace Core.Entities
         [NotMapped]
         public string? ModifiedByUser { get; set; }
         [NotMapped]
-        public Guid? SessionLogin {  get; set; }
+        public Guid? SessionLogin { get; set; }
+        public string? Signature { get; set; }
+        public DateTime? SignDate { get; set; }
     }
 }

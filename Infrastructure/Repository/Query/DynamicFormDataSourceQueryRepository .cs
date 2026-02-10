@@ -174,6 +174,16 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetSOPDropdownView();
                 }
+                if (dataSourceTableIds.Contains("NAVItemBatchInfoView"))
+                {
+                    i++;
+                    query += GetNAVItemBatchInfoViewDataSource();
+                }
+                if (dataSourceTableIds.Contains("NAVInProgressProdOrderView"))
+                {
+                    i++;
+                    query += GetNAVInProgressProdOrderViewDataSource();
+                }
                 if (dataSourceTableIds.Contains("PackagingMaterialInProd"))
                 {
                     i++;
@@ -191,7 +201,7 @@ namespace Infrastructure.Repository.Query
                         dataSourceDropDownList.AddRange(await GetAllDataSource(query, i));
                     }
                 }
-                
+
 
             }
             else
@@ -259,6 +269,36 @@ namespace Infrastructure.Repository.Query
                 //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
                 //}
                 //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetNAVItemBatchInfoViewDataSource()
+        {
+            // var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('NIBI_',t1.No) as AttributeDetailNameId,\r\n'NAVItemBatchInfoView' as DropDownTypeId, t1.No as AttributeDetailID,BatchNo as AttributeDetailName ,Description\r\nfrom SW_Int_LIVE.dbo.tblNAVItemBatchInfoView t1;";
+               
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetNAVInProgressProdOrderViewDataSource()
+        {
+            // var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "SELECT CONCAT('NIPP_',t1.[No]) as AttributeDetailNameId ,t1.[No] as AttributeDetailID,'NAVInProgressProdOrderView' as DropDownTypeId  ,[ProdOrderNo] as AttributeDetailName\r\n      ,[ItemNo]\r\n      ,[Description]\r\n      ,[Description2]\r\n      ,[BatchNo]\r\n      ,[ReplanRefNo]  FROM [SW_Int_LIVE].[dbo].[tblNAVInProgressProdOrderView] t1;";
+               
                 return query;
             }
             catch (Exception exp)
@@ -377,24 +417,25 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,case when t1.AcceptanceStatus = 691 then 'Active' when t1.AcceptanceStatus = 692 then 'Resign' else '' end as Status,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName,t4.Name as DepartmentName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN Department t4 ON t4.DepartmentID=t1.DepartmentID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r\n";
+                query += "select (case when ag.Value is NULL then  'Active' ELSE  ag.Value END) as EmpStatus,CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName,t4.Name as DepartmentName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID LEFT JOIN Department t4 ON t4.DepartmentID=t1.DepartmentID LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = t1.AcceptanceStatus\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        //query += "where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
-                        query += "where  t1.PlantId in(" + string.Join(',', plantIds) + ");";
+                        query += "where 1=1 AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
+                        // query += "where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
                         //query += "Where (ag.Value!='Resign' or ag.Value is null) AND t1.PlantId=" + CompanyId + ";\r\n";
-                        query += "Where t1.PlantId=" + CompanyId + ";\r\n";
+                        query += "Where 1=1 AND t1.PlantId=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                   // query += "WHERE (ag.Value!='Resign' or ag.Value is null);\r\n";
+                    // query += "WHERE (ag.Value!='Resign' or ag.Value is null);\r\n";
+                    query += "WHERE 1=1;\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{

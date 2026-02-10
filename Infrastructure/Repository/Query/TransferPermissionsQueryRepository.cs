@@ -114,6 +114,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserID", Id);
                 var query = "select t1.*,t2.DocumentRoleName,t2.DocumentRoleDescription,\r\nt3.Name as UserGroup,\r\n" +
                     "t3.Description as UserGroupDescription,\r\nt4.Name as FileProfileType,\r\n" +
+                    "t10.FileName,"+
                     "t5.Name as LevelName,\r\n" +
                     "t6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
                     "t8.Name as DesignationName,\r\n" +
@@ -128,6 +129,7 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
                     "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n " +
                      "LEFT JOIN FileProfileType t9 ON t9.FileProfileTypeId=t1.FileProfileTypeId\r\n\r\n " +
+                     " LEFT JOIN Documents t10 on t1.DocumentID = t10.DocumentID\r\n"+
                     "WHERE t1.UserID=@UserID";
                 using (var connection = CreateConnection())
                 {

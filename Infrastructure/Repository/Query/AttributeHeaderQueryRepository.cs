@@ -1628,13 +1628,14 @@ namespace Infrastructure.Repository.Query
                         DropDownGridOptionsModel dropDownGridOptionsModel = new DropDownGridOptionsModel();
                         dropDownGridOptionsModel.DynamicFormId = d;
                         //dropDownGridOptionsModel.DynamicFormDataId = DynamicFormDataId;
+                        dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownList(dynamicForms, dynamicFormSectionAttribute, applicationMasterParent);
                         if (isTableHeader == true)
                         {
-                            dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownHeaderList(dynamicForms, dynamicFormSectionAttribute, applicationMasterParent);
+                            // dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownHeaderList(dynamicForms, dynamicFormSectionAttribute, applicationMasterParent);
                         }
                         else
                         {
-                            dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownList(dynamicForms, dynamicFormSectionAttribute, applicationMasterParent);
+                            // dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownList(dynamicForms, dynamicFormSectionAttribute, applicationMasterParent);
                         }
                         dropDownGridOptionsModel1.Add(dropDownGridOptionsModel);
 

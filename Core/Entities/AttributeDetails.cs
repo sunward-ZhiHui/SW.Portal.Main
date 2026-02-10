@@ -72,7 +72,9 @@ namespace Core.Entities
         public string? Section { get; set; }
         public string? Subsection { get; set; }
         public string? Designation { get; set; }
-         
+        public string? EmpStatus { get; set; }
+
+
     }
     public class DataSourceAttributeDetails
     {

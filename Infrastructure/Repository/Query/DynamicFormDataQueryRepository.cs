@@ -52,7 +52,7 @@ namespace Infrastructure.Repository.Query
                 query += "select t1.* from DynamicFormSectionAttribute t1 Where (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.DynamicFormSectionID IN (select t2.DynamicFormSectionID from DynamicFormSection t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormID=@DynamicFormID);\n";
                 query += "select t1.* from DynamicFormSectionAttributeSectionParent t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where (t3.IsDeleted is null OR t3.IsDeleted=0) AND t3.DynamicFormID=@DynamicFormID));\n";
                 query += "select t1.* from DynamicFormSectionAttributeSection t1 where t1.DynamicFormSectionAttributeSectionParentID IN \r\n(select t2.DynamicFormSectionAttributeSectionParentID from DynamicFormSectionAttributeSectionParent t2 where  t2.DynamicFormSectionAttributeID IN\r\n(select t3.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t3 Where (t3.IsDeleted is null OR t3.IsDeleted=0) AND t3.DynamicFormSectionID IN(Select t4.DynamicFormSectionID from DynamicFormSection t4 where (t4.IsDeleted is null OR t4.IsDeleted=0) AND t4.DynamicFormID= @DynamicFormID)));\n";
-                query += "select t1.* from DynamicFormSectionSecurity t1 where DynamicFormSectionID IN(select t2.DynamicFormSectionID from DynamicFormSection t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormID=@DynamicFormID);\n";
+                query += "select t1.* from DynamicFormSectionSecurity t1 where t1.DynamicFormSectionID IN(select t2.DynamicFormSectionID from DynamicFormSection t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND t2.DynamicFormID=@DynamicFormID);\n";
                 query += "select t1.* from DynamicFormSectionAttributeSecurity t1 where t1.DynamicFormSectionAttributeID IN(select t2.DynamicFormSectionAttributeID from DynamicFormSectionAttribute t2 Where (t2.IsDeleted is null OR t2.IsDeleted=0) AND  t2.DynamicFormSectionID IN (select t3.DynamicFormSectionID from DynamicFormSection t3 Where t3.DynamicFormID=@DynamicFormID));\n";
                 using (var connection = CreateConnection())
                 {
@@ -194,7 +194,7 @@ namespace Infrastructure.Repository.Query
                                         {
                                             if (items.UserId > 0)
                                             {
-                                                string? UserGroupId = items.UserGroupId > 0 ? items.UserId.ToString() : "null";
+                                                string? UserGroupId = items.UserGroupId > 0 ? items.UserGroupId.ToString() : "null";
                                                 string? levelId = items.LevelId > 0 ? items.LevelId.ToString() : "null";
                                                 querys += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionID,UserId,UserGroupID,LevelID,IsReadWrite,IsReadOnly,IsVisible) OUTPUT INSERTED.DynamicFormSectionSecurityID " +
                                            "VALUES (" + dynamicFormSection.DynamicFormCloneSectionId + "," + items.UserId + "," + UserGroupId + "," + levelId + ",'" + items.IsReadWrite + "','" + items.IsReadOnly + "','" + items.IsVisible + "'" + ");\n";
@@ -577,7 +577,7 @@ namespace Infrastructure.Repository.Query
                             int i = 0;
                             foreach (var dynamicFormData in result.DynamicFormData)
                             {
-                                
+
                                 long? NewDynamicFormSectionGridAttributeId = null;
                                 if (dynamicFormData.DynamicFormSectionGridAttributeId > 0)
                                 {

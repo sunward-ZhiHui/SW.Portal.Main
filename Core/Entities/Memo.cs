@@ -18,6 +18,7 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         [Required(ErrorMessage = "Start Date is Required")]
         public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         [Required(ErrorMessage = "Status is Required")]
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }

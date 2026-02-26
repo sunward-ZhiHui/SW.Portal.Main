@@ -34,7 +34,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
-                var query = "select t5.Name as IssueDepartment,t1.IssueDepartmentId,t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\nLEFT JOIN Department t5 ON t5.DepartmentID=t1.IssueDepartmentID;";
+                var query = "select t5.Name as IssueDepartment,t1.IssueDepartmentId,t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.EndDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\nLEFT JOIN Department t5 ON t5.DepartmentID=t1.IssueDepartmentID;";
                 query += "select  t1.* from MemoUser t1  JOIN Employee t2 ON t2.UserID=t1.UserID\r\nLEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null);";
                 using (var connection = CreateConnection())
                 {
@@ -100,7 +100,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("SessionID", SessionID);
                 try
                 {
-                    var query = "select t1.IssueDepartmentId,t1.MemoID,t1.MemoContent,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.SessionID=@SessionID\r\n;";
+                    var query = "select t1.IssueDepartmentId,t1.MemoID,t1.MemoContent,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,t1.EndDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.SessionID=@SessionID\r\n;";
 
                     using (var connection = CreateConnection())
                     {
@@ -156,7 +156,7 @@ namespace Infrastructure.Repository.Query
                 List<Memo> Memolist = new List<Memo>();
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", userId);
-                var query = "select t1.*,t3.Name as IssueDepartment,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID LEFT JOIN Department t3 ON t3.DepartmentID=t1.IssueDepartmentID where t1.StartDate >= dateadd(month, -6, getdate()) AND t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
+                var query = "select t1.*,t3.Name as IssueDepartment,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate \r\nfrom Memo t1 \r\nJOIN MemoUser t2 \r\nON t1.MemoID=t2.MemoID \r\nLEFT JOIN Department t3 \r\nON t3.DepartmentID=t1.IssueDepartmentID \r\nwhere  t1.EndDate >= CONVERT(date, GETDATE())\r\nAND t1.StatusCodeId=2730 \r\nAND t2.UserID=@UserID\r\norder by t1.AddedDate desc;";
 
                 using (var connection = CreateConnection())
                 {
@@ -180,7 +180,7 @@ namespace Infrastructure.Repository.Query
                 var query = "select t1.MemoID,t3.Name as IssueDepartment,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 " +
                     "JOIN MemoUser t2 ON t1.MemoID=t2.MemoID " +
                     "LEFT JOIN Department t3 ON t3.DepartmentID=t1.IssueDepartmentID " +
-                    "where t1.StartDate >= dateadd(month, -6, getdate()) AND t1.StatusCodeId=2730 AND " +
+                    "where  t1.EndDate >= CONVERT(date, GETDATE()) AND t1.StatusCodeId=2730 AND " +
                     "t2.UserID=@UserID and (t2.IsAcknowledgement =0 or t2.IsAcknowledgement is null) order by t1.AddedDate desc; \r\n";
 
                 using (var connection = CreateConnection())
@@ -305,21 +305,22 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ModifiedByUserID", memo.ModifiedByUserId);
                         parameters.Add("AddedDate", memo.AddedDate, DbType.DateTime);
                         parameters.Add("StartDate", memo.StartDate, DbType.DateTime);
+                        parameters.Add("EndDate", memo.EndDate, DbType.DateTime);
                         parameters.Add("ModifiedDate", memo.ModifiedDate, DbType.DateTime);
                         parameters.Add("StatusCodeID", memo.StatusCodeId);
                         parameters.Add("IssueDepartmentId", memo.IssueDepartmentId);
                         if (memo.MemoId > 0)
                         {
-                            var query = " UPDATE Memo SET IssueDepartmentId=@IssueDepartmentId,StartDate=@StartDate,Subject=@Subject,MemoContent = @MemoContent,IsAttachment =@IsAttachment," +
+                            var query = " UPDATE Memo SET IssueDepartmentId=@IssueDepartmentId,StartDate=@StartDate,EndDate=@EndDate,Subject=@Subject,MemoContent = @MemoContent,IsAttachment =@IsAttachment," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID " +
                                 "WHERE MemoId = @MemoId";
                             await connection.ExecuteAsync(query, parameters);
                         }
                         else
                         {
-                            var query = "INSERT INTO Memo(IssueDepartmentId,StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
+                            var query = "INSERT INTO Memo(IssueDepartmentId,StartDate,EndDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
                                 "OUTPUT INSERTED.MemoId VALUES " +
-                                "(@IssueDepartmentId,@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+                                "(@IssueDepartmentId,@StartDate,@EndDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
                             memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         var query1 = string.Empty;

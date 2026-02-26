@@ -295,7 +295,7 @@
                             <i class="fa fa-sticky-note"></i>
                             <p>Memo <span>@_memoNotificationCount</span></p>
                         </div>
-                        <div class="list-item1" @onclick="() => GoWorkFlow()">
+                  @*       <div class="list-item1" @onclick="() => GoWorkFlow()">
                             <i class="fa fa-sitemap"></i>
                             <p>WorkFlow <span>@_WorkflowNotificationCount</span></p>
                         </div>
@@ -314,7 +314,7 @@
                         <div class="list-item1" @onclick="() => GoAppointments()">
                             <i class="fa fa-calendar-check"></i>
                             <p>Invitation <span>@_InvitationCount / @_UserCreatedAppointmentCount</span></p>
-                        </div>
+                        </div> *@
 
                     </div>
                 </div>
@@ -414,7 +414,7 @@
             _InvitationCount = await Mediator.Send(new GetInvitationCout(applicationUser.UserID));
             _UserCreatedAppointmentCount = await Mediator.Send(new GetUserCreatedSchedulerCout(applicationUser.UserID));
 
-            _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
+            _NotificationCount = _memoNotificationCount;// + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
         }
 
         string message = $"You have {_emailNotificationCount} new email notifications.";
@@ -448,7 +448,7 @@
     }
     private async Task GoMemo()
     {
-        NavigationManager.NavigateTo($"Dashboard/5");
+        NavigationManager.NavigateTo($"Dashboard/0");
         await InvokeAsync(StateHasChanged);
         IsNotificationCount = false;
     }
@@ -488,7 +488,7 @@
 
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
-        _NotificationCount = _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
+        _NotificationCount = _memoNotificationCount; //+ _WorkflowNotificationCount + _approvelNotificationCount + _appointmentsCount + _InvitationCount + _SectionapprovelNotificationCount;
 
         await InvokeAsync(StateHasChanged);
     }

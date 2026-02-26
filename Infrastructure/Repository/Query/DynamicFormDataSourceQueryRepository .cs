@@ -194,6 +194,31 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetAllNavMethodCodeDataSource(CompanyId, plantCode, plantIds);
                 }
+                if (dataSourceTableIds.Contains("NAVMiscItem"))
+                {
+                    i++;
+                    query += GetNAVMiscItemDataSource();
+                }
+                if (dataSourceTableIds.Contains("NAVRawMatWithQC2026"))
+                {
+                    i++;
+                    query += GetNAVRawMatWithQC2026DataSource();
+                }
+                if (dataSourceTableIds.Contains("NAVPKGMatWithQC2026"))
+                {
+                    i++;
+                    query += GetNAVPKGMatWithQC2026DataSource();
+                }
+                if (dataSourceTableIds.Contains("SyncDeviationTracking"))
+                {
+                    i++;
+                    query += GetSyncDeviationTrackingDataSource();
+                }
+                if (dataSourceTableIds.Contains("SyncAssetIDwithModel"))
+                {
+                    i++;
+                    query += GetSyncAssetIDwithModel();
+                }
                 if (!string.IsNullOrEmpty(query))
                 {
                     if (!string.IsNullOrEmpty(query))
@@ -321,6 +346,128 @@ namespace Infrastructure.Repository.Query
 			                            from  [SW_Int_LIVE].[dbo].[NAVItemEntryWithRemView]
 		                            ) d
 	                            )T1;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetNAVMiscItemDataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @"  SELECT ROW_NUMBER() over(order by No_) as AttributeDetailID
+		                    ,[No_] as AttributeDetailName
+	                      ,[No_] as AttributeDetailNameId
+	                      ,'NAVMiscItem' as DropDownTypeId
+                          ,[Description]
+                          ,[Description 2] as Description2
+                          ,[Item Category Code] as ItemCategoryCode
+                          ,[Internal Ref_] as InternalRef
+                          ,[Base Unit Of Measure] as UnitOfMeasureCode
+                        FROM [SW_Int_LIVE].[dbo].[NAVMiscItem]
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetNAVRawMatWithQC2026DataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" SELECT	distinct
+		                    DENSE_RANK() over (order by [QC Ref_ No_] ) as AttributeDetailID
+		                    ,CONCAT('RMWQC_',  DENSE_RANK() over (order by [QC Ref_ No_] ) )as AttributeDetailNameId
+		                    ,[Item No_] as AttributeDetailName
+		                    ,'NAVRawMatWithQC2026' as DropDownTypeId
+		                    ,[Description]
+		                    ,[Description 2] as Description2
+		                    ,[Batch No_] as BatchNo
+		                    ,[QC Ref_ No_] as QcRefNo
+ 
+                            FROM [SW_Int_LIVE].[dbo].[NAVRawMatWithQC2026]
+                            ORDER BY [QC Ref_ No_]
+
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetNAVPKGMatWithQC2026DataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" SELECT	distinct
+		                    DENSE_RANK() over (order by [QC Ref_ No_] ) as AttributeDetailID
+		                    ,CONCAT('PMWQC_',  DENSE_RANK() over (order by [QC Ref_ No_] ) )as AttributeDetailNameId
+		                    ,[Item No_] as AttributeDetailName
+		                    ,'NAVPKGMatWithQC2026' as DropDownTypeId
+		                    ,[Description]
+		                    ,[Description 2] as Description2
+		                    ,[Batch No_] as BatchNo
+		                    ,[QC Ref_ No_] as QcRefNo
+ 
+                            FROM [SW_Int_LIVE].[dbo].[NAVPkgMatWithQC2026]
+                            ORDER BY [QC Ref_ No_]
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetSyncDeviationTrackingDataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" SELECT distinct
+                      [ProfileNo] as AttributeDetailName
+	                  ,[ProfileNo] as AttributeDetailNameId
+                      ,DevDesc as Description
+                      ,'SyncDeviationTracking' AS DropDownTypeId
+	                  , case when SubNo is not null and SubNo !='' then concat([RefNo],'(',SubNo,')')
+		                else RefNo end as DeviationNo
+                      ,[InitiatorDeviationDescription]
+                      ,[DynamicFormDataId] as AttributeDetailID
+                  FROM [SW_Int_LIVE].[dbo].[tblSummaryOfDeviation]
+
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetSyncAssetIDwithModel()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" SELECT [dynamicFormDataId] as AttributeDetailID
+                            ,[profileNo]as AttributeDetailName
+                            ,[AssetType]
+                            ,[AssetGrouping]
+                            ,[Description]
+                            ,[SWID]
+                            ,[Location]
+	                        ,'SyncAssetIDwithModel' as DropDownTypeId
+                            FROM [SW_Int_LIVE].[dbo].[tblSyncAssetIDwithModel]
+
+
+                      ;";
                 return query;
             }
             catch (Exception exp)

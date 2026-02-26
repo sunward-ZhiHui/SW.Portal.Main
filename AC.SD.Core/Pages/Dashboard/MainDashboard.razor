@@ -23,6 +23,11 @@
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
             <div>
+                <DxFormLayoutTabPage Caption="Memo" Click="OnMemoClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <MemoUserLists @ref="refMemoLists"></MemoUserLists>
+                    </div>
+                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Scheduler" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <Dashboard></Dashboard>
@@ -49,11 +54,7 @@
                         <DynamicFormSectionApprovedPage @ref="refDynamicFormWorkFlowSectionApprovals"></DynamicFormSectionApprovedPage>
                     </div>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Memo" Click="OnMemoClick">
-                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
-                        <MemoUserLists @ref="refMemoLists"></MemoUserLists>
-                    </div>
-                </DxFormLayoutTabPage>
+               
             </div>
         </DxFormLayoutTabPages>
     </DxFormLayout>
@@ -107,42 +108,42 @@
     }    
     void OnTabClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/0");
+        NavigationManager.NavigateTo($"Dashboard/1");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnDynamicFormApprovalClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/2");
+        NavigationManager.NavigateTo($"Dashboard/3");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnAppoinmentClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/1");
+        NavigationManager.NavigateTo($"Dashboard/2");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnApprovedStatusClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/3");
+        NavigationManager.NavigateTo($"Dashboard/4");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnDynamicFormSectionApprovalClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/4");
+        NavigationManager.NavigateTo($"Dashboard/5");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();
     }
     void OnMemoClick(TabClickEventArgs e)
     {
-        NavigationManager.NavigateTo($"Dashboard/5");
+        NavigationManager.NavigateTo($"Dashboard/0");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         StateHasChanged();

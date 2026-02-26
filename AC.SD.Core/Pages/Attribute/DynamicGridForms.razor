@@ -6959,7 +6959,43 @@
                             layoutItemBuilders.AddAttribute(3, "Caption", "Sub Section");
                             layoutItemBuilders.CloseComponent();
                         }
+                            if (s.DataSourceTable == "NAVMiscItem")
+                        {
 
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                            layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                            layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                            layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                            layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                        {
+
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                            layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                            layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                            layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                            layoutItemBuilders.CloseComponent();
+                                    
+                        }
                     }));
                             editor.CloseComponent();
                             if (s.IsDefaultReadOnly == false)
@@ -7373,7 +7409,43 @@
                                layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                                layoutItemBuilders.CloseComponent();
                            }
+                           if (s.DataSourceTable == "NAVMiscItem")
+                            {
 
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                                layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                                layoutItemBuilders.CloseComponent();
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                                layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                                layoutItemBuilders.CloseComponent();
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                                layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                                layoutItemBuilders.CloseComponent();
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                                layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                                layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                                layoutItemBuilders.CloseComponent();
+                            }
+                            if (s.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                            {
+
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                                layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                                layoutItemBuilders.CloseComponent();
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                                layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                                layoutItemBuilders.CloseComponent();
+                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                                layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                                layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                                layoutItemBuilders.CloseComponent();
+                                    
+                            }
                        }));
                             if (s.IsDefaultReadOnly == false)
                             {
@@ -7670,6 +7742,43 @@
                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                    layoutItemBuilders.CloseComponent();
                }
+                if (s.DataSourceTable == "NAVMiscItem")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (s.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                    layoutItemBuilders.CloseComponent();
+                                    
+                }
            }));
                         editor.CloseComponent();
                         if (s.IsDefaultReadOnly == false)
@@ -8026,6 +8135,43 @@
                    layoutItemBuilders1.AddAttribute(10, "Caption", "Company");
                    layoutItemBuilders1.CloseComponent();
                }
+                if (ff.DataSourceTable == "NAVMiscItem")
+                {
+
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders1.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders1.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders1.CloseComponent();
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders1.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                    layoutItemBuilders1.AddAttribute(2, "Caption", "ItemCategoryCode");
+                    layoutItemBuilders1.CloseComponent();
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders1.AddAttribute(3, "FieldName", "InternalRef");
+                    layoutItemBuilders1.AddAttribute(3, "Caption", "Internal Ref");
+                    layoutItemBuilders1.CloseComponent();
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(3);
+                    layoutItemBuilders1.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                    layoutItemBuilders1.AddAttribute(3, "Caption", "UOM");
+                    layoutItemBuilders1.CloseComponent();
+                }
+                if (ff.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                {
+
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders1.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders1.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders1.CloseComponent();
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders1.AddAttribute(2, "FieldName", "BatchNo");
+                    layoutItemBuilders1.AddAttribute(2, "Caption", "BatchNo");
+                    layoutItemBuilders1.CloseComponent();
+                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders1.AddAttribute(3, "FieldName", "QcRefNo");
+                    layoutItemBuilders1.AddAttribute(3, "Caption", "QCRefNo");
+                    layoutItemBuilders1.CloseComponent();
+                                    
+                }
            }));
                if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
                {
@@ -8907,6 +9053,43 @@
                        layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                        layoutItemBuilders.CloseComponent();
                    }
+                     if (q.DataSourceTable == "NAVMiscItem")
+                    {
+
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                        layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                        layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                    {
+
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                        layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                        layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                        layoutItemBuilders.CloseComponent();
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                        layoutItemBuilders.CloseComponent();
+                                    
+                    }
                }));
                            if (q.IsRequired == true)
                            {
@@ -9299,6 +9482,43 @@
                    layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                    layoutItemBuilders.CloseComponent();
                }
+                 if (q.DataSourceTable == "NAVMiscItem")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "NAVPKGMatWithQC2026" || s.DataSourceTable == "NAVRawMatWithQC2026")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                    layoutItemBuilders.CloseComponent();
+                                    
+                }
            }));
                            if (q.IsRequired == true)
                            {
@@ -9575,6 +9795,43 @@
                            layoutItemBuilders.AddAttribute(10, "Caption", "Company");
                            layoutItemBuilders.CloseComponent();
                        }
+                         if (q.DataSourceTable == "NAVMiscItem")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "ItemCategoryCode");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "ItemCategoryCode");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "InternalRef");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Internal Ref");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(3);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "UnitOfMeasureCode");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "UOM");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (q.DataSourceTable == "NAVPKGMatWithQC2026" || q.DataSourceTable == "NAVRawMatWithQC2026")
+                {
+
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description2");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "Description2");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(2, "FieldName", "BatchNo");
+                    layoutItemBuilders.AddAttribute(2, "Caption", "BatchNo");
+                    layoutItemBuilders.CloseComponent();
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "QcRefNo");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "QCRefNo");
+                    layoutItemBuilders.CloseComponent();
+                                    
+                }
                    }));
                        if (q.IsRequired == true)
                        {

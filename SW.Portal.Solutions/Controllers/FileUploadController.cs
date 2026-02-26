@@ -96,9 +96,13 @@ namespace SW.Portal.Solutions.Controllers
                         ContentType = file.ContentType,
                         FileSize = file.Length,
                         SourceFrom = SourceFrom,
-                        SwProfileTypeId = FileProfileId,
                         FilePath = finalFilePath.Replace(_hostingEnvironment.ContentRootPath + "\\AppUpload\\", "")
                     };
+
+                    if (FileProfileId.HasValue && FileProfileId.Value > 0)
+                    {
+                        document.SwProfileTypeId = FileProfileId;
+                    }
 
                     var response = await _documentsqueryrepository.InsertCreateDocumentBySession(document);
                     documentIds.Add(response.DocumentId);
@@ -154,9 +158,13 @@ namespace SW.Portal.Solutions.Controllers
                         ContentType = file.ContentType,
                         FileSize = file.Length,
                         SourceFrom = SourceFrom,
-                        SwProfileTypeId = FileProfileId,
                         FilePath = finalFilePath.Replace(_hostingEnvironment.ContentRootPath + "\\AppUpload\\", "")
                     };
+
+                    if (FileProfileId.HasValue && FileProfileId.Value > 0)
+                    {
+                        document.SwProfileTypeId = FileProfileId;
+                    }
 
                     var response = await _documentsqueryrepository.InsertCreateDocumentBySession(document);
                     documentIds.Add(response.DocumentId);
@@ -254,8 +262,12 @@ namespace SW.Portal.Solutions.Controllers
                         documents.ContentType = ext.ToLower() == "msg" ? "application/octet-stream" : metaDataObject.FileType;
                         documents.FileSize = metaDataObject.FileSize;
                         documents.SourceFrom = SourceFrom;
-                        documents.SwProfileTypeId = FileProfileId;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+
+                        if (FileProfileId.HasValue && FileProfileId.Value > 0)
+                        {
+                            documents.SwProfileTypeId = FileProfileId;
+                        }
 
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                         documentId = response.DocumentId;
@@ -549,35 +561,35 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<long>();
 
 
-          
-
-                var documentNoSeriesModel = new DocumentNoSeriesModel
-                {
-                    AddedByUserID = value.UserID,
-                    StatusCodeID = 710,
-                    ProfileID = value.ProfileId,
-                    PlantID = value.PlantId,
-                    DepartmentId = value.DepartmentId,
-                    SectionId = value.SectionId,
-                    SubSectionId = value.SubSectionId,
-                    DivisionId = value.DivisionId,
 
 
-                };
-                var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-                var result = await _documentsqueryrepository.UpdateDocument(value.SessionId, profileNo,value.FileProfileTypeId, value.UserID);
-                try
-                {
-                    response.ResponseCode = Services.ResponseCode.Success;
-                   
-                    response.Result = result;
-                }
-                catch (Exception ex)
-                {
-                    response.ResponseCode = Services.ResponseCode.Failure;
-                    response.ErrorMessages.Add(ex.Message);
-                }
-            
+            var documentNoSeriesModel = new DocumentNoSeriesModel
+            {
+                AddedByUserID = value.UserID,
+                StatusCodeID = 710,
+                ProfileID = value.ProfileId,
+                PlantID = value.PlantId,
+                DepartmentId = value.DepartmentId,
+                SectionId = value.SectionId,
+                SubSectionId = value.SubSectionId,
+                DivisionId = value.DivisionId,
+
+
+            };
+            var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+            var result = await _documentsqueryrepository.UpdateDocument(value.SessionId, profileNo, value.FileProfileTypeId, value.UserID);
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
 
             return Ok(response);
         }
@@ -586,7 +598,7 @@ namespace SW.Portal.Solutions.Controllers
 
         public async Task<ResponseModel> MobileFileProfileType([FromForm] Models.FileProfileTypeModel value)
         {
-         
+
             ResponseModel response = new ResponseModel();
             try
             {
@@ -615,10 +627,10 @@ namespace SW.Portal.Solutions.Controllers
                 }
 
                 var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
-                if(FileProfileSessionID != null)
+                if (FileProfileSessionID != null)
                 {
-                     FileSessionID = FileProfileSessionID.SessionID;
-                    
+                    FileSessionID = FileProfileSessionID.SessionID;
+
                 }
                 Guid? FileNameSessionID = Guid.NewGuid();
                 if (FileSessionID != null)
@@ -659,7 +671,7 @@ namespace SW.Portal.Solutions.Controllers
                     SectionId = value.SectionId,
                     SubSectionId = value.SubSectionId,
                     DivisionId = value.DivisionId,
-                    
+
 
                 };
                 var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
@@ -673,11 +685,11 @@ namespace SW.Portal.Solutions.Controllers
                 documents.FileName = file.FileName;
                 documents.ContentType = contentType;
                 documents.FileSize = fileSize;
-                if(value.FileProfileTypeId != 0)
+                if (value.FileProfileTypeId != 0)
                 {
                     documents.FilterProfileTypeId = value.FileProfileTypeId;
                 }
-              
+
                 documents.SourceFrom = "FileProfile";
                 documents.ProfileNo = profileNo;
                 documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
@@ -846,11 +858,11 @@ namespace SW.Portal.Solutions.Controllers
                     documents.FileSize = fileSize;
                     documents.SourceFrom = SourceFrom;
                     documents.ProfileNo = profileNo;
-                    if(value.FileProfileTypeId != 0)
+                    if (value.FileProfileTypeId != 0)
                     {
                         documents.FilterProfileTypeId = value.FileProfileTypeId;
                     }
-                   
+
                     documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                     var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                     System.GC.Collect();
@@ -968,8 +980,8 @@ namespace SW.Portal.Solutions.Controllers
                 //   var fileName = FileNameSessionID.ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
                 var fileName = file.FileName;
                 var ext = fileName.Split(".").Last();
-               
-                var filePath = Path.Combine(serverPaths, value.SessionId.ToString()+"."+ ext);
+
+                var filePath = Path.Combine(serverPaths, value.SessionId.ToString() + "." + ext);
 
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -1030,7 +1042,7 @@ namespace SW.Portal.Solutions.Controllers
                 mode.Type = "IpirApp";
                 mode.DocumentId = responsesss.DocumentId;
                 var supporting = await _documentsqueryrepository.InsertIPIRSupportingDocumentLink(mode);
-                
+
                 return response;
             }
             catch (Exception ex)
@@ -1128,7 +1140,7 @@ namespace SW.Portal.Solutions.Controllers
                     documents.FileSize = fileSize;
                     documents.SourceFrom = SourceFrom;
                     documents.ProfileNo = profileNo;
-                    
+
                     if (value.FileProfileTypeId != 0)
                     {
                         documents.FilterProfileTypeId = value.FileProfileTypeId;

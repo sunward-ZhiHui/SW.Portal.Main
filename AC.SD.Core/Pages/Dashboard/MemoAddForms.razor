@@ -148,6 +148,9 @@
                         <DxDateEdit @bind-Date="@Data.StartDate" />
                         <ValidationMessage For="@(() => Data.StartDate)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="End Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@Data.EndDate" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Memo Status" ColSpanMd="6">
                         <DxComboBox Data="@_memoStatusList"
                                     NullText="Select Memo Status..."
@@ -225,6 +228,7 @@
             Data.MemoId = MemoData.MemoId;
             Data.Subject = MemoData.Subject;
             Data.StartDate = MemoData.StartDate;
+            Data.EndDate = MemoData.EndDate;
             Data.IsAttachment = MemoData.IsAttachment;
             Data.AddedDate = MemoData.AddedDate;
             Data.SessionId = MemoData.SessionId;
@@ -280,6 +284,7 @@
         Data.Subject = null; Data.IssueDepartmentId = null;
         Data.MemoContent = string.Empty;
         Data.StartDate = null;
+        Data.EndDate = null;
         Data.IsAttachment = false;
         Data.AddedDate = DateTime.Now;
         Data.SessionId = Guid.NewGuid();
@@ -333,6 +338,7 @@
                 Subject = editModel.Subject,
                 MemoContent = editModel.MemoContent,
                 StartDate = editModel.StartDate,
+                EndDate = editModel.EndDate,
                 IsAttachment = editModel.IsAttachment,
                 AddedDate = DateTime.Now,
                 SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,

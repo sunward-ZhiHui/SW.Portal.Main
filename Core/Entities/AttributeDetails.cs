@@ -68,12 +68,19 @@ namespace Core.Entities
         public string? VersionNo { get; set; }
         public string? DefaultBatchSize { get; set; }
         public string? BatchUnitSize { get; set; }
+        public string? ItemCategoryCode { get; set; }
+        public string? InternalRef { get; set; }
         public string? AvailableBatchSize { get; set; }
         public string? Section { get; set; }
         public string? Subsection { get; set; }
         public string? Designation { get; set; }
         public string? EmpStatus { get; set; }
-
+        public string? DeviationNo { get; set; }
+        public string? InitiatorDeviationDescription { get; set; }
+        public string? AssetType { get; set; }
+        public string? AssetGrouping { get; set; }
+        public string? SWID { get; set; }
+        public string? Location { get; set; }
 
     }
     public class DataSourceAttributeDetails

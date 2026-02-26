@@ -552,7 +552,7 @@ namespace Infrastructure.Repository.Query
                     }
                     catch (Exception exp)
                     {
-                        throw new Exception(exp.Message, exp); 
+                        throw new Exception(exp.Message, exp);
                     }
                 }
 
@@ -2220,7 +2220,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("AddedDate", EmailTopics.AddedDate);
                         parameterss.Add("StatusCodeID", EmailTopics.StatusCodeID);
                         parameterss.Add("SessionId", EmailTopics.SessionId);
-                        parameterss.Add("FileData", EmailTopics.FileData);                        
+                        parameterss.Add("FileData", EmailTopics.FileData);
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
@@ -2587,7 +2587,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
-              
+
 
                 var query = @"select * from EmailNotifyPA WHERE SessionID = @sessionId";
                 using (var connection = CreateConnection())
@@ -3779,7 +3779,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionID", sessionId, DbType.Guid);
 
-                var query = @"select * from Documents where SessionID = @SessionID";
+                var query = @"select * from Documents where SessionID = @SessionID and IsLatest = 1";
 
                 using (var connection = CreateConnection())
                 {
@@ -3948,7 +3948,8 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
-            };
+            }
+            ;
         }
         /// <summary>
         /// Retrieves a user tag record (in lower case) from the <c>EmailTopicUserTags</c> table
@@ -4039,7 +4040,7 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async  Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync(long UserId)
+        public async Task<IReadOnlyList<EmailTopics>> GetAllEmailTopicsAsync(long UserId)
         {
             try
             {
@@ -4053,7 +4054,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailTopics>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<EmailTopics>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -4075,7 +4076,7 @@ namespace Infrastructure.Repository.Query
         /// Thrown when an error occurs while creating the database connection or executing the query.
         /// The original exception is included as the inner exception.
         /// </exception>
-        public async  Task<List<EmailTopics>> GetByCopyEmailList(long ID)
+        public async Task<List<EmailTopics>> GetByCopyEmailList(long ID)
         {
             try
             {
@@ -4088,7 +4089,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailTopics>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<EmailTopics>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -4109,7 +4110,7 @@ namespace Infrastructure.Repository.Query
         /// Thrown when an error occurs while creating the database connection or executing the query.
         /// The original exception is included as the inner exception.
         /// </exception>
-        public async  Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID)
+        public async Task<IReadOnlyList<EmailCopyLink>> GetConversationList(long ConversationID)
         {
             try
             {
@@ -4123,8 +4124,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return(await connection.QueryAsync<EmailCopyLink>(query, parameters)).ToList();
-                  
+                    return (await connection.QueryAsync<EmailCopyLink>(query, parameters)).ToList();
+
 
                 }
             }
@@ -4148,7 +4149,7 @@ namespace Infrastructure.Repository.Query
         /// Thrown when an error occurs while creating the database connection or executing the insert command.
         /// The original exception is included as the inner exception.
         /// </exception>
-        public async  Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory)
+        public async Task<long> InsertTransferHistory(TransferEmailHistory transferEmailHistory)
         {
             try
             {
@@ -4158,7 +4159,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("FromId", transferEmailHistory.FromId);
-                        parameters.Add("ToId", transferEmailHistory. ToId);
+                        parameters.Add("ToId", transferEmailHistory.ToId);
                         parameters.Add("TopicID", transferEmailHistory.TopicID);
                         parameters.Add("ConversationID", transferEmailHistory.ConversationID);
                         parameters.Add("ReplyId", transferEmailHistory.ReplyId);
@@ -4201,7 +4202,7 @@ namespace Infrastructure.Repository.Query
         /// Thrown when an error occurs while creating the database connection or executing the query.
         /// The original exception is included as the inner exception.
         /// </exception>
-        public async  Task<IReadOnlyList<TransferEmailHistory>> GetEmailHistoryList(long ID)
+        public async Task<IReadOnlyList<TransferEmailHistory>> GetEmailHistoryList(long ID)
         {
             try
             {

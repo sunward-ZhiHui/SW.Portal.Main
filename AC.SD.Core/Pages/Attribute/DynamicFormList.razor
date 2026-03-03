@@ -1778,6 +1778,11 @@
                 _dynamicformObjectDataLists.Add(objectData);
             });
         }
+        foreach (var data in _dynamicformObjectDataLists)
+        {
+            var json = JsonConvert.SerializeObject(data,Formatting.Indented);
+            Console.WriteLine(json);
+        }
         return _dynamicformObjectDataLists;
     }
     void loadSubHeaders(List<AttributeHeader>? SubAttrsHeader, DynamicFormSectionAttribute dynamicFormSectionAttribute, dynamic jsonObjs, IDictionary<string, object> objectData, AttributeHeaderListModel attributeHeaderListModels)

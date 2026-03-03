@@ -7225,7 +7225,7 @@
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                                     layoutItemBuilders.CloseComponent();
-                                    if (s.DataSourceTable != "SOP" && s.DataSourceTable != "PackagingMaterialInProd" && s.DataSourceTable != "Designation1" && s.DataSourceTable != "SyncDeviationTracking"&& s.DataSourceTable != "SyncAssetIDwithModel")
+                                    if (s.DataSourceTable != "SOP" && s.DataSourceTable != "PackagingMaterialInProd" && s.DataSourceTable != "Designation1" && s.DataSourceTable != "SyncDeviationTracking" && s.DataSourceTable != "SyncAssetIDwithModel" && s.DataSourceTable != "NAVInProgressProdOrderView")
                                     {
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -7441,7 +7441,7 @@
                                     {
 
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                        layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                                        layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                                         layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                                         layoutItemBuilders.CloseComponent();
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -7537,6 +7537,14 @@
                                         layoutItemBuilders.AddAttribute(2, "Caption", "Location");
                                         layoutItemBuilders.CloseComponent();
                                     
+                                    }
+                                    if (s.DataSourceTable == "NAVItemBatchInfoView" )
+                                    {
+                                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                        layoutItemBuilders.AddAttribute(1, "FieldName", "ItemNo");
+                                        layoutItemBuilders.AddAttribute(1, "Caption", "ItemNo");
+                                        layoutItemBuilders.CloseComponent();
+                                     
                                     }
 
                                 }));
@@ -7790,7 +7798,7 @@
                                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                                     layoutItemBuilders.CloseComponent();
-                                    if (s.DataSourceTable != "SOP" && s.DataSourceTable != "SyncAssetIDwithModel" )
+                                    if (s.DataSourceTable != "SOP" && s.DataSourceTable != "PackagingMaterialInProd" && s.DataSourceTable != "Designation1" && s.DataSourceTable != "SyncDeviationTracking"&& s.DataSourceTable != "SyncAssetIDwithModel" )
                                     {
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                         layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -8005,7 +8013,7 @@
                                     {
 
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                        layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                                        layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                                         layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                                         layoutItemBuilders.CloseComponent();
                                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -8262,7 +8270,7 @@
                             layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                             layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                             layoutItemBuilders.CloseComponent();
-                            if (s.DataSourceTable != "SOP" && s.DataSourceTable != "SyncAssetIDwithModel")
+                            if (s.DataSourceTable != "SOP" && s.DataSourceTable != "PackagingMaterialInProd" && s.DataSourceTable != "Designation1" && s.DataSourceTable != "SyncDeviationTracking"&& s.DataSourceTable != "SyncAssetIDwithModel")
                             {
                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                 layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -8477,7 +8485,7 @@
                             {
 
                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                                layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                                 layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                                 layoutItemBuilders.CloseComponent();
                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -8770,7 +8778,7 @@
                                 layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
                                 layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
                                 layoutItemBuilders1.CloseComponent();
-                                if (ff.DataSourceTable != "SOP" && ff.DataSourceTable != "SyncAssetIDwithModel")
+                                if (ff.DataSourceTable != "SOP"&& ff.DataSourceTable != "PackagingMaterialInProd" && ff.DataSourceTable != "Designation1" && ff.DataSourceTable != "SyncDeviationTracking"&& ff.DataSourceTable != "SyncAssetIDwithModel" && ff.DataSourceTable != "NAVInProgressProdOrderView")
                                 {
                                     layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                                     layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
@@ -8985,7 +8993,7 @@
                                 {
 
                                     layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
-                                    layoutItemBuilders1.AddAttribute(1, "FieldName", "Department");
+                                    layoutItemBuilders1.AddAttribute(1, "FieldName", "DepartmentName");
                                     layoutItemBuilders1.AddAttribute(1, "Caption", "Department");
                                     layoutItemBuilders1.CloseComponent();
                                     layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
@@ -9814,7 +9822,7 @@
                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                     layoutItemBuilders.CloseComponent();
-                    if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel")
+                    if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel" && q.DataSourceTable != "NAVInProgressProdOrderView")
                     {
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -10029,7 +10037,7 @@
                     {
 
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                        layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                         layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -10569,7 +10577,7 @@
                     {
 
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                        layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                         layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -10778,7 +10786,7 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel")
+                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel" && q.DataSourceTable != "NAVInProgressProdOrderView")
                 {
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -10993,7 +11001,7 @@
                         {
 
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                             layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -13691,7 +13699,7 @@
                         {
 
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders1.AddAttribute(1, "FieldName", "Department");
+                            layoutItemBuilders1.AddAttribute(1, "FieldName", "DepartmentName");
                             layoutItemBuilders1.AddAttribute(1, "Caption", "Department");
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
@@ -13786,6 +13794,13 @@
                             layoutItemBuilders1.CloseComponent();
                                     
                         }
+                        if (s.DataSourceTable == "SyncAssetIDwithModel" )
+                        {
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders1.AddAttribute(1, "FieldName", "ItemNo");
+                            layoutItemBuilders1.AddAttribute(1, "Caption", "ItemNo");
+                            layoutItemBuilders1.CloseComponent(); 
+                        }
                     }));
                     if (q.IsRequired == true)
                     {
@@ -13850,10 +13865,13 @@
                         layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
                         layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
                         layoutItemBuilders1.CloseComponent();
+                        if (q.DataSourceTable != "NAVInProgressProdOrderView")
+                        {
                         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
                         layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
                         layoutItemBuilders1.CloseComponent();
+                        }
                         if (q.DropDownTypeId == "Data Source")
                         {
                             if (q.DataSourceTable == "NavMethodCode" || q.DataSourceTable == "SOP" || q.DataSourceTable == "AllProdOrderLine" || q.DataSourceTable == "ReleaseProdOrderLine" || q.DataSourceTable == "RawMatPurch" 
@@ -14044,7 +14062,7 @@
                         {
 
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders1.AddAttribute(1, "FieldName", "Department");
+                            layoutItemBuilders1.AddAttribute(1, "FieldName", "DepartmentName");
                             layoutItemBuilders1.AddAttribute(1, "Caption", "Department");
                             layoutItemBuilders1.CloseComponent();
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
@@ -14138,6 +14156,13 @@
                             layoutItemBuilders1.AddAttribute(2, "Caption", "Location");
                             layoutItemBuilders1.CloseComponent();
                                     
+                        }
+                        if (q.DataSourceTable == "SyncAssetIDwithModel" )
+                        {
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders1.AddAttribute(1, "FieldName", "ItemNo");
+                            layoutItemBuilders1.AddAttribute(1, "Caption", "ItemNo");
+                            layoutItemBuilders1.CloseComponent();
                         }
                     }));
                     if (q.IsRequired == true)
@@ -14413,7 +14438,7 @@
                         {
 
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                             layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -14505,6 +14530,14 @@
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
                             layoutItemBuilders.AddAttribute(2, "FieldName", "Location");
                             layoutItemBuilders.AddAttribute(2, "Caption", "Location");
+                            layoutItemBuilders.CloseComponent();
+                                    
+                        }
+                        if (q.DataSourceTable == "SyncAssetIDwithModel" )
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "ItemNo");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "ItemNo");
                             layoutItemBuilders.CloseComponent();
                                     
                         }
@@ -15249,6 +15282,10 @@
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                             }
+                            else if (q.DataSourceTable == "SyncAssetIDwithModel" )
+                            {
+                                editor1.AddAttribute(m + 1, "EditFormat", "{4}");
+                            }
                             else
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
@@ -15277,7 +15314,7 @@
                     layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                     layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                     layoutItemBuilders.CloseComponent();
-                    if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel")
+                    if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel"&& q.DataSourceTable != "NAVInProgressProdOrderView")
                     {
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -15492,7 +15529,7 @@
                     {
 
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                        layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                         layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                         layoutItemBuilders.CloseComponent();
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -15586,6 +15623,13 @@
                         layoutItemBuilders.AddAttribute(2, "Caption", "Location");
                         layoutItemBuilders.CloseComponent();
                                     
+                    }
+                    if (q.DataSourceTable == "NAVItemBatchInfoView" )
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders.AddAttribute(1, "FieldName", "ItemNo");
+                        layoutItemBuilders.AddAttribute(1, "Caption", "ItemNo");
+                        layoutItemBuilders.CloseComponent();
                     }
                 }));
                             if (q.IsRequired == true)
@@ -15776,6 +15820,10 @@
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{4}|{5}");
                             }
+                            else if (q.DataSourceTable == "SyncAssetIDwithModel" )
+                            {
+                                editor1.AddAttribute(m + 1, "EditFormat", "{4}|{2}");
+                            }
                             else
                             {
                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
@@ -15804,7 +15852,7 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel")
+                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel"&& q.DataSourceTable != "NAVInProgressProdOrderView")
                 {
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -16019,7 +16067,7 @@
                         {
 
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                             layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                             layoutItemBuilders.CloseComponent();
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -16111,6 +16159,14 @@
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
                             layoutItemBuilders.AddAttribute(2, "FieldName", "Location");
                             layoutItemBuilders.AddAttribute(2, "Caption", "Location");
+                            layoutItemBuilders.CloseComponent();
+                                    
+                        }
+                        if (q.DataSourceTable == "NAVItemBatchInfoView" )
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "ItemNo");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "ItemNo");
                             layoutItemBuilders.CloseComponent();
                                     
                         }
@@ -16206,7 +16262,7 @@
                 layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
                 layoutItemBuilders.AddAttribute(0, "Caption", "Name");
                 layoutItemBuilders.CloseComponent();
-                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel")
+                if (q.DataSourceTable != "SOP" && q.DataSourceTable != "SyncAssetIDwithModel" && q.DataSourceTable != "NAVInProgressProdOrderView")
                 {
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                     layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
@@ -16421,7 +16477,7 @@
                 {
 
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                    layoutItemBuilders.AddAttribute(1, "FieldName", "Department");
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "DepartmentName");
                     layoutItemBuilders.AddAttribute(1, "Caption", "Department");
                     layoutItemBuilders.CloseComponent();
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
@@ -16514,6 +16570,14 @@
                     layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
                     layoutItemBuilders.AddAttribute(2, "FieldName", "Location");
                     layoutItemBuilders.AddAttribute(2, "Caption", "Location");
+                    layoutItemBuilders.CloseComponent();
+                                    
+                }
+                if (s.DataSourceTable == "NAVItemBatchInfoView" )
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                    layoutItemBuilders.AddAttribute(1, "FieldName", "ItemNo");
+                    layoutItemBuilders.AddAttribute(1, "Caption", "ItemNo");
                     layoutItemBuilders.CloseComponent();
                                     
                 }

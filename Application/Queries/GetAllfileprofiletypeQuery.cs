@@ -565,5 +565,12 @@ namespace Application.Queries
             this.DocumentIds = documentIds;
         }
     }
+    public class DeleteDocumentPermanent : PagedRequest, IRequest<List<DocumentsModel>>    {
+        public DocumentsModel DocumentsModel { get; set; }
+        public DeleteDocumentPermanent(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
     
 }

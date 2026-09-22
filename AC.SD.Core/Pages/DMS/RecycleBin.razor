@@ -22,6 +22,7 @@
 
                 <Items>
                     <DxMenuItem Text="Restore" IconCssClass="fa fa-trash-restore" Click="onRestoreDocument" Enabled="@onRestoreEnabled"></DxMenuItem>
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Enabled="@onRestoreEnabled"></DxMenuItem>
                 </Items>
             </DxMenu>
 
@@ -30,11 +31,14 @@
 
     </div>
 </div>
+@{
+	var PanelText = PermanentdeleteDocument? "Deleting File...": "Fetching Data...";
+}
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data...">
+                Text="@PanelText">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="fileProfileTypeDocuments"
@@ -176,7 +180,7 @@
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@BlukdeleteDocument"
          ShowFooter="true"
-         HeaderText="Delete"
+         HeaderText="Restore"
          Closed="EulaPopupDocumentClosed"
          Width="300px">
     <BodyContentTemplate>
@@ -187,6 +191,37 @@
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnRestroeDocument" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PermanentdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        @{
+            var selectedItems = SelectedDataItems.OfType<DocumentsModel>().ToList() ;
+            if (selectedItems == null || selectedItems.Count == 0)
+            {
+                return;
+            }
+            var filesName = string.Join(", ", selectedItems.Select(c => c.FileName));
+        }
+        <div style="max-height:500px; overflow-y:auto;">
+        <p style="word-wrap: break-word; white-space: normal;">
+            Do you want to <b>PERMANENT DELETE </b> @selectedItems.Count() files below?
+        </p>
+        <ul>
+            @foreach(var item in selectedItems)
+            {
+                <li><b>@item.FileName</b></li>
+            }
+        </ul>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnPermanentDeleteDocument" />
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @ref="popup" HeaderText="Restore" ShowCloseButton="true" @bind-Visible="@PopupVisible">
@@ -213,6 +248,7 @@
     string? DeleteerrorMessage;
     bool PopupVisible { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
+    bool PermanentdeleteDocument { get; set; } = false;
     public string RestoreDocumentName { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     protected override async Task OnInitializedAsync()
@@ -301,11 +337,16 @@
     {
         SelectedDataItems = null;
         BlukdeleteDocument = false;
+        PermanentdeleteDocument = false;
         PopupVisible = false;
     }
     void onRestoreDocument()
     {
         BlukdeleteDocument = true;
+    }
+    void onDeleteDocument()
+    {
+        PermanentdeleteDocument = true;
     }
     async void ClosePopup()
     {
@@ -339,6 +380,46 @@
         {
             BlukdeleteDocument = false;
             toastService.ShowToast("The Selected Record Do not Restored", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task OnPermanentDeleteDocument()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                PanelVisible = true;
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentsModel items)
+                    {
+                        var response = await Mediator.Send(new DeleteDocumentPermanent(items));
+                        if (response.Count <= 0)
+                        {
+
+                            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+                        }
+                        else
+                        {
+                            toastService.ShowToast($"File Not Found {response.First().FileName}", AC.SD.Core.Services.ToastLevel.Warning);
+
+                        }
+                    }
+                }
+                await OnLoadData();
+                PermanentdeleteDocument = false;
+                Grid.SetFocusedRowIndex(0);
+                Grid.ClearSelection();
+            }
+        }
+        catch (Exception eq)
+        {
+            PermanentdeleteDocument = false;
+            //toastService.ShowToast("The Selected Record Do not Deleted", AC.SD.Core.Services.ToastLevel.Error);
+            toastService.ShowToast($"The Selected Record Do not Deleted,{eq.Message}", AC.SD.Core.Services.ToastLevel.Error);
+            PanelVisible = false;
+            StateHasChanged();
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

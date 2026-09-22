@@ -81,6 +81,7 @@ namespace Core.Entities.Views
         public string? SteroidName { get; set; }
         public long? MethodCodeId { get; set; }
         public IEnumerable<long?> NavItemCustomerItemID { get; set; } = new List<long?>();
+        public string? Remarks { get; set; }
     }
     public class NavPackingMethodModel : BaseModel
     {

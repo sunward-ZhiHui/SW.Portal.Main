@@ -2,6 +2,7 @@
 @using MediatR
 @inject IMediator Mediator
 @using DevExpress.Export
+@using System.Drawing
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.Repositories.Query;
@@ -39,7 +40,7 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_simulationItems" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+    <DxGrid @ref="Grid" Data="@_simulationItems" ShowGroupPanel="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
@@ -55,12 +56,14 @@
 
             <DxGridDataColumn FieldName="MethodCode" Caption="Generic Code" GroupIndex="0" Width="300" FixedPosition="GridColumnFixedPosition.Left" SortOrder="GridColumnSortOrder.Ascending" />
             <DxGridDataColumn FieldName="ItemNo" Width="300" FixedPosition="GridColumnFixedPosition.Left" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+                        <DxGridDataColumn FieldName="NavItemRemarks" Caption="Remarks" Width="70" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="ShelfLife" Width="70" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridDataColumn FieldName="PackSize" Width="200" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridBandColumn Caption="@Acheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="ApexQty" DisplayFormat="n2" Caption="Apex" Width="100">
+                @*     <DxGridDataColumn FieldName="ApexQty" DisplayFormat="n2" Caption="Apex" Width="100">
 
-                    </DxGridDataColumn>
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="AntahQty" DisplayFormat="n2" Caption="Antah" Width="100">
 
                     </DxGridDataColumn>
@@ -74,13 +77,12 @@
 
                     </DxGridDataColumn>
                 </Columns>
-            </DxGridBandColumn>
-            <DxGridDataColumn FieldName="SymlQty" DisplayFormat="n2" Caption="AC in Units" Width="100">
+             </DxGridBandColumn>
+            @*<DxGridDataColumn FieldName="SymlQty" DisplayFormat="n2" Caption="AC in Units" Width="100">
 
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ThreeMonthACQty_" DisplayFormat="n2" Caption="AC Unit X 3" Width="100">
-
-            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ThreeMonthACQty_" DisplayFormat="n2" Caption="AC Unit X 3" Width="100"/>
+ *@
             <DxGridDataColumn FieldName="ProdRecipe" Caption="Register Batch Size" Width="100">
             </DxGridDataColumn>
             <DxGridBandColumn Caption="@CurrentBatchSize" CaptionAlignment="GridTextAlignment.Center" Width="200">
@@ -89,7 +91,7 @@
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
-            <DxGridBandColumn Caption="" CaptionAlignment="GridTextAlignment.Center" Width="200">
+           @*  <DxGridBandColumn Caption="" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="Roundup1_" Caption="Count" DisplayFormat="n2" Width="100">
 
@@ -98,7 +100,7 @@
 
                     </DxGridDataColumn>
                 </Columns>
-            </DxGridBandColumn>
+            </DxGridBandColumn> *@
             @* <DxGridBandColumn Caption="@StbPreheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="PreApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
@@ -138,9 +140,9 @@
             </DxGridBandColumn> *@
             <DxGridBandColumn Caption="@Stbheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="ApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
+                   @*  <DxGridDataColumn FieldName="ApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
 
-                    </DxGridDataColumn>
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="AntahStockBalance_" Caption="Antah" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -168,9 +170,9 @@
                     <DxGridDataColumn FieldName="DeliverynotReceived" Caption="In Transit" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="InterCompanyTransitQty_" Caption="In T/intercompany" DisplayFormat="n2" Width="100">
+                  @*   <DxGridDataColumn FieldName="InterCompanyTransitQty_" Caption="In T/intercompany" DisplayFormat="n2" Width="100">
 
-                    </DxGridDataColumn>
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="StockBalance_" Caption="Stock Balance" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -182,8 +184,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month1" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc1_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -194,6 +196,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket1" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected1_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -201,8 +204,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month2" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc2_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -213,6 +216,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket2" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected2_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -220,8 +224,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month3" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                @*     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc3_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -232,6 +236,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket3" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected3_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -239,8 +244,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month4" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                   @*  <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc4_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -251,6 +256,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket4" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected4_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -258,8 +264,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month5" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc5_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -270,6 +276,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket5" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected5_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -277,8 +284,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month6" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc6_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -289,6 +296,7 @@
 
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket6" Caption="Production Ticket" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn Caption="No. of Tickets" FieldName="BlankColumn"  Width="100"></DxGridDataColumn>
                     <DxGridDataColumn FieldName="ProductionProjected6_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
 
                     </DxGridDataColumn>
@@ -296,8 +304,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month7" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                 @*    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc7_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -315,8 +323,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month8" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc8_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -334,8 +342,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month9" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                 @*    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc9_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -353,8 +361,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month10" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+               @*      <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc10_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -372,8 +380,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month11" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                @*     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc11_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -391,8 +399,8 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month12" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
-                    </DxGridDataColumn>
+                  @*   <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
+                    </DxGridDataColumn> *@
                     <DxGridDataColumn FieldName="BlanketAddhoc12_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
 
                     </DxGridDataColumn>
@@ -623,7 +631,7 @@
             countmonth++;
         }
 
-        _simulationItems = await Mediator.Send(new GetSimulationAddhocV3Query(dateRangeModel));
+        _simulationItems = (await Mediator.Send(new GetSimulationAddhocV3Query(dateRangeModel))).Where(c=>c.AddhocCust==null).ToList();
         if (_simulationItems != null && _simulationItems.Count() > 0)
         {
             PanelVisible = false;
@@ -687,21 +695,24 @@
     {
         await Grid.ExportToXlsxAsync("Simulation Adhoc V3", new GridXlExportOptions()
         {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+            CustomizeCell = OnCustomizeCell
         });
     }
     async Task ExportCsv_Click()
     {
         await Grid.ExportToCsvAsync("Simulation Adhoc V3", new GridCsvExportOptions()
         {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+            CustomizeCell = OnCustomizeCell
         });
     }
     async Task ExportXls_Click()
     {
         await Grid.ExportToXlsAsync("Simulation Adhoc V3", new GridXlExportOptions()
         {
-            ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+            CustomizeCell = OnCustomizeCell
         });
     }
 
@@ -711,7 +722,38 @@
         {
             e.CssClass = "alt-item";
         }
+        if (e.ElementType == GridElementType.DataRow)
+        {
 
+            var AntahQty = (decimal?)e.Grid.GetRowValue(e.VisibleIndex, "AntahQty");
+            if (AntahQty.HasValue && AntahQty.Value == 1)
+            {
+                e.Style = "background-color: #FFD8D8; color: black;";
+            }
+
+        }
+
+    }
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.AreaType == SheetAreaType.DataArea)
+        {
+			var AntahQty = (decimal?)args.GetRowValue("AntahQty");
+            if (AntahQty.HasValue && AntahQty.Value == 1)
+            {
+				args.Formatting.BackColor = Color.FromArgb(255, 216, 216);
+            }
+        }
+        var cellValue = args.Value?.ToString();
+        if (args.AreaType == SheetAreaType.GroupHeader && cellValue != null && cellValue.StartsWith("Generic Code"))
+        {
+            if (args.Formatting.Font == null)
+                args.Formatting.Font = new XlCellFont();
+            args.Formatting.Font.Bold = true;
+
+        }
+        args.Handled = true;
     }
     public async ValueTask DisposeAsync()
     {

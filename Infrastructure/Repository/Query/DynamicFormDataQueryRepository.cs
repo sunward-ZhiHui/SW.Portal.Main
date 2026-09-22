@@ -419,7 +419,7 @@ namespace Infrastructure.Repository.Query
                                                 {
                                                     if (dynamicFormSectionAttributeSecurity.UserId > 0)
                                                     {
-                                                        string? UserGroupId = dynamicFormSectionAttributeSecurity.UserGroupId > 0 ? dynamicFormSectionAttributeSecurity.UserId.ToString() : "null";
+                                                        string? UserGroupId = dynamicFormSectionAttributeSecurity.UserGroupId > 0 ? dynamicFormSectionAttributeSecurity.UserGroupId.ToString() : "null";
                                                         string? levelId = dynamicFormSectionAttributeSecurity.LevelId > 0 ? dynamicFormSectionAttributeSecurity.LevelId.ToString() : "null";
                                                         queryss += "INSERT INTO [DynamicFormSectionAttributeSecurity](DynamicFormSectionAttributeID,UserId,UserGroupID,LevelID,IsAccess,IsViewFormatOnly,UserType) OUTPUT INSERTED.DynamicFormSectionAttributeSecurityId " +
                                                    "VALUES (" + NewdynamicFormSectionAttributeId + "," + dynamicFormSectionAttributeSecurity.UserId + "," + UserGroupId + "," + levelId + ",'" + dynamicFormSectionAttributeSecurity.IsAccess + "','" + dynamicFormSectionAttributeSecurity.IsViewFormatOnly + "','" + dynamicFormSectionAttributeSecurity.UserType + "'" + ");\n";

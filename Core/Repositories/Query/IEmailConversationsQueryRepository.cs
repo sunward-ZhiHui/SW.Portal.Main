@@ -65,6 +65,8 @@ namespace Core.Repositories.Query
         Task<List<EmailTopicTo>> GetTopicToListAsync(long TopicId);
         Task<byte[]> GetFileDataAsync(long conversationId);
         Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId);
+        Task<List<EmailConversationAssignTo>> GetReplyAssignToList(long ConversationId);
+        Task<List<EmailConversationAssignTo>> GetReplyAssignCCList(long ConversationId);
         Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        
         Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId);
         Task<List<EmailConversationAssignToUserGroup>> GetAssignCCUserGroupList(long ConversationId);

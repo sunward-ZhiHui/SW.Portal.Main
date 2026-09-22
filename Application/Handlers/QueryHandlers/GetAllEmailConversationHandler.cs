@@ -978,6 +978,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignToList(request.ConversationId);
         }
     }
+    public class GetEmailReplyAssignToHandler : IRequestHandler<GetEmailReplyAssignTo, List<EmailConversationAssignTo>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetEmailReplyAssignToHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<EmailConversationAssignTo>> Handle(GetEmailReplyAssignTo request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetReplyAssignToList(request.ConversationId);
+        }
+    }
 
     public class GetEmailConversationTIdHandler : IRequestHandler<GetEmailConversationTId, List<EmailConversations>>
     {
@@ -1001,6 +1013,18 @@ namespace Application.Handlers.QueryHandlers
 		public async Task<List<EmailConversationAssignTo>> Handle(GetEmailConversationAssignCC request, CancellationToken cancellationToken)
 		{
 			return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignCCList(request.ConversationId);
+		}
+	}
+    public class GetEmailReplyAssignCCHandler : IRequestHandler<GetEmailReplyAssignCC, List<EmailConversationAssignTo>>
+	{
+		private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+		public GetEmailReplyAssignCCHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+		{
+			_conversationQueryRepository = conversationQueryRepository;
+		}
+		public async Task<List<EmailConversationAssignTo>> Handle(GetEmailReplyAssignCC request, CancellationToken cancellationToken)
+		{
+			return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetReplyAssignCCList(request.ConversationId);
 		}
 	}
     public class GetAssignCCUserGroupHandler : IRequestHandler<GetAssignCCUserGroup, List<EmailConversationAssignToUserGroup>>

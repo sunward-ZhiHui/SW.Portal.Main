@@ -144,14 +144,21 @@ namespace Infrastructure.Repository.Command
         }
         public async Task IsRereshSyncLoadData(long? CompanyId, long? UserId)
         {
-            var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
-            if (plantData != null)
+            try
             {
-                await DeleteExistingProductionSimulation(plantData, UserId);
-                await InsertOrUpdateProdPlanningLine(plantData, UserId);
-                await InsertOrUpdateGetProdOrderOutputLine(plantData, UserId);
-                await InsertOrUpdateProdGroupLine(plantData, UserId);
-                await InsertOrUpdateProdOrderNotStartLine(plantData, UserId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    await DeleteExistingProductionSimulation(plantData, UserId);
+                    await InsertOrUpdateProdPlanningLine(plantData, UserId);
+                    await InsertOrUpdateGetProdOrderOutputLine(plantData, UserId);
+                    await InsertOrUpdateProdGroupLine(plantData, UserId);
+                    await InsertOrUpdateProdOrderNotStartLine(plantData, UserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
         public async Task<List<Navitems>> GetNavItemItemNosAsync(long? CompanyId)

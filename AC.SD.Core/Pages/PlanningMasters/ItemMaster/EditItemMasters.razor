@@ -149,6 +149,9 @@
         <DxFormLayoutItem Caption="Is Different Acuom" ColSpanMd="6">
             <DxCheckBox @bind-Checked="Data.IsDifferentAcuom"></DxCheckBox>
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Remarks" ColSpanMd="6">
+            <DxMemo @bind-Text="Data.Remarks"></DxMemo>
+        </DxFormLayoutItem>
     </DxFormLayout>
 
 </EditForm>
@@ -190,6 +193,7 @@
         Data.StatusCodeId = _selectedItems.StatusCodeId; Data.PackSizeBUOM = _selectedItems.PackSizeBUOM; Data.PackUom = _selectedItems.PackUom; Data.ShelfLife = _selectedItems.ShelfLife;
         Data.IsDifferentAcuom = false;
         Data.ItemSerialNo = "1";
+        Data.Remarks = _selectedItems.Remarks;
         if (Data.IsDifferentAcuom == true)
         {
             Data.IsDifferentAcuom = true;

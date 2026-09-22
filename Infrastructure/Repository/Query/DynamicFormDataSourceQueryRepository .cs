@@ -307,7 +307,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('NIBI_',t1.No) as AttributeDetailNameId,'NAVItemBatchInfoView' as DropDownTypeId, t1.No as AttributeDetailID,BatchNo as AttributeDetailName ,Description,t1.ItemNo from SW_Int_LIVE.dbo.tblNAVItemBatchInfoView t1;";
+                query += "select CONCAT('NIBI_',t1.No) as AttributeDetailNameId,'NAVItemBatchInfoView' as DropDownTypeId, t1.No as AttributeDetailID,t1.ItemNo as AttributeDetailName ,Description,t1.BatchNo from SW_Int_LIVE.dbo.tblNAVItemBatchInfoView t1;";
                
                 return query;
             }

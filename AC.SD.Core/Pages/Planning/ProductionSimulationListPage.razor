@@ -24,11 +24,15 @@
                             CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                             DisplayMode="MenuDisplayMode.Desktop">
                         <Items>
-
+                            @{
+                                var text = $"Last Sync: {_productionsimulationgridLst?.FirstOrDefault()?.AddedDate.ToString("dd/MM/yyyy")}";
+                            }
                             <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                             <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="OnSyncData" />
                             <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                            <DxMenuItem Text="@text" Enabled="false"/>
+                           
                             @* <DxMenuItem Text="Upload" IconCssClass="fa fa-upload" Click="Onupload" /> *@
 
                         </Items>

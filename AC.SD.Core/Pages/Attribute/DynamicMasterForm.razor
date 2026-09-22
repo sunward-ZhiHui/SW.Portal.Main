@@ -39,7 +39,8 @@
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
-                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="false" />
+                        @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@EditEnabled" /> *@
                         <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                         <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />

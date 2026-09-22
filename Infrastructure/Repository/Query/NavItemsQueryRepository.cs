@@ -180,7 +180,7 @@ namespace Infrastructure.Repository.Query
 
                     parameters.Add("Recommendedplanning", view_NavItems.Recommendedplanning);
                     parameters.Add("NAVFPDescription", view_NavItems.NAVFPDescription);
-
+                    parameters.Add("Remarks", view_NavItems.Remarks, DbType.String);
                     parameters.Add("ShelfLife", view_NavItems.ShelfLife, DbType.String);
                     parameters.Add("Quota", view_NavItems.Quota, DbType.String);
                     parameters.Add("PackSize", view_NavItems.PackSize);
@@ -192,7 +192,7 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("IsDifferentAcuom", view_NavItems.IsDifferentAcuom); parameters.Add("MethodCodeId", view_NavItems.MethodCodeId);
                     var query1 = "delete from NavItemCitemList where NavItemId=@ItemId;";
                     await connection.ExecuteAsync(query1, parameters);
-                    var query = "UPDATE Navitems SET NAVFPDescription=@NAVFPDescription,Recommendedplanning=@Recommendedplanning,IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackSizeBUOM=@PackSizeBUOM,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE ItemId = @ItemId;";
+                    var query = "UPDATE Navitems SET NAVFPDescription=@NAVFPDescription,Recommendedplanning=@Recommendedplanning,IsDifferentAcuom=@IsDifferentAcuom,GenericCodeId=@GenericCodeId,StatusCodeId=@StatusCodeId,PackQty=@PackQty,PackSizeBUOM=@PackSizeBUOM,PackUom=@PackUom,PackSize=@PackSize,Quota=@Quota,ShelfLife=@ShelfLife,CategoryId=@CategoryId,Steroid=@Steroid,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,Remarks=@Remarks WHERE ItemId = @ItemId;";
                     if (view_NavItems.MethodCodeId > 0 && view_NavItems.ItemId > 0)
                     {
                         query += "IF NOT Exists(select 1 from NavMethodCodeLines where MethodCodeId=@MethodCodeId AND ItemId=@ItemId)\r\nBEGIN\r\n" +

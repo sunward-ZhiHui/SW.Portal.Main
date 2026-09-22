@@ -1,35 +1,36 @@
-﻿using Application.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using SW.Portal.Solutions.Services;
-using Core.EntityModels;
-using SW.Portal.Solutions.Models;
-using Core.Entities.Views;
-using Core.Entities;
-using Core.Repositories.Query;
-using AC.SD.Core.Data;
+﻿using AC.SD.Core.Data;
 using AC.SD.Core.Pages.Masters;
-using Google.Api.Gax.ResourceNames;
-using DevExpress.Web;
-using DevExpress.DocumentServices.ServiceModel.DataContracts;
-using Newtonsoft.Json;
-using DevExpress.Xpo;
+using Application.Queries;
 using Application.Queries.Base;
+using Azure.Core.Serialization;
+using Core.Entities;
+using Core.Entities.Views;
+using Core.EntityModels;
+using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
+using DevExpress.CodeParser;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using DevExpress.Web;
+using DevExpress.Xpo;
+using DevExpress.XtraSpreadsheet.TileLayout;
+using Google.Api.Gax.ResourceNames;
 using Infrastructure.Repository.Query;
+using MediatR;
+using Microsoft.Ajax.Utilities;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Edm.Values;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.Crmf;
 using RestSharp;
-using DevExpress.XtraSpreadsheet.TileLayout;
-using System.Dynamic;
-using Microsoft.Data.Edm.Values;
+using SW.Portal.Solutions.Models;
+using SW.Portal.Solutions.Services;
 using System.Data;
-using Newtonsoft.Json.Converters;
-using DevExpress.CodeParser;
-using Newtonsoft.Json.Linq;
-using Method = RestSharp.Method;
-using Microsoft.Ajax.Utilities;
-using Core.Repositories.Query.Base;
-using Microsoft.AspNetCore.Http.HttpResults;
+using System.Dynamic;
 using System.Linq;
+using Method = RestSharp.Method;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -71,35 +72,62 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-       /* [HttpGet("GetDynamicFormAttributeItemList")]
+        /* [HttpGet("GetDynamicFormAttributeItemList")]
 
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormSectionAttributesList>>>> GetDynamicFormAttributeItemList(Guid? DynamicFormSessionId)
+         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormSectionAttributesList>>>> GetDynamicFormAttributeItemList(Guid? DynamicFormSessionId)
+         {
+             List<DynamicFormSectionAttributesList> dynamicFormSectionAttributesLists = new List<DynamicFormSectionAttributesList>();
+             var response = new Services.ResponseModel<DynamicFormSectionAttributesList>();
+             var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
+             if (_dynamicForm != null && _dynamicForm.ID > 0)
+             {
+                 var result = await _dynamicFormOdataQueryRepository.GetDynamicFormSectionAttributeList(_dynamicForm.ID);
+                 if (result != null && result.Count() > 0)
+                 {
+                     dynamicFormSectionAttributesLists = result.ToList();
+                 }
+             }
+             response.Results = dynamicFormSectionAttributesLists;
+             try
+             {
+                 response.ResponseCode = Services.ResponseCode.Success;
+
+             }
+             catch (Exception ex)
+             {
+                 response.ResponseCode = Services.ResponseCode.Failure;
+                 response.ErrorMessages.Add(ex.Message);
+             }
+
+             return Ok(response);
+         }*/
+
+        [HttpGet("GetTimeSheetDropDownList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DropDownOptionsListModel>>>> GetTimeSheetDropDownList(int? attrId)
         {
-            List<DynamicFormSectionAttributesList> dynamicFormSectionAttributesLists = new List<DynamicFormSectionAttributesList>();
-            var response = new Services.ResponseModel<DynamicFormSectionAttributesList>();
-            var _dynamicForm = await _mediator.Send(new GetAllDynamicFormList(DynamicFormSessionId, -1));
-            if (_dynamicForm != null && _dynamicForm.ID > 0)
-            {
-                var result = await _dynamicFormOdataQueryRepository.GetDynamicFormSectionAttributeList(_dynamicForm.ID);
-                if (result != null && result.Count() > 0)
-                {
-                    dynamicFormSectionAttributesLists = result.ToList();
-                }
-            }
-            response.Results = dynamicFormSectionAttributesLists;
+            List<object> attributeDetails = new List<object>();
+            IDictionary<string, object> dynamicsData2 = new ExpandoObject();
+            dynamicsData2[108.ToString()] = 8;
+            dynamicsData2[109.ToString()] = 2273;
+            dynamicsData2[112.ToString()] = attrId??-1;
+            var response = new Services.ResponseModel<DropDownOptionsListModel>();
+            var result = await _mediator.Send(new GetApplicationMasterParentByList(dynamicsData2, 108));
+
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = result;
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-
             }
             catch (Exception ex)
             {
                 response.ResponseCode = Services.ResponseCode.Failure;
                 response.ErrorMessages.Add(ex.Message);
             }
-
             return Ok(response);
-        }*/
+        }
+
         [HttpGet("GetDynamicFormDataList")]
 
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)

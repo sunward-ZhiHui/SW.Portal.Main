@@ -67,13 +67,18 @@ else
                             <div class="replybox" style="min-height:60px;">
                                 <div style="font-weight: bold;">
                                     Dynamic form @item.DynamicFormEmailSectionName
+                                    <div style="float:right; line-height:16px">
+                                        <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                            <i class="fa fa-arrow-left"></i> Back
+                                        </button>
+                                    </div>
                                 </div>
                                 <text></text>
                                 <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                             </div>
                         }
 
-                        @if (!string.IsNullOrEmpty(item.BackURL))
+                        else if (!string.IsNullOrEmpty(item.BackURL))
                         {
                             string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
                             @if (item.ActivityType != "EmailFileProfileType")

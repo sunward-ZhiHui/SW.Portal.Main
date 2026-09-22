@@ -126,7 +126,7 @@
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print" Visible="true">
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -136,8 +136,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" Visible=true />
                                     }
                                 </Items>
                             </DxMenu>
@@ -151,18 +151,18 @@
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print"  Visible=true>
                                             <Items>
-                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
-                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                                <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm"  Visible=true/>
+                                                <DxMenuItem Text="Without Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm"  Visible=true/>
                                             </Items>
                                         </DxMenuItem>
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm"  Visible=true/>
                                     }
                                 </Items>
                             </DxMenu>
@@ -180,7 +180,7 @@
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print" Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -190,8 +190,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm"  Visible=true/>
                                     }
                                 </Items>
                             </DxMenu>
@@ -205,7 +205,7 @@
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print"  Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -215,8 +215,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm"  Visible=true/>
                                     }
                                 </Items>
                             </DxMenu>
@@ -252,7 +252,7 @@
                                     </DxMenuItem>
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" Visible=false/>
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
                                             <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
@@ -261,7 +261,7 @@
                                     </DxMenuItem>
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print"  Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -271,8 +271,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm"  Visible=true/>
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -302,7 +302,7 @@
                                     </DxMenuItem>
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" Visible=false/>
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
                                             <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
@@ -311,7 +311,7 @@
                                     </DxMenuItem>
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print" Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -321,8 +321,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm"  Visible=true/>
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -345,7 +345,7 @@
                                     }
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" Visible=false/>
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
                                             <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
@@ -354,7 +354,7 @@
                                     </DxMenuItem>
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print"  Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -364,8 +364,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" Visible=true />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -384,7 +384,7 @@
                                     }
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                     <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" Visible=false />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
                                         <Items>
                                             <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
@@ -393,7 +393,7 @@
                                     </DxMenuItem>
                                     @if (IsDynamicGridForm == true)
                                     {
-                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <DxMenuItem Text="Print From" IconCssClass="fa fa-print" Visible=true>
                                             <Items>
                                                 <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
                                                 <DxMenuItem Text="With Grid Pdf" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
@@ -403,8 +403,8 @@
                                     }
                                     else
                                     {
-                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm" />
-                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                        <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@openPrintForm"  Visible=true/>
+                                        <DxMenuItem Text="Print Form Pdf" IconCssClass="fa fa-print" Click="@PrintForm" Visible=true />
                                     }
                                     <DxMenuItem Text="Audit Trail" IconCssClass="fa fa-history" Click="@addAuditTrail" Enabled="@EditEnabled" />
                                 </Items>
@@ -990,7 +990,7 @@
          Closed="EulaPopupLockClosed"
          Width="1500px">
     <BodyContentTemplate>
-        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId" DynamicFormSessionId="@SessionId"></DynamicFormsAuditTrail>
+        <DynamicFormsAuditTrail @ref="refDynamicFormsAuditTrail" SessionId="@_dynamicformData?.SessionId" ></DynamicFormsAuditTrail>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -6146,8 +6146,11 @@
             }
             else
             {
+                if (a.IsReadOnly == false)
+                {
                 isReadonly = true;
             }
+        }
         }
         var exi = DynamicFormDataUploadByPermissions.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
         if (exi == null)

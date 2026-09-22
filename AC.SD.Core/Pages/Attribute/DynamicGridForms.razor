@@ -5679,8 +5679,11 @@
                }
                else
                {
+                   if (a.IsReadOnly == false)
+                    {
                    isReadonly = true;
                }
+           }
            }
            var exi = DynamicFormDataUploadByPermissions.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
            if (exi == null)

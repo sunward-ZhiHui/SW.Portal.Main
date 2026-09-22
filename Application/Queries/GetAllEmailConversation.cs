@@ -365,6 +365,14 @@ namespace Application.Queries
             this.ConversationId = Id;
         }
     }
+    public class GetEmailReplyAssignTo : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+    {
+        public long ConversationId { get; set; }
+        public GetEmailReplyAssignTo(long Id)
+        {
+            this.ConversationId = Id;
+        }
+    }
     public class GetEmailConversationTId : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; set; }
@@ -378,6 +386,14 @@ namespace Application.Queries
 	{
 		public long ConversationId { get; set; }
 		public GetEmailConversationAssignCC(long Id)
+		{
+			this.ConversationId = Id;
+		}
+	}
+    public class GetEmailReplyAssignCC : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+	{
+		public long ConversationId { get; set; }
+		public GetEmailReplyAssignCC(long Id)
 		{
 			this.ConversationId = Id;
 		}

@@ -29,6 +29,7 @@ namespace Core.EntityModels
         public string Description { get; set; }
         public string ItemDescriptions { get; set; }
         public string Remarks { get; set; }
+        public string? NavItemRemarks { get; set; }
         public string MethodCode { get; set; }
         public long? MethodCodeId { get; set; }
         public decimal? SalesCategoryId { get; set; }
@@ -606,6 +607,7 @@ namespace Core.EntityModels
         public bool IsEditingTopUp { get; set; } = false;
         public decimal? PrevUnChangeTopUpNoOfMonth { get; set; }
         public long? SimulationTicketCalculationId { get; set; }
+        public string BlankColumn { get; set; } = "";
     }
     public class MonthTypeModel
     {

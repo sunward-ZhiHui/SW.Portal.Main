@@ -593,6 +593,12 @@
             dynamicFormSearch.StartDate = null;
             dynamicFormSearch.EndDate = null;
         }
+        if (value == "Last 1000 Record")
+        {
+            filterEnabled = false;
+            dynamicFormSearch.StartDate = null;
+			dynamicFormSearch.EndDate = null;
+        }
         StateHasChanged();
     }
     private ValueTask OnLocationChanging(LocationChangingContext context)

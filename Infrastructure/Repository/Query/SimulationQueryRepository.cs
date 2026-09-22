@@ -1398,6 +1398,7 @@ namespace Infrastructure.Repository.Query
                             // ItemList = itemNos,
                             ItemId = ac.ItemId,
                             ItemNo = ac.GenericCodeDescription2,
+                            ShelfLife = string.IsNullOrEmpty(ac.ExpirationCalculation)? "" : ac.ExpirationCalculation.Split("-")[0],
                             RecipeLists = itemreceips.Select(s => string.Format("{0}", s.RecipeNo + " | " + s.BatchSize)).ToList(),
                             ItemRecipeLists = itemreceips,
                             OrderRecipeLists = Orderitemreceips,
@@ -1446,6 +1447,7 @@ namespace Infrastructure.Repository.Query
                             MethodCode = ac.NavMethodCodeLines.Count > 0 ? ac.NavMethodCodeLines.First().MethodName : "No MethodCode",
                             Month = endDate.StockMonth.ToString("MMMM"),
                             Remarks = "AC",
+                            NavItemRemarks = ac.Remarks,
                             BatchSize90 = currentBatch,
                             Roundup1 = packSize2 > 0 ? threeMonth / packSize2 : 0,
                             Roundup2 = 0,
@@ -1651,18 +1653,18 @@ namespace Infrastructure.Repository.Query
                 f.GroupTicket11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList());
                 f.GroupTicket12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList());
 
-                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).OrderBy(p=>p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
 
                 f.ProTicket1 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
                 f.ProTicket2 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
@@ -3028,6 +3030,7 @@ namespace Infrastructure.Repository.Query
                             GrouoItemNo = ac.No,
                             ItemId = ac.ItemId,
                             ItemNo = ac.GenericCodeDescription2,
+                            ShelfLife = string.IsNullOrEmpty( ac.ExpirationCalculation) ? "" : ac.ExpirationCalculation.Split('-')[0],
                             RecipeLists = itemreceips.Select(s => string.Format("{0}", s.RecipeNo + " | " + s.BatchSize)).ToList(),
                             ItemRecipeLists = itemreceips,
                             OrderRecipeLists = Orderitemreceips,
@@ -3077,6 +3080,7 @@ namespace Infrastructure.Repository.Query
                             MethodCode = ac.NavMethodCodeLines.Count > 0 ? ac.NavMethodCodeLines.First().MethodName : "No MethodCode",
                             Month = endDate.StockMonth.ToString("MMMM"),
                             Remarks = "AC",
+                            NavItemRemarks = ac.Remarks,
                             BatchSize90 = currentBatch,
                             Roundup1 = packSize2 > 0 ? threeMonth / packSize2 : 0,
                             Roundup2 = 0,
@@ -3284,18 +3288,18 @@ namespace Infrastructure.Repository.Query
                 f.GroupTicket11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList());
                 f.GroupTicket12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList());
 
-                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList());
-                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).OrderBy(p => p.ProdOrderNo).Select(s => s.ProdOrderNo).ToList());
 
                 f.ProTicket1 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
                 f.ProTicket2 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));

@@ -57,6 +57,21 @@ window.downloadFile = (fileName, fileContent, contentType, folderPath) => {
     URL.revokeObjectURL(url);
 };
 
+window.downloadAllFile = async (fileName, url) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        alert("Failed to download file.");
+        return;
+    }
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 window.toastInterop = {
     initialize: function (containerId) {

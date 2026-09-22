@@ -1328,7 +1328,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
             try
             {
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.Priorities,FC.AddedDate,FC.FileData,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
-                                FC.ReplyId,FC.Description,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
+                                FC.ReplyId,FC.Description,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL, FC.AddedDate as ActAddedDate,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
                                 FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
@@ -1391,7 +1391,8 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.FileData, FC.Priorities,                              
                                 FC.ReplyId,FC.Description,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
-								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
+								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,EMPPP.FirstName as ActUserName,FC.AddedDate AS ActAddedDate,
+                                (select top(1) AE.BackURL from EmailConversations EC LEFT JOIN ActivityEmailTopics AE ON EC.SessionId = AE.EmailTopicSessionId WHERE EC.TopicID = FC.TopicID ORDER BY EC.ID) AS BackURL,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
                                 DYSN.SectionName AS DynamicFormEmailSectionName,FC.IsLockDueDate,CEL.EmailConversationsId AS CopyLinkEmailIds
 
@@ -1401,6 +1402,7 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                            
                             INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID       
+                            LEFT JOIN Employee EMPPP ON EMPPP.UserID = FC.AddedByUserID
                             OUTER APPLY(SELECT DISTINCT  EmailConversationsId FROM EmailCopyLink WHERE EmailConversationsId = FC.ID)CEL
                             OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
                                         INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
@@ -2730,6 +2732,32 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailConversationAssignTo>> GetReplyAssignToList(long ConversationId)
+        {
+            try
+            {
+                var query = @"SELECT DISTINCT ECP.UserId, concat(E.FirstName,',',E.LastName) as Name,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName  
+                                FROM EmailConversationAssignTo ECP 
+                                
+                                INNER JOIN ApplicationUser AU ON AU.UserID = ECP.UserId
+                                INNER JOIN Employee E ON E.UserID = ECP.UserId
+                                LEFT JOIN Plant p on p.PlantID = E.PlantID
+                                LEFT JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE ECP.ConversationId=@ConversationId";
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<EmailConversationAssignTo>(query, parameters);
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
 		{
 			try
@@ -2752,6 +2780,32 @@ UserType,NoOfDays,DynamicFormDataUploadSessionID,TagLock,IsLockDueDate,IsDueDate
 				throw new Exception(exp.Message, exp);
 			}
 		}
+        public async Task<List<EmailConversationAssignTo>> GetReplyAssignCCList(long ConversationId)
+        {
+            try
+            {
+                var query = @"SELECT DISTINCT ECP.UserId, concat(E.FirstName,',',E.LastName) as Name,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName  
+                                FROM EmailConversationAssignCC ECP 
+                                
+                                INNER JOIN ApplicationUser AU ON AU.UserID = ECP.UserId
+                                INNER JOIN Employee E ON E.UserID = ECP.UserId
+                                LEFT JOIN Plant p on p.PlantID = E.PlantID
+                                LEFT JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE ECP.ConversationId=@ConversationId";
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<EmailConversationAssignTo>(query, parameters);
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversationAssignToUserGroup>> GetAssignCCUserGroupList(long ConversationId)
         {
             try

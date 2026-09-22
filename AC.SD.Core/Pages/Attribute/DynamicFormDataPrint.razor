@@ -347,7 +347,7 @@
                                         </tbody>
                                     </table>
                                 }
-                                <DynamicFormDataAuditTrailPrint FormSessionIds="@j.SessionId" SessionId="@_dynamicForm?.SessionID"></DynamicFormDataAuditTrailPrint>
+                                <DynamicFormDataAuditTrailPrint FormSessionIds="@j.SessionId" SessionId="@_dynamicForm?.SessionID" ></DynamicFormDataAuditTrailPrint>
                             </div>
                         }
                     }
@@ -1311,6 +1311,11 @@
                                 else
                                 {
                                     var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                    if (s.DataSourceTable == "ItemBatchInfo")
+                                    {
+                                        listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName  + "|" + s?.Description).ToList();
+
+                                    }
                                     if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                     {
                                         listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
@@ -1378,6 +1383,11 @@
                                         else
                                         {
                                             var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                            if (s.DataSourceTable == "ItemBatchInfo")
+                                            {
+                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName + "|" + s?.Description).ToList();
+
+                                            }
                                             if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                             {
                                                 listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
@@ -1441,6 +1451,11 @@
                                                     {
                                                         List<long?> listData = itemDepValue.ToObject<List<long?>>();
                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                        if (dd.DataSourceTable == "ItemBatchInfo")
+                                                        {
+                                                            listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName + "|" + s?.Description).ToList();
+
+                                                        }
                                                         if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                         {
                                                             listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();

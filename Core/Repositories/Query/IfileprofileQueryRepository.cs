@@ -72,6 +72,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<FileProfileTypeModel>> GetAllFileProfileDropdownAsync();
         Task<IReadOnlyList<DocumentsModel>> GetFileProfileTypeFoldersFilesCount(long? selectedFileProfileTypeID);
         Task<DocumentUserRole> DeleteDocumentUserRoleMultiple(List<long?> DocumentIds);
-
+        Task<List<DocumentsModel>> DeleteDocumentPermanent(DocumentsModel documentsModel);
     }
 }

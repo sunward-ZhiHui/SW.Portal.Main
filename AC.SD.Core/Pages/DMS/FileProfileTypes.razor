@@ -68,7 +68,10 @@
                     <DxMenuItem Position="ItemPosition.Start" title="@ProfileTypeInfoName" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
                     <DxMenuItem Position="ItemPosition.Start" title="@PermissionName" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.Start" title="Delete User Access for Mutiple" IconCssClass="fa fa-users" Click="OnDeleteMultipleSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
+                    <DxMenuItem Position="ItemPosition.End" title="Download All Document" IconCssClass="fa fa-eye" Click="OnDownload" Visible="@viewfileEnabled" />
+
                     <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
+
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="ReUpload Documents" IconCssClass="fa fa-cloud-upload" Click="onMissingUploadFileProfileType" Visible="isCreateDocumentEnabled" />
@@ -2784,4 +2787,19 @@
         //GC.SuppressFinalize(this);
     }
 
+    async Task OnDownload()
+    {
+        if (documentSearchModel.FileProfileTypeId != null && documentSearchModel.SessionId != null)
+        {
+
+            var url = NavigationManager.BaseUri + $"api/Download/DownloadAllFileProfileTypeItem?FileProfileTypeId={documentSearchModel.FileProfileTypeId}&SessionId={documentSearchModel.SessionId}";
+            await jsRuntime.InvokeVoidAsync("downloadAllFile", "AllFiles.zip", url);
+         }
+        // if (documentSearchModel.FileProfileTypeId != null && documentSearchModel.SessionId != null)
+        // {
+        //     var url = NavigationManager.BaseUri + $"api/Download/GetDynamicFormDataList?FileProfileTypeId={documentSearchModel.FileProfileTypeId}&SessionId={documentSearchModel.SessionId}";
+        //     //await ClipboardService.WriteTextAsync(url);
+        //     toastService.ShowToast("Downloaded", AC.SD.Core.Services.ToastLevel.Info);
+        // }
+    }
 }

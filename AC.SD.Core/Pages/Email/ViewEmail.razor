@@ -1265,13 +1265,18 @@
                                                                                 <div class="replybox" style="min-height:60px;">
                                                                                     <div style="font-weight: bold;">
                                                                                         Dynamic form @item.DynamicFormEmailSectionName
+                                                                                        <div style="float:right; line-height:16px">
+                                                                                             <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                <i class="fa fa-arrow-left"></i> Back
+                                                                                            </button>
+                                                                                        </div>
                                                                                     </div>
                                                                                     <text></text>
                                                                                     <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                                                                                 </div>
                                                                             }
 
-                                                                            @if (!string.IsNullOrEmpty(item.BackURL))
+                                                                            else if (!string.IsNullOrEmpty(item.BackURL))
                                                                             {
                                                                                 string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
                                                                                 @if (item.ActivityType != "EmailFileProfileType")
@@ -1921,13 +1926,19 @@
                                                                                 <div class="replybox" style="min-height:60px;">
                                                                                     <div style="font-weight: bold;">
                                                                                         Dynamic form @item.DynamicFormEmailSectionName
+                                                                                        <div style="float:right; line-height:16px">
+                                                                                            <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                                                <i class="fa fa-arrow-left"></i> Back
+                                                                                            </button>
+                                                                                        </div>
                                                                                     </div>
+                                                                                    
                                                                                     <text></text>
                                                                                     <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                                                                                 </div>
                                                                             }
 
-                                                                            @if (!string.IsNullOrEmpty(item.BackURL))
+                                                                            else if (!string.IsNullOrEmpty(item.BackURL))
                                                                             {
                                                                                 string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
                                                                                 @if (item.ActivityType != "EmailFileProfileType")
@@ -3498,7 +3509,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             <span class="@GetPriorityCss(context.DataItem)">
                 @context.HighlightedDisplayText
             </span>
-        </div>;
+        </div>
+    ;
     }
 
 
@@ -5264,7 +5276,8 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             if(SectionUserList.Count > 0)
             {
                 var assTo = SectionUserList.Where(c => c.IsReadWrite == true && c.UserId != applicationUser.UserID).Select(s => (long)s.UserId).ToList();
-                var assCC = SectionUserList.Where(c => c.IsReadOnly == true && c.UserId != applicationUser.UserID).Select(s => (long)s.UserId).ToList();
+                //var assCC = SectionUserList.Where(c => c.IsReadOnly == true && c.UserId != applicationUser.UserID).Select(s => (long)s.UserId).ToList();
+                var assCC = new List<long>();
 
                 Data.AssigntoIds = new List<long>();
                 Data.AssignccIds = new List<long>();
@@ -6734,7 +6747,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     {
         RefAssignTo?.GetID();
     }
-   
+
     private async Task SubmitIsArchivedAll()
     {
         if (SelectedGroups == null || SelectedGroups.Count == 0)
@@ -7214,7 +7227,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
             {
                 isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
             }
-            
+
 
             isEnabled = true;
             isTodoEnabled = false;
@@ -7297,7 +7310,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
         //     }
 
         // }
-       
+
 
 
         isEnabled = true;
@@ -7335,7 +7348,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         isUserGroup = false;
                     }
                 }
-              
+
 
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
@@ -7671,7 +7684,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                     isLeftMenuvisible = "Library";
                     MyDayFilterText = lsts[0].TopicName;
                     //await Task.Delay(2000); // Delay for 2 seconds
-                     FilterSessionId = lsts[0].SessionId;
+                    FilterSessionId = lsts[0].SessionId;
 
                     _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
@@ -7680,7 +7693,7 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
                     await LoadData();
                     OnLeftMenuItemClick("Library");
-                    
+
                 }
                 else
                 {
@@ -8203,12 +8216,33 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
 
                     var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
                     var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
-                    var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+                    //var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+                    var parttcc = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
 
 
 
                     #region AssignTo
                     /*Assignto*/
+                    List<long> replyToUserIds;
+                    if (_replyComment[0] != null  && _replyComment[0].ReplyConversation.Count()>0)
+                    {
+                        var conversationId = _replyComment[0].ReplyConversation[0].ID;
+                        var convReplyTo = await Mediator.Send(new GetEmailReplyAssignTo(conversationId));
+                        var convReplyToId = convReplyTo.Select(c=>c.UserId).ToList();
+                        convReplyToId.Add(_replyComment[0].ReplyConversation[0].UserId.Value);
+                        convReplyToId.Add(_replyComment[0].UserId.Value);
+                        replyToUserIds = convReplyToId.Where(c => c!= applicationUser.UserID).Distinct().ToList();
+                    }
+                    else
+                    {
+                        var conversationId = _replyComment[0].ID;
+                        var convReplyTo = await Mediator.Send(new GetEmailReplyAssignTo(conversationId));
+                        var convReplyToId = convReplyTo.Select(c => c.UserId).ToList();
+                        convReplyToId.Add(_replyComment[0].UserId.Value);
+                        replyToUserIds = convReplyToId.Where(c => c!= applicationUser.UserID).ToList();
+
+                    }
+                    Data.AssigntoIds = replyToUserIds;
                     var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                     var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
                     //v
@@ -8233,25 +8267,41 @@ Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
                         _CCparticipant = _allparticipant.ToList();
                         _allparticipants = _allparticipant.ToList();
                     }
-                    //v
+
                     //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                    Data.AssigntoIds = new List<long>();
+                    var conlistTo = await Mediator.Send(new GetEmailReplyAssignTo(_replyComment[0].ID));
+                    //Data.AssigntoIds = conlistTo.Where(c => c.UserId != applicationUser.UserID).Select(userId => userId.UserId).ToList();
                     #endregion
 
                     #region AssignCC
                     /*AssignCC*/
-                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                                        List<long> replyCCUserIds;
+                    var convlistCC = await Mediator.Send(new GetEmailReplyAssignCC(_replyComment[0].ID));
                     var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();  
                     //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
+                    if (_replyComment[0] != null && _replyComment[0].ReplyConversation.Count() > 0)
+                    {
+                        var conversationId = _replyComment[0].ReplyConversation[0].ID;
+                        var convReplyCC = await Mediator.Send(new GetEmailReplyAssignCC(conversationId));
+                        var convReplyCCId = convReplyCC.Select(c => c.UserId).ToList();
+                        replyCCUserIds = convReplyCCId.Where(c => c != applicationUser.UserID && !replyToUserIds.Contains(c)).Distinct().ToList();
+                    }
+                    else
+                    {
+                        var conversationId = _replyComment[0].ID;
+                        var convReplyCC = await Mediator.Send(new GetEmailReplyAssignCC(conversationId));
+                        var convReplyCCId = convReplyCC.Select(c => c.UserId).ToList();
+                        replyCCUserIds = convReplyCCId.Where(c => c != applicationUser.UserID).ToList();
 
-                    var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                    var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+                    }
+                    //var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    //var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
                     //vk
                     //Data.AssignccIds = t1.Concat(t2).ToList();
-                    Data.AssignccIds = parttcc.Where(userId => userId != applicationUser.UserID).ToList();
-
+                    //Data.AssignccIds = parttcc.Where(userId => userId.UserId != applicationUser.UserID).Select(c => c.UserId).ToList();
+					Data.AssignccIds = replyCCUserIds;
                     var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
                     sCCIds = CCtags.ToList();

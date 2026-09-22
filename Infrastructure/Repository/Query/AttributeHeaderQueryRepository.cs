@@ -1880,6 +1880,22 @@ namespace Infrastructure.Repository.Query
                                                                     {
                                                                         listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                     }
+                                                                    else if (b.DataSourceTable == "Department")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVItemBatchInfoView")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                    {
+                                                                        listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                    }
                                                                     else
                                                                     {
                                                                         listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -1935,6 +1951,22 @@ namespace Infrastructure.Repository.Query
                                                                                     {
                                                                                         listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                                     }
+                                                                                    else if (b.DataSourceTable == "Department")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName);
+                                                                                    }
+                                                                                    else if (b.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                                    }
+                                                                                    else if (b.DataSourceTable == "NAVItemBatchInfoView")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                                    }
+                                                                                    else if (b.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                                    {
+                                                                                        listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                                    }
                                                                                     else
                                                                                     {
                                                                                         listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -1989,6 +2021,22 @@ namespace Infrastructure.Repository.Query
                                                                     else if (b.DataSourceTable == "Designation1")
                                                                     {
                                                                         listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                    }
+                                                                    else if (b.DataSourceTable == "Department")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVItemBatchInfoView")
+                                                                    {
+                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                    }
+                                                                    else if (b.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                    {
+                                                                        listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
                                                                     }
                                                                     else
                                                                     {
@@ -3637,17 +3685,17 @@ namespace Infrastructure.Repository.Query
                         {
                             if (DynamicFormDataSessionId != null)
                             {
-                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@DynamicFormDataGridSessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm,SOPNo,VersionNo from DynamicForm where SessionId =@DynamicFormDataGridSessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
                             }
                             else
                             {
-                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+                                query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm,SOPNo,VersionNo from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
 
                             }
                         }
                         else
                         {
-                            query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
+                            query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm,SOPNo,VersionNo from DynamicForm where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
                         }
                         var result = await connection.QueryMultipleAsync(query, parameters);
                         _dynamicForm = result.Read<DynamicForm>().FirstOrDefault();
@@ -3700,13 +3748,13 @@ namespace Infrastructure.Repository.Query
                                         {
                                             query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL)) order by DynamicFormDataID  asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY;";
                                             query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + " order by DynamicFormDataID  asc OFFSET " + ((i - 1) * defaultPageSize) + " ROWS FETCH NEXT " + (defaultPageSize) + " ROWS ONLY);";
-                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                            query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
                                             query1 += "select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
                                         }
                                         else
                                         {
-                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
+                                            query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataID in (Select DynamicFormDataID from DynamicFormData where SessionId =@DynamicGridFormSessionID AND (IsDeleted=0 OR IsDeleted IS NULL));";
                                             query1 += "select * from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where (IsDeleted=0 OR IsDeleted IS NULL) AND dynamicformid=" + _dynamicForm?.ID + ");";
 
                                         }
@@ -3779,7 +3827,7 @@ namespace Infrastructure.Repository.Query
                                 DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
                                 if (userIds.Count() > 0)
                                 {
-                                    var query2 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                                    var query2 = "select t1.UserName,t1.UserId,t2.Description as DepartmentName from ApplicationUser t1 left join Employee t3 on t3.UserID = t1.UserID left join Department t2 on t3.DepartmentID = t2.DepartmentID where t1.userId in (" + string.Join(',', userIds.Distinct()) + ");";
 
                                     var QuerResult = await connection.QueryMultipleAsync(query2);
                                     appUsers = QuerResult.Read<ApplicationUser>().ToList();
@@ -3984,6 +4032,9 @@ namespace Infrastructure.Repository.Query
                         dynamicFormData.Name = r.Name;
                         dynamicFormData.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == r.ModifiedByUserID)?.UserName;
                         dynamicFormData.AddedBy = appUsers.FirstOrDefault(f => f.UserID == r.AddedByUserID)?.UserName;
+                        dynamicFormData.AddedByDepartment = appUsers.FirstOrDefault(f => f.UserID == r.AddedByUserID)?.DepartmentName;
+                        dynamicFormData.SopNo = _dynamicForm.SopNo;
+                        dynamicFormData.VersionNo = _dynamicForm.VersionNo;
                         dynamicFormData.ModifiedDate = r.ModifiedDate;
                         dynamicFormData.AddedDate = r.AddedDate;
                         dynamicFormData.CurrentUserName = r.CurrentUserName;
@@ -4408,6 +4459,23 @@ namespace Infrastructure.Repository.Query
                                                                 {
                                                                     listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                 }
+                                                                else if (s.DataSourceTable == "Department")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVItemBatchInfoView")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                {
+                                                                    listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                }
+
                                                                 else
                                                                 {
                                                                     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4507,6 +4575,22 @@ namespace Infrastructure.Repository.Query
                                                                         {
                                                                             listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                                         }
+                                                                        else if (s.DataSourceTable == "Department")
+                                                                        {
+                                                                            listName.Add(n?.AttributeDetailName);
+                                                                        }
+                                                                        else if (s.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                        {
+                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                        }
+                                                                        else if (s.DataSourceTable == "NAVItemBatchInfoView")
+                                                                        {
+                                                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|"  + n?.BatchNo);
+                                                                        }
+                                                                        else if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                        {
+                                                                            listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                        }
                                                                         else
                                                                         {
                                                                             listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4597,6 +4681,22 @@ namespace Infrastructure.Repository.Query
                                                                                     {
                                                                                         listName.Add((n?.DepartmentName + "|" + n?.Section+ "|" + n?.Subsection+ "|" + n?.Designation).TrimEnd('|'));
                                                                                     }
+                                                                                    else if (s.DataSourceTable == "Department")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName);
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "NAVItemBatchInfoView")
+                                                                                    {
+                                                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|"  + n?.BatchNo);
+                                                                                    }
+                                                                                    else if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                                    {
+                                                                                        listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                                                    }
                                                                                     else
                                                                                     {
                                                                                         listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -4654,6 +4754,22 @@ namespace Infrastructure.Repository.Query
                                                                             else if (s.DataSourceTable == "Designation1")
                                                                             {
                                                                                 listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                            }
+                                                                            else if (s.DataSourceTable == "Department")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName);
+                                                                            }
+                                                                            else if (s.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                            }
+                                                                            else if (s.DataSourceTable == "NAVItemBatchInfoView")
+                                                                            {
+                                                                                listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|"  + n?.BatchNo);
+                                                                            }
+                                                                            else if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                            {
+                                                                                listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
                                                                             }
                                                                             else
                                                                             {
@@ -4717,6 +4833,22 @@ namespace Infrastructure.Repository.Query
                                                                 else if (s.DataSourceTable == "Designation1")
                                                                 {
                                                                     listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                                }
+                                                                else if (s.DataSourceTable == "Department")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVRawMatWithQC2026")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVItemBatchInfoView")
+                                                                {
+                                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|"  + n?.BatchNo);
+                                                                }
+                                                                else if (s.DataSourceTable == "NAVInProgressProdOrderView")
+                                                                {
+                                                                    listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
                                                                 }
                                                                 else
                                                                 {
@@ -7213,6 +7345,22 @@ namespace Infrastructure.Repository.Query
                                                 {
                                                     listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
                                                 }
+                                                else if (d.DataSourceTable == "Department")
+                                                {
+                                                    listName.Add(n?.AttributeDetailName);
+                                                }
+                                                else if (d.DataSourceTable == "NAVRawMatWithQC2026")
+                                                {
+                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                }
+                                                else if (d.DataSourceTable == "NAVItemBatchInfoView")
+                                                {
+                                                    listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|"  + n?.BatchNo);
+                                                }
+                                                else if (d.DataSourceTable == "NAVInProgressProdOrderView")
+                                                {
+                                                    listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
+                                                }
                                                 else
                                                 {
                                                     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
@@ -7266,6 +7414,22 @@ namespace Infrastructure.Repository.Query
                                         else if (d.DataSourceTable == "Designation1")
                                         {
                                             listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                        }
+                                        else if (d.DataSourceTable == "Department")
+                                        {
+                                            listName.Add(n?.AttributeDetailName);
+                                        }
+                                        else if (d.DataSourceTable == "NAVRawMatWithQC2026")
+                                        {
+                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                        }
+                                        else if (d.DataSourceTable == "NAVItemBatchInfoView")
+                                        {
+                                            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                        }
+                                        else if (d.DataSourceTable == "NAVInProgressProdOrderView")
+                                        {
+                                            listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
                                         }
                                         else
                                         {
@@ -7393,6 +7557,22 @@ namespace Infrastructure.Repository.Query
                                                     else if (d.DataSourceTable == "Designation1")
                                                     {
                                                         listName.Add((n?.DepartmentName + "|" + n?.Section + "|" + n?.Subsection + "|" + n?.Designation).TrimEnd('|'));
+                                                    }
+                                                    else if (d.DataSourceTable == "Department")
+                                                    {
+                                                        listName.Add(n?.AttributeDetailName);
+                                                    }
+                                                    else if (d.DataSourceTable == "NAVRawMatWithQC2026")
+                                                    {
+                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.QcRefNo + "|" + n?.BatchNo);
+                                                    }
+                                                    else if (d.DataSourceTable == "NAVItemBatchInfoView")
+                                                    {
+                                                        listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+                                                    }
+                                                    else if (d.DataSourceTable == "NAVInProgressProdOrderView")
+                                                    {
+                                                        listName.Add(n?.ItemNo + "|" + n?.Description + "|" + n?.BatchNo);
                                                     }
                                                     else
                                                     {

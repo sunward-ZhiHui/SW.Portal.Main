@@ -63,6 +63,8 @@ namespace Core.Entities
         public long? PackSizeId { get; set; }
         public long? SupplyToId { get; set; }
         public long? UomId { get; set; }
+        public string? Remarks { get; set; }
+
         [NotMapped]
         public long? MethodCodeId { get; set; }
         [NotMapped]

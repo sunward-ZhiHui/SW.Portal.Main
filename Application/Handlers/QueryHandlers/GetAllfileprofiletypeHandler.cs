@@ -982,5 +982,19 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+
+        public class DeleteDocumentPermanentHandler : IRequestHandler<DeleteDocumentPermanent, List<DocumentsModel>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+
+            public DeleteDocumentPermanentHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentsModel>> Handle(DeleteDocumentPermanent request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.DeleteDocumentPermanent(request.DocumentsModel);
+            }
+        }
     }
 }

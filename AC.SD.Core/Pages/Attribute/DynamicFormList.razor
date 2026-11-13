@@ -597,7 +597,7 @@
         {
             filterEnabled = false;
             dynamicFormSearch.StartDate = null;
-			dynamicFormSearch.EndDate = null;
+            dynamicFormSearch.EndDate = null;
         }
         StateHasChanged();
     }
@@ -3367,5 +3367,34 @@
             toastService.ShowToast("Table Sync Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
         StateHasChanged();
+    }
+
+    async Task cloneFormData()
+    {
+        var AuditSessionId = Guid.NewGuid();
+        var editReq = new InsertOrUpdateDynamicFormData
+        {
+            AddTempSectionAttributes = _selectedItems.AddTempSectionAttributes,
+            DynamicFormProfile = Datas,
+            ProfileId = _dynamicformData.ProfileId,
+            ProfileNo = _dynamicformData.ProfileNo,
+            DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+            DynamicFormId = _dynamicform.ID,
+            DynamicFormItem = strJson,
+            SessionId = dynamicFormData.SessionId,
+            ModifiedByUserID = applicationUser.UserID,
+            AddedByUserID = _selectedItems.AddedByUserID,
+            ModifiedDate = DateTime.Now,
+            StatusCodeID = 1,
+            AddedDate = _selectedItems.AddedDate,
+            AttributeHeader = _AttributeHeader,
+            ObjectData = Data,
+            IsSendApproval = _selectedItems.IsSendApproval,
+            FileProfileSessionID = _selectedItems.FileProfileSessionID,
+            DynamicFormDataGridId = _selectedItems.DynamicFormDataGridId,
+            DynamicFormSectionGridAttributeId = _selectedItems.DynamicFormSectionGridAttributeId,
+            GridSortOrderByNo = _selectedItems.GridSortOrderByNo,
+            AuditSessionId = AuditSessionId,
+        };
     }
 }

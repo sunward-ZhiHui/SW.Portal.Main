@@ -53,7 +53,7 @@ namespace SW.Portal.Solutions.ServerSide
                     app.UsePathBase(pathString);
                 }
 
-                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));
+                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US").AddSupportedCultures("en-US").AddSupportedUICultures("en-US"));
                 app.UseAuthentication();
                 app.UseHttpsRedirection();
                 app.UseStaticFiles();

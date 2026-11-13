@@ -899,26 +899,27 @@
                                                                 {
                                                                     nameList.ForEach(n =>
                                                                     {
-                                                                        if (s.DataSourceTable == "Employee")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "RawMatPurch")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "ReleaseProdOrderLine")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
-                                                                        {
-                                                                            listName.Add(n?.NameList);
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                                                        }
+                                                                        AddEditFormat(listName, n, s.DataSourceTable);
+                                                                        // if (s.DataSourceTable == "Employee")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "RawMatPurch")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                        // {
+                                                                        //     listName.Add(n?.NameList);
+                                                                        // }
+                                                                        // else
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                        // }
                                                                     });
                                                                 }
                                                             }
@@ -981,26 +982,27 @@
                                                                         {
                                                                             nameList.ForEach(n =>
                                                                             {
-                                                                                if (s.DataSourceTable == "Employee")
-                                                                                {
-                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                                                                }
-                                                                                else if (s.DataSourceTable == "RawMatPurch")
-                                                                                {
-                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                                                                }
-                                                                                else if (s.DataSourceTable == "ReleaseProdOrderLine")
-                                                                                {
-                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                                                                }
-                                                                                else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
-                                                                                {
-                                                                                    listName.Add(n?.NameList);
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                                                                }
+                                                                                AddEditFormat(listName, n, s.DataSourceTable);
+                                                                                // if (s.DataSourceTable == "Employee")
+                                                                                // {
+                                                                                //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                // }
+                                                                                // else if (s.DataSourceTable == "RawMatPurch")
+                                                                                // {
+                                                                                //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                // }
+                                                                                // else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                // {
+                                                                                //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                // }
+                                                                                // else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                // {
+                                                                                //     listName.Add(n?.NameList);
+                                                                                // }
+                                                                                // else
+                                                                                // {
+                                                                                //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                // }
                                                                             });
                                                                         }
                                                                     }
@@ -1034,26 +1036,28 @@
                                                                                     {
                                                                                         nameList.ForEach(n =>
                                                                                         {
-                                                                                            if (s.DataSourceTable == "Employee")
-                                                                                            {
-                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                                                                            }
-                                                                                            else if (s.DataSourceTable == "RawMatPurch")
-                                                                                            {
-                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                                                                            }
-                                                                                            else if (s.DataSourceTable == "ReleaseProdOrderLine")
-                                                                                            {
-                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                                                                            }
-                                                                                            else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
-                                                                                            {
-                                                                                                listName.Add(n?.NameList);
-                                                                                            }
-                                                                                            else
-                                                                                            {
-                                                                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                                                                            }
+
+                                                                                            AddEditFormat(listName, n, s.DataSourceTable);
+                                                                                            // if (s.DataSourceTable == "Employee")
+                                                                                            // {
+                                                                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                            // }
+                                                                                            // else if (s.DataSourceTable == "RawMatPurch")
+                                                                                            // {
+                                                                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                            // }
+                                                                                            // else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                            // {
+                                                                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                            // }
+                                                                                            // else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                            // {
+                                                                                            //     listName.Add(n?.NameList);
+                                                                                            // }
+                                                                                            // else
+                                                                                            // {
+                                                                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                            // }
                                                                                         });
                                                                                     }
                                                                                 }
@@ -1073,26 +1077,28 @@
                                                                             {
                                                                                 nameList.ForEach(n =>
                                                                                 {
-                                                                                    if (s.DataSourceTable == "Employee")
-                                                                                    {
-                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                                                                    }
-                                                                                    else if (s.DataSourceTable == "RawMatPurch")
-                                                                                    {
-                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                                                                    }
-                                                                                    else if (s.DataSourceTable == "ReleaseProdOrderLine")
-                                                                                    {
-                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                                                                    }
-                                                                                    else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
-                                                                                    {
-                                                                                        listName.Add(n?.NameList);
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                                                                    }
+
+                                                                                    AddEditFormat(listName, n, s.DataSourceTable);
+                                                                                    // if (s.DataSourceTable == "Employee")
+                                                                                    // {
+                                                                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                                    // }
+                                                                                    // else if (s.DataSourceTable == "RawMatPurch")
+                                                                                    // {
+                                                                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                                    // }
+                                                                                    // else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                                    // {
+                                                                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                                    // }
+                                                                                    // else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                                    // {
+                                                                                    //     listName.Add(n?.NameList);
+                                                                                    // }
+                                                                                    // else
+                                                                                    // {
+                                                                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                                    // }
                                                                                 });
                                                                             }
 
@@ -1117,26 +1123,28 @@
                                                                 {
                                                                     nameList.ForEach(n =>
                                                                     {
-                                                                        if (s.DataSourceTable == "Employee")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "RawMatPurch")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "ReleaseProdOrderLine")
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                                                        }
-                                                                        else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
-                                                                        {
-                                                                            listName.Add(n?.NameList);
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                                                        }
+                                                                        AddEditFormat(listName, n, s.DataSourceTable);
+
+                                                                        // if (s.DataSourceTable == "Employee")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "RawMatPurch")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "ReleaseProdOrderLine")
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                                                        // }
+                                                                        // else if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || s.DataSourceTable == "Location")
+                                                                        // {
+                                                                        //     listName.Add(n?.NameList);
+                                                                        // }
+                                                                        // else
+                                                                        // {
+                                                                        //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                                                        // }
                                                                     });
 
                                                                 }
@@ -1471,26 +1479,28 @@
                                     {
                                         nameList.ForEach(n =>
                                         {
-                                            if (d.DataSourceTable == "Employee")
-                                            {
-                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                            }
-                                            else if (d.DataSourceTable == "RawMatPurch")
-                                            {
-                                                listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                            }
-                                            else if (d.DataSourceTable == "ReleaseProdOrderLine")
-                                            {
-                                                listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                            }
-                                            else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
-                                            {
-                                                listName.Add(n?.NameList);
-                                            }
-                                            else
-                                            {
-                                                listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                            }
+                                            AddEditFormat(listName, n, d.DataSourceTable);
+
+                                            // if (d.DataSourceTable == "Employee")
+                                            // {
+                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                            // }
+                                            // else if (d.DataSourceTable == "RawMatPurch")
+                                            // {
+                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                            // }
+                                            // else if (d.DataSourceTable == "ReleaseProdOrderLine")
+                                            // {
+                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                            // }
+                                            // else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
+                                            // {
+                                            //     listName.Add(n?.NameList);
+                                            // }
+                                            // else
+                                            // {
+                                            //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                            // }
                                         });
 
                                     }
@@ -1513,26 +1523,28 @@
                             {
                                 nameList.ForEach(n =>
                                 {
-                                    if (d.DataSourceTable == "Employee")
-                                    {
-                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
-                                    }
-                                    else if (d.DataSourceTable == "RawMatPurch")
-                                    {
-                                        listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
-                                    }
-                                    else if (d.DataSourceTable == "ReleaseProdOrderLine")
-                                    {
-                                        listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
-                                    }
-                                    else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
-                                    {
-                                        listName.Add(n?.NameList);
-                                    }
-                                    else
-                                    {
-                                        listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
-                                    }
+                                    AddEditFormat(listName, n, d.DataSourceTable);
+
+                                    // if (d.DataSourceTable == "Employee")
+                                    // {
+                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+                                    // }
+                                    // else if (d.DataSourceTable == "RawMatPurch")
+                                    // {
+                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+                                    // }
+                                    // else if (d.DataSourceTable == "ReleaseProdOrderLine")
+                                    // {
+                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+                                    // }
+                                    // else if (d.DataSourceTable == "FinishedProdOrderLine" || d.DataSourceTable == "FinishedProdOrderLineProductionInProgress" || d.DataSourceTable == "Location")
+                                    // {
+                                    //     listName.Add(n?.NameList);
+                                    // }
+                                    // else
+                                    // {
+                                    //     listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+                                    // }
                                 });
 
                             }
@@ -2182,4 +2194,35 @@
         StateHasChanged();
     }
 
+    public void AddEditFormat(List<string?> listName, AttributeDetails n, string? DataSourceTable)
+    {
+        if (DataSourceTable == "Employee")
+        {
+            listName.Add((n?.AttributeDetailName + "|" + n?.Description + "|" + n?.DesignationName + "|" + n?.DepartmentName).TrimEnd('|'));
+        }
+        else if (DataSourceTable == "RawMatPurch")
+        {
+            listName.Add((n?.AttributeDetailName + "|" + n?.QcRefNo).TrimEnd('|'));
+        }
+        else if (DataSourceTable == "ReleaseProdOrderLine")
+        {
+            listName.Add((n?.AttributeDetailName + "|" + n?.ReplanRefNo).TrimEnd('|'));
+        }
+        else if (DataSourceTable == "FinishedProdOrderLine" || DataSourceTable == "FinishedProdOrderLineProductionInProgress" || DataSourceTable == "Location")
+        {
+            listName.Add(n?.NameList);
+        }
+        else if (DataSourceTable == "ProdOrderLineWithBatch")
+        {
+            listName.Add(n?.AttributeDetailName + "|" + n?.Description + "|" + n?.BatchNo);
+        }
+        else if (DataSourceTable == "StabilityView")
+        {
+            listName.Add(n?.AttributeDetailName + "|" + n?.BatchNo + "|" + n?.ChamberName + "|" + n?.StabilityScheduler);
+        }
+        else
+        {
+            listName.Add((n?.AttributeDetailName + "|" + n?.Description).TrimEnd('|'));
+        }
+    }
 }

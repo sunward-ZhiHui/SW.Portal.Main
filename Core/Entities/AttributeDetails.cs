@@ -47,6 +47,8 @@ namespace Core.Entities
         public string? ReplanRefNo { get; set; }
         public string? StartingDate { get; set; }
         public string? BatchNo { get; set; }
+        public string? PackingType { get; set; }
+        public string? ChamberName { get; set; }
         public string? ManufacturingDate { get; set; }
         public string? ExpirationDate { get; set; }
         public string? ProductCode { get; set; }
@@ -81,7 +83,20 @@ namespace Core.Entities
         public string? AssetGrouping { get; set; }
         public string? SWID { get; set; }
         public string? Location { get; set; }
-
+        public string? StabilityScheduler { get; set; }
+        public string? ColumnBrand { get; set; }
+        public string? ColumnType { get; set; }
+        public string? ColumnLength { get; set; }
+        public string? ColumnInternalDiameter { get; set; }
+        public string? ColumnParticlesize { get; set; }
+        public string? Column_Phase { get; set; }
+        public string? ColumnPHRange { get; set; }
+        public string? PartNo { get; set; }
+        public string? ColumnRecommendedFlushingSolvent { get; set; }
+        public string? ColumnRecommendedStorageSolvent { get; set; }
+        public string? ChemicalType { get; set; }
+        public string? QCItemList { get; set; }
+        public string? ManufacturerName { get; set; }
     }
     public class DataSourceAttributeDetails
     {

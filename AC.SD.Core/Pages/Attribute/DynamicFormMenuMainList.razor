@@ -65,6 +65,7 @@ else
     }
     async Task loadDynamicForm()
     {
+		var sessionId = SessionIds;
         _dynamicFormDataAssignUserList = await Mediator.Send(new GetDynamicFormDataAssignUserAllList());
         if (_dynamicFormDataAssignUserList != null && _dynamicFormDataAssignUserList.Count() > 0)
         {

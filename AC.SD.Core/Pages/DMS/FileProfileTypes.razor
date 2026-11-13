@@ -68,23 +68,22 @@
                     <DxMenuItem Position="ItemPosition.Start" title="@ProfileTypeInfoName" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
                     <DxMenuItem Position="ItemPosition.Start" title="@PermissionName" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.Start" title="Delete User Access for Mutiple" IconCssClass="fa fa-users" Click="OnDeleteMultipleSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
-                    <DxMenuItem Position="ItemPosition.End" title="Download All Document" IconCssClass="fa fa-eye" Click="OnDownload" Visible="@viewfileEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" title="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
 
                     <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
-
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="ReUpload Documents" IconCssClass="fa fa-cloud-upload" Click="onMissingUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="Upload Documents By Form" IconCssClass="fa fa-cloud-upload" Click="onUploadDynamicForm" Visible="isCreateDynamicDocumentEnabled" />
                             <DxMenuItem Text="Reserve Profile Number Series" IconCssClass="fa fa-plus-square" Click="onReserveProfileNumberSeries" Visible="IsReserveProfileNumberEnabled" />
                             <DxMenuItem Text="Add/Edit Profile Type Info" IconCssClass="fa fa-info" Click="onAddFileProfileTypeInfo" Visible="isProfileInfoEnabled" />
+                                                <DxMenuItem Position="ItemPosition.End" Text="Download All Document" IconCssClass="fa fa-download" Click="OnDownload" Visible="@viewfileEnabled" />
 
                         </Items>
                     </DxMenuItem>
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
-                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
                             @* <DxMenuItem Text="Change Profile No" IconCssClass="fa fa-edit" Click="onChangeProfileNo" Visible="@DownloadEnabled" /> *@
                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Visible="@deleteEnabled" />

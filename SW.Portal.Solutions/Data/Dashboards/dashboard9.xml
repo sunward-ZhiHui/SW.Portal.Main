@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="test" />
+  <DataSources>
+    <SqlDataSource Name="tblBMRMovement" ComponentName="sqlDataSource1">
+      <Connection Name="localhost_SW_Int_LIVE_Connection" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="tblBMRMovement">
+        <Tables>
+          <Table Name="tblBMRMovement" />
+        </Tables>
+        <Columns>
+          <Column Table="tblBMRMovement" Name="TicketNo" />
+          <Column Table="tblBMRMovement" Name="Action" />
+          <Column Table="tblBMRMovement" Name="RoutineInfo" />
+          <Column Table="tblBMRMovement" Name="AddedDate" />
+          <Column Table="tblBMRMovement" Name="AddedBy" />
+          <Column Table="tblBMRMovement" Name="BMRNo" />
+          <Column Table="tblBMRMovement" Name="BMRTimeStamp" />
+          <Column Table="tblBMRMovement" Name="BatchNo" />
+          <Column Table="tblBMRMovement" Name="ProdCodeDesc" />
+          <Column Table="tblBMRMovement" Name="AddedByName" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="sqlDataSource1" DataMember="tblBMRMovement">
+      <DataItems>
+        <Dimension DataMember="AddedDate" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem0" />
+      </DataItems>
+      <GridColumns>
+        <GridDimensionColumn>
+          <Dimension DefaultId="DataItem0" />
+        </GridDimensionColumn>
+      </GridColumns>
+      <GridOptions />
+      <ColumnFilterOptions />
+    </Grid>
+  </Items>
+  <LayoutTree>
+    <LayoutGroup>
+      <LayoutItem DashboardItem="gridDashboardItem1" />
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

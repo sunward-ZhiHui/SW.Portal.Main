@@ -118,6 +118,11 @@ namespace Infrastructure.Repository.Query
                     i++;
                     query += GetAllProdOrderLineDataSource(CompanyId, plantCode, plantIds);
                 }
+                if (dataSourceTableIds.Contains("ProdOrderLineWithBatch"))
+                {
+                    i++;
+                    query += GetProdOrderLineWithBatchDataSource(CompanyId, plantCode, plantIds);
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -218,6 +223,26 @@ namespace Infrastructure.Repository.Query
                 {
                     i++;
                     query += GetSyncAssetIDwithModel();
+                }
+                if (dataSourceTableIds.Contains("StabilityView"))
+                {
+                    i++;
+                    query += GetStabilityView();
+                }
+                if (dataSourceTableIds.Contains("QCColumnMaster"))
+                {
+                    i++;
+                    query += GetQCColumnMasterDataSource();
+                }
+                if (dataSourceTableIds.Contains("DynamicFormQC_VS"))
+                {
+                    i++;
+                    query += GetDynamicFormQC_VSDataSource();
+                }
+                if (dataSourceTableIds.Contains("VendorSource"))
+                {
+                    i++;
+                    query += GetVendorSourceDataSource();
                 }
                 if (!string.IsNullOrEmpty(query))
                 {
@@ -467,6 +492,88 @@ namespace Infrastructure.Repository.Query
                             FROM [SW_Int_LIVE].[dbo].[tblSyncAssetIDwithModel]
 
 
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetStabilityView()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" select CONCAT('StabilityView','_',ROW_NUMBER()over (order by BatchNo) ) as AttributeDetailNameId, 'StabilityView' as DropDownTypeId,
+                            ROW_NUMBER()over (order by BatchNo) as AttributeDetailID ,BatchNo,ItemDesc as AttributeDetailName, PackingType, ChamberName, StabilityScheduler FROM [SWLIVE].[dbo].[View_Stability]
+
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetQCColumnMasterDataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" SELECT CONCAT('QCColumnMaster','_',ROW_NUMBER()over (order by ProfileNo) ) as AttributeDetailNameId, 
+		                        'QCColumnMaster' as DropDownTypeId,
+                                ROW_NUMBER()over (order by ProfileNo) as AttributeDetailID,
+                                ProfileNo as AttributeDetailName
+		                        ,[ColumnBrand]
+		                        ,[ColumnType]
+		                        ,[ColumnLength]
+		                        ,[ColumnInternalDiameter]
+		                        ,[ColumnParticlesize]
+		                        ,[Column_Phase]
+		                        ,[ColumnPHRange]
+		                        ,[PartNo]
+		                        ,[ColumnRecommendedFlushingSolvent]
+		                        ,[ColumnRecommendedStorageSolvent]
+	                        FROM [SW_Int_LIVE].[dbo].[tblSyncQCColumnMaster]
+
+
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetDynamicFormQC_VSDataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" select CONCAT('DynamicFormQC_VS','_',ROW_NUMBER()over (order by ProfileNo) ) as AttributeDetailNameId, 
+		                        'DynamicFormQC_VS' as DropDownTypeId,
+                                ROW_NUMBER()over (order by ProfileNo) as AttributeDetailID,
+                                ProfileNo as AttributeDetailName, ChemicalType,QCItemList from [SW_Int_LIVE].[dbo].[tblSyncQC_VS]
+
+
+                      ;";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetVendorSourceDataSource()
+        {
+            try
+            {
+                var query = string.Empty;
+                query += @" select CONCAT('VendorSource','_',ROW_NUMBER()over (order by No_) ) as AttributeDetailNameId, 
+		                        'VendorSource' as DropDownTypeId,
+                                ROW_NUMBER()over (order by No_) as AttributeDetailID,
+                                No_ as AttributeDetailName, [Manufacturer Name] as ManufacturerName from [SW_Int_LIVE].[dbo].[NAVVendorSourceView]
                       ;";
                 return query;
             }
@@ -1098,6 +1205,20 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        private string GetProdOrderLineWithBatchDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('AllProdOrderLine','_',ROW_NUMBER()over (order by Description) ) as AttributeDetailNameId,'ProdOrderLineWithBatch' as DropDownTypeId, ROW_NUMBER()over (order by Description) as AttributeDetailID,t1.ItemNo as AttributeDetailName ,t1.Description as Description,t1.Description2 as Description2,t1.ReplanRefNo,t1.BatchNo from view_ProdOrderLineWithBatch t1 ;\r\n";
+
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         private string GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
         {

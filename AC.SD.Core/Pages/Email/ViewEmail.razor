@@ -752,7 +752,8 @@
                                                         <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                         <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
                                                         <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
-                                                        <DxMenuItem Text="New Subject" Visible="@isNewSubject" Click="@(() => onWindowVisible())" IconCssClass="fa fa-envelope" />
+@*                                                         <DxMenuItem Text="New Subject" Visible="@isNewSubject" Click="@(() => onWindowVisible())" IconCssClass="fa fa-envelope" />
+ *@                                                        <DxMenuItem Text="New Subject" Visible="false" Click="@(() => onWindowVisible())" IconCssClass="fa fa-envelope" />
                                                     </Items>
                                                 </DxMenu>
                                             }
@@ -998,7 +999,7 @@
                                                                             <i class="fa fa-envelope"></i> Main Subject
                                                                         </button>
 
-                                                                        <button type="button" @onclick="@(() => onreply(item.ID))"
+                                                                        <button type="button" @onclick="@(() => onreply(item.ID))" disabled="true"
                                                                                 style="padding: 4px 10px; font-size: 13px; border: 1px solid #b4b4b4; border-radius: 5px;">
                                                                             <i class="fa fa-reply"></i> Reply
                                                                         </button>
@@ -1650,7 +1651,7 @@
                                                                             <i class="fa fa-envelope"></i> Main Subject
                                                                         </button>
 
-                                                                        <button type="button" @onclick="@(() => onreply(item.ID))"
+                                                                        <button type="button" @onclick="@(() => onreply(item.ID))" disabled="true"
                                                                                 style="padding: 4px 10px; font-size: 13px; border: 1px solid #b4b4b4; border-radius: 5px;">
                                                                             <i class="fa fa-reply"></i> Reply
                                                                         </button>

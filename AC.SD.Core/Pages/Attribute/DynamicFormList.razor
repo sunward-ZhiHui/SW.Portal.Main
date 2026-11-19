@@ -56,6 +56,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddPermissionEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditPermissionEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeletePermissionEnabled" />
+                <DxMenuItem Text="Copy" IconCssClass="fa fa-copy" Click="@copyFormData" Enabled="@AddPermissionEnabled" />
                 <DxMenuItem Text="More" IconCssClass="fa fa-list">
                     <Items>
                         <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
@@ -3369,5 +3370,156 @@
         StateHasChanged();
     }
 
-    
+    async Task copyFormData()
+    {
+        List<DynamicFormData> _dynamicformDataList= new();
+        var _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, true, true, false));
+        var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ControlTypeId == 2712).OrderBy(o => o.SortOrderBy).ToList();
+        var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_selectedItems.DynamicFormDataId)));
+        List<DynamicFormApproved>? _dynamicFormApprovedList = await _dynamicFormApprovedLists.Result;
+        DynamicFormSearch dynamicFormSearch = new DynamicFormSearch();
+        long? DynamicFormDataId = _selectedItems.DynamicFormDataId;
+
+        //List<DynamicFormData> _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm?.ID, 0, _selectedItems, _selectedItems.DynamicFormSectionGridAttributeId, null, dynamicFormSearch, false));
+
+        _selectedItems.ProfileId = null;
+        _selectedItems.ProfileNo = null;
+        DynamicFormProfile Datas = new DynamicFormProfile();
+        if(_dynamicForm != null && _dynamicForm.ProfileId > 0)
+        {
+            Datas.ProfileId = _dynamicForm.ProfileId;
+            Datas.UserId = applicationUser.UserID;
+        }
+        var AuditSessionId = Guid.NewGuid();
+        var createReq = new InsertOrUpdateDynamicFormData
+        {
+            AddTempSectionAttributes = _selectedItems.AddTempSectionAttributes,
+            DynamicFormProfile = Datas,
+            ProfileId = _selectedItems.ProfileId,
+            DynamicFormItem = _selectedItems.DynamicFormItem,
+            DynamicFormId = _selectedItems.DynamicFormId,
+            SessionId = Guid.NewGuid(),
+            AddedByUserID = applicationUser.UserID,
+            ModifiedByUserID = applicationUser.UserID,
+            ModifiedDate = DateTime.Now,
+            StatusCodeID = 1,
+            AddedDate = DateTime.Now,
+            AttributeHeader = _AttributeHeader,
+            ObjectData = _selectedItems.ObjectData,
+            IsSendApproval = _selectedItems.IsSendApproval,
+            AuditSessionId = AuditSessionId,
+            
+        };
+        var result = await Mediator.Send(createReq);
+        if (result.DynamicFormDataId > 0)
+        {
+            bool IsUploadEnabled = true;
+            toastService.ShowToast("Record copy Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            long? dynamicFormDataId = result.DynamicFormDataId;
+            _selectedItems.DynamicFormDataId = dynamicFormDataId.Value;
+            if (_selectedItems.IsSendApproval == true)
+            {
+                if (_dynamicFormApprovedList == null)
+                {
+                    await InsertOrUpdateDynamicFormApprovedData(_selectedItems);
+                }
+                else
+                {
+                    if (_dynamicFormApprovedList.Count == 0)
+                    {
+                        await InsertOrUpdateDynamicFormApprovedData(_selectedItems);
+                    }
+                }
+            }
+            if (result.ProfileId > 0)
+            {
+                Console.WriteLine(result.DynamicFormDataId);
+                Datas.ProfileNo = result.ProfileNo;
+
+                if (dynamicFormSectionAttributeData?.Count > 0)
+                {
+                    foreach (var s in dynamicFormSectionAttributeData)
+                    {
+                        var _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(s.DynamicFormSessionId, -1));
+                        var dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm?.ID, 0, DynamicFormDataId, s.DynamicFormSectionAttributeId, null, dynamicFormSearch, false));
+                        _dynamicformDataList.AddRange(dynamicformDataList);
+
+                        foreach (var item in dynamicformDataList)
+                        {
+                            var AuditSessionId1 = Guid.NewGuid();
+
+                            var createReq1 = new InsertOrUpdateDynamicFormData
+                            {
+
+                                //DynamicFormProfile = Datas,
+                                ProfileId = null,
+                                DynamicFormItem = item.DynamicFormItem,
+                                DynamicFormId = item.DynamicFormId,
+                                SessionId = Guid.NewGuid(),
+                                AddedByUserID = applicationUser.UserID,
+                                ModifiedByUserID = applicationUser.UserID,
+                                ModifiedDate = DateTime.Now,
+                                StatusCodeID = 1,
+                                AddedDate = DateTime.Now,
+                                AttributeHeader = _AttributeHeader,
+                                ObjectData = item.ObjectData,
+                                IsSendApproval = item.IsSendApproval,
+                                DynamicFormDataGridId = _selectedItems.DynamicFormDataId,
+                                IsDynamicFormDataGrid = true,
+                                DynamicFormSectionGridAttributeId = s.DynamicFormSectionAttributeId,
+                                AuditSessionId = AuditSessionId1,
+                                AuditParentSessionId = AuditSessionId,
+                                DynamicFormGridId = s.DynamicFormId,
+                                DynamicFormSectionAttributeId = s.DynamicFormSectionAttributeId,
+                                DynamicAttributeName = s.DynamicAttributeName,
+                            };
+                            var result1 = await Mediator.Send(createReq1);
+                            if (result1.DynamicFormDataId > 0)
+                            {
+                                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                                long? dynamicFormDataId1 = result1.DynamicFormDataId;
+                                item.DynamicFormDataId = dynamicFormDataId1.Value;
+                                if (item.IsSendApproval == true)
+                                {
+                                    if (_dynamicFormApprovedList == null)
+                                    {
+                                        await InsertOrUpdateDynamicFormApprovedData(item);
+                                    }
+                                    else
+                                    {
+                                        if (_dynamicFormApprovedList.Count == 0)
+                                        {
+                                            await InsertOrUpdateDynamicFormApprovedData(item);
+                                        }
+                                    }
+                                }
+                                if (result1.ProfileId > 0)
+                                {
+                                    Datas.ProfileNo = result1.ProfileNo;
+                                }
+                                //loading = false;
+                                // await onApproved();
+                            }
+                            //loading = false; WithWorkFlowStartPopup = false;
+                            //SessionIds = createReq.SessionId;
+                            //await loadDynamicForm();
+                            //StateHasChanged();
+                        }
+                    }
+                }
+      
+            }
+            //loading = false; WithWorkFlowStartPopup = false;
+            // await onApproved();
+            await UpdateDataAsync();
+        }
+
+
+    }
+
+      async Task InsertOrUpdateDynamicFormApprovedData(DynamicFormData dynamicFormData)
+    {
+        var response = await Mediator.Send(new InsertOrUpdateDynamicFormApproved(dynamicFormData));
+    }
+
 }
